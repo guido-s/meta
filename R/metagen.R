@@ -5,14 +5,14 @@
 #' (e.g. log hazard ratios) and their standard errors. The inverse
 #' variance method is used for pooling.
 #'
-#' Three-level random effects meta-analysis (Van den Noortgate et al.,
-#' 2013) is available by internally calling
-#' \code{\link[metafor]{rma.mv}} function from R package
-#' \bold{metafor} (Viechtbauer, 2010).
+#' Three-level random effects meta-analysis (Van den Noortgate et al., 2013) is
+#' available by internally calling \code{\link[metafor]{rma.mv}} function from
+#' R package \bold{metafor} (Viechtbauer, 2010).
 #' 
 #' @param TE Estimate of treatment effect, e.g., log hazard ratio or
-#'   risk difference.
-#' @param seTE Standard error of treatment estimate.
+#'   risk difference or an R object created with \code{\link{pairwise}}.
+#' @param seTE Standard error of treatment estimate or standard deviation of
+#'   n-of-1 trials.
 #' @param studlab An optional vector with study labels.
 #' @param data An optional data frame containing the study
 #'   information.
@@ -25,6 +25,8 @@
 #'   from the same cluster resulting in the use of a three-level
 #'   meta-analysis model.
 #' @param rho Assumed correlation of estimates within a cluster.
+#' @param cycles A numeric vector with the number of cycles per patient / study
+#'   in n-of-1 trials.
 #' @param sm A character string indicating underlying summary measure,
 #'   e.g., \code{"RD"}, \code{"RR"}, \code{"OR"}, \code{"ASD"},
 #'   \code{"HR"}, \code{"MD"}, \code{"SMD"}, or \code{"ROM"}.
@@ -55,6 +57,8 @@
 #' @param method.tau.ci A character string indicating which method is
 #'   used to estimate the confidence interval of \eqn{\tau^2} and
 #'   \eqn{\tau} (see \code{\link{meta-package}}).
+#' @param level.hetstat The level used to calculate confidence intervals
+#'   for heterogeneity statistics.
 #' @param tau.preset Prespecified value for the square root of the
 #'   between-study variance \eqn{\tau^2}.
 #' @param TE.tau Overall treatment effect used to estimate the
@@ -62,6 +66,10 @@
 #' @param tau.common A logical indicating whether tau-squared should
 #'   be the same across subgroups.
 #' @param detail.tau Detail on between-study variance estimate.
+#' @param method.I2 A character string indicating which method is
+#'   used to estimate the heterogeneity statistic I\eqn{^2}. Either
+#'   \code{"Q"} or \code{"tau2"}, can be abbreviated
+#'   (see \code{\link{meta-package}}).
 #' @param level.ma The level used to calculate confidence intervals
 #'   for meta-analysis estimates.
 #' @param method.random.ci A character string indicating which method
@@ -92,7 +100,7 @@
 #' @param n.c Number of observations in control group.
 #' @param pval P-value (used to estimate the standard error).
 #' @param df Degrees of freedom (used in test or to construct
-#'   confidence interval).
+#'   confidence intervals).
 #' @param lower Lower limit of confidence interval (used to estimate
 #'   the standard error).
 #' @param upper Upper limit of confidence interval (used to estimate
@@ -163,8 +171,12 @@
 #' @param outclab Outcome label.
 #' @param label.e Label for experimental group.
 #' @param label.c Label for control group.
-#' @param label.left Graph label on left side of forest plot.
-#' @param label.right Graph label on right side of forest plot.
+#' @param label.left Graph label on left side of null effect in forest plot.
+#' @param label.right Graph label on right side of null effect in forest plot.
+#' @param col.label.left The colour of the graph label on the left side of
+#'   the null effect.
+#' @param col.label.right The colour of the graph label on the right side of
+#'   the null effect.
 #' @param subgroup An optional vector to conduct a meta-analysis with
 #'   subgroups.
 #' @param subgroup.name A character string with a name for the
@@ -187,6 +199,8 @@
 #'   'adhoc.hakn.ci').
 #' @param keepdata A logical indicating whether original data (set)
 #'   should be kept in meta object.
+#' @param keeprma A logical indicating whether \code{\link[metafor]{rma.mv}}
+#'   object from three-level meta-analysis should be stored.
 #' @param warn A logical indicating whether warnings should be printed
 #'   (e.g., if studies are excluded from meta-analysis due to zero
 #'   standard errors).
@@ -208,8 +222,18 @@
 #' directly. However, it is possible to derive these quantities from
 #' other information.
 #' 
+#' Argument \code{cycles} can be used to conduct a meta-analysis of n-of-1
+#' trials according to Senn (2024). In this case, argument \code{seTE} does
+#' not contain the standard error but standard deviation for individual
+#' trials / patients. Trial-specific standard errors are calculated from an
+#' average standard deviation multiplied by the number of cycles minus 1, i.e.,
+#' the degrees of freedom. Details of the meta-analysis method are provided in
+#' Senn (2024). Note, arguments used in the approximation of means or
+#' standard errors, like \code{lower} and \code{upper}, or \code{df}, are
+#' ignored for the meta-analysis of n-of-1 trials.
+#' 
 #' A three-level random effects meta-analysis model (Van den Noortgate
-#' et al., 2013) is utilized if argument \code{cluster} is used and at
+#' et al., 2013) is utilised if argument \code{cluster} is used and at
 #' least one cluster provides more than one estimate. Internally,
 #' \code{\link[metafor]{rma.mv}} is called to conduct the analysis and
 #' \code{\link[metafor]{weights.rma.mv}} with argument \code{type =
@@ -243,7 +267,7 @@
 #' If the treatment effect is a mean it can be approximated from
 #' sample size, median, interquartile range and range.
 #'
-#' By default, methods described in Luo et al. (2018) are utilized
+#' By default, methods described in Luo et al. (2018) are utilised
 #' (argument \code{method.mean = "Luo"}):
 #' \itemize{
 #' \item equation (7) if sample size, median and range are available,
@@ -464,7 +488,7 @@
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @seealso \code{\link{meta-package}}, \code{\link{update.meta}},
-#'   \code{\link{metabin}}, \code{\link{metacont}},
+#'   \code{\link{metabin}}, \code{\link{metacont}}, \code{\link{pairwise}},
 #'   \code{\link{print.meta}}, \code{\link{settings.meta}}
 #' 
 #' @references
@@ -492,6 +516,12 @@
 #' reported quantiles in meta-analysis.
 #' \emph{Statistical Methods in Medical Research},
 #' \bold{29}, 2520--2537
+#' 
+#' Senn S (2024):
+#' The analysis of continuous data from n-of-1 trials using paired cycles:
+#' a simple tutorial.
+#' \emph{Trials},
+#' \bold{25}.
 #' 
 #' Shi J, Luo D, Weng H, Zeng X-T, Lin L, Chu H, et al. (2020):
 #' Optimally estimating the sample standard deviation from the
@@ -629,7 +659,9 @@ metagen <- function(TE, seTE, studlab,
                     ##
                     data = NULL, subset = NULL, exclude = NULL,
                     cluster = NULL, rho = 0,
-                    ##
+                    #
+                    cycles = NULL,
+                    #
                     sm = "",
                     ##
                     method.ci = if (missing(df)) "z" else "t",
@@ -647,10 +679,13 @@ metagen <- function(TE, seTE, studlab,
                     ##
                     method.tau = gs("method.tau"),
                     method.tau.ci = gs("method.tau.ci"),
+                    level.hetstat = gs("level.hetstat"),
                     tau.preset = NULL, TE.tau = NULL,
                     tau.common = gs("tau.common"),
                     detail.tau = "",
-                    ##
+                    #
+                    method.I2 = gs("method.I2"),
+                    #
                     level.ma = gs("level.ma"),
                     method.random.ci = gs("method.random.ci"),
                     adhoc.hakn.ci = gs("adhoc.hakn.ci"),
@@ -690,10 +725,13 @@ metagen <- function(TE, seTE, studlab,
                     ##
                     title = gs("title"), complab = gs("complab"),
                     outclab = "",
+                    #
                     label.e = gs("label.e"), label.c = gs("label.c"),
                     label.left = gs("label.left"),
                     label.right = gs("label.right"),
-                    ##
+                    col.label.left = gs("col.label.left"),
+                    col.label.right = gs("col.label.right"),
+                    #
                     subgroup, subgroup.name = NULL,
                     print.subgroup.name = gs("print.subgroup.name"),
                     sep.subgroup = gs("sep.subgroup"),
@@ -704,6 +742,8 @@ metagen <- function(TE, seTE, studlab,
                     byvar, id, adhoc.hakn,
                     ##
                     keepdata = gs("keepdata"),
+                    keeprma = gs("keeprma"),
+                    #
                     warn = gs("warn"),
                     warn.deprecated = gs("warn.deprecated"),
                     ##
@@ -717,6 +757,15 @@ metagen <- function(TE, seTE, studlab,
   ##
   ##
   
+  missing.studlab <- missing(studlab)
+  missing.sm <- missing(sm)
+  missing.subgroup <- missing(subgroup)
+  missing.overall <- missing(overall)
+  missing.overall.hetstat <- missing(overall.hetstat)
+  missing.test.subgroup <- missing(test.subgroup)
+  missing.label.e <- missing(label.e)
+  missing.label.c <- missing(label.c)
+  #
   sm <- replaceNULL(sm, "")
   sm <- setchar(sm,
                 unique(c(gs("sm4bin"), gs("sm4cont"), gs("sm4cor"),
@@ -747,7 +796,9 @@ metagen <- function(TE, seTE, studlab,
   missing.tau.common <- missing(tau.common)
   tau.common <- replaceNULL(tau.common, FALSE)
   chklogical(tau.common)
-  ##
+  #
+  method.I2 <- setchar(method.I2, gs("meth4i2"))
+  #
   chklogical(prediction)
   chklevel(level.predict)
   ##
@@ -757,17 +808,17 @@ metagen <- function(TE, seTE, studlab,
   method.predict <- setchar(method.predict, gs("meth4pi"))
   ##
   method.tau <-
-    setmethodtau(method.tau, missing.method.tau,
-                 method.predict, missing.method.predict)
+    set_method_tau(method.tau, missing.method.tau,
+                   method.predict, missing.method.predict)
   method.predict <-
-    setmethodpredict(method.predict, missing.method.predict,
-                     method.tau, missing.method.tau)
+    set_method_predict(method.predict, missing.method.predict,
+                       method.tau, missing.method.tau)
   ##
   if (any(method.predict == "NNF"))
     is_installed_package("pimeta", argument = "method.predict", value = "NNF")
   ##
-  adhoc.hakn.pi <- setchar(adhoc.hakn.pi, gs("adhoc4hakn.pi"))
-  ##
+  adhoc.hakn.pi <- setchar(replaceNA(adhoc.hakn.pi, ""), gs("adhoc4hakn.pi"))
+  #
   if (!is.null(seed.predict))
     chknumeric(seed.predict, length = 1)
   ##
@@ -870,8 +921,12 @@ metagen <- function(TE, seTE, studlab,
     chkchar(text.w.common, length = 1)
   if (!is.null(text.w.random))
     chkchar(text.w.random, length = 1)
-  ##
+  #
+  chkchar(label.e, length = 1)
+  chkchar(label.c, length = 1)
+  #
   chklogical(keepdata)
+  chklogical(keeprma)
   ##
   ## Additional arguments / checks
   ##
@@ -908,11 +963,12 @@ metagen <- function(TE, seTE, studlab,
       method.random.ci <- "classic"
   method.random.ci <- setchar(method.random.ci, gs("meth4random.ci"))
   ##
+  missing.adhoc.hakn.ci <- missing(adhoc.hakn.ci)
   adhoc.hakn.ci <-
-    deprecated2(adhoc.hakn.ci, missing(adhoc.hakn.ci),
+    deprecated2(adhoc.hakn.ci, missing.adhoc.hakn.ci,
                 adhoc.hakn, missing(adhoc.hakn), warn.deprecated)
-  adhoc.hakn.ci <- setchar(adhoc.hakn.ci, gs("adhoc4hakn.ci"))
-  ##
+  adhoc.hakn.ci <- setchar(replaceNA(adhoc.hakn.ci, ""), gs("adhoc4hakn.ci"))
+  #
   missing.subgroup.name <- missing(subgroup.name)
   subgroup.name <-
     deprecated(subgroup.name, missing.subgroup.name, args, "bylab",
@@ -946,9 +1002,12 @@ metagen <- function(TE, seTE, studlab,
   nulldata <- is.null(data)
   sfsp <- sys.frame(sys.parent())
   mc <- match.call()
-  ##
+  #
   if (nulldata)
     data <- sfsp
+  #
+  missing.byvar <- missing(byvar)
+  byvar <- catch("byvar", mc, data, sfsp)
   ##
   ## Catch 'TE', 'seTE', 'median', 'lower', 'upper', 'n.e', 'n.c', and
   ## 'cluster' from data:
@@ -964,14 +1023,129 @@ metagen <- function(TE, seTE, studlab,
          "Provide either argument 'TE' or 'median', ",
          "or arguments 'lower' and 'upper'.",
          call. = FALSE)
-  ##
+  #
   TE <- catch("TE", mc, data, sfsp)
-  seTE <- catch("seTE", mc, data, sfsp)
+  avail.TE <- !(missing.TE || is.null(TE))
+  #
+  if (is.data.frame(TE) & !is.null(attr(TE, "pairwise"))) {
+    is.pairwise <- TRUE
+    #
+    txt.ignore <- "ignored as first argument is a pairwise object"
+    #
+    ignore_input(sm, !missing.sm, txt.ignore)
+    ignore_input(seTE, !missing.seTE, txt.ignore)
+    ignore_input(studlab, !missing.studlab, txt.ignore)
+    #
+    sm <- attr(TE, "sm")
+    reference.group <- attr(TE, "reference.group")
+    #
+    if (is.null(attr(TE, "varnames")))
+      seTE <- TE$seTE
+    else
+      seTE <- TE[[attr(TE, "varnames")[2]]]
+    #
+    missing.sm <- FALSE
+    missing.seTE <- FALSE
+    missing.studlab <- FALSE
+    #
+    studlab <- TE$studlab
+    #
+    treat1 <- TE$treat1
+    treat2 <- TE$treat2
+    #
+    if (!is.null(TE$n1))
+      n.e <- TE$n1
+    else
+      n.e <- NULL
+    #
+    if (!is.null(TE$n2))
+      n.c <- TE$n2
+    else
+      n.c <- NULL
+    #
+    pairdata <- TE
+    data <- TE
+    nulldata <- FALSE
+    #
+    if (is.null(attr(TE, "varnames")))
+      TE <- TE$TE
+    else
+      TE <- TE[[attr(TE, "varnames")[1]]]
+    #
+    avail.TE <- !is.null(TE)
+    #
+    wo <- treat1 == reference.group
+    #
+    if (any(wo)) {
+      TE[wo] <- -TE[wo]
+      #
+      ttreat1 <- treat1
+      treat1[wo] <- treat2[wo]
+      treat2[wo] <- ttreat1[wo]
+      #
+      if (!is.null(n.e) & !is.null(n.c)) {
+        tn.e <- n.e
+        n.e[wo] <- n.c[wo]
+        n.c[wo] <- tn.e[wo]
+      }
+    }
+    #
+    if (missing.subgroup) {
+      #subgroup <- paste(paste0("'", treat1, "'"),
+      #                  paste0("'", treat2, "'"),
+      #                  sep = " vs ")
+      subgroup <- paste(treat1, treat2, sep = " vs ")
+      #
+      if (length(unique(subgroup)) == 1) {
+        if (missing(complab))
+          complab <- unique(subgroup)
+        #
+        if (missing.label.e)
+          label.e <- unique(treat1)
+        if (missing.label.c)
+          label.c <- unique(treat2)
+        #
+        subgroup <- NULL
+      }
+      else {
+        if (missing.overall)
+          overall <- FALSE
+        if (missing.overall.hetstat)
+          overall.hetstat <- FALSE
+        if (missing.test.subgroup)
+          test.subgroup <- FALSE
+      }
+    }
+    else
+      subgroup <- catch("subgroup", mc, data, sfsp)
+  }
+  else {
+    is.pairwise <- FALSE
+    #
+    if (missing.sm)
+      if (!is.null(data) && !is.null(attr(data, "sm")))
+        sm <- attr(data, "sm")
+    else
+      sm <- ""
+    ##
+    seTE <- catch("seTE", mc, data, sfsp)
+    #
+    studlab <- catch("studlab", mc, data, sfsp)
+    #
+    subgroup <- catch("subgroup", mc, data, sfsp)
+    subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
+                            warn.deprecated)
+    #
+    n.e <- catch("n.e", mc, data, sfsp)
+    n.c <- catch("n.c", mc, data, sfsp)
+  }
+  #
+  by <- !is.null(subgroup)
+  #
   median <- catch("median", mc, data, sfsp)
   lower <- catch("lower", mc, data, sfsp)
   upper <- catch("upper", mc, data, sfsp)
   ##
-  avail.TE <- !(missing.TE || is.null(TE))
   avail.median <- !(missing.median || is.null(median))
   avail.lower <- !(missing.lower || is.null(lower))
   avail.upper <- !(missing.upper || is.null(upper))
@@ -1018,10 +1192,26 @@ metagen <- function(TE, seTE, studlab,
   cluster <- deprecated2(cluster, missing.cluster, id, missing.id,
                          warn.deprecated)
   with.cluster <- !is.null(cluster)
-  ##
+  #
   if (with.cluster)
     idx <- seq_along(cluster)
-  ##
+  #
+  missing.cycles <- missing(cycles)
+  cycles <- catch("cycles", mc, data, sfsp)
+  with.cycles <- !is.null(cycles)
+  #
+  if (with.cycles) {
+    chknumeric(cycles, min = 1)
+    #
+    if (method.ci != "z")
+      method.ci <- "z"
+  }
+  #
+  if (with.cluster & with.cycles)
+    stop("Arguments 'cluster' (multi-level model) and 'cycles' (n-of-1 trials)",
+         " cannot be used together.",
+         call. = FALSE)
+  #
   missing.method.tau.ci <- missing(method.tau.ci)
   ##
   k.All <- if (avail.TE)
@@ -1041,24 +1231,10 @@ metagen <- function(TE, seTE, studlab,
   if (missing.seTE)
     seTE <- rep_len(NA, k.All)
   ##
-  missing.n.e <- missing(n.e)
-  missing.n.c <- missing(n.c)
-  n.e <- catch("n.e", mc, data, sfsp)
-  n.c <- catch("n.c", mc, data, sfsp)
-  ##
-  ## Catch 'studlab', 'subgroup', 'subset', and 'exclude' from data:
+  ## Catch 'studlab', 'subset', and 'exclude' from data:
   ##
   studlab <- catch("studlab", mc, data, sfsp)
   studlab <- setstudlab(studlab, k.All)
-  ##
-  missing.subgroup <- missing(subgroup)
-  subgroup <- catch("subgroup", mc, data, sfsp)
-  missing.byvar <- missing(byvar)
-  byvar <- catch("byvar", mc, data, sfsp)
-  ##
-  subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
-                          warn.deprecated)
-  by <- !is.null(subgroup)
   ##
   subset <- catch("subset", mc, data, sfsp)
   missing.subset <- is.null(subset)
@@ -1183,6 +1359,8 @@ metagen <- function(TE, seTE, studlab,
     chklength(min, k.All, arg)
   if (avail.max)
     chklength(max, k.All, arg)
+  if (with.cycles)
+    chklength(cycles, k.All, arg)
   
   
   ##
@@ -1222,15 +1400,18 @@ metagen <- function(TE, seTE, studlab,
       if (isCol(data, ".subset"))
         data <- data[data$.subset, ]
     }
-    ##
-    if (nulldata)
-      data <- data.frame(.TE = TE)
+    else if (nulldata & !is.pairwise)
+      data <- data.frame(.studlab = studlab)
+    else if (nulldata & is.pairwise) {
+      data <- pairdata
+      data$.studlab <- studlab
+    }
     else
-      data$.TE <- TE
-    ##
+      data$.studlab <- studlab
+    #
+    data$.TE <- TE
     data$.seTE <- seTE
-    data$.studlab <- studlab
-    ##
+    #
     if (by)
       data$.subgroup <- subgroup
     ##
@@ -1250,6 +1431,9 @@ metagen <- function(TE, seTE, studlab,
       data$.id <- data$.cluster <- cluster
       data$.idx <- idx
     }
+    #
+    if (with.cycles)
+      data$.cycles <- cycles
     ##
     if (avail.pval)
       data$.pval <- pval
@@ -1280,9 +1464,9 @@ metagen <- function(TE, seTE, studlab,
     if (avail.approx.seTE)
       data$.approx.seTE <- approx.seTE
     ##
-    if (!missing.n.e)
+    if (!is.null(n.e))
       data$.n.e <- n.e
-    if (!missing.n.c)
+    if (!is.null(n.c))
       data$.n.c <- n.c
     ##
     if (!is.null(TE.orig))
@@ -1313,7 +1497,10 @@ metagen <- function(TE, seTE, studlab,
       cluster <- cluster[subset]
       idx <- idx[subset]
     }
-    ##
+    #
+    if (with.cycles)
+      cycles <- cycles[subset]
+    #
     if (by)
       subgroup <- subgroup[subset]
     ##
@@ -1346,6 +1533,27 @@ metagen <- function(TE, seTE, studlab,
     if (avail.approx.seTE)
       approx.seTE <- approx.seTE[subset]
   }
+  #
+  if (missing.subgroup & is.pairwise & by) {
+    if (length(unique(subgroup)) == 1) {
+      by <- FALSE
+      #
+      if (missing(complab))
+        complab <- unique(subgroup)
+      #
+      subgroup <- NULL
+      #
+      if (keepdata)
+        data$.subgroup <- NULL
+      #
+      if (missing.overall)
+        overall <- TRUE
+      if (missing.overall.hetstat)
+        overall.hetstat <- TRUE
+    }
+  }
+  
+  
   ##
   ## Determine total number of studies
   ##
@@ -1364,7 +1572,7 @@ metagen <- function(TE, seTE, studlab,
     adhoc.hakn.ci <- ""
     ##
     prediction <- FALSE
-    method.predict <- "HTS"
+    method.predict <- "V"
     adhoc.hakn.pi <- ""
     ##
     overall <- FALSE
@@ -1383,111 +1591,44 @@ metagen <- function(TE, seTE, studlab,
   ##
   ##
   
-  if (!avail.approx.seTE) {
-    approx.seTE <- rep_len("", length(TE))
-    ##
-    ## Use confidence limits
-    ##
-    sel.NA <- is.na(seTE)
-    if (any(sel.NA) & avail.lower & avail.upper) {
-      j <- sel.NA & !is.na(lower) & !is.na(upper)
-      approx.seTE[j] <- "ci"
-      if (!avail.df)
-        seTE[j] <- TE.seTE.ci(lower[j], upper[j], level.ci[j])$seTE
-      else
-        seTE[j] <- TE.seTE.ci(lower[j], upper[j], level.ci[j], df[j])$seTE
-    }
-    ##
-    ## Use p-values
-    ##
-    sel.NA <- is.na(seTE)
-    if (any(sel.NA) & avail.pval) {
-      j <- sel.NA & !is.na(TE) & !is.na(pval)
-      approx.seTE[j] <- "pval"
-      if (!avail.df)
-        seTE[j] <- seTE.pval(TE[j], pval[j])$seTE
-      else
-        seTE[j] <- seTE.pval(TE[j], pval[j], df[j])$seTE
-    }
-    ##
-    ## Use IQR and range
-    ##
-    sel.NA <- is.na(seTE)
-    if (any(sel.NA) &
-        avail.median & avail.q1 & avail.q3 & avail.min & avail.max &
-        !(is.null(n.e) & is.null(n.c))) {
-      j <- sel.NA & !is.na(median) & !is.na(q1) & !is.na(q3) &
-        !is.na(min) & !is.na(max)
-      approx.seTE[j] <- "iqr.range"
-      if (is.null(n.c))
-        seTE[j] <- mean_sd_iqr_range(n.e[j], median[j], q1[j], q3[j],
-                                     min[j], max[j],
-                                     method.sd = method.sd)$se
-      else if (is.null(n.e))
-        seTE[j] <- mean_sd_iqr_range(n.c[j], median[j], q1[j], q3[j],
-                                     min[j], max[j],
-                                     method.sd = method.sd)$se
-      else
-        seTE[j] <- mean_sd_iqr_range(n.e[j] + n.c[j], median[j], q1[j], q3[j],
-                                     min[j], max[j],
-                                     method.sd = method.sd)$se
-    }
-    ##
-    ## Use IQR
-    ##
-    sel.NA <- is.na(seTE)
-    if (any(sel.NA) &
-        avail.median & avail.q1 & avail.q3 &
-        !(is.null(n.e) & is.null(n.c))) {
-      j <- sel.NA & !is.na(median) & !is.na(q1) & !is.na(q3)
-      approx.seTE[j] <- "iqr"
-      if (is.null(n.c))
-        seTE[j] <- mean_sd_iqr(n.e[j], median[j], q1[j], q3[j])$se
-      else if (is.null(n.e))
-        seTE[j] <- mean_sd_iqr(n.c[j], median[j], q1[j], q3[j])$se
-      else
-        seTE[j] <- mean_sd_iqr(n.e[j] + n.c[j], median[j], q1[j], q3[j])$se
-    }
-    ##
-    ## Use range
-    ##
-    sel.NA <- is.na(seTE)
-    if (any(sel.NA) &
-        avail.median & avail.min & avail.max &
-        !(is.null(n.e) & is.null(n.c))) {
-      j <- sel.NA & !is.na(median) & !is.na(min) & !is.na(max)
-      approx.seTE[j] <- "range"
-      if (is.null(n.c))
-        seTE[j] <- mean_sd_range(n.e[j], median[j], min[j], max[j])$se
-      else if (is.null(n.e))
-        seTE[j] <- mean_sd_range(n.c[j], median[j], min[j], max[j])$se
-      else
-        seTE[j] <- mean_sd_range(n.e[j] + n.c[j], median[j],
-                                 min[j], max[j])$se
-    }
-  }
-  else {
-    j <- 0
-    for (i in approx.seTE) {
-      j <- j + 1
+  if (!with.cycles) {
+    if (!avail.approx.seTE) {
+      approx.seTE <- rep_len("", length(TE))
       ##
-      if (i == "ci") {
+      ## Use confidence limits
+      ##
+      sel.NA <- is.na(seTE)
+      if (any(sel.NA) & avail.lower & avail.upper) {
+        j <- sel.NA & !is.na(lower) & !is.na(upper)
+        approx.seTE[j] <- "ci"
         if (!avail.df)
           seTE[j] <- TE.seTE.ci(lower[j], upper[j], level.ci[j])$seTE
         else
           seTE[j] <- TE.seTE.ci(lower[j], upper[j], level.ci[j], df[j])$seTE
       }
-      else if (i == "pval") {
+      ##
+      ## Use p-values
+      ##
+      sel.NA <- is.na(seTE)
+      if (any(sel.NA) & avail.pval) {
+        j <- sel.NA & !is.na(TE) & !is.na(pval)
+        approx.seTE[j] <- "pval"
         if (!avail.df)
           seTE[j] <- seTE.pval(TE[j], pval[j])$seTE
         else
           seTE[j] <- seTE.pval(TE[j], pval[j], df[j])$seTE
       }
-      else if (i == "iqr.range") {
-        if (is.null(n.e) & is.null(n.c))
-          stop("Sample size needed if argument 'approx.seTE' = \"iqr\".",
-               call. = FALSE)
-        else if (is.null(n.c))
+      ##
+      ## Use IQR and range
+      ##
+      sel.NA <- is.na(seTE)
+      if (any(sel.NA) &
+          avail.median & avail.q1 & avail.q3 & avail.min & avail.max &
+          !(is.null(n.e) & is.null(n.c))) {
+        j <- sel.NA & !is.na(median) & !is.na(q1) & !is.na(q3) &
+          !is.na(min) & !is.na(max)
+        approx.seTE[j] <- "iqr.range"
+        if (is.null(n.c))
           seTE[j] <- mean_sd_iqr_range(n.e[j], median[j], q1[j], q3[j],
                                        min[j], max[j],
                                        method.sd = method.sd)$se
@@ -1500,28 +1641,97 @@ metagen <- function(TE, seTE, studlab,
                                        min[j], max[j],
                                        method.sd = method.sd)$se
       }
-      else if (i == "iqr") {
-        if (is.null(n.e) & is.null(n.c))
-          stop("Sample size needed if argument 'approx.seTE' = \"iqr\".",
-               call. = FALSE)
-        else if (is.null(n.c))
+      ##
+      ## Use IQR
+      ##
+      sel.NA <- is.na(seTE)
+      if (any(sel.NA) &
+          avail.median & avail.q1 & avail.q3 &
+          !(is.null(n.e) & is.null(n.c))) {
+        j <- sel.NA & !is.na(median) & !is.na(q1) & !is.na(q3)
+        approx.seTE[j] <- "iqr"
+        if (is.null(n.c))
           seTE[j] <- mean_sd_iqr(n.e[j], median[j], q1[j], q3[j])$se
         else if (is.null(n.e))
           seTE[j] <- mean_sd_iqr(n.c[j], median[j], q1[j], q3[j])$se
         else
           seTE[j] <- mean_sd_iqr(n.e[j] + n.c[j], median[j], q1[j], q3[j])$se
       }
-      else if (i == "range") {
-        if (is.null(n.e) & is.null(n.c))
-          stop("Sample size needed if argument 'approx.seTE' = \"range\".",
-               call. = FALSE)
-        else if (is.null(n.c))
+      ##
+      ## Use range
+      ##
+      sel.NA <- is.na(seTE)
+      if (any(sel.NA) &
+          avail.median & avail.min & avail.max &
+          !(is.null(n.e) & is.null(n.c))) {
+        j <- sel.NA & !is.na(median) & !is.na(min) & !is.na(max)
+        approx.seTE[j] <- "range"
+        if (is.null(n.c))
           seTE[j] <- mean_sd_range(n.e[j], median[j], min[j], max[j])$se
         else if (is.null(n.e))
           seTE[j] <- mean_sd_range(n.c[j], median[j], min[j], max[j])$se
         else
           seTE[j] <- mean_sd_range(n.e[j] + n.c[j], median[j],
                                    min[j], max[j])$se
+      }
+    }
+    else {
+      j <- 0
+      for (i in approx.seTE) {
+        j <- j + 1
+        ##
+        if (i == "ci") {
+          if (!avail.df)
+            seTE[j] <- TE.seTE.ci(lower[j], upper[j], level.ci[j])$seTE
+          else
+            seTE[j] <- TE.seTE.ci(lower[j], upper[j], level.ci[j], df[j])$seTE
+        }
+        else if (i == "pval") {
+          if (!avail.df)
+            seTE[j] <- seTE.pval(TE[j], pval[j])$seTE
+          else
+            seTE[j] <- seTE.pval(TE[j], pval[j], df[j])$seTE
+        }
+        else if (i == "iqr.range") {
+          if (is.null(n.e) & is.null(n.c))
+            stop("Sample size needed if argument 'approx.seTE' = \"iqr\".",
+                 call. = FALSE)
+          else if (is.null(n.c))
+            seTE[j] <- mean_sd_iqr_range(n.e[j], median[j], q1[j], q3[j],
+                                         min[j], max[j],
+                                         method.sd = method.sd)$se
+          else if (is.null(n.e))
+            seTE[j] <- mean_sd_iqr_range(n.c[j], median[j], q1[j], q3[j],
+                                         min[j], max[j],
+                                         method.sd = method.sd)$se
+          else
+            seTE[j] <- mean_sd_iqr_range(n.e[j] + n.c[j], median[j], q1[j], q3[j],
+                                         min[j], max[j],
+                                         method.sd = method.sd)$se
+        }
+        else if (i == "iqr") {
+          if (is.null(n.e) & is.null(n.c))
+            stop("Sample size needed if argument 'approx.seTE' = \"iqr\".",
+                 call. = FALSE)
+          else if (is.null(n.c))
+            seTE[j] <- mean_sd_iqr(n.e[j], median[j], q1[j], q3[j])$se
+          else if (is.null(n.e))
+            seTE[j] <- mean_sd_iqr(n.c[j], median[j], q1[j], q3[j])$se
+          else
+            seTE[j] <- mean_sd_iqr(n.e[j] + n.c[j], median[j], q1[j], q3[j])$se
+        }
+        else if (i == "range") {
+          if (is.null(n.e) & is.null(n.c))
+            stop("Sample size needed if argument 'approx.seTE' = \"range\".",
+                 call. = FALSE)
+          else if (is.null(n.c))
+            seTE[j] <- mean_sd_range(n.e[j], median[j], min[j], max[j])$se
+          else if (is.null(n.e))
+            seTE[j] <- mean_sd_range(n.c[j], median[j], min[j], max[j])$se
+          else
+            seTE[j] <- mean_sd_range(n.e[j] + n.c[j], median[j],
+                                     min[j], max[j])$se
+        }
       }
     }
   }
@@ -1533,115 +1743,65 @@ metagen <- function(TE, seTE, studlab,
   ##
   ##
   
-  if (!avail.approx.TE) {
-    approx.TE <- rep_len("", length(TE))
-    ##
-    ## Use confidence limits
-    ##
-    sel.NA <- is.na(TE)
-    if (any(sel.NA) & avail.lower & avail.upper) {
-      j <- sel.NA & !is.na(lower) & !is.na(upper)
-      approx.TE[j] <- "ci"
-      TE[j] <- TE.seTE.ci(lower[j], upper[j], level.ci[j])$TE
-    }
-    ##
-    ## Use IQR and range
-    ##
-    sel.NA <- is.na(TE)
-    if (any(sel.NA) &
-        avail.median & avail.q1 & avail.q3 & avail.min & avail.max &
-        !(is.null(n.e) & is.null(n.c))) {
-      j <- sel.NA & !is.na(median) & !is.na(q1) & !is.na(q3) &
-        !is.na(min) & !is.na(max)
-      approx.TE[j] <- "iqr.range"
-      if (is.null(n.c))
-        TE[j] <- mean_sd_iqr_range(n.e[j], median[j], q1[j], q3[j],
-                                   min[j], max[j], method.mean)$mean
-      else if (is.null(n.e))
-        TE[j] <- mean_sd_iqr_range(n.c[j], median[j], q1[j], q3[j],
-                                   min[j], max[j], method.mean)$mean
-      else
-        TE[j] <- mean_sd_iqr_range(n.e[j] + n.c[j], median[j], q1[j], q3[j],
-                                   min[j], max[j], method.mean)$mean
-    }
-    ##
-    ## Use IQR
-    ##
-    sel.NA <- is.na(TE)
-    if (any(sel.NA) &
-        avail.median & avail.q1 & avail.q3 &
-        !(is.null(n.e) & is.null(n.c))) {
-      j <- sel.NA & !is.na(median) & !is.na(q1) & !is.na(q3)
-      approx.TE[j] <- "iqr"
-      if (is.null(n.c))
-        TE[j] <- mean_sd_iqr(n.e[j], median[j], q1[j], q3[j], method.mean)$mean
-      else if (is.null(n.e))
-        TE[j] <- mean_sd_iqr(n.c[j], median[j], q1[j], q3[j], method.mean)$mean
-      else
-        TE[j] <- mean_sd_iqr(n.e[j] + n.c[j], median[j], q1[j], q3[j],
-                             method.mean)$mean
-    }
-    ##
-    ## Use range
-    ##
-    sel.NA <- is.na(TE)
-    if (any(sel.NA) &
-        avail.median & avail.min & avail.max &
-        !(is.null(n.e) & is.null(n.c))) {
-      j <- sel.NA & !is.na(median) & !is.na(min) & !is.na(max)
-      approx.TE[j] <- "range"
-      if (is.null(n.c))
-        TE[j] <- mean_sd_range(n.e[j], median[j], min[j], max[j],
-                               method.mean)$mean
-      else if (is.null(n.e))
-        TE[j] <- mean_sd_range(n.c[j], median[j], min[j], max[j],
-                               method.mean)$mean
-      else
-        TE[j] <- mean_sd_range(n.e[j] + n.c[j], median[j], min[j], max[j],
-                               method.mean)$mean
-    }
-  }
-  else {
-    j <- 0
-    for (i in approx.TE) {
-      j <- j + 1
+  if (!with.cycles) {
+    if (!avail.approx.TE) {
+      approx.TE <- rep_len("", length(TE))
       ##
-      if (i == "ci")
+      ## Use confidence limits
+      ##
+      sel.NA <- is.na(TE)
+      if (any(sel.NA) & avail.lower & avail.upper) {
+        j <- sel.NA & !is.na(lower) & !is.na(upper)
+        approx.TE[j] <- "ci"
         TE[j] <- TE.seTE.ci(lower[j], upper[j], level.ci[j])$TE
-      else if (i == "iqr.range")
-        if (is.null(n.e) & is.null(n.c))
-          stop("Sample size needed if argument 'approx.TE' = \"iqr.range\".",
-               call. = FALSE)
-        else if (is.null(n.c))
+      }
+      ##
+      ## Use IQR and range
+      ##
+      sel.NA <- is.na(TE)
+      if (any(sel.NA) &
+          avail.median & avail.q1 & avail.q3 & avail.min & avail.max &
+          !(is.null(n.e) & is.null(n.c))) {
+        j <- sel.NA & !is.na(median) & !is.na(q1) & !is.na(q3) &
+          !is.na(min) & !is.na(max)
+        approx.TE[j] <- "iqr.range"
+        if (is.null(n.c))
           TE[j] <- mean_sd_iqr_range(n.e[j], median[j], q1[j], q3[j],
                                      min[j], max[j], method.mean)$mean
-      else if (is.null(n.e))
-        TE[j] <- mean_sd_iqr_range(n.c[j], median[j], q1[j], q3[j],
-                                   min[j], max[j], method.mean)$mean
-      else
-        TE[j] <- mean_sd_iqr_range(n.e[j] + n.c[j], median[j], q1[j], q3[j],
-                                   min[j], max[j], method.mean)$mean
-      else if (i == "iqr") {
-        if (is.null(n.e) & is.null(n.c))
-          stop("Sample size needed if argument 'approx.TE' = \"iqr\".",
-               call. = FALSE)
-        else if (is.null(n.c))
-          TE[j] <-
-            mean_sd_iqr(n.e[j], median[j], q1[j], q3[j], method.mean)$mean
         else if (is.null(n.e))
-          TE[j] <-
-            mean_sd_iqr(n.c[j], median[j], q1[j], q3[j], method.mean)$mean
+          TE[j] <- mean_sd_iqr_range(n.c[j], median[j], q1[j], q3[j],
+                                     min[j], max[j], method.mean)$mean
         else
-          TE[j] <-
-            mean_sd_iqr(n.e[j] + n.c[j], median[j], q1[j], q3[j],
-                        method.mean)$mean
+          TE[j] <- mean_sd_iqr_range(n.e[j] + n.c[j], median[j], q1[j], q3[j],
+                                     min[j], max[j], method.mean)$mean
       }
-      else if (i == "range") {
-        cat(paste0("Use 'range' for study", j, "\n"))
-        if (is.null(n.e) & is.null(n.c))
-          stop("Sample size needed if argument 'approx.TE' = \"range\".",
-               call. = FALSE)
-        else if (is.null(n.c))
+      ##
+      ## Use IQR
+      ##
+      sel.NA <- is.na(TE)
+      if (any(sel.NA) &
+          avail.median & avail.q1 & avail.q3 &
+          !(is.null(n.e) & is.null(n.c))) {
+        j <- sel.NA & !is.na(median) & !is.na(q1) & !is.na(q3)
+        approx.TE[j] <- "iqr"
+        if (is.null(n.c))
+          TE[j] <- mean_sd_iqr(n.e[j], median[j], q1[j], q3[j], method.mean)$mean
+        else if (is.null(n.e))
+          TE[j] <- mean_sd_iqr(n.c[j], median[j], q1[j], q3[j], method.mean)$mean
+        else
+          TE[j] <- mean_sd_iqr(n.e[j] + n.c[j], median[j], q1[j], q3[j],
+                               method.mean)$mean
+      }
+      ##
+      ## Use range
+      ##
+      sel.NA <- is.na(TE)
+      if (any(sel.NA) &
+          avail.median & avail.min & avail.max &
+          !(is.null(n.e) & is.null(n.c))) {
+        j <- sel.NA & !is.na(median) & !is.na(min) & !is.na(max)
+        approx.TE[j] <- "range"
+        if (is.null(n.c))
           TE[j] <- mean_sd_range(n.e[j], median[j], min[j], max[j],
                                  method.mean)$mean
         else if (is.null(n.e))
@@ -1652,16 +1812,82 @@ metagen <- function(TE, seTE, studlab,
                                  method.mean)$mean
       }
     }
+    else {
+      j <- 0
+      for (i in approx.TE) {
+        j <- j + 1
+        ##
+        if (i == "ci")
+          TE[j] <- TE.seTE.ci(lower[j], upper[j], level.ci[j])$TE
+        else if (i == "iqr.range")
+          if (is.null(n.e) & is.null(n.c))
+            stop("Sample size needed if argument 'approx.TE' = \"iqr.range\".",
+                 call. = FALSE)
+        else if (is.null(n.c))
+          TE[j] <- mean_sd_iqr_range(n.e[j], median[j], q1[j], q3[j],
+                                     min[j], max[j], method.mean)$mean
+        else if (is.null(n.e))
+          TE[j] <- mean_sd_iqr_range(n.c[j], median[j], q1[j], q3[j],
+                                     min[j], max[j], method.mean)$mean
+        else
+          TE[j] <- mean_sd_iqr_range(n.e[j] + n.c[j], median[j], q1[j], q3[j],
+                                     min[j], max[j], method.mean)$mean
+        else if (i == "iqr") {
+          if (is.null(n.e) & is.null(n.c))
+            stop("Sample size needed if argument 'approx.TE' = \"iqr\".",
+                 call. = FALSE)
+          else if (is.null(n.c))
+            TE[j] <-
+              mean_sd_iqr(n.e[j], median[j], q1[j], q3[j], method.mean)$mean
+          else if (is.null(n.e))
+            TE[j] <-
+              mean_sd_iqr(n.c[j], median[j], q1[j], q3[j], method.mean)$mean
+          else
+            TE[j] <-
+              mean_sd_iqr(n.e[j] + n.c[j], median[j], q1[j], q3[j],
+                          method.mean)$mean
+        }
+        else if (i == "range") {
+          cat(paste0("Use 'range' for study", j, "\n"))
+          if (is.null(n.e) & is.null(n.c))
+            stop("Sample size needed if argument 'approx.TE' = \"range\".",
+                 call. = FALSE)
+          else if (is.null(n.c))
+            TE[j] <- mean_sd_range(n.e[j], median[j], min[j], max[j],
+                                   method.mean)$mean
+          else if (is.null(n.e))
+            TE[j] <- mean_sd_range(n.c[j], median[j], min[j], max[j],
+                                   method.mean)$mean
+          else
+            TE[j] <- mean_sd_range(n.e[j] + n.c[j], median[j], min[j], max[j],
+                                   method.mean)$mean
+        }
+      }
+    }
   }
   ##
   if (keepdata) {
     if (!isCol(data, ".subset")) {
       data$.TE <- TE
       data$.seTE <- seTE
+      #
+      if (!avail.approx.TE & any(approx.TE != ""))
+        data$.approx.TE <- approx.TE
+      if (!avail.approx.seTE & any(approx.seTE != ""))
+        data$.approx.seTE <- approx.seTE
     }
     else {
       data$.TE[data$.subset] <- TE
       data$.seTE[data$.subset] <- seTE
+      #
+      if (!avail.approx.TE & any(approx.TE != "")) {
+        data$.approx.TE <- ""
+        data$.approx.TE[data$.subset] <- approx.TE
+      }
+      if (!avail.approx.seTE & any(approx.seTE != "")) {
+        data$.approx.seTE <- ""
+        data$.approx.seTE[data$.subset] <- approx.seTE
+      }
     }
   }
   
@@ -1676,7 +1902,7 @@ metagen <- function(TE, seTE, studlab,
   seTE <- int2num(seTE)
   ##
   if (any(seTE[!is.na(seTE)] <= 0)) {
-    if (warn)
+    if (warn & !with.cycles)
       warning("Zero values in seTE replaced by NAs.",
               call. = FALSE)
     seTE[!is.na(seTE) & seTE == 0] <- NA
@@ -1709,6 +1935,7 @@ metagen <- function(TE, seTE, studlab,
       method.tau.ci <- "J"
     else
       method.tau.ci <- "QP"
+  #
   method.tau.ci <- setchar(method.tau.ci, gs("meth4tau.ci"))
   ##
   if (!three.level & method.tau.ci == "PL") {
@@ -1717,7 +1944,9 @@ metagen <- function(TE, seTE, studlab,
     else
       method.tau.ci <- "QP"
   }
-  ##
+  #
+  chklevel(level.hetstat)
+  #
   if (three.level) {
     chkmlm(method.tau, missing.method.tau, method.predict)
     ##
@@ -1744,7 +1973,31 @@ metagen <- function(TE, seTE, studlab,
   
   ##
   ##
-  ## (11) Do meta-analysis
+  ## (11) Additional checks and calculations for n-of-1 trials
+  ##
+  ##
+  
+  if (with.cycles) {
+    df.n_of_1 <- cycles - 1
+    sd.n_of_1 <-
+      sqrt(sum(df.n_of_1 * seTE^2, na.rm = TRUE) / sum(df.n_of_1, na.rm = TRUE))
+    #
+    seTE <- sd.n_of_1 / sqrt(cycles)
+    #
+    if (keepdata) {
+      data$.seTE.orig <- data$.seTE
+      #
+      if (!isCol(data, ".subset"))
+        data$.seTE <- seTE
+      else
+        data$.seTE[data$.subset] <- seTE
+    }
+  }
+  
+  
+  ##
+  ##
+  ## (12) Do meta-analysis
   ##
   ##
   
@@ -1786,7 +2039,8 @@ metagen <- function(TE, seTE, studlab,
     ##
     hc <- list(tau2 = NA, se.tau2 = NA, lower.tau2 = NA, upper.tau2 = NA,
                tau = NA, lower.tau = NA, upper.tau = NA,
-               method.tau.ci = "", sign.lower.tau = "", sign.upper.tau = "",
+               method.tau.ci = "", level = NA,
+               sign.lower.tau = "", sign.upper.tau = "",
                ##
                Q = NA, df.Q = NA, pval.Q = NA,
                H = NA, lower.H = NA, upper.H = NA,
@@ -1805,8 +2059,7 @@ metagen <- function(TE, seTE, studlab,
                method.random.ci)
       ##
       method.predict <- 
-        ifelse(method.predict %in% c("HK", "KR"), "HTS",
-               method.predict)
+        ifelse(method.predict %in% c("HK", "KR"), "V", method.predict)
       ##
       adhoc.hakn.ci <- ""
       adhoc.hakn.pi <- ""
@@ -1815,20 +2068,18 @@ metagen <- function(TE, seTE, studlab,
     ## Estimate tau-squared
     ##
     hc <- hetcalc(TE[!exclude], seTE[!exclude],
-                  method.tau, method.tau.ci,
-                  TE.tau, level.ma,
-                  control = control,
+                  method.tau, method.tau.ci, TE.tau,
+                  method.I2, level.hetstat, control = control,
                   cluster = cluster[!exclude], rho = rho)
-    ##
-    if (by & tau.common) {
-      ## Estimate common tau-squared across subgroups
+    #
+    # Estimate common tau-squared across subgroups
+    #
+    if (by & tau.common)
       hcc <- hetcalc(TE[!exclude], seTE[!exclude],
-                     method.tau, method.tau.ci,
-                     TE.tau, level.ma,
-                     subgroup = subgroup,
-                     control = control,
+                     method.tau, method.tau.ci, TE.tau,
+                     method.I2, level.hetstat,
+                     subgroup = subgroup, control = control,
                      cluster = cluster[!exclude], rho = rho)
-    }
     ##
     ## Different calculations for three-level models
     ##
@@ -1885,7 +2136,7 @@ metagen <- function(TE, seTE, studlab,
         # Fallback: classic random effects meta-analysis
         if (is.nan(seTE.kero) | is.nan(df.kero)) {
           method.random.ci[method.random.ci == "KR"] <- "classic-KR"
-          method.predict[method.predict == "KR"] <- "HTS-KR"
+          method.predict[method.predict == "KR"] <- "V-KR"
         }
       }
       ##
@@ -2017,8 +2268,8 @@ metagen <- function(TE, seTE, studlab,
       ##
       ## Prediction interval
       ##
-      pi <- as.data.frame(ci(1, NA, level = 0.99999))
-      ##
+      pi <- data.frame()
+      #
       if (length(adhoc.hakn.pi) == 1) {
         adhoc.hakn.pi <- ifelse(method.predict == "HK", adhoc.hakn.pi, "")
       }
@@ -2036,29 +2287,54 @@ metagen <- function(TE, seTE, studlab,
              "Hartung-Knapp method",
              call. = FALSE)
       }
-      ##
+      #
       seTE.hakn.adhoc.pi <- rep(seTE.hakn.adhoc.pi, length(method.predict))
       df.hakn.pi <- rep(df.hakn, length(method.predict))
-      ##
+      #
       for (i in seq_along(method.predict)) {
         if (method.predict[i] == "HK" && df.hakn.pi[i] > 1) {
           if (adhoc.hakn.pi[i] == "se") {
-            ##
-            ## Variance correction if SE_HK < SE_notHK (Knapp and
-            ## Hartung, 2003), i.e., if q < 1
-            ##
+            #
+            # Variance correction if SE_HK < SE_notHK (Knapp and
+            # Hartung, 2003), i.e., if q < 1
+            #
             if (q < 1)
               seTE.hakn.adhoc.pi[i] <- seTE.classic
           }
-          ##
+          #
+          pi.i <- ci(TE.random, sqrt(seTE.hakn.adhoc.pi[i]^2 + tau2.calc),
+                     level = level.predict, df = df.hakn.pi[i])
+        }
+        else if (method.predict[i] == "HK-PR" && df.hakn.pi[i] > 2) {
+          if (adhoc.hakn.pi[i] == "se") {
+            #
+            # Variance correction if SE_HK < SE_notHK (Knapp and
+            # Hartung, 2003), i.e., if q < 1
+            #
+            if (q < 1)
+              seTE.hakn.adhoc.pi[i] <- seTE.classic
+          }
+          #
           pi.i <- ci(TE.random, sqrt(seTE.hakn.adhoc.pi[i]^2 + tau2.calc),
                      level = level.predict, df = df.hakn.pi[i] - 1)
+        }
+        else if (method.predict[i] %in% c("V", "V-KR") & k > 1) {
+          pi.i <- ci(TE.random, sqrt(seTE.classic^2 + tau2.calc),
+                     level.predict, k - 1)
         }
         else if (method.predict[i] %in% c("HTS", "HTS-KR") & k > 2) {
           pi.i <- ci(TE.random, sqrt(seTE.classic^2 + tau2.calc),
                      level.predict, k - 2)
         }
-        else if (method.predict[i] == "KR" & df.kero > 1) {
+        else if (method.predict[i] == "KR" & df.kero > 0) {
+          pi.i <- ci(TE.random, sqrt(seTE.kero^2 + tau2.calc),
+                     level.predict, df.kero)
+        }
+        else if (method.predict[i] == "KR-PR" & df.kero > 1) {
+          pi.i <- ci(TE.random, sqrt(seTE.kero^2 + tau2.calc),
+                     level.predict, df.kero - 1)
+        }
+        else if (method.predict[i] == "PR" & df.kero > 0) {
           pi.i <- ci(TE.random, sqrt(seTE.kero^2 + tau2.calc),
                      level.predict, df.kero - 1)
         }
@@ -2067,18 +2343,19 @@ metagen <- function(TE, seTE, studlab,
                                    method = "boot",
                                    alpha = 1 - level.predict,
                                    seed = seed.predict)
-          ##
+          #
           pi.i <- as.data.frame(ci(1, NA, level = level.predict))
-          pi.i$seTE <-NA
+          pi.i$seTE <- NA
           pi.i$lower <- res.pima$lpi
           pi.i$upper <- res.pima$upi
           pi.i$df <- res.pima$nup
         }
         else if (method.predict[i] == "S")
-          pi.i <- ci(TE.random, sqrt(seTE.classic^2 + tau2.calc),
-                     level.predict)
+          pi.i <- ci(TE.random, sqrt(seTE.classic^2 + tau2.calc), level.predict)
         else if (method.predict[i] == "KR")
           pi.i <- ci(TE.random, NA, level.predict, df.kero - 1)
+        else if (method.predict[i] == "V")
+          pi.i <- ci(TE.random, NA, level.predict, k - 1)
         else if (method.predict[i] == "HTS")
           pi.i <- ci(TE.random, NA, level.predict, k - 2)
         else
@@ -2086,9 +2363,7 @@ metagen <- function(TE, seTE, studlab,
         ##
         pi <- rbind(pi, as.data.frame(pi.i))
       }
-      ##
-      pi <- pi[-1, ]
-      ##
+      #
       seTE.predict <- pi$seTE
       lower.predict <- pi$lower
       upper.predict <- pi$upper
@@ -2097,7 +2372,6 @@ metagen <- function(TE, seTE, studlab,
     else {
       ##
       ## Three-level meta-analysis
-      ##
       ##
       if (common) {
         ##
@@ -2116,7 +2390,7 @@ metagen <- function(TE, seTE, studlab,
       ##
       ## No adhoc method for three-level models
       ##
-      if ((!missing(adhoc.hakn.ci) && any(adhoc.hakn.ci != "")) |
+      if ((!missing.adhoc.hakn.ci && any(adhoc.hakn.ci != "")) |
           (!missing(adhoc.hakn.pi) && any(adhoc.hakn.pi != ""))) {
         warning("Ad hoc variance correction not implemented ",
                 "for three-level model.",
@@ -2204,7 +2478,7 @@ metagen <- function(TE, seTE, studlab,
   
   ##
   ##
-  ## (12) Heterogeneity measures
+  ## (13) Heterogeneity measures
   ##
   ##
   
@@ -2220,7 +2494,7 @@ metagen <- function(TE, seTE, studlab,
   
   ##
   ##
-  ## (13) Generate R object
+  ## (14) Generate R object
   ##
   ##
   if (missing(detail.tau) && k != k.study)
@@ -2300,7 +2574,10 @@ metagen <- function(TE, seTE, studlab,
               cluster = cluster, rho = rho,
               ##
               k = k, k.study = k.study, k.all = k.all, k.TE = sum(!is.na(TE)),
-              ##
+              #
+              cycles = cycles,
+              sd.n_of_1 = if (with.cycles) sd.n_of_1 else NULL,
+              #
               overall = overall,
               overall.hetstat = overall.hetstat,
               common = common,
@@ -2364,6 +2641,7 @@ metagen <- function(TE, seTE, studlab,
               method.tau = method.tau,
               control = control,
               method.tau.ci = hc$method.tau.ci,
+              level.hetstat = level.hetstat,
               tau2 = hc$tau2,
               se.tau2 = hc$se.tau2,
               lower.tau2 = hc$lower.tau2, upper.tau2 = hc$upper.tau2,
@@ -2375,7 +2653,9 @@ metagen <- function(TE, seTE, studlab,
               detail.tau = detail.tau,
               sign.lower.tau = hc$sign.lower.tau,
               sign.upper.tau = hc$sign.upper.tau,
-              ##
+              #
+              method.I2 = method.I2,
+              #
               H = hc$H, lower.H = hc$lower.H, upper.H = hc$upper.H,
               ##
               I2 = hc$I2, lower.I2 = hc$lower.I2, upper.I2 = hc$upper.I2,
@@ -2389,11 +2669,12 @@ metagen <- function(TE, seTE, studlab,
               text.w.common = text.w.common, text.w.random = text.w.random,
               ##
               title = title, complab = complab, outclab = outclab,
-              label.e = label.e,
-              label.c = label.c,
-              label.left = label.left,
-              label.right = label.right,
-              ##
+              #
+              label.e = label.e, label.c = label.c,
+              label.left = label.left, label.right = label.right,
+              col.label.left = replaceNULL(col.label.left, "black"),
+              col.label.right = replaceNULL(col.label.right, "black"),
+              #
               keepdata = keepdata,
               data = if (keepdata) data else NULL,
               subset = if (keepdata) subset else NULL,
@@ -2405,18 +2686,18 @@ metagen <- function(TE, seTE, studlab,
               irscale = irscale, irunit = irunit,
               method.ci = method.ci,              
               method.mean = method.mean,
-              approx.TE = approx.TE,
-              approx.seTE = approx.seTE,
+              approx.TE = if (all(approx.TE == "")) NULL else approx.TE,
+              approx.seTE = if (all(approx.seTE == "")) NULL else approx.seTE,
               ##
               seed.predict = seed.predict,
               ##
               warn = warn,
               call = match.call(),
               version = packageDescription("meta")$Version,
-              ## Keep debug information
-              debug = list(tau2.calc = tau2.calc,
-                           m4 = if (three.level) m4 else NULL),
-              ## Deprecated list elements
+              # Keep debug information
+              tau2.calc = tau2.calc,
+              rma.three.level = if (three.level & keeprma) m4 else NULL,
+              # Deprecated list elements
               zval = ci.study$statistic,
               hakn = any(method.random.ci == "HK"),
               zval.common = statistic.common,

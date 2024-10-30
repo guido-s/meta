@@ -58,6 +58,8 @@
 #' @param method.tau.ci A character string indicating which method is
 #'   used to estimate the confidence interval of \eqn{\tau^2} and
 #'   \eqn{\tau} (see \code{\link{meta-package}}).
+#' @param level.hetstat The level used to calculate confidence intervals
+#'   for heterogeneity statistics.
 #' @param prediction A logical indicating whether a prediction
 #'   interval should be printed.
 #' @param level.predict The level used to calculate prediction
@@ -397,8 +399,7 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
       metagen(TE, seTE, method.tau = "DL", method.tau.ci = "")$TE.common
   else
     TE.sum <-
-      metagen(TE, seTE, method.tau = x$method.tau,
-              method.tau.ci = "")$TE.random
+      metagen(TE, seTE, method.tau = x$method.tau, method.tau.ci = "")$TE.random
   
   
   if (k == 1) {
@@ -420,7 +421,8 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
       ##
       if (ma.common)
         TE.sum <- metagen(TE[sel], seTE[sel],
-                          method.tau = "DL", method.tau.ci = "")$TE.common
+                          method.tau = "DL",
+                          method.tau.ci = "")$TE.common
       else
         TE.sum <- metagen(TE[sel], seTE[sel],
                           method.tau = x$method.tau,
@@ -542,7 +544,10 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
                  adhoc.hakn.ci = x$adhoc.hakn.ci,
                  ##
                  method.tau = x$method.tau, method.tau.ci = x$method.tau.ci,
-                 ##
+                 level.hetstat = x$level.hetstat,
+                 #
+                 method.I2 = replaceNULL(x$method.I2, gs("method.I2")),
+                 #
                  method.predict = x$method.predict,
                  prediction = prediction, level.predict = x$level.predict,
                  adhoc.hakn.pi = x$adhoc.hakn.pi,
@@ -557,7 +562,10 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
                  adhoc.hakn.ci = x$adhoc.hakn.ci,
                  ##
                  method.tau = x$method.tau, method.tau.ci = x$method.tau.ci,
-                 ##
+                 level.hetstat = x$level.hetstat,
+                 #
+                 method.I2 = replaceNULL(x$method.I2, gs("method.I2")),
+                 #
                  method.predict = x$method.predict,
                  prediction = prediction, level.predict = x$level.predict,
                  adhoc.hakn.pi = x$adhoc.hakn.pi,
@@ -569,10 +577,9 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
   ##
   ## Calculate H, I-Squared, and Rb
   ##
-  Hres  <- calcH(m$Q, m$df.Q, x$level.ma)
-  I2res <- isquared(m$Q, m$df.Q, x$level.ma)
-  Rbres <-
-    with(m, Rb(seTE[!is.na(seTE)], seTE.random, tau^2, Q, df.Q, x$level.ma))
+  Hres  <- list(TE = m$H, lower = m$lower.H, upper = m$upper.H)
+  I2res <- list(TE = m$I2, lower = m$lower.I2, upper = m$upper.I2)
+  Rbres <- list(TE = m$Rb, lower = m$lower.Rb, upper = m$upper.Rb)
   
   
   ##
@@ -603,9 +610,11 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
                    method.random.ci = x$method.random.ci,
                    adhoc.hakn.ci = x$adhoc.hakn.ci,
                    ##
-                   method.tau = x$method.tau,
-                   method.tau.ci = x$method.tau.ci,
-                   ##
+                   method.tau = x$method.tau, method.tau.ci = x$method.tau.ci,
+                   level.hetstat = x$level.hetstat,
+                   #
+                   method.I2 = replaceNULL(x$method.I2, gs("method.I2")),
+                   #
                    method.predict = x$method.predict,
                    prediction = prediction,
                    level.predict = x$level.predict,
@@ -621,9 +630,11 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
                    method.random.ci = x$method.random.ci,
                    adhoc.hakn.ci = x$adhoc.hakn.ci,
                    ##
-                   method.tau = x$method.tau,
-                   method.tau.ci = x$method.tau.ci,
-                   ##
+                   method.tau = x$method.tau, method.tau.ci = x$method.tau.ci,
+                   level.hetstat = x$level.hetstat,
+                   #
+                   method.I2 = replaceNULL(x$method.I2, gs("method.I2")),
+                   #
                    method.predict = x$method.predict,
                    prediction = prediction,
                    level.predict = x$level.predict,
@@ -704,8 +715,8 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
               ##
               Q = m$Q, df.Q = m$df.Q, pval.Q = m$pval.Q,
               ##
-              method.tau = m$method.tau,
-              method.tau.ci = m$method.tau.ci,
+              method.tau = m$method.tau, method.tau.ci = m$method.tau.ci,
+              level.hetstat = m$level.hetstat,
               tau2 = m$tau2,
               se.tau2 = m$se.tau2,
               lower.tau2 = m$lower.tau2, upper.tau2 = m$upper.tau2,
@@ -714,7 +725,9 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
               detail.tau = m$detail.tau,
               sign.lower.tau = m$sign.lower.tau,
               sign.upper.tau = m$sign.upper.tau,
-              ##
+              #
+              method.I2 = m$method.I2,
+              #
               H = Hres$TE, lower.H = Hres$lower, upper.H = Hres$upper,
               ##
               I2 = I2res$TE, lower.I2 = I2res$lower, upper.I2 = I2res$upper,
@@ -812,7 +825,8 @@ trimfill.default <- function(x, seTE, left = NULL, ma.common = TRUE,
                              method.tau = gs("method.tau"),
                              method.tau.ci =
                                if (method.tau == "DL") "J" else "QP",
-                             ##
+                             level.hetstat = gs("level.hetstat"),
+                             #
                              prediction = FALSE, level.predict = level,
                              method.predict = gs("method.predict"),
                              adhoc.hakn.pi = gs("adhoc.hakn.pi"),
@@ -859,7 +873,10 @@ trimfill.default <- function(x, seTE, left = NULL, ma.common = TRUE,
                adhoc.hakn.ci = adhoc.hakn.ci,
                ##
                method.tau = method.tau, method.tau.ci = method.tau.ci,
-               ##
+               level.hetstat = level.hetstat,
+               #
+               method.I2 = gs("method.I2"),
+               #
                prediction = prediction,
                method.predict = method.predict,
                adhoc.hakn.pi = adhoc.hakn.pi,

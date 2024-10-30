@@ -44,7 +44,7 @@
 #' \code{\link{metainc}}. Accordingly, a meta-analysis object created
 #' with one of these functions can be provided as argument
 #' \code{treat1}. It is also possible to use the longarm function with
-#' an R objected created with \code{\link[netmeta]{pairwise}} from R
+#' an R objected created with \code{\link{pairwise}} from R
 #' package \bold{netmeta}.
 #'
 #' Otherwise, arguments \code{treat1} and \code{treat2} are mandatory
@@ -93,7 +93,7 @@
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @seealso \code{\link{metabin}}, \code{\link{metacont}},
-#'   \code{\link{metainc}}, \code{\link[netmeta]{pairwise}}
+#'   \code{\link{metainc}}, \code{\link{pairwise}}
 #' 
 #' @keywords datagen
 #' 
@@ -145,9 +145,6 @@ longarm <- function(treat1, treat2,
   ##
   missing.treat1 <- missing(treat1)
   missing.treat2 <- missing(treat2)
-  ##
-  if (missing.treat1)
-    stop("Argument 'treat1' mandatory.")
   ##
   treat1 <- catch("treat1", mc, data, sfsp)
   ##
@@ -222,6 +219,15 @@ longarm <- function(treat1, treat2,
     studlab <- data$.studlab
     treat2 <- data$.treat2
     treat1 <- data$.treat1
+  }
+  else if (inherits(treat1, "meta")) {
+    cls <- class(treat1)
+    cls <- cls[cls != "meta"]
+    #
+    stop("R function longarm() cannot be used with ",
+         "meta-analysis object of class", if (length(cls) > 1) "es", " ",
+         paste(paste0("'", cls, "'"), collapse = " - "), ".",
+         call. = FALSE)
   }
   else if (is.data.frame(treat1) & !is.null(attr(treat1, "pairwise"))) {
     if (!nulldata)
@@ -312,9 +318,6 @@ longarm <- function(treat1, treat2,
     time1 <- catch("time1", mc, data, sfsp)
     time2 <- catch("time2", mc, data, sfsp)
     ##
-    if (missing.treat2)
-      stop("Argument 'treat2' mandatory.")
-    ##
     if (!is.null(event1))
       chknumeric(event1)
     if (!is.null(event2))
@@ -360,6 +363,34 @@ longarm <- function(treat1, treat2,
            "- event1, n1, event2, n2 (binary outcome)\n  ",
            "- n1, mean1, sd1, n2, mean2, sd2 (continuous outcome)\n  ",
            "- event1, time1, event2, time2 (incidence rates).")
+    #
+    if (type == "count")
+      k.all <-
+      max(length(event1), length(time1), length(event2), length(time2))
+    else if (type == "binary")
+      k.all <-
+      max(length(event1), length(n1), length(event2), length(n2))
+    else if (type == "continuous")
+      k.all <-
+      max(length(n1), length(mean1), length(sd1),
+          length(n2), length(mean2), length(sd2))
+    #
+    if (missing.treat1 & missing.treat2) {
+      treat1 <- rep("B", k.all)
+      treat2 <- rep("A", k.all)
+      #
+      missing.treat2 <- FALSE
+    }
+    else if (!missing.treat1 && !missing.treat2 &&
+             length(treat1) == 1 && length(treat2) == 1) {
+      treat1 <- rep(treat1, k.all)
+      treat2 <- rep(treat2, k.all)
+    }
+    ##
+    if (missing.treat2)
+      stop("Argument 'treat2' mandatory.")
+    #
+    studlab <- replaceNULL(studlab, seq_along(treat1))
     ##
     ## Keep data set
     ##
@@ -482,7 +513,7 @@ longarm <- function(treat1, treat2,
     nam <- c("studlab", "treat", if (n.given) "n", "events", "time")
   }
   ##
-  dat.l$treat <- ifelse(dat.l$.grp.m4 == 1, dat.l$.treat1, dat.l$.treat2)
+  dat.l$treat <- if_else(dat.l$.grp.m4 == 1, dat.l$.treat1, dat.l$.treat2)
   if (!isCol(dat.l, "studlab") & isCol(dat.l, ".studlab"))
     dat.l$studlab <- dat.l$.studlab
   ##

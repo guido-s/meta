@@ -606,7 +606,9 @@ metacum.meta <- function(x, pooled, sortvar, no = 1, ...) {
               TE.tau = x$TE.tau,
               sign.lower.tau.i = c(sign.lower.tau.i, NA, x$sign.lower.tau),
               sign.upper.tau.i = c(sign.upper.tau.i, NA, x$sign.upper.tau),
-              ##
+              #
+              method.I2 = x$method.I2,
+              #
               I2 = c(I2.i, NA, x$I2),
               lower.I2 = c(lower.I2.i, NA, x$lower.I2),
               upper.I2 = c(upper.I2.i, NA, x$upper.I2),

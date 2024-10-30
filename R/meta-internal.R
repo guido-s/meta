@@ -3,10 +3,7 @@
     paste0("Loading 'meta' package (version ",
            utils::packageDescription("meta")$Version,
            ").",
-           "\nType 'help(meta)' for a brief overview.",
-           "\nReaders of 'Meta-Analysis with R (Use R!)' should install",
-           "\nolder version of 'meta' package: ",
-           "https://tinyurl.com/dt4y5drs")
+           "\nType 'help(meta)' for a brief overview.")
   packageStartupMessage(msg)
 }
 
@@ -234,7 +231,7 @@ cathet <- function(k,
   ##
   ntau <- nrow(dtau)
   sort.tau <- setsort(sort.tau, ntau, "tau2 estimates")
-  dtau <- dtau[sort.tau, ]
+  dtau <- dtau[sort.tau, , drop = FALSE]
   ##
   if (print.tau2 | print.tau) {
     if (ntau > 1) {
@@ -303,7 +300,7 @@ cathet <- function(k,
   ##
   nhet <- nrow(dhet)
   sort.het <- setsort(sort.het, nhet, "heterogeneity estimates")
-  dhet <- dhet[sort.het, ]
+  dhet <- dhet[sort.het, , drop = FALSE]
   ##
   label.het <-
     if (nhet > 1)
@@ -531,6 +528,7 @@ setVar <- function(var = NULL, arg = NULL) {
   stop("var is NULL or no character");
 }
 
+second <- function(x) x[2]
 
 
 
@@ -552,7 +550,9 @@ argslist.internal <-
     "tool4rob",
     "meth4incr",
     "text.fixed", "text.w.fixed",
-    "major.update", "minor.update")
+    "major.update", "minor.update",
+    #
+    "special.characters")
 ##
 setOption("argslist.internal", argslist.internal)
 ##
@@ -570,16 +570,17 @@ setOption("ci4cont", c("z", "t"))
 setOption("ci4prop", c("CP", "WS", "WSCC", "AC", "SA", "SACC", "NAsm"))
 setOption("ci4rate", c("NAsm", "Poisson"))
 ##
-setOption("meth4bin", c("Inverse", "MH", "Peto", "GLMM", "SSW"))
+setOption("meth4bin", c("Inverse", "MH", "Peto", "GLMM", "LRP", "SSW"))
 setOption("meth4inc", c("Inverse", "MH", "Cochran", "GLMM"))
 setOption("meth4prop", c("Inverse", "GLMM"))
 setOption("meth4rate", c("Inverse", "GLMM"))
 ##
 setOption("meth4tau", c("DL", "PM", "REML", "ML", "HS", "SJ", "HE", "EB"))
 setOption("meth4tau.ci", c("QP", "BJ", "J", "PL", ""))
-setOption("meth4i2", c("q", "tau"))
+setOption("meth4i2", c("Q", "tau2"))
 setOption("meth4random.ci", c("classic", "HK", "KR"))
-setOption("meth4pi", c("HTS", "HK", "KR", "NNF", "S", ""))
+setOption("meth4pi",
+          c("V", "HTS", "HK", "HK-PR", "KR", "KR-PR", "NNF", "S", ""))
 setOption("adhoc4hakn.ci", c("", "se", "ci", "IQWiG6"))
 setOption("adhoc4hakn.pi", c("", "se"))
 ##
@@ -593,7 +594,9 @@ setOption("tool4rob",
             "ROBINS-I", "ROBINS-E"))
 ##
 setOption("meth4incr", c("only0", "if0all", "all"))
-##
+#
+setOption("special.characters", c("+", ".", "&", "$", "#", "|", "*", "^"))
+#
 setOption("major.update", 5)
 setOption("minor.update", 6)
 ##
@@ -603,8 +606,8 @@ argslist <-
   c("level", "level.ma", "common", "random",
     "method.random.ci", "method.predict",
     "adhoc.hakn.ci", "adhoc.hakn.pi",
-    "method.tau", "method.tau.ci", "tau.common",
-    "method.i2",
+    "method.tau", "method.tau.ci", "level.hetstat", "tau.common",
+    "method.I2",
     "prediction", "level.predict",
     "method.bias",
     "tool.rob",
@@ -614,7 +617,7 @@ argslist <-
     "title", "complab",
     "CIbracket", "CIseparator", "CIlower.blank", "CIupper.blank",
     "print.subgroup.name", "sep.subgroup",
-    "keepdata", "warn", "warn.deprecated",
+    "keepdata", "keeprma", "warn", "warn.deprecated",
     "transf", "backtransf",
     "smbin", "smcont", "smcor", "sminc", "smmean", "smprop", "smrate",
     "incr", "method.incr",
@@ -635,7 +638,7 @@ argslist <-
     "scientific.pval", "big.mark", "zero.pval", "JAMA.pval",
     "details",
     "print.tau2", "print.tau2.ci", "print.tau", "print.tau.ci",
-    "print.I2", "print.H", "print.Rb",
+    "print.I2", "print.I2.ci", "print.H", "print.Rb",
     "text.tau2", "text.tau", "text.I2", "text.Rb",
     "print.Q",
     ##
@@ -654,7 +657,8 @@ argslist <-
     "col.study", "col.square", "col.square.lines", "col.circle", "col.inside",
     "col.diamond", "col.diamond.lines",
     "col.predict", "col.predict.lines",
-    "col.subgroup", "col.label.right", "col.label.left",
+    "col.subgroup",
+    "col.label.right", "col.label.left",
     "col.lines", "col.label",
     "hetlab", "resid.hetstat", "resid.hetlab",
     "forest.I2", "forest.I2.ci", "forest.tau2", "forest.tau2.ci",
@@ -682,12 +686,15 @@ argslist <-
     "spacing",
     "addrow", "addrow.overall", "addrow.subgroups", "addrows.below.overall"
     )
+#
 args.depr <- c("fixed", "comb.fixed", "comb.random", "level.comb",
                "hakn", "adhoc.hakn",
                "digits.zval", "print.byvar", "byseparator",
                "addincr", "allincr")
-##
+#
 setOption("argslist", c(argslist, args.depr))
+#
+setOption("argslist.meta", c(argslist, args.depr))
 ##
 ## General settings
 ##
@@ -707,11 +714,12 @@ setOption("adhoc.hakn.ci", "")
 setOption("adhoc.hakn.pi", "")
 setOption("prediction", FALSE)
 setOption("level.predict", 0.95)
-setOption("method.predict", "HTS")
+setOption("method.predict", "V")
 setOption("method.tau", "REML")
 setOption("method.tau.ci", NULL)
+setOption("level.hetstat", 0.95)
 setOption("tau.common", FALSE)
-setOption("method.i2", "q")
+setOption("method.I2", "Q")
 setOption("method.bias", "Egger")
 setOption("tool.rob", NULL)
 setOption("overall.hetstat", NULL)
@@ -735,8 +743,9 @@ setOption("byseparator", " = ")
 setOption("test.subgroup", TRUE)
 setOption("prediction.subgroup", FALSE)
 setOption("keepdata", TRUE)
+setOption("keeprma", FALSE)
 setOption("warn", TRUE)
-setOption("warn.deprecated", FALSE)
+setOption("warn.deprecated", TRUE)
 setOption("transf", TRUE)
 setOption("backtransf", TRUE)
 setOption("digits", 4)
@@ -767,6 +776,7 @@ setOption("print.tau2.ci", TRUE)
 setOption("print.tau", TRUE)
 setOption("print.tau.ci", TRUE)
 setOption("print.I2", TRUE)
+setOption("print.I2.ci", TRUE)
 setOption("print.H", TRUE)
 setOption("print.Rb", FALSE)
 setOption("text.tau2", "tau^2")
@@ -887,7 +897,7 @@ setOption("col.diamond", "gray")
 setOption("col.diamond.lines", "black")
 setOption("col.predict", "red")
 setOption("col.predict.lines", "black")
-setOption("col.subgroup", "darkgray")
+setOption("col.subgroup", "black")
 setOption("col.label.right", "black")
 setOption("col.label.left", "black")
 ##

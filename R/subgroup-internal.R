@@ -55,3 +55,12 @@ addNAs <- function(x, max) {
 
 first <- function(x)
   x[1]
+
+subsetVar <- function(x, subset) {
+  if (is.null(x))
+    return(x)
+  else if (length(x) == 1)
+    return(x)
+  else
+    return(x[subset])
+}

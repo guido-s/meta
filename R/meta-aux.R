@@ -1,7 +1,7 @@
 ## Auxiliary functions
 ##
 ## Package: meta
-## Author: Guido Schwarzer <guido.schwarzer@@uniklinik-freiburg.de>
+## Author: Guido Schwarzer <guido.schwarzer@uniklinik-freiburg.de>
 ## License: GPL (>= 2)
 ##
 
@@ -308,7 +308,6 @@ backward <- function(x) {
   res
 }
 
-
 ci2meta <- function(x, ci.c = NULL, ci.r = NULL) {
   res <- x
   ##
@@ -335,7 +334,6 @@ ci2meta <- function(x, ci.c = NULL, ci.r = NULL) {
   res
 }
 
-
 setNAwithin <- function(x, condition) {
   res <- x
   ##
@@ -350,11 +348,11 @@ setNAwithin <- function(x, condition) {
   res
 }
 
-
 extrVar <- function(x, name)
   x[[name]]
 
-
+# Function only used with MLM, GLMM, or LRP
+#
 calcPI <- function(x) {
   
   res <- x
@@ -370,11 +368,9 @@ calcPI <- function(x) {
   ##
   tau2.calc <- if (is.na(sum(res$tau2))) 0 else sum(res$tau2)
   seTE.predict <- sqrt(seTE.random^2 + tau2.calc)
-  ##
-  df.predict <-
-    ifelse(method.predict == "HTS" & k >= 3, k - 2,
-    ifelse(method.predict == "S", Inf, NA))
-  ##
+  #
+  df.predict <- set_df_predict(method.predict, k)
+  #
   ci.p <- ci(TE.random, seTE.predict, level.predict, df = df.predict)
   ##
   res$seTE.predict <- rep_len(seTE.predict, length(df.predict))
@@ -389,7 +385,6 @@ calcPI <- function(x) {
   ##
   res
 }
-
 
 runMLM <- function(x, method.tau, method.random.ci, level,
                    warn = TRUE, ...) {
@@ -461,7 +456,6 @@ extrMLM <- function(x, k, len, sel,
   res
 }
 
-
 runGLMM <- function(x, method.tau, method.random.ci, level,
                     use.random = TRUE, warn = TRUE, ...) {
   
@@ -482,13 +476,20 @@ runGLMM <- function(x, method.tau, method.random.ci, level,
     if (use.random) {
       res.r[[i]] <-
         try(runNN(rma.glmm, list.r[[i]], warn = warn), silent = TRUE)
-      if ("try-error" %in% class(res.r[[i]]))
+      #
+      if ("try-error" %in% class(res.r[[i]])) {
         if (grepl(paste0("Number of parameters to be estimated is ",
                          "larger than the number of observations"),
-                  res.r[[i]]))
+                  res.r[[i]]) |
+            grepl("Cannot fit ML model.", res.r[[i]])) {
+          warning(paste(res.r[[i]],
+                        " Using result of common effect model as fallback."))
+          #
           res.r[[i]] <- res.c
+        }
         else
           stop(res.r[[i]])
+      }
     }
     else {
       ## Fallback to common effect model due to small number of
@@ -502,8 +503,7 @@ runGLMM <- function(x, method.tau, method.random.ci, level,
   res
 }
 
-
-addGLMM <- function(x, glmm) {
+addGLMM <- function(x, glmm, method.I2) {
   
   res <- x
   ##
@@ -585,15 +585,26 @@ addGLMM <- function(x, glmm) {
   ##
   res$sign.upper.tau <- res$sign.lower.tau <- res$method.tau.ci <- ""
   ##
-  H <- calcH(Q, df.Q, level.ma)
-  res$H <- H$TE
-  res$lower.H <- H$lower
-  res$upper.H <- H$upper
-  ##
-  I2 <- isquared(Q, df.Q, level.ma)
-  res$I2 <- I2$TE
-  res$lower.I2 <- I2$lower
-  res$upper.I2 <- I2$upper
+  if (method.I2 == "Q") {
+    H <- calcH(Q, df.Q, level.ma)
+    res$H <- H$TE
+    res$lower.H <- H$lower
+    res$upper.H <- H$upper
+    #
+    I2 <- isquared(Q, df.Q, level.ma)
+    res$I2 <- I2$TE
+    res$lower.I2 <- I2$lower
+    res$upper.I2 <- I2$upper
+  }
+  else {
+    res$H <- sqrt(glmm$H2)
+    res$lower.H <- NA
+    res$upper.H <- NA
+    #
+    res$I2 <- glmm$I2 / 100
+    res$lower.I2 <- NA
+    res$upper.I2 <- NA
+  }
   ##
   res$upper.Rb <- res$lower.Rb <- res$Rb <- NA
   ##
@@ -609,13 +620,18 @@ addGLMM <- function(x, glmm) {
   res
 }
 
-
-hccGLMM <- function(x, glmm) {
+hccGLMM <- function(x, glmm, method.I2) {
   Q.r <- glmm$QE.Wld
   df.Q.r <- glmm$k - glmm$p
   ##
-  H.r  <- calcH(Q.r, df.Q.r, x$level.ma)
-  I2.r <- isquared(Q.r, df.Q.r, x$level.ma)
+  if (method.I2 == "Q") {
+    H.r  <- calcH(Q.r, df.Q.r, x$level.ma)
+    I2.r <- isquared(Q.r, df.Q.r, x$level.ma)
+  }
+  else {
+    H.r  <- list(TE = sqrt(glmm$H2), lower = NA, upper = NA)
+    I2.r <- list(TE = glmm$I2 / 100, lower = NA, upper = NA)
+  }
   ##
   list(tau2.resid = glmm$tau2,
        lower.tau2.resid = NA,
@@ -640,6 +656,72 @@ hccGLMM <- function(x, glmm) {
        upper.I2.resid = I2.r$upper
        )
 }
+
+runLRP <- function(event1, n1, event2, n2, warn = TRUE, ...) {
+  
+  dat.bin <- data.frame(event1, n1, event2, n2)
+  #
+  long.bin <-
+    longarm("B", "A", event1 = event1, n1 = n1, event2 = event2, n2 = n2,
+            data = dat.bin)
+  #
+  text.lrp <- "cbind(events, nonevents) ~ as.factor(studlab) + as.factor(treat)"
+  #
+  formula.lrp <- as.formula(text.lrp)
+  #
+  fit.glm <-
+    glm(formula.lrp,
+        data = long.bin,
+        family = binomial(link = "logit"), method = "glm.fit")
+  #
+  res.lrp <- update(fit.glm, method = brglm2::brglmFit, type = "MPL_Jeffreys")
+  #
+  phi <- phi(res.lrp)
+  #
+  sel.trt <- grepl("treat", names(coef(res.lrp)))
+  #
+  TE.common   <- as.numeric(coef(res.lrp)[sel.trt])
+  seTE.common <- as.numeric(sqrt(diag(vcov(res.lrp)))[sel.trt])
+  #
+  res <- list(TE.common = TE.common, seTE.common = seTE.common,
+              TE.random = TE.common, seTE.random = seTE.common * phi,
+              phi = phi, fit = res.lrp)
+  #
+  res
+}
+
+# Estimate the heterogeneity parameter phi using the
+# modified version of Pearson's statistic.
+#
+phi <- function(x) {
+  # Extract number of trials
+  n.trials <- x$prior.weights
+  #
+  if (identical(unique(n.trials), 1))
+    stop("The number of successes must be summarized for valid computation of ",
+         "c-hat.")
+  
+  # Pearson chi-square
+  chisq <- sum(residuals(x, type = "pearson")^2)
+  
+  # Extract raw residuals
+  raw.res <- residuals(x, type = "response")
+  
+  # Extract fitted values
+  fit.vals <- fitted(x)
+  
+  # Estimate s.bar
+  s.bar <- mean((1 - 2 * fit.vals) / ((n.trials * fit.vals) * (1 - fit.vals)))
+  
+  # Calculate estimate based on Fletcher estimator
+  phi <- (chisq / x$df.residual) / (1 + s.bar)
+  
+  # Set phi = 1 if phi < 1 to remain consistent with common effect model
+  phi <- max(phi, 1)
+  
+  phi
+}
+
 
 calcPercent <- function(x)
   100 * x / sum(x, na.rm = TRUE)
@@ -705,7 +787,6 @@ list2vec <- function(x) {
     return(x)
 }
 
-
 em2sm <- function(x, type = NULL) {
   x[x == "Odds Ratio"] <- "OR"
   x[x == "Odds Ratio (Non-event)"] <- "OR"
@@ -728,4 +809,48 @@ sm2meth <- function(x) {
   x[x == "EXP_O_E_VAR"] <- "Peto"
   ##
   x
+}
+
+setsv <- function(x) {
+  if (is.null(x))
+    res <- "desirable"
+  else {
+    res <- setchar(x, c("good", "bad"), stop.at.error = FALSE)
+    #
+    if (!is.null(res))
+      res <- switch(res, good = "desirable", bad = "undesirable")
+    else
+      res <- x
+  }
+  #
+  setchar(res, c("desirable", "undesirable"))
+}
+
+expand <- function(x, y) {
+  if (length(x) == 1 & length(y) > 1)
+    return(rep_len(x, length(y)))
+  else
+    return(x)  
+}
+
+expandvar <- function(x, n, length = NULL) {
+  res <- x
+  if (!is.null(length))
+    lenOK <- length(x) == length
+  else
+    lenOK <- TRUE
+  ##
+  if (lenOK & length(x) != n)
+    res <- rep(x, rep_len(n, length(x)))
+  ##
+  res
+}
+
+ignore_input <- function(x, cond = TRUE, text = "") {
+  if (cond)
+    warning("Argument '", deparse(substitute(x)), "' ignored",
+            if (text != "") " ", text, ".",
+            call. = FALSE)
+  #
+  invisible(NULL)
 }

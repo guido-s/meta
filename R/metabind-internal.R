@@ -24,7 +24,9 @@ meta2meth <- function(x, outclab = NULL) {
        tau.preset = replaceNULL(x$tau.preset),
        TE.tau = replaceNULL(x$TE.tau),
        tau.common = replaceNULL(x$tau.common, FALSE),
-       ##
+       #
+       method.I2 = replaceNULL(x$method.I2, "Q"),
+       #
        prediction = x$prediction,
        prediction.subgroup =
          replaceNULL(x$prediction.subgroup, FALSE),
@@ -88,9 +90,9 @@ overall2meta <- function(x, common, random, prediction, name) {
       n.e = sum(replaceNULL(x$n.e)),
       n.c = sum(replaceNULL(x$n.c)),
       ##
-      Q = x$Q,
-      df.Q = x$df.Q,
-      pval.Q = x$pval.Q,
+      Q = x$Q[1],
+      df.Q = x$df.Q[1],
+      pval.Q = x$pval.Q[1],
       ##
       tau2 = x$tau2,
       lower.tau2 = x$lower.tau2,
@@ -197,9 +199,9 @@ subgr2meta <- function(x, common, random, prediction, name) {
     n.e = replaceNULL(x$n.e),
     n.c = replaceNULL(x$n.c),
     ##
-    Q = x$Q,
-    df.Q = x$df.Q,
-    pval.Q = x$pval.Q,
+    Q = x$Q[1],
+    df.Q = x$df.Q[1],
+    pval.Q = x$pval.Q[1],
     ##
     tau2 = x$tau2,
     tau = x$tau,
@@ -263,7 +265,11 @@ overall2subgr <- function(x) {
   ##
   for (i in vars)
     res[[paste0(i, ".w")]] <- replaceNULL(x[[i]])
-  ##
+  #
+  res$Q.w <- res$Q.w[1]
+  res$df.Q.w <- res$df.Q.w[1]
+  res$pval.Q.w <- res$pval.Q.w[1]
+  #
   res
 }
 
@@ -340,7 +346,12 @@ subgr2data <- function(x, common, random, prediction, name, debug = FALSE) {
     c(if (common) rep(NA, n.subgr),
       if (random) rep(replaceNULL(x$tau.preset, NA), n.subgr),
       if (prediction) rep(NA, n.subgr))
-  ##
+  #
+  res$method.I2 <-
+    c(if (common) rep(x$method.I2, n.subgr),
+      if (random) rep(x$method.I2, n.subgr),
+      if (prediction) rep("", n.subgr))
+  #
   res$method.random.ci <-
     c(if (common) rep("", n.subgr),
       if (random) rep(x$method.random.ci, n.subgr),
@@ -466,15 +477,18 @@ subgr2data <- function(x, common, random, prediction, name, debug = FALSE) {
     c(if (common) addNAs2var(x$pval.Q.b.common, n.subgr),
       if (random) addNAs2var(x$pval.Q.b.random, n.subgr),
       if (prediction) rep(NA, n.subgr))
-  ##
-  if (!debug)
-    res <- as.data.frame(res, row.names = seq_len(length(res$TE)))
-  ##
+  #
+  if (debug)
+    print(res)
+  #
+  res <- as.data.frame(res, row.names = seq_len(length(res$TE)))
+  #
   res
 }
 
 
-overall2data <- function(x, common, random, prediction, name, debug = FALSE) {
+overall2data <- function(x, common, random, prediction, name, subgroup,
+                         debug = FALSE) {
   res <- list()
   ##
   res$studlab <-
@@ -523,7 +537,12 @@ overall2data <- function(x, common, random, prediction, name, debug = FALSE) {
     c(if (common) NA,
       if (random) replaceNULL(x$tau.preset, NA),
       if (prediction) NA)
-  ##
+  #
+  res$method.I2 <-
+    c(if (common) x$method.I2,
+      if (random) x$method.I2,
+      if (prediction) "")
+  #
   res$method.random.ci <-
     c(if (common) "",
       if (random) x$method.random.ci,
@@ -602,9 +621,9 @@ overall2data <- function(x, common, random, prediction, name, debug = FALSE) {
   ##
   sumcrp <- common + random + prediction
   ##
-  res$Q <- c(x$Q, rep(NA, sumcrp - 1))
-  res$df.Q <- c(x$df.Q, rep(NA, sumcrp - 1))
-  res$pval.Q <- c(x$pval.Q, rep(NA, sumcrp - 1))
+  res$Q <- c(x$Q[1], rep(NA, sumcrp - 1))
+  res$df.Q <- c(x$df.Q[1], rep(NA, sumcrp - 1))
+  res$pval.Q <- c(x$pval.Q[1], rep(NA, sumcrp - 1))
   ##
   res$tau2 <- c(x$tau2, rep(NA, sumcrp - 1))
   res$tau <- c(x$tau, rep(NA, sumcrp - 1))
@@ -620,10 +639,14 @@ overall2data <- function(x, common, random, prediction, name, debug = FALSE) {
   res$Rb <- c(x$Rb, rep(NA, sumcrp - 1))
   res$lower.Rb <- c(x$lower.Rb, rep(NA, sumcrp - 1))
   res$upper.Rb <- c(x$upper.Rb, rep(NA, sumcrp - 1))
-  ##
-  if (!debug)
-    res <- as.data.frame(res)
-  ##
+  #
+  res$subgroup <- subgroup
+  #
+  if (debug)
+    print(res)
+  #
+  res <- as.data.frame(res)
+  #
   res
 }
 
@@ -633,20 +656,6 @@ makeunique <- function(x, val = NA) {
   ##
   if (length(res) != 1)
     res <- val
-  ##
-  res
-}
-
-
-expandvar <- function(x, n, length = NULL) {
-  res <- x
-  if (!is.null(length))
-    lenOK <- length(x) == length
-  else
-    lenOK <- TRUE
-  ##
-  if (lenOK & length(x) != n)
-    res <- rep(x, rep_len(n, length(x)))
   ##
   res
 }

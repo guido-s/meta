@@ -378,16 +378,22 @@ print.blup.meta <- function(x, backtransf = attr(x, "x")$backtransf,
     prmatrix(res.i, quote = FALSE, right = TRUE, ...)
   }
   #
-  if (details) {
+  if (details)
     details <-
-      catmeth(meta,
-              FALSE, TRUE, FALSE, TRUE, TRUE,
-              NULL, backtransf, NULL,
-              big.mark, digits, digits.tau,
-              gs("text.tau"), gs("text.tau2"),
-              print.tau2, FALSE, print.tau, FALSE,
-              print.df = !by)
-  }
+    catmeth(meta,
+            common = FALSE, random = TRUE, prediction = FALSE,
+            overall = TRUE, overall.hetstat = TRUE,
+            #
+            func.transf = NULL,
+            backtransf = backtransf, func.backtransf = NULL,
+            #
+            big.mark = big.mark, digits = digits, digits.tau = digits.tau,
+            text.tau = gs("text.tau"), text.tau2 = gs("text.tau2"),
+            #
+            print.tau2 = print.tau2, print.tau2.ci = FALSE,
+            print.tau = print.tau, print.tau.ci = FALSE,
+            #
+            print.df = !by)
   #
   invisible(details)
 }
@@ -583,15 +589,20 @@ print.estimates.blup.meta <- function(x,
   #
   prmatrix(x, quote = FALSE, right = TRUE, ...)
   #
-  if (details) {
+  if (details)
     details <-
       catmeth(meta,
-              FALSE, TRUE, FALSE, TRUE, TRUE,
-              NULL, backtransf, NULL,
-              big.mark, digits, digits.tau,
-              gs("text.tau"), gs("text.tau2"),
-              TRUE, FALSE, FALSE, FALSE)
-  }
+              common = FALSE, random = TRUE, prediction = FALSE,
+              overall = TRUE, overall.hetstat = TRUE,
+              #
+              func.transf = NULL,
+              backtransf = backtransf, func.backtransf = NULL,
+              #
+              big.mark = big.mark, digits = digits, digits.tau = digits.tau,
+              text.tau = gs("text.tau"), text.tau2 = gs("text.tau2"),
+              #
+              print.tau2 = TRUE, print.tau2.ci = FALSE,
+              print.tau = FALSE, print.tau.ci = FALSE)
   #
   invisible(details)
 }

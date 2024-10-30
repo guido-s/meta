@@ -5,7 +5,8 @@
 #' with continuous outcome data; inverse variance weighting is used
 #' for pooling.
 #' 
-#' @param n.e Number of observations in experimental group.
+#' @param n.e Number of observations in experimental group or an R object
+#'   created with \code{\link{pairwise}}.
 #' @param mean.e Estimated mean in experimental group.
 #' @param sd.e Standard deviation in experimental group.
 #' @param n.c Number of observations in control group.
@@ -82,12 +83,18 @@
 #' @param method.tau.ci A character string indicating which method is
 #'   used to estimate the confidence interval of \eqn{\tau^2} and
 #'   \eqn{\tau} (see \code{\link{meta-package}}).
+#' @param level.hetstat The level used to calculate confidence intervals
+#'   for heterogeneity statistics.
 #' @param tau.preset Prespecified value for the square root of the
 #'   between-study variance \eqn{\tau^2}.
 #' @param TE.tau Overall treatment effect used to estimate the
 #'   between-study variance tau-squared.
 #' @param tau.common A logical indicating whether tau-squared should
 #'   be the same across subgroups.
+#' @param method.I2 A character string indicating which method is
+#'   used to estimate the heterogeneity statistic I\eqn{^2}. Either
+#'   \code{"Q"} or \code{"tau2"}, can be abbreviated
+#'   (see \code{\link{meta-package}}).
 #' @param level.ma The level used to calculate confidence intervals
 #'   for meta-analysis estimates.
 #' @param method.random.ci A character string indicating which method
@@ -130,8 +137,12 @@
 #' @param outclab Outcome label.
 #' @param label.e Label for experimental group.
 #' @param label.c Label for control group.
-#' @param label.left Graph label on left side of forest plot.
-#' @param label.right Graph label on right side of forest plot.
+#' @param label.left Graph label on left side of null effect in forest plot.
+#' @param label.right Graph label on right side of null effect in forest plot.
+#' @param col.label.left The colour of the graph label on the left side of
+#'   the null effect.
+#' @param col.label.right The colour of the graph label on the right side of
+#'   the null effect.
 #' @param sm A character string indicating which summary measure
 #'   (\code{"MD"}, \code{"SMD"}, or \code{"ROM"}) is to be used for
 #'   pooling of studies.
@@ -191,7 +202,7 @@
 #' for pooling.
 #' 
 #' A three-level random effects meta-analysis model (Van den Noortgate
-#' et al., 2013) is utilized if argument \code{cluster} is used and at
+#' et al., 2013) is utilised if argument \code{cluster} is used and at
 #' least one cluster provides more than one estimate. Internally,
 #' \code{\link[metafor]{rma.mv}} is called to conduct the analysis and
 #' \code{\link[metafor]{weights.rma.mv}} with argument \code{type =
@@ -272,7 +283,7 @@
 #'   \code{median.e}, \code{min.e}, and \code{max.e}).
 #' }
 #' 
-#' By default, methods described in Luo et al. (2018) are utilized
+#' By default, methods described in Luo et al. (2018) are utilised
 #' (argument \code{method.mean = "Luo"}):
 #' \itemize{
 #' \item equation (15) if sample size, median, interquartile range and 
@@ -431,7 +442,7 @@
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @seealso \code{\link{meta-package}}, \code{\link{update.meta}},
-#'   \code{\link{metabin}}, \code{\link{metagen}}
+#'   \code{\link{metabin}}, \code{\link{metagen}}, \code{\link{pairwise}}
 #' 
 #' @references
 #' Borenstein M, Hedges LV, Higgins JPT, Rothstein HR (2009):
@@ -590,9 +601,12 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                      ##
                      method.tau = gs("method.tau"),
                      method.tau.ci = gs("method.tau.ci"),
+                     level.hetstat = gs("level.hetstat"),
                      tau.preset = NULL, TE.tau = NULL,
                      tau.common = gs("tau.common"),
-                     ##
+                     #
+                     method.I2 = gs("method.I2"),
+                     #
                      level.ma = gs("level.ma"),
                      method.random.ci = gs("method.random.ci"),
                      adhoc.hakn.ci = gs("adhoc.hakn.ci"),
@@ -614,10 +628,13 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                      ##
                      title = gs("title"), complab = gs("complab"),
                      outclab = "",
+                     #
                      label.e = gs("label.e"), label.c = gs("label.c"),
                      label.left = gs("label.left"),
                      label.right = gs("label.right"),
-                     ##
+                     col.label.left = gs("col.label.left"),
+                     col.label.right = gs("col.label.right"),
+                     #
                      subgroup, subgroup.name = NULL,
                      print.subgroup.name = gs("print.subgroup.name"),
                      sep.subgroup = gs("sep.subgroup"),
@@ -638,36 +655,95 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   ## (1) Check arguments
   ##
   ##
+  
+  missing.sm <- missing(sm)
+  missing.subgroup <- missing(subgroup)
+  missing.byvar <- missing(byvar)
+  missing.overall <- missing(overall)
+  missing.overall.hetstat <- missing(overall.hetstat)
+  missing.test.subgroup <- missing(test.subgroup)
+  #
+  missing.n.c <- missing(n.c)
+  missing.mean.e <- missing(mean.e)
+  missing.mean.c <- missing(mean.c)
+  missing.sd.e <- missing(sd.e)
+  missing.sd.c <- missing(sd.c)
+  #
+  missing.studlab <- missing(studlab)
+  #
+  missing.method.tau <- missing(method.tau)
+  missing.tau.common <- missing(tau.common)
+  missing.method.predict <- missing(method.predict)
+  missing.level.ma <- missing(level.ma)
+  missing.common <- missing(common)
+  missing.random <- missing(random)
+  missing.method.random.ci <- missing(method.random.ci)
+  missing.adhoc.hakn.ci <- missing(adhoc.hakn.ci)
+  missing.adhoc.hakn <- missing(adhoc.hakn)
+  missing.subgroup.name <- missing(subgroup.name)
+  missing.print.subgroup.name <- missing(print.subgroup.name)
+  missing.sep.subgroup <- missing(sep.subgroup)
+  missing.complab <- missing(complab)
+  #
+  missing.cluster <- missing(cluster)
+  missing.id <- missing(id)
+  #
+  missing.median.e <- missing(median.e)
+  missing.q1.e <- missing(q1.e)
+  missing.q3.e <- missing(q3.e)
+  missing.min.e <- missing(min.e)
+  missing.max.e <- missing(max.e)
+  ##
+  missing.median.c <- missing(median.c)
+  missing.q1.c <- missing(q1.c)
+  missing.q3.c <- missing(q3.c)
+  missing.min.c <- missing(min.c)
+  missing.max.c <- missing(max.c)
+  ##
+  missing.approx.mean.e <- missing(approx.mean.e)
+  ##
+  if (missing.approx.mean.e)
+    missing.approx.mean.c <- missing(approx.mean.c)
+  else
+    missing.approx.mean.c <- FALSE
+  ##
+  missing.approx.sd.e <- missing(approx.sd.e)
+  if (missing.approx.sd.e)
+    missing.approx.sd.c <- missing(approx.sd.c)
+  else
+    missing.approx.sd.c <- FALSE
+  #
   chknumeric(rho, min = -1, max = 1)
   ##
   chknull(sm)
   sm <- setchar(sm, gs("sm4cont"))
   chklevel(level)
   ##
-  missing.method.tau <- missing(method.tau)
   method.tau <- setchar(method.tau, gs("meth4tau"))
   ##
-  missing.tau.common <- missing(tau.common)
   tau.common <- replaceNULL(tau.common, FALSE)
   chklogical(tau.common)
-  ##
+  #
+  method.I2 <- setchar(method.I2, gs("meth4i2"))
+  #
   chklogical(prediction)
   chklevel(level.predict)
   ##
-  missing.method.predict <- missing(method.predict)
   ##
   method.tau <-
-    setmethodtau(method.tau, missing.method.tau,
+    set_method_tau(method.tau, missing.method.tau,
                  method.predict, missing.method.predict)
   method.predict <-
-    setmethodpredict(method.predict, missing.method.predict,
+    set_method_predict(method.predict, missing.method.predict,
                      method.tau, missing.method.tau)
   ##
   if (any(method.predict == "NNF"))
     is_installed_package("pimeta", argument = "method.predict", value = "NNF")
   ##
-  adhoc.hakn.pi <- setchar(adhoc.hakn.pi, gs("adhoc4hakn.pi"))
-  ## Classic tests + Pustejovsky
+  adhoc.hakn.pi <- setchar(replaceNA(adhoc.hakn.pi, ""), gs("adhoc4hakn.pi"))
+  #
+  # Classic tests + Pustejovsky
+  #
   method.bias <-
     setmethodbias(method.bias, c(1:3, if (sm == "SMD") 8))
   ##
@@ -713,23 +789,22 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   args  <- list(...)
   chklogical(warn.deprecated)
   ##
-  level.ma <- deprecated(level.ma, missing(level.ma), args, "level.comb",
+  level.ma <- deprecated(level.ma, missing.level.ma, args, "level.comb",
                          warn.deprecated)
   chklevel(level.ma)
   ##
-  missing.common <- missing(common)
   common <- deprecated(common, missing.common, args, "comb.fixed",
-                      warn.deprecated)
+                       warn.deprecated)
   common <- deprecated(common, missing.common, args, "fixed",
-                      warn.deprecated)
+                       warn.deprecated)
   chklogical(common)
   ##
-  random <- deprecated(random, missing(random), args, "comb.random",
+  random <- deprecated(random, missing.random, args, "comb.random",
                        warn.deprecated)
   chklogical(random)
   ##
   method.random.ci <-
-    deprecated(method.random.ci, missing(method.random.ci),
+    deprecated(method.random.ci, missing.method.random.ci,
                args, "hakn", warn.deprecated)
   if (is.logical(method.random.ci))
     if (method.random.ci)
@@ -739,24 +814,23 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   method.random.ci <- setchar(method.random.ci, gs("meth4random.ci"))
   ##
   adhoc.hakn.ci <-
-    deprecated2(adhoc.hakn.ci, missing(adhoc.hakn.ci),
-                adhoc.hakn, missing(adhoc.hakn), warn.deprecated)
-  adhoc.hakn.ci <- setchar(adhoc.hakn.ci, gs("adhoc4hakn.ci"))
-  ##
-  missing.subgroup.name <- missing(subgroup.name)
+    deprecated2(adhoc.hakn.ci, missing.adhoc.hakn.ci,
+                adhoc.hakn, missing.adhoc.hakn, warn.deprecated)
+  adhoc.hakn.ci <- setchar(replaceNA(adhoc.hakn.ci, ""), gs("adhoc4hakn.ci"))
+  #
   subgroup.name <-
     deprecated(subgroup.name, missing.subgroup.name, args, "bylab",
                warn.deprecated)
   ##
   print.subgroup.name <-
-    deprecated(print.subgroup.name, missing(print.subgroup.name),
+    deprecated(print.subgroup.name, missing.print.subgroup.name,
                args, "print.byvar", warn.deprecated)
   print.subgroup.name <-
     replaceNULL(print.subgroup.name, gs("print.subgroup.name"))
   chklogical(print.subgroup.name)
   ##
   sep.subgroup <-
-    deprecated(sep.subgroup, missing(sep.subgroup), args, "byseparator",
+    deprecated(sep.subgroup, missing.sep.subgroup, args, "byseparator",
                warn.deprecated)
   if (!is.null(sep.subgroup))
     chkchar(sep.subgroup, length = 1)
@@ -772,6 +846,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   ## (2) Read data
   ##
   ##
+  
   nulldata <- is.null(data)
   sfsp <- sys.frame(sys.parent())
   mc <- match.call()
@@ -779,74 +854,161 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   if (nulldata)
     data <- sfsp
   ##
-  ## Catch 'n.e', 'mean.e', 'sd.e', 'n.c', 'mean.c', 'sd.c' from data:
+  ## Catch 'n.e', 'mean.e', 'sd.e', 'n.c', 'mean.c', 'sd.c', 'studlab',
+  ## and 'subgroup' from data:
   ##
   n.e <- catch("n.e", mc, data, sfsp)
   chknull(n.e)
+  #
+  if (is.data.frame(n.e) & !is.null(attr(n.e, "pairwise"))) {
+    type <- attr(n.e, "type")
+    if (type != "continuous")
+      stop("Wrong type for pairwise() object: '", type, "'.", call. = FALSE)
+    #
+    is.pairwise <- TRUE
+    #
+    txt.ignore <- "ignored as first argument is a pairwise object"
+    #
+    ignore_input(n.c, !missing.n.c, txt.ignore)
+    ignore_input(mean.e, !missing.mean.e, txt.ignore)
+    ignore_input(mean.c, !missing.mean.c, txt.ignore)
+    ignore_input(sd.e, !missing.sd.e, txt.ignore)
+    ignore_input(sd.c, !missing.sd.c, txt.ignore)
+    ignore_input(studlab, !missing.studlab, txt.ignore)
+    #
+    missing.n.c <- FALSE
+    missing.mean.e <- FALSE
+    missing.mean.c <- FALSE
+    missing.sd.e <- FALSE
+    missing.sd.c <- FALSE
+    #
+    if (missing.sm)
+      sm <- attr(n.e, "sm")
+    #
+    reference.group <- attr(n.e, "reference.group")
+    #
+    studlab <- n.e$studlab
+    #
+    treat1 <- n.e$treat1
+    treat2 <- n.e$treat2
+    #
+    n.c <- n.e$n2
+    mean.e <- n.e$mean1
+    mean.c <- n.e$mean2
+    sd.e <- n.e$sd1
+    sd.c <- n.e$sd2
+    #
+    pairdata <- n.e
+    data <- n.e
+    nulldata <- FALSE
+    #
+    n.e <- n.e$n1
+    #
+    wo <- treat1 == reference.group
+    #
+    if (any(wo)) {
+      ttreat1 <- treat1
+      treat1[wo] <- treat2[wo]
+      treat2[wo] <- ttreat1[wo]
+      #
+      tn.e <- n.e
+      n.e[wo] <- n.c[wo]
+      n.c[wo] <- tn.e[wo]
+      #
+      tmean.e <- mean.e
+      mean.e[wo] <- mean.c[wo]
+      mean.c[wo] <- tmean.e[wo]
+      #
+      tsd.e <- sd.e
+      sd.e[wo] <- sd.c[wo]
+      sd.c[wo] <- tsd.e[wo]
+    }
+    #
+    if (missing.subgroup) {
+      #subgroup <- paste(paste0("'", treat1, "'"),
+      #                  paste0("'", treat2, "'"),
+      #                  sep = " vs ")
+      subgroup <- paste(treat1, treat2, sep = " vs ")
+      #
+      if (length(unique(subgroup)) == 1) {
+        if (missing.complab)
+          complab <- unique(subgroup)
+        #
+        subgroup <- NULL
+      }
+      else {
+        if (missing.overall)
+          overall <- FALSE
+        if (missing.overall.hetstat)
+          overall.hetstat <- FALSE
+        if (missing.test.subgroup)
+          test.subgroup <- FALSE
+      }
+    }
+    else
+      subgroup <- catch("subgroup", mc, data, sfsp)
+  }
+  else {
+    is.pairwise <- FALSE
+    #
+    if (missing.sm && !is.null(data) && !is.null(attr(data, "sm")))
+      sm <- attr(data, "sm")
+    #
+    mean.e <- catch("mean.e", mc, data, sfsp)
+    sd.e <- catch("sd.e", mc, data, sfsp)
+    #
+    n.c <- catch("n.c", mc, data, sfsp)
+    chknull(n.c)
+    mean.c <- catch("mean.c", mc, data, sfsp)
+    sd.c <- catch("sd.c", mc, data, sfsp)
+    #
+    studlab <- catch("studlab", mc, data, sfsp)
+    ##
+    subgroup <- catch("subgroup", mc, data, sfsp)
+    byvar <- catch("byvar", mc, data, sfsp)
+    ##
+    subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
+                            warn.deprecated)
+  }
+  #
   k.All <- length(n.e)
-  ##
-  missing.mean.e <- missing(mean.e)
-  missing.mean.c <- missing(mean.c)
-  missing.sd.e <- missing(sd.e)
-  missing.sd.c <- missing(sd.c)
-  ##
-  mean.e <- catch("mean.e", mc, data, sfsp)
+  #
   avail.mean.e <- !(missing.mean.e || is.null(mean.e))
   if (avail.mean.e)
     chknull(mean.e)
   else
     mean.e <- rep(NA, k.All)
-  ##
-  sd.e <- catch("sd.e", mc, data, sfsp)
+  #
   avail.sd.e <- !(missing.sd.e || is.null(sd.e))
   if (avail.sd.e)
     chknull(sd.e)
   else
     sd.e <- rep(NA, k.All)
-  ##
-  n.c <- catch("n.c", mc, data, sfsp)
-  chknull(n.c)
-  ##
-  mean.c <- catch("mean.c", mc, data, sfsp)
+  #
   avail.mean.c <- !(missing.mean.c || is.null(mean.c))
   if (avail.mean.c)
     chknull(mean.c)
   else
     mean.c <- rep(NA, k.All)
-  ##
-  sd.c <- catch("sd.c", mc, data, sfsp)
   avail.sd.c <- !(missing.sd.c || is.null(sd.c))
   if (avail.sd.c)
     chknull(sd.c)
   else
     sd.c <- rep(NA, k.All)
-  
-  
-  ##
-  ## Catch 'studlab', 'subgroup', 'subset', 'exclude', and
-  ## 'cluster' from data:
-  ##
-  studlab <- catch("studlab", mc, data, sfsp)
+  #
   studlab <- setstudlab(studlab, k.All)
-  ##
-  missing.subgroup <- missing(subgroup)
-  subgroup <- catch("subgroup", mc, data, sfsp)
-  missing.byvar <- missing(byvar)
-  byvar <- catch("byvar", mc, data, sfsp)
-  ##
-  subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
-                          warn.deprecated)
+  #
   by <- !is.null(subgroup)
-  ##
+  #
+  # Catch 'subset', 'exclude', and 'cluster' from data:
+  #
   subset <- catch("subset", mc, data, sfsp)
   missing.subset <- is.null(subset)
   ##
   exclude <- catch("exclude", mc, data, sfsp)
   missing.exclude <- is.null(exclude)
   ##
-  missing.cluster <- missing(cluster)
   cluster <- catch("cluster", mc, data, sfsp)
-  missing.id <- missing(id)
   id <- catch("id", mc, data, sfsp)
   ##
   cluster <- deprecated2(cluster, missing.cluster, id, missing.id,
@@ -860,6 +1022,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
       method.tau.ci <- "J"
      else
       method.tau.ci <- "QP"
+  #
   method.tau.ci <- setchar(method.tau.ci, gs("meth4tau.ci"))
   
   
@@ -888,40 +1051,35 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   ##
   max.c <- catch("max.c", mc, data, sfsp)
   ##
-  avail.median.e <- !(missing(median.e) || is.null(median.e))
-  avail.q1.e <- !(missing(q1.e) || is.null(q1.e))
-  avail.q3.e <- !(missing(q3.e) || is.null(q3.e))
-  avail.min.e <- !(missing(min.e) || is.null(min.e))
-  avail.max.e <- !(missing(max.e) || is.null(max.e))
+  avail.median.e <- !(missing.median.e || is.null(median.e))
+  avail.q1.e <- !(missing.q1.e || is.null(q1.e))
+  avail.q3.e <- !(missing.q3.e || is.null(q3.e))
+  avail.min.e <- !(missing.min.e || is.null(min.e))
+  avail.max.e <- !(missing.max.e || is.null(max.e))
   ##
-  avail.median.c <- !(missing(median.c) || is.null(median.c))
-  avail.q1.c <- !(missing(q1.c) || is.null(q1.c))
-  avail.q3.c <- !(missing(q3.c) || is.null(q3.c))
-  avail.min.c <- !(missing(min.c) || is.null(min.c))
-  avail.max.c <- !(missing(max.c) || is.null(max.c))
-  ##
-  missing.approx.mean.e <- missing(approx.mean.e)
-  missing.approx.sd.e <- missing(approx.sd.e)
-  ##
-  if (missing.approx.mean.e)
-    missing.approx.mean.c <- missing(approx.mean.c)
-  else
-    missing.approx.mean.c <- FALSE
-  ##
-  if (missing.approx.sd.e)
-    missing.approx.sd.c <- missing(approx.sd.c)
-  else
-    missing.approx.sd.c <- FALSE
-  ##
+  avail.median.c <- !(missing.median.c || is.null(median.c))
+  avail.q1.c <- !(missing.q1.c || is.null(q1.c))
+  avail.q3.c <- !(missing.q3.c || is.null(q3.c))
+  avail.min.c <- !(missing.min.c || is.null(min.c))
+  avail.max.c <- !(missing.max.c || is.null(max.c))
+  #
   approx.mean.e <- catch("approx.mean.e", mc, data, sfsp)
   approx.mean.c <- catch("approx.mean.c", mc, data, sfsp)
   approx.sd.e <- catch("approx.sd.e", mc, data, sfsp)
   approx.sd.c <- catch("approx.sd.c", mc, data, sfsp)
   ##
-  avail.approx.mean.e <- !(missing.approx.mean.e || is.null(approx.mean.e))
-  avail.approx.mean.c <- !(missing.approx.mean.c || is.null(approx.mean.c))
-  avail.approx.sd.e <- !(missing.approx.sd.e || is.null(approx.sd.e))
-  avail.approx.sd.c <- !(missing.approx.sd.c || is.null(approx.sd.c))
+  avail.approx.mean.e <-
+    !(missing.approx.mean.e || is.null(approx.mean.e)) &&
+    any(approx.mean.e != "")
+  avail.approx.mean.c <-
+    !(missing.approx.mean.c || is.null(approx.mean.c)) &&
+    any(approx.mean.c != "")
+  avail.approx.sd.e <-
+    !(missing.approx.sd.e || is.null(approx.sd.e)) &&
+    any(approx.sd.e != "")
+  avail.approx.sd.c <-
+    !(missing.approx.sd.c || is.null(approx.sd.c)) &&
+    any(approx.sd.c != "")
   
   
   ##
@@ -1000,34 +1158,44 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
       rep_len(approx.mean.e, k.All)
     else
       chklength(approx.mean.e, k.All, arg)
-    ##
+    #
     approx.mean.e <- setchar(approx.mean.e, c("", "iqr.range", "iqr", "range"))
   }
+  else
+    approx.mean.e <- rep_len("", k.All)
+  #
   if (avail.approx.mean.c) {
     if (length(approx.mean.c) == 1)
       rep_len(approx.mean.c, k.All)
     else
       chklength(approx.mean.c, k.All, arg)
-    ##
+    #
     approx.mean.c <- setchar(approx.mean.c, c("", "iqr.range", "iqr", "range"))
   }
-  ##
+  else
+    approx.mean.c <- rep_len("", k.All)
+  #
   if (avail.approx.sd.e) {
     if (length(approx.sd.e) == 1)
       rep_len(approx.sd.e, k.All)
     else
       chklength(approx.sd.e, k.All, arg)
-    ##
+    #
     approx.sd.e <- setchar(approx.sd.e, c("", "iqr.range", "iqr", "range"))
   }
+  else
+    approx.sd.e <- rep_len("", k.All)
+  #
   if (avail.approx.sd.c) {
     if (length(approx.sd.c) == 1)
       rep_len(approx.sd.c, k.All)
     else
       chklength(approx.sd.c, k.All, arg)
-    ##
+    #
     approx.sd.c <- setchar(approx.sd.c, c("", "iqr.range", "iqr", "range"))
   }
+  else
+    approx.sd.c <- rep_len("", k.All)
   ##
   if (by) {
     chklength(subgroup, k.All, arg)
@@ -1098,14 +1266,11 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
       data$.min.c <- min.c
     if (avail.max.c)
       data$.max.c <- max.c
-    if (avail.approx.mean.e)
-      data$.approx.mean.e <- approx.mean.e
-    if (avail.approx.mean.c)
-      data$.approx.mean.c <- approx.mean.c
-    if (avail.approx.sd.e)
-      data$.approx.sd.e <- approx.sd.e
-    if (avail.approx.sd.c)
-      data$.approx.sd.c <- approx.sd.c
+    #
+    data$.approx.mean.e <- approx.mean.e
+    data$.approx.mean.c <- approx.mean.c
+    data$.approx.sd.e <- approx.sd.e
+    data$.approx.sd.c <- approx.sd.c
     ##
     if (by)
       data$.subgroup <- subgroup
@@ -1164,14 +1329,11 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
       min.c <- min.c[subset]
     if (avail.max.c)
       max.c <- max.c[subset]
-    if (avail.approx.mean.e)
-      approx.mean.e <- approx.mean.e[subset]
-    if (avail.approx.mean.c)
-      approx.mean.c <- approx.mean.c[subset]
-    if (avail.approx.sd.e)
-      approx.sd.e <- approx.sd.e[subset]
-    if (avail.approx.sd.c)
-      approx.sd.c <- approx.sd.c[subset]
+    #
+    approx.mean.e <- approx.mean.e[subset]
+    approx.mean.c <- approx.mean.c[subset]
+    approx.sd.e <- approx.sd.e[subset]
+    approx.sd.c <- approx.sd.c[subset]
     ##
     if (by)
       subgroup <- subgroup[subset]
@@ -1274,22 +1436,19 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   ## (7) Calculate means from other information
   ##
   ##
-  method.mean.used <- FALSE
-  ##
+  
   if (!avail.approx.mean.e) {
-    approx.mean.e <- rep_len("", length(n.e))
     ##
     ## (a) Use IQR and range
     ##
     sel.NA.e <- is.na(mean.e)
     if (any(sel.NA.e) &
         avail.median.e & avail.q1.e & avail.q3.e & avail.min.e & avail.max.e) {
-      method.mean.used <- TRUE
-      ##
+      #
       j <- sel.NA.e & !is.na(median.e) & !is.na(q1.e) & !is.na(q3.e) &
         !is.na(min.e) & !is.na(max.e)
       approx.mean.e[j] <- "iqr.range"
-      ##
+      #
       mean.e[j] <- mean_sd_iqr_range(n.e[j], median.e[j], q1.e[j], q3.e[j],
                                      min.e[j], max.e[j], method.mean)$mean
     }
@@ -1299,8 +1458,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     sel.NA.e <- is.na(mean.e)
     if (any(sel.NA.e) &
         avail.median.e & avail.q1.e & avail.q3.e) {
-      method.mean.used <- TRUE
-      ##
+      #
       j <- sel.NA.e & !is.na(median.e) & !is.na(q1.e) & !is.na(q3.e)
       approx.mean.e[j] <- "iqr"
       mean.e[j] <- mean_sd_iqr(n.e[j], median.e[j], q1.e[j], q3.e[j],
@@ -1312,8 +1470,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     sel.NA.e <- is.na(mean.e)
     if (any(sel.NA.e) &
         avail.median.e & avail.min.e & avail.max.e) {
-      method.mean.used <- TRUE
-      ##
+      #
       j <- sel.NA.e & !is.na(median.e) & !is.na(min.e) & !is.na(max.e)
       approx.mean.e[j] <- "range"
       mean.e[j] <- mean_sd_range(n.e[j], median.e[j], min.e[j], max.e[j],
@@ -1326,17 +1483,14 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
       j <- j + 1
       ##
       if (i == "iqr.range") {
-        method.mean.used <- TRUE
         mean.e[j] <- mean_sd_iqr_range(n.e[j], median.e[j], q1.e[j], q3.e[j],
                                        min.e[j], max.e[j], method.mean)$mean
       }
       else if (i == "iqr") {
-        method.mean.used <- TRUE
         mean.e[j] <- mean_sd_iqr(n.e[j], median.e[j], q1.e[j], q3.e[j],
                                  method.mean)$mean
       }
       else if (i == "range") {
-        method.mean.used <- TRUE
         mean.e[j] <- mean_sd_range(n.e[j], median.e[j], min.e[j], max.e[j],
                                    method.mean)$mean
       }
@@ -1344,14 +1498,12 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   }
   ##
   if (!avail.approx.mean.c) {
-    approx.mean.c <- rep_len("", length(n.c))
     ##
     ## (a) Use IQR and range
     ##
     sel.NA.c <- is.na(mean.c)
     if (any(sel.NA.c) &
         avail.median.c & avail.q1.c & avail.q3.c & avail.min.c & avail.max.c) {
-      method.mean.used <- TRUE
       ##
       j <- sel.NA.c & !is.na(median.c) & !is.na(q1.c) & !is.na(q3.c) &
         !is.na(min.c) & !is.na(max.c)
@@ -1366,7 +1518,6 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     sel.NA.c <- is.na(mean.c)
     if (any(sel.NA.c) &
         avail.median.c & avail.q1.c & avail.q3.c) {
-      method.mean.used <- TRUE
       ##
       j <- sel.NA.c & !is.na(median.c) & !is.na(q1.c) & !is.na(q3.c)
       approx.mean.c[j] <- "iqr"
@@ -1379,7 +1530,6 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     sel.NA.c <- is.na(mean.c)
     if (any(sel.NA.c) &
         avail.median.c & avail.min.c & avail.max.c) {
-      method.mean.used <- TRUE
       ##
       j <- sel.NA.c & !is.na(median.c) & !is.na(min.c) & !is.na(max.c)
       approx.mean.c[j] <- "range"
@@ -1393,25 +1543,19 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
       j <- j + 1
       ##
       if (i == "iqr.range") {
-        method.mean.used <- TRUE
         mean.c[j] <- mean_sd_iqr_range(n.c[j], median.c[j], q1.c[j], q3.c[j],
                                        min.c[j], max.c[j], method.mean)$mean
       }
       else if (i == "iqr") {
-        method.mean.used <- TRUE
         mean.c[j] <- mean_sd_iqr(n.c[j], median.c[j], q1.c[j], q3.c[j],
                                  method.mean)$mean
       }
       else if (i == "range") {
-        method.mean.used <- TRUE
         mean.c[j] <- mean_sd_range(n.c[j], median.c[j], min.c[j], max.c[j],
                                    method.mean)$mean
       }
     }
   }
-  ##
-  if (!method.mean.used)
-    method.mean <- ""
   
   
   ##
@@ -1419,8 +1563,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   ## (8) Calculate standard deviation from other information
   ##
   ##
-  method.sd.used <- FALSE
-  ##
+  
   if (!avail.median.e) {
     median.e.sd <- mean.e
     avail.median.e <- TRUE
@@ -1433,14 +1576,12 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   }
   ##
   if (!avail.approx.sd.e) {
-    approx.sd.e <- rep_len("", length(n.e))
     ##
     ## (a) Use IQR and range
     ##
     sel.NA.e <- is.na(sd.e)
     if (any(sel.NA.e) &
         avail.median.e & avail.q1.e & avail.q3.e & avail.min.e & avail.max.e) {
-      method.sd.used <- TRUE
       ##
       j <- sel.NA.e & !is.na(median.e.sd) & !is.na(q1.e) & !is.na(q3.e) &
         !is.na(min.e) & !is.na(max.e)
@@ -1456,7 +1597,6 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     sel.NA.e <- is.na(sd.e)
     if (any(sel.NA.e) &
         avail.median.e & avail.q1.e & avail.q3.e) {
-      method.sd.used <- TRUE
       ##
       j <- sel.NA.e & !is.na(median.e.sd) & !is.na(q1.e) & !is.na(q3.e)
       approx.sd.e[j] <- "iqr"
@@ -1468,7 +1608,6 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     sel.NA.e <- is.na(sd.e)
     if (any(sel.NA.e) &
         avail.median.e & avail.min.e & avail.max.e) {
-      method.sd.used <- TRUE
       ##
       j <- sel.NA.e & !is.na(median.e.sd) & !is.na(min.e) & !is.na(max.e)
       approx.sd.e[j] <- "range"
@@ -1481,17 +1620,14 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
       j <- j + 1
       ##
       if (i == "iqr.range") {
-        method.sd.used <- TRUE
         sd.e[j] <- mean_sd_iqr_range(n.e[j], median.e.sd[j], q1.e[j], q3.e[j],
                                      min.e[j], max.e[j],
                                      method.sd = method.sd)$sd
       }
       else if (i == "iqr") {
-        method.sd.used <- TRUE
         sd.e[j] <- mean_sd_iqr(n.e[j], median.e.sd[j], q1.e[j], q3.e[j])$sd
       }
       else if (i == "range") {
-        method.sd.used <- TRUE
         sd.e[j] <- mean_sd_range(n.e[j], median.e.sd[j], min.e[j], max.e[j])$sd
       }
     }
@@ -1509,14 +1645,12 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   }
   ##
   if (!avail.approx.sd.c) {
-    approx.sd.c <- rep_len("", length(n.c))
     ##
     ## (a) Use IQR and range
     ##
     sel.NA.c <- is.na(sd.c)
     if (any(sel.NA.c) &
         avail.median.c & avail.q1.c & avail.q3.c & avail.min.c & avail.max.c) {
-      method.sd.used <- TRUE
       ##
       j <- sel.NA.c & !is.na(median.c.sd) & !is.na(q1.c) & !is.na(q3.c) &
         !is.na(min.c) & !is.na(max.c)
@@ -1532,7 +1666,6 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     sel.NA.c <- is.na(sd.c)
     if (any(sel.NA.c) &
         avail.median.c & avail.q1.c & avail.q3.c) {
-      method.sd.used <- TRUE
       ##
       j <- sel.NA.c & !is.na(median.c.sd) & !is.na(q1.c) & !is.na(q3.c)
       approx.sd.c[j] <- "iqr"
@@ -1544,7 +1677,6 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     sel.NA.c <- is.na(sd.c)
     if (any(sel.NA.c) &
         avail.median.c & avail.min.c & avail.max.c) {
-      method.sd.used <- TRUE
       ##
       j <- sel.NA.c & !is.na(median.c.sd) & !is.na(min.c) & !is.na(max.c)
       approx.sd.c[j] <- "range"
@@ -1557,24 +1689,18 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
       j <- j + 1
       ##
       if (i == "iqr.range") {
-        method.sd.used <- TRUE
         sd.c[j] <- mean_sd_iqr_range(n.c[j], median.c[j], q1.c[j], q3.c[j],
                                      min.c[j], max.c[j],
                                      method.sd = method.sd)$sd
       }
       else if (i == "iqr") {
-        method.sd.used <- TRUE
         sd.c[j] <- mean_sd_iqr(n.c[j], median.c.sd[j], q1.c[j], q3.c[j])$sd
       }
       else if (i == "range") {
-        method.sd.used <- TRUE
         sd.c[j] <- mean_sd_range(n.c[j], median.c.sd[j], min.c[j], max.c[j])$sd
       }
     }
   }
-  ##
-  if (!method.sd.used)
-    method.sd <- ""
   ##
   if (keepdata) {
     if (!isCol(data, ".subset")) {
@@ -1582,28 +1708,22 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
       data$.mean.e <- mean.e
       data$.sd.c <- sd.c
       data$.mean.c <- mean.c
-      if (method.mean.used)
-        data$.approx.mean.e <- approx.mean.e
-      if (method.mean.used)
-        data$.approx.mean.c <- approx.mean.c
-      if (method.sd.used)
-        data$.approx.sd.e <- approx.sd.e
-      if (method.sd.used)
-        data$.approx.sd.c <- approx.sd.c
+      #
+      data$.approx.mean.e <- approx.mean.e
+      data$.approx.mean.c <- approx.mean.c
+      data$.approx.sd.e <- approx.sd.e
+      data$.approx.sd.c <- approx.sd.c
     }
     else {
       data$.sd.e[data$.subset] <- sd.e
       data$.mean.e[data$.subset] <- mean.e
       data$.sd.c[data$.subset] <- sd.c
       data$.mean.c[data$.subset] <- mean.c
-      if (method.mean.used)
-        data$.approx.mean.e[data$.subset] <- approx.mean.e
-      if (method.mean.used)
-        data$.approx.mean.c[data$.subset] <- approx.mean.c
-      if (method.sd.used)
-        data$.approx.sd.e[data$.subset] <- approx.sd.e
-      if (method.sd.used)
-        data$.approx.sd.c[data$.subset] <- approx.sd.c
+      #
+      data$.approx.mean.e[data$.subset] <- approx.mean.e
+      data$.approx.mean.c[data$.subset] <- approx.mean.c
+      data$.approx.sd.e[data$.subset] <- approx.sd.e
+      data$.approx.sd.c[data$.subset] <- approx.sd.c
     }
   }
   
@@ -1780,10 +1900,13 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                prediction = prediction,
                ##
                method.tau = method.tau, method.tau.ci = method.tau.ci,
+               level.hetstat = level.hetstat,
                tau.preset = tau.preset,
                TE.tau = TE.tau,
                tau.common = FALSE,
-               ##
+               #
+               method.I2 = method.I2,
+               #
                level.ma = level.ma,
                method.random.ci = method.random.ci,
                adhoc.hakn.ci = adhoc.hakn.ci,
@@ -1802,19 +1925,22 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                text.w.common = text.w.common, text.w.random = text.w.random,
                ##
                title = title, complab = complab, outclab = outclab,
+               #
                label.e = label.e, label.c = label.c,
                label.left = label.left, label.right = label.right,
-               ##
+               col.label.left = col.label.left,
+               col.label.right = col.label.right,
+               #
                keepdata = FALSE,
                warn = warn,
                ##
                control = control)
-  ##
-  if (by & tau.common) {
-    ## Estimate common tau-squared across subgroups
-    hcc <- hetcalc(TE, seTE, method.tau, "",
-                   TE.tau, level.ma, subgroup, control)
-  }
+  #
+  # Estimate common tau-squared across subgroups
+  #
+  if (by & tau.common)
+    hcc <- hetcalc(TE, seTE, method.tau, "", TE.tau,
+                   method.I2, level.hetstat, subgroup, control)
   
   
   ##
@@ -1974,6 +2100,12 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     res$sd.glass <- ""
     res$exact.smd <- NA
   }
+  #
+  if (is.null(res$approx.mean.e) & is.null(res$approx.mean.c))
+    res$method.mean <- ""
+  #
+  if (is.null(res$approx.sd.e) & is.null(res$approx.sd.c))
+    res$method.sd <- ""
   ##
   ## Backward compatibility
   ##

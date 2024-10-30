@@ -12,6 +12,7 @@
   exclude,
   cluster,
   rho = object$rho,
+  cycles,
   method,
   sm = object$sm,
   incr,
@@ -34,14 +35,18 @@
   seed.predict = object$seed.predict,
   method.tau = object$method.tau,
   method.tau.ci = object$method.tau.ci,
+  level.hetstat = object$level.hetstat,
   tau.preset = object$tau.preset,
   TE.tau = object$TE.tau,
   tau.common = object$tau.common,
+  method.I2 = object$method.I2,
   prediction = object$prediction,
   level.predict = object$level.predict,
   null.effect = object$null.effect,
   method.bias = object$method.bias,
   backtransf = object$backtransf,
+  func.backtransf = object$func.backtransf,
+  args.backtransf = object$args.backtransf,
   pscale = object$pscale,
   irscale = object$irscale,
   irunit = object$irunit,
@@ -57,6 +62,8 @@
   label.c = object$label.c,
   label.left = object$label.left,
   label.right = object$label.right,
+  col.label.left = object$col.label.left,
+  col.label.right = object$col.label.right,
   n.e = object$n.e,
   n.c = object$n.c,
   method.mean = object$method.mean,
@@ -114,6 +121,9 @@ from the same cluster resulting in the use of a three-level
 meta-analysis model.}
 
 \item{rho}{Assumed correlation of estimates within a cluster.}
+
+\item{cycles}{A numeric vector with the number of cycles per patient / study
+in n-of-1 trials (see \code{\link{metagen}}).}
 
 \item{method}{A character string indicating which method is to be
 used for pooling of studies (see \code{\link{metabin}},
@@ -205,6 +215,9 @@ square root \eqn{\tau} (see \code{\link{meta-package}}).}
 used to estimate the confidence interval of \eqn{\tau^2} and
 \eqn{\tau} (see \code{\link{meta-package}}).}
 
+\item{level.hetstat}{The level used to calculate confidence intervals
+for heterogeneity statistics.}
+
 \item{tau.preset}{Prespecified value for the square root of the
 between-study variance \eqn{\tau^2}.}
 
@@ -213,6 +226,11 @@ between-study variance tau-squared.}
 
 \item{tau.common}{A logical indicating whether tau-squared should
 be the same across subgroups.}
+
+\item{method.I2}{A character string indicating which method is
+used to estimate the heterogeneity statistic I\eqn{^2}. Either
+\code{"Q"} or \code{"tau2"}, can be abbreviated
+(see \code{\link{meta-package}}).}
 
 \item{prediction}{A logical indicating whether a prediction
 interval should be printed.}
@@ -233,6 +251,12 @@ TRUE}, results for \code{sm = "OR"} are printed as odds ratios
 rather than log odds ratios and results for \code{sm = "ZCOR"}
 are printed as correlations rather than Fisher's z transformed
 correlations, for example.}
+
+\item{func.backtransf}{A function used to back-transform results
+(see \code{\link{metagen}}).}
+
+\item{args.backtransf}{An optional list to provide additional
+arguments to \code{func.backtransf} (see \code{\link{metagen}}).}
 
 \item{pscale}{A numeric giving scaling factor for printing of
 single event probabilities or risk differences, i.e. if argument
@@ -272,9 +296,15 @@ random effects model.}
 
 \item{label.c}{Label for control group.}
 
-\item{label.left}{Graph label on left side of forest plot.}
+\item{label.left}{Graph label on left side of null effect in forest plot.}
 
-\item{label.right}{Graph label on right side of forest plot.}
+\item{label.right}{Graph label on right side of null effect in forest plot.}
+
+\item{col.label.left}{The colour of the graph label on the left side of
+the null effect.}
+
+\item{col.label.right}{The colour of the graph label on the right side of
+the null effect.}
 
 \item{n.e}{Number of observations in experimental group (only for
 \code{\link{metagen}} object).}

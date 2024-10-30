@@ -193,6 +193,10 @@ metareg.meta <- function(x, formula, method.tau = x$method.tau,
   metarate <- inherits(x, "metarate")
   ##
   if (metabin) {
+    if (x$method == "LRP")
+      stop("Meta-regression not implemented for penalised logistic regression.",
+           call. = FALSE)
+    #
     event.e <- x$event.e
     n.e <- x$n.e
     event.c <- x$event.c

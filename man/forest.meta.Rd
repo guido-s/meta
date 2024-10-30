@@ -77,8 +77,8 @@
   label.c = x$label.c,
   label.e.attach = gs("label.e.attach"),
   label.c.attach = gs("label.c.attach"),
-  label.right = x$label.right,
   label.left = x$label.left,
+  label.right = x$label.right,
   bottom.lr = gs("bottom.lr"),
   lab.NA = gs("lab.NA"),
   lab.NA.effect = gs("lab.NA.effect"),
@@ -110,8 +110,8 @@
   col.predict = gs("col.predict"),
   col.predict.lines = gs("col.predict.lines"),
   col.subgroup = gs("col.subgroup"),
-  col.label.right = gs("col.label.right"),
-  col.label.left = gs("col.label.left"),
+  col.label.left = x$col.label.left,
+  col.label.right = x$col.label.right,
   hetstat = common | random | overall.hetstat,
   overall.hetstat = x$overall.hetstat & !inherits(x, "metamerge"),
   hetlab = gs("hetlab"),
@@ -241,12 +241,12 @@
   digits = gs("digits.forest"),
   digits.se = gs("digits.se"),
   digits.stat = gs("digits.stat"),
-  digits.pval = max(gs("digits.pval") - 2, 2),
-  digits.pval.Q = max(gs("digits.pval.Q") - 2, 2),
+  digits.pval = gs("digits.pval"),
+  digits.pval.Q = gs("digits.pval.Q"),
   digits.Q = gs("digits.Q"),
   digits.tau2 = gs("digits.tau2"),
   digits.tau = gs("digits.tau"),
-  digits.I2 = max(gs("digits.I2") - 1, 0),
+  digits.I2 = gs("digits.I2"),
   digits.weight = gs("digits.weight"),
   digits.mean = gs("digits.mean"),
   digits.sd = gs("digits.sd"),
@@ -506,9 +506,9 @@ label \code{label.e} should be attached to in table heading.}
 \item{label.c.attach}{A character specifying the column name where
 label \code{label.c} should be attached to in table heading.}
 
-\item{label.right}{Graph label on right side of forest plot.}
+\item{label.left}{Graph label on left side of null effect.}
 
-\item{label.left}{Graph label on left side of forest plot.}
+\item{label.right}{Graph label on right side of null effect.}
 
 \item{bottom.lr}{A logical indicating whether labels on right and
 left side should be printed at bottom or top of forest plot.}
@@ -583,33 +583,33 @@ meta-analysis if confidence limit lies completely within square.}
 \item{col.diamond}{The colour of diamonds representing the results
 for common effect and random effects models.}
 
-\item{col.diamond.common}{The colour of diamonds for common effect
+\item{col.diamond.common}{The colour(s) of diamonds for common effect
 estimates.}
 
-\item{col.diamond.random}{The colour of diamonds for random effects
+\item{col.diamond.random}{The colour(s) of diamonds for random effects
 estimates.}
 
 \item{col.diamond.lines}{The colour of the outer lines of diamonds
 representing the results for common effect and random effects
 models.}
 
-\item{col.diamond.lines.common}{The colour of the outer lines of
+\item{col.diamond.lines.common}{The colour(s) of the outer lines of
 diamond for common effect estimate.}
 
-\item{col.diamond.lines.random}{The colour of the outer lines of
+\item{col.diamond.lines.random}{The colour(s) of the outer lines of
 diamond for random effects estimate.}
 
-\item{col.predict}{Background colour of prediction interval.}
+\item{col.predict}{Background colour(s) of prediction intervals.}
 
-\item{col.predict.lines}{Colour of outer lines of prediction
-interval.}
+\item{col.predict.lines}{Colour(s) of outer lines of prediction
+intervals.}
 
 \item{col.subgroup}{The colour to print information on subgroups.}
 
-\item{col.label.right}{The colour for label on right side of null
+\item{col.label.left}{The colour of the label on the left side of the null
 effect.}
 
-\item{col.label.left}{The colour for label on left side of null
+\item{col.label.right}{The colour of the label on the right side of the null
 effect.}
 
 \item{hetstat}{Either a logical value indicating whether to print
@@ -671,7 +671,7 @@ heterogeneity). If FALSE, heterogeneity statistics are printed
 
 \item{LRT}{A logical value indicating whether to report
 Likelihood-Ratio or Wald-type test of heterogeneity for
-generalized linear mixed models.}
+generalised linear mixed models.}
 
 \item{test.overall}{A logical value indicating whether to print
 results of test for overall effect.}
@@ -1312,9 +1312,9 @@ Label: \tab "SD" \tab "SD" \tab "Time" \tab "Time" \tab
   \code{x$sm} \tab \cr
 \cr
 Column: \tab \code{ci} \tab \code{effect.ci} \tab
-  \code{w.common} \tab \code{w.random} \tab \tab \cr
+  \code{w.common} \tab \code{w.random} \tab \code{cycles} \tab \cr
 Label: \tab \code{x$level}"\%-CI" \tab \emph{effect+ci} \tab
-  "W(common)" \tab "W(random)" \tab \tab
+  "W(common)" \tab "W(random)" \tab "Cycles" \tab
 }
 
 For other columns, the column name will be used as a label if no
@@ -1552,8 +1552,8 @@ forest(m1)
 # prediction interval
 #
 forest(m1, layout = "RevMan5", common = FALSE,
-  label.right = "Favours control", col.label.right = "red",
   label.left = "Favours experimental", col.label.left = "green",
+  label.right = "Favours control", col.label.right = "red",
   prediction = TRUE)
 
 
@@ -1597,8 +1597,8 @@ forest(m1, layout = "RevMan5", common = FALSE,
 thresholds <- c(0.25, 0.5, 0.75)
 n.cols <- length(thresholds) + 1
 forest(m1, layout = "RevMan5", common = FALSE,
-  label.right = "Undesirable effect", 
   label.left = "Desirable effect", 
+  label.right = "Undesirable effect", 
   lty.equi = 3, col.equi = "darkgray",
   lower.equi = thresholds, upper.equi = 1 / rev(thresholds),
   fill.lower.equi =

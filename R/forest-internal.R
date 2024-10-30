@@ -1063,7 +1063,8 @@ gh <- function(type.gr, rows.gr,
       1L * addrow.overall +
       1L * common * length(lower.common) +
       1L * random * length(lower.random) +
-      1L * prediction * length(lower.predict)
+      1L * prediction * length(lower.predict) +
+      1L * ((any(common) + any(random) + any(prediction)) == 1)
   else
     rows_overall <- 1L * addrow.overall
   ##

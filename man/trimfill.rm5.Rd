@@ -32,7 +32,7 @@ review.
 \details{
 This function can be used to conduct a trim-and-fill analysis for
 all or selected meta-analyses in a Cochrane review of intervention
-studies (Higgins et al, 2023).
+studies (Higgins et al., 2023).
 
 The R function \code{\link{metacr}} is called internally.
 }
@@ -57,8 +57,8 @@ trimfill(Fleiss1993_CR, comp.no = 1, outcome.no = 2)
 Higgins JPT, Thomas J, Chandler J, Cumpston M, Li T, Page MJ, Welch
 VA (editors) (2023):
 \emph{Cochrane Handbook for Systematic Reviews of Interventions
-  Version 6.4}.
-Available from \url{https://training.cochrane.org/handbook}
+  Version 6.4 (updated August 2023)}.
+Available from \url{https://www.training.cochrane.org/handbook}
 }
 \seealso{
 \code{\link{summary.meta}}, \code{\link{metacr}},

@@ -13,6 +13,7 @@ metagen(
   exclude = NULL,
   cluster = NULL,
   rho = 0,
+  cycles = NULL,
   sm = "",
   method.ci = if (missing(df)) "z" else "t",
   level = gs("level"),
@@ -24,10 +25,12 @@ metagen(
   prediction = gs("prediction") | !missing(method.predict),
   method.tau = gs("method.tau"),
   method.tau.ci = gs("method.tau.ci"),
+  level.hetstat = gs("level.hetstat"),
   tau.preset = NULL,
   TE.tau = NULL,
   tau.common = gs("tau.common"),
   detail.tau = "",
+  method.I2 = gs("method.I2"),
   level.ma = gs("level.ma"),
   method.random.ci = gs("method.random.ci"),
   adhoc.hakn.ci = gs("adhoc.hakn.ci"),
@@ -74,6 +77,8 @@ metagen(
   label.c = gs("label.c"),
   label.left = gs("label.left"),
   label.right = gs("label.right"),
+  col.label.left = gs("col.label.left"),
+  col.label.right = gs("col.label.right"),
   subgroup,
   subgroup.name = NULL,
   print.subgroup.name = gs("print.subgroup.name"),
@@ -85,6 +90,7 @@ metagen(
   id,
   adhoc.hakn,
   keepdata = gs("keepdata"),
+  keeprma = gs("keeprma"),
   warn = gs("warn"),
   warn.deprecated = gs("warn.deprecated"),
   control = NULL,
@@ -93,9 +99,10 @@ metagen(
 }
 \arguments{
 \item{TE}{Estimate of treatment effect, e.g., log hazard ratio or
-risk difference.}
+risk difference or an R object created with \code{\link{pairwise}}.}
 
-\item{seTE}{Standard error of treatment estimate.}
+\item{seTE}{Standard error of treatment estimate or standard deviation of
+n-of-1 trials.}
 
 \item{studlab}{An optional vector with study labels.}
 
@@ -114,6 +121,9 @@ from the same cluster resulting in the use of a three-level
 meta-analysis model.}
 
 \item{rho}{Assumed correlation of estimates within a cluster.}
+
+\item{cycles}{A numeric vector with the number of cycles per patient / study
+in n-of-1 trials.}
 
 \item{sm}{A character string indicating underlying summary measure,
 e.g., \code{"RD"}, \code{"RR"}, \code{"OR"}, \code{"ASD"},
@@ -153,6 +163,9 @@ square root \eqn{\tau} (see \code{\link{meta-package}}).}
 used to estimate the confidence interval of \eqn{\tau^2} and
 \eqn{\tau} (see \code{\link{meta-package}}).}
 
+\item{level.hetstat}{The level used to calculate confidence intervals
+for heterogeneity statistics.}
+
 \item{tau.preset}{Prespecified value for the square root of the
 between-study variance \eqn{\tau^2}.}
 
@@ -163,6 +176,11 @@ between-study variance tau-squared.}
 be the same across subgroups.}
 
 \item{detail.tau}{Detail on between-study variance estimate.}
+
+\item{method.I2}{A character string indicating which method is
+used to estimate the heterogeneity statistic I\eqn{^2}. Either
+\code{"Q"} or \code{"tau2"}, can be abbreviated
+(see \code{\link{meta-package}}).}
 
 \item{level.ma}{The level used to calculate confidence intervals
 for meta-analysis estimates.}
@@ -206,7 +224,7 @@ sample size in study).}
 \item{pval}{P-value (used to estimate the standard error).}
 
 \item{df}{Degrees of freedom (used in test or to construct
-confidence interval).}
+confidence intervals).}
 
 \item{lower}{Lower limit of confidence interval (used to estimate
 the standard error).}
@@ -309,9 +327,15 @@ random effects model.}
 
 \item{label.c}{Label for control group.}
 
-\item{label.left}{Graph label on left side of forest plot.}
+\item{label.left}{Graph label on left side of null effect in forest plot.}
 
-\item{label.right}{Graph label on right side of forest plot.}
+\item{label.right}{Graph label on right side of null effect in forest plot.}
+
+\item{col.label.left}{The colour of the graph label on the left side of
+the null effect.}
+
+\item{col.label.right}{The colour of the graph label on the right side of
+the null effect.}
 
 \item{subgroup}{An optional vector to conduct a meta-analysis with
 subgroups.}
@@ -346,6 +370,9 @@ be of same length as the number of subgroups.}
 \item{keepdata}{A logical indicating whether original data (set)
 should be kept in meta object.}
 
+\item{keeprma}{A logical indicating whether \code{\link[metafor]{rma.mv}}
+object from three-level meta-analysis should be stored.}
+
 \item{warn}{A logical indicating whether warnings should be printed
 (e.g., if studies are excluded from meta-analysis due to zero
 standard errors).}
@@ -369,10 +396,9 @@ Common effect and random effects meta-analysis based on estimates
 (e.g. log hazard ratios) and their standard errors. The inverse
 variance method is used for pooling.
 
-Three-level random effects meta-analysis (Van den Noortgate et al.,
-2013) is available by internally calling
-\code{\link[metafor]{rma.mv}} function from R package
-\bold{metafor} (Viechtbauer, 2010).
+Three-level random effects meta-analysis (Van den Noortgate et al., 2013) is
+available by internally calling \code{\link[metafor]{rma.mv}} function from
+R package \bold{metafor} (Viechtbauer, 2010).
 }
 \details{
 This function provides the \emph{generic inverse variance method}
@@ -384,8 +410,18 @@ be used to provide treatment estimates and standard errors
 directly. However, it is possible to derive these quantities from
 other information.
 
+Argument \code{cycles} can be used to conduct a meta-analysis of n-of-1
+trials according to Senn (2024). In this case, argument \code{seTE} does
+not contain the standard error but standard deviation for individual
+trials / patients. Trial-specific standard errors are calculated from an
+average standard deviation multiplied by the number of cycles minus 1, i.e.,
+the degrees of freedom. Details of the meta-analysis method are provided in
+Senn (2024). Note, arguments used in the approximation of means or
+standard errors, like \code{lower} and \code{upper}, or \code{df}, are
+ignored for the meta-analysis of n-of-1 trials.
+
 A three-level random effects meta-analysis model (Van den Noortgate
-et al., 2013) is utilized if argument \code{cluster} is used and at
+et al., 2013) is utilised if argument \code{cluster} is used and at
 least one cluster provides more than one estimate. Internally,
 \code{\link[metafor]{rma.mv}} is called to conduct the analysis and
 \code{\link[metafor]{weights.rma.mv}} with argument \code{type =
@@ -419,7 +455,7 @@ effect measures like the odds ratio or hazard ratio).
 If the treatment effect is a mean it can be approximated from
 sample size, median, interquartile range and range.
 
-By default, methods described in Luo et al. (2018) are utilized
+By default, methods described in Luo et al. (2018) are utilised
 (argument \code{method.mean = "Luo"}):
 \itemize{
 \item equation (7) if sample size, median and range are available,
@@ -768,6 +804,12 @@ reported quantiles in meta-analysis.
 \emph{Statistical Methods in Medical Research},
 \bold{29}, 2520--2537
 
+Senn S (2024):
+The analysis of continuous data from n-of-1 trials using paired cycles:
+a simple tutorial.
+\emph{Trials},
+\bold{25}.
+
 Shi J, Luo D, Weng H, Zeng X-T, Lin L, Chu H, et al. (2020):
 Optimally estimating the sample standard deviation from the
 five-number summary.
@@ -791,7 +833,7 @@ size, median, range and/or interquartile range.
 }
 \seealso{
 \code{\link{meta-package}}, \code{\link{update.meta}},
-  \code{\link{metabin}}, \code{\link{metacont}},
+  \code{\link{metabin}}, \code{\link{metacont}}, \code{\link{pairwise}},
   \code{\link{print.meta}}, \code{\link{settings.meta}}
 }
 \author{

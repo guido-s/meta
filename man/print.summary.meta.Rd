@@ -22,6 +22,10 @@
   digits.pval = max(gs("digits.pval"), 2),
   digits.tau2 = gs("digits.tau2"),
   digits.tau = gs("digits.tau"),
+  digits.Q = gs("digits.Q"),
+  digits.df = gs("digits.df"),
+  digits.pval.Q = max(gs("digits.pval.Q"), 2),
+  digits.H = gs("digits.H"),
   digits.I2 = gs("digits.I2"),
   digits.prop = gs("digits.prop"),
   digits.weight = gs("digits.weight"),
@@ -30,11 +34,18 @@
   JAMA.pval = gs("JAMA.pval"),
   big.mark = gs("big.mark"),
   print.tau2 = gs("print.tau2"),
+  print.tau2.ci = gs("print.tau2.ci"),
   print.tau = gs("print.tau"),
+  print.tau.ci = gs("print.tau.ci"),
+  print.Q = gs("print.Q"),
   print.I2 = gs("print.I2"),
+  print.I2.ci = gs("print.I2.ci"),
+  print.H = gs("print.H"),
+  print.Rb = gs("print.Rb"),
   text.tau2 = gs("text.tau2"),
   text.tau = gs("text.tau"),
   text.I2 = gs("text.I2"),
+  text.Rb = gs("text.Rb"),
   truncate,
   text.truncate = "*** Output truncated ***",
   details.methods = TRUE,
@@ -102,6 +113,18 @@ between-study variance, see \code{print.default}.}
 \item{digits.tau}{Minimal number of significant digits for square
 root of between-study variance, see \code{print.default}.}
 
+\item{digits.Q}{Minimal number of significant digits for
+heterogeneity statistic Q, see \code{print.default}.}
+
+\item{digits.df}{Minimal number of significant digits for degrees
+of freedom.}
+
+\item{digits.pval.Q}{Minimal number of significant digits for
+p-value of heterogeneity test, see \code{print.default}.}
+
+\item{digits.H}{Minimal number of significant digits for H
+statistic, see \code{print.default}.}
+
 \item{digits.I2}{Minimal number of significant digits for I-squared
 and Rb statistic, see \code{print.default}.}
 
@@ -127,12 +150,30 @@ standards.}
 \item{print.tau2}{A logical specifying whether between-study
 variance \eqn{\tau^2} should be printed.}
 
+\item{print.tau2.ci}{A logical value indicating whether to print
+the confidence interval of \eqn{\tau^2}.}
+
 \item{print.tau}{A logical specifying whether \eqn{\tau}, the
 square root of the between-study variance \eqn{\tau^2}, should be
 printed.}
 
+\item{print.tau.ci}{A logical value indicating whether to print the
+confidence interval of \eqn{\tau}.}
+
+\item{print.Q}{A logical value indicating whether to print the
+results of the test of heterogeneity.}
+
 \item{print.I2}{A logical specifying whether heterogeneity
 statistic I\eqn{^2} should be printed.}
+
+\item{print.I2.ci}{A logical specifying whether confidence interval for
+heterogeneity statistic I\eqn{^2} should be printed.}
+
+\item{print.H}{A logical specifying whether heterogeneity statistic
+H should be printed.}
+
+\item{print.Rb}{A logical specifying whether heterogeneity
+statistic R\eqn{_b} should be printed.}
 
 \item{text.tau2}{Text printed to identify between-study variance
 \eqn{\tau^2}.}
@@ -142,6 +183,9 @@ root of the between-study variance \eqn{\tau^2}.}
 
 \item{text.I2}{Text printed to identify heterogeneity statistic
 I\eqn{^2}.}
+
+\item{text.Rb}{Text printed to identify heterogeneity statistic
+R\eqn{_b}.}
 
 \item{truncate}{An optional vector used to truncate the printout of
 results for individual studies (must be a logical vector of same

@@ -86,7 +86,7 @@ as.data.frame.meta <- function(x, row.names = NULL, optional = FALSE, ...) {
   
   ## Remove debug information
   ##
-  x$debug <- NULL
+  x$debug <- x$tau2.calc <- x$rma.three.level <- NULL
   
   if (!is.null(x$approx.TE) && all(x$approx.TE == ""))
     x$approx.TE <- NULL

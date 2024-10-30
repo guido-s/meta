@@ -10,6 +10,8 @@
 #'   with meta-analyses.
 #' @param name An optional character vector providing descriptive
 #'   names for the meta-analysis objects.
+#' @param subgroup An optional variable to generate a forest plot with
+#'   subgroups.
 #' @param common A logical vector indicating whether results of common
 #'   effect model should be considered.
 #' @param random A logical vector indicating whether results of random
@@ -31,10 +33,10 @@
 #' objects which is useful, for example, to summarize results of
 #' various meta-analysis methods or to generate a forest plot with
 #' results of several subgroup analyses (see Examples).
-#'
+#' 
 #' Individual study results are not retained with \code{metabind} as
 #' the function allows to combine meta-analyses from different data
-#' sets (e.g., with randomized or observational studies). Individual
+#' sets (e.g., with randomised or observational studies). Individual
 #' study results are retained with R function \code{\link{metamerge}}
 #' which can be used to combine results of meta-analyses of the
 #' same dataset.
@@ -101,7 +103,8 @@
 #' @export metabind
 
 
-metabind <- function(..., name = NULL,
+metabind <- function(..., subgroup = NULL,
+                     name = NULL,
                      common = NULL, random = NULL, prediction = NULL,
                      backtransf = NULL, outclab = NULL,
                      pooled = NULL,
@@ -114,6 +117,8 @@ metabind <- function(..., name = NULL,
   ##
   ##
   
+  missing.subgroup <- missing(subgroup)
+  subgroup.meta <- subgroup
   missing.name <- missing(name)
   missing.pooled <- missing(pooled)
   missing.backtransf <- missing(backtransf)
@@ -375,7 +380,9 @@ metabind <- function(..., name = NULL,
       FALSE
     else
       unique(meth$tau.common)
-  ##
+  #
+  meth$method.I2 <- unique(meth$method.I2)
+  #
   meth$prediction.subgroup <-
     if (!with.subgroups)
       FALSE
@@ -428,20 +435,20 @@ metabind <- function(..., name = NULL,
   ##
   ## Names for meta-analyses must be unique
   ##
-  if (length(unique(name)) != length(name)) {
+  if (length(unique(name)) != length(name) & missing.subgroup) {
     for (i in seq.meta)
       if (name[i] %in% c("metabin", "metainc", "metaprop", "metarate") &
           !is.trimfill[i])
         name[i] <- paste(name[i], args[[i]]$method, sep = ".")
   }
   ##
-  if (length(unique(name)) != length(name)) {
+  if (length(unique(name)) != length(name) & missing.subgroup) {
     for (i in seq.meta)
       if (random[i])
         name[i] <- paste(name[i], args[[i]]$method.tau, sep = ".")
   }
   ##
-  if (length(unique(name)) != length(name))
+  if (length(unique(name)) != length(name) & missing.subgroup)
     name <- paste0("meta", seq.meta)
   ##
   ## Check if more than one common effect / random effects CI or PI is
@@ -503,10 +510,11 @@ metabind <- function(..., name = NULL,
     for (i in seq.meta)
       meta.list[[i]] <-
         subgr2meta(args[[i]], common[i], random[i], prediction[i], name[i])
-  else
+  else {
     for (i in seq.meta)
       meta.list[[i]] <-
         overall2meta(args[[i]], common[i], random[i], prediction[i], name[i])
+  }
   ##
   meta <- list()
   ##
@@ -532,7 +540,7 @@ metabind <- function(..., name = NULL,
   ##
   if (!with.subgroups) {
     subgroup$subgroup.levels <- name
-  }  
+  }
   
   
   ##
@@ -543,15 +551,33 @@ metabind <- function(..., name = NULL,
   
   data.list <- vector("list", n.meta)
   ##
-  for (i in seq.meta)
-    if (with.subgroups)
+  if (with.subgroups) {
+    for (i in seq.meta)
       data.list[[i]] <-
         subgr2data(args[[i]], common[i], random[i], prediction[i], name[i])
+  }
+  else {
+    if (!is.null(subgroup.meta)) {
+      if (length(subgroup.meta == 1))
+        subgroup.meta <- rep_len(subgroup.meta, n.meta)
+      else if (length(subgroup.meta) != n.meta)
+        stop("Argument 'subgroup' must be of same length as ",
+             "number of meta-analysis results.",
+             call. = FALSE)
+    }
     else
+      subgroup.meta <- rep("", n.meta)
+    #
+    for (i in seq.meta)
       data.list[[i]] <-
-        overall2data(args[[i]], common[i], random[i], prediction[i], name[i])
-  ##
+        overall2data(args[[i]], common[i], random[i], prediction[i], name[i],
+                     subgroup.meta[[i]])
+  }
+  #
   data <- do.call("rbind", data.list)
+  #
+  if (!with.subgroups & all(subgroup.meta == ""))
+    data <- data[, names(data) != "subgroup"]
   
   
   ##
@@ -724,7 +750,10 @@ metabind <- function(..., name = NULL,
   res$pval.Q.w.random <- NA
   ##
   res$is.limit.copas <- is.limit.copas
-  ##
+  #
+  res$classes <- unique(as.vector(sapply(args, function(x) class(x))))
+  res$classes <- res$classes[res$classes != "meta"]
+  #
   ## Backward compatibility
   ##
   res <- backward(res)

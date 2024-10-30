@@ -34,9 +34,11 @@ metamean(
   prediction = gs("prediction") | !missing(method.predict),
   method.tau = gs("method.tau"),
   method.tau.ci = gs("method.tau.ci"),
+  level.hetstat = gs("level.hetstat"),
   tau.preset = NULL,
   TE.tau = NULL,
   tau.common = gs("tau.common"),
+  method.I2 = gs("method.I2"),
   level.ma = gs("level.ma"),
   method.random.ci = gs("method.random.ci"),
   adhoc.hakn.ci = gs("adhoc.hakn.ci"),
@@ -55,6 +57,10 @@ metamean(
   title = gs("title"),
   complab = gs("complab"),
   outclab = "",
+  label.left = gs("label.left"),
+  label.right = gs("label.right"),
+  col.label.left = gs("col.label.left"),
+  col.label.right = gs("col.label.right"),
   subgroup,
   subgroup.name = NULL,
   print.subgroup.name = gs("print.subgroup.name"),
@@ -163,6 +169,9 @@ square root \eqn{\tau} (see \code{\link{meta-package}}).}
 used to estimate the confidence interval of \eqn{\tau^2} and
 \eqn{\tau} (see \code{\link{meta-package}}).}
 
+\item{level.hetstat}{The level used to calculate confidence intervals
+for heterogeneity statistics.}
+
 \item{tau.preset}{Prespecified value for the square root of the
 between-study variance \eqn{\tau^2}.}
 
@@ -171,6 +180,11 @@ between-study variance tau-squared.}
 
 \item{tau.common}{A logical indicating whether tau-squared should
 be the same across subgroups.}
+
+\item{method.I2}{A character string indicating which method is
+used to estimate the heterogeneity statistic I\eqn{^2}. Either
+\code{"Q"} or \code{"tau2"}, can be abbreviated
+(see \code{\link{meta-package}}).}
 
 \item{level.ma}{The level used to calculate confidence intervals
 for meta-analysis estimates.}
@@ -231,6 +245,16 @@ random effects model.}
 \item{complab}{Comparison label.}
 
 \item{outclab}{Outcome label.}
+
+\item{label.left}{Graph label on left side of null effect in forest plot.}
+
+\item{label.right}{Graph label on right side of null effect in forest plot.}
+
+\item{col.label.left}{The colour of the graph label on the left side of
+the null effect.}
+
+\item{col.label.right}{The colour of the graph label on the right side of
+the null effect.}
 
 \item{subgroup}{An optional vector to conduct a meta-analysis with
 subgroups.}
@@ -293,7 +317,7 @@ compare means of pairwise comparisons instead of using
 randomisation in randomised controlled trials.
 
 A three-level random effects meta-analysis model (Van den Noortgate
-et al., 2013) is utilized if argument \code{cluster} is used and at
+et al., 2013) is utilised if argument \code{cluster} is used and at
 least one cluster provides more than one estimate. Internally,
 \code{\link[metafor]{rma.mv}} is called to conduct the analysis and
 \code{\link[metafor]{weights.rma.mv}} with argument \code{type =
@@ -315,7 +339,7 @@ calculate an overall mean:
 }
 
 Calculations are conducted on the log scale if \code{sm =
-"ROM"}. Accordingly, list elements \code{TE}, \code{TE.common}, and
+"MLN"}. Accordingly, list elements \code{TE}, \code{TE.common}, and
 \code{TE.random} contain the logarithm of means. In printouts and
 plots these values are back transformed if argument
 \code{backtransf = TRUE} (default).
@@ -333,7 +357,7 @@ Missing means can be derived from
   \code{median}, \code{min}, and \code{max}).
 }
 
-By default, methods described in Luo et al. (2018) are utilized
+By default, methods described in Luo et al. (2018) are utilised
 (argument \code{method.mean = "Luo"}):
 \itemize{
 \item equation (15) if sample size, median, interquartile range and 

@@ -44,12 +44,18 @@
 #' @param method.tau.ci A character string indicating which method is
 #'   used to estimate the confidence interval of \eqn{\tau^2} and
 #'   \eqn{\tau} (see \code{\link{meta-package}}).
+#' @param level.hetstat The level used to calculate confidence intervals
+#'   for heterogeneity statistics.
 #' @param tau.preset Prespecified value for the square root of the
 #'   between-study variance \eqn{\tau^2}.
 #' @param TE.tau Overall treatment effect used to estimate the
 #'   between-study variance tau-squared.
 #' @param tau.common A logical indicating whether tau-squared should
 #'   be the same across subgroups.
+#' @param method.I2 A character string indicating which method is
+#'   used to estimate the heterogeneity statistic I\eqn{^2}. Either
+#'   \code{"Q"} or \code{"tau2"}, can be abbreviated
+#'   (see \code{\link{meta-package}}).
 #' @param level.ma The level used to calculate confidence intervals
 #'   for meta-analysis estimates.
 #' @param method.random.ci A character string indicating which method
@@ -93,6 +99,12 @@
 #' @param title Title of meta-analysis / systematic review.
 #' @param complab Comparison label.
 #' @param outclab Outcome label.
+#' @param label.left Graph label on left side of null effect in forest plot.
+#' @param label.right Graph label on right side of null effect in forest plot.
+#' @param col.label.left The colour of the graph label on the left side of
+#'   the null effect.
+#' @param col.label.right The colour of the graph label on the right side of
+#'   the null effect.
 #' @param subgroup An optional vector to conduct a meta-analysis with
 #'   subgroups.
 #' @param subgroup.name A character string with a name for the
@@ -133,7 +145,7 @@
 #' closest to 1.
 #' 
 #' A three-level random effects meta-analysis model (Van den Noortgate
-#' et al., 2013) is utilized if argument \code{cluster} is used and at
+#' et al., 2013) is utilised if argument \code{cluster} is used and at
 #' least one cluster provides more than one estimate. Internally,
 #' \code{\link[metafor]{rma.mv}} is called to conduct the analysis and
 #' \code{\link[metafor]{weights.rma.mv}} with argument \code{type =
@@ -262,9 +274,12 @@ metacor <- function(cor, n, studlab,
                     ##
                     method.tau = gs("method.tau"),
                     method.tau.ci = gs("method.tau.ci"),
+                    level.hetstat = gs("level.hetstat"),
                     tau.preset = NULL, TE.tau = NULL,
                     tau.common = gs("tau.common"),
-                    ##
+                    #
+                    method.I2 = gs("method.I2"),
+                    #
                     level.ma = gs("level.ma"),
                     method.random.ci = gs("method.random.ci"),
                     adhoc.hakn.ci = gs("adhoc.hakn.ci"),
@@ -288,7 +303,12 @@ metacor <- function(cor, n, studlab,
                     ##
                     title = gs("title"), complab = gs("complab"),
                     outclab = "",
-                    ##
+                    #
+                    label.left = gs("label.left"),
+                    label.right = gs("label.right"),
+                    col.label.left = gs("col.label.left"),
+                    col.label.right = gs("col.label.right"),
+                    #
                     subgroup, subgroup.name = NULL,
                     print.subgroup.name = gs("print.subgroup.name"),
                     sep.subgroup = gs("sep.subgroup"),
@@ -321,24 +341,26 @@ metacor <- function(cor, n, studlab,
   missing.tau.common <- missing(tau.common)
   tau.common <- replaceNULL(tau.common, FALSE)
   chklogical(tau.common)
-  ##
+  #
+  method.I2 <- setchar(method.I2, gs("meth4i2"))
+  #
   chklogical(prediction)
   chklevel(level.predict)
   ##
   missing.method.predict <- missing(method.predict)
   ##
   method.tau <-
-    setmethodtau(method.tau, missing.method.tau,
+    set_method_tau(method.tau, missing.method.tau,
                  method.predict, missing.method.predict)
   method.predict <-
-    setmethodpredict(method.predict, missing.method.predict,
+    set_method_predict(method.predict, missing.method.predict,
                      method.tau, missing.method.tau)
   ##
   if (any(method.predict == "NNF"))
     is_installed_package("pimeta", argument = "method.predict", value = "NNF")
   ##
-  adhoc.hakn.pi <- setchar(adhoc.hakn.pi, gs("adhoc4hakn.pi"))
-  ##
+  adhoc.hakn.pi <- setchar(replaceNA(adhoc.hakn.pi, ""), gs("adhoc4hakn.pi"))
+  #
   chknumeric(null.effect, length = 1)
   ##
   method.bias <- setmethodbias(method.bias)
@@ -391,8 +413,8 @@ metacor <- function(cor, n, studlab,
   adhoc.hakn.ci <-
     deprecated2(adhoc.hakn.ci, missing(adhoc.hakn.ci),
                 adhoc.hakn, missing(adhoc.hakn), warn.deprecated)
-  adhoc.hakn.ci <- setchar(adhoc.hakn.ci, gs("adhoc4hakn.ci"))
-  ##
+  adhoc.hakn.ci <- setchar(replaceNA(adhoc.hakn.ci, ""), gs("adhoc4hakn.ci"))
+  #
   missing.subgroup.name <- missing(subgroup.name)
   subgroup.name <-
     deprecated(subgroup.name, missing.subgroup.name, args, "bylab",
@@ -670,10 +692,13 @@ metacor <- function(cor, n, studlab,
                prediction = prediction,
                ##
                method.tau = method.tau, method.tau.ci = method.tau.ci,
+               level.hetstat = level.hetstat,
                tau.preset = tau.preset,
                TE.tau = TE.tau,
                tau.common = FALSE,
-               ##
+               #
+               method.I2 = method.I2,
+               #
                level.ma = level.ma,
                method.random.ci = method.random.ci,
                adhoc.hakn.ci = adhoc.hakn.ci,
@@ -694,17 +719,21 @@ metacor <- function(cor, n, studlab,
                text.w.common = text.w.common, text.w.random = text.w.random,
                ##
                title = title, complab = complab, outclab = outclab,
-               ##
+               #
+               label.left = label.left, label.right = label.right,
+               col.label.left = col.label.left,
+               col.label.right = col.label.right,
+               #
                keepdata = FALSE,
                warn = FALSE,
                ##
                control = control)
-  ##
-  if (by & tau.common) {
-    ## Estimate common tau-squared across subgroups
-    hcc <- hetcalc(TE, seTE, method.tau, "",
-                   TE.tau, level.ma, subgroup, control)
-  }
+  #
+  # Estimate common tau-squared across subgroups
+  #
+  if (by & tau.common)
+    hcc <- hetcalc(TE, seTE, method.tau, "", TE.tau,
+                   method.I2, level.hetstat, subgroup, control)
   
   
   ##
@@ -729,8 +758,6 @@ metacor <- function(cor, n, studlab,
   ##
   m$label.e <- ""
   m$label.c <- ""
-  m$label.left <- ""
-  m$label.right <- ""
   m$warn <- NULL
   ##
   res <- c(res, m)

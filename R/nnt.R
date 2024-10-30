@@ -2,14 +2,18 @@
 #' 
 #' @description
 #' Calculate the number needed to treat (NNT) from estimated risk
-#' difference, risk ratio, or odds ratio, and a baseline risk.
+#' difference, risk ratio, odds ratio, or hazard ratio, and a baseline
+#' probability, i.e., control group event probability for binary outcomes or
+#' survival probability for hazard ratios.
 #' 
 #' @aliases nnt nnt.default nnt.meta
 #' 
 #' @param x An object of class \code{meta}, or estimated treatment
-#'   effect, i.e., risk difference(s), risk ratio(s), or odds
-#'   ratio(s).
-#' @param p.c Baseline risk (control group event probability).
+#'   effect(s), i.e., risk difference(s), risk ratio(s), odds
+#'   ratio(s), or hazard ratio(s).
+#' @param p.c Baseline probability, i.e., control group event probability
+#'   for binary outcomes or survival probability in control group for
+#'   hazard ratios.
 #' @param sm Summary measure.
 #' @param lower Lower confidence interval limit.
 #' @param upper Upper confidence interval limit.
@@ -18,10 +22,14 @@
 #' @param random A logical indicating whether NNTs should be
 #'   calculated based on random effects estimate.
 #' @param small.values A character string specifying whether small
-#'   treatment effects indicate a beneficial (\code{"good"}) or
-#'   harmful (\code{"bad"}) effect, can be abbreviated.
-#' @param digits Minimal number of significant digits, see
-#'   \code{print.default}.
+#'   treatment effects indicate a beneficial (\code{"desirable"}) or
+#'   harmful (\code{"undesirable"}) effect, can be abbreviated.
+#' @param transf A logical indicating whether treatment estimates and
+#'   confidence limits are transformed or on the original scale.
+#'   If \code{transf = TRUE}, inputs are expected to be log odds ratios instead
+#'   of odds ratios for \code{sm = "OR"}, for example.
+#' @param digits Minimal number of significant digits to print NNT and its
+#'   confidence interval, see \code{print.default}.
 #' @param digits.prop Minimal number of significant digits for
 #'   proportions, see \code{print.default}.
 #' @param big.mark A character used as thousands separator.
@@ -40,27 +48,28 @@
 #' harmful NNTs (Altman, 1998).
 #'
 #' NNTs can be easily computed from an estimated risk difference (RD),
-#' risk ratio (RR), or odds ratio (OR) and a given baseline risk
-#' (Higgins et al., 2022, section 15.4.4). It is also possible to
+#' risk ratio (RR), or odds ratio (OR) and a given baseline probability
+#' (Higgins et al., 2023, section 15.4.4). It is also possible to
 #' calculate NNTs from hazard ratios (HR) (Altman & Andersen,
-#' 1999). Accordlingly, NNTs can be calculated for meta-analyses
+#' 1999). Accordingly, NNTs can be calculated for meta-analyses
 #' generated with \code{\link{metabin}} or \code{\link{metagen}} if
 #' argument \code{sm} was equal to \code{"RD"}, \code{"RR"},
 #' \code{"OR"}, or \code{"HR"}. It is also possible to provide only
-#' estimated treatment effects and baseline risks (see Examples).
+#' estimated treatment effects and baseline probabilities (see Examples).
 #'
-#' The baseline risk can be specified using argument \code{p.c}. If
+#' The baseline probability can be specified using argument \code{p.c}. If
 #' this argument is missing, the minimum, mean, and maximum of the
 #' control event probabilities in the meta-analysis are used for
 #' \code{\link{metabin}} and control event probabilities of 0.1, 0.2,
-#' \dots, 0.9 are used for \code{\link{metagen}}.
+#' \dots, 0.9 are used for \code{\link{metagen}}. Note, the survival instead of
+#' mortality probability must be provided for hazard ratios.
 #'
 #' Argument \code{small.values} can be used to specify whether small
-#' treatment effects indicate a beneficial (\code{"good"}) or harmful
-#' (\code{"bad"}) effect. For \code{small.values = "small"}, odds and
-#' risk ratios below 1 and risk differences below 0 indicate that the
-#' new treatment is beneficial. For \code{small.values = "bad"}, odds
-#' and risk ratios above 1 and risk differences above 0 indicate that
+#' treatment effects indicate a beneficial (\code{"desirable"}) or harmful
+#' (\code{"undesirable"}) effect. For \code{small.values = "desirable"}, odds,
+#' risk and hazard ratios below 1 and risk differences below 0 indicate that the
+#' new treatment is beneficial. For \code{small.values = "undesirable"}, odds,
+#' risk and hazard ratios above 1 and risk differences above 0 indicate that
 #' the new treatment is beneficial.
 #'
 #' \subsection{Interpretation of (positive and negative) NNTs}{
@@ -87,7 +96,7 @@
 #' \subsection{Confidence interval for the NNT}{
 #' Confidence limits for an NNT are derived from the lower and upper
 #' confidence limits of the summary measure using the same formulae as
-#' for the NNT (Higgins et al., 2022, section 15.4.4).
+#' for the NNT (Higgins et al., 2023, section 15.4.4).
 #'
 #' A peculiar problem arises if the confidence interval for the
 #' summary measure includes the null effect (i.e., RR = 1, OR = 1, HR
@@ -113,47 +122,52 @@
 #' \bold{317}, 1309--12
 #'
 #' Altman DG, Andersen PK (1999):
-#' Calculating the Number Needed to Treat for Trials Where the Outcome
-#' Is Time to an Event
+#' Calculating the number needed to treat for trials where the outcome
+#' is time to an event.
 #' \emph{British Medical Journal},
 #' \bold{319}, 1492--95
 #' 
 #' Cook RJ, Sackett DL (1995):
-#' The Number Needed to Treat: A Clinically Useful Measure of
-#' Treatment Effect.
+#' The number needed to treat: a clinically useful measure of
+#' treatment effect.
 #' \emph{British Medical Journal},
 #' \bold{310}, 452--54
 #' 
 #' Higgins JPT, Thomas J, Chandler J, Cumpston M, Li T, Page MJ, Welch
-#' VA (editors) (2022):
+#' VA (editors) (2023):
 #' \emph{Cochrane Handbook for Systematic Reviews of Interventions
-#'   Version 6.3 (updated February 2022)}.
-#' Available from www.training.cochrane.org/handbook
+#'   Version 6.4 (updated August 2023)}.
+#' Available from \url{https://www.training.cochrane.org/handbook}
 #'
 #' Laupacis A, Sackett DL, Roberts RS (1988):
-#' An Assessment of Clinically Useful Measures of the Consequences of
-#' Treatment.
+#' An assessment of clinically useful measures of the consequences of
+#' treatment.
 #' \emph{New England Journal of Medicine},
 #' \bold{318}, 1728--33
 #' 
 #' @examples
-#' # Calculate NNT for RD = -0.12 and -0.22
+#' # Calculate NNTs for risk differences of -0.12 and -0.22
 #' # (Cochrane Handbook, version 6.3, subsection 15.4.4.1)
 #' nnt(c(-0.12, -0.22), sm = "RD")
 #' 
-#' # Calculate NNT for RR = 0.92 and baseline risk p.c = 0.3
+#' # Calculate NNT for risk ratio of 0.92 and baseline risk of 0.3
 #' # (Cochrane Handbook, version 6.3, subsection 15.4.4.2)
 #' nnt(0.92, p.c = 0.3, sm = "RR")
 #'
-#' # Calculate NNT for OR = 0.73 and baseline risk p.c = 0.3
+#' # Calculate NNT for odds ratio of 0.73 and baseline risk of 0.3
 #' # (Cochrane Handbook, version 6.3, subsection 15.4.4.3)
 #' nnt(0.73, p.c = 0.3, sm = "OR")
 #'
-#' # Use Mantel-Haenszel odds ratio to calculate NNTs
+#' # Calculate NNTs for Mantel-Haenszel odds ratio
 #' data(Olkin1995)
-#' m1 <- metabin(ev.exp, n.exp, ev.cont, n.cont, data = Olkin1995,
-#'               random = FALSE)
+#' m1 <-
+#'   metabin(ev.exp, n.exp, ev.cont, n.cont, data = Olkin1995, random = FALSE)
 #' nnt(m1)
+#'
+#' # Calculate NNTs from hazard ratio at two and four years (example from
+#' # Altman & Andersen, 1999). Note, argument 'p.c' must provide survival
+#' # probabilities instead of mortality rates for the control group.
+#' nnt(0.72, lower = 0.55, upper = 0.92, sm = "HR", p.c = 1 - c(0.33, 0.49))
 #' 
 #' @rdname nnt
 #' @export nnt
@@ -174,7 +188,7 @@ nnt <- function(x, ...)
 nnt.meta <- function(x, p.c,
                      common = x$common,
                      random = x$random,
-                     small.values = "good",
+                     small.values = "desirable",
                      ...) {
   
   
@@ -219,7 +233,7 @@ nnt.meta <- function(x, p.c,
   ##
   ## (3) Check other arguments
   ##
-  small.values <- setchar(small.values, c("good", "bad"))
+  small.values <- setsv(small.values)
   ##
   args  <- list(...)
   missing.common <- missing(common)
@@ -318,7 +332,7 @@ nnt.meta <- function(x, p.c,
   ##
   ## Switch direction and lower and upper limits
   ##
-  if (small.values == "bad") {
+  if (small.values == "undesirable") {
     if (common) {
       res$nnt.common$NNT <- -res$nnt.common$NNT
       tmp.lower <- res$nnt.common$lower.NNT
@@ -362,7 +376,8 @@ nnt.meta <- function(x, p.c,
 
 
 nnt.default <- function(x, p.c, sm, lower, upper,
-                        small.values = "good",
+                        small.values = "desirable",
+                        transf = FALSE,
                         ...) {
   
   ##
@@ -405,8 +420,10 @@ nnt.default <- function(x, p.c, sm, lower, upper,
       stop("Lengths of arguments 'x' and 'p.c' do not match.",
            call. = FALSE)
   }
-  ##
-  small.values <- setchar(small.values, c("good", "bad"))
+  #
+  small.values <- setsv(small.values)
+  #
+  chklogical(transf)
   
   
   ##
@@ -432,29 +449,35 @@ nnt.default <- function(x, p.c, sm, lower, upper,
     if (!missing.upper)
       res$upper.NNT <- -1 / res$upper.x
   }
-  ##
+  #
   else if (sm == "RR") {
-    res$NNT <- logRR2nnt(log(res$x), res$p.c)
+    res$NNT <- logRR2nnt(if (!transf) log(res$x) else res$x, res$p.c)
     if (!missing.lower)
-      res$lower.NNT <- logRR2nnt(log(res$lower.x), res$p.c)
+      res$lower.NNT <-
+        logRR2nnt(if (!transf) log(res$lower.x) else res$lower.x, res$p.c)
     if (!missing.upper)
-      res$upper.NNT <- logRR2nnt(log(res$upper.x), res$p.c)
+      res$upper.NNT <-
+        logRR2nnt(if (!transf) log(res$upper.x) else res$upper.x, res$p.c)
   }
-  ##
+  #
   else if (sm == "OR") {
-    res$NNT <- logOR2nnt(log(res$x), res$p.c)
+    res$NNT <- logOR2nnt(if (!transf) log(res$x) else res$x, res$p.c)
     if (!missing.lower)
-      res$lower.NNT <- logOR2nnt(log(res$lower.x), res$p.c)
+      res$lower.NNT <-
+        logOR2nnt(if (!transf) log(res$lower.x) else res$lower.x, res$p.c)
     if (!missing.upper)
-      res$upper.NNT <- logOR2nnt(log(res$upper.x), res$p.c)
+      res$upper.NNT <-
+        logOR2nnt(if (!transf) log(res$upper.x) else res$upper.x, res$p.c)
   }
-  ##
+  #
   else if (sm == "HR") {
-    res$NNT <- logHR2nnt(log(res$x), res$p.c)
+    res$NNT <- logHR2nnt(if (!transf) log(res$x) else res$x, res$p.c)
     if (!missing.lower)
-      res$lower.NNT <- logHR2nnt(log(res$lower.x), res$p.c)
+      res$lower.NNT <-
+        logHR2nnt(if (!transf) log(res$lower.x) else res$lower.x, res$p.c)
     if (!missing.upper)
-      res$upper.NNT <- logHR2nnt(log(res$upper.x), res$p.c)
+      res$upper.NNT <-
+        logHR2nnt(if (!transf) log(res$upper.x) else res$upper.x, res$p.c)
   }
   ##
   names(res)[names(res) == "x"] <- sm
@@ -470,7 +493,7 @@ nnt.default <- function(x, p.c, sm, lower, upper,
   ##
   ## Switch direction and lower and upper limits
   ##
-  if (small.values == "bad") {
+  if (small.values == "undesirable") {
     res$NNT <- -res$NNT
     ##
     tmp.lower <- res$lower.NNT
@@ -479,7 +502,10 @@ nnt.default <- function(x, p.c, sm, lower, upper,
     if (!is.null(tmp.lower))
       res$upper.NNT <- -tmp.lower
   }
-  
+  #
+  attr(res, "small.values") <- small.values
+  #
+  class(res) <- c("nnt.default", class(res))
   
   res
 }
@@ -733,11 +759,62 @@ print.nnt.meta <- function(x,
 
 
 
+#' @rdname nnt
+#' @method print nnt.default
+#' @export
+
+
+print.nnt.default <- function(x,
+                              digits = gs("digits"),
+                              digits.prop = gs("digits.prop"),
+                              big.mark = gs("big.mark"),
+                              ...) {
+  
+  #
+  # (1) Check for nnt.default object
+  #
+  chkclass(x, "nnt.default")
+  
+  #
+  # (2) Check arguments
+  #
+  chknumeric(digits, min = 0, length = 1)
+  chknumeric(digits.prop, min = 0, length = 1)
+  
+  #
+  # (3) Round results
+  #
+  x$NNT <- formatN(round(x$NNT, digits), digits, big.mark = big.mark)
+  if (isCol(x, "lower.NNT"))
+    x$lower.NNT <-
+      formatN(round(x$lower.NNT, digits), digits, big.mark = big.mark)
+  if (isCol(x, "upper.NNT"))
+    x$upper.NNT <-
+      formatN(round(x$upper.NNT, digits), digits, big.mark = big.mark)
+  #
+  if (isCol(x, "p.c"))
+    x$p.e <- formatN(round(x$p.c, digits.prop), digits.prop)
+  if (isCol(x, "Surv.c"))
+    x$p.e <- formatN(round(x$Surv.c, digits.prop), digits.prop)
+  
+  #
+  # (4) Print results
+  #
+  class(x) <- class(x)[class(x) != "nnt.default"]
+  print(x)
+  
+  invisible(NULL)
+}
+
+
+
+
+
 ##
 ## Auxillary R functions
 ##
 logRR2nnt <- function(x, p.c)
-    1 / (p.c * (1 - exp(x)))
+    1 / (p.c - exp(x) * p.c)
 ##
 logOR2nnt <- function(x, p.c)
   1 / (p.c - exp(x) * p.c / (1 - p.c + exp(x) * p.c))

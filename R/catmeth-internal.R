@@ -1,4 +1,4 @@
-methtxt <- function(x, i, random, method) {
+text_meth <- function(x, i, random, method) {
   ##
   if (x$method[i] == "MH")
     txt <- text_MH(x, i, random)
@@ -8,6 +8,8 @@ methtxt <- function(x, i, random, method) {
     txt <- text_Inverse(x, i, random, method)
   else if (x$method[i] == "GLMM")
     txt <- text_GLMM(x, i, random, method)
+  else if (x$method[i] == "LRP")
+    txt <- text_LRP(x, i, random, method)
   else if (x$method[i] == "Cochran")
     txt <- text_Cochran(x, i, random)
   else if (x$method[i] == "SSW")
@@ -75,10 +77,16 @@ text_Inverse <- function(x, i, random, method) {
                ")")
   else {
     if (meth.i$model == "common" &
-        any(x$method[x$model == "random"] != "Inverse"))
+        (any(x$method[x$model == "random"] != "Inverse") |
+         (meth.i$method == "Inverse" &
+          any(x$method[x$model == "common"] != "Inverse" &
+              x$method[x$model == "random"] == "Inverse"))))
       txt <- paste0(txt, " (", gs("text.w.common"), " effect model)")
     else if (meth.i$model == "random" &
-             any(x$method[x$model == "common"] != "Inverse"))
+             (any(x$method[x$model == "common"] != "Inverse") |
+              (meth.i$method == "Inverse" &
+               any(x$method[x$model == "random"] != "Inverse" &
+                   x$method[x$model == "common"] == "Inverse"))))
       txt <- paste0(txt, " (", gs("text.w.random"), " effects model)")
   }
   ##
@@ -98,7 +106,7 @@ text_Inverse <- function(x, i, random, method) {
 text_GLMM <- function(x, i, random, method) {
   meth.i <- x[i, , drop = FALSE]
   ##
-  if (method == "metabin") {
+  if ("metabin" %in% method) {
     txt <-
       if (meth.i$model.glmm == "UM.FS")
         "\n- Logistic regression model (fixed study effects)"
@@ -113,7 +121,7 @@ text_GLMM <- function(x, i, random, method) {
       else if (meth.i$model.glmm == "CM.AL")
         "\n- Generalised linear mixed model (conditional Binomial-Normal)"
   }
-  else if (method == "metainc") {
+  else if ("metainc" %in% method) {
     txt <-
       if (meth.i$model.glmm == "UM.FS")
         "\n- Poisson regression model (fixed study effects)"
@@ -126,10 +134,10 @@ text_GLMM <- function(x, i, random, method) {
           "\n- Generalised linear mixed model ",
           "(conditional Poisson-Normal)")
   }
-  else if (method == "metaprop")
+  else if ("metaprop" %in% method)
     txt <-
       "\n- Random intercept logistic regression model"
-  else if (method == "metarate")
+  else if ("metarate" %in% method)
     txt <-
       "\n- Random intercept Poisson regression model"
   ##
@@ -140,6 +148,26 @@ text_GLMM <- function(x, i, random, method) {
       any(x$method[x$model == "common"] != "GLMM"))
     txt <- paste0(txt, " (", gs("text.w.random"), " effects model)")
   ##
+  txt
+}
+
+
+text_LRP <- function(x, i, random, method) {
+  meth.i <- x[i, , drop = FALSE]
+  #
+  txt <- "\n- Penalised logistic regression model"
+  #
+  if (any(x$method == "LRP" & x$model == "random"))
+    txt <- paste0(txt, " (sqrt(phi) = ", round(sqrt(x$phi[i]), 4), ")")
+  #
+  #if (meth.i$model == "random")
+  #  txt <- paste0(txt, " (sqrt(phi) = ", round(sqrt(x$phi[i]), 4), ")")
+  ##
+  #if (meth.i$model == "common" & any(x$model == "random"))
+  #  txt <- paste0(txt, " (", gs("text.w.common"), " effect model)")
+  #else if (meth.i$model == "random" & any(x$model == "common"))
+  #  txt <- paste0(txt, " (", gs("text.w.random"), " effects model)")
+  #
   txt
 }
 

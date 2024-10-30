@@ -197,7 +197,7 @@ chklist <- function(x, name = NULL) {
   invisible(NULL)
 }
 
-chklogical <- function(x, name = NULL) {
+chklogical <- function(x, name = NULL, text = "") {
   ##
   ## Check whether argument is logical
   ##
@@ -208,8 +208,9 @@ chklogical <- function(x, name = NULL) {
     x <- as.logical(x)
   ##
   if (length(x) !=  1 || !is.logical(x) || is.na(x))
-    stop("Argument '", name, "' must be a logical.", call. = FALSE)
-  ##
+    stop("Argument '", name, "' must be a logical",
+         if (text != "") " ", text, ".", call. = FALSE)
+  #
   invisible(NULL)
 }
 
@@ -359,9 +360,9 @@ chkglmm <- function(sm, method.tau, method.random.ci, method.predict,
   ##
   if (any(method.predict == "HK")) 
     stop("Hartung-Knapp method for prediction interval not ",
-         "available for GLMMs; use 'method.predict = \"HTS\".",
+         "available for GLMMs; use 'method.predict = \"V\".",
          call. = FALSE)
-
+  
   return(invisible(NULL))
 }
 
@@ -377,10 +378,48 @@ chkmlm <- function(method.tau, missing.method.tau,
     warning("For three-level model, argument 'method.tau' set to ",
             "\"REML\".",
             call. = FALSE)
+  #
+  if (any(!(method.predict %in% c("V", "HTS", "S"))))
+    stop("Available prediction interval methods for ",
+         "three-level models: \"V\", \"HTS\", \"S\".",
+         call. = FALSE)
+  #
+  return(invisible(NULL))
+}
+
+chklrp <- function(sm, method.tau, method.random.ci, method.predict,
+                   adhoc.hakn.ci, adhoc.hakn.pi,
+                   sm.allowed) {
+  
+  if (!(sm %in% sm.allowed))
+    stop("Penalised logistic regression only possible with ",
+         "argument 'sm = \"", paste0(sm.allowed, collapse = ", "), "\"'.",
+         call. = FALSE)
+  ##
+  if (any(method.random.ci == "KR"))
+    stop("Kenward-Roger method for random effects meta-analysis not ",
+         "available for penalised logistic regression.",
+         call. = FALSE)
+  ##
+  if (any(method.random.ci == "HK" & adhoc.hakn.ci != ""))
+    stop("Hartung-Knapp method with ad hoc correction not ",
+         "available for penalised logistic regression.",
+         call. = FALSE)
+  ##
+  if (any(method.predict == "KR"))
+    stop("Kenward-Roger method for prediction interval not ",
+         "available for penalised logistic regression.",
+         call. = FALSE)
   ##
   if (any(method.predict == "NNF"))
     stop("Bootstrap method for prediction interval not ",
-         "available for three-level models.",
+         "available for penalised logistic regression.",
+         call. = FALSE)
+  ##
+  if (any(method.predict == "HK")) 
+    stop("Hartung-Knapp method for prediction interval not ",
+         "available for penalised logistic regression; use ",
+         "'method.predict = \"V\".",
          call. = FALSE)
   
   return(invisible(NULL))

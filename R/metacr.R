@@ -29,8 +29,14 @@
 #' @param method.tau.ci A character string indicating which method is
 #'   used to estimate the confidence interval of \eqn{\tau^2} and
 #'   \eqn{\tau} (see \code{\link{meta-package}}).
+#' @param level.hetstat The level used to calculate confidence intervals
+#'   for heterogeneity statistics.
 #' @param tau.common A logical indicating whether tau-squared should
 #'   be the same across subgroups.
+#' @param method.I2 A character string indicating which method is
+#'   used to estimate the heterogeneity statistic I\eqn{^2}. Either
+#'   \code{"Q"} or \code{"tau2"}, can be abbreviated
+#'   (see \code{\link{meta-package}}).
 #' @param level.ma The level used to calculate confidence intervals
 #'   for meta-analysis estimates.
 #' @param method.random.ci A character string indicating which method
@@ -94,6 +100,10 @@
 #' @param title Title of meta-analysis / systematic review.
 #' @param complab Comparison label.
 #' @param outclab Outcome label.
+#' @param col.label.left The colour of the graph label on the left side of
+#'   the null effect.
+#' @param col.label.right The colour of the graph label on the right side of
+#'   the null effect.
 #' @param keepdata A logical indicating whether original data (set)
 #'   should be kept in meta object.
 #' @param warn A logical indicating whether warnings should be printed
@@ -186,8 +196,11 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                    ##
                    method.tau = "DL",
                    method.tau.ci = gs("method.tau.ci"),
+                   level.hetstat = gs("level.hetstat"),
                    tau.common = FALSE,
-                   ##
+                   #
+                   method.I2 = gs("method.I2"),
+                   #
                    level.ma = gs("level.ma"),
                    method.random.ci = "classic",
                    adhoc.hakn.ci = gs("adhoc.hakn.ci"),
@@ -218,7 +231,10 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                    text.w.random = gs("text.w.random"),
                    ##
                    title, complab, outclab,
-                   ##
+                   #
+                   col.label.left = gs("col.label.left"),
+                   col.label.right = gs("col.label.right"),
+                   #
                    keepdata = gs("keepdata"),
                    warn = FALSE,
                    warn.deprecated = gs("warn.deprecated"),
@@ -296,7 +312,9 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
     method.tau.ci <- if (method.tau == "DL") "J" else "QP"
   method.tau.ci <- setchar(method.tau.ci, gs("meth4tau.ci"))
   chklogical(tau.common)
-  ##
+  #
+  method.I2 <- setchar(method.I2, gs("meth4i2"))
+  #
   chklogical(prediction)
   chklevel(level.predict)
   chklogical(prediction.subgroup)
@@ -500,8 +518,11 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       prediction = prediction,
                       ##
                       method.tau = method.tau, method.tau.ci = method.tau.ci,
+                      level.hetstat = level.hetstat,
                       tau.common = tau.common,
-                      ##
+                      #
+                      method.I2 = method.I2,
+                      #
                       level.ma = level.ma,
                       method.random.ci = method.random.ci,
                       adhoc.hakn.ci = adhoc.hakn.ci,
@@ -527,9 +548,12 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       ##
                       title = title,
                       complab = complab, outclab = outclab,
+                      #
                       label.e = label.e, label.c = label.c,
                       label.left = label.left, label.right = label.right,
-                      ##
+                      col.label.left = col.label.left,
+                      col.label.right = col.label.right,
+                      #
                       RR.Cochrane = TRUE,
                       Q.Cochrane = Q.Cochrane,
                       ##
@@ -545,8 +569,11 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       prediction = prediction,
                       ##
                       method.tau = method.tau, method.tau.ci = method.tau.ci,
+                      level.hetstat = level.hetstat,
                       tau.common = tau.common,
-                      ##
+                      #
+                      method.I2 = method.I2,
+                      #
                       level.ma = level.ma,
                       method.random.ci = method.random.ci,
                       adhoc.hakn.ci = adhoc.hakn.ci,
@@ -572,9 +599,12 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       ##
                       title = title,
                       complab = complab, outclab = outclab,
+                      #
                       label.e = label.e, label.c = label.c,
                       label.left = label.left, label.right = label.right,
-                      ##
+                      col.label.left = col.label.left,
+                      col.label.right = col.label.right,
+                      #
                       RR.Cochrane = TRUE,
                       Q.Cochrane = Q.Cochrane,
                       ##
@@ -592,8 +622,11 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                      prediction = prediction,
                      ##
                      method.tau = method.tau, method.tau.ci = method.tau.ci,
+                     level.hetstat = level.hetstat,
                      tau.common = tau.common,
-                     ##
+                     #
+                     method.I2 = method.I2,
+                     #
                      level.ma = level.ma,
                      method.random.ci = method.random.ci,
                      adhoc.hakn.ci = adhoc.hakn.ci,
@@ -617,9 +650,12 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                      ##
                      title = title,
                      complab = complab, outclab = outclab,
+                     #
                      label.e = label.e, label.c = label.c,
                      label.left = label.left, label.right = label.right,
-                     ##
+                     col.label.left = col.label.left,
+                     col.label.right = col.label.right,
+                     #
                      keepdata = keepdata)
     ##
     if (type == "P")
@@ -633,8 +669,11 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     prediction = prediction,
                     ##
                     method.tau = method.tau, method.tau.ci = method.tau.ci,
+                    level.hetstat = level.hetstat,
                     tau.common = tau.common,
-                    ##
+                    #
+                    method.I2 = method.I2,
+                    #
                     level.ma = level.ma,
                     method.random.ci = method.random.ci,
                     adhoc.hakn.ci = adhoc.hakn.ci,
@@ -660,9 +699,12 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     ##
                     title = title,
                     complab = complab, outclab = outclab,
+                    #
                     label.e = label.e, label.c = label.c,
                     label.left = label.left, label.right = label.right,
-                    ##
+                    col.label.left = col.label.left,
+                    col.label.right = col.label.right,
+                    #
                     keepdata = keepdata)
     ##
     if (type == "I" & method != "Peto")
@@ -676,8 +718,11 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     prediction = prediction,
                     ##
                     method.tau = method.tau, method.tau.ci = method.tau.ci,
+                    level.hetstat = level.hetstat,
                     tau.common = tau.common,
-                    ##
+                    #
+                    method.I2 = method.I2,
+                    #
                     level.ma = level.ma,
                     method.random.ci = method.random.ci,
                     adhoc.hakn.ci = adhoc.hakn.ci,
@@ -706,9 +751,12 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     ##
                     title = title,
                     complab = complab, outclab = outclab,
+                    #
                     label.e = label.e, label.c = label.c,
                     label.left = label.left, label.right = label.right,
-                    ##
+                    col.label.left = col.label.left,
+                    col.label.right = col.label.right,
+                    #
                     keepdata = keepdata)
     ##
     if (type == "I" & method == "Peto")
@@ -722,8 +770,11 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     prediction = prediction,
                     ##
                     method.tau = method.tau, method.tau.ci = method.tau.ci,
+                    level.hetstat = level.hetstat,
                     tau.common = tau.common,
-                    ##
+                    #
+                    method.I2 = method.I2,
+                    #
                     level.ma = level.ma,
                     method.random.ci = method.random.ci,
                     adhoc.hakn.ci = adhoc.hakn.ci,
@@ -749,9 +800,12 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     ##
                     title = title,
                     complab = complab, outclab = outclab,
+                    #
                     label.e = label.e, label.c = label.c,
                     label.left = label.left, label.right = label.right,
-                    ##
+                    col.label.left = col.label.left,
+                    col.label.right = col.label.right,
+                    #
                     keepdata = keepdata)
   }
   else {
@@ -774,8 +828,11 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       prediction = prediction,
                       ##
                       method.tau = method.tau, method.tau.ci = method.tau.ci,
+                      level.hetstat = level.hetstat,
                       tau.common = tau.common,
-                      ##
+                      #
+                      method.I2 = method.I2,
+                      #
                       level.ma = level.ma,
                       method.random.ci = method.random.ci,
                       adhoc.hakn.ci = adhoc.hakn.ci,
@@ -794,9 +851,12 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       ##
                       title = title,
                       complab = complab, outclab = outclab,
+                      #
                       label.e = label.e, label.c = label.c,
                       label.left = label.left, label.right = label.right,
-                      ##
+                      col.label.left = col.label.left,
+                      col.label.right = col.label.right,
+                      #
                       RR.Cochrane = TRUE,
                       Q.Cochrane = Q.Cochrane,
                       ##
@@ -812,8 +872,11 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       prediction = prediction,
                       ##
                       method.tau = method.tau, method.tau.ci = method.tau.ci,
+                      level.hetstat = level.hetstat,
                       tau.common = tau.common,
-                      ##
+                      #
+                      method.I2 = method.I2,
+                      #
                       level.ma = level.ma,
                       method.random.ci = method.random.ci,
                       adhoc.hakn.ci = adhoc.hakn.ci,
@@ -832,8 +895,12 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       ##
                       title = title,
                       complab = complab, outclab = outclab,
+                      #
                       label.e = label.e, label.c = label.c,
                       label.left = label.left, label.right = label.right,
+                      col.label.left = col.label.left,
+                      col.label.right = col.label.right,
+                      #
                       RR.Cochrane = TRUE,
                       Q.Cochrane = Q.Cochrane,
                       warn = warn, keepdata = keepdata)
@@ -850,8 +917,11 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                      prediction = prediction,
                      ##
                      method.tau = method.tau, method.tau.ci = method.tau.ci,
+                     level.hetstat = level.hetstat,
                      tau.common = tau.common,
-                     ##
+                     #
+                     method.I2 = method.I2,
+                     #
                      level.ma = level.ma,
                      method.random.ci = method.random.ci,
                      adhoc.hakn.ci = adhoc.hakn.ci,
@@ -868,9 +938,12 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                      ##
                      title = title,
                      complab = complab, outclab = outclab,
+                     #
                      label.e = label.e, label.c = label.c,
                      label.left = label.left, label.right = label.right,
-                     ##
+                     col.label.left = col.label.left,
+                     col.label.right = col.label.right,
+                     #
                      keepdata = keepdata)
     ##
     if (type == "P")
@@ -884,8 +957,11 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     prediction = prediction,
                     ##
                     method.tau = method.tau, method.tau.ci = method.tau.ci,
+                    level.hetstat = level.hetstat,
                     tau.common = tau.common,
-                    ##
+                    #
+                    method.I2 = method.I2,
+                    #
                     level.ma = level.ma,
                     method.random.ci = method.random.ci,
                     adhoc.hakn.ci = adhoc.hakn.ci,
@@ -904,9 +980,12 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     ##
                     title = title,
                     complab = complab, outclab = outclab,
+                    #
                     label.e = label.e, label.c = label.c,
                     label.left = label.left, label.right = label.right,
-                    ##
+                    col.label.left = col.label.left,
+                    col.label.right = col.label.right,
+                    #
                     keepdata = keepdata)
     ##
     if (type == "I" & method != "Peto")
@@ -920,8 +999,11 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     prediction = prediction,
                     ##
                     method.tau = method.tau, method.tau.ci = method.tau.ci,
+                    level.hetstat = level.hetstat,
                     tau.common = tau.common,
-                    ##
+                    #
+                    method.I2 = method.I2,
+                    #
                     level.ma = level.ma,
                     method.random.ci = method.random.ci,
                     adhoc.hakn.ci = adhoc.hakn.ci,
@@ -943,9 +1025,12 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     ##
                     title = title,
                     complab = complab, outclab = outclab,
+                    #
                     label.e = label.e, label.c = label.c,
                     label.left = label.left, label.right = label.right,
-                    ##
+                    col.label.left = col.label.left,
+                    col.label.right = col.label.right,
+                    #
                     keepdata = keepdata)
     ##
     if (type == "I" & method == "Peto")
@@ -959,8 +1044,11 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     prediction = prediction,
                     ##
                     method.tau = method.tau, method.tau.ci = method.tau.ci,
+                    level.hetstat = level.hetstat,
                     tau.common = tau.common,
-                    ##
+                    #
+                    method.I2 = method.I2,
+                    #
                     level.ma = level.ma,
                     method.random.ci = method.random.ci,
                     adhoc.hakn.ci = adhoc.hakn.ci,
@@ -979,9 +1067,12 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     ##
                     title = title,
                     complab = complab, outclab = outclab,
+                    #
                     label.e = label.e, label.c = label.c,
                     label.left = label.left, label.right = label.right,
-                    ##
+                    col.label.left = col.label.left,
+                    col.label.right = col.label.right,
+                    #
                     keepdata = keepdata)
   }
   

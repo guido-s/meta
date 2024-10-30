@@ -96,19 +96,21 @@
 #'   t-value of test for overall effect, see \code{print.default}.
 #' @param digits.pval Minimal number of significant digits for p-value
 #'   of overall treatment effect, see \code{print.default}.
-#' @param digits.pval.Q Minimal number of significant digits for
-#'   p-value of heterogeneity test, see \code{print.default}.
-#' @param digits.Q Minimal number of significant digits for
-#'   heterogeneity statistic Q, see \code{print.default}.
 #' @param digits.tau2 Minimal number of significant digits for
 #'   between-study variance \eqn{\tau^2}, see \code{print.default}.
 #' @param digits.tau Minimal number of significant digits for
 #'   \eqn{\tau}, the square root of the between-study variance
 #'   \eqn{\tau^2}.
-#' @param digits.H Minimal number of significant digits for H
-#'   statistic, see \code{print.default}.
+#' @param digits.Q Minimal number of significant digits for
+#'   heterogeneity statistic Q, see \code{print.default}.
+#' @param digits.df Minimal number of significant digits for degrees
+#'   of freedom.
+#' @param digits.pval.Q Minimal number of significant digits for
+#'   p-value of heterogeneity test, see \code{print.default}.
 #' @param digits.I2 Minimal number of significant digits for I-squared
 #'   and Rb statistic, see \code{print.default}.
+#' @param digits.H Minimal number of significant digits for H
+#'   statistic, see \code{print.default}.
 #' @param scientific.pval A logical specifying whether p-values should
 #'   be printed in scientific notation, e.g., 1.2345e-01 instead of
 #'   0.12345.
@@ -118,8 +120,6 @@
 #' @param JAMA.pval A logical specifying whether p-values for test of
 #'   overall effect should be printed according to JAMA reporting
 #'   standards.
-#' @param digits.df Minimal number of significant digits for degrees
-#'   of freedom.
 #' @param print.tau2 A logical specifying whether between-study
 #'   variance \eqn{\tau^2} should be printed.
 #' @param print.tau2.ci A logical value indicating whether to print
@@ -129,8 +129,12 @@
 #'   printed.
 #' @param print.tau.ci A logical value indicating whether to print the
 #'   confidence interval of \eqn{\tau}.
+#' @param print.Q A logical value indicating whether to print the
+#'   results of the test of heterogeneity.
 #' @param print.I2 A logical specifying whether heterogeneity
 #'   statistic I\eqn{^2} should be printed.
+#' @param print.I2.ci A logical specifying whether confidence interval for
+#'   heterogeneity statistic I\eqn{^2} should be printed.
 #' @param print.H A logical specifying whether heterogeneity statistic
 #'   H should be printed.
 #' @param print.Rb A logical specifying whether heterogeneity
@@ -143,8 +147,6 @@
 #'   I\eqn{^2}.
 #' @param text.Rb Text printed to identify heterogeneity statistic
 #'   R\eqn{_b}.
-#' @param print.Q A logical value indicating whether to print the
-#'   results of the test of heterogeneity.
 #' @param details.methods A logical specifying whether details on
 #'   statistical methods should be printed.
 #' @param warn.backtransf Deprecated argument (ignored).
@@ -195,40 +197,42 @@ print.meta <- function(x,
                        ##
                        header = TRUE,
                        print.CMH = x$print.CMH,
-                       ##
+                       #
                        digits = gs("digits"),
                        digits.stat = gs("digits.stat"),
                        digits.pval = max(gs("digits.pval"), 2),
-                       digits.pval.Q = max(gs("digits.pval.Q"), 2),
-                       digits.Q = gs("digits.Q"),
+                       #
                        digits.tau2 = gs("digits.tau2"),
                        digits.tau = gs("digits.tau"),
+                       #
+                       digits.Q = gs("digits.Q"),
+                       digits.df = gs("digits.df"),
+                       digits.pval.Q = max(gs("digits.pval.Q"), 2),
+                       #
                        digits.H = gs("digits.H"),
                        digits.I2 = gs("digits.I2"),
-                       ##
+                       #
                        scientific.pval = gs("scientific.pval"),
                        big.mark = gs("big.mark"),
                        zero.pval = gs("zero.pval"),
                        JAMA.pval = gs("JAMA.pval"),
-                       ##
-                       digits.df = gs("digits.df"),
-                       ##
+                       #
                        print.tau2 = gs("print.tau2"),
                        print.tau2.ci = gs("print.tau2.ci"),
                        print.tau = gs("print.tau"),
                        print.tau.ci = gs("print.tau.ci"),
-                       ##
+                       #
+                       print.Q = gs("print.Q"),
                        print.I2 = gs("print.I2"),
+                       print.I2.ci = gs("print.I2.ci"),
                        print.H = gs("print.H"),
                        print.Rb = gs("print.Rb"),
-                       ##
+                       #
                        text.tau2 = gs("text.tau2"),
                        text.tau = gs("text.tau"),
                        text.I2 = gs("text.I2"),
                        text.Rb = gs("text.Rb"),
-                       ##
-                       print.Q = gs("print.Q"),
-                       ##
+                       #
                        details.methods = gs("details"),
                        ##
                        warn.backtransf = FALSE,
@@ -251,6 +255,9 @@ print.meta <- function(x,
   is.metabind <- inherits(x, "metabind")
   is.netpairwise <- inherits(x, "netpairwise")
   ##
+  method <- x$method
+  method.random <- x$method.random
+  ##
   by <- !is.null(x$subgroup)
   ##
   if (by)
@@ -265,6 +272,8 @@ print.meta <- function(x,
     fbt <- func.backtransf
   ##
   abt <- x$args.backtransf
+  #
+  print.I2 <- print.I2 & ((overall.hetstat & !by) | by)
   
   
   ##
@@ -292,8 +301,14 @@ print.meta <- function(x,
   chklogical(print.tau2.ci)
   chklogical(print.tau)
   chklogical(print.tau.ci)
+  #
+  if (all(method == "LRP") & all(method.random == "LRP")) {
+    print.tau2 <- FALSE
+    print.tau <- FALSE
+  }
   ##
   chklogical(print.I2)
+  chklogical(print.I2.ci)
   chklogical(print.H)
   chklogical(print.Rb)
   chkchar(text.tau2, length = 1)
@@ -553,7 +568,14 @@ print.meta <- function(x,
   else
     text.random.br <- text.random
   ##
-  ci.lab <- paste0(round(100 * x$level.ma, 1), "%-CI")
+  if (common | random)
+    ci.lab <- paste0(round(100 * x$level.ma, 1), "%-CI")
+  else if (prediction)
+    ci.lab <- paste0(round(100 * x$level.predict, 1), "%-PI")
+  else if (all(k.all == 1))
+    ci.lab <- paste0(round(100 * x$level.ma, 1), "%-CI")
+  else
+    ci.lab <- ""
   ##
   details <- NULL
   
@@ -842,7 +864,7 @@ print.meta <- function(x,
     else
       Q4I2 <- Q[!grepl("LRT", names(Q))]
     ##
-    print.I2.ci <-
+    print.I2.ci <- print.I2.ci &
       ifelse(((Q4I2 > max(k, na.rm = TRUE) & max(k, na.rm = TRUE) >= 2) |
               (Q4I2 <= max(k, na.rm = TRUE) & max(k, na.rm = TRUE) > 2)) &
              !(is.na(lowI2) | is.na(uppI2)), TRUE, FALSE)
@@ -870,9 +892,6 @@ print.meta <- function(x,
     Rb <- lowRb <- uppRb <- NULL
     print.Rb.ci <- FALSE    
   }
-  ##
-  method <- x$method
-  method.random <- x$method.random
   ##
   three.level <- if (is.null(x$three.level)) FALSE else any(x$three.level)
   is.glmm <- any(method == "GLMM") | any(method.random == "GLMM")
@@ -950,13 +969,23 @@ print.meta <- function(x,
     x$pscale <- pscale
     x$irscale <- irscale
     x$irunit <- irunit
-    ##
+    #
+    if (!is.null(x$cycles))
+      x$sd.n_of_1 <-
+        formatPT(x$sd.n_of_1, digits = gs("digits.sd"), big.mark = big.mark)
+    #
     if (details.methods)
       details <-
         catmeth(x,
                 common, random, prediction, overall, overall.hetstat,
-                x$func.transf, backtransf, fbt,
-                big.mark, digits, digits.tau, text.tau, text.tau2,
+                #
+                func.transf = x$func.transf,
+                backtransf = backtransf, func.backtransf = fbt,
+                #
+                big.mark = big.mark, digits = digits,
+                digits.tau = digits.tau,
+                text.tau = text.tau, text.tau2 = text.tau2,
+                #
                 print.tau2 = FALSE)
   }
   else {
@@ -965,6 +994,8 @@ print.meta <- function(x,
     ## Print results for meta-analysis with more than one study
     ##
     ##
+    zlab <- ""
+    #
     if (header & is.metamiss)
       cat("\n")
     ##
@@ -1068,7 +1099,7 @@ print.meta <- function(x,
         }
         ##
         if (any(method.random.ci %in% c("HK", "KR"))) {
-          if (common & random)
+          if ((common & random) | any(method.random.ci == "classic"))
             zlab <- "z|t"
           else if (common & !random)
             zlab <- "z"
@@ -1094,7 +1125,10 @@ print.meta <- function(x,
                                 if (null.given) "p-value"))
         ##
         sort.overall <- setsort(sort.overall, nrow(res), "overall results")
-        ##
+        #
+        if (prediction & !(common | random))
+          res <- res[, ci.lab, drop = FALSE]
+        #
         prmatrix(res[sort.overall, , drop = FALSE],
                  quote = FALSE, right = TRUE, ...)
         ##
@@ -1154,24 +1188,32 @@ print.meta <- function(x,
     ## Print information on heterogeneity
     ##
     if (overall.hetstat) {
-      cat("\nQuantifying heterogeneity:")
-      if (sum(c(print.tau2, print.tau, print.I2, print.H, print.Rb)) > 1)
-        cat("\n")
-      else
-        cat("")
-      ##
       print.tau2.ci <-
         print.tau2.ci & !all(is.na(x$lower.tau2) & is.na(x$upper.tau2))
       if (print.tau2.ci &&
           (all(x$lower.tau2 == 0) & all(x$upper.tau2 == 0)))
         print.tau2.ci <- FALSE
-      ##
+      #
       print.tau.ci <-
         print.tau.ci & !all(is.na(x$lower.tau) & is.na(x$upper.tau))
       if (print.tau.ci &&
           (all(x$lower.tau == 0) & all(x$upper.tau == 0)))
         print.tau.ci <- FALSE
-      ##
+      #
+      cat(paste0("\nQuantifying heterogeneity",
+                 if (!(is.null(x$level.hetstat) || is.na(x$level.hetstat)) &
+                     (print.tau2.ci | print.tau.ci | print.I2.ci))
+                   paste0(" (with ", 100 * x$level.hetstat, "%-CI",
+                          if (print.tau2.ci + print.tau.ci +
+                              print.I2.ci + print.H * print.I2.ci > 1) "s",
+                          ")"),
+                 ":"))
+      #
+      if (sum(c(print.tau2, print.tau, print.I2, print.H, print.Rb)) > 1)
+        cat("\n")
+      else
+        cat("")
+      #
       cathet(k,
              x$method.tau, x$detail.tau,
              x$tau2, x$lower.tau2, x$upper.tau2,
@@ -1200,8 +1242,10 @@ print.meta <- function(x,
           lowH.resid <- round(replaceNULL(x$lower.H.resid), digits.H)
           uppH.resid <- round(replaceNULL(x$upper.H.resid), digits.H)
         }
+        #
+        I2.resid <- round(100 * replaceNULL(x$I2.resid), digits.I2)
+        #
         if (print.I2) {
-          I2.resid <- round(100 * replaceNULL(x$I2.resid), digits.I2)
           lowI2.resid <- round(100 * replaceNULL(x$lower.I2.resid), digits.I2)
           uppI2.resid <- round(100 * replaceNULL(x$upper.I2.resid), digits.I2)
           print.I2.ci <-
@@ -1216,14 +1260,22 @@ print.meta <- function(x,
           if (is.na(print.I2.ci))
             print.I2.ci <- FALSE
         }
-        ##
+        #
         if (!is.na(replaceNULL(I2.resid))) {
-          cat("\nQuantifying residual heterogeneity:")
+          cat(paste0("\nQuantifying residual heterogeneity",
+                     if (!(is.null(x$level.hetstat) || is.na(x$level.hetstat)) &
+                         (print.tau2.ci | print.tau.ci | print.I2.ci))
+                       paste0(" (with ", 100 * x$level.hetstat, "%-CI",
+                              if (print.tau2.ci + print.tau.ci +
+                                  print.I2.ci + print.H * print.I2.ci > 1) "s",
+                              ")"),
+                     ":"))
+          #
           if (sum(c(print.tau2, print.tau, print.I2, print.H, print.Rb)) > 1)
             cat("\n")
           else
             cat("")
-          ##
+          #
           cathet(k.resid, 
                  x$method.tau, x$detail.tau,
                  x$tau2.resid, x$lower.tau2.resid, x$upper.tau2.resid,
@@ -1266,10 +1318,14 @@ print.meta <- function(x,
         }
       }
     }
-    else {
+    else if (!by) {
       print.tau2 <- FALSE
       print.tau2.ci <- FALSE
       print.tau <- FALSE
+      print.tau.ci <- FALSE
+    }
+    else {
+      print.tau2.ci <- FALSE
       print.tau.ci <- FALSE
     }
     ##
@@ -1313,8 +1369,9 @@ print.meta <- function(x,
                                           big.mark = big.mark),
                                   formatN(uppTE.common.w[, i], digits, "NA",
                                           big.mark = big.mark)),
-                         formatN(round(Q.w, digits.Q), digits.Q,
-                                 big.mark = big.mark),
+                         if (print.Q)
+                           formatN(round(Q.w, digits.Q), digits.Q,
+                                   big.mark = big.mark),
                          if (print.I2)
                            ifelse(is.na(I2.w),
                                   "--",
@@ -1345,7 +1402,7 @@ print.meta <- function(x,
                                   c(if (is.netpairwise)
                                       "  m" else "  k",
                                     sm.lab, ci.lab,
-                                    "Q",
+                                    if (print.Q) "Q",
                                     if (print.I2) text.I2,
                                     if (print.Rb) text.Rb,
                                     if (!random) text.tau2,
@@ -1461,7 +1518,7 @@ print.meta <- function(x,
                                            digits = digits.tau,
                                            big.mark = big.mark,
                                            noblanks = TRUE)),
-                         if (i == 1 & !common)
+                         if (i == 1 & !common & print.Q)
                            formatN(round(Q.w, digits.Q), digits.Q,
                                    big.mark = big.mark),
                          if (i == 1 & !common & print.I2)
@@ -1485,7 +1542,7 @@ print.meta <- function(x,
                                     sm.lab, ci.lab,
                                     if (i == 1 | tau.i) text.tau2,
                                     if (i == 1 | tau.i) text.tau,
-                                    if (i == 1 & !common) "Q",
+                                    if (i == 1 & !common & print.Q) "Q",
                                     if (i == 1 & !common & print.I2) text.I2,
                                     if (i == 1 & !common & print.Rb) text.Rb)
                                   )
@@ -1590,17 +1647,32 @@ print.meta <- function(x,
     x$pscale <- pscale
     x$irscale <- irscale
     x$irunit <- irunit
-    ##
+    #
+    if (!is.null(x$cycles))
+      x$sd.n_of_1 <-
+      formatPT(x$sd.n_of_1, digits = gs("digits.sd"), big.mark = big.mark)
+    #
     if (details.methods &
         (common | random | prediction | overall.hetstat | by))
       details <-
         catmeth(x,
                 common, random, prediction, overall, overall.hetstat,
-                x$func.transf, backtransf, fbt,
-                big.mark, digits, digits.tau, text.tau, text.tau2,
-                print.tau2, print.tau2.ci,
-                print.tau, print.tau.ci,
-                print.df = overall)
+                #
+                func.transf = x$func.transf,
+                backtransf = backtransf, func.backtransf = fbt,
+                #
+                big.mark = big.mark, digits = digits,
+                digits.tau = digits.tau,
+                text.tau = text.tau, text.tau2 = text.tau2,
+                #
+                print.tau2 = print.tau2,
+                print.tau2.ci = print.tau2 & print.tau2.ci,
+                print.tau = print.tau,
+                print.tau.ci = print.tau & print.tau.ci,
+                #
+                print.I2 = print.I2, text.I2 = text.I2,
+                #
+                print.df = overall, prediction.subgroup = prediction.subgroup)
   }
   
   

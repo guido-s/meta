@@ -1,5 +1,15 @@
 gm <- function(x, digits = 4, debug = FALSE) {
   
+  if (inherits(x, c("metabin", "metainc", "metaprop", "metarate"))) {
+    incr_not_0 <- sort(unique(x$incr[x$incr != 0]))
+    #
+    if (length(incr_not_0) == 1)
+      incr <- incr_not_0
+    else
+      incr <- paste0("{", paste(incr_not_0, collapse = ", "), "}")
+  }
+  
+  
   func <- if (debug) list else data.frame
   ## Get rid of warning 'Undefined global functions or variables'
   model <- NULL
@@ -18,6 +28,7 @@ gm <- function(x, digits = 4, debug = FALSE) {
               k0 = replaceNULL(x$k0, NA),
               method.tau, method.tau.ci,
               tau = round(tau, digits), tau.preset,
+              method.I2,
               method.random.ci,
               df.random = replaceNULL(df.random),
               adhoc.hakn.ci,
@@ -54,6 +65,7 @@ gm <- function(x, digits = 4, debug = FALSE) {
                 if (length(method.tau.ci[method.tau.ci != ""]) == 0) ""
                 else method.tau.ci[method.tau.ci != ""],
               tau = NA, tau.preset = replaceNULL(tau.preset),
+              method.I2,
               method.random.ci,
               df.random = replaceNULL(df.random), adhoc.hakn.ci,
               rho = replaceNULL(rho)),
@@ -107,7 +119,9 @@ gm <- function(x, digits = 4, debug = FALSE) {
                     method.tau.ci = c(rep("", n.com), x$method.tau.ci),
                     tau = round(c(rep(NA, n.com), x$tau), digits),
                     tau.preset = NA,
-                    ##
+                    #
+                    method.I2 = x$method.I2,
+                    #
                     method.random.ci = c(rep("", n.com), method.random.ci),
                     df.random = c(rep(NA, n.com), unlist(df.random)),
                     adhoc.hakn.ci = c(rep("", n.com), adhoc.hakn.ci),
@@ -124,7 +138,7 @@ gm <- function(x, digits = 4, debug = FALSE) {
   ##
   if (inherits(x, "metabin")) {
     res$meth$k.MH <- x$k.MH
-    res$meth$incr <- x$incr
+    res$meth$incr <- incr
     res$meth$method.incr <- x$method.incr
     res$meth$sparse <- x$sparse
     res$meth$allstudies <- x$allstudies
@@ -149,13 +163,16 @@ gm <- function(x, digits = 4, debug = FALSE) {
     res$meth$k.MH <- x$k.MH
   ##
   if (inherits(x, c("metainc", "metaprop", "metarate"))) {
-    res$meth$incr <- x$incr
+    res$meth$incr <- incr
     res$meth$method.incr <- x$method.incr
     res$meth$sparse <- x$sparse
   }
   if (!is.null(x$model.glmm))
     res$meth$model.glmm <- x$model.glmm
-  ##
+  #
+  if (!is.null(x$phi))
+    res$meth$phi <- x$phi
+  #
   if (inherits(x, "trimfill")) {
     res$meth$k0 <- x$k0
     res$meth$left <- x$left
