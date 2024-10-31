@@ -23,11 +23,9 @@
 #' 
 #' @details
 #' Review Manager 5 (RevMan 5) was the software used for preparing and
-#' maintaining Cochrane reviews
-#' (\url{https://training.cochrane.org/online-learning/core-software/revman}).
-#' RevMan 5 includes the ability to write systematic reviews of
-#' interventions, diagnostic test accuracy reviews, methodology
-#' reviews and overviews of reviews.
+#' maintaining Cochrane reviews. RevMan 5 includes the ability to write
+#' systematic reviews of interventions, diagnostic test accuracy reviews,
+#' methodology reviews and overviews of reviews.
 #' 
 #' This function provides the ability to read the analysis data from a
 #' Cochrane intervention review created with RevMan 5; a data frame is

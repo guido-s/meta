@@ -392,8 +392,7 @@ Some pre-defined general settings are available:
 }
 
 The first command can be used to reproduce meta-analyses from
-Cochrane reviews conducted with \emph{Review Manager 5} (RevMan 5,
-\url{https://training.cochrane.org/online-learning/core-software/revman})
+Cochrane reviews conducted with \emph{Review Manager 5} (RevMan 5)
 and specifies to use a RevMan 5 layout in forest plots.
 
 The second command can be used to generate forest plots following
@@ -451,10 +450,6 @@ sets.
 }
 }
 \note{
-Readers of the first edition of 'Meta-Analysis with R (Use R!)' should
-install an older version of R package \bold{meta}:
-\url{https://tinyurl.com/dt4y5drs}
-
 Balduzzi et al. (2019) is the preferred citation in publications
 for \bold{meta}. Type \code{citation("meta")} for a BibTeX entry of
 this publication.

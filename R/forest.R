@@ -938,9 +938,7 @@
 #' 
 #' If argument \code{layout = "RevMan5"} (and arguments \code{leftcols} and
 #' \code{rightcols} are \code{NULL}), the layout for forest plots used for
-#' Cochrane reviews (which are generated with Review Manager 5,
-#' \url{https://training.cochrane.org/online-learning/core-software/revman})
-#' is reproduced:
+#' Cochrane reviews (which were generated with Review Manager 5) is reproduced:
 #' \enumerate{
 #' \item All columns are printed on the left side of the forest plot
 #'   (see arguments \code{leftcols} and \code{rightcols})

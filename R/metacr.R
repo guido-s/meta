@@ -117,10 +117,9 @@
 #' Cochrane intervention reviews are based on the comparison of two
 #' interventions. Each Cochrane intervention review can have a
 #' variable number of comparisons. For each comparison, a variable
-#' number of outcomes can be define. For each outcome, a seperate
+#' number of outcomes can be define. For each outcome, a separate
 #' meta-analysis is conducted. Review Manager 5 (RevMan 5) was the
-#' software used for preparing and maintaining Cochrane Reviews
-#' (\url{https://training.cochrane.org/online-learning/core-software/revman}).
+#' software used for preparing and maintaining Cochrane Reviews.
 #' 
 #' This wrapper function can be used to perform meta-analysis for a
 #' single outcome of a Cochrane intervention review. Internally, R
