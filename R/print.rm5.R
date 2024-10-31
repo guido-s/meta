@@ -14,10 +14,8 @@
 #' a Cochrane Review of interventions (Higgins et al., 2023).
 #' 
 #' Review Manager 5 (RevMan 5) was the software used for preparing and
-#' maintaining Cochrane Reviews
-#' (\url{https://training.cochrane.org/online-learning/core-software/revman}).
-#' In RevMan 5, subgroup analyses can be defined and data from a
-#' Cochrane review can be imported to R using the function
+#' maintaining Cochrane Reviews. In RevMan 5, subgroup analyses can be defined
+#' and data from a Cochrane review can be imported to R using the function
 #' \code{read.rm5}.
 #' 
 #' The R function \code{\link{metacr}} is called internally.
@@ -32,7 +30,7 @@
 #' VA (editors) (2023):
 #' \emph{Cochrane Handbook for Systematic Reviews of Interventions
 #'   Version 6.4 (updated August 2023)}.
-#' Available from \url{https://www.training.cochrane.org/handbook}
+#' Available from \url{https://www.training.cochrane.org/handbook/}
 #' 
 #' @examples
 #' # Locate export data file "Fleiss1993_CR.csv"

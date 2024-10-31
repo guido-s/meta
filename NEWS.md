@@ -1,4 +1,10 @@
+## meta, version 8.0-1 (2024-10-31)
+
+Revise web links
+
+
 ## meta, version 8.0-0 (2024-10-30)
+
 
 ### Major changes
 
@@ -1710,7 +1716,7 @@
   objects created with metabind()
 
 * P-values can be printed according to [JAMA reporting
-  standards](https://jamanetwork.com/journals/jama)
+  standards](https://jamanetwork.com/journals/jama/)
 
 * In subgroup analyses, print the group labels instead of levels if
   the grouping variable is a factor
