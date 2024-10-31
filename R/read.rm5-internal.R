@@ -575,7 +575,7 @@ read.rm5.csv <- function(file, sep = ",", quote = "\"",
   
   ##
   ## Overcome problems to import files with UTF-8, byte order mark encoding
-  ## (see http://en.wikipedia.org/wiki/Byte_order_mark)
+  ## (see https://en.wikipedia.org/wiki/Byte_order_mark)
   ##
   nam[grep("Comparison.Number$", nam)] <- "Comparison.Number"
   ##

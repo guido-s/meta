@@ -580,7 +580,7 @@
 #' # Conduct meta-analysis using hazard ratios and 95% confidence intervals
 #' #
 #' # Data from Steurer et al. (2006), Analysis 1.1 Overall survival
-#' # https://www.cochranelibrary.com/cdsr/doi/10.1002/14651858.CD004270.pub2/abstract
+#' # https://doi.org/10.1002/14651858.CD004270.pub2
 #' #
 #' study <- c("FCG on CLL 1996", "Leporrier 2001", "Rai 2000", "Robak 2000")
 #' HR <- c(0.55, 0.92, 0.79, 1.18)

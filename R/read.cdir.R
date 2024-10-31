@@ -27,11 +27,9 @@
 #' @param x An object of class "cdir".
 #' 
 #' @details
-#' RevMan Web is the current software used for preparing and
-#' maintaining Cochrane reviews
-#' (\url{https://training.cochrane.org/online-learning/core-software/revman}).
-#' RevMan Web includes the ability to write systematic reviews of
-#' interventions or diagnostic test accuracy reviews.
+#' RevMan Web is the current software used for preparing and maintaining
+#' Cochrane reviews. RevMan Web includes the ability to write systematic
+#' reviews of interventions or diagnostic test accuracy reviews.
 #' 
 #' This function provides the ability to read the Cochrane data
 #' package from a Cochrane intervention review created with RevMan
@@ -54,15 +52,13 @@
 #' 
 #' Two possible ways exist to create the ZIP-file.
 #'
-#' In RevMan Web (\url{https://revman.cochrane.org/}), press the
-#' "Export" button at the bottom of the \emph{Default view}
-#' website. After a couple of seconds, the data package will be shown
-#' at the bottom of the \emph{Default view} website under "Downloads".
+#' In RevMan Web, press the "Export" button at the bottom of the
+#' \emph{Default view} website. After a couple of seconds, the data package will
+#' be shown at the bottom of the \emph{Default view} website under "Downloads".
 #'
-#' In the Cochrane Library (\url{https://www.cochranelibrary.com/}),
-#' press on "Download statistical data" in the Contents menu to
-#' download an rm5-file. This file can be converted to a data package
-#' in RevMan Web using \emph{Help} - \emph{Convert a RevMan 5 file}.
+#' In the Cochrane Library, press on "Download statistical data" in the
+#' Contents menu to download an rm5-file. This file can be converted to a data
+#' package in RevMan Web using \emph{Help} - \emph{Convert a RevMan 5 file}.
 #' }
 #' 
 #' @return

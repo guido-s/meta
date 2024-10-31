@@ -43,8 +43,7 @@ Examples) or use one of the following general settings:
 }
 
 The first command can be used to reproduce meta-analyses from
-Cochrane reviews conducted with \emph{Review Manager 5} (RevMan 5,
-\url{https://training.cochrane.org/online-learning/core-software/revman})
+Cochrane reviews conducted with \emph{Review Manager 5} (RevMan 5)
 and specifies to use a RevMan 5 layout in forest plots.
 
 The second command can be used to generate forest plots in BMJ layout.
