@@ -181,7 +181,7 @@
 #'   should be kept in meta object.
 #' @param warn A logical indicating whether warnings should be printed
 #'   (e.g., if \code{incr} is added to studies with zero cell
-#'   frequencies).
+#'   frequencies or if estimation problems exist in fitting a GLMM).
 #' @param warn.deprecated A logical indicating whether warnings should
 #'   be printed if deprecated arguments are used.
 #' @param control An optional list to control the iterative process to
@@ -1702,7 +1702,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                   call. = FALSE)
       }
     else if (is.glmm | is.lrp) {
-      if ((sparse | addincr) & warn)
+      if (sparse & warn &
+          ((!missing.incr & any(incr != 0)) | allincr | addincr))
         warning("Note, for method = \"", method,
                 "\", continuity correction ",
                 "only used to calculate individual study results.",
@@ -1824,7 +1825,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
               method.random.ci = method.random.ci,
               level = level.ma,
               control = list(control),
-              use.random = use.random)
+              use.random = use.random,
+              warn = warn)
     ##
     TE.common   <- as.numeric(res.glmm$glmm.common$b)
     seTE.common <- as.numeric(res.glmm$glmm.common$se)
@@ -1998,7 +2000,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                     else
                       NULL,
                   control = list(control),
-                  use.random = use.random)$glmm.random[[1]],
+                  use.random = use.random,
+                  warn = warn)$glmm.random[[1]],
           method.I2
         )
     }

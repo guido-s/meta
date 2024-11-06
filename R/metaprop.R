@@ -143,9 +143,8 @@
 #' @param adhoc.hakn Deprecated argument (replaced by 'adhoc.hakn.ci').
 #' @param keepdata A logical indicating whether original data (set)
 #'   should be kept in meta object.
-#' @param warn A logical indicating whether the addition of
-#'   \code{incr} to studies with zero or all events should result in a
-#'   warning.
+#' @param warn A logical indicating whether warnings should be printed
+#'   (e.g., if estimation problems exist in fitting a GLMM).
 #' @param warn.deprecated A logical indicating whether warnings should
 #'   be printed if deprecated arguments are used.
 #' @param control An optional list to control the iterative process to
@@ -1353,7 +1352,8 @@ metaprop <- function(event, n, studlab,
               method.tau = method.tau,
               method.random.ci = method.random.ci,
               level = level.ma,
-              control = control, use.random = use.random)
+              control = control, use.random = use.random,
+              warn = warn)
     ##
     res <- addGLMM(res, res.glmm, method.I2)
     ##
@@ -1380,7 +1380,8 @@ metaprop <- function(event, n, studlab,
                       as.call(~ subgroup.glmm)
                     else
                       NULL,
-                  control = control, use.random = use.random)$glmm.random[[1]],
+                  control = control, use.random = use.random,
+                  warn = warn)$glmm.random[[1]],
           method.I2
         )
     }
