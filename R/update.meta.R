@@ -1314,7 +1314,7 @@ update.meta <- function(object,
                   method.mean =
                     replaceVal(replaceNULL(method.mean, "Luo"), "", "Luo"),
                   method.sd =
-                    replaceVal(replaceNULL(method.mean, "Shi"), "", "Shi"),
+                    replaceVal(replaceNULL(method.sd, "Shi"), "", "Shi"),
                   #
                   approx.mean.e = approx.mean.e,
                   approx.mean.c = approx.mean.c,
