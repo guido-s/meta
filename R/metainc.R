@@ -1251,7 +1251,8 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
                overall.hetstat = overall.hetstat,
                prediction = prediction,
                ##
-               method.tau = method.tau, method.tau.ci = method.tau.ci,
+               method.tau = if (is.glmm) "DL" else method.tau,
+               method.tau.ci = if (is.glmm) "" else method.tau.ci,
                level.hetstat = level.hetstat,
                tau.preset = tau.preset,
                TE.tau = TE.tau,
@@ -1347,6 +1348,8 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   }
   ##
   if (is.glmm) {
+    res$method.tau <- method.tau
+    #
     res <- addGLMM(res, res.glmm, method.I2)
     res$model.glmm <- model.glmm
     ##

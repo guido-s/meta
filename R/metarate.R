@@ -995,7 +995,8 @@ metarate <- function(event, time, studlab,
                overall.hetstat = overall.hetstat,
                prediction = prediction,
                ##
-               method.tau = method.tau, method.tau.ci = method.tau.ci,
+               method.tau = if (is.glmm) "DL" else method.tau,
+               method.tau.ci = if (is.glmm) "" else method.tau.ci,
                level.hetstat = level.hetstat,
                tau.preset = tau.preset,
                TE.tau = TE.tau,
@@ -1077,6 +1078,8 @@ metarate <- function(event, time, studlab,
   }    
   ##
   if (is.glmm) {
+    m$method.tau <- method.tau
+    #
     m$seTE.hakn.ci <- m$seTE.hakn.adhoc.ci <-
       m$seTE.hakn.pi <- m$seTE.hakn.adhoc.pi <-
         m$seTE.kero <- NA

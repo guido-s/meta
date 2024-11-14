@@ -1865,7 +1865,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                overall.hetstat = overall.hetstat,
                prediction = prediction,
                ##
-               method.tau = method.tau, method.tau.ci = method.tau.ci,
+               method.tau = if (is.glmm | is.lrp) "DL" else method.tau,
+               method.tau.ci = if (is.glmm | is.lrp) "" else method.tau.ci,
                level.hetstat = level.hetstat,
                tau.preset = tau.preset,
                TE.tau = if (Q.Cochrane) TE.common else TE.tau,
@@ -1974,6 +1975,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   }
   #
   if (is.glmm) {
+    res$method.tau <- method.tau
     res <- addGLMM(res, res.glmm, method.I2)
     res$model.glmm <- model.glmm
     ##

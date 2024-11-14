@@ -1241,7 +1241,8 @@ metaprop <- function(event, n, studlab,
                overall.hetstat = overall.hetstat,
                prediction = prediction,
                ##
-               method.tau = method.tau, method.tau.ci = method.tau.ci,
+               method.tau = if (is.glmm) "DL" else method.tau,
+               method.tau.ci = if (is.glmm) "" else method.tau.ci,
                level.hetstat = level.hetstat,
                tau.preset = tau.preset,
                TE.tau = TE.tau,
@@ -1323,6 +1324,9 @@ metaprop <- function(event, n, studlab,
     m$pval <- rep(NA, length(m$pval))
   }
   ##
+  if (is.glmm) 
+    m$method.tau <- method.tau
+  #
   if (is.glmm | three.level) {
     m$seTE.hakn.ci <- m$seTE.hakn.adhoc.ci <-
       m$seTE.hakn.pi <- m$seTE.hakn.adhoc.pi <-
