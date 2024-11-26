@@ -1,10 +1,24 @@
+## meta, version 8.0-2 (2024-mm-dd)
+
+### Bug fixes
+
+* update.meta():
+  - [Fix bug in setting method.sd for metacont update #63](https://github.com/guido-s/meta/pull/63)
+
+* pairwise():
+  - fix bug if R package **netmeta** is not installed
+
+### User-visible changes
+
+* New function [.pairwise
+
+
 ## meta, version 8.0-1 (2024-10-31)
 
 Revise web links
 
 
 ## meta, version 8.0-0 (2024-10-30)
-
 
 ### Major changes
 

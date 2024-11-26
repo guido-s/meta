@@ -2,7 +2,7 @@
 % Please edit documentation in R/as.data.frame.meta.R
 \name{as.data.frame.meta}
 \alias{as.data.frame.meta}
-\title{Additional functions for objects of class meta}
+\title{Coerce to a data frame}
 \usage{
 \method{as.data.frame}{meta}(x, row.names = NULL, optional = FALSE, ...)
 }
