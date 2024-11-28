@@ -226,6 +226,10 @@ Revise web links
 
 * New R function plot.meta() which calls forest.meta() internally
 
+* Do not export the following R functions but rely on their generic functions:
+  - forest.meta(), funnel.meta(), labels.meta(), print.summary.meta(),
+    summary.meta(), update.meta()
+
 ### User-visible changes
 
 * metabin(), metacont(), metacor(), metainc(), metamean(), metaprop(),
