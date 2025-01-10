@@ -1,4 +1,4 @@
-## meta, version 8.0-2 (2024-mm-dd)
+## meta, version 8.0-2 (2025-mm-dd)
 
 ### Bug fixes
 
@@ -7,6 +7,9 @@
 
 * pairwise():
   - fix bug if R package **netmeta** is not installed
+
+* metabin():
+  - fix bug for penalised logistic regression of single study
 
 ### User-visible changes
 

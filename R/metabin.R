@@ -271,7 +271,7 @@
 #' R package \bold{brglm2} must be available to fit a one-stage logistic
 #' regression model with penalised likelihood (Evrenoglou et al., 2022).
 #' The estimation of the summary odds ratio relies on the maximisation of the 
-#' likelihood function, penalized using a Firth-type correction. This
+#' likelihood function, penalised using a Firth-type correction. This
 #' penalisation aims to reduce bias in cases with rare events and a small
 #' number of available studies. However, this method is not restricted 
 #' to only such cases and can be applied more generally to binary data. Note,
@@ -2086,7 +2086,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   if (res$method.random == "MH")
     res$method.random <- "Inverse"
   #
-  # Do not return tau^2 and tau for penalized logistic regression
+  # Do not return tau^2 and tau for penalised logistic regression
   #
   if (is.lrp) {
     res$method.random <- "LRP"

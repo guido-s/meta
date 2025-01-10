@@ -41,6 +41,8 @@
 #'   standards.
 #' @param text.tau2 Text printed to identify residual heterogeneity
 #'   variance \eqn{\tau^2}.
+#' @param details.methods A logical specifying whether details on
+#'   statistical methods should be printed.
 #' @param \dots Additional arguments passed on to
 #'   \code{\link[metafor]{rma.uni}}.
 #' 
@@ -704,6 +706,9 @@ print.metabias <- function(x,
                            JAMA.pval = gs("JAMA.pval"),
                            #
                            text.tau2 = gs("text.tau2"),
+                           #
+                           details.methods = gs("details"),
+                           #
                            ...) {
   
   
@@ -726,6 +731,7 @@ print.metabias <- function(x,
   chklogical(JAMA.pval)
   #
   chkchar(text.tau2, length = 1)
+  chklogical(details.methods)
   
   # Update old metabias objects
   #
@@ -796,76 +802,78 @@ print.metabias <- function(x,
                " (SE = ",
                formatN(x$estimate[2], digits.se, "NA", big.mark = big.mark),
                ")\n"
-               )
-        )
+    )
+    )
     #
-    if (x$var.model != "") {
-      cat("\nDetails:\n")
-      cat(paste0("- ", x$var.model,
-                 " residual heterogeneity variance (",
-                 formatPT(x$tau^2,
-                          lab = TRUE, labval = text.tau2,
-                          digits = digits.tau2,
-                          lab.NA = "NA",
-                          big.mark = big.mark),
-                 ")\n"))
-      #
-      if (x$var.model == "additive") {
-        i.lab.method.tau <-
-          charmatch(x$x$method.tau, c(gs("meth4tau"), ""), nomatch = NA)
+    if (details.methods) {
+      if (x$var.model != "") {
+        cat("\nDetails:\n")
+        cat(paste0("- ", x$var.model,
+                   " residual heterogeneity variance (",
+                   formatPT(x$tau^2,
+                            lab = TRUE, labval = text.tau2,
+                            digits = digits.tau2,
+                            lab.NA = "NA",
+                            big.mark = big.mark),
+                   ")\n"))
         #
-        lab.method.tau <-
-          c("- DerSimonian-Laird estimator",
-            "- Paule-Mandel estimator",
-            "- restricted maximum-likelihood estimator",
-            "- maximum-likelihood estimator",
-            "- Hunter-Schmidt estimator",
-            "- Sidik-Jonkman estimator",
-            "- Hedges estimator",
-            "- empirical Bayes estimator",
-            ""
+        if (x$var.model == "additive") {
+          i.lab.method.tau <-
+            charmatch(x$x$method.tau, c(gs("meth4tau"), ""), nomatch = NA)
+          #
+          lab.method.tau <-
+            c("- DerSimonian-Laird estimator",
+              "- Paule-Mandel estimator",
+              "- restricted maximum-likelihood estimator",
+              "- maximum-likelihood estimator",
+              "- Hunter-Schmidt estimator",
+              "- Sidik-Jonkman estimator",
+              "- Hedges estimator",
+              "- empirical Bayes estimator",
+              ""
             )[i.lab.method.tau]
+          #
+          if (lab.method.tau != "")
+            lab.method.tau <- paste(lab.method.tau, "for", text.tau2)
+          #
+          cat(paste0(lab.method.tau, "\n"))
+        }
         #
-        if (lab.method.tau != "")
-          lab.method.tau <- paste(lab.method.tau, "for", text.tau2)
-        #
-        cat(paste0(lab.method.tau, "\n"))
-      }
-      #
-      if (x$method.bias == "Egger")
-        detail.predictor <- "standard error"
-      else if (x$method.bias == "Thompson")
-        detail.predictor <- "standard error"
-      else if (x$method.bias == "Harbord")
-        detail.predictor <- "standard error of score"
-      else if (x$method.bias == "Macaskill")
-        detail.predictor <- "total sample size"
-      else if (x$method.bias == "Peters")
-        detail.predictor <- "inverse of total sample size"
-      else if (x$method.bias == "Deeks")
-        detail.predictor <- "inverse of the squared effective sample size"
-      else if (x$method.bias == "Pustejovsky")
-        detail.predictor <-
+        if (x$method.bias == "Egger")
+          detail.predictor <- "standard error"
+        else if (x$method.bias == "Thompson")
+          detail.predictor <- "standard error"
+        else if (x$method.bias == "Harbord")
+          detail.predictor <- "standard error of score"
+        else if (x$method.bias == "Macaskill")
+          detail.predictor <- "total sample size"
+        else if (x$method.bias == "Peters")
+          detail.predictor <- "inverse of total sample size"
+        else if (x$method.bias == "Deeks")
+          detail.predictor <- "inverse of the squared effective sample size"
+        else if (x$method.bias == "Pustejovsky")
+          detail.predictor <-
           "square root of the sum of the inverse group sample sizes"
-      #
-      cat(paste0("- predictor: ", detail.predictor, "\n"))
-      #
-      if (x$method.bias == "Egger")
-        detail.weights <- "inverse variance"
-      else if (x$method.bias == "Thompson")
-        detail.weights <- "inverse variance"
-      else if (x$method.bias == "Harbord")
-        detail.weights <- "inverse variance of score"
-      else if (x$method.bias == "Macaskill")
-        detail.weights <- "inverse variance of average event probability"
-      else if (x$method.bias == "Peters")
-        detail.weights <- "inverse variance of average event probability"
-      else if (x$method.bias == "Deeks")
-        detail.weights <- "effective sample size"
-      else if (x$method.bias == "Pustejovsky")
-        detail.weights <- "inverse variance"
-      #
-      cat(paste0("- weight:    ", detail.weights, "\n"))
+        #
+        cat(paste0("- predictor: ", detail.predictor, "\n"))
+        #
+        if (x$method.bias == "Egger")
+          detail.weights <- "inverse variance"
+        else if (x$method.bias == "Thompson")
+          detail.weights <- "inverse variance"
+        else if (x$method.bias == "Harbord")
+          detail.weights <- "inverse variance of score"
+        else if (x$method.bias == "Macaskill")
+          detail.weights <- "inverse variance of average event probability"
+        else if (x$method.bias == "Peters")
+          detail.weights <- "inverse variance of average event probability"
+        else if (x$method.bias == "Deeks")
+          detail.weights <- "effective sample size"
+        else if (x$method.bias == "Pustejovsky")
+          detail.weights <- "inverse variance"
+        #
+        cat(paste0("- weight:    ", detail.weights, "\n"))
+      }
     }
     #
     if (x$method.bias == "Begg")
@@ -892,7 +900,10 @@ print.metabias <- function(x,
     if (detail.ref != "")
       cat(
         paste0(
-          if (x$var.model != "") "- reference: " else "\nReference: ",
+          if (details.methods && x$var.model != "")
+            "- reference: "
+          else
+            "\nReference: ",
           detail.ref, "\n"))
   }
   else {
