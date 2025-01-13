@@ -670,13 +670,14 @@ runLRP <- function(event1, n1, event2, n2, warn = TRUE, ...) {
   if (length(unique(long.bin$studlab)) > 1)
     text.formula <- paste(text.formula, "+ as.factor(studlab)")
   #
-  fit.glm <-
-    glm(as.formula(text.formula), data = long.bin,
-        family = binomial(link = "logit"), method = "glm.fit")
+  res.lrp <- glm(as.formula(text.formula), data = long.bin,
+                 family = binomial(link = "logit"),
+                 method = brglm2::brglmFit, type = "MPL_Jeffreys",
+                 ...)
   #
-  res.lrp <- update(fit.glm, method = brglm2::brglmFit, type = "MPL_Jeffreys")
-  #
-  phi <- phi(res.lrp)
+  phi <- 1
+  if (length(unique(long.bin$studlab)) > 1)
+    phi <- phi(res.lrp)
   #
   sel.trt <- grepl("treat", names(coef(res.lrp)))
   #

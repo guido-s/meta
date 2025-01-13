@@ -1835,7 +1835,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   }
   else if (is.lrp) {
     fit.lrp <- runLRP(event.e[!exclude], n1 = n.e[!exclude],
-                      event2 = event.c[!exclude], n2 = n.c[!exclude])
+                      event2 = event.c[!exclude], n2 = n.c[!exclude],
+                      ...)
     #
     TE.common   <- fit.lrp$TE.common
     seTE.common <- fit.lrp$seTE.common
