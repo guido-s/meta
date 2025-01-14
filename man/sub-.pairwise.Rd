@@ -2,19 +2,15 @@
 % Please edit documentation in R/bracket.pairwise.R
 \name{[.pairwise}
 \alias{[.pairwise}
-\alias{[,pairwise,i,j}
+\alias{[,pairwise}
 \title{Extract parts of pairwise object}
 \usage{
-\method{[}{pairwise}(x, i, j, ...)
+\method{[}{pairwise}(x, ...)
 }
 \arguments{
 \item{x}{An object of class \code{\link{pairwise}}.}
 
-\item{i}{Row index.}
-
-\item{j}{Column index.}
-
-\item{\dots}{Additional arguments (ignored).}
+\item{\dots}{Additional arguments (passed on to [.data.frame).}
 }
 \description{
 Auxiliary function to extract parts of \code{\link{pairwise}} object.

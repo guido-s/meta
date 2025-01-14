@@ -4,15 +4,13 @@
 #' Auxiliary function to extract parts of \code{\link{pairwise}} object.
 #' 
 #' @param x An object of class \code{\link{pairwise}}.
-#' @param i Row index.
-#' @param j Column index.
-#' @param \dots Additional arguments (ignored).
+#' @param \dots Additional arguments (passed on to [.data.frame).
 #' 
-#' @aliases [,pairwise,i,j
+#' @aliases [,pairwise
 #' 
 #' @name [.pairwise
 #' 
-#' @usage \method{[}{pairwise}(x, i, j, ...)
+#' @usage \method{[}{pairwise}(x, ...)
 #' 
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
@@ -32,11 +30,13 @@
 #' @method [ pairwise
 #' @export
 
-`[.pairwise` <- function(x, i, j, ...) {
+`[.pairwise` <- function(x, ...) {
   
   chkclass(x, "pairwise")
   
-  res <- as.data.frame(x)[i, j]
+  res <- x
+  class(res) <- "data.frame"
+  res <- res[...]
   
   # Check whether 'reference.group' is available in the subset
   #
