@@ -248,8 +248,10 @@
 #'   \code{\link{metacont}}, \code{\link{metagen}},
 #'   \code{\link{metainc}}, \code{\link[netmeta]{netmeta}},
 #'   \code{\link[netmeta]{netgraph.netmeta}},
-#'   
-#' 
+#'   \code{\link[metadat]{dat.senn2013}},
+#'   \code{\link[metadat]{dat.franchini2012}},
+#'   \code{\link[metadat]{dat.franchini2012}}
+#'
 #' @references
 #' Crippa A, Orsini N (2016):
 #' Dose-response meta-analysis of differences in means.
@@ -270,7 +272,7 @@
 #' # Example using continuous outcomes (internal call of function
 #' # metacont)
 #' #
-#' data(Franchini2012, package = "netmeta")
+#' Franchini2012 <- dat.franchini2012
 #' # Transform data from arm-based format to contrast-based format
 #' p1 <- pairwise(list(Treatment1, Treatment2, Treatment3),
 #'   n = list(n1, n2, n3),
@@ -315,7 +317,8 @@
 #' # Compare pairwise objects p1 (based on continuous outcomes) and p2
 #' # (based on generic outcomes)
 #' #
-#' all.equal(p1[, c("TE", "seTE", "studlab", "treat1", "treat2")],
+#' all.equal(
+#'   p1[, c("TE", "seTE", "studlab", "treat1", "treat2")],
 #'   p2[, c("TE", "seTE", "studlab", "treat1", "treat2")])
 #' 
 #' # Same result as network meta-analysis based on continuous outcomes
@@ -327,7 +330,7 @@
 #' #
 #' data(smokingcessation)
 #' # Transform data from arm-based format to contrast-based format
-#' # (interal call of metabin function). Argument 'sm' has to be used
+#' # (internal call of metabin function). Argument 'sm' has to be used
 #' # for odds ratio as risk ratio (sm = "RR") is default of metabin
 #' # function.
 #' #
@@ -363,15 +366,13 @@
 #' 
 #' # Example with long data format
 #' #
-#' data(Woods2010)
-#' 
 #' # Transform data from long arm-based format to contrast-based
 #' # format Argument 'sm' has to be used for odds ratio as summary
 #' # measure; by default the risk ratio is used in the metabin
 #' # function called internally.
 #' #
 #' p5 <- pairwise(treatment, event = r, n = N,
-#'   studlab = author, data = Woods2010, sm = "OR")
+#'   studlab = author, data = dat.woods2010, sm = "OR")
 #' p5
 #' 
 #' # Conduct network meta-analysis
@@ -380,7 +381,6 @@
 #' }
 #' 
 #' @export pairwise
-
 
 pairwise <- function(treat,
                      event, n, mean, sd, TE, seTE, time,
@@ -2308,7 +2308,7 @@ pairwise <- function(treat,
   attr(res, "varnames") <- varnames
   attr(res, "append") <- append
   attr(res, "append.logical") <- append.logical
-  attr(res, "version") <- packageDescription("netmeta")$Version
+  attr(res, "version") <- packageDescription("meta")$Version
   
   class(res) <- unique(c("pairwise", class(res)))
   

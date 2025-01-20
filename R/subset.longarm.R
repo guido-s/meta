@@ -53,10 +53,9 @@ subset.longarm <- function(x, subset, ...){
   
   ## Return subset
   ## 
-  attr(res, "longarm") <- attr(x, "longarm")
   attr(res, "type") <- attr(x, "type")
-  ##
-  class(res) <- c("longarm", class(res))
-  ##
+  #
+  class(res) <- unique(c("longarm", class(res)))
+  #
   res
 }

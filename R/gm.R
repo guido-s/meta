@@ -5,10 +5,11 @@ gm <- function(x, digits = 4, debug = FALSE) {
     #
     if (length(incr_not_0) == 1)
       incr <- incr_not_0
+    else if (length(incr_not_0) == 0)
+      incr <- 0
     else
       incr <- paste0("{", paste(incr_not_0, collapse = ", "), "}")
   }
-  
   
   func <- if (debug) list else data.frame
   ## Get rid of warning 'Undefined global functions or variables'

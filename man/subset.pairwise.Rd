@@ -9,8 +9,8 @@
 \arguments{
 \item{x}{An object of class \code{pairwise}.}
 
-\item{subset}{A logical expression indicating elements or rows to
-keep: missing values are taken as false.}
+\item{subset}{A logical expression indicating rows to keep; missing values
+are taken as false.}
 
 \item{\dots}{Additional arguments.}
 }
@@ -21,22 +21,17 @@ A pairwise object is returned.
 The \code{subset} method returns a subset of a pairwise object.
 }
 \examples{
-\dontrun{
 # Transform data from arm-based format to contrast-based format
-data(Franchini2012, package = "netmeta")
 p1 <- pairwise(list(Treatment1, Treatment2, Treatment3),
   n = list(n1, n2, n3),
   mean = list(y1, y2, y3), sd = list(sd1, sd2, sd3),
-  data = Franchini2012, studlab = Study)
-p1[, 1:5]
-
+  data = dat.franchini2012, studlab = Study)
 # Subset without Lieberman studies
 subset(p1, !grepl("Lieberman", studlab))[, 1:5]
-}
 
 }
 \seealso{
-\code{\link{pairwise}}
+\code{\link{pairwise}}, \code{\link[metadat]{dat.franchini2012}}
 }
 \author{
 Guido Schwarzer \email{guido.schwarzer@uniklinik-freiburg.de}

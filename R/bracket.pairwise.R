@@ -1,15 +1,21 @@
-#' Return subset of pairwise object
+#' Extract parts of pairwise object
 #' 
 #' @description
-#' The \code{subset} method returns a subset of a pairwise object.
+#' Auxiliary function to extract parts of \code{\link{pairwise}} object.
 #' 
-#' @param x An object of class \code{pairwise}.
-#' @param subset A logical expression indicating rows to keep; missing values
-#'   are taken as false.
-#' @param \dots Additional arguments.
-#' @return A pairwise object is returned.
+#' @param x An object of class \code{\link{pairwise}}.
+#' @param \dots Additional arguments (passed on to [.data.frame).
+#' 
+#' @aliases [,pairwise
+#' 
+#' @name [.pairwise
+#' 
+#' @usage \method{[}{pairwise}(x, ...)
+#' 
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
-#' @seealso \code{\link{pairwise}}, \code{\link[metadat]{dat.franchini2012}}
+#' 
+#' @seealso \code{\link{pairwise}}, \code{\link{subset.pairwise}},
+#'   \code{\link[metadat]{dat.franchini2012}}
 #' 
 #' @examples
 #' # Transform data from arm-based format to contrast-based format
@@ -17,48 +23,31 @@
 #'   n = list(n1, n2, n3),
 #'   mean = list(y1, y2, y3), sd = list(sd1, sd2, sd3),
 #'   data = dat.franchini2012, studlab = Study)
-#' # Subset without Lieberman studies
-#' subset(p1, !grepl("Lieberman", studlab))[, 1:5]
+#' 
+#' p1[, 1:5]
+#' p1[!grepl("Lieberman", p1$studlab), 1:5]
 #'
-#' @method subset pairwise
+#' @method [ pairwise
 #' @export
 
-subset.pairwise <- function(x, subset, ...){
+`[.pairwise` <- function(x, ...) {
   
   chkclass(x, "pairwise")
   
-  
-  ## Catch 'subset'
-  ##
-  if (missing(subset))
-    return(x)
-  ##
-  sfsp <- sys.frame(sys.parent())
-  mc <- match.call()
-  ##
-  subset <- catch("subset", mc, x, sfsp)
-  if (is.null(subset))
-    subset <- catch("subset", mc, x$data, sfsp)
-  
-  
-  ## Select subset
-  ##
-  x.df <- x
-  class(x.df) <- "data.frame"
-  ##
-  res <- subset(x.df, subset, ...)
+  res <- x
+  class(res) <- "data.frame"
+  res <- res[...]
   
   # Check whether 'reference.group' is available in the subset
   #
   reference.group <- attr(x, "reference.group")
   #
   trts <- sort(unique(c(res$treat1, res$treat2)))
-  if (!(reference.group %in% trts))
+  if (!is.null(trts) && !(reference.group %in% trts))
     reference.group <- trts[1]
   
-  
-  ## Return subset
-  ## 
+  # Return results
+  # 
   attr(res, "sm") <- attr(x, "sm")
   attr(res, "method") <- attr(x, "method")
   attr(res, "incr") <- attr(x, "incr")
@@ -71,8 +60,8 @@ subset.pairwise <- function(x, subset, ...){
   attr(res, "type") <- attr(x, "type")
   attr(res, "varnames") <- attr(x, "varnames")
   attr(res, "version") <- attr(x, "version")
-  ##
-  class(res) <- unique(c("pairwise", class(res)))
-  ##
+  #
+  class(res) <- c("pairwise", class(res))
+  #
   res
 }
