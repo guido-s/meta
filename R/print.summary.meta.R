@@ -816,7 +816,7 @@ print.summary.meta <- function(x,
                 #
                 big.mark = big.mark, digits = digits,
                 digits.tau = digits.tau,
-                text.tau = text.tau, text.tau2 = text.tau2,
+                text.tau = text.tau, text.tau2 = text.tau2, text.I2 = text.I2,
                 #
                 print.tau2 = print.tau2, print.tau = print.tau,
                 print.I2 = print.I2)

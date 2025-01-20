@@ -665,18 +665,19 @@ runLRP <- function(event1, n1, event2, n2, warn = TRUE, ...) {
     longarm("B", "A", event1 = event1, n1 = n1, event2 = event2, n2 = n2,
             data = dat.bin)
   #
-  text.lrp <- "cbind(events, nonevents) ~ as.factor(studlab) + as.factor(treat)"
+  text.formula <- "cbind(events, nonevents) ~ as.factor(treat)"
   #
-  formula.lrp <- as.formula(text.lrp)
+  if (length(unique(long.bin$studlab)) > 1)
+    text.formula <- paste(text.formula, "+ as.factor(studlab)")
   #
-  fit.glm <-
-    glm(formula.lrp,
-        data = long.bin,
-        family = binomial(link = "logit"), method = "glm.fit")
+  res.lrp <- glm(as.formula(text.formula), data = long.bin,
+                 family = binomial(link = "logit"),
+                 method = brglm2::brglmFit, type = "MPL_Jeffreys",
+                 ...)
   #
-  res.lrp <- update(fit.glm, method = brglm2::brglmFit, type = "MPL_Jeffreys")
-  #
-  phi <- phi(res.lrp)
+  phi <- 1
+  if (length(unique(long.bin$studlab)) > 1)
+    phi <- phi(res.lrp)
   #
   sel.trt <- grepl("treat", names(coef(res.lrp)))
   #

@@ -144,9 +144,9 @@
 #' @param adhoc.hakn Deprecated argument (replaced by 'adhoc.hakn.ci').
 #' @param keepdata A logical indicating whether original data (set)
 #'   should be kept in meta object.
-#' @param warn A logical indicating whether the addition of
-#'   \code{incr} to studies with zero events should result in a
-#'   warning.
+#' @param warn A logical indicating whether warnings should be printed
+#'   (e.g., if \code{incr} is added to studies with zero cell
+#'   frequencies or if estimation problems exist in fitting a GLMM).
 #' @param warn.deprecated A logical indicating whether warnings should
 #'   be printed if deprecated arguments are used.
 #' @param control An optional list to control the iterative process to
@@ -949,9 +949,8 @@ metarate <- function(event, time, studlab,
             adhoc.hakn.ci, adhoc.hakn.pi,
             "IRLN")
     ##
-    if (sparse)
-      if ((!missing(incr) & any(incr != 0)) |
-          allincr | addincr)
+    if (sparse & warn &
+        ((!missing(incr) & any(incr != 0)) | allincr | addincr))
         warning("Note, for method = \"GLMM\", continuity correction only ",
                 "used to calculate individual study results.",
                 call. = FALSE)
@@ -996,7 +995,8 @@ metarate <- function(event, time, studlab,
                overall.hetstat = overall.hetstat,
                prediction = prediction,
                ##
-               method.tau = method.tau, method.tau.ci = method.tau.ci,
+               method.tau = if (is.glmm) "DL" else method.tau,
+               method.tau.ci = if (is.glmm) "" else method.tau.ci,
                level.hetstat = level.hetstat,
                tau.preset = tau.preset,
                TE.tau = TE.tau,
@@ -1078,6 +1078,8 @@ metarate <- function(event, time, studlab,
   }    
   ##
   if (is.glmm) {
+    m$method.tau <- method.tau
+    #
     m$seTE.hakn.ci <- m$seTE.hakn.adhoc.ci <-
       m$seTE.hakn.pi <- m$seTE.hakn.adhoc.pi <-
         m$seTE.kero <- NA
@@ -1107,7 +1109,8 @@ metarate <- function(event, time, studlab,
               method.tau = method.tau,
               method.random.ci = method.random.ci,
               level = level.ma,
-              control = control, use.random = use.random)
+              control = control, use.random = use.random,
+              warn = warn)
     ##
     res <- addGLMM(res, res.glmm, method.I2)
     ##
@@ -1134,7 +1137,8 @@ metarate <- function(event, time, studlab,
                       as.call(~ subgroup.glmm)
                     else
                       NULL,
-                  control = control, use.random = use.random)$glmm.random[[1]],
+                  control = control, use.random = use.random,
+                  warn = warn)$glmm.random[[1]],
           method.I2
         )
     }

@@ -28,6 +28,7 @@
   zero.pval = gs("zero.pval"),
   JAMA.pval = gs("JAMA.pval"),
   text.tau2 = gs("text.tau2"),
+  details.methods = gs("details"),
   ...
 )
 
@@ -94,6 +95,9 @@ standards.}
 
 \item{text.tau2}{Text printed to identify residual heterogeneity
 variance \eqn{\tau^2}.}
+
+\item{details.methods}{A logical specifying whether details on
+statistical methods should be printed.}
 
 \item{seTE}{Standard error of estimated treatment effect (mandatory
 if \code{x} not of class \code{meta}).}

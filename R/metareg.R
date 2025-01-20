@@ -325,7 +325,7 @@ metareg.meta <- function(x, formula, method.tau = x$method.tau,
                  ifelse(method == "GLMM" | three.level, "t", "knha"))
 
   ##
-  ## Covariate 'x' make problems without removing meta-analysis object x
+  ## Covariate 'x' makes problems without removing meta-analysis object x
   ##
   ..x <- x
   rm(x)

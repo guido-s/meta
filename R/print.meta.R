@@ -111,10 +111,10 @@
 #'   and Rb statistic, see \code{print.default}.
 #' @param digits.H Minimal number of significant digits for H
 #'   statistic, see \code{print.default}.
+#' @param big.mark A character used as thousands separator.
 #' @param scientific.pval A logical specifying whether p-values should
 #'   be printed in scientific notation, e.g., 1.2345e-01 instead of
 #'   0.12345.
-#' @param big.mark A character used as thousands separator.
 #' @param zero.pval A logical specifying whether p-values should be
 #'   printed with a leading zero.
 #' @param JAMA.pval A logical specifying whether p-values for test of
@@ -212,8 +212,8 @@ print.meta <- function(x,
                        digits.H = gs("digits.H"),
                        digits.I2 = gs("digits.I2"),
                        #
-                       scientific.pval = gs("scientific.pval"),
                        big.mark = gs("big.mark"),
+                       scientific.pval = gs("scientific.pval"),
                        zero.pval = gs("zero.pval"),
                        JAMA.pval = gs("JAMA.pval"),
                        #
@@ -293,10 +293,12 @@ print.meta <- function(x,
   chknumeric(digits.Q, min = 0, length = 1)
   chknumeric(digits.H, min = 0, length = 1)
   chknumeric(digits.I2, min = 0, length = 1)
+  #
+  chkchar(big.mark, length = 1)
   chklogical(scientific.pval)
   chklogical(zero.pval)
   chklogical(JAMA.pval)
-  ##
+  #
   chklogical(print.tau2)
   chklogical(print.tau2.ci)
   chklogical(print.tau)

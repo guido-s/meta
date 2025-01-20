@@ -49,8 +49,9 @@
 #' 
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
+#' @seealso \code{\link{metabin}}, \code{\link[metadat]{dat.bcg}}
+#' 
 #' @examples
-#' data("dat.bcg", package = "metadat")
 #' m1 <- metabin(tpos, tpos + tneg, cpos, cpos + cneg,
 #'   data = dat.bcg, studlab = paste(author, year), method = "Inverse")
 #' summary(m1)

@@ -158,7 +158,7 @@
 #'   should be kept in meta object.
 #' @param warn A logical indicating whether warnings should be printed
 #'   (e.g., if \code{incr} is added to studies with zero cell
-#'   frequencies).
+#'   frequencies or if estimation problems exist in fitting a GLMM).
 #' @param warn.deprecated A logical indicating whether warnings should
 #'   be printed if deprecated arguments are used.
 #' @param control An optional list to control the iterative process to
@@ -1135,8 +1135,8 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     }
     ##
     if (sparse)
-      if ((!missing.incr & any(incr != 0)) |
-          allincr | addincr)
+      if (sparse & warn &
+          ((!missing.incr & any(incr != 0)) | allincr | addincr))
         warning("Note, for method = \"GLMM\", continuity correction only ",
                 "used to calculate individual study results.",
                 call. = FALSE)
@@ -1229,7 +1229,8 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
               method.tau = method.tau,
               method.random.ci = method.random.ci,
               level = level.ma,
-              control = control, use.random = use.random)
+              control = control, use.random = use.random,
+              warn = warn)
     ##
     TE.common   <- as.numeric(res.glmm$glmm.common$b)
     seTE.common <- as.numeric(res.glmm$glmm.common$se)
@@ -1250,7 +1251,8 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
                overall.hetstat = overall.hetstat,
                prediction = prediction,
                ##
-               method.tau = method.tau, method.tau.ci = method.tau.ci,
+               method.tau = if (is.glmm) "DL" else method.tau,
+               method.tau.ci = if (is.glmm) "" else method.tau.ci,
                level.hetstat = level.hetstat,
                tau.preset = tau.preset,
                TE.tau = TE.tau,
@@ -1346,6 +1348,8 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   }
   ##
   if (is.glmm) {
+    res$method.tau <- method.tau
+    #
     res <- addGLMM(res, res.glmm, method.I2)
     res$model.glmm <- model.glmm
     ##
@@ -1372,7 +1376,8 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
                       as.call(~ subgroup.glmm)
                     else
                       NULL,
-                  control = control, use.random = use.random)$glmm.random[[1]],
+                  control = control, use.random = use.random,
+                  warn = warn)$glmm.random[[1]],
           method.I2
         )
     }

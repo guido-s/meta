@@ -1,10 +1,27 @@
+## meta, version 8.0-2 (2025-01-20)
+
+### Bug fixes
+
+* update.meta():
+  - [Fix bug in setting method.sd for metacont update #63](https://github.com/guido-s/meta/pull/63)
+
+* pairwise():
+  - fix bug if R package **netmeta** is not installed
+
+* metabin():
+  - fix bug for penalised logistic regression of single study
+
+### User-visible changes
+
+* New function [.pairwise
+
+
 ## meta, version 8.0-1 (2024-10-31)
 
 Revise web links
 
 
 ## meta, version 8.0-0 (2024-10-30)
-
 
 ### Major changes
 
@@ -211,6 +228,10 @@ Revise web links
   metagen()
 
 * New R function plot.meta() which calls forest.meta() internally
+
+* Do not export the following R functions but rely on their generic functions:
+  - forest.meta(), funnel.meta(), labels.meta(), print.summary.meta(),
+    summary.meta(), update.meta()
 
 ### User-visible changes
 

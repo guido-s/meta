@@ -40,8 +40,8 @@
   digits.pval.Q = max(gs("digits.pval.Q"), 2),
   digits.H = gs("digits.H"),
   digits.I2 = gs("digits.I2"),
-  scientific.pval = gs("scientific.pval"),
   big.mark = gs("big.mark"),
+  scientific.pval = gs("scientific.pval"),
   zero.pval = gs("zero.pval"),
   JAMA.pval = gs("JAMA.pval"),
   print.tau2 = gs("print.tau2"),
@@ -192,11 +192,11 @@ statistic, see \code{print.default}.}
 \item{digits.I2}{Minimal number of significant digits for I-squared
 and Rb statistic, see \code{print.default}.}
 
+\item{big.mark}{A character used as thousands separator.}
+
 \item{scientific.pval}{A logical specifying whether p-values should
 be printed in scientific notation, e.g., 1.2345e-01 instead of
 0.12345.}
-
-\item{big.mark}{A character used as thousands separator.}
 
 \item{zero.pval}{A logical specifying whether p-values should be
 printed with a leading zero.}

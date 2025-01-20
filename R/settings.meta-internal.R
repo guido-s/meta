@@ -96,7 +96,7 @@ setcharacter <- function(argname, args, set = NULL, length = 1,
       return(invisible(id))
     ##
     if (!is.null(set))
-      val <- setchar(val, set)
+      val <- setchar(val, set, name = argname)
     else
       chkchar(val, length = length, name = argname)
     ##

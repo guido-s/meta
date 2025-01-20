@@ -1,4 +1,4 @@
-#' Additional functions for objects of class meta
+#' Coerce to a data frame
 #' 
 #' @description
 #' The \code{as.data.frame} method returns a data frame containing

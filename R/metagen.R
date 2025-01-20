@@ -1903,8 +1903,7 @@ metagen <- function(TE, seTE, studlab,
   ##
   if (any(seTE[!is.na(seTE)] <= 0)) {
     if (warn & !with.cycles)
-      warning("Zero values in seTE replaced by NAs.",
-              call. = FALSE)
+      warning("Zero values in seTE replaced by NAs.", call. = FALSE)
     seTE[!is.na(seTE) & seTE == 0] <- NA
   }
   ##

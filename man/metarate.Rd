@@ -274,9 +274,9 @@ be of same length as the number of subgroups.}
 \item{keepdata}{A logical indicating whether original data (set)
 should be kept in meta object.}
 
-\item{warn}{A logical indicating whether the addition of
-\code{incr} to studies with zero events should result in a
-warning.}
+\item{warn}{A logical indicating whether warnings should be printed
+(e.g., if \code{incr} is added to studies with zero cell
+frequencies or if estimation problems exist in fitting a GLMM).}
 
 \item{warn.deprecated}{A logical indicating whether warnings should
 be printed if deprecated arguments are used.}

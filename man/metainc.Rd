@@ -293,7 +293,7 @@ should be kept in meta object.}
 
 \item{warn}{A logical indicating whether warnings should be printed
 (e.g., if \code{incr} is added to studies with zero cell
-frequencies).}
+frequencies or if estimation problems exist in fitting a GLMM).}
 
 \item{warn.deprecated}{A logical indicating whether warnings should
 be printed if deprecated arguments are used.}
