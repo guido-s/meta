@@ -1,7 +1,7 @@
 Package: meta
 Title: General Package for Meta-Analysis
 Version: 8.0-2
-Date: 2025-01-14
+Date: 2025-01-20
 Depends: R (>= 4.0.0), metadat
 Imports: metafor (>= 3.0-0), grid, lme4, CompQuadForm, xml2, dplyr,
   methods, readr, magrittr, purrr, stringr
@@ -19,6 +19,7 @@ Description: User-friendly general package providing standard methods for meta-a
  - several plots (forest, funnel, Galbraith / radial, L'Abbe, Baujat, bubble);
  - three-level meta-analysis model;
  - generalised linear mixed model;
+ - logistic regression with penalised likelihood for rare events;
  - Hartung-Knapp method for random effects model;
  - Kenward-Roger method for random effects model;
  - prediction interval;

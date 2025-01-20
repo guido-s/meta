@@ -39,6 +39,8 @@
 #'   data (Stijnen et al., 2010) (\code{\link{metabin}},
 #'   \code{\link{metainc}}, \code{\link{metaprop}}, and
 #'   \code{\link{metarate}})
+#' \item Logistic regression with penalised likelihood for rare binary data
+#'   (Evrenoglou et al., 2022) (\code{\link{metabin}},
 #' \item Various estimators for the between-study variance
 #'  \eqn{\tau^2} in a random effects model (Veroniki et al., 2016);
 #'  see description of argument \code{method.tau} below
@@ -498,6 +500,11 @@
 #' \emph{Controlled Clinical Trials},
 #' \bold{7}, 177--88
 #' 
+#' Evrenoglou T, White IR, Afach S, Mavridis D, Chaimani A. (2022):
+#' Network meta-analysis of rare events using penalized likelihood regression.
+#' \emph{Statistics in Medicine},
+#' \bold{41}, 5203--19
+#'
 #' Hartung J, Knapp G (2001a):
 #' On tests of the overall treatment effect in meta-analysis with
 #' normally distributed responses.
