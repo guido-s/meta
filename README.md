@@ -19,6 +19,7 @@ User-friendly general package providing standard methods for meta-analysis and s
  - cumulative meta-analysis and leave-one-out meta-analysis;
  - meta-regression;
  - generalised linear mixed models;
+ - logistic regression with penalised likelihood for rare events;
  - produce forest plot summarising several (subgroup) meta-analyses.
  
 ### References
