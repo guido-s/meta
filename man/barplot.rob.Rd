@@ -53,8 +53,9 @@ m2 <- rob(D1, D2, D3, D4, D5, overall = rob, data = m1, tool = "rob2")
 rob(m2)
 
 \dontrun{
-# Weighted bar plot (if R package robvis has been installed)
-barplot(rob(m2))
+# Weighted bar plot (R package 'robvis' must be available)
+if (requireNamespace("robvis", quietly = TRUE))
+ barplot(rob(m2))
 }
 
 # Use previous settings

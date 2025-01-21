@@ -92,8 +92,7 @@ functions are \code{\link{metabin}}, \code{\link{metacont}} and
 \code{\link{metainc}}. Accordingly, a meta-analysis object created
 with one of these functions can be provided as argument
 \code{treat1}. It is also possible to use the longarm function with
-an R objected created with \code{\link{pairwise}} from R
-package \bold{netmeta}.
+an R objected created with \code{\link{pairwise}}.
 
 Otherwise, arguments \code{treat1} and \code{treat2} are mandatory
 to identify the individual treatments and, depending on the

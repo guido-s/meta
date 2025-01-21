@@ -1,12 +1,12 @@
 Package: meta
 Title: General Package for Meta-Analysis
-Version: 8.0-3
-Date: 2025-01-20
+Version: 8.0-2
+Date: 2025-01-21
 Depends: R (>= 4.0.0), metadat
 Imports: metafor (>= 3.0-0), grid, lme4, CompQuadForm, xml2, dplyr,
   methods, readr, magrittr, purrr, stringr
-Suggests: netmeta, BiasedUrn, pimeta, estmeansd, writexl, rmarkdown, knitr,
-  robvis, brglm2
+Suggests: netmeta, BiasedUrn, pimeta, estmeansd, robvis, brglm2, writexl,
+  rmarkdown, knitr
 Authors@R: person("Guido", "Schwarzer",
                   role = c("cre", "aut"),
                   email = "guido.schwarzer@uniklinik-freiburg.de",

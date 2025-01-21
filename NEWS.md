@@ -1,4 +1,4 @@
-## meta, version 8.0-2 (2025-01-20)
+## meta, version 8.0-2 (2025-01-21)
 
 ### Bug fixes
 
@@ -11,9 +11,19 @@
 * metabin():
   - fix bug for penalised logistic regression of single study
 
+* metaprop():
+  - use p2logit() to calculate the transformed null effect
+
+* metaprop(), metarate():
+  - for random intercept logistic regression model consider input for
+    argument 'null.effect' instead of using 0
+
 ### User-visible changes
 
 * New function [.pairwise
+
+* In help pages, use requireNamespace() for R commands using R packages
+  listed under Suggests
 
 
 ## meta, version 8.0-1 (2024-10-31)
@@ -1574,11 +1584,11 @@ Revise web links
 
 * Sample size method for meta-analysis of binary data with the odds
   ratio as summary measure implemented ([Bakbergenuly et al.,
-  2020](https://www.doi.org/10.1002/jrsm.1404))
+  2020](https://doi.org/10.1002/jrsm.1404))
 
 * *Ad hoc* variance correction for Hartung-Knapp method in the case of
   very homogeneous study results implemented ([Knapp and Hartung,
-  2003](https://www.doi.org/10.1002/sim.1482); [IQWiG, General
+  2003](https://doi.org/10.1002/sim.1482); [IQWiG, General
   Methods: Draft of Version
   6.0](https://www.iqwig.de/en/about-us/methods/methods-paper/))
 
@@ -1736,8 +1746,7 @@ Revise web links
 * Number of studies printed without digits in forest plots for R
   objects created with metabind()
 
-* P-values can be printed according to [JAMA reporting
-  standards](https://jamanetwork.com/journals/jama/)
+* P-values can be printed according to JAMA reporting standards
 
 * In subgroup analyses, print the group labels instead of levels if
   the grouping variable is a factor
@@ -2505,7 +2514,7 @@ Revise web links
   - labels can be printed at top of forest plot
 
 * Measure of between-study heterogeneity added:
-  - R_b ([Crippa et al. (2016)](https://www.doi.org/10.1002/sim.6980))
+  - R_b ([Crippa et al. (2016)](https://doi.org/10.1002/sim.6980))
 
 * Default settings of meta-analysis methods specified via gs() instead
   of extracting elements of list .settings (which makes output of
@@ -2518,8 +2527,8 @@ Revise web links
 
 * forest.meta():
   - argument 'layout':
-      - new layout "JAMA" to produce forest plots with [JAMA
-        style](https://jamanetwork.com/journals/jama/pages/instructions-for-authors/)
+      - new layout "JAMA" to produce forest plots according to the
+        *JAMA Network, Instructions for Authors"
       - RevMan 5 layout extended
   - arguments can be specified without using grid::unit():
     'plotwidth', 'colgap', 'colgap.left', 'colgap.right',

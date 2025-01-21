@@ -38,10 +38,11 @@
 #' rob(m2)
 #'
 #' \dontrun{
-#' # Traffic light plot (if R package robvis has been installed)
-#' traffic_light(rob(m2))
+#' # Traffic light plot (R package 'robvis' must be available)
+#' if (requireNamespace("robvis", quietly = TRUE))
+#'  traffic_light(rob(m2))
 #' }
-#'
+#' 
 #' # Use previous settings
 #' settings.meta(oldset)
 #' 

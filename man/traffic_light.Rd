@@ -41,8 +41,9 @@ m2 <- rob(D1, D2, D3, D4, D5, overall = rob, data = m1, tool = "rob2")
 rob(m2)
 
 \dontrun{
-# Traffic light plot (if R package robvis has been installed)
-traffic_light(rob(m2))
+# Traffic light plot (R package 'robvis' must be available)
+if (requireNamespace("robvis", quietly = TRUE))
+ traffic_light(rob(m2))
 }
 
 # Use previous settings

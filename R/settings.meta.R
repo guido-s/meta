@@ -42,10 +42,8 @@
 #'
 #' The third command can be used to generate forest plots following
 #' instructions for authors of the \emph{Journal of the American
-#' Medical Association}
-#' (\url{https://jamanetwork.com/journals/jama/pages/instructions-for-authors/}).
-#' Study labels according to JAMA guidelines can be generated using
-#' \code{\link{labels.meta}}.
+#' Medical Association}. Study labels according to JAMA guidelines can be
+#' generated using \code{\link{labels.meta}}.
 #'
 #' The next commands implement the recommendations of the Institute
 #' for Quality and Efficiency in Health Care, Germany (IQWiG)
