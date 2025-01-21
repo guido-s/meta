@@ -193,16 +193,17 @@ estimates(update(m1, prediction = TRUE,
 
 \dontrun{
 # Create Excel file with extracted results
-# (if R package writexl is available)
-#
-fname1 <- tempfile(fileext = ".xlsx")
-estimates(m1, path = fname1)
-# An existing Excel file is not overwritten but a warning is printed
-estimates(m1, path = fname1)
-# Overwrite an existing Excel file
-estimates(m1, path = fname1, overwrite = TRUE)
-# Suppress message on file creation and overwrite existing file
-suppressMessages(estimates(m1, path = fname1, overwrite = TRUE))
+# (R package 'writexl' must be available)
+if (requireNamespace("writexl", quietly = TRUE)) {
+ fname1 <- tempfile(fileext = ".xlsx")
+ estimates(m1, path = fname1)
+ # An existing Excel file is not overwritten but a warning is printed
+ estimates(m1, path = fname1)
+ # Overwrite an existing Excel file
+ estimates(m1, path = fname1, overwrite = TRUE)
+ # Suppress message on file creation and overwrite existing file
+ suppressMessages(estimates(m1, path = fname1, overwrite = TRUE))
+}
 
 # Save the extracted results in a text file
 fname2 <- tempfile(fileext = ".csv")

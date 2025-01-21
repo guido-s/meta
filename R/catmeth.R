@@ -852,7 +852,7 @@ catmeth <- function(x,
   ##
   null.effect <- x$null.effect
   ##
-  if (!is.na(null.effect) && null.effect != 0) {
+  if (!is.na(null.effect) && (null.effect != 0 | metaprop | metarate)) {
     details <- paste0(details, "\n- Null hypothesis: effect is equal to ")
     ##
     if (!is.null(pscale) && pscale != 1)

@@ -394,10 +394,8 @@
 #'
 #' The second command can be used to generate forest plots following
 #' instructions for authors of the \emph{Journal of the American
-#' Medical Association}
-#' (\url{https://jamanetwork.com/journals/jama/pages/instructions-for-authors/}). Study
-#' labels according to JAMA guidelines can be generated using
-#' \code{\link{labels.meta}}.
+#' Medical Association}. Study labels according to JAMA guidelines can be
+#' generated using \code{\link{labels.meta}}.
 #'
 #' The third command can be used to generate forest plots in the current layout
 #' of the \emph{British Medical Journal}.

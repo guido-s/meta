@@ -269,115 +269,119 @@
 #' metagen(p0, subset = treat1 == "metformin" & treat2 == "placebo")
 #' 
 #' \dontrun{
-#' # Example using continuous outcomes (internal call of function
-#' # metacont)
-#' #
-#' Franchini2012 <- dat.franchini2012
-#' # Transform data from arm-based format to contrast-based format
-#' p1 <- pairwise(list(Treatment1, Treatment2, Treatment3),
-#'   n = list(n1, n2, n3),
-#'   mean = list(y1, y2, y3), sd = list(sd1, sd2, sd3),
-#'   data = Franchini2012, studlab = Study)
-#' p1
+#' # Use pairwise() to run network meta-analyses
+#' # (R package 'netmeta' must be available)
+#' if (requireNamespace("netmeta", quietly = TRUE)) {
+#'  # Example using continuous outcomes (internal call of function
+#'  # metacont)
+#'  #
+#'  Franchini2012 <- dat.franchini2012
+#'  # Transform data from arm-based format to contrast-based format
+#'  p1 <- pairwise(list(Treatment1, Treatment2, Treatment3),
+#'    n = list(n1, n2, n3),
+#'    mean = list(y1, y2, y3), sd = list(sd1, sd2, sd3),
+#'    data = Franchini2012, studlab = Study)
+#'  p1
 #' 
-#' # Conduct network meta-analysis
-#' library("netmeta")
-#' #
-#' net1 <- netmeta(p1)
-#' net1
+#'  # Conduct network meta-analysis
+#'  library("netmeta")
+#'  #
+#'  net1 <- netmeta(p1)
+#'  net1
 #' 
-#' # Draw network graphs
-#' #
-#' netgraph(net1, points = TRUE, cex.points = 3, cex = 1.5,
-#'   thickness = "se.common")
-#' netgraph(net1, points = TRUE, cex.points = 3, cex = 1.5,
-#'   plastic = TRUE, thickness = "se.common",
-#'   iterate = TRUE)
-#' netgraph(net1, points = TRUE, cex.points = 3, cex = 1.5,
-#'   plastic = TRUE, thickness = "se.common",
-#'   iterate = TRUE, start = "eigen")
+#'  # Draw network graphs
+#'  #
+#'  netgraph(net1, points = TRUE, cex.points = 3, cex = 1.5,
+#'    thickness = "se.common")
+#'  netgraph(net1, points = TRUE, cex.points = 3, cex = 1.5,
+#'    plastic = TRUE, thickness = "se.common",
+#'    iterate = TRUE)
+#'  netgraph(net1, points = TRUE, cex.points = 3, cex = 1.5,
+#'    plastic = TRUE, thickness = "se.common",
+#'    iterate = TRUE, start = "eigen")
 #' 
-#' # Example using generic outcomes (internal call of function
-#' # metagen)
-#' #
-#' # Calculate standard error for means y1, y2, y3
-#' Franchini2012$se1 <- with(Franchini2012, sqrt(sd1^2 / n1))
-#' Franchini2012$se2 <- with(Franchini2012, sqrt(sd2^2 / n2))
-#' Franchini2012$se3 <- with(Franchini2012, sqrt(sd3^2 / n3))
-#' # Transform data from arm-based format to contrast-based format
-#' # using means and standard errors (note, argument 'sm' has to be
-#' # used to specify that argument 'TE' is a mean difference)
-#' p2 <- pairwise(list(Treatment1, Treatment2, Treatment3),
-#'   TE = list(y1, y2, y3), seTE = list(se1, se2, se3),
-#'   n = list(n1, n2, n3),
-#'   data = Franchini2012, studlab = Study,
-#'   sm = "MD")
-#' p2
+#'  # Example using generic outcomes (internal call of function
+#'  # metagen)
+#'  #
+#'  # Calculate standard error for means y1, y2, y3
+#'  Franchini2012$se1 <- with(Franchini2012, sqrt(sd1^2 / n1))
+#'  Franchini2012$se2 <- with(Franchini2012, sqrt(sd2^2 / n2))
+#'  Franchini2012$se3 <- with(Franchini2012, sqrt(sd3^2 / n3))
+#'  # Transform data from arm-based format to contrast-based format
+#'  # using means and standard errors (note, argument 'sm' has to be
+#'  # used to specify that argument 'TE' is a mean difference)
+#'  p2 <- pairwise(list(Treatment1, Treatment2, Treatment3),
+#'    TE = list(y1, y2, y3), seTE = list(se1, se2, se3),
+#'    n = list(n1, n2, n3),
+#'    data = Franchini2012, studlab = Study,
+#'    sm = "MD")
+#'  p2
 #' 
-#' # Compare pairwise objects p1 (based on continuous outcomes) and p2
-#' # (based on generic outcomes)
-#' #
-#' all.equal(
-#'   p1[, c("TE", "seTE", "studlab", "treat1", "treat2")],
-#'   p2[, c("TE", "seTE", "studlab", "treat1", "treat2")])
+#'  # Compare pairwise objects p1 (based on continuous outcomes) and p2
+#'  # (based on generic outcomes)
+#'  #
+#'  all.equal(
+#'    p1[, c("TE", "seTE", "studlab", "treat1", "treat2")],
+#'    p2[, c("TE", "seTE", "studlab", "treat1", "treat2")])
 #' 
-#' # Same result as network meta-analysis based on continuous outcomes
-#' # (object net1)
-#' net2 <- netmeta(p2)
-#' net2
+#'  # Same result as network meta-analysis based on continuous outcomes
+#'  # (object net1)
+#'  net2 <- netmeta(p2)
+#'  net2
 #' 
-#' # Example with binary data
-#' #
-#' data(smokingcessation)
-#' # Transform data from arm-based format to contrast-based format
-#' # (internal call of metabin function). Argument 'sm' has to be used
-#' # for odds ratio as risk ratio (sm = "RR") is default of metabin
-#' # function.
-#' #
-#' p3 <- pairwise(list(treat1, treat2, treat3),
-#'   list(event1, event2, event3), list(n1, n2, n3),
-#'   data = smokingcessation,
-#'   sm = "OR")
-#' p3
+#'  # Example with binary data
+#'  #
+#'  data(smokingcessation)
+#'  # Transform data from arm-based format to contrast-based format
+#'  # (internal call of metabin function). Argument 'sm' has to be used
+#'  # for odds ratio as risk ratio (sm = "RR") is default of metabin
+#'  # function.
+#'  #
+#'  p3 <- pairwise(list(treat1, treat2, treat3),
+#'    list(event1, event2, event3), list(n1, n2, n3),
+#'    data = smokingcessation,
+#'    sm = "OR")
+#'  p3
 #' 
-#' # Conduct network meta-analysis
-#' #
-#' net3 <- netmeta(p3)
-#' net3
+#'  # Conduct network meta-analysis
+#'  #
+#'  net3 <- netmeta(p3)
+#'  net3
 #' 
-#' # Example with incidence rates
-#' #
-#' data(dietaryfat)
+#'  # Example with incidence rates
+#'  #
+#'  data(dietaryfat)
 #' 
-#' # Transform data from arm-based format to contrast-based format
-#' #
-#' p4 <- pairwise(list(treat1, treat2, treat3),
-#'   list(d1, d2, d3), time = list(years1, years2, years3),
-#'   studlab = ID,
-#'   data = dietaryfat)
-#' p4
+#'  # Transform data from arm-based format to contrast-based format
+#'  #
+#'  p4 <- pairwise(list(treat1, treat2, treat3),
+#'    list(d1, d2, d3), time = list(years1, years2, years3),
+#'    studlab = ID,
+#'    data = dietaryfat)
+#'  p4
 #' 
-#' # Conduct network meta-analysis using incidence rate ratios (sm =
-#' # "IRR"). Note, the argument 'sm' is not necessary as this is the
-#' # default in R function metainc called internally.
-#' #
-#' net4 <- netmeta(p4, sm = "IRR")
-#' summary(net4)
+#'  # Conduct network meta-analysis using incidence rate ratios (sm =
+#'  # "IRR"). Note, the argument 'sm' is not necessary as this is the
+#'  # default in R function metainc called internally.
+#'  #
+#'  net4 <- netmeta(p4, sm = "IRR")
+#'  summary(net4)
 #' 
-#' # Example with long data format
-#' #
-#' # Transform data from long arm-based format to contrast-based
-#' # format Argument 'sm' has to be used for odds ratio as summary
-#' # measure; by default the risk ratio is used in the metabin
-#' # function called internally.
-#' #
-#' p5 <- pairwise(treatment, event = r, n = N,
-#'   studlab = author, data = dat.woods2010, sm = "OR")
-#' p5
+#'  # Example with long data format
+#'  #
+#'  # Transform data from long arm-based format to contrast-based
+#'  # format Argument 'sm' has to be used for odds ratio as summary
+#'  # measure; by default the risk ratio is used in the metabin
+#'  # function called internally.
+#'  #
+#'  p5 <- pairwise(treatment, event = r, n = N,
+#'    studlab = author, data = dat.woods2010, sm = "OR")
+#'  p5
 #' 
-#' # Conduct network meta-analysis
-#' net5 <- netmeta(p5)
-#' net5
+#'  # Conduct network meta-analysis
+#'  net5 <- netmeta(p5)
+#'  net5
+#' }
 #' }
 #' 
 #' @export pairwise

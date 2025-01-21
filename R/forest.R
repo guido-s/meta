@@ -960,9 +960,7 @@
 #' 
 #' If argument \code{layout = "JAMA"} (and arguments \code{leftcols} and
 #' \code{rightcols} are \code{NULL}), instructions for authors of the
-#' \emph{Journal of the American Medical Association}, see
-#' \url{https://jamanetwork.com/journals/jama/pages/instructions-for-authors/},
-#' are taken into account:
+#' \emph{Journal of the American Medical Association} are taken into account:
 #' \enumerate{
 #' \item Graph labels on right and left side are printed in bold font
 #'   at top of forest plot (see arguments \code{bottom.lr} and
@@ -9426,6 +9424,18 @@ forest.meta <- function(x,
     Ne.format[emp.ran.w] <- Nc.format[emp.ran.w] <- ""
     Ee.format[emp.ran.w] <- Ec.format[emp.ran.w] <- ""
     Te.format[emp.ran.w] <- Tc.format[emp.ran.w] <- ""
+  }
+  #
+  # Only print samples sizes if pooled.totals is TRUE
+  #
+  if (!pooled.totals) {
+    Ne.format[all.com] <- Nc.format[all.com] <- ""
+    Ne.format[all.ran] <- Nc.format[all.ran] <- ""
+    #
+    if (by) {
+      Ne.format[all.com.w] <- Nc.format[all.com.w] <- ""
+      Ne.format[all.ran.w] <- Nc.format[all.ran.w] <- ""
+    }
   }
   #
   # Only print total number of events if pooled.events is TRUE
