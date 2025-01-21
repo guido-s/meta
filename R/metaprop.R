@@ -1083,18 +1083,18 @@ metaprop <- function(event, n, studlab,
     TE <- log((event + incr.event) / (n - event + incr.event))
     seTE <- sqrt(1 / (event + incr.event) +
                  1 / ((n - event + incr.event)))
-    transf.null.effect <- log(null.effect / (1 - null.effect))
+    transf.null.effect <- p2logit(null.effect)
   }
   else if (sm == "PAS") {
     TE <- asin(sqrt(event / n))
     seTE <- sqrt(1 / (4 * n))
-    transf.null.effect <- asin(sqrt(null.effect))
+    transf.null.effect <- p2asin(null.effect)
   }
   else if (sm == "PFT") {
     TE <-
       0.5 * (asin(sqrt(event / (n + 1))) + asin(sqrt((event + 1) / (n + 1))))
     seTE <- sqrt(1 / (4 * n + 2))
-    transf.null.effect <- asin(sqrt(null.effect))
+    transf.null.effect <- p2asin(null.effect)
   }
   else if (sm == "PLN") {
     TE <- log((event + incr.event) / (n + incr.event))
@@ -1359,7 +1359,7 @@ metaprop <- function(event, n, studlab,
               control = control, use.random = use.random,
               warn = warn)
     ##
-    res <- addGLMM(res, res.glmm, method.I2)
+    res <- addGLMM(res, res.glmm, method.I2, transf.null.effect)
     ##
     if (by) {
       n.subgroups <- length(unique(subgroup[!exclude]))

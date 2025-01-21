@@ -109,7 +109,9 @@ summary(m1)
 blup(m1)
 
 \dontrun{
-estimates(blup(m1), path = "blup_m1.xlsx")
+# Save estimates in Excel file (R package 'writexl' must be available)
+if (requireNamespace("writexl", quietly = TRUE))
+ estimates(blup(m1), path = "blup_m1.xlsx")
 }
 
 }
