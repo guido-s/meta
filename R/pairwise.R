@@ -32,11 +32,12 @@
 #' @param data An optional data frame containing the study
 #'   information.
 #' @param studlab A vector with study labels (optional).
+#' @param method A character string indicating which method is to be
+#'   used to calculate treatment estimates (see Details).
+#' @param sm A character string indicating which summary measure is to be
+#'   used to calculate treatment estimates (see Details).
 #' @param incr A numerical value which is added to cell frequencies
 #'   for studies with a zero cell count, see Details.
-#' @param method A character string indicating which method is to be
-#'   used to calculate treatment estimates. Either \code{"Inverse"}
-#'   or \code{"Peto"} (only for binary outcome), can be abbreviated.
 #' @param method.incr A character string indicating which continuity
 #'   correction method should be used (\code{"only0"},
 #'   \code{"if0all"}, or \code{"all"}), see \code{\link{metabin}}.
@@ -88,6 +89,10 @@
 #' \item treat, TE, seTE (see \code{\link{metagen}}).
 #' }
 #' 
+#' Admissible values for arguments \code{method} and \code{sm} are outcome
+#' specific; see help pages of R functions \code{\link{metabin}},
+#' \code{\link{metacont}}, \code{\link{metainc}}, and \code{\link{metagen}}.
+#' 
 #' Argument \code{treat} is mandatory to identify the individual
 #' treatments. The other arguments contain outcome specific
 #' data. These arguments must be either lists (wide arm-based format,
@@ -111,11 +116,9 @@
 #' to identify rows contributing to individual studies.
 #' 
 #' Additional arguments for meta-analysis functions can be provided
-#' using argument '\dots'. The most important argument is \code{sm}
-#' defining the summary measure. More information on this and other
-#' arguments is given in the help pages of R functions
+#' using argument '\dots'; see help pages of R functions
 #' \code{\link{metabin}}, \code{\link{metacont}},
-#' \code{\link{metainc}}, and \code{\link{metagen}}, respectively.
+#' \code{\link{metainc}}, and \code{\link{metagen}}.
 #'
 #' For standardised mean differences (argument \code{sm = "SMD"}),
 #' equations (4) and (5) in Crippa & Orsini (2016) are used to
@@ -391,11 +394,12 @@ pairwise <- function(treat,
                      agent, dose,
                      data = NULL, studlab,
                      #
-                     incr = gs("incr"),
                      method = "Inverse",
+                     sm = NULL,
+                     incr = gs("incr"),
                      method.incr = gs("method.incr"),
                      allstudies = gs("allstudies"),
-                     ##
+                     #
                      reference.group,
                      keep.all.comparisons,
                      #
@@ -441,8 +445,6 @@ pairwise <- function(treat,
   missing.keep.all.comparisons <- missing(keep.all.comparisons)
   missing.varnames <- missing(varnames)
   #
-  method <- setchar(method, c("Inverse", "Peto"))
-  #
   chknumeric(incr, min = 0, length = 1)
   chklogical(allstudies)
   #
@@ -484,8 +486,6 @@ pairwise <- function(treat,
   chkchar(sep.ag)
   #
   chkchar(varnames, length = 2)
-  #
-  sm <- NULL
   #
   args <- list(...)
   nam.args <- names(args)
@@ -1469,7 +1469,9 @@ pairwise <- function(treat,
     
     
     if (type == "binary") {
-      ##
+      #
+      method <- setchar(method, gs("meth4bin"))
+      #
       if (length(event) != narms)
         stop("Different length of lists 'treat' and 'event'.")
       if (length(n) != narms)
@@ -1484,12 +1486,10 @@ pairwise <- function(treat,
       ##
       incr.study <- rep(0, length(n.zeros))
       ##
-      if ("sm" %in% nam.args)
-        sm <- args$sm
+      if (is.null(sm))
+        sm <- if (method == "Peto") "OR" else gs("smbin")
       else
-        sm <- gs("smbin")
-      ##
-      sm <- setchar(sm, c("OR", "RD", "RR", "ASD"))
+        sm <- setchar(sm, gs("sm4bin"))
       #
       addincr <- allincr <- FALSE
       #
@@ -1557,13 +1557,13 @@ pairwise <- function(treat,
           dat <- dat[!(is.na(dat$event2) & is.na(dat$n2)), ]
           ##
           if (nrow(dat) > 0) {
-            m1 <- metabin(dat$event1, dat$n1,
-                          dat$event2, dat$n2,
-                          method = method,
-                          incr = dat$incr, 
-                          method.incr = "all",
+            m1 <- metabin(dat$event1, dat$n1, dat$event2, dat$n2,
+                          #
+                          method = method, sm = sm,
+                          incr = dat$incr, method.incr = "all",
                           allstudies = allstudies,
                           method.tau = "DL", method.tau.ci = "",
+                          #
                           warn = warn,
                           warn.deprecated = FALSE, ...)
             ##
@@ -1600,10 +1600,10 @@ pairwise <- function(treat,
       if (length(sd) != narms)
         stop("Different length of lists 'treat' and 'sd'.")
       #
-      if ("sm" %in% nam.args)
-        sm <- args$sm
-      else
+      if (is.null(sm))
         sm <- gs("smcont")
+      else
+        sm <- setchar(sm, gs("sm4cont"))
       #
       for (i in seq_len(narms)) {
         ##
@@ -1628,7 +1628,7 @@ pairwise <- function(treat,
       ## For standardised mean difference, calculate pooled standard
       ## deviation for multi-arm studies
       ##
-      if ("sm" %in% nam.args && (tolower(args$sm) == "smd" & narms > 2)) {
+      if (sm == "SMD" & narms > 2) {
         pooled.sd <- function(sd, n) {
           sel <- !is.na(sd) & !is.na(n)
           ##
@@ -1687,8 +1687,11 @@ pairwise <- function(treat,
           if (nrow(dat) > 0) {
             m1 <- metacont(dat$n1, dat$mean1, dat$sd1,
                            dat$n2, dat$mean2, dat$sd2,
+                           #
+                           sm = sm,
                            method.tau = "DL", method.tau.ci = "",
                            method.smd = "Cohen",
+                           #
                            warn = warn,
                            warn.deprecated = FALSE, ...)
             ##
@@ -1726,8 +1729,8 @@ pairwise <- function(treat,
         stop("Different length of lists 'treat' and 'seTE'.",
              call. = FALSE)
       #
-      if ("sm" %in% nam.args)
-        sm <- args$sm
+      if (is.null(sm))
+        sm <- ""
       #
       for (i in 1:(narms - 1)) {
         ##
@@ -1799,7 +1802,10 @@ pairwise <- function(treat,
           if (nrow(dat) > 0) {
             m1 <- metagen(dat$TE1 - dat$TE2,
                           sqrt(dat$seTE1^2 + dat$seTE2^2),
+                          #
+                          sm = sm,
                           method.tau = "DL", method.tau.ci = "",
+                          #
                           warn = warn,
                           warn.deprecated = FALSE, ...)
             ##
@@ -1830,6 +1836,9 @@ pairwise <- function(treat,
     }
     #
     else if (type == "count") {
+      #
+      method <- setchar(method, gs("meth4inc"))
+      #
       if (length(event) != narms)
         stop("Different length of lists 'treat' and 'event'.",
              call. = FALSE)
@@ -1837,10 +1846,10 @@ pairwise <- function(treat,
         stop("Different length of lists 'treat' and 'time'.",
              call. = FALSE)
       #
-      if ("sm" %in% nam.args)
-        sm <- args$sm
-      else
+      if (is.null(sm))
         sm <- gs("sminc")
+      else
+        sm <- setchar(sm, gs("sm4inc"))
       #
       addincr <- allincr <- FALSE
       #
@@ -1914,10 +1923,13 @@ pairwise <- function(treat,
           if (nrow(dat) > 0) {
             m1 <- metainc(dat$event1, dat$time1,
                           dat$event2, dat$time2,
+                          #
+                          method = method, sm = sm,
                           incr = dat$incr,
                           method.incr = "all",
                           allstudies = allstudies,
                           method.tau = "DL", method.tau.ci = "",
+                          #
                           warn = warn,
                           warn.deprecated = FALSE, ...)
             ##
@@ -1948,6 +1960,9 @@ pairwise <- function(treat,
     }
     #
     else if (type == "onlytreat") {
+      if (is.null(sm))
+        sm <- ""
+      #
       for (i in 1:(narms - 1)) {
         for (j in (i + 1):narms) {
           ##

@@ -1,3 +1,14 @@
+## meta, version 8.0-3 (2025-mm-dd)
+
+### User-visible changes
+
+* pairwise():
+  - new argument 'sm' to specify summary measure (this argument was previously
+    available via '...')
+  - argument 'method' can be any admissible value for metabin(), metacont(),
+    metacont(), or metagen()
+
+
 ## meta, version 8.0-2 (2025-01-21)
 
 ### Bug fixes

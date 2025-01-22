@@ -18,8 +18,9 @@ pairwise(
   dose,
   data = NULL,
   studlab,
-  incr = gs("incr"),
   method = "Inverse",
+  sm = NULL,
+  incr = gs("incr"),
   method.incr = gs("method.incr"),
   allstudies = gs("allstudies"),
   reference.group,
@@ -70,12 +71,14 @@ information.}
 
 \item{studlab}{A vector with study labels (optional).}
 
+\item{method}{A character string indicating which method is to be
+used to calculate treatment estimates (see Details).}
+
+\item{sm}{A character string indicating which summary measure is to be
+used to calculate treatment estimates (see Details).}
+
 \item{incr}{A numerical value which is added to cell frequencies
 for studies with a zero cell count, see Details.}
-
-\item{method}{A character string indicating which method is to be
-used to calculate treatment estimates. Either \code{"Inverse"}
-or \code{"Peto"} (only for binary outcome), can be abbreviated.}
 
 \item{method.incr}{A character string indicating which continuity
 correction method should be used (\code{"only0"},
@@ -191,6 +194,10 @@ following arguments are mandatory:
 \item treat, TE, seTE (see \code{\link{metagen}}).
 }
 
+Admissible values for arguments \code{method} and \code{sm} are outcome
+specific; see help pages of R functions \code{\link{metabin}},
+\code{\link{metacont}}, \code{\link{metainc}}, and \code{\link{metagen}}.
+
 Argument \code{treat} is mandatory to identify the individual
 treatments. The other arguments contain outcome specific
 data. These arguments must be either lists (wide arm-based format,
@@ -214,11 +221,9 @@ In the long arm-based format, argument \code{studlab} is mandatory
 to identify rows contributing to individual studies.
 
 Additional arguments for meta-analysis functions can be provided
-using argument '\dots'. The most important argument is \code{sm}
-defining the summary measure. More information on this and other
-arguments is given in the help pages of R functions
+using argument '\dots'; see help pages of R functions
 \code{\link{metabin}}, \code{\link{metacont}},
-\code{\link{metainc}}, and \code{\link{metagen}}, respectively.
+\code{\link{metainc}}, and \code{\link{metagen}}.
 
 For standardised mean differences (argument \code{sm = "SMD"}),
 equations (4) and (5) in Crippa & Orsini (2016) are used to
