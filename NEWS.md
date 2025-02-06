@@ -1,5 +1,12 @@
 ## meta, version 8.1-0 (2025-mm-dd)
 
+### Bug fixes
+
+* forest.meta():
+  - consider setting for list element 'null.effect' for metamean(), metaprop()
+    and metarate() objects to fix
+    [issue #67](https://github.com/guido-s/meta/pull/67)
+
 ### User-visible changes
 
 * metabin(), metainc():
@@ -14,6 +21,10 @@
   - argument 'method' can be any admissible value for metabin(), metacont(),
     metacont(), or metagen()
   - argument 'n' considered for count data
+
+* metacr():
+  - new arguments 'label.left' and 'label.rigth' to fix
+    [issue #66](https://github.com/guido-s/meta/pull/66)
 
 ### Internal changes
 

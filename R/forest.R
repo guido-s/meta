@@ -2179,8 +2179,12 @@ forest.meta <- function(x,
     backtransf & (is_relative_effect(sm) | (!is.null(fbt) && fbt == "exp"))
   #
   if (missing.ref) {
-    if (is_prop(sm) | is_rate(sm) | is_mean(sm))
-      ref <- NA
+    if (is_prop(sm) | is_rate(sm) | is_mean(sm)) {
+      if (!is.null(x$null.effect))
+        ref <- x$null.effect
+      else
+        ref <- NA
+    }
     else if (log.xaxis)
       ref <- 1
     else
