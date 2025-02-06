@@ -765,6 +765,18 @@ metagen <- function(TE, seTE, studlab,
   missing.test.subgroup <- missing(test.subgroup)
   missing.label.e <- missing(label.e)
   missing.label.c <- missing(label.c)
+  missing.complab <- missing(complab)
+  #
+  missing.adhoc.hakn.pi <- missing(adhoc.hakn.pi)
+  #
+  missing.method.tau <- missing(method.tau)
+  missing.tau.common <- missing(tau.common)
+  missing.method.predict <- missing(method.predict)
+  #
+  missing.func.transf <- missing(func.transf)
+  missing.args.transf <- missing(args.transf)
+  missing.func.backtransf <- missing(func.backtransf)
+  missing.args.backtransf <- missing(args.backtransf)
   #
   sm <- replaceNULL(sm, "")
   sm <- setchar(sm,
@@ -789,11 +801,9 @@ metagen <- function(TE, seTE, studlab,
                          value = method.sd)
   ##
   chklevel(level)
-  ##
-  missing.method.tau <- missing(method.tau)
+  #
   method.tau <- setchar(method.tau, gs("meth4tau"))
-  ##
-  missing.tau.common <- missing(tau.common)
+  #
   tau.common <- replaceNULL(tau.common, FALSE)
   chklogical(tau.common)
   #
@@ -803,8 +813,7 @@ metagen <- function(TE, seTE, studlab,
   chklevel(level.predict)
   ##
   chknumeric(rho, min = -1, max = 1)
-  ##
-  missing.method.predict <- missing(method.predict)
+  #
   method.predict <- setchar(method.predict, gs("meth4pi"))
   ##
   method.tau <-
@@ -829,12 +838,12 @@ metagen <- function(TE, seTE, studlab,
   chklogical(transf)
   chklogical(backtransf)
   ##
-  avail.func.transf <- !missing(func.transf) && !is.null(func.transf)
-  avail.args.transf <- !missing(args.transf) && !is.null(args.transf)
+  avail.func.transf <- !missing.func.transf && !is.null(func.transf)
+  avail.args.transf <- !missing.args.transf && !is.null(args.transf)
   avail.func.backtransf <-
-    !missing(func.backtransf) && !is.null(func.backtransf)
+    !missing.func.backtransf && !is.null(func.backtransf)
   avail.args.backtransf <-
-    !missing(args.backtransf) && !is.null(args.backtransf)
+    !missing.args.backtransf && !is.null(args.backtransf)
   ##
   if (avail.func.transf) {
     chkfunc(func.transf)
@@ -1027,14 +1036,14 @@ metagen <- function(TE, seTE, studlab,
   TE <- catch("TE", mc, data, sfsp)
   avail.TE <- !(missing.TE || is.null(TE))
   #
-  if (is.data.frame(TE) & !is.null(attr(TE, "pairwise"))) {
+  if (inherits(TE, "pairwise")) {
     is.pairwise <- TRUE
     #
-    txt.ignore <- "ignored as first argument is a pairwise object"
+    txt.ignore <- "as first argument is a pairwise object"
     #
-    ignore_input(sm, !missing.sm, txt.ignore)
-    ignore_input(seTE, !missing.seTE, txt.ignore)
-    ignore_input(studlab, !missing.studlab, txt.ignore)
+    warn_ignore_input(sm, !missing.sm, txt.ignore)
+    warn_ignore_input(seTE, !missing.seTE, txt.ignore)
+    warn_ignore_input(studlab, !missing.studlab, txt.ignore)
     #
     sm <- attr(TE, "sm")
     reference.group <- attr(TE, "reference.group")
@@ -1091,13 +1100,10 @@ metagen <- function(TE, seTE, studlab,
     }
     #
     if (missing.subgroup) {
-      #subgroup <- paste(paste0("'", treat1, "'"),
-      #                  paste0("'", treat2, "'"),
-      #                  sep = " vs ")
       subgroup <- paste(treat1, treat2, sep = " vs ")
       #
       if (length(unique(subgroup)) == 1) {
-        if (missing(complab))
+        if (missing.complab)
           complab <- unique(subgroup)
         #
         if (missing.label.e)
@@ -1279,6 +1285,8 @@ metagen <- function(TE, seTE, studlab,
   missing.approx.seTE <- missing(approx.seTE)
   approx.seTE <- catch("approx.seTE", mc, data, sfsp)
   avail.approx.seTE <- !(missing.approx.seTE || is.null(approx.seTE))
+  #
+  missing.text.random <- missing(text.random)
   
   
   ##
@@ -1538,7 +1546,7 @@ metagen <- function(TE, seTE, studlab,
     if (length(unique(subgroup)) == 1) {
       by <- FALSE
       #
-      if (missing(complab))
+      if (missing.complab)
         complab <- unique(subgroup)
       #
       subgroup <- NULL
@@ -1552,7 +1560,7 @@ metagen <- function(TE, seTE, studlab,
         overall.hetstat <- TRUE
     }
   }
-  
+    
   
   ##
   ## Determine total number of studies
@@ -2247,7 +2255,7 @@ metagen <- function(TE, seTE, studlab,
       statistic.random <- ci.r$statistic
       pval.random <- ci.r$p
       ##
-      if (missing(text.random) ||
+      if (missing.text.random ||
           (length(text.random) == 1 & length(method.random.ci) > 1)) {
         text.random <-
           ifelse(method.random.ci == "classic",
@@ -2390,7 +2398,7 @@ metagen <- function(TE, seTE, studlab,
       ## No adhoc method for three-level models
       ##
       if ((!missing.adhoc.hakn.ci && any(adhoc.hakn.ci != "")) |
-          (!missing(adhoc.hakn.pi) && any(adhoc.hakn.pi != ""))) {
+          (!missing.adhoc.hakn.pi && any(adhoc.hakn.pi != ""))) {
         warning("Ad hoc variance correction not implemented ",
                 "for three-level model.",
                 call. = FALSE)

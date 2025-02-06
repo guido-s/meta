@@ -345,8 +345,10 @@
 #' \code{incr} \tab Increment added to zero cells \cr
 #' \code{method.incr} \tab Continuity correction method \cr
 #' \code{sparse} \tab Continuity correction applied \cr
-#' \code{incr.event} \tab Continuity correction (individual studies)
-#'   \cr
+#' \code{incr.e} \tab Continuity correction in experimental group
+#'   (individual studies) \cr
+#' \code{incr.c} \tab Continuity correction in control group
+#'   (individual studies) \cr
 #' \code{k.MH} \tab Number of studies (Mantel-Haenszel method)
 #' }
 #' 

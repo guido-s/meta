@@ -34,10 +34,13 @@
 #'   (\code{"IRR"}, \code{"IRD"}, \code{"IRSD"}, or \code{"VE"}) is to
 #'   be used for pooling of studies, see Details.
 #' @param incr A numerical value which is added to cell frequencies
-#'   for studies with a zero cell count, see Details.
+#'   for studies with a zero cell count or a numeric vector with the continuity
+#'   correction for each study, see Details.
 #' @param method.incr A character string indicating which continuity
 #'   correction method should be used (\code{"only0"},
-#'   \code{"if0all"}, or \code{"all"}), see Details.
+#'   \code{"if0all"}, \code{"all"}, or \code{"user"}), see Details.
+#' @param incr.e Continuity correction in experimental group, see Details.
+#' @param incr.c Continuity correction in control group, see Details.
 #' @param model.glmm A character string indicating which GLMM should
 #'   be used. One of \code{"UM.FS"}, \code{"UM.RS"}, and
 #'   \code{"CM.EL"}, see Details.
@@ -255,7 +258,7 @@
 #' 
 #' \subsection{Continuity correction}{
 #'
-#' Three approaches are available to apply a continuity correction:
+#' Four approaches are available to apply a continuity correction:
 #' \itemize{
 #' \item Only studies with a zero cell count (\code{method.incr =
 #'   "only0", default})
@@ -263,8 +266,10 @@
 #'   (\code{method.incr = "if0all"})
 #' \item All studies irrespective of zero cell counts
 #'   (\code{method.incr = "all"})
+#' \item Use values provided in arguments \code{incr.e} and \code{incr.c}
+#'   (\code{method.incr = "user"})
 #' }
-#' 
+#'
 #' For studies with a zero cell count, by default, 0.5 is added to all
 #' cell frequencies of these studies (argument \code{incr}). This
 #' continuity correction is used both to calculate individual study
@@ -411,6 +416,8 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
                     method = if (sm == "IRSD") "Inverse" else "MH",
                     sm = gs("sminc"),
                     incr = gs("incr"), method.incr = gs("method.incr"),
+                    incr.e = if (length(incr) > 1) incr else NULL,
+                    incr.c = if (length(incr) > 1) incr else NULL,
                     model.glmm = "UM.FS",
                     ##
                     level = gs("level"),
@@ -489,6 +496,9 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   ##
   ##
   
+  args <- list(...)
+  nam.args <- names(args)
+  #
   missing.sm <- missing(sm)
   missing.subgroup <- missing(subgroup)
   missing.byvar <- missing(byvar)
@@ -505,7 +515,13 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   missing.studlab <- missing(studlab)
   #
   missing.incr <- missing(incr)
+  avail.incr <- !missing.incr && !is.null(incr)
+  #
   missing.method.incr <- missing(method.incr)
+  avail.method.incr <- !missing.method.incr && !is.null(method.incr)
+  #
+  missing.incr.e <- missing(incr.e)
+  missing.incr.c <- missing(incr.c)
   #
   missing.method.tau <- missing(method.tau)
   missing.tau.common <- missing(tau.common)
@@ -523,6 +539,9 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   missing.subgroup.name <- missing(subgroup.name)
   missing.print.subgroup.name <- missing(print.subgroup.name)
   missing.sep.subgroup <- missing(sep.subgroup)
+  #
+  missing.label.e <- missing(label.e)
+  missing.label.c <- missing(label.c)
   missing.complab <- missing(complab)
   #
   missing.cluster <- missing(cluster)
@@ -602,7 +621,6 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   ##
   ## Check for deprecated arguments in '...'
   ##
-  args  <- list(...)
   chklogical(warn.deprecated)
   ##
   level.ma <- deprecated(level.ma, missing.level.ma, args, "level.comb",
@@ -658,6 +676,15 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   ##
   chklogical(overall)
   chklogical(overall.hetstat)
+  #
+  # Ignore deprecated arguments 'addincr' and 'allincr'
+  #
+  txt.ignore <- "(deprecated); use argument 'method.incr'"
+  #
+  if (!is.na(charmatch("addincr", nam.args)))
+    warn_ignore_input(addincr, TRUE, txt.ignore)
+  if (!is.na(charmatch("allincr", nam.args)))
+    warn_ignore_input(allincr, TRUE, txt.ignore)
   
   
   ##
@@ -673,41 +700,38 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   if (nulldata)
     data <- sfsp
   #
-  # Catch 'event.e', 'time.e', 'event.c', 'time.c', 'n.e', 'n.c', 'studlab',
-  # and 'subgroup' from data:
+  # Catch 'event.e', 'time.e', 'event.c', 'time.c', 'n.e', 'n.c',
+  # 'incr.e', 'incr.c', studlab', and 'subgroup' from data:
   #
   event.e <- catch("event.e", mc, data, sfsp)
   chknull(event.e)
   #
-  if (is.data.frame(event.e) & !is.null(attr(event.e, "pairwise"))) {
+  if (inherits(event.e, "pairwise")) {
+    is.pairwise <- TRUE
+    #
     type <- attr(event.e, "type")
     if (type != "count")
       stop("Wrong type for pairwise() object: '", type, "'.", call. = FALSE)
     #
-    is.pairwise <- TRUE
+    txt.ignore <- "as first argument is a pairwise object"
     #
-    txt.ignore <- "ignored as first argument is a pairwise object"
+    warn_ignore_input(event.c, !missing.event.c, txt.ignore)
+    warn_ignore_input(time.e, !missing.time.e, txt.ignore)
+    warn_ignore_input(time.c, !missing.time.c, txt.ignore)
+    warn_ignore_input(n.e, !missing.n.e, txt.ignore)
+    warn_ignore_input(n.c, !missing.n.c, txt.ignore)
+    warn_ignore_input(incr.e, !missing.incr.e, txt.ignore)
+    warn_ignore_input(incr.c, !missing.incr.c, txt.ignore)
     #
-    ignore_input(event.c, !missing.event.c, txt.ignore)
-    ignore_input(time.e, !missing.time.e, txt.ignore)
-    ignore_input(time.c, !missing.time.c, txt.ignore)
-    ignore_input(n.e, !missing.n.e, txt.ignore)
-    ignore_input(n.c, !missing.n.c, txt.ignore)
-    ignore_input(subgroup, !missing.subgroup, txt.ignore)
-    #
-    missing.event.c <- FALSE
-    missing.time.e <- FALSE
-    missing.time.c <- FALSE
-    missing.n.e <- FALSE
-    missing.n.c <- FALSE
+    warn_ignore_input(studlab, !missing.studlab, txt.ignore)
     #
     if (missing.sm)
       sm <- attr(event.e, "sm")
     #
-    if (missing.incr)
-      incr <- attr(event.e, "incr")
-    if (missing.method.incr)
+    if (!avail.method.incr) {
       method.incr <- attr(event.e, "method.incr")
+      avail.method.incr <- TRUE
+    }
     #
     missing.incr <- FALSE
     missing.method.incr <- FALSE
@@ -727,6 +751,17 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     n.e <- event.e$n1
     n.c <- event.e$n2
     #
+    incr.e <- event.e$incr1
+    incr.c <- event.e$incr2
+    #
+    if (avail.incr | method.incr != "user") {
+      incr.e <- NULL
+      incr.c <- NULL
+    }
+    #
+    if (!avail.incr)
+      incr <- attr(event.e, "incr")
+    #
     pairdata <- event.e
     data <- event.e
     nulldata <- FALSE
@@ -744,26 +779,34 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
       event.e[wo] <- event.c[wo]
       event.c[wo] <- tevent.e[wo]
       #
-      tevent.e <- event.e
-      event.e[wo] <- event.c[wo]
-      event.c[wo] <- tevent.e[wo]
+      ttime.e <- time.e
+      time.e[wo] <- time.c[wo]
+      time.c[wo] <- ttime.e[wo]
       #
-      if (!(is.null(n.e) | is.null(n.c))) {
+      if (avail.n.e & avail.n.c) {
         tn.e <- n.e
         n.e[wo] <- n.c[wo]
         n.c[wo] <- tn.e[wo]
       }
+      #
+      if (!(is.null(incr.e) | is.null(incr.c))) {
+        tincr.e <- incr.e
+        incr.e[wo] <- incr.c[wo]
+        incr.c[wo] <- tincr.e[wo]
+      }
     }
     #
-    if (missing.subgroup) {
-      #subgroup <- paste(paste0("'", treat1, "'"),
-      #                  paste0("'", treat2, "'"),
-      #                  sep = " vs ")
+    if (missing.subgroup & missing.byvar) {
       subgroup <- paste(treat1, treat2, sep = " vs ")
       #
       if (length(unique(subgroup)) == 1) {
         if (missing.complab)
           complab <- unique(subgroup)
+        #
+        if (missing.label.e)
+          label.e <- unique(treat1)
+        if (missing.label.c)
+          label.c <- unique(treat2)
         #
         subgroup <- NULL
       }
@@ -776,8 +819,13 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
           test.subgroup <- FALSE
       }
     }
-    else
+    else {
       subgroup <- catch("subgroup", mc, data, sfsp)
+      byvar <- catch("byvar", mc, data, sfsp)
+      #
+      subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
+                              warn.deprecated)
+    }
   }
   else {
     is.pairwise <- FALSE
@@ -800,42 +848,59 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
                             warn.deprecated)
     #
-    if (!missing.incr)
-      incr <- catch("incr", mc, data, sfsp)
+    incr <- catch("incr", mc, data, sfsp)
+    #
+    if (!missing.incr.e)
+      incr.e <- catch("incr.e", mc, data, sfsp)
+    if (!missing.incr.c)
+      incr.c <- catch("incr.c", mc, data, sfsp)
   }
   #
-  addincr <-
-    deprecated(method.incr, missing.method.incr, args, "addincr",
-               warn.deprecated)
-  allincr <-
-    deprecated(method.incr, missing.method.incr, args, "allincr",
-               warn.deprecated)
+  chknumeric(incr, min = 0)
   #
-  if (missing.method.incr) {
-    method.incr <- gs("method.incr")
-    ##
-    if (is.logical(addincr) && addincr)
-      method.incr <- "all"
-    else if (is.logical(allincr) && allincr)
-      method.incr <- "if0all"
+  avail.n.e <- !is.null(n.e)
+  avail.n.c <- !is.null(n.c)
+  #
+  avail.incr.e <- !is.null(incr.e)
+  avail.incr.c <- !is.null(incr.c)
+  avail.incr.both <- avail.incr.e & avail.incr.c
+  #
+  if (avail.incr.e + avail.incr.c == 1)
+    stop("Arguments 'incr.e' and 'incr.c' must be either both NULL or ",
+         "not NULL.",
+         call. = FALSE)
+  #
+  if (avail.incr.e)
+    chknumeric(incr.e, min = 0)
+  #
+  if (avail.incr.c)
+    chknumeric(incr.c, min = 0)
+  #
+  if (avail.incr.both) {
+    if (!avail.method.incr)
+      method.incr <- "user"
+    #
+    txt.ignore <- "as arguments 'incr.e' and 'incr.c' are provided"
+    #
+    warn_set_input(method.incr, method.incr != "user", '"user"', txt.ignore)
+    #
+    if (length(incr) != length(incr.e) | any(incr != incr.e))
+      warn_ignore_input(incr, avail.incr, txt.ignore)
   }
-  #
-  addincr <- allincr <- FALSE
-  if (method.incr == "all")
-    addincr <- TRUE
-  else if (method.incr == "if0all")
-    allincr <- TRUE
+  else {
+    addincr <- allincr <- FALSE
+    #
+    if (method.incr == "all")
+      addincr <- TRUE
+    else if (method.incr == "if0all")
+      allincr <- TRUE
+  }
   #
   k.All <- length(event.e)
   #
   chknull(time.e)
   chknull(event.c)
   chknull(time.c)
-  ##
-  null.n.e <- is.null(n.e)
-  null.n.c <- is.null(n.c)
-  #
-  chknumeric(incr, min = 0)
   #
   studlab <- setstudlab(studlab, k.All)
   #
@@ -851,6 +916,20 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   ##
   cluster <- catch("cluster", mc, data, sfsp)
   with.cluster <- !is.null(cluster)
+  #
+  # Check variable values
+  #
+  chknumeric(event.e, 0)
+  chknumeric(time.e, 0, zero = TRUE)
+  chknumeric(event.c, 0)
+  chknumeric(time.c, zero = TRUE)
+  #
+  # Recode integer as numeric:
+  #
+  event.e <- int2num(event.e)
+  time.e  <- int2num(time.e)
+  event.c <- int2num(event.c)
+  time.c  <- int2num(time.c)
   
   
   ##
@@ -865,20 +944,35 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   chklength(studlab, k.All, fun)
   if (with.cluster)
     chklength(cluster, k.All, fun)
-  ##
+  #
   if (length(incr) > 1)
     chklength(incr, k.All, fun)
-  ##
+  #
+  if (avail.incr.e) {
+    if (length(incr.e) == 1)  
+      incr.e <- rep_len(incr.e, k.All)
+    else
+      chklength(incr.e, k.All, fun)
+  }
+  #
+  if (avail.incr.c) {
+    if (length(incr.c) == 1)  
+      incr.c <- rep_len(incr.c, k.All)
+    else
+      chklength(incr.c, k.All, fun)
+  }
+  #
+  if (avail.n.e)
+    chklength(n.e, k.All, fun)
+  #
+  if (avail.n.c)
+    chklength(n.c, k.All, fun)
+  #
   if (by) {
     chklength(subgroup, k.All, fun)
     chklogical(test.subgroup)
     chklogical(prediction.subgroup)
   }
-  ##
-  if (!null.n.e)
-    chklength(n.e, k.All, fun)
-  if (!is.null(n.c))
-    chklength(n.c, k.All, fun)
   ##
   ## Additional checks
   ##
@@ -888,6 +982,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
             call. = FALSE)
     tau.common <- FALSE
   }
+  #
   if (by & !tau.common & !is.null(tau.preset)) {
     warning("Argument 'tau.common' set to TRUE as ",
             "argument tau.preset is not NULL.",
@@ -929,16 +1024,17 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   
   if (keepdata) {
     if (nulldata)
-      data <- data.frame(.event.e = event.e)
+      data <- data.frame(.studlab = studlab)
     else
-      data$.event.e <- event.e
+      data$.studlab <- studlab
     ##
+    data$.event.e <- event.e
     data$.time.e <- time.e
     data$.event.c <- event.c
     data$.time.c <- time.c
-    data$.studlab <- studlab
-    ##
-    data$.incr <- incr
+    #
+    data$.incr.e <- NA
+    data$.incr.c <- NA
     ##
     if (by)
       data$.subgroup <- subgroup
@@ -955,16 +1051,53 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     if (!missing.exclude)
       data$.exclude <- exclude
     ##
-    if (!null.n.e)
+    if (avail.n.e)
       data$.n.e <- n.e
-    if (!null.n.e)
+    if (avail.n.e)
       data$.n.c <- n.c
   }  
   
   
+  #
+  #
+  # (6) Continuity correction
+  #
+  #
+  
+  sel <- switch(sm,
+                IRD = event.e == 0 | event.c == 0,
+                IRR = event.e == 0 | event.c == 0,
+                VE = event.e == 0 | event.c == 0,
+                IRSD = event.e == 0 | event.c == 0)
+  #
+  # Sparse computation
+  #
+  sparse <- any(sel, na.rm = TRUE)
+  #
+  if (!avail.incr.both) {
+    if (addincr)
+      incr.event <- if (length(incr) == 1) rep(incr, k.All) else incr
+    else
+      if (sparse)
+        if (allincr)
+          incr.event <- if (length(incr) == 1) rep(incr, k.All) else incr
+      else
+        incr.event <- incr * sel
+      else
+        incr.event <- rep(0, k.All)
+      #
+      incr.e <- incr.c <- incr.event
+  }
+  #
+  if (keepdata) {
+    data$.incr.e <- incr.e
+    data$.incr.c <- incr.c
+  }
+  
+  
   ##
   ##
-  ## (6) Use subset for analysis
+  ## (7) Use subset for analysis
   ##
   ##
   
@@ -977,17 +1110,39 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     ##
     cluster <- cluster[subset]
     exclude <- exclude[subset]
-    ##
+    #
+    if (avail.n.e)
+      n.e <- n.e[subset]
+    if (avail.n.c)
+      n.c <- n.c[subset]
+    #
+    incr.e <- incr.e[subset]
+    incr.c <- incr.c[subset]
+    #
     if (length(incr) > 1)
       incr <- incr[subset]
     ##
     if (by)
       subgroup <- subgroup[subset]
-    ##
-    if (!null.n.e)
-      n.e <- n.e[subset]
-    if (!is.null(n.c))
-      n.c <- n.c[subset]
+  }
+  #
+  if (missing.subgroup & is.pairwise & by) {
+    if (length(unique(subgroup)) == 1) {
+      by <- FALSE
+      #
+      if (missing.complab)
+        complab <- unique(subgroup)
+      #
+      subgroup <- NULL
+      #
+      if (keepdata)
+        data$.subgroup <- NULL
+      #
+      if (missing.overall)
+        overall <- TRUE
+      if (missing.overall.hetstat)
+        overall.hetstat <- TRUE
+    }
   }
   ##
   ## Determine total number of studies
@@ -1007,20 +1162,6 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     overall.hetstat <- FALSE
   }
   ##
-  ## Check variable values
-  ##
-  chknumeric(event.e, 0)
-  chknumeric(time.e, 0, zero = TRUE)
-  chknumeric(event.c, 0)
-  chknumeric(time.c, zero = TRUE)
-  ##
-  ## Recode integer as numeric:
-  ##
-  event.e <- int2num(event.e)
-  time.e  <- int2num(time.e)
-  event.c <- int2num(event.c)
-  time.c  <- int2num(time.c)
-  ##
   if (by) {
     chkmiss(subgroup)
     ##
@@ -1038,40 +1179,17 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   
   ##
   ##
-  ## (7) Calculate results for individual studies
+  ## (8) Calculate results for individual studies
   ##
   ##
   
-  sel <- switch(sm,
-                IRD = event.e == 0 | event.c == 0,
-                IRR = event.e == 0 | event.c == 0,
-                VE = event.e == 0 | event.c == 0,
-                IRSD = event.e == 0 | event.c == 0)
-  ##
-  ## Sparse computation
-  ##
-  sparse <- any(sel, na.rm = TRUE)
-  ##
-  if (addincr)
-    incr.event <- if (length(incr) == 1) rep(incr, k.all) else incr
-  else
-    if (sparse)
-      if (allincr)
-        incr.event <- if (length(incr) == 1) rep(incr, k.all) else incr
-      else
-        incr.event <- incr * sel
-  else
-    incr.event <- rep(0, k.all)
-  ##  
   if (sm %in% c("IRR", "VE")) {
-    TE <- log(((event.e + incr.event) / time.e) /
-              ((event.c + incr.event) / time.c))
-    seTE <- sqrt(1 / (event.e + incr.event) + 1 / (event.c + incr.event))
+    TE <- log(((event.e + incr.e) / time.e) / ((event.c + incr.c) / time.c))
+    seTE <- sqrt(1 / (event.e + incr.e) + 1 / (event.c + incr.c))
   }
   else if (sm == "IRD") {
     TE <- event.e / time.e - event.c / time.c
-    seTE <- sqrt((event.e + incr.event) / time.e^2 +
-                 (event.c + incr.event) / time.c^2)
+    seTE <- sqrt((event.e + incr.e) / time.e^2 + (event.c + incr.c) / time.c^2)
   }
   else if (sm == "IRSD") {
     TE <- sqrt(event.e / time.e) - sqrt(event.c / time.c)
@@ -1133,13 +1251,6 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
                 call. = FALSE)
       tau.preset <- NULL
     }
-    ##
-    if (sparse)
-      if (sparse & warn &
-          ((!missing.incr & any(incr != 0)) | allincr | addincr))
-        warning("Note, for method = \"GLMM\", continuity correction only ",
-                "used to calculate individual study results.",
-                call. = FALSE)
   }
   
   
@@ -1309,7 +1420,8 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
               incr = if (length(unique(incr)) == 1) unique(incr) else incr,
               method.incr = method.incr,
               sparse = sparse,
-              incr.event = incr.event,
+              incr.e = incr.e,
+              incr.c = incr.c,
               k.MH = if (method == "MH") sum(w.common > 0) else NA)
   ##
   ## Add meta-analysis results
@@ -1339,9 +1451,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   res$irunit  <- irunit
   ##
   res$call <- match.call()
-  res$allincr <- allincr
-  res$addincr <- addincr
-  ##
+  #
   if (method %in% c("MH", "Cochran", "GLMM")) {
     res <- ci2meta(res, ci.c = ci(TE.common, seTE.common, level = level.ma))
     res$w.common <- w.common
@@ -1430,9 +1540,9 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     res$n.w <- NULL
     res$event.w <- NULL
     ##
-    if (null.n.e)
+    if (!avail.n.e)
       res$n.e.w <- NULL
-    if (null.n.c)
+    if (!avail.n.c)
       res$n.c.w <- NULL
     ##
     res$n.harmonic.mean.w <- NULL

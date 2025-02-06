@@ -1,12 +1,30 @@
-## meta, version 8.0-3 (2025-mm-dd)
+## meta, version 8.1-0 (2025-mm-dd)
 
 ### User-visible changes
 
+* metabin(), metainc():
+  - new arguments 'incr.e' and 'incr.c' for user-specified continuity correction
+  - do not warn about continuity correction for generalized linear mixed models
+    and penalised logistic regression
+  - arguments 'addincr' and 'allincr' in argument '...' ignored
+
 * pairwise():
   - new argument 'sm' to specify summary measure (this argument was previously
-    available via '...')
+    available via argument '...')
   - argument 'method' can be any admissible value for metabin(), metacont(),
     metacont(), or metagen()
+  - argument 'n' considered for count data
+
+### Internal changes
+
+* metabin(), metainc():
+  - list element 'data' contains columns '.incr.e' and '.incr.c' instead of
+    '.incr'
+
+* metainc():
+  - list element 'incr.event' replaced by 'incr.e' and 'incr.c'
+
+* pairwise(): add columns 'incr1' and 'incr2' to core variables
 
 
 ## meta, version 8.0-2 (2025-01-21)

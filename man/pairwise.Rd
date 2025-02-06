@@ -2,8 +2,8 @@
 % Please edit documentation in R/pairwise.R
 \name{pairwise}
 \alias{pairwise}
-\title{Transform meta-analysis data from two arm-based formats into
-contrast-based format}
+\title{Transform meta-analysis data from two arm-based formats into contrast-based
+format}
 \usage{
 pairwise(
   treat,
@@ -168,9 +168,10 @@ All variables from the original dataset are also part of the output
 dataset; see Details.
 }
 \description{
-This function transforms data that are given in wide or long
-arm-based format (e.g. input format for WinBUGS) to a
-contrast-based format that is needed, for example, as input to R function
+This function transforms data that are given in wide or long arm-based
+format (e.g. input format for WinBUGS) to a contrast-based format that is
+needed as input to R functions \code{\link{metabin}}, \code{\link{metacont}},
+\code{\link{metainc}}, \code{\link{metagen}}, or
 \code{\link[netmeta]{netmeta}} from R package \bold{netmeta}. The function
 can transform data with binary, continuous, or generic outcomes as well as
 incidence rates from arm-based to contrast-based format.
@@ -178,11 +179,12 @@ incidence rates from arm-based to contrast-based format.
 \details{
 The pairwise function transforms data given in (wide or long)
 arm-based format into the contrast-based format which consists of
-\emph{pairwise} comparisons and is needed, for example, as input to the
-\code{\link[netmeta]{netmeta}} function.
+\emph{pairwise} comparisons and which is needed as input to R functions
+\code{\link{metabin}}, \code{\link{metacont}}, \code{\link{metainc}},
+\code{\link{metagen}}, or \code{\link[netmeta]{netmeta}} from R package
+\bold{netmeta}.
 
 The pairwise function can transform data with binary outcomes
-(using the \code{\link{metabin}} function from R package meta),
 continuous outcomes (\code{\link{metacont}} function), incidence
 rates (\code{\link{metainc}} function), and generic outcomes
 (\code{\link{metagen}} function). Depending on the outcome, the
@@ -193,6 +195,8 @@ following arguments are mandatory:
 \item treat, event, time (see \code{\link{metainc}});
 \item treat, TE, seTE (see \code{\link{metagen}}).
 }
+
+(using the \code{\link{metabin}} function from R package meta),
 
 Admissible values for arguments \code{method} and \code{sm} are outcome
 specific; see help pages of R functions \code{\link{metabin}},

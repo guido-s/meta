@@ -26,6 +26,10 @@
 subset.pairwise <- function(x, subset, ...){
   
   chkclass(x, "pairwise")
+  #
+  attribs <- attributes(x)
+  #
+  attribs$names <- attribs$row.names <- NULL
   
   
   ## Catch 'subset'
@@ -57,22 +61,12 @@ subset.pairwise <- function(x, subset, ...){
     reference.group <- trts[1]
   
   
-  ## Return subset
-  ## 
-  attr(res, "sm") <- attr(x, "sm")
-  attr(res, "method") <- attr(x, "method")
-  attr(res, "incr") <- attr(x, "incr")
-  attr(res, "allincr") <- attr(x, "allincr")
-  attr(res, "addincr") <- attr(x, "addincr")
-  attr(res, "addstudies") <- attr(x, "addstudies")
-  attr(res, "pairwise") <- attr(x, "pairwise")
-  attr(res, "reference.group") <- reference.group
-  attr(res, "keep.all.comparisons") <- attr(x, "keep.all.comparisons")
-  attr(res, "type") <- attr(x, "type")
-  attr(res, "varnames") <- attr(x, "varnames")
-  attr(res, "version") <- attr(x, "version")
-  ##
+  # Return subset
+  #
+  for (i in names(attribs))
+    attr(res, i) <- attr(x, i)
+  #
   class(res) <- unique(c("pairwise", class(res)))
-  ##
+  #
   res
 }

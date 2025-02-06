@@ -46,6 +46,8 @@ metacr(
   title,
   complab,
   outclab,
+  label.left,
+  label.right,
   col.label.left = gs("col.label.left"),
   col.label.right = gs("col.label.right"),
   keepdata = gs("keepdata"),
@@ -191,6 +193,10 @@ random effects model.}
 \item{complab}{Comparison label.}
 
 \item{outclab}{Outcome label.}
+
+\item{label.left}{Graph label on left side of null effect in forest plot.}
+
+\item{label.right}{Graph label on right side of null effect in forest plot.}
 
 \item{col.label.left}{The colour of the graph label on the left side of
 the null effect.}

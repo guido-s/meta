@@ -34,6 +34,12 @@
 #'   events in both groups are to be included in the meta-analysis
 #'   (applies only to \code{\link{metabin}} object with \code{sm}
 #'   equal to \code{"RR"} or \code{"OR"}).
+#' @param incr.e Continuity correction in experimental group (see
+#'   \code{\link{metabin}} and \code{\link{metainc}}).
+#' @param incr.c Continuity correction in control group (see
+#'   \code{\link{metabin}} and \code{\link{metainc}}).
+#' @param incr.event Continuity correction (see
+#'   \code{\link{metaprop}} and \code{\link{metarate}}).
 #' @param MH.exact A logical indicating if \code{incr} is not to be
 #'   added to all cell frequencies for studies with a zero cell count
 #'   to calculate the pooled estimate based on the Mantel-Haenszel
@@ -300,9 +306,12 @@ update.meta <- function(object,
                         ##
                         method,
                         sm = object$sm,
-                        incr,
+                        incr = object$incr,
                         method.incr = object$method.incr,
                         allstudies = object$allstudies,
+                        #
+                        incr.e, incr.c, incr.event,
+                        #
                         MH.exact = object$MH.exact,
                         RR.Cochrane = object$RR.Cochrane,
                         Q.Cochrane = object$Q.Cochrane,
@@ -437,7 +446,10 @@ update.meta <- function(object,
   missing.method.predict <- missing(method.predict)
   missing.adhoc.hakn.pi <- missing(adhoc.hakn.pi)
   missing.text.predict <- missing(text.predict)
-  ##
+  #
+  missing.method.bias <- missing(method.bias)
+  missing.method.incr <- missing(method.incr)
+  #
   chklogical(verbose)
   ##
   if (update_needed(object$version, 3, 2, verbose)) {
@@ -754,6 +766,36 @@ update.meta <- function(object,
     #
     object$level.hetstat <- object$level.ma
   }
+  #
+  if (update_needed(object$version, 8, 1, verbose)) {
+    #
+    # Changes for meta objects with version < 8.1
+    #
+    if (object$keepdata) {
+      if (inherits(object, c("metabin", "metainc"))) {
+        if (isCol(object$data, ".subset")) {
+          object$incr.e <- object$data$.incr[object$data$.subset]
+          object$incr.c <- object$data$.incr[object$data$.subset]
+        }
+        else {
+          object$incr.e <- object$data$.incr
+          object$incr.c <- object$data$.incr
+        }
+        #
+        object$data$.incr.e <- object$data$.incr
+        object$data$.incr.c <- object$data$.incr
+        object$data$.incr <- NULL
+      }
+      #
+      if (inherits(object, "metainc"))
+        object$incr.event <- NULL
+      #
+      if (inherits(object, c("metaprop", "metarate"))) {
+        object$data$.incr.event <- object$data$.incr
+        object$data$.incr <- NULL
+      }
+    }
+  }
   
   
   ##
@@ -784,6 +826,8 @@ update.meta <- function(object,
   ## Check for deprecated arguments in '...'
   ##
   args <- list(...)
+  nam.args <- names(args)
+  #
   chklogical(warn.deprecated)
   ##
   level.ma <- deprecated(level.ma, missing(level.ma), args, "level.comb",
@@ -835,18 +879,16 @@ update.meta <- function(object,
     replaceNULL(prediction.subgroup, gs("prediction.subgroup"))
   ##
   missing.method.incr <- missing(method.incr)
-  addincr <-
-    deprecated(method.incr, missing.method.incr, args, "addincr",
-               warn.deprecated)
-  allincr <-
-    deprecated(method.incr, missing.method.incr, args, "allincr",
-               warn.deprecated)
-  if (missing.method.incr) {
-    if (is.logical(addincr) && addincr)
-      method.incr <- "all"
-    else if (is.logical(allincr) && allincr)
-      method.incr <- "if0all"
-  }
+  #
+  # Ignore deprecated arguments 'addincr' and 'allincr'
+  #
+  txt.ignore <- "(deprecated); use argument 'method.incr'"
+  #
+  addincr <- allincr <- NULL
+  if (!is.na(charmatch("addincr", nam.args)))
+    warn_ignore_input(addincr, TRUE, txt.ignore)
+  if (!is.na(charmatch("allincr", nam.args)))
+    warn_ignore_input(allincr, TRUE, txt.ignore)
   ##
   ## Some more checks
   ##
@@ -995,11 +1037,28 @@ update.meta <- function(object,
   ## Catch argument 'incr'
   ##
   missing.incr <- missing(incr)
-  ##
-  if (!missing.incr)
-    incr <- catch("incr", mc, data, sfsp)
+  #
+  # Catch argument 'incr.e'
+  #
+  missing.incr.e <- missing(incr.e)
+  #
+  if (!missing.incr.e)
+    incr.e <- catch("incr.e", mc, data, sfsp)
   else
-    incr <- catch2(object, "incr", gs("incr"))
+    incr.e <- catch2(object, "incr.e", gs("incr"))
+  #
+  avail.incr.e <- !missing.incr.e & !is.null(incr.e)
+  #
+  # Catch argument 'incr.c'
+  #
+  missing.incr.c <- missing(incr.c)
+  #
+  if (!missing.incr.c)
+    incr.c <- catch("incr.c", mc, data, sfsp)
+  else
+    incr.c <- catch2(object, "incr.c", gs("incr"))
+  #
+  avail.incr.c <- !missing.incr.c & !is.null(incr.c)
   ##
   ## Catch argument 'approx.mean.e'
   ##
@@ -1144,7 +1203,6 @@ update.meta <- function(object,
   ##
   ##
   method.predict <- replaceVal(method.predict, "", gs("method.predict"))
-  missing.method.bias <- missing(method.bias)
   ##
   if (metabin) {
     sm <- setchar(sm, gs("sm4bin"))
@@ -1156,47 +1214,58 @@ update.meta <- function(object,
     if (method %in% c("GLMM", "LRP") & !missing.sm & sm != "OR")
       warning("Summary measure 'sm = \"OR\" used as 'method = \"",
               method, "\".")
-    ##
-    if (sm == "ASD") {
-      if (!missing.incr && any(incr != 0))
-        warning("Note, no continuity correction considered for ",
-                "arcsine difference (sm = \"ASD\").",
-                call. = FALSE)
-      incr <- 0
-      object$data$.incr <- 0
-    }
-    ##
-    if (method == "Peto") {
-      if (!missing.incr && any(incr != 0))
-        warning("Note, no continuity correction considered for ",
-                "method = \"Peto\".",
-                call. = FALSE)
-      incr <- 0
-      object$data$.incr <- 0
-    }
-    ##
+    #
     if (method == "GLMM") {
       sm <- "OR"
       method.tau <- "ML"
       model.glmm <- replaceNULL(model.glmm, gs("model.glmm"))
     }
-    ##
+    #
     if (method == "LRP") {
       sm <- "OR"
       method.tau <- "DL"
     }
-    ##
-    RR.Cochrane <- replaceNULL(RR.Cochrane, gs("RR.cochrane"))
     #
     if (!(method == "MH" & method.tau == "DL" &
-        (sm %in% c("OR", "RR", "RD", "DOR"))))
+          (sm %in% c("OR", "RR", "RD", "DOR"))))
       Q.Cochrane <- FALSE
     #
     if (sm == "DOR" & missing.method.bias)
       method.bias <- "Deeks"
     else if (sm == "OR" & missing.method.bias)
       method.bias <- "Harbord"
-    ##
+    #
+    if (!missing.method.incr)
+      method.incr <- setchar(method.incr, gs("meth4incr"))
+    #
+    if (method.incr == "user") {
+      incr <- NULL
+      allstudies <- NULL
+    }
+    else {
+      incr.e <- NULL
+      incr.c <- NULL
+      #
+      if (sm == "ASD") {
+        if (!missing.incr && any(incr != 0))
+          warning("Note, no continuity correction considered for ",
+                  "arcsine difference (sm = \"ASD\").",
+                  call. = FALSE)
+        incr <- 0
+      }
+      #
+      if (method == "Peto") {
+        if (!missing.incr && any(incr != 0))
+          warning("Note, no continuity correction considered for ",
+                  "method = \"Peto\".",
+                  call. = FALSE)
+        incr <- 0
+        #object$data$.incr <- 0
+      }
+      #
+      RR.Cochrane <- replaceNULL(RR.Cochrane, gs("RR.cochrane"))
+    }
+    #
     m <- metabin(event.e = object$data$.event.e,
                  n.e = object$data$.n.e,
                  event.c = object$data$.event.c,
@@ -1208,9 +1277,11 @@ update.meta <- function(object,
                  ##
                  method = method,
                  sm = sm,
-                 incr = incr,
-                 method.incr = method.incr,
+                 #
+                 incr = incr, method.incr = method.incr,
                  allstudies = allstudies,
+                 incr.e = incr.e, incr.c = incr.c,
+                 #
                  MH.exact = MH.exact, RR.Cochrane = RR.Cochrane,
                  Q.Cochrane = Q.Cochrane, model.glmm = model.glmm,
                  ##
@@ -1581,7 +1652,17 @@ update.meta <- function(object,
       method.tau <- "ML"
       model.glmm <- replaceNULL(model.glmm, "UM.FS")
     }
-    ##
+    #
+    if (!missing.method.incr)
+      method.incr <- setchar(method.incr, gs("meth4incr"))
+    #
+    if (method.incr == "user")
+      incr <- NULL
+    else {
+      incr.e <- NULL
+      incr.c <- NULL
+    }
+    #
     m <- metainc(event.e = object$data$.event.e,
                  time.e = object$data$.time.e,
                  event.c = object$data$.event.c,
@@ -1593,8 +1674,10 @@ update.meta <- function(object,
                  ##
                  method = method,
                  sm = sm,
-                 incr = incr,
-                 method.incr = method.incr,
+                 #
+                 incr = incr, method.incr = method.incr,
+                 incr.e = incr.e, incr.c = incr.c,
+                 #
                  model.glmm = model.glmm,
                  ##
                  level = level, level.ma = level.ma,

@@ -21,6 +21,8 @@ metabin(
   incr = gs("incr"),
   method.incr = gs("method.incr"),
   allstudies = gs("allstudies"),
+  incr.e = if (length(incr) > 1) incr else NULL,
+  incr.c = if (length(incr) > 1) incr else NULL,
   level = gs("level"),
   MH.exact = gs("MH.exact"),
   RR.Cochrane = gs("RR.Cochrane"),
@@ -125,18 +127,23 @@ can be abbreviated.}
 studies, see Details.}
 
 \item{incr}{Could be either a numerical value which is added to
-cell frequencies for studies with a zero cell count or the
+cell frequencies for studies with a zero cell count, the
 character string \code{"TACC"} which stands for treatment arm
-continuity correction, see Details.}
+continuity correction, or a numeric vector with the continuity
+correction for each study, see Details.}
 
 \item{method.incr}{A character string indicating which continuity
 correction method should be used (\code{"only0"},
-\code{"if0all"}, or \code{"all"}), see Details.}
+\code{"if0all"}, \code{"all"}, or \code{"user"}), see Details.}
 
 \item{allstudies}{A logical indicating if studies with zero or all
 events in both groups are to be included in the meta-analysis
 (applies only if \code{sm} is equal to \code{"RR"}, \code{"OR"},
 or \code{"DOR"}).}
+
+\item{incr.e}{Continuity correction in experimental group, see Details.}
+
+\item{incr.c}{Continuity correction in control group, see Details.}
 
 \item{level}{The level used to calculate confidence intervals for
 individual studies.}
@@ -483,7 +490,7 @@ effects model (with random treatment effects).
 
 \subsection{Continuity correction}{
 
-Three approaches are available to apply a continuity correction:
+Four approaches are available to apply a continuity correction:
 \itemize{
 \item Only studies with a zero cell count (\code{method.incr =
   "only0"})
@@ -491,6 +498,8 @@ Three approaches are available to apply a continuity correction:
   (\code{method.incr = "if0all"})
 \item All studies irrespective of zero cell counts
   (\code{method.incr = "all"})
+\item Use values provided in arguments \code{incr.e} and \code{incr.c}
+  (\code{method.incr = "user"})
 }
 
 By default, a continuity correction is only applied to studies with

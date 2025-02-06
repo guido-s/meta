@@ -848,9 +848,18 @@ expandvar <- function(x, n, length = NULL) {
   res
 }
 
-ignore_input <- function(x, cond = TRUE, text = "") {
+warn_ignore_input <- function(x, cond = TRUE, text = "") {
   if (cond)
     warning("Argument '", deparse(substitute(x)), "' ignored",
+            if (text != "") " ", text, ".",
+            call. = FALSE)
+  #
+  invisible(NULL)
+}
+
+warn_set_input <- function(x, cond = TRUE, set, text = "") {
+  if (cond)
+    warning("Argument '", deparse(substitute(x)), " = ", set, "'",
             if (text != "") " ", text, ".",
             call. = FALSE)
   #

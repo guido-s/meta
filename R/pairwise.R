@@ -1,10 +1,11 @@
-#' Transform meta-analysis data from two arm-based formats into
-#' contrast-based format
+#' Transform meta-analysis data from two arm-based formats into contrast-based
+#' format
 #' 
 #' @description
-#' This function transforms data that are given in wide or long
-#' arm-based format (e.g. input format for WinBUGS) to a
-#' contrast-based format that is needed, for example, as input to R function
+#' This function transforms data that are given in wide or long arm-based
+#' format (e.g. input format for WinBUGS) to a contrast-based format that is
+#' needed as input to R functions \code{\link{metabin}}, \code{\link{metacont}},
+#' \code{\link{metainc}}, \code{\link{metagen}}, or
 #' \code{\link[netmeta]{netmeta}} from R package \bold{netmeta}. The function
 #' can transform data with binary, continuous, or generic outcomes as well as
 #' incidence rates from arm-based to contrast-based format.
@@ -73,11 +74,12 @@
 #' @details
 #' The pairwise function transforms data given in (wide or long)
 #' arm-based format into the contrast-based format which consists of
-#' \emph{pairwise} comparisons and is needed, for example, as input to the
-#' \code{\link[netmeta]{netmeta}} function.
+#' \emph{pairwise} comparisons and which is needed as input to R functions
+#' \code{\link{metabin}}, \code{\link{metacont}}, \code{\link{metainc}},
+#' \code{\link{metagen}}, or \code{\link[netmeta]{netmeta}} from R package
+#' \bold{netmeta}.
 #' 
 #' The pairwise function can transform data with binary outcomes
-#' (using the \code{\link{metabin}} function from R package meta),
 #' continuous outcomes (\code{\link{metacont}} function), incidence
 #' rates (\code{\link{metainc}} function), and generic outcomes
 #' (\code{\link{metagen}} function). Depending on the outcome, the
@@ -89,6 +91,8 @@
 #' \item treat, TE, seTE (see \code{\link{metagen}}).
 #' }
 #' 
+#' (using the \code{\link{metabin}} function from R package meta),
+#'
 #' Admissible values for arguments \code{method} and \code{sm} are outcome
 #' specific; see help pages of R functions \code{\link{metabin}},
 #' \code{\link{metacont}}, \code{\link{metainc}}, and \code{\link{metagen}}.
@@ -456,8 +460,6 @@ pairwise <- function(treat,
     deprecated2(method.incr, missing.method.incr, addincr, missing.addincr,
                 warn.deprecated)
   if (missing.method.incr) {
-    method.incr <- gs("method.incr")
-    #
     if (is.logical(addincr) && addincr)
       method.incr <- "all"
     else if (is.logical(allincr) && allincr)
@@ -552,24 +554,24 @@ pairwise <- function(treat,
         keep.all.comparisons <- TRUE
     }
     #
-    txt.ignore <- "ignored as first argument is a pairwise object"
+    txt.ignore <- "as first argument is a pairwise object"
     #
-    ignore_input(event, !missing.event, txt.ignore)
-    ignore_input(n, !missing.n, txt.ignore)
-    ignore_input(mean, !missing.mean, txt.ignore)
-    ignore_input(sd, !missing.sd, txt.ignore)
-    ignore_input(TE, !missing.TE, txt.ignore)
-    ignore_input(seTE, !missing.seTE, txt.ignore)
-    ignore_input(time, !missing.time, txt.ignore)
-    ignore_input(agent, !missing.agent, txt.ignore)
-    ignore_input(dose, !missing.dose, txt.ignore)
-    ignore_input(data, !nulldata, txt.ignore)
-    ignore_input(studlab, !missing.studlab, txt.ignore)
-    ignore_input(incr, !missing.incr, txt.ignore)
-    ignore_input(method.incr, !missing.method.incr, txt.ignore)
-    ignore_input(allincr, !missing.allincr, txt.ignore)
-    ignore_input(addincr, !missing.addincr, txt.ignore)
-    ignore_input(allstudies, !missing.allstudies, txt.ignore)
+    warn_ignore_input(event, !missing.event, txt.ignore)
+    warn_ignore_input(n, !missing.n, txt.ignore)
+    warn_ignore_input(mean, !missing.mean, txt.ignore)
+    warn_ignore_input(sd, !missing.sd, txt.ignore)
+    warn_ignore_input(TE, !missing.TE, txt.ignore)
+    warn_ignore_input(seTE, !missing.seTE, txt.ignore)
+    warn_ignore_input(time, !missing.time, txt.ignore)
+    warn_ignore_input(agent, !missing.agent, txt.ignore)
+    warn_ignore_input(dose, !missing.dose, txt.ignore)
+    warn_ignore_input(data, !nulldata, txt.ignore)
+    warn_ignore_input(studlab, !missing.studlab, txt.ignore)
+    warn_ignore_input(incr, !missing.incr, txt.ignore)
+    warn_ignore_input(method.incr, !missing.method.incr, txt.ignore)
+    warn_ignore_input(allincr, !missing.allincr, txt.ignore)
+    warn_ignore_input(addincr, !missing.addincr, txt.ignore)
+    warn_ignore_input(allstudies, !missing.allstudies, txt.ignore)
     #
     type <- attributes(res)$type
     #
@@ -587,6 +589,7 @@ pairwise <- function(treat,
     dose <- catch("dose", mc, data, sfsp)
     #
     studlab <- catch("studlab", mc, data, sfsp)
+    #
     event <- catch("event", mc, data, sfsp)
     n <- catch("n", mc, data, sfsp)
     mean <- catch("mean", mc, data, sfsp)
@@ -594,6 +597,16 @@ pairwise <- function(treat,
     TE <- catch("TE", mc, data, sfsp)
     seTE <- catch("seTE", mc, data, sfsp)
     time <- catch("time", mc, data, sfsp)
+    #
+    avail.studlab <- !is.null(studlab)
+    #
+    avail.event <- !is.null(event)
+    avail.n <- !is.null(n)
+    avail.mean <- !is.null(mean)
+    avail.sd <- !is.null(sd)
+    avail.TE <- !is.null(TE)
+    avail.seTE <- !is.null(seTE)
+    avail.time <- !is.null(time)
     #
     avail.treat <- !is.null(treat)
     avail.agent <- !is.null(agent)
@@ -620,61 +633,59 @@ pairwise <- function(treat,
       if (is.list(dose))
         chklist(dose)
     ##
-    if (!is.null(event))
+    if (avail.event)
       if (is.list(event))
         chklist(event)
       else
         chknumeric(event)
     ##
-    if (!is.null(n))
+    if (avail.n)
       if (is.list(n))
         chklist(n)
       else
         chknumeric(n)
     ##
-    if (!is.null(mean))
+    if (avail.mean)
       if (is.list(mean))
         chklist(mean)
       else
         chknumeric(mean)
     ##
-    if (!is.null(sd))
+    if (avail.sd)
       if (is.list(sd))
         chklist(sd)
       else
         chknumeric(sd)
     ##
-    if (!is.null(TE))
+    if (avail.TE)
       if (is.list(TE))
         chklist(TE)
       else
         chknumeric(TE)
     ##
-    if (!is.null(seTE))
+    if (avail.seTE)
       if (is.list(seTE))
         chklist(seTE)
       else
         chknumeric(seTE)
     ##
-    if (!is.null(time))
+    if (avail.time)
       if (is.list(time))
         chklist(time)
       else
         chknumeric(time)
     
     
-    if (!is.null(TE) & !is.null(seTE))
+    if (avail.TE & avail.seTE)
       type <- "generic"
-    else if (!is.null(event) & !is.null(time) &
-             is.null(mean) & is.null(sd))
+    else if (avail.event & avail.time & !avail.mean & !avail.sd)
       type <- "count"
-    else if (!is.null(event) & !is.null(n) &
-             is.null(mean) & is.null(sd))
+    else if (avail.event & avail.n & !avail.mean & !avail.sd)
       type <- "binary"
-    else if (!is.null(n) & !is.null(mean) & !is.null(sd))
+    else if (avail.n & avail.mean & avail.sd)
       type <- "continuous"
-    else if (is.null(event) & is.null(mean) & is.null(sd) &
-             is.null(TE) & is.null(seTE) & is.null(time))
+    else if (!avail.event & !avail.mean & !avail.sd &
+             !avail.TE & !avail.seTE & !avail.time)
       type <- "onlytreat"
     else
       stop("Type of outcome unclear. Please provide the necessary ",
@@ -936,6 +947,9 @@ pairwise <- function(treat,
           event <- unlist(event)
           time <- unlist(time)
           #
+          if (avail.n && is.list(n) && length(n) == 1)
+            n <- unlist(n)
+          #
           if (avail.treat)
             treat <- unlist(treat)
           else {
@@ -1082,7 +1096,7 @@ pairwise <- function(treat,
     # to long arm-based format
     #
     if (data.format == "comparison") {
-      if (is.null(studlab))
+      if (!avail.studlab)
         stop("Argument 'studlab' mandatory for comparison-based format.")
       #
       if (type == "binary") {
@@ -1114,16 +1128,23 @@ pairwise <- function(treat,
       }
       #
       else if (type == "count") {
+        avail.n.comp <- avail.n && is.list(n) && length(n) == 2
+        #
         ldat <- longarm(studlab = unlist(studlab),
                         treat1 = expand(treat[[1]], time[[1]]),
                         treat2 = expand(treat[[2]], time[[2]]),
                         event1 = event[[1]], event2 = event[[2]],
-                        time1 = time[[1]], time2 = time[[2]])
+                        time1 = time[[1]], time2 = time[[2]],
+                        n1 = if (avail.n.comp) n[[1]] else NULL,
+                        n2 = if (avail.n.comp) n[[2]] else NULL)
         #
         studlab <- ldat$studlab
         treat <- ldat$treat
         event <- ldat$event
         time <- ldat$time
+        #
+        if (avail.n.comp)
+          n <- ldat$n
       }
     }
     
@@ -1131,10 +1152,8 @@ pairwise <- function(treat,
     #
     # Transform outcome variables from long arm-based to list format
     #
-    nulldata <- !(!nulldata & append.logical)
-    #
     if (data.format %in% c("comparison", "long")) {
-      if (is.null(studlab))
+      if (!avail.studlab)
         stop("Argument 'studlab' mandatory for long arm-based format.")
       ##
       studlab <- as.character(studlab)
@@ -1162,8 +1181,7 @@ pairwise <- function(treat,
         ## Generate lists
         ##
         tdat <- data.frame(studlab, treat, event, n,
-                           .order = seq_along(treat),
-                           stringsAsFactors = FALSE)
+                           .order = seq_along(treat), stringsAsFactors = FALSE)
         ##
         if (!nulldata & data.format == "long") {
           tdat <- cbind(tdat, data)
@@ -1203,8 +1221,7 @@ pairwise <- function(treat,
         ## Generate lists
         ##
         tdat <- data.frame(studlab, treat, n, mean, sd,
-                           .order = seq_along(treat),
-                           stringsAsFactors = FALSE)
+                           .order = seq_along(treat), stringsAsFactors = FALSE)
         ##
         if (!nulldata & data.format == "long") {
           tdat <- cbind(tdat, data)
@@ -1247,10 +1264,9 @@ pairwise <- function(treat,
         ## Generate lists
         ##
         tdat <- data.frame(studlab, treat, event, time,
-                           .order = seq_along(treat),
-                           stringsAsFactors = FALSE)
+                           .order = seq_along(treat), stringsAsFactors = FALSE)
         ##
-        if (!is.null(n))
+        if (avail.n)
           tdat$n <- n
         ##
         if (!nulldata & data.format == "long") {
@@ -1271,6 +1287,9 @@ pairwise <- function(treat,
           treat.list[[i]] <- tdat.i$treat
           event.list[[i]] <- tdat.i$event
           time.list[[i]]  <- tdat.i$time
+          #
+          if (avail.n)
+            n.list[[i]] <- tdat.i$n
           ##
           tdat.i$event <- NULL
           tdat.i$time  <- NULL
@@ -1280,10 +1299,13 @@ pairwise <- function(treat,
           ##
           tdat <- tdat[!sel.i, ]
         }
-        ##
+        #
         treat <- treat.list
         event <- event.list
         time  <- time.list
+        #
+        if (avail.n)
+          n  <- n.list
       }
       ##
       else if (type == "generic") {
@@ -1291,13 +1313,12 @@ pairwise <- function(treat,
         ## Generate lists
         ##
         tdat <- data.frame(studlab, treat, TE, seTE,
-                           .order = seq_along(treat),
-                           stringsAsFactors = FALSE)
+                           .order = seq_along(treat), stringsAsFactors = FALSE)
         ##
-        if (!is.null(n))
+        if (avail.n)
           tdat$n <- n
         ##
-        if (!is.null(event))
+        if (avail.event)
           tdat$event <- event
         ##
         if (!nulldata & data.format == "long") {
@@ -1338,10 +1359,9 @@ pairwise <- function(treat,
         ## Generate lists
         ##
         tdat <- data.frame(studlab, treat,
-                           .order = seq_along(treat),
-                           stringsAsFactors = FALSE)
+                           .order = seq_along(treat), stringsAsFactors = FALSE)
         ##
-        if (!is.null(n))
+        if (avail.n)
           tdat$n <- n
         ##
         if (!nulldata) {
@@ -1378,7 +1398,7 @@ pairwise <- function(treat,
     ##
     ## Check and set study labels
     ##
-    if (is.null(studlab))
+    if (!avail.studlab)
       studlab <- seq(along = treat[[1]])
     ##
     if (length(treat) != 2 && length(studlab) != length(unique(studlab)))
@@ -1465,9 +1485,6 @@ pairwise <- function(treat,
     }
     
     
-    
-    
-    
     if (type == "binary") {
       #
       method <- setchar(method, gs("meth4bin"))
@@ -1535,16 +1552,17 @@ pairwise <- function(treat,
             stop("Different length of element ", j, " of ",
                  "lists 'event' and 'n'.")
           ##
-          dat <- data.frame(TE = NA, seTE = NA,
-                            studlab,
-                            treat1 = treat[[i]], treat2 = treat[[j]],
+          dat <- data.frame(studlab, treat1 = treat[[i]], treat2 = treat[[j]],
+                            #
+                            TE = NA, seTE = NA,
                             event1 = event[[i]], n1 = n[[i]],
                             event2 = event[[j]], n2 = n[[j]],
-                            .order = seq_along(studlab),
+                            incr1 = NA, incr2 = NA,
+                            #
                             incr = incr.study,
-                            allstudies = allstudies,
-                            stringsAsFactors = FALSE,
-                            row.names = NULL)
+                            #
+                            .order = seq_along(studlab),
+                            stringsAsFactors = FALSE, row.names = NULL)
           ##
           if (!nulldata & data.format == "wide") {
             dat <- cbind(dat, data, stringsAsFactors = FALSE)
@@ -1560,7 +1578,8 @@ pairwise <- function(treat,
             m1 <- metabin(dat$event1, dat$n1, dat$event2, dat$n2,
                           #
                           method = method, sm = sm,
-                          incr = dat$incr, method.incr = "all",
+                          incr.e = dat$incr, incr.c = dat$incr,
+                          method.incr = "user",
                           allstudies = allstudies,
                           method.tau = "DL", method.tau.ci = "",
                           #
@@ -1569,7 +1588,10 @@ pairwise <- function(treat,
             ##
             dat$TE   <- m1$TE
             dat$seTE <- m1$seTE
-            ##
+            #
+            dat$incr1 <- m1$incr.e
+            dat$incr2 <- m1$incr.c
+            #
             dat$TE[is.infinite(dat$TE)] <- NA
             dat$seTE[is.infinite(dat$seTE)] <- NA
             ##
@@ -1664,15 +1686,14 @@ pairwise <- function(treat,
       ##
       for (i in 1:(narms - 1)) {
         for (j in (i + 1):narms) {
-          dat <- data.frame(TE = NA, seTE = NA,
-                            studlab,
-                            treat1 = treat[[i]],
-                            treat2 = treat[[j]],
+          dat <- data.frame(studlab, treat1 = treat[[i]], treat2 = treat[[j]],
+                            #
+                            TE = NA, seTE = NA,
                             n1 = n[[i]], mean1 = mean[[i]], sd1 = sd[[i]],
                             n2 = n[[j]], mean2 = mean[[j]], sd2 = sd[[j]],
+                            #
                             .order = seq_along(studlab),
-                            stringsAsFactors = FALSE,
-                            row.names = NULL)
+                            stringsAsFactors = FALSE, row.names = NULL)
           ##
           if (data.format == "wide") {
             dat <- cbind(dat, data, stringsAsFactors = FALSE)
@@ -1754,37 +1775,36 @@ pairwise <- function(treat,
                  "lists 'treat' and 'seTE'.",
                  call. = FALSE)
           ##
-          dat <- data.frame(TE = NA, seTE = NA,
-                            studlab,
-                            treat1 = treat[[i]],
-                            treat2 = treat[[j]],
+          dat <- data.frame(studlab, treat1 = treat[[i]], treat2 = treat[[j]],
+                            #
+                            TE = NA, seTE = NA,
                             TE1 = TE[[i]], seTE1 = seTE[[i]],
                             TE2 = TE[[j]], seTE2 = seTE[[j]],
+                            #
                             .order = seq_along(studlab),
-                            stringsAsFactors = FALSE,
-                            row.names = NULL)
+                            stringsAsFactors = FALSE, row.names = NULL)
           ##
-          if (!is.null(event)) {
+          if (avail.event) {
             dat$event1 <- event[[i]]
             dat$event2 <- event[[j]]
           }
           ##
-          if (!is.null(n)) {
+          if (avail.n) {
             dat$n1 <- n[[i]]
             dat$n2 <- n[[j]]
           }
           ##
-          if (!is.null(mean)) {
+          if (avail.mean) {
             dat$mean1 <- mean[[i]]
             dat$mean2 <- mean[[j]]
           }
           ##
-          if (!is.null(sd)) {
+          if (avail.sd) {
             dat$sd1 <- sd[[i]]
             dat$sd2 <- sd[[j]]
           }
           ##
-          if (!is.null(time)) {
+          if (avail.time) {
             dat$time1 <- time[[i]]
             dat$time2 <- time[[j]]
           }
@@ -1878,15 +1898,22 @@ pairwise <- function(treat,
       }
       ##
       for (i in 1:(narms - 1)) {
-        ##
+        #
         if (i == 1 & (length(treat[[i]]) != length(event[[i]])))
           stop("Different length of element ", i, " of ",
                "lists 'treat' and 'event'.",
                call. = FALSE)
+        #
         if (i == 1 & (length(treat[[i]]) != length(time[[i]])))
           stop("Different length of element ", i, " of ",
                "lists 'treat' and 'time'.",
                call. = FALSE)
+        #
+        if (avail.n)
+          if (i == 1 & (length(treat[[i]]) != length(n[[i]])))
+            stop("Different length of element ", i, " of ",
+                 "lists 'treat' and 'n'.",
+                 call. = FALSE)
         ##
         for (j in (i + 1):narms) {
           ##
@@ -1894,21 +1921,33 @@ pairwise <- function(treat,
             stop("Different length of element ", j, " of ",
                  "lists 'treat' and 'event'.",
                  call. = FALSE)
+          #
           if (length(treat[[j]]) != length(time[[j]]))
             stop("Different length of element ", j, " of ",
                  "lists 'treat' and 'time'.",
                  call. = FALSE)
+          #
+          if (avail.n)
+            if (length(treat[[j]]) != length(n[[j]]))
+              stop("Different length of element ", j, " of ",
+                   "lists 'treat' and 'n'.",
+                   call. = FALSE)
           ##
-          dat <- data.frame(TE = NA, seTE = NA,
-                            studlab,
-                            treat1 = treat[[i]],
-                            treat2 = treat[[j]],
+          dat <- data.frame(studlab, treat1 = treat[[i]], treat2 = treat[[j]],
+                            #
+                            TE = NA, seTE = NA,
                             event1 = event[[i]], time1 = time[[i]],
                             event2 = event[[j]], time2 = time[[j]],
+                            #
+                            n1 = if (avail.n) n[[i]] else NA,
+                            n2 = if (avail.n) n[[j]] else NA,
+                            #
+                            incr1 = NA, incr2 = NA,
+                            #
                             incr = incr.study,
+                            #
                             .order = seq_along(studlab),
-                            stringsAsFactors = FALSE,
-                            row.names = NULL)
+                            stringsAsFactors = FALSE, row.names = NULL)
           ##
           if (data.format == "wide") {
             dat <- cbind(dat, data, stringsAsFactors = FALSE)
@@ -1927,18 +1966,19 @@ pairwise <- function(treat,
                           method = method, sm = sm,
                           incr = dat$incr,
                           method.incr = "all",
-                          allstudies = allstudies,
                           method.tau = "DL", method.tau.ci = "",
                           #
-                          warn = warn,
-                          warn.deprecated = FALSE, ...)
+                          warn = warn, warn.deprecated = FALSE, ...)
             ##
             dat$TE <- m1$TE
             dat$seTE <- m1$seTE
             ##
             dat$TE[is.infinite(dat$TE)] <- NA
             dat$seTE[is.infinite(dat$seTE)] <- NA
-            ##
+            #
+            dat$incr1 <- m1$incr.e
+            dat$incr2 <- m1$incr.c
+            #
             dat.NAs <- dat[is.na(dat$TE) | is.na(dat$seTE) | dat$seTE <= 0, ]
             ##
             if (i == 1 & j == 2) {
@@ -1957,6 +1997,11 @@ pairwise <- function(treat,
                    call. = FALSE)
         }
       }
+      #
+      if (all(is.na(dat$n1)) & all(is.na(dat$n2))) {
+        dat$n1 <- NULL
+        dat$n2 <- NULL
+      }
     }
     #
     else if (type == "onlytreat") {
@@ -1966,14 +2011,11 @@ pairwise <- function(treat,
       for (i in 1:(narms - 1)) {
         for (j in (i + 1):narms) {
           ##
-          dat <- data.frame(studlab,
-                            treat1 = treat[[i]],
-                            treat2 = treat[[j]],
+          dat <- data.frame(studlab, treat1 = treat[[i]], treat2 = treat[[j]],
                             .order = seq_along(studlab),
-                            stringsAsFactors = FALSE,
-                            row.names = NULL)
+                            stringsAsFactors = FALSE, row.names = NULL)
           ##
-          if (!is.null(n)) {
+          if (avail.n) {
             dat$n1 <- n[[i]]
             dat$n2 <- n[[j]]
           }
@@ -2073,6 +2115,12 @@ pairwise <- function(treat,
             tt1 <- res2.i$time1
             res2.i$time1 <- res2.i$time2
             res2.i$time2 <- tt1
+            #
+            if (avail.n) {
+              tn1 <- res2.i$n1
+              res2.i$n1 <- res2.i$n2
+              res2.i$n2 <- tn1
+            }
           }
           res2 <- rbind(res2, res2.i)
         }
@@ -2168,7 +2216,7 @@ pairwise <- function(treat,
         res$seTE[sel.i] <- sqrt(varTE.i)
       }
     }
-       
+    
      
     if (data.format != "comparison") {
       if (!is.null(res$.order1)) {
@@ -2199,7 +2247,7 @@ pairwise <- function(treat,
                 "event1", "event2", "n1", "n2",
                 "mean1", "mean2", "sd1", "sd2",
                 "TE1", "TE2", "seTE1", "seTE2",
-                "time1", "time2",
+                "time1", "time2", "incr1", "incr2",
                 ".seTE")
   #
   if (!append.logical)
@@ -2313,21 +2361,28 @@ pairwise <- function(treat,
     #
     attr(res, "incr") <- res.attr$incr
     attr(res, "method.incr") <- res.attr$method.incr
+    #
     attr(res, "allstudies") <- res.attr$allstudies
   }
   else {
     attr(res, "sm") <- if (type != "onlytreat") replaceNULL(sm, "") else ""
     attr(res, "method") <- if (type != "onlytreat") method else ""
     #
-    attr(res, "incr") <- incr
-    attr(res, "method.incr") <- method.incr
-    attr(res, "allstudies") <- allstudies
+    if (type %in% c("binary", "count")) {
+      attr(res, "incr") <- incr
+      attr(res, "method.incr") <- "user"
+      #
+      if (type == "binary")
+        attr(res, "allstudies") <- allstudies
+    }
   }
   #
   attr(res, "varnames") <- varnames
   attr(res, "append") <- append
   attr(res, "append.logical") <- append.logical
   attr(res, "version") <- packageDescription("meta")$Version
+  #
+  attr(res, "args") <- args
   
   class(res) <- unique(c("pairwise", class(res)))
   

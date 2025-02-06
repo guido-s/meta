@@ -15,9 +15,12 @@
   cycles,
   method,
   sm = object$sm,
-  incr,
+  incr = object$incr,
   method.incr = object$method.incr,
   allstudies = object$allstudies,
+  incr.e,
+  incr.c,
+  incr.event,
   MH.exact = object$MH.exact,
   RR.Cochrane = object$RR.Cochrane,
   Q.Cochrane = object$Q.Cochrane,
@@ -147,6 +150,15 @@ correction method should be used (see \code{\link{metabin}},
 events in both groups are to be included in the meta-analysis
 (applies only to \code{\link{metabin}} object with \code{sm}
 equal to \code{"RR"} or \code{"OR"}).}
+
+\item{incr.e}{Continuity correction in experimental group (see
+\code{\link{metabin}} and \code{\link{metainc}}).}
+
+\item{incr.c}{Continuity correction in control group (see
+\code{\link{metabin}} and \code{\link{metainc}}).}
+
+\item{incr.event}{Continuity correction (see
+\code{\link{metaprop}} and \code{\link{metarate}}).}
 
 \item{MH.exact}{A logical indicating if \code{incr} is not to be
 added to all cell frequencies for studies with a zero cell count

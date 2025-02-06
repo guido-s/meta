@@ -1,38 +1,42 @@
-#' Extract parts of pairwise object
+#' Extract parts of longarm object
 #' 
 #' @description
-#' Auxiliary function to extract parts of \code{\link{pairwise}} object.
+#' Auxiliary function to extract parts of \code{\link{longarm}} object.
 #' 
-#' @param x An object of class \code{\link{pairwise}}.
+#' @param x An object of class \code{\link{longarm}}.
 #' @param \dots Additional arguments (passed on to [.data.frame).
 #' 
-#' @aliases [,pairwise
+#' @aliases [,longarm
 #' 
-#' @name [.pairwise
+#' @name [.longarm
 #' 
-#' @usage \method{[}{pairwise}(x, ...)
+#' @usage \method{[}{longarm}(x, ...)
 #' 
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
-#' @seealso \code{\link{pairwise}}, \code{\link{subset.pairwise}},
+#' @seealso \code{\link{longarm}}, \code{\link{subset.longarm}},
 #'   \code{\link[metadat]{dat.franchini2012}}
 #' 
 #' @examples
-#' # Transform data from arm-based format to contrast-based format
+#' # Transform data from wide arm-based format to contrast-based format
 #' p1 <- pairwise(list(Treatment1, Treatment2, Treatment3),
 #'   n = list(n1, n2, n3),
 #'   mean = list(y1, y2, y3), sd = list(sd1, sd2, sd3),
 #'   data = dat.franchini2012, studlab = Study)
 #' 
-#' p1[, 1:5]
-#' p1[!grepl("Lieberman", p1$studlab), 1:5]
+#' # Transform data from contrast-based to long arm-based format
+#' # and only keep the main variables
+#' l1 <- longarm(p1, append = FALSE)
+#' head(l1)
+#' 
+#' l1[l1$studlab == "Lieberman 1998", ]
 #'
-#' @method [ pairwise
+#' @method [ longarm
 #' @export
 
-`[.pairwise` <- function(x, ...) {
+`[.longarm` <- function(x, ...) {
   
-  chkclass(x, "pairwise")
+  chkclass(x, "longarm")
   #
   attribs <- attributes(x)
   #
@@ -55,7 +59,7 @@
   for (i in names(attribs))
     attr(res, i) <- attr(x, i)
   #
-  class(res) <- unique(c("pairwise", class(res)))
+  class(res) <- unique(c("longarm", class(res)))
   #
   res
 }

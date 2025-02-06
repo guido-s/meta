@@ -593,7 +593,7 @@ setOption("tool4rob",
           c("RoB1", "RoB2", "RoB2-cluster", "RoB2-crossover",
             "ROBINS-I", "ROBINS-E"))
 ##
-setOption("meth4incr", c("only0", "if0all", "all"))
+setOption("meth4incr", c("only0", "if0all", "all", "user"))
 #
 setOption("special.characters", c("+", ".", "&", "$", "#", "|", "*", "^"))
 #
