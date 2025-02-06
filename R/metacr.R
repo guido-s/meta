@@ -100,6 +100,8 @@
 #' @param title Title of meta-analysis / systematic review.
 #' @param complab Comparison label.
 #' @param outclab Outcome label.
+#' @param label.left Graph label on left side of null effect in forest plot.
+#' @param label.right Graph label on right side of null effect in forest plot.
 #' @param col.label.left The colour of the graph label on the left side of
 #'   the null effect.
 #' @param col.label.right The colour of the graph label on the right side of
@@ -231,6 +233,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                    ##
                    title, complab, outclab,
                    #
+                   label.left, label.right,
                    col.label.left = gs("col.label.left"),
                    col.label.right = gs("col.label.right"),
                    #
@@ -393,10 +396,17 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
   ##
   label.e <- unique(x$label.e[sel])
   label.c <- unique(x$label.c[sel])
-  ##
-  label.left  <- unique(x$label.left[sel])
-  label.right <- unique(x$label.right[sel])
-  ##
+  #
+  if (missing(label.left))
+    label.left  <- unique(x$label.left[sel])
+  else
+    chkchar(label.left, length = 1)
+  #
+  if (missing(label.right))
+    label.right  <- unique(x$label.right[sel])
+  else
+    chkchar(label.right, length = 1)
+  #
   overall <- replaceNULL(unique(x$overall[sel]), TRUE)
   if (is.na(overall))
     overall <- TRUE
