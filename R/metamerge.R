@@ -447,10 +447,14 @@ metamerge <- function(meta1, meta2,
   }
   ##
   chkclass(meta1, "meta")
+  chksuitable(meta1, "R function metamerge()", classes = "metaprop",
+              check.mlm = FALSE)
   meta1 <- updateversion(meta1)
-  ##
+  #
   chkclass(meta2, c("meta", "limitmeta", "copas", "robu"))
-  ##
+  chksuitable(meta2, "R function metamerge()", classes = "metaprop",
+              check.mlm = FALSE)
+  #
   if (inherits(meta1, "netpairwise") | inherits(meta2, "netpairwise"))
     stop("R objects of class 'netpairwise' cannot be merged.",
          call. = FALSE)
