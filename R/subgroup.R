@@ -72,7 +72,16 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
     else
       seed.i <- NULL
     ##
-    if (bin)
+    if (bin) {
+      if (x$method.incr == "user") {
+        incr.e <- x$incr.e[sel]
+        incr.c <- x$incr.c[sel]
+      }
+      else {
+        incr.e <- NULL
+        incr.c <- NULL
+      }
+      #
       meta1 <- metabin(x$event.e[sel], x$n.e[sel],
                        x$event.c[sel], x$n.c[sel],
                        studlab = x$studlab[sel],
@@ -83,9 +92,10 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                        ##
                        method = x$method,
                        sm = x$sm,
-                       incr = if (length(x$incr) == 1) x$incr else x$incr[sel],
-                       method.incr = x$method.incr,
-                       allstudies = x$allstudies,
+                       #
+                       incr.e = incr.e, incr.c = incr.c,
+                       method.incr = x$method.incr, allstudies = x$allstudies,
+                       #
                        MH.exact = x$MH.exact,
                        RR.Cochrane = x$RR.Cochrane,
                        Q.Cochrane = x$Q.Cochrane,
@@ -109,7 +119,8 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                        keepdata = FALSE,
                        warn = x$warn,
                        control = x$control)
-    ##
+    }
+    #
     else if (cont)
       meta1 <- metacont(x$n.e[sel], x$mean.e[sel],
                         x$sd.e[sel],
@@ -230,7 +241,16 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                        warn = x$warn,
                        control = x$control)
     ##
-    else if (inc)
+    else if (inc) {
+      if (x$method.incr == "user") {
+        incr.e <- x$incr.e[sel]
+        incr.c <- x$incr.c[sel]
+      }
+      else {
+        incr.e <- NULL
+        incr.c <- NULL
+      }
+      #
       meta1 <- metainc(x$event.e[sel], x$time.e[sel],
                        x$event.c[sel], x$time.c[sel],
                        studlab = x$studlab[sel],
@@ -241,8 +261,10 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                        ##
                        method = x$method,
                        sm = x$sm,
-                       incr = if (length(x$incr) == 1) x$incr else x$incr[sel],
+                       #
+                       incr.e = incr.e, incr.c = incr.c,
                        method.incr = x$method.incr,
+                       #
                        model.glmm = x$model.glmm,
                        ##
                        level.ma = x$level.ma,
@@ -265,7 +287,8 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                        keepdata = FALSE,
                        warn = x$warn,
                        control = x$control)
-    ##
+    }
+    #
     else if (mean)
       meta1 <- metamean(x$n[sel], x$mean[sel], x$sd[sel],
                         studlab = x$studlab[sel],

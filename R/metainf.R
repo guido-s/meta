@@ -164,7 +164,10 @@ metainf.meta <- function(x, pooled, sortvar, no = 1, ...) {
   ##
   TE <- x$TE[o]
   seTE <- x$seTE[o]
-  ##
+  #
+  incr.e <- x$incr.e[o]
+  incr.c <- x$incr.c[o]
+  #
   if (length(x$incr) > 1)
     incr <- x$incr[o]
   else if (!is.null(x$incr))
@@ -268,10 +271,9 @@ metainf.meta <- function(x, pooled, sortvar, no = 1, ...) {
                    ##
                    exclude = exclude[sel],
                    ##
-                   method = x$method,
-                   sm = x$sm,
-                   ##
-                   incr = incr.i, method.incr = x$method.incr,
+                   method = x$method, sm = x$sm,
+                   #
+                   incr.e = incr.e[sel], incr.c = incr.c[sel],
                    allstudies = x$allstudies, MH.exact = x$MH.exact,
                    RR.Cochrane = x$RR.Cochrane, Q.Cochrane = x$Q.Cochrane,
                    model.glmm =
@@ -353,9 +355,9 @@ metainf.meta <- function(x, pooled, sortvar, no = 1, ...) {
                    ##
                    exclude = exclude[sel],
                    ##
-                   method = x$method,
-                   sm = x$sm,
-                   incr = incr.i, method.incr = x$method.incr,
+                   method = x$method, sm = x$sm,
+                   #
+                   incr.e = incr.e[sel], incr.c = incr.c[sel],
                    model.glmm =
                      if (!is.null(x$model.glmm)) x$model.glmm else "UM.FS",
                    ##
@@ -395,8 +397,7 @@ metainf.meta <- function(x, pooled, sortvar, no = 1, ...) {
                     ##
                     exclude = exclude[sel],
                     ##
-                    method = x$method,
-                    sm = x$sm, null.effect = x$null.effect,
+                    method = x$method, sm = x$sm, null.effect = x$null.effect,
                     ##
                     incr = incr.i, method.incr = x$method.incr,
                     method.ci = x$method.ci,
@@ -418,8 +419,7 @@ metainf.meta <- function(x, pooled, sortvar, no = 1, ...) {
                     ##
                     exclude = exclude[sel],
                     ##
-                    method = x$method,
-                    sm = x$sm, null.effect = x$null.effect,
+                    method = x$method, sm = x$sm, null.effect = x$null.effect,
                     ##
                     incr = incr.i, method.incr = x$method.incr,
                     ##
@@ -622,10 +622,10 @@ metainf.meta <- function(x, pooled, sortvar, no = 1, ...) {
               ##
               pscale = x$pscale,
               irscale = x$irscale, irunit = x$irunit,
-              ##
+              #
               label.e = x$label.e,
               label.c = x$label.c,
-              ##
+              #
               text.common = x$text.common, text.random = x$text.random,
               text.predict = x$text.predict,
               text.w.common = x$text.w.common, text.w.random = x$text.w.random,

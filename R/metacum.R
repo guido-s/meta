@@ -161,7 +161,10 @@ metacum.meta <- function(x, pooled, sortvar, no = 1, ...) {
   ##
   TE <- x$TE[o]
   seTE <- x$seTE[o]
-  ##
+  #
+  incr.e <- x$incr.e[o]
+  incr.c <- x$incr.c[o]
+  #
   if (length(x$incr) > 1)
     incr <- x$incr[o]
   else if (!is.null(x$incr))
@@ -186,7 +189,7 @@ metacum.meta <- function(x, pooled, sortvar, no = 1, ...) {
   studlab <- c(rev(rev(slab)[-1]), " ", rev(slab)[1])
   ##
   chknumeric(no, min = 1, length = 1)
-    ##
+  ##
   ## Select a single common effect or random effects models
   ##
   if (pooled == "common") {
@@ -271,8 +274,8 @@ metacum.meta <- function(x, pooled, sortvar, no = 1, ...) {
                    exclude = exclude[sel],
                    ##
                    method = x$method, sm = x$sm,
-                   ##
-                   incr = incr.i, method.incr = x$method.incr,
+                   #
+                   incr.e = incr.e[sel], incr.c = incr.c[sel],
                    allstudies = x$allstudies, MH.exact = x$MH.exact,
                    RR.Cochrane = x$RR.Cochrane, Q.Cochrane = x$Q.Cochrane,
                    model.glmm =
@@ -355,7 +358,8 @@ metacum.meta <- function(x, pooled, sortvar, no = 1, ...) {
                    exclude = exclude[sel],
                    ##
                    method = x$method, sm = x$sm,
-                   incr = incr.i, method.incr = x$method.incr,
+                   #
+                   incr.e = incr.e[sel], incr.c = incr.c[sel],
                    model.glmm =
                      if (!is.null(x$model.glmm)) x$model.glmm else "UM.FS",
                    ##

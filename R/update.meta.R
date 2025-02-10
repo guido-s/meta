@@ -297,7 +297,6 @@
 #' @method update meta
 #' @export
 
-
 update.meta <- function(object, 
                         data = object$data,
                         subset, studlab, exclude, cluster,
@@ -1962,7 +1961,7 @@ update.meta <- function(object,
                   control = control,
                   ...)
   }
-  ##  
+  ##
   m$call.object <- object$call
   m$call <- match.call()
   ##

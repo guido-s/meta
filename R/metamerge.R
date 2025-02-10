@@ -169,7 +169,7 @@
 #' 
 #' The following list elements have a different meaning:
 #' \item{TE, seTE, studlab}{Treatment estimate, standard error, and
-#'   study labels (first meta-analyis).}
+#'   study labels (first meta-analysis).}
 #' \item{lower, upper}{Lower and upper confidence interval limits for
 #'   individual studies (first meta-analysis).}
 #' \item{statistic, pval}{Statistic and p-value for test of treatment
