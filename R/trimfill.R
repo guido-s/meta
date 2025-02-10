@@ -192,7 +192,7 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
   ##
   chkclass(x, "meta")
   chksuitable(x, "Trim-and-fill method",
-              c("trimfill", "metacum", "metainf", "metamerge", "netpairwise"))
+              c("metacum", "metainf", "metamerge", "netpairwise"))
   ##
   x <- updateversion(x)
   ##

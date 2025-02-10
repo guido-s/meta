@@ -25,16 +25,24 @@
 #'   'label1.random', 'label1.predict' and 'label1.subgroup'.
 #' @param label2 Default setting for arguments 'label2.common',
 #'   'label2.random', 'label2.predict' and 'label2.subgroup'.
-#' @param label1.common A character string ...
-#' @param label2.common A character string ...
-#' @param label1.random A character string ... (default label for
-#'   arguments 'hetlabel1' and 'taulabel1').
-#' @param label2.random A character string ... (default label for
-#'   arguments 'hetlabel2' and 'taulabel2').
-#' @param label1.predict A character string ...
-#' @param label2.predict A character string ...
-#' @param label1.subgroup A character string ...
-#' @param label2.subgroup A character string ...
+#' @param label1.common A character string to label the common effect estimate
+#'   from the first meta-analysis.
+#' @param label2.common A character string to label the common effect estimate
+#'   from the second meta-analysis.
+#' @param label1.random A character string to label the random effects estimate
+#'   from the first meta-analysis (default label for arguments 'hetlabel1' and
+#'   'taulabel1').
+#' @param label2.random A character string to label the random effects estimate
+#'   from the second meta-analysis (default label for arguments 'hetlabel2' and
+#'   'taulabel2').
+#' @param label1.predict A character string to label the prediction interval
+#'   from the first meta-analysis.
+#' @param label2.predict A character string to label the prediction interval
+#'   from the second meta-analysis.
+#' @param label1.subgroup A character string to label the subgroup results
+#'   from the first meta-analysis.
+#' @param label2.subgroup A character string to label the subgroup results
+#'   from the second meta-analysis.
 #' @param text.pooled1 A character string used in printouts and forest
 #'   plot to label the results from the first meta-analysis.
 #' @param text.pooled2 A character string used in printouts and forest

@@ -85,23 +85,31 @@ should be considered for second meta-analysis.}
 \item{label2}{Default setting for arguments 'label2.common',
 'label2.random', 'label2.predict' and 'label2.subgroup'.}
 
-\item{label1.common}{A character string ...}
+\item{label1.common}{A character string to label the common effect estimate
+from the first meta-analysis.}
 
-\item{label2.common}{A character string ...}
+\item{label2.common}{A character string to label the common effect estimate
+from the second meta-analysis.}
 
-\item{label1.random}{A character string ... (default label for
-arguments 'hetlabel1' and 'taulabel1').}
+\item{label1.random}{A character string to label the random effects estimate
+from the first meta-analysis (default label for arguments 'hetlabel1' and
+'taulabel1').}
 
-\item{label2.random}{A character string ... (default label for
-arguments 'hetlabel2' and 'taulabel2').}
+\item{label2.random}{A character string to label the random effects estimate
+from the second meta-analysis (default label for arguments 'hetlabel2' and
+'taulabel2').}
 
-\item{label1.predict}{A character string ...}
+\item{label1.predict}{A character string to label the prediction interval
+from the first meta-analysis.}
 
-\item{label2.predict}{A character string ...}
+\item{label2.predict}{A character string to label the prediction interval
+from the second meta-analysis.}
 
-\item{label1.subgroup}{A character string ...}
+\item{label1.subgroup}{A character string to label the subgroup results
+from the first meta-analysis.}
 
-\item{label2.subgroup}{A character string ...}
+\item{label2.subgroup}{A character string to label the subgroup results
+from the second meta-analysis.}
 
 \item{hetlabel1}{A character string used to label heterogeneity
 statistics of the first meta-analysis.}

@@ -438,9 +438,9 @@ chksuitable <- function(x, method,
     addtext[classes == "netpairwise"] <-
       " without argument 'separate = TRUE'"
   }
-  ##
-  func <- if (stop) stop else warning
-  ##
+  #
+  func <- if (stop) base::stop else base::warning
+  #
   for (i in seq_along(classes)) {
     if (inherits(x, classes[i])) {
       func(method, " not ", status, " for an object of class \"",

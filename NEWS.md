@@ -7,6 +7,10 @@
     and metarate() objects to fix
     [issue #67](https://github.com/guido-s/meta/pull/67)
 
+* update.meta():
+  - consider setting for list element 'rho' for metabin(), metacor(),
+    metainc(), metamean(), metaprop(), metarate()
+
 ### User-visible changes
 
 * metabin(), metainc():

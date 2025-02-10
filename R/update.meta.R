@@ -926,6 +926,8 @@ update.meta <- function(object,
     ##
     oldclass <- object$class.x
     ##
+    object$class <- object$class[object$class != "trimfill"]
+    #
     res <- trimfill(object,
                     left = left, ma.common = ma.common,
                     type = type, n.iter.max = n.iter.max,
@@ -1272,7 +1274,7 @@ update.meta <- function(object,
                  studlab = studlab,
                  ##
                  data = data, subset = subset, exclude = exclude,
-                 cluster = ...cluster,
+                 cluster = ...cluster, rho = rho,
                  ##
                  method = method,
                  sm = sm,
@@ -1449,7 +1451,7 @@ update.meta <- function(object,
                  studlab = studlab,
                  ##
                  data = data, subset = subset, exclude = exclude,
-                 cluster = ...cluster,
+                 cluster = ...cluster, rho = rho,
                  ##
                  sm = sm,
                  level = level, level.ma = level.ma,
@@ -1669,7 +1671,7 @@ update.meta <- function(object,
                  studlab = studlab,
                  ##
                  data = data, subset = subset, exclude = exclude,
-                 cluster = ...cluster,
+                 cluster = ...cluster, rho = rho,
                  ##
                  method = method,
                  sm = sm,
@@ -1742,7 +1744,7 @@ update.meta <- function(object,
                   studlab = studlab,
                   ##
                   data = data, subset = subset, exclude = exclude,
-                  cluster = ...cluster,
+                  cluster = ...cluster, rho = rho,
                   ##
                   median = setVal(object$data, ".median"),
                   q1 = setVal(object$data, ".q1"),
@@ -1826,7 +1828,7 @@ update.meta <- function(object,
                   studlab = studlab,
                   ##
                   data = data, subset = subset, exclude = exclude,
-                  cluster = ...cluster,
+                  cluster = ...cluster, rho = rho,
                   ##
                   method = method,
                   sm = sm,
@@ -1905,7 +1907,7 @@ update.meta <- function(object,
                   studlab = studlab,
                   ##
                   data = data, subset = subset, exclude = exclude,
-                  cluster = ...cluster,
+                  cluster = ...cluster, rho = rho,
                   ##
                   method = method,
                   sm = sm,
