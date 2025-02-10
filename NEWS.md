@@ -30,6 +30,10 @@
   - new arguments 'label.left' and 'label.rigth' to fix
     [issue #66](https://github.com/guido-s/meta/pull/66)
 
+* metabin(), metacont(), metacor(), metainc(), metamean(), metaprop(),
+  metarate(), update.meta():
+  - new argument 'detail.tau'
+
 ### Internal changes
 
 * metabin(), metainc():

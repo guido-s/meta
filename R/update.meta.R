@@ -104,6 +104,7 @@
 #'   between-study variance tau-squared.
 #' @param tau.common A logical indicating whether tau-squared should
 #'   be the same across subgroups.
+#' @param detail.tau Detail on between-study variance estimate.
 #' @param method.I2 A character string indicating which method is
 #'   used to estimate the heterogeneity statistic I\eqn{^2}. Either
 #'   \code{"Q"} or \code{"tau2"}, can be abbreviated
@@ -153,9 +154,9 @@
 #' @param col.label.right The colour of the graph label on the right side of
 #'   the null effect.
 #' @param n.e Number of observations in experimental group (only for
-#'   \code{\link{metagen}} object).
+#'   \code{\link{metagen}} or \code{\link{metainc}} object).
 #' @param n.c Number of observations in control group (only for
-#'   metagen object).
+#'   \code{\link{metagen}} or \code{\link{metainc}} object).
 #' @param method.mean A character string indicating which method to
 #'   use to approximate the mean from the median and other statistics
 #'   (see \code{\link{metacont}} and \code{\link{metamean}}).
@@ -334,6 +335,7 @@ update.meta <- function(object,
                         tau.preset = object$tau.preset,
                         TE.tau = object$TE.tau,
                         tau.common = object$tau.common,
+                        detail.tau = object$detail.tau,
                         #
                         method.I2 = object$method.I2,
                         #
@@ -1060,6 +1062,20 @@ update.meta <- function(object,
     incr.c <- catch2(object, "incr.c", gs("incr"))
   #
   avail.incr.c <- !missing.incr.c & !is.null(incr.c)
+  #
+  # Catch argument 'n.e'
+  #
+  if (!missing(n.e))
+    n.e <- catch("n.e", mc, data, sfsp)
+  else
+    n.e <- catch2(object, "n.e")
+  #
+  # Catch argument 'n.c'
+  #
+  if (!missing(n.c))
+    n.c <- catch("n.c", mc, data, sfsp)
+  else
+    n.c <- catch2(object, "n.c")
   ##
   ## Catch argument 'approx.mean.e'
   ##
@@ -1300,6 +1316,7 @@ update.meta <- function(object,
                  level.hetstat = level.hetstat,
                  tau.preset = tau.preset, TE.tau = TE.tau,
                  tau.common = tau.common,
+                 detail.tau = detail.tau,
                  #
                  method.I2 = method.I2,
                  #
@@ -1414,6 +1431,7 @@ update.meta <- function(object,
                   level.hetstat = level.hetstat,
                   tau.preset = tau.preset, TE.tau = TE.tau,
                   tau.common = tau.common,
+                  detail.tau = detail.tau,
                   #
                   method.I2 = method.I2,
                   #
@@ -1468,6 +1486,7 @@ update.meta <- function(object,
                  level.hetstat = level.hetstat,
                  tau.preset = tau.preset, TE.tau = TE.tau,
                  tau.common = tau.common,
+                 detail.tau = detail.tau,
                  #
                  method.I2 = method.I2,
                  #
@@ -1502,18 +1521,12 @@ update.meta <- function(object,
                  control = control)
   ##
   if (metagen) {
-    data.m <- data
-    add.e <- FALSE
-    add.c <- FALSE
-    ##
-    if ("n.e" %in% names(data)) {
-      add.e <- TRUE
-      data.m <- data.m[, names(data.m) != "n.e"]
-    }
-    if ("n.c" %in% names(data)) {
-      add.c <- TRUE
-      data.m <- data.m[, names(data.m) != "n.c"]
-    }
+    ...n.e <- n.e
+    ...n.c <- n.c
+    #
+    rm(n.e)
+    rm(n.c)
+    #
     if (missing(approx.TE)) {
       if (isCol(object$data, ".approx.TE"))
         approx.TE <- object$data$.approx.TE
@@ -1555,6 +1568,7 @@ update.meta <- function(object,
                  level.hetstat = level.hetstat,
                  tau.preset = tau.preset, TE.tau = TE.tau,
                  tau.common = tau.common,
+                 detail.tau = detail.tau,
                  #
                  method.I2 = method.I2,
                  #
@@ -1563,7 +1577,7 @@ update.meta <- function(object,
                  ##
                  method.bias = method.bias,
                  ##
-                 n.e = n.e, n.c = n.c,
+                 n.e = ...n.e, n.c = ...n.c,
                  ##
                  pval = setVal(object$data, ".pval"),
                  df = setVal(object$data, ".df"),
@@ -1616,15 +1630,15 @@ update.meta <- function(object,
                  warn = warn, warn.deprecated = FALSE,
                  ##
                  control = control)
-    if (add.e)
-      m$data$n.e <- data$n.e
-    if (add.c)
-      m$data$n.c <- data$n.c
-    if (add.e | add.c)
-      m$data <- m$data[, names(data)]
   }
   ##
   if (metainc) {
+    ...n.e <- n.e
+    ...n.c <- n.c
+    #
+    rm(n.e)
+    rm(n.c)
+    #
     sm <- setchar(sm, gs("sm4inc"))
     method <- setchar(method, gs("meth4inc"))
     ##
@@ -1633,19 +1647,6 @@ update.meta <- function(object,
     ##
     if (method == "GLMM" & !missing.sm & !(sm %in% c("IRR", "VE")))
       warning("Summary measure 'sm = \"IRR\" used as 'method = \"GLMM\".")
-    ##
-    data.m <- data
-    add.e <- FALSE
-    add.c <- FALSE
-    ##
-    if ("n.e" %in% names(data)) {
-      add.e <- TRUE
-      data.m <- data.m[, names(data.m) != "n.e"]
-    }
-    if ("n.c" %in% names(data)) {
-      add.c <- TRUE
-      data.m <- data.m[, names(data.m) != "n.c"]
-    }
     ##
     if (method == "GLMM") {
       if (sm != "VE")
@@ -1695,6 +1696,7 @@ update.meta <- function(object,
                  level.hetstat = level.hetstat,
                  tau.preset = tau.preset, TE.tau = TE.tau,
                  tau.common = tau.common,
+                 detail.tau = detail.tau,
                  #
                  method.I2 = method.I2,
                  #
@@ -1703,7 +1705,7 @@ update.meta <- function(object,
                  ##
                  method.bias = method.bias,
                  ##
-                 n.e = n.e, n.c = n.c,
+                 n.e = ...n.e, n.c = ...n.c,
                  ##
                  backtransf = backtransf, irscale = irscale, irunit = irunit,
                  ##
@@ -1729,12 +1731,6 @@ update.meta <- function(object,
                  ##
                  control = control,
                  ...)
-    if (add.e)
-      m$data$n.e <- data$n.e
-    if (add.c)
-      m$data$n.c <- data$n.c
-    if (add.e | add.c)
-      m$data <- m$data[, names(data)]
   }
   ##
   if (metamean)
@@ -1774,6 +1770,7 @@ update.meta <- function(object,
                   level.hetstat = level.hetstat,
                   tau.preset = tau.preset, TE.tau = TE.tau,
                   tau.common = tau.common,
+                  detail.tau = detail.tau,
                   #
                   method.I2 = method.I2,
                   #
@@ -1850,6 +1847,7 @@ update.meta <- function(object,
                   level.hetstat = level.hetstat,
                   tau.preset = tau.preset, TE.tau = TE.tau,
                   tau.common = tau.common,
+                  detail.tau = detail.tau,
                   #
                   method.I2 = method.I2,
                   #
@@ -1929,6 +1927,7 @@ update.meta <- function(object,
                   level.hetstat = level.hetstat,
                   tau.preset = tau.preset, TE.tau = TE.tau,
                   tau.common = tau.common,
+                  detail.tau = detail.tau,
                   #
                   method.I2 = method.I2,
                   #

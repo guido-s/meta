@@ -1142,8 +1142,10 @@ metagen <- function(TE, seTE, studlab,
     subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
                             warn.deprecated)
     #
-    n.e <- catch("n.e", mc, data, sfsp)
-    n.c <- catch("n.c", mc, data, sfsp)
+    if (!missing(n.e))
+      n.e <- catch("n.e", mc, data, sfsp)
+    if (!missing(n.c))
+      n.c <- catch("n.c", mc, data, sfsp)
   }
   #
   by <- !is.null(subgroup)

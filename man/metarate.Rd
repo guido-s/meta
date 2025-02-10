@@ -32,6 +32,7 @@ metarate(
   tau.preset = NULL,
   TE.tau = NULL,
   tau.common = gs("tau.common"),
+  detail.tau = "",
   method.I2 = gs("method.I2"),
   level.ma = gs("level.ma"),
   method.random.ci = gs("method.random.ci"),
@@ -159,6 +160,8 @@ between-study variance tau-squared.}
 
 \item{tau.common}{A logical indicating whether tau-squared should
 be the same across subgroups.}
+
+\item{detail.tau}{Detail on between-study variance estimate.}
 
 \item{method.I2}{A character string indicating which method is
 used to estimate the heterogeneity statistic I\eqn{^2}. Either

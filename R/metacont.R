@@ -91,6 +91,7 @@
 #'   between-study variance tau-squared.
 #' @param tau.common A logical indicating whether tau-squared should
 #'   be the same across subgroups.
+#' @param detail.tau Detail on between-study variance estimate.
 #' @param method.I2 A character string indicating which method is
 #'   used to estimate the heterogeneity statistic I\eqn{^2}. Either
 #'   \code{"Q"} or \code{"tau2"}, can be abbreviated
@@ -604,6 +605,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                      level.hetstat = gs("level.hetstat"),
                      tau.preset = NULL, TE.tau = NULL,
                      tau.common = gs("tau.common"),
+                     detail.tau = "",
                      #
                      method.I2 = gs("method.I2"),
                      #
@@ -1929,6 +1931,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                tau.preset = tau.preset,
                TE.tau = TE.tau,
                tau.common = FALSE,
+               detail.tau = detail.tau,
                #
                method.I2 = method.I2,
                #

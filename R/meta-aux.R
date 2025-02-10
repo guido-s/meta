@@ -221,7 +221,7 @@ mismatch <- function(x, y, var) {
     return(FALSE)
   else {
     if (!is.null(x) & !is.null(y))
-      return(any(x != y))
+      return(any(x != y, na.rm = TRUE))
     else
       return(TRUE)
   }
