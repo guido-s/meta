@@ -1562,8 +1562,6 @@ pairwise <- function(treat,
                             event2 = event[[j]], n2 = n[[j]],
                             incr1 = NA, incr2 = NA,
                             #
-                            incr = incr.study,
-                            #
                             .order = seq_along(studlab),
                             stringsAsFactors = FALSE, row.names = NULL)
           ##
