@@ -109,7 +109,8 @@ used for pooling of studies. One of \code{"Inverse"} and
 to be used for pooling of studies, see Details.}
 
 \item{incr}{A numeric which is added to the event number of studies
-with zero events, i.e., studies with an incidence rate of 0.}
+with zero events, i.e., studies with an incidence rate of 0. Or a
+numeric vector with the continuity correction for each study.}
 
 \item{method.incr}{A character string indicating which continuity
 correction method should be used (\code{"only0"},

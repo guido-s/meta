@@ -268,12 +268,12 @@
 #' @keywords datagen
 #' 
 #' @examples
-#' p0 <- pairwise(studlab = study, treat = treatment,
+#' pw0 <- pairwise(studlab = study, treat = treatment,
 #'   n = ni, mean = mi, sd = sdi, data = dat.senn2013,
 #'   append = c("study", "comment"))
-#' head(p0)
+#' head(pw0)
 #' # Meta-analysis of studies comparing metformin to placebo
-#' metagen(p0, subset = treat1 == "metformin" & treat2 == "placebo")
+#' metagen(pw0, subset = treat1 == "metformin" & treat2 == "placebo")
 #' 
 #' \dontrun{
 #' # Use pairwise() to run network meta-analyses
@@ -284,16 +284,16 @@
 #'  #
 #'  Franchini2012 <- dat.franchini2012
 #'  # Transform data from arm-based format to contrast-based format
-#'  p1 <- pairwise(list(Treatment1, Treatment2, Treatment3),
+#'  pw1 <- pairwise(list(Treatment1, Treatment2, Treatment3),
 #'    n = list(n1, n2, n3),
 #'    mean = list(y1, y2, y3), sd = list(sd1, sd2, sd3),
 #'    data = Franchini2012, studlab = Study)
-#'  p1
+#'  pw1
 #' 
 #'  # Conduct network meta-analysis
 #'  library("netmeta")
 #'  #
-#'  net1 <- netmeta(p1)
+#'  net1 <- netmeta(pw1)
 #'  net1
 #' 
 #'  # Draw network graphs
@@ -317,23 +317,23 @@
 #'  # Transform data from arm-based format to contrast-based format
 #'  # using means and standard errors (note, argument 'sm' has to be
 #'  # used to specify that argument 'TE' is a mean difference)
-#'  p2 <- pairwise(list(Treatment1, Treatment2, Treatment3),
+#'  pw2 <- pairwise(list(Treatment1, Treatment2, Treatment3),
 #'    TE = list(y1, y2, y3), seTE = list(se1, se2, se3),
 #'    n = list(n1, n2, n3),
 #'    data = Franchini2012, studlab = Study,
 #'    sm = "MD")
-#'  p2
+#'  pw2
 #' 
-#'  # Compare pairwise objects p1 (based on continuous outcomes) and p2
+#'  # Compare pairwise objects pw1 (based on continuous outcomes) and pw2
 #'  # (based on generic outcomes)
 #'  #
 #'  all.equal(
-#'    p1[, c("TE", "seTE", "studlab", "treat1", "treat2")],
-#'    p2[, c("TE", "seTE", "studlab", "treat1", "treat2")])
+#'    pw1[, c("TE", "seTE", "studlab", "treat1", "treat2")],
+#'    pw2[, c("TE", "seTE", "studlab", "treat1", "treat2")])
 #' 
 #'  # Same result as network meta-analysis based on continuous outcomes
 #'  # (object net1)
-#'  net2 <- netmeta(p2)
+#'  net2 <- netmeta(pw2)
 #'  net2
 #' 
 #'  # Example with binary data
@@ -344,15 +344,15 @@
 #'  # for odds ratio as risk ratio (sm = "RR") is default of metabin
 #'  # function.
 #'  #
-#'  p3 <- pairwise(list(treat1, treat2, treat3),
+#'  pw3 <- pairwise(list(treat1, treat2, treat3),
 #'    list(event1, event2, event3), list(n1, n2, n3),
 #'    data = smokingcessation,
 #'    sm = "OR")
-#'  p3
+#'  pw3
 #' 
 #'  # Conduct network meta-analysis
 #'  #
-#'  net3 <- netmeta(p3)
+#'  net3 <- netmeta(pw3)
 #'  net3
 #' 
 #'  # Example with incidence rates
@@ -361,17 +361,17 @@
 #' 
 #'  # Transform data from arm-based format to contrast-based format
 #'  #
-#'  p4 <- pairwise(list(treat1, treat2, treat3),
+#'  pw4 <- pairwise(list(treat1, treat2, treat3),
 #'    list(d1, d2, d3), time = list(years1, years2, years3),
 #'    studlab = ID,
 #'    data = dietaryfat)
-#'  p4
+#'  pw4
 #' 
 #'  # Conduct network meta-analysis using incidence rate ratios (sm =
 #'  # "IRR"). Note, the argument 'sm' is not necessary as this is the
 #'  # default in R function metainc called internally.
 #'  #
-#'  net4 <- netmeta(p4, sm = "IRR")
+#'  net4 <- netmeta(pw4, sm = "IRR")
 #'  summary(net4)
 #' 
 #'  # Example with long data format
@@ -381,12 +381,12 @@
 #'  # measure; by default the risk ratio is used in the metabin
 #'  # function called internally.
 #'  #
-#'  p5 <- pairwise(treatment, event = r, n = N,
+#'  pw5 <- pairwise(treatment, event = r, n = N,
 #'    studlab = author, data = dat.woods2010, sm = "OR")
-#'  p5
+#'  pw5
 #' 
 #'  # Conduct network meta-analysis
-#'  net5 <- netmeta(p5)
+#'  net5 <- netmeta(pw5)
 #'  net5
 #' }
 #' }
@@ -465,6 +465,9 @@ pairwise <- function(treat,
     else if (is.logical(allincr) && allincr)
       method.incr <- "if0all"
   }
+  #
+  method.incr <-
+    setchar(method.incr, gs("meth4incr")[gs("meth4incr") != "user"])
   #
   if (!is.character(append)) {
     chklogical(append, text = "or vector with variable names")
@@ -1942,9 +1945,7 @@ pairwise <- function(treat,
                             n1 = if (avail.n) n[[i]] else NA,
                             n2 = if (avail.n) n[[j]] else NA,
                             #
-                            incr1 = NA, incr2 = NA,
-                            #
-                            incr = incr.study,
+                            incr1 = incr.study, incr2 = incr.study,
                             #
                             .order = seq_along(studlab),
                             stringsAsFactors = FALSE, row.names = NULL)
@@ -1963,9 +1964,12 @@ pairwise <- function(treat,
             m1 <- metainc(dat$event1, dat$time1,
                           dat$event2, dat$time2,
                           #
+                          n.e = if (avail.n) dat$n1 else NULL,
+                          n.c = if (avail.n) dat$n2 else NULL,
+                          #
                           method = method, sm = sm,
-                          incr = dat$incr,
-                          method.incr = "all",
+                          incr.e = dat$incr1, incr.c = dat$incr2,
+                          method.incr = "user",
                           method.tau = "DL", method.tau.ci = "",
                           #
                           warn = warn, warn.deprecated = FALSE, ...)
@@ -1975,9 +1979,6 @@ pairwise <- function(treat,
             ##
             dat$TE[is.infinite(dat$TE)] <- NA
             dat$seTE[is.infinite(dat$seTE)] <- NA
-            #
-            dat$incr1 <- m1$incr.e
-            dat$incr2 <- m1$incr.c
             #
             dat.NAs <- dat[is.na(dat$TE) | is.na(dat$seTE) | dat$seTE <= 0, ]
             ##
@@ -1996,11 +1997,6 @@ pairwise <- function(treat,
                    "first and second treatment.",
                    call. = FALSE)
         }
-      }
-      #
-      if (all(is.na(dat$n1)) & all(is.na(dat$n2))) {
-        dat$n1 <- NULL
-        dat$n2 <- NULL
       }
     }
     #
@@ -2254,6 +2250,13 @@ pairwise <- function(treat,
     res <- res[, names(res) %in% corevars]
   else if (is.character(append))
     res <- res[, names(res) %in% c(corevars, append)]
+  #
+  # Drop columns 'n1' and 'n2' if argument 'n' is missing 
+  #
+  if (type == "count" & missing.n) {
+    res$n1 <- NULL
+    res$n2 <- NULL
+  }
   
   
   ##

@@ -74,10 +74,15 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
     ##
     if (bin) {
       if (x$method.incr == "user") {
+        incr <- NULL
         incr.e <- x$incr.e[sel]
         incr.c <- x$incr.c[sel]
       }
       else {
+        incr <- x$incr
+        if (length(incr) > 1)
+          incr <- incr[sel]
+        #
         incr.e <- NULL
         incr.c <- NULL
       }
@@ -93,6 +98,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                        method = x$method,
                        sm = x$sm,
                        #
+                       incr = incr,
                        incr.e = incr.e, incr.c = incr.c,
                        method.incr = x$method.incr, allstudies = x$allstudies,
                        #
@@ -243,10 +249,15 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
     ##
     else if (inc) {
       if (x$method.incr == "user") {
+        incr <- NULL
         incr.e <- x$incr.e[sel]
         incr.c <- x$incr.c[sel]
       }
       else {
+        incr <- x$incr
+        if (length(incr) > 1)
+          incr <- incr[sel]
+        #
         incr.e <- NULL
         incr.c <- NULL
       }
@@ -262,6 +273,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                        method = x$method,
                        sm = x$sm,
                        #
+                       incr = incr,
                        incr.e = incr.e, incr.c = incr.c,
                        method.incr = x$method.incr,
                        #

@@ -1254,8 +1254,13 @@ update.meta <- function(object,
     #
     if (!missing.method.incr)
       method.incr <- setchar(method.incr, gs("meth4incr"))
+    else {
+      if (!missing.incr & missing.incr.e & missing.incr.c)
+        method.incr <- gs("method.incr")
+    }
     #
     if (method.incr == "user") {
+      incr.orig <- incr
       incr <- NULL
       allstudies <- NULL
     }
@@ -1350,6 +1355,9 @@ update.meta <- function(object,
                  ##
                  control = control,
                  ...)
+    #
+    if (method.incr == "user")
+      m$incr <- incr.orig
   }
   ##
   if (metacont) {
@@ -1657,9 +1665,15 @@ update.meta <- function(object,
     #
     if (!missing.method.incr)
       method.incr <- setchar(method.incr, gs("meth4incr"))
+    else {
+      if (!missing.incr & missing.incr.e & missing.incr.c)
+        method.incr <- gs("method.incr")
+    }
     #
-    if (method.incr == "user")
+    if (method.incr == "user") {
+      incr.orig <- incr
       incr <- NULL
+    }
     else {
       incr.e <- NULL
       incr.c <- NULL
@@ -1731,6 +1745,9 @@ update.meta <- function(object,
                  ##
                  control = control,
                  ...)
+    #
+    if (method.incr == "user")
+      m$incr <- incr.orig
   }
   ##
   if (metamean)

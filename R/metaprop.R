@@ -29,7 +29,8 @@
 #'   \code{"PRAW"}) is to be used for pooling of studies, see Details.
 #' @param incr A numeric which is added to event number and sample
 #'   size of studies with zero or all events, i.e., studies with an
-#'   event probability of either 0 or 1.
+#'   event probability of either 0 or 1. Or a numeric vector with the
+#'   continuity correction for each study.
 #' @param method.incr A character string indicating which continuity
 #'   correction method should be used (\code{"only0"},
 #'   \code{"if0all"}, or \code{"all"}), see Details.
@@ -663,6 +664,7 @@ metaprop <- function(event, n, studlab,
   ## (1) Check and set arguments
   ##
   ##
+  
   chknumeric(rho, min = -1, max = 1)
   ##
   missing.method <- missing(method)
@@ -828,6 +830,7 @@ metaprop <- function(event, n, studlab,
   ## (2) Read data
   ##
   ##
+  
   nulldata <- is.null(data)
   sfsp <- sys.frame(sys.parent())
   mc <- match.call()
@@ -880,6 +883,7 @@ metaprop <- function(event, n, studlab,
   ## (3) Check length of essential variables
   ##
   ##
+  
   chklength(n, k.All, fun)
   chklength(studlab, k.All, fun)
   if (with.cluster)
@@ -915,6 +919,7 @@ metaprop <- function(event, n, studlab,
   ## (4) Subset, exclude studies, and subgroups
   ##
   ##
+  
   if (!missing.subset)
     if ((is.logical(subset) & (sum(subset) > k.All)) ||
         (length(subset) > k.All))
@@ -939,6 +944,7 @@ metaprop <- function(event, n, studlab,
   ##     (if argument keepdata is TRUE)
   ##
   ##
+  
   if (keepdata) {
     if (nulldata)
       data <- data.frame(.event = event)
@@ -948,7 +954,7 @@ metaprop <- function(event, n, studlab,
     data$.n <- n
     data$.studlab <- studlab
     ##
-    data$.incr <- incr
+    data$.incr <- NA
     ##
     if (by)
       data$.subgroup <- subgroup
@@ -970,11 +976,46 @@ metaprop <- function(event, n, studlab,
   }
   
   
+  #
+  #
+  # (6) Continuity correction
+  #
+  #
+  
+  sel <- switch(sm,
+                PLOGIT = event == 0 | (n - event) == 0,
+                PAS = rep(FALSE, length(event)),
+                PFT = rep(FALSE, length(event)),
+                PLN =    event == 0 | (n - event) == 0,
+                PRAW =   event == 0 | (n - event) == 0)
+  #
+  sparse <- any(sel, na.rm = TRUE)
+  #
+  # No need to add anything to cell counts for arcsine transformation
+  #
+  if (addincr | method.incr == "user")
+    incr.event <- if (length(incr) == 1) rep(incr, k.All) else incr
+  else {
+    if (sparse) {
+      if (allincr)
+        incr.event <- if (length(incr) == 1) rep(incr, k.All) else incr
+      else
+        incr.event <- incr * sel
+    }
+    else
+      incr.event <- rep(0, k.All)
+  }
+  #
+  if (keepdata)
+    data$.incr <- incr.event
+  
+  
   ##
   ##
-  ## (6) Use subset for analysis
+  ## (7) Use subset for analysis
   ##
   ##
+  
   if (!missing.subset) {
     event <- event[subset]
     n <- n[subset]
@@ -982,10 +1023,12 @@ metaprop <- function(event, n, studlab,
     ##
     cluster <- cluster[subset]
     exclude <- exclude[subset]
-    ##
+    #
+    incr.event <- incr.event[subset]
+    #
     if (length(incr) > 1)
       incr <- incr[subset]
-    ##
+    #
     if (by)
       subgroup <- subgroup[subset]
   }
@@ -1056,31 +1099,10 @@ metaprop <- function(event, n, studlab,
   
   ##
   ##
-  ## (7) Calculate results for individual studies
+  ## (8) Calculate results for individual studies
   ##
   ##
-  sel <- switch(sm,
-                PLOGIT = event == 0 | (n - event) == 0,
-                PAS = rep(FALSE, length(event)),
-                PFT = rep(FALSE, length(event)),
-                PLN =    event == 0 | (n - event) == 0,
-                PRAW =   event == 0 | (n - event) == 0)
-  ##
-  sparse <- any(sel, na.rm = TRUE)
-  ##
-  ## No need to add anything to cell counts for arcsine transformation
-  ##
-  if (addincr)
-    incr.event <- if (length(incr) == 1) rep(incr, k.all) else incr
-  else
-    if (sparse)
-      if (allincr)
-        incr.event <- if (length(incr) == 1) rep(incr, k.all) else incr
-      else
-        incr.event <- incr * sel
-  else
-    incr.event <- rep(0, k.all)
-  ##  
+  
   if (sm == "PLOGIT") {
     TE <- log((event + incr.event) / (n - event + incr.event))
     seTE <- sqrt(1 / (event + incr.event) +
@@ -1166,9 +1188,10 @@ metaprop <- function(event, n, studlab,
   
   ##
   ##
-  ## (8) Additional checks for three-level model
+  ## (9) Additional checks for three-level model
   ##
   ##
+  
   three.level <- FALSE
   sel.ni <- !is.infinite(TE) & !is.infinite(seTE)
   ##
@@ -1195,9 +1218,10 @@ metaprop <- function(event, n, studlab,
   
   ##
   ##
-  ## (9) Additional checks for GLMM
+  ## (10) Additional checks for GLMM
   ##
   ##
+  
   if (is.glmm) {
     chkglmm(sm, method.tau, method.random.ci, method.predict,
             adhoc.hakn.ci, adhoc.hakn.pi,
@@ -1221,9 +1245,10 @@ metaprop <- function(event, n, studlab,
   
   ##
   ##
-  ## (10) Do meta-analysis
+  ## (11) Do meta-analysis
   ##
   ##
+  
   k <- sum(!is.na(event[!exclude]) & !is.na(n[!exclude]))
   ##
   for (i in seq_along(method.random.ci))
@@ -1292,9 +1317,10 @@ metaprop <- function(event, n, studlab,
   
   ##
   ##
-  ## (9) Generate R object
+  ## (12) Generate R object
   ##
   ##
+  
   res <- list(event = event, n = n,
               incr = if (length(unique(incr)) == 1) unique(incr) else incr,
               method.incr = method.incr,

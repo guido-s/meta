@@ -753,6 +753,9 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     n.e <- event.e$n1
     n.c <- event.e$n2
     #
+    avail.n.e <- !is.null(n.e)
+    avail.n.c <- !is.null(n.c)
+    #
     incr.e <- event.e$incr1
     incr.c <- event.e$incr2
     #

@@ -107,7 +107,8 @@ used for pooling of studies. One of \code{"Inverse"} and
 
 \item{incr}{A numeric which is added to event number and sample
 size of studies with zero or all events, i.e., studies with an
-event probability of either 0 or 1.}
+event probability of either 0 or 1. Or a numeric vector with the
+continuity correction for each study.}
 
 \item{method.incr}{A character string indicating which continuity
 correction method should be used (\code{"only0"},
