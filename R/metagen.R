@@ -1010,8 +1010,12 @@ metagen <- function(TE, seTE, studlab,
   sfsp <- sys.frame(sys.parent())
   mc <- match.call()
   #
-  if (nulldata)
+  if (nulldata) {
     data <- sfsp
+    data.pairwise <- FALSE
+  }
+  else
+    data.pairwise <- inherits(data, "pairwise")
   #
   missing.byvar <- missing(byvar)
   byvar <- catch("byvar", mc, data, sfsp)
@@ -2714,7 +2718,12 @@ metagen <- function(TE, seTE, studlab,
               zval.common = statistic.common,
               zval.random = statistic.random
               )
-  ##
+  #
+  if (is.pairwise | data.pairwise) {
+    res$pairwise <- TRUE
+    res$k.study <- length(unique(res$studlab[!is.na(res$TE)]))
+  }
+  #
   class(res) <- c(fun, "meta")
   ##
   if (avail.lower | avail.upper)

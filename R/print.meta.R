@@ -275,7 +275,7 @@ print.meta <- function(x,
   #
   print.I2 <- print.I2 & ((overall.hetstat & !by) | by)
   #
-  pairwise <- replaceNULL(x$pairwise, FALSE)
+  pairwise <- replaceNULL(x$pairwise, FALSE) & any(table(x$studlab) > 1)
   
   
   ##
@@ -1157,14 +1157,16 @@ print.meta <- function(x,
                      format(cond(x$k.study, digits = 0),
                             big.mark = big.mark), "\n"))
           cat(paste0("Number of ",
-                     if (is.netpairwise)
-                       "pairwise comparisons: m = " else "estimates: k = ",
+                     if (is.netpairwise | pairwise)
+                       "pairwise comparisons: m"
+                     else
+                       "estimates: k",
+                     " = ",
                      format(cond(k, digits = 0),
                             big.mark = big.mark), "\n"))
         }
         else
-          cat(paste0("Number of ",
-                     if (pairwise) "pairwise comparisons: m" else "studies: k",
+          cat(paste0("Number of studies: k",
                      " = ",
                      format(cond(k, digits = 0),
                             big.mark = big.mark), "\n"))

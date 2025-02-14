@@ -578,13 +578,6 @@ update.meta <- function(object,
       object$data$.cluster <- object$data$.id
   }
   #
-  if (update_needed(object$version, 6, 1, verbose)) {
-    ##
-    ## Changes for meta objects with version < 6.1
-    ##
-    object$transf <- TRUE
-  }
-  #
   if (update_needed(object$version, 6, 0, verbose)) {
     ##
     ## Changes for meta objects with version < 6.0
@@ -616,6 +609,13 @@ update.meta <- function(object,
       ##
       object$df.Q.b.random <- object$df.Q.b.common <- object$df.Q.b
     }
+  }
+  #
+  if (update_needed(object$version, 6, 1, verbose)) {
+    ##
+    ## Changes for meta objects with version < 6.1
+    ##
+    object$transf <- TRUE
   }
   #
   if (update_needed(object$version, 6, 5, verbose)) {

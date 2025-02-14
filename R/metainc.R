@@ -696,9 +696,13 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   nulldata <- is.null(data)
   sfsp <- sys.frame(sys.parent())
   mc <- match.call()
-  ##
-  if (nulldata)
+  #
+  if (nulldata) {
     data <- sfsp
+    data.pairwise <- FALSE
+  }
+  else
+    data.pairwise <- inherits(data, "pairwise")
   #
   # Catch 'event.e', 'time.e', 'event.c', 'time.c', 'n.e', 'n.c',
   # 'incr.e', 'incr.c', studlab', and 'subgroup' from data:
@@ -1481,7 +1485,10 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   res$irscale <- irscale
   res$irunit  <- irunit
   #
-  res$pairwise <- is.pairwise
+  if (is.pairwise | data.pairwise) {
+    res$pairwise <- TRUE
+    res$k.study <- length(unique(res$studlab[!is.na(res$TE)]))
+  }
   #
   res$call <- match.call()
   #

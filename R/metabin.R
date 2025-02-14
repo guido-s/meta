@@ -968,9 +968,13 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   nulldata <- is.null(data)
   sfsp <- sys.frame(sys.parent())
   mc <- match.call()
-  ##
-  if (nulldata)
+  #
+  if (nulldata) {
     data <- sfsp
+    data.pairwise <- FALSE
+  }
+  else
+    data.pairwise <- inherits(data, "pairwise")
   #
   # Catch 'event.e', 'n.e', 'event.c', 'n.c', 'studlab', 'subgroup', 'incr',
   # 'incr.e' and 'incr.c' from data:
@@ -2069,7 +2073,10 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   res$pscale <- pscale
   #
-  res$pairwise <- is.pairwise
+  if (is.pairwise | data.pairwise) {
+    res$pairwise <- TRUE
+    res$k.study <- length(unique(res$studlab[!is.na(res$TE)]))
+  }
   #
   res$call <- match.call()
   ##
