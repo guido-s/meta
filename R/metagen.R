@@ -832,9 +832,7 @@ metagen <- function(TE, seTE, studlab,
     chknumeric(seed.predict, length = 1)
   ##
   chknumeric(null.effect, length = 1)
-  ##
-  method.bias <- setmethodbias(method.bias)
-  ##
+  #
   chklogical(transf)
   chklogical(backtransf)
   ##
@@ -1147,6 +1145,8 @@ metagen <- function(TE, seTE, studlab,
     if (!missing(n.c))
       n.c <- catch("n.c", mc, data, sfsp)
   }
+  #
+  method.bias <- setmethodbias(method.bias)
   #
   by <- !is.null(subgroup)
   #
@@ -2699,7 +2699,9 @@ metagen <- function(TE, seTE, studlab,
               approx.seTE = if (all(approx.seTE == "")) NULL else approx.seTE,
               ##
               seed.predict = seed.predict,
-              ##
+              #
+              pairwise = is.pairwise,
+              #
               warn = warn,
               call = match.call(),
               version = packageDescription("meta")$Version,

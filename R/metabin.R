@@ -828,8 +828,6 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   adhoc.hakn.pi <- setchar(replaceNA(adhoc.hakn.pi, ""), gs("adhoc4hakn.pi"))
   #
-  method.bias <- setmethodbias(method.bias)
-  ##
   chklogical(backtransf)
   ##
   chknumeric(pscale, length = 1)
@@ -1122,6 +1120,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     if (!missing.incr.c)
       incr.c <- catch("incr.c", mc, data, sfsp)
   }
+  #
+  method.bias <- setmethodbias(method.bias)
   #
   is.tacc <- FALSE
   #
@@ -2068,7 +2068,9 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   res$TE.tau <- TE.tau
   ##
   res$pscale <- pscale
-  ##
+  #
+  res$pairwise <- is.pairwise
+  #
   res$call <- match.call()
   ##
   if (method %in% c("MH", "Peto", "GLMM", "LRP", "SSW")) {

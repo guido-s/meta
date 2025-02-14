@@ -747,11 +747,6 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   ##
   adhoc.hakn.pi <- setchar(replaceNA(adhoc.hakn.pi, ""), gs("adhoc4hakn.pi"))
   #
-  # Classic tests + Pustejovsky
-  #
-  method.bias <-
-    setmethodbias(method.bias, c(1:3, if (sm == "SMD") 8))
-  ##
   if (!is.null(text.common))
     chkchar(text.common, length = 1)
   if (!is.null(text.random))
@@ -978,6 +973,11 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
                             warn.deprecated)
   }
+  #
+  # Classic tests + Pustejovsky
+  #
+  method.bias <-
+    setmethodbias(method.bias, c(1:3, if (sm == "SMD") 8))
   #
   by <- !is.null(subgroup)
   #
@@ -2030,6 +2030,8 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   ##
   ## Add data
   ##
+  res$pairwise <- is.pairwise
+  #
   res$call <- match.call()
   ##
   if (keepdata) {

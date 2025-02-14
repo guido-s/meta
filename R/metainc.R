@@ -581,8 +581,6 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   ##
   adhoc.hakn.pi <- setchar(replaceNA(adhoc.hakn.pi, ""), gs("adhoc4hakn.pi"))
   #
-  method.bias <- setmethodbias(method.bias)
-  ##
   chklogical(backtransf)
   ##
   chknumeric(irscale, length = 1)
@@ -866,6 +864,8 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     if (!missing.incr.c)
       incr.c <- catch("incr.c", mc, data, sfsp)
   }
+  #
+  method.bias <- setmethodbias(method.bias)
   #
   chknumeric(incr, min = 0)
   #
@@ -1480,7 +1480,9 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   ##
   res$irscale <- irscale
   res$irunit  <- irunit
-  ##
+  #
+  res$pairwise <- is.pairwise
+  #
   res$call <- match.call()
   #
   if (method %in% c("MH", "Cochran", "GLMM")) {

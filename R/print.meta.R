@@ -274,6 +274,8 @@ print.meta <- function(x,
   abt <- x$args.backtransf
   #
   print.I2 <- print.I2 & ((overall.hetstat & !by) | by)
+  #
+  pairwise <- replaceNULL(x$pairwise, FALSE)
   
   
   ##
@@ -1161,7 +1163,9 @@ print.meta <- function(x,
                             big.mark = big.mark), "\n"))
         }
         else
-          cat(paste0("Number of studies: k = ",
+          cat(paste0("Number of ",
+                     if (pairwise) "pairwise comparisons" else "studies",
+                     ": k = ",
                      format(cond(k, digits = 0),
                             big.mark = big.mark), "\n"))
         ##

@@ -1184,11 +1184,11 @@ metarate <- function(event, time, studlab,
   ##
   res$irscale <- irscale
   res$irunit  <- irunit
-  ##
+  #
+  res$pairwise <- FALSE
+  #
   res$call <- match.call()
-  res$allincr <- allincr
-  res$addincr <- addincr
-  ##
+  #
   if (keepdata) {
     res$data <- data
     if (!missing.subset)

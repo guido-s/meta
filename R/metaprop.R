@@ -1430,10 +1430,10 @@ metaprop <- function(event, n, studlab,
   res$upper <- upper.study
   ##
   res$pscale <- pscale
-  ##
+  #
+  res$pairwise <- FALSE
+  #
   res$call <- match.call()
-  res$allincr <- allincr
-  res$addincr <- addincr
   ##
   if (keepdata) {
     res$data <- data

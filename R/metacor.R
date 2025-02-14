@@ -768,6 +768,8 @@ metacor <- function(cor, n, studlab,
   ##
   ## Add data
   ##
+  res$pairwise <- FALSE
+  #
   res$call <- match.call()
   ##
   if (keepdata) {

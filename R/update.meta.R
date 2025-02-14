@@ -772,6 +772,8 @@ update.meta <- function(object,
     #
     # Changes for meta objects with version < 8.1
     #
+    object$pairwise <- FALSE
+    #
     if (object$keepdata) {
       if (inherits(object, c("metabin", "metainc"))) {
         if (isCol(object$data, ".subset")) {

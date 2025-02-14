@@ -1314,6 +1314,8 @@ metamean <- function(n, mean, sd, studlab,
   ##
   ## Add data
   ##
+  res$pairwise <- FALSE
+  #
   res$call <- match.call()
   ##
   if (keepdata) {
