@@ -1388,13 +1388,13 @@ print.meta <- function(x,
                            ifelse(is.na(Rb.w),
                                   "--",
                                   paste0(formatN(Rb.w, digits.I2), "%")),
-                         if (!random & !is.list(x$tau.w))
+                         if (print.tau2 & !random & !is.list(x$tau.w))
                            ifelse(k.w == 1 & !x$tau.common, "--",
                                   formatPT(x$tau.w^2,
                                            digits = digits.tau2,
                                            big.mark = big.mark,
                                            noblanks = TRUE)),
-                         if (!random & !is.list(x$tau.w))
+                         if (print.tau & !random & !is.list(x$tau.w))
                            ifelse(k.w == 1 & !x$tau.common, "--",
                                   formatPT(x$tau.w,
                                            digits = digits.tau,
@@ -1413,8 +1413,8 @@ print.meta <- function(x,
                                     if (print.Q) "Q",
                                     if (print.I2) text.I2,
                                     if (print.Rb) text.Rb,
-                                    if (!random) text.tau2,
-                                    if (!random) text.tau)
+                                    if (print.tau2 & !random) text.tau2,
+                                    if (print.tau & !random) text.tau)
                                   )
           ##
           if (is.metabind & !is.null(x$common.meta))
@@ -1514,13 +1514,13 @@ print.meta <- function(x,
                                           big.mark = big.mark),
                                   formatN(uppTE.random.w[, i], digits, "NA",
                                           big.mark = big.mark)),
-                         if (i == 1 | tau.i)
+                         if (print.tau2 & (i == 1 | tau.i))
                            ifelse(k.w == 1 & !x$tau.common, "--",
                                   formatPT(x$tau.w[[i]]^2,
                                            digits = digits.tau2,
                                            big.mark = big.mark,
                                            noblanks = TRUE)),
-                         if (i == 1 | tau.i)
+                         if (print.tau & (i == 1 | tau.i))
                            ifelse(k.w == 1 & !x$tau.common, "--",
                                   formatPT(x$tau.w[[i]],
                                            digits = digits.tau,
@@ -1548,8 +1548,10 @@ print.meta <- function(x,
                                   c(if (is.netpairwise | pairwise)
                                       "  m" else "  k",
                                     sm.lab, ci.lab,
-                                    if (i == 1 | tau.i) text.tau2,
-                                    if (i == 1 | tau.i) text.tau,
+                                    if (print.tau2 & (i == 1 | tau.i))
+                                      text.tau2,
+                                    if (print.tau & (i == 1 | tau.i))
+                                      text.tau,
                                     if (i == 1 & !common & print.Q) "Q",
                                     if (i == 1 & !common & print.I2) text.I2,
                                     if (i == 1 & !common & print.Rb) text.Rb)

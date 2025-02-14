@@ -1590,12 +1590,15 @@ pairwise <- function(treat,
                           warn = warn,
                           warn.deprecated = FALSE, ...)
             ##
-            dat$TE   <- m1$TE
+            dat$TE <- m1$TE
             dat$seTE <- m1$seTE
-            #
+            ##
             dat$TE[is.infinite(dat$TE)] <- NA
             dat$seTE[is.infinite(dat$seTE)] <- NA
-            ##
+            #
+            dat$incr1 <- m1$incr.e
+            dat$incr2 <- m1$incr.c
+            #
             dat.NAs <- dat[is.na(dat$TE) | is.na(dat$seTE) | dat$seTE <= 0, ]
             ##
             if (i == 1 & j == 2) {
@@ -1717,7 +1720,7 @@ pairwise <- function(treat,
                            warn = warn,
                            warn.deprecated = FALSE, ...)
             ##
-            dat$TE   <- m1$TE
+            dat$TE <- m1$TE
             dat$seTE <- m1$seTE
             ##
             dat$TE[is.infinite(dat$TE)] <- NA
@@ -1980,6 +1983,9 @@ pairwise <- function(treat,
             ##
             dat$TE[is.infinite(dat$TE)] <- NA
             dat$seTE[is.infinite(dat$seTE)] <- NA
+            #
+            dat$incr1 <- m1$incr.e
+            dat$incr2 <- m1$incr.c
             #
             dat.NAs <- dat[is.na(dat$TE) | is.na(dat$seTE) | dat$seTE <= 0, ]
             ##
