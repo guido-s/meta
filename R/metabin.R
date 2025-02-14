@@ -1000,14 +1000,14 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     if (missing.sm)
       sm <- attr(event.e, "sm")
     #
-    if (missing.method) {
+    if (missing.method)
       method <- attr(event.e, "method")
-      if (method == "" | method == "Inverse")
-        method <- ifelse(tau.common, "Inverse", gs("method"))
-    }
     #
     if (!avail.method.incr & !avail.incr)
       method.incr <- "user"
+    #
+    missing.sm <- FALSE
+    missing.method <- FALSE
     #
     avail.method.incr <- TRUE
     missing.incr <- FALSE

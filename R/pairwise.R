@@ -524,7 +524,7 @@ pairwise <- function(treat,
   ##
   treat <- catch("treat", mc, data, sfsp)
   ##
-  if (is.data.frame(treat) & !is.null(attr(treat, "pairwise"))) {
+  if (inherits(treat, "pairwise")) {
     is.pairwise <- TRUE
     #
     res.attr <- attributes(treat)

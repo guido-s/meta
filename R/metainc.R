@@ -730,8 +730,14 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     if (missing.sm)
       sm <- attr(event.e, "sm")
     #
+    if (missing.method)
+      method <- attr(event.e, "method")
+    #
     if (!avail.method.incr & !avail.incr)
       method.incr <- "user"
+    #
+    missing.sm <- FALSE
+    missing.method <- FALSE
     #
     avail.method.incr <- TRUE
     missing.incr <- FALSE
