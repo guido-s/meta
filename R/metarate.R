@@ -758,41 +758,10 @@ metarate <- function(event, time, studlab,
       data$.id <- data$.cluster <- cluster
   }
   
-  
-  #
-  #
-  # (6) Continuity correction
-  #
-  #
-  
-  sel <- switch(sm,
-                IR   = event == 0,
-                IRLN = event == 0,
-                IRS  = rep(FALSE, length(event)),
-                IRFT = rep(FALSE, length(event)))
-  #
-  sparse <- any(sel, na.rm = TRUE)
-  #
-  # No need to add anything to cell counts for arcsine transformation
-  #
-  if (addincr)
-    incr.event <- if (length(incr) == 1) rep(incr, k.All) else incr
-  else
-    if (sparse)
-      if (allincr)
-        incr.event <- if (length(incr) == 1) rep(incr, k.All) else incr
-  else
-    incr.event <- incr * sel
-  else
-    incr.event <- rep(0, k.All)
-  #
-  if (keepdata)
-    data$.incr <- incr.event
-  
     
   ##
   ##
-  ## (7) Use subset for analysis
+  ## (6) Use subset for analysis
   ##
   ##
   
@@ -805,8 +774,6 @@ metarate <- function(event, time, studlab,
     ##
     cluster <- cluster[subset]
     exclude <- exclude[subset]
-    #
-    incr.event <- incr.event[subset]
     #
     if (length(incr) > 1)
       incr <- incr[subset]
@@ -871,6 +838,47 @@ metarate <- function(event, time, studlab,
   ##
   if (!is.null(subgroup.name))
     chkchar(subgroup.name, length = 1)
+  
+  
+  #
+  #
+  # (7) Continuity correction
+  #
+  #
+  
+  sel <- switch(sm,
+                IR   = event == 0,
+                IRLN = event == 0,
+                IRS  = rep(FALSE, length(event)),
+                IRFT = rep(FALSE, length(event)))
+  #
+  sparse <- any(sel, na.rm = TRUE)
+  #
+  # No need to add anything to cell counts for arcsine transformation
+  #
+  if (addincr | method.incr == "user")
+    incr.event <- if (length(incr) == 1) rep(incr, k.all) else incr
+  else {
+    if (sparse) {
+      if (allincr)
+        incr.event <- if (length(incr) == 1) rep(incr, k.all) else incr
+      else
+        incr.event <- incr * sel
+    }
+    else
+      incr.event <- rep(0, k.all)
+  }
+  #
+  if (keepdata) {
+    if (missing.subset) {
+      data$.incr <- incr.event
+    }
+    else {
+      data$.incr <- NA
+      #
+      data$.incr[subset] <- incr.event
+    }
+  }
   
   
   ##

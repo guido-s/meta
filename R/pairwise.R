@@ -1558,9 +1558,11 @@ pairwise <- function(treat,
           dat <- data.frame(studlab, treat1 = treat[[i]], treat2 = treat[[j]],
                             #
                             TE = NA, seTE = NA,
+                            #
                             event1 = event[[i]], n1 = n[[i]],
                             event2 = event[[j]], n2 = n[[j]],
-                            incr1 = NA, incr2 = NA,
+                            #
+                            incr1 = incr.study, incr2 = incr.study,
                             #
                             .order = seq_along(studlab),
                             stringsAsFactors = FALSE, row.names = NULL)
@@ -1579,9 +1581,10 @@ pairwise <- function(treat,
             m1 <- metabin(dat$event1, dat$n1, dat$event2, dat$n2,
                           #
                           method = method, sm = sm,
-                          incr.e = dat$incr, incr.c = dat$incr,
-                          method.incr = "user",
-                          allstudies = allstudies,
+                          #
+                          incr.e = dat$incr1, incr.c = dat$incr2,
+                          method.incr = "user", allstudies = allstudies,
+                          #
                           method.tau = "DL", method.tau.ci = "",
                           #
                           warn = warn,
@@ -1589,9 +1592,6 @@ pairwise <- function(treat,
             ##
             dat$TE   <- m1$TE
             dat$seTE <- m1$seTE
-            #
-            dat$incr1 <- m1$incr.e
-            dat$incr2 <- m1$incr.c
             #
             dat$TE[is.infinite(dat$TE)] <- NA
             dat$seTE[is.infinite(dat$seTE)] <- NA
@@ -1937,13 +1937,14 @@ pairwise <- function(treat,
           dat <- data.frame(studlab, treat1 = treat[[i]], treat2 = treat[[j]],
                             #
                             TE = NA, seTE = NA,
+                            #
                             event1 = event[[i]], time1 = time[[i]],
                             event2 = event[[j]], time2 = time[[j]],
                             #
+                            incr1 = incr.study, incr2 = incr.study,
+                            #
                             n1 = if (avail.n) n[[i]] else NA,
                             n2 = if (avail.n) n[[j]] else NA,
-                            #
-                            incr1 = incr.study, incr2 = incr.study,
                             #
                             .order = seq_along(studlab),
                             stringsAsFactors = FALSE, row.names = NULL)
@@ -1966,8 +1967,10 @@ pairwise <- function(treat,
                           n.c = if (avail.n) dat$n2 else NULL,
                           #
                           method = method, sm = sm,
+                          #
                           incr.e = dat$incr1, incr.c = dat$incr2,
                           method.incr = "user",
+                          #
                           method.tau = "DL", method.tau.ci = "",
                           #
                           warn = warn, warn.deprecated = FALSE, ...)
@@ -2371,7 +2374,7 @@ pairwise <- function(treat,
     #
     if (type %in% c("binary", "count")) {
       attr(res, "incr") <- incr
-      attr(res, "method.incr") <- "user"
+      attr(res, "method.incr") <- method.incr
       #
       if (type == "binary")
         attr(res, "allstudies") <- allstudies

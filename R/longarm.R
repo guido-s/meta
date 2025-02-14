@@ -561,21 +561,26 @@ longarm <- function(treat1, treat2,
   if (append) {
     allnames <- names(dat.l)
     other <- allnames[!(allnames %in% nam)]
-    if (!keep.internal) {
-      nam.internal <-
-        c(".id.m4", ".grp.m4",
-          ".treat1", ".treat2",
-          ".event1", ".event2", ".n1", ".n2",
-          ".mean1", ".mean2", ".sd1", ".sd2",
-          ".time1", ".time2",
-          ".studlab",
-          ".event.e", ".event.c", ".n.e", ".n.c",
-          ".mean.e", ".mean.c", ".sd.e", ".sd.c",
-          ".time.e", ".time.c",
-          ".incr", ".subset", ".exclude", ".subgroup")
-      other <- other[!(other %in% nam.internal)]
-    }
-    res <- dat.l[, c(nam, other)]
+    #
+    nam.internal <-
+      c(".studlab", ".treat1", ".treat2",
+        #
+        ".event1", ".time1", ".n1", ".incr1", ".mean1", ".sd1",
+        ".event2", ".time2", ".n2", ".incr2", ".mean2", ".sd2",
+        #
+        ".event.e", ".time.e", ".n.e", ".incr.e", ".mean.e", ".sd.e",
+        ".event.c", ".time.c", ".n.c", ".incr.c", ".mean.c", ".sd.c",
+        #
+        ".incr",
+        #
+        ".subset", ".exclude", ".subgroup",
+        #
+        ".id.m4", ".grp.m4")
+    #
+    nam.internal <- nam.internal[nam.internal %in% other]
+    other <- other[!(other %in% nam.internal)]
+    #
+    res <- dat.l[, c(nam, other, if (keep.internal) nam.internal)]
   }
   else
     res <- dat.l[, nam]

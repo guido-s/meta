@@ -31,12 +31,7 @@ text_MH <- function(x, i, random) {
   if (!is.null(meth.i$sparse)) {
     if ((meth.i$sparse | meth.i$method.incr == "all") &
         (!is.null(meth.i$MH.exact) && meth.i$MH.exact))
-      txt <-
-        paste0(txt,
-               if (random)
-                 ", without continuity correction)"
-               else
-                 " (without continuity correction)")
+      txt <- paste0(txt, " (without continuity correction)")
   }
   ##
   if (random)

@@ -1006,11 +1006,10 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
         method <- ifelse(tau.common, "Inverse", gs("method"))
     }
     #
-    if (!avail.method.incr) {
-      method.incr <- attr(event.e, "method.incr")
-      avail.method.incr <- TRUE
-    }
+    if (!avail.method.incr & !avail.incr)
+      method.incr <- "user"
     #
+    avail.method.incr <- TRUE
     missing.incr <- FALSE
     missing.method.incr <- FALSE
     #
@@ -1139,8 +1138,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   avail.incr.both <- avail.incr.e & avail.incr.c
   #
   if (avail.incr.e + avail.incr.c == 1)
-    stop("Arguments 'incr.e' and 'incr.c' must be either both NULL or ",
-         "not NULL.",
+    stop("Arguments 'incr.e' and 'incr.c' are required together.",
          call. = FALSE)
   #
   if (avail.incr.e)
@@ -1266,8 +1264,19 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
               call. = FALSE)
     tau.common <- TRUE
   }
-
-
+  #
+  if (method.incr == "user" & !avail.incr.both) {
+    if (is.null(incr.e) | is.null(incr.c))
+      stop("Non-null input for arguments 'incr.e' and 'incr.c' required if ",
+           "'method.incr = \"user\"'.",
+           call. = FALSE)
+    else
+      stop("Arguments 'incr.e' and 'incr.c' are required if ",
+           "'method.incr = \"user\"'.",
+           call. = FALSE)
+  }
+  
+  
   ##
   ##
   ## (4) Subset, exclude studies, and subgroups
@@ -1333,9 +1342,86 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   }
   
   
+  ##
+  ##
+  ## (6) Use subset for analysis
+  ##
+  ##
+  
+  if (!missing.subset) {
+    event.e <- event.e[subset]
+    n.e <- n.e[subset]
+    event.c <- event.c[subset]
+    n.c <- n.c[subset]
+    studlab <- studlab[subset]
+    ##
+    cluster <- cluster[subset]
+    exclude <- exclude[subset]
+    #
+    incr.e <- incr.e[subset]
+    incr.c <- incr.c[subset]
+    #
+    if (length(incr) > 1)
+      incr <- incr[subset]
+    #
+    if (by)
+      subgroup <- subgroup[subset]
+  }
+  #
+  if (missing.subgroup & is.pairwise & by) {
+    if (length(unique(subgroup)) == 1) {
+      by <- FALSE
+      #
+      if (missing.complab)
+        complab <- unique(subgroup)
+      #
+      subgroup <- NULL
+      #
+      if (keepdata)
+        data$.subgroup <- NULL
+      #
+      if (missing.overall)
+        overall <- TRUE
+      if (missing.overall.hetstat)
+        overall.hetstat <- TRUE
+    }
+  }
+  ##
+  ## Determine total number of studies
+  ##
+  k.all <- length(event.e)
+  ##
+  if (k.all == 0)
+    stop("No studies to combine in meta-analysis.")
+  ##
+  ## No meta-analysis for a single study
+  ##
+  if (k.all == 1) {
+    common <- FALSE
+    random <- FALSE
+    prediction <- FALSE
+    overall <- FALSE
+    overall.hetstat <- FALSE
+  }
+  ##
+  if (by) {
+    chkmiss(subgroup)
+    ##
+    if (missing.subgroup.name & is.null(subgroup.name)) {
+      if (!missing.subgroup)
+        subgroup.name <- byvarname("subgroup", mc)
+      else if (!missing.byvar)
+        subgroup.name <- byvarname("byvar", mc)
+    }
+  }
+  ##
+  if (!is.null(subgroup.name))
+    chkchar(subgroup.name, length = 1)
+  
+  
   #
   #
-  # (6) Continuity correction
+  # (7) Continuity correction
   #
   #
   
@@ -1346,10 +1432,10 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   allevents <- event.c == n.c & event.e == n.e
   #
   if (sm == "RD" | sm == "ASD")
-    incl <- rep(1, k.All)
+    incl <- rep(1, k.all)
   else {
     if (allstudies)
-      incl <- rep(1, k.All)
+      incl <- rep(1, k.all)
     else {
       if (sm %in% c("OR", "DOR"))
         incl <- ifelse((event.c == 0   & event.e == 0) |
@@ -1420,14 +1506,18 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   # Define continuity correction
   #
   #
-  if (!avail.incr.both) {
+  if (avail.incr.both) {
+    chknumeric(incr.e, min = 0, NA.ok = FALSE)
+    chknumeric(incr.c, min = 0, NA.ok = FALSE)
+  }
+  else {
     if (addincr) {
       #
       if (is.numeric(incr)) {
         if (is.null(incr.e))
-          incr.e <- if (length(incr) == 1) rep(incr, k.All) else incr
+          incr.e <- if (length(incr) == 1) rep(incr, k.all) else incr
         if (is.null(incr.c))
-          incr.c <- if (length(incr) == 1) rep(incr, k.All) else incr
+          incr.c <- if (length(incr) == 1) rep(incr, k.all) else incr
       }
       else {
         if (is.tacc) {
@@ -1444,8 +1534,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
         if (allincr) {
           #
           if (is.numeric(incr)) {
-            incr.e <- if (length(incr) == 1) rep(incr, k.All) else incr
-            incr.c <- if (length(incr) == 1) rep(incr, k.All) else incr
+            incr.e <- if (length(incr) == 1) rep(incr, k.all) else incr
+            incr.c <- if (length(incr) == 1) rep(incr, k.all) else incr
           }
           else {
             if (is.tacc) {
@@ -1478,8 +1568,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
         }
       }
       else {
-        incr.e <- rep(0, k.All)
-        incr.c <- rep(0, k.All)
+        incr.e <- rep(0, k.all)
+        incr.c <- rep(0, k.all)
       }
     }
     #
@@ -1487,8 +1577,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     #
     if (method == "Peto") {
       incr <- 0
-      incr.e <- rep(0, k.All)
-      incr.c <- rep(0, k.All)
+      incr.e <- rep(0, k.all)
+      incr.c <- rep(0, k.all)
     }
   }
   #
@@ -1496,89 +1586,18 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   incr.c <- incr.c * incl
   #
   if (keepdata) {
-    data$.incr.e <- incr.e
-    data$.incr.c <- incr.c
-  }
-  
-  
-  ##
-  ##
-  ## (7) Use subset for analysis
-  ##
-  ##
-  
-  if (!missing.subset) {
-    event.e <- event.e[subset]
-    n.e <- n.e[subset]
-    event.c <- event.c[subset]
-    n.c <- n.c[subset]
-    studlab <- studlab[subset]
-    ##
-    cluster <- cluster[subset]
-    exclude <- exclude[subset]
-    #
-    incr.e <- incr.e[subset]
-    incr.c <- incr.c[subset]
-    #
-    if (length(incr) > 1)
-      incr <- incr[subset]
-    #
-    allevents <- allevents[subset]
-    incl <- incl[subset]
-    #
-    if (by)
-      subgroup <- subgroup[subset]
-  }
-  #
-  if (missing.subgroup & is.pairwise & by) {
-    if (length(unique(subgroup)) == 1) {
-      by <- FALSE
+    if (missing.subset) {
+      data$.incr.e <- incr.e
+      data$.incr.c <- incr.c
+    }
+    else {
+      data$.incr.e <- NA
+      data$.incr.c <- NA
       #
-      if (missing.complab)
-        complab <- unique(subgroup)
-      #
-      subgroup <- NULL
-      #
-      if (keepdata)
-        data$.subgroup <- NULL
-      #
-      if (missing.overall)
-        overall <- TRUE
-      if (missing.overall.hetstat)
-        overall.hetstat <- TRUE
+      data$.incr.e[subset] <- incr.e
+      data$.incr.c[subset] <- incr.c
     }
   }
-  ##
-  ## Determine total number of studies
-  ##
-  k.all <- length(event.e)
-  ##
-  if (k.all == 0)
-    stop("No studies to combine in meta-analysis.")
-  ##
-  ## No meta-analysis for a single study
-  ##
-  if (k.all == 1) {
-    common <- FALSE
-    random <- FALSE
-    prediction <- FALSE
-    overall <- FALSE
-    overall.hetstat <- FALSE
-  }
-  ##
-  if (by) {
-    chkmiss(subgroup)
-    ##
-    if (missing.subgroup.name & is.null(subgroup.name)) {
-      if (!missing.subgroup)
-        subgroup.name <- byvarname("subgroup", mc)
-      else if (!missing.byvar)
-        subgroup.name <- byvarname("byvar", mc)
-    }
-  }
-  ##
-  if (!is.null(subgroup.name))
-    chkchar(subgroup.name, length = 1)
   
   
   ##
@@ -1811,10 +1830,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   for (i in seq_along(method.random.ci))
     if (k == 1 & method.random.ci[i] == "HK")
       method.random.ci[i] <- "classic"
-  ##
-  if (all(incr.e == 0) & all(incr.c == 0) & method == "MH" & MH.exact == FALSE)
-    MH.exact <- TRUE
-  ##
+  #
   if (method == "MH") {
     incr.e <- incr.e * (!MH.exact)
     incr.c <- incr.c * (!MH.exact)

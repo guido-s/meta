@@ -1262,7 +1262,6 @@ update.meta <- function(object,
     if (method.incr == "user") {
       incr.orig <- incr
       incr <- NULL
-      allstudies <- NULL
     }
     else {
       incr.e <- NULL
@@ -1282,7 +1281,6 @@ update.meta <- function(object,
                   "method = \"Peto\".",
                   call. = FALSE)
         incr <- 0
-        #object$data$.incr <- 0
       }
       #
       RR.Cochrane <- replaceNULL(RR.Cochrane, gs("RR.cochrane"))

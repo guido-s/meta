@@ -242,7 +242,8 @@ chknull <- function(x, name = NULL) {
 }
 
 chknumeric <- function(x, min, max, zero = FALSE, length = 0,
-                       name = NULL, single = FALSE, integer = FALSE) {
+                       name = NULL, single = FALSE, integer = FALSE,
+                       NA.ok = TRUE) {
   if (!missing(single) && single)
     length <- 1
   ##
@@ -250,8 +251,13 @@ chknumeric <- function(x, min, max, zero = FALSE, length = 0,
   ##
   if (is.null(name))
     name <- deparse(substitute(x))
-  ##
-  x <- x[!is.na(x)]
+  #
+  if (NA.ok)
+    x <- x[!is.na(x)]
+  else if (anyNA(x))
+    stop("Missing values not allowed in argument '", name, "'.",
+         call. = FALSE)
+  #
   if (length(x) == 0)
     return(NULL)
   ##
@@ -294,7 +300,7 @@ chknumeric <- function(x, min, max, zero = FALSE, length = 0,
       stop("Argument '", name, "' may only contain integers.",
            call. = FALSE)
   }
-  ##
+  #
   invisible(NULL)
 }
 

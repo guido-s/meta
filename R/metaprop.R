@@ -976,43 +976,9 @@ metaprop <- function(event, n, studlab,
   }
   
   
-  #
-  #
-  # (6) Continuity correction
-  #
-  #
-  
-  sel <- switch(sm,
-                PLOGIT = event == 0 | (n - event) == 0,
-                PAS = rep(FALSE, length(event)),
-                PFT = rep(FALSE, length(event)),
-                PLN =    event == 0 | (n - event) == 0,
-                PRAW =   event == 0 | (n - event) == 0)
-  #
-  sparse <- any(sel, na.rm = TRUE)
-  #
-  # No need to add anything to cell counts for arcsine transformation
-  #
-  if (addincr | method.incr == "user")
-    incr.event <- if (length(incr) == 1) rep(incr, k.All) else incr
-  else {
-    if (sparse) {
-      if (allincr)
-        incr.event <- if (length(incr) == 1) rep(incr, k.All) else incr
-      else
-        incr.event <- incr * sel
-    }
-    else
-      incr.event <- rep(0, k.All)
-  }
-  #
-  if (keepdata)
-    data$.incr <- incr.event
-  
-  
   ##
   ##
-  ## (7) Use subset for analysis
+  ## (6) Use subset for analysis
   ##
   ##
   
@@ -1023,8 +989,6 @@ metaprop <- function(event, n, studlab,
     ##
     cluster <- cluster[subset]
     exclude <- exclude[subset]
-    #
-    incr.event <- incr.event[subset]
     #
     if (length(incr) > 1)
       incr <- incr[subset]
@@ -1095,6 +1059,48 @@ metaprop <- function(event, n, studlab,
   ##
   if (!is.null(subgroup.name))
     chkchar(subgroup.name, length = 1)
+  
+  
+  #
+  #
+  # (7) Continuity correction
+  #
+  #
+  
+  sel <- switch(sm,
+                PLOGIT = event == 0 | (n - event) == 0,
+                PAS = rep(FALSE, length(event)),
+                PFT = rep(FALSE, length(event)),
+                PLN =    event == 0 | (n - event) == 0,
+                PRAW =   event == 0 | (n - event) == 0)
+  #
+  sparse <- any(sel, na.rm = TRUE)
+  #
+  # No need to add anything to cell counts for arcsine transformation
+  #
+  if (addincr | method.incr == "user")
+    incr.event <- if (length(incr) == 1) rep(incr, k.all) else incr
+  else {
+    if (sparse) {
+      if (allincr)
+        incr.event <- if (length(incr) == 1) rep(incr, k.all) else incr
+      else
+        incr.event <- incr * sel
+    }
+    else
+      incr.event <- rep(0, k.all)
+  }
+  #
+  if (keepdata) {
+    if (missing.subset) {
+      data$.incr <- incr.event
+    }
+    else {
+      data$.incr <- NA
+      #
+      data$.incr[subset] <- incr.event
+    }
+  }
   
   
   ##

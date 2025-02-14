@@ -730,11 +730,10 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     if (missing.sm)
       sm <- attr(event.e, "sm")
     #
-    if (!avail.method.incr) {
-      method.incr <- attr(event.e, "method.incr")
-      avail.method.incr <- TRUE
-    }
+    if (!avail.method.incr & !avail.incr)
+      method.incr <- "user"
     #
+    avail.method.incr <- TRUE
     missing.incr <- FALSE
     missing.method.incr <- FALSE
     #
@@ -853,7 +852,8 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
                             warn.deprecated)
     #
-    incr <- catch("incr", mc, data, sfsp)
+    if (!missing.incr)
+      incr <- catch("incr", mc, data, sfsp)
     #
     if (!missing.incr.e)
       incr.e <- catch("incr.e", mc, data, sfsp)
@@ -871,15 +871,14 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   avail.incr.both <- avail.incr.e & avail.incr.c
   #
   if (avail.incr.e + avail.incr.c == 1)
-    stop("Arguments 'incr.e' and 'incr.c' must be either both NULL or ",
-         "not NULL.",
+    stop("Arguments 'incr.e' and 'incr.c' are required together.",
          call. = FALSE)
   #
   if (avail.incr.e)
-    chknumeric(incr.e, min = 0)
+    chknumeric(incr.e, min = 0, NA.ok = FALSE)
   #
   if (avail.incr.c)
-    chknumeric(incr.c, min = 0)
+    chknumeric(incr.c, min = 0, NA.ok = FALSE)
   #
   if (avail.incr.both) {
     if (!avail.method.incr)
@@ -994,6 +993,11 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
             call. = FALSE)
     tau.common <- TRUE
   }
+  #
+  if (method.incr == "user" & !avail.incr.both)
+    stop("Arguments 'incr.e' and 'incr.c' must be provided if ",
+         "'method.incr = \"user\".",
+         call. = FALSE)
   
   
   ##
@@ -1063,46 +1067,9 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   }  
   
   
-  #
-  #
-  # (6) Continuity correction
-  #
-  #
-  
-  sel <- switch(sm,
-                IRD = event.e == 0 | event.c == 0,
-                IRR = event.e == 0 | event.c == 0,
-                VE = event.e == 0 | event.c == 0,
-                IRSD = event.e == 0 | event.c == 0)
-  #
-  # Sparse computation
-  #
-  sparse <- any(sel, na.rm = TRUE)
-  #
-  if (!avail.incr.both) {
-    if (addincr)
-      incr.event <- if (length(incr) == 1) rep(incr, k.All) else incr
-    else
-      if (sparse)
-        if (allincr)
-          incr.event <- if (length(incr) == 1) rep(incr, k.All) else incr
-      else
-        incr.event <- incr * sel
-      else
-        incr.event <- rep(0, k.All)
-      #
-      incr.e <- incr.c <- incr.event
-  }
-  #
-  if (keepdata) {
-    data$.incr.e <- incr.e
-    data$.incr.c <- incr.c
-  }
-  
-  
   ##
   ##
-  ## (7) Use subset for analysis
+  ## (6) Use subset for analysis
   ##
   ##
   
@@ -1180,6 +1147,58 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   ##
   if (!is.null(subgroup.name))
     chkchar(subgroup.name, length = 1)
+  
+  
+  #
+  #
+  # (7) Continuity correction
+  #
+  #
+  
+  sel <- switch(sm,
+                IRD = event.e == 0 | event.c == 0,
+                IRR = event.e == 0 | event.c == 0,
+                VE = event.e == 0 | event.c == 0,
+                IRSD = event.e == 0 | event.c == 0)
+  #
+  # Sparse computation
+  #
+  sparse <- any(sel, na.rm = TRUE)
+  #
+  if (avail.incr.both) {
+    chknumeric(incr.e, min = 0, NA.ok = FALSE)
+    chknumeric(incr.c, min = 0, NA.ok = FALSE)
+  }
+  else {
+    if (addincr)
+      incr.event <- if (length(incr) == 1) rep(incr, k.all) else incr
+    else {
+      if (sparse) {
+        if (allincr)
+          incr.event <- if (length(incr) == 1) rep(incr, k.all) else incr
+        else
+          incr.event <- incr * sel
+      }
+      else
+        incr.event <- rep(0, k.all)
+    }
+    #
+    incr.e <- incr.c <- incr.event
+  }
+  #
+  if (keepdata) {
+    if (missing.subset) {
+      data$.incr.e <- incr.e
+      data$.incr.c <- incr.c
+    }
+    else {
+      data$.incr.e <- NA
+      data$.incr.c <- NA
+      #
+      data$.incr.e[subset] <- incr.e
+      data$.incr.c[subset] <- incr.c
+    }
+  }
   
   
   ##
