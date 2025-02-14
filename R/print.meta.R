@@ -1164,8 +1164,8 @@ print.meta <- function(x,
         }
         else
           cat(paste0("Number of ",
-                     if (pairwise) "pairwise comparisons" else "studies",
-                     ": k = ",
+                     if (pairwise) "pairwise comparisons: m" else "studies: k",
+                     " = ",
                      format(cond(k, digits = 0),
                             big.mark = big.mark), "\n"))
         ##
@@ -1405,7 +1405,7 @@ print.meta <- function(x,
                                big.mark = big.mark)
           ##
           dimnames(Tdata) <- list(bylab.txt,
-                                  c(if (is.netpairwise)
+                                  c(if (is.netpairwise | pairwise)
                                       "  m" else "  k",
                                     sm.lab, ci.lab,
                                     if (print.Q) "Q",
@@ -1543,7 +1543,7 @@ print.meta <- function(x,
                                big.mark = big.mark)
           ##
           dimnames(Tdata) <- list(bylab.txt,
-                                  c(if (is.netpairwise)
+                                  c(if (is.netpairwise | pairwise)
                                       "  m" else "  k",
                                     sm.lab, ci.lab,
                                     if (i == 1 | tau.i) text.tau2,
