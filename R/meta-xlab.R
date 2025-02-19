@@ -114,7 +114,7 @@ xlab <- function(sm, backtransf,
       res <- paste0("Fisher's z transformed", newline, "correlation")
     ##
     else if (sm == "VE")
-      res <- "Log Vaccine Ratio"
+      res <- "Log Risk Ratio"
     ##
     else if (sm == "PFT")
       res <- paste0("Freeman-Tukey Double Arcsine", newline,
