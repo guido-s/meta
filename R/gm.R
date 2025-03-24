@@ -46,7 +46,44 @@ gm <- function(x, digits = 4, debug = FALSE) {
     ##
     return(res)
   }
-  else if (inherits(x, c("metacum", "metainf"))) {
+  #
+  if (inherits(x, "metacum")) {
+    res <-
+      with(
+        x,
+        list(
+          meth =
+            func(
+              model = pooled,
+              method = method, three.level = three.level,
+              k = k.pooled, k.all = k.all.pooled,
+              k.MH = replaceNULL(x$k.MH.pooled),
+              k.study = k.study.pooled, k.TE = k.TE.pooled,
+              k0 = NA,
+              method.tau = method.tau,
+              method.tau.ci = method.tau.ci,
+              tau = round(tau.pooled, digits),
+              tau.preset = replaceNULL(tau.preset),
+              method.I2 = method.I2,
+              method.random.ci = method.random.ci,
+              df.random = replaceNULL(df.random.pooled),
+              adhoc.hakn.ci = adhoc.hakn.ci,
+              rho = rho),
+          pred =
+            func(
+              model = if (pooled == "random") "predict" else pooled,
+              method.predict,
+              df.predict = replaceNULL(df.predict),
+              adhoc.hakn.pi)
+        )
+      )
+    ##
+    res$meth <- subset(res$meth, model %in% c("common", "random"))
+    res$pred <- subset(res$pred, model == "predict")
+    ##
+    return(res)
+  }
+  else if (inherits(x, "metainf")) {
     res <-
       with(
         x,

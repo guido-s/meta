@@ -641,7 +641,7 @@
 #'
 #' @import metadat
 #'
-#' @importFrom dplyr %>% across mutate all_of select rename mutate
+#' @importFrom dplyr %>% across mutate all_of select rename rename_with mutate
 #'   if_else
 #'
 #' @importFrom stringr str_pad

@@ -11,7 +11,7 @@
 #'   studies (must be of same length as \code{x$TE}).
 #' @param studlab A logical indicating whether study labels should be
 #'   printed in the graph. A vector with study labels can also be
-#'   provided (must be of same length as \code{x$TE} then).
+#'   provided (must be of same length as the vector with estimates \code{x$TE}).
 #' @param layout A character string specifying the layout of the
 #'   forest plot (see Details).
 #' @param common A logical indicating whether common effect estimate
@@ -347,6 +347,8 @@
 #'   header line or a character string ("both", "below", "").
 #' @param col.header.line Colour of the header line(s).
 #' @param col.jama.line Colour of the additional JAMA lines.
+#' @param data.pooled Data set with information for line(s) with pooled
+#'   results (see Details).
 #' @param fontsize The size of text (in points), see
 #'   \code{\link{gpar}}.
 #' @param fontfamily The font family, see \code{\link{gpar}}.
@@ -689,7 +691,6 @@
 #' \code{\link{metaprop}} \tab \code{c("studlab", "event", "n")} \cr
 #' \code{\link{metarate}} \tab \code{c("studlab", "event", "time", "n")}
 #'   \cr
-#' \code{\link{metacum}} \tab \code{"studlab"} \cr
 #' \code{\link{metainf}} \tab \code{"studlab"}
 #' }
 #'
@@ -757,17 +758,17 @@
 #' \code{random}, weights of the common effect and/or random effects
 #' model will be given too.
 #'
-#' For an object of class \code{\link{metacum}} or
-#' \code{\link{metainf}} the following columns will be printed:
+#' For an object of class \code{\link{metainf}} the following columns will
+#' be printed:
 #' \code{c("effect", "ci", "pval", "tau2", "tau", "I2")}. This
 #' information corresponds to the printout with
 #' \code{\link{print.meta}}.
 #' }
 #'
-#' \subsection{Predefined column names}{
+#' \subsection{Predefined columns and column labels}{
 #' 
 #' The arguments \code{leftlabs} and \code{rightlabs} can be used to
-#' specify column headings which are printed on left or right side of
+#' specify column headings which are printed on the left or right side of
 #' the forest plot. For certain columns predefined labels exist which
 #' are used by default, i.e., if arguments \code{leftlabs} and
 #' \code{rightlabs} are \code{NULL}:
@@ -790,7 +791,11 @@
 #' Column: \tab \code{ci} \tab \code{effect.ci} \tab
 #'   \code{w.common} \tab \code{w.random} \tab \code{cycles} \tab \cr
 #' Label: \tab \code{x$level}"\%-CI" \tab \emph{effect+ci} \tab
-#'   "W(common)" \tab "W(random)" \tab "Cycles" \tab
+#'   "W(common)" \tab "W(random)" \tab "Cycles" \tab \cr
+#' \cr
+#' Column: \tab \code{pval} \tab \code{tau2} \tab
+#'   \code{tau} \tab \tab \tab \cr
+#' Label: \tab "P-value" \tab "Tau2" \tab "Tau" \tab \tab \tab
 #' }
 #'
 #' For other columns, the column name will be used as a label if no
@@ -799,7 +804,6 @@
 #' and \code{rightlabs} must be the same as the number of printed
 #' columns. The value \code{NA} can be used to specify columns which
 #' should use default labels (see Examples).
-#'
 #'
 #' In pairwise meta-analysis comparing two groups (i.e.,
 #' \code{\link{metabin}}, \code{\link{metacont}},
@@ -812,7 +816,7 @@
 #' }
 #'
 #' \subsection{Risk of bias assessment}{
-#'
+#' 
 #' A risk of bias (RoB) assessment can be shown in the forest plot by
 #' either using a meta-analysis object with an RoB assessment as main
 #' input or providing a suitable object created with
@@ -826,7 +830,6 @@
 #' left side.
 #' }
 #' 
-#'
 #' \subsection{Information on heterogeneity and statistical tests}{
 #' 
 #' Argument \code{hetstat} can be a character string to specify where
@@ -899,6 +902,27 @@
 #' \item \code{test.effect.subgroup.random} (test for effect in
 #'   subgroups, random effects model).
 #' }
+#' }
+#'
+#' \subsection{Data set with information to print with overall results}{
+#' 
+#' Argument \code{data.pooled} can be used to provide information printed in
+#' the line(s) with overall results, i.e., for the common effect or random
+#' effects model. Input must be a data frame with variable names equal to those
+#' provided in arguments \code{leftcols} or \code{rightcols}. Only variables
+#' for additional variables are considered.
+#' 
+#' It is possible to provide a row in data set \code{data.pooled} for each
+#' common effect or random effects estimate. The order in the data set
+#' corresponds to the order of common effect and random effects estimates in
+#' the forest plot, i.e., common effect followed by random effects estimates.
+#' If the data set contains a single row, the value provided for a variable is
+#' considered for all printed common effect and random effects estimates 
+#' 
+#' In meta-analyses with subgroups, a row must be provided in data set
+#' \code{data.pooled} for each overall common effect or random effects estimate,
+#' followed by common effect or random effects estimates within subgroups. The
+#' order for subgroup results is the same as see in the forest plot.
 #' }
 #' 
 #' \subsection{Additional general settings}{
@@ -1436,6 +1460,8 @@ forest.meta <- function(x,
                         col.header.line = col.lines,
                         col.jama.line = col.subgroup,
                         #
+                        data.pooled = NULL,
+                        #
                         fontsize = gs("fontsize"),
                         fontfamily = gs("fontfamily"),
                         fs.heading = fontsize,
@@ -1591,13 +1617,13 @@ forest.meta <- function(x,
   metarate <- inherits(x, "metarate")
   metabind <- inherits(x, "is.metabind")
   #
-  metainf.metacum <- inherits(x, "metainf") | inherits(x, "metacum")
+  metainf <- inherits(x, "metainf")
   #
   metamerge <- inherits(x, "metamerge")
   #
   meta <- !metabind &&
     (metabin | metacont | metacor | metagen | metainc | metamean |
-       metaprop | metarate | metainf.metacum)
+       metaprop | metarate | metainf)
   #
   ftr <- x$func.transf
   atr <- x$args.transf
@@ -1891,12 +1917,10 @@ forest.meta <- function(x,
                 "effect", "ci",
                 "effect.ci",
                 #
-                "w.fixed", "w.common", "w.random",
-                #
-                "pval")
+                "w.fixed", "w.common", "w.random")
   #
-  if (metainf.metacum)
-    colnames <- c(colnames, "tau2", "tau", "I2")
+  if (metainf)
+    colnames <- c(colnames, "pval", "tau2", "tau", "I2")
   #
   # If any of the following list elements is NULL, these 'special'
   # variable names are searched for in original data set (i.e., list
@@ -1977,7 +2001,7 @@ forest.meta <- function(x,
         else if (length(dataset2[[firstvar]]) != 0)
           studlab.new <- dataset2[[firstvar]]
         #
-        if (metainf.metacum)
+        if (metainf)
           studlab.new <- c(studlab.new, "", rev(x$studlab)[1])
         #
         if (length(x$studlab) != length(studlab.new))
@@ -2024,10 +2048,10 @@ forest.meta <- function(x,
       sortvar <- sortvar[x$data$.subset]
   }
   #
-  if (!is.null(sortvar) & metainf.metacum)
+  if (!is.null(sortvar) & metainf)
     warning("Argument 'sortvar' ignored for objects ",
-            "created with metacum() or metainf().")
-  sort <- !is.null(sortvar) & !metainf.metacum
+            "created with metainf().")
+  sort <- !is.null(sortvar) & !metainf
   if (sort && (length(sortvar) != K.all))
     stop("Number of studies in object 'x' and argument 'sortvar' ",
          "have different length.")
@@ -2092,7 +2116,7 @@ forest.meta <- function(x,
   if (missing.studlab && K.all == 1 && studlab == "")
     studlab <- "1"
   #
-  if (length(studlab) != (K.all - 2 * (metainf.metacum & !missing.studlab)))
+  if (length(studlab) != (K.all - 2 * (metainf & !missing.studlab)))
     stop("Number of studies in object 'x' and argument 'studlab' have ",
          "different length.")
   #
@@ -2284,7 +2308,7 @@ forest.meta <- function(x,
   #
   chkchar(lab.NA)
   if (is.null(lab.NA.effect)) {
-    if (metainf.metacum)
+    if (metainf)
       lab.NA.effect <- lab.NA
     else
       lab.NA.effect <- ""
@@ -3283,7 +3307,7 @@ forest.meta <- function(x,
                              round(x$level.predict * 100), "%-PI)")
   }
   #
-  if (metainf.metacum) {
+  if (metainf) {
     overall.hetstat <- FALSE
     test.overall.common <- FALSE
     test.overall.random <- FALSE
@@ -3774,7 +3798,7 @@ forest.meta <- function(x,
                 #
                 "P-value")
   #
-  if (metainf.metacum)
+  if (metainf)
     labnames <- c(labnames, "Tau2", "Tau", "I2")
   #
   if (newcols) {
@@ -3926,7 +3950,7 @@ forest.meta <- function(x,
       leftcols <- c(leftcols, "cycles")
     #
     if (jama) {
-      if (metainf.metacum)
+      if (metainf)
         leftcols <- c(leftcols, "pval", "tau2", "tau", "I2")
       #
       leftcols <- c(leftcols, "effect.ci")
@@ -4101,14 +4125,14 @@ forest.meta <- function(x,
     #
     if (revman5) {
       #
-      if (!metainf.metacum & overall & study.results &
+      if (!metainf & overall & study.results &
           !any(x$method == "GLMM") & !metamerge) {
         if (common && !all(is.na(x$w.common)))
           leftcols <- c(leftcols, "w.common")
         if (random && !all(is.na(x$w.random)))
           leftcols <- c(leftcols, "w.random")
       }
-      else if (metainf.metacum)
+      else if (metainf)
         leftcols <- c(leftcols, "pval", "tau2", "tau", "I2")
       #
       leftcols <- c(leftcols, "effect.ci")
@@ -4119,14 +4143,14 @@ forest.meta <- function(x,
     #
     if (!revman5.jama & rob.only) {
       #
-      if (!metainf.metacum & overall & study.results &
+      if (!metainf & overall & study.results &
           !any(x$method == "GLMM") & !metamerge) {
         if (common)
           leftcols <- c(leftcols, "w.common")
         if (random)
           leftcols <- c(leftcols, "w.random")
       }
-      else if (metainf.metacum)
+      else if (metainf)
         leftcols <- c(leftcols, "pval", "tau2", "tau", "I2")
       #
       if (bmj)
@@ -4145,7 +4169,7 @@ forest.meta <- function(x,
     else
       rightcols <- c("effect", "ci")
     #
-    if (!metainf.metacum & overall & study.results &
+    if (!metainf & overall & study.results &
         !any(x$method == "GLMM") & !metamerge) {
       wcols <- c(if (common && !all(is.na(x$w.common))) "w.common",
                  if (random && !all(is.na(x$w.random))) "w.random")
@@ -4156,12 +4180,12 @@ forest.meta <- function(x,
         rightcols <- c(rightcols, wcols)
     }
     #
-    if (metainf.metacum)
+    if (metainf)
       rightcols <- c(rightcols, "pval", "tau2", "tau", "I2")
   }
   else if (RoB.available & rob.only &
            missing.leftcols & !revman5.jama) {
-    if (!metainf.metacum & overall & study.results &
+    if (!metainf & overall & study.results &
         !any(x$method == "GLMM" & !metamerge)) {
       if (common)
         leftcols <- c(leftcols, "w.common")
@@ -4283,7 +4307,7 @@ forest.meta <- function(x,
     }
   }
   #
-  if (metainf.metacum) {
+  if (metainf) {
     #
     x$TE.common <- rev(x$TE)[1]
     x$seTE.common <- rev(x$seTE)[1]
@@ -4421,7 +4445,7 @@ forest.meta <- function(x,
   #
   x$cycles <- x$cycles[sel]
   #
-  if (metainf.metacum) {
+  if (metainf) {
     x$tau2 <- x$tau2[sel]
     x$tau <- x$tau[sel]
     x$I2 <- x$I2[sel]
@@ -4495,7 +4519,7 @@ forest.meta <- function(x,
     #
     x$pval <- x$pval[o]
     #
-    if (metainf.metacum) {
+    if (metainf) {
       x$tau2 <- x$tau2[o]
       x$tau <- x$tau[o]
       x$I2 <- x$I2[o]
@@ -4527,7 +4551,7 @@ forest.meta <- function(x,
   if (bmj)
     studlab <- paste0(" ", studlab)
   #
-  if (metainf.metacum) {
+  if (metainf) {
     TE    <- x$TE
     seTE  <- x$seTE
     lowTE <- x$lower
@@ -6028,9 +6052,9 @@ forest.meta <- function(x,
                             digits = digits.pval,
                             zero = zero.pval, JAMA = JAMA.pval,
                             scientific = scientific.pval,
-                            lab.NA = "NA")
+                            lab.NA = lab.NA)
   statistics.overall <- formatN(c(x$statistic.common, x$statistic.random),
-                                digits.stat, "NA", big.mark = big.mark)
+                                digits.stat, lab.NA, big.mark = big.mark)
   #
   # Remove superfluous spaces
   #
@@ -6661,12 +6685,13 @@ forest.meta <- function(x,
     n.com.w <- n.com * n.by
     n.ran.w <- n.ran * n.by
     n.prd.w <- n.prd * n.by
+    n.stat.w <- 3 * n.by
     #
     NAs.by <- rep(NA, n.by)
     NAs.com.w <- rep(NA, n.com.w)
     NAs.ran.w <- rep(NA, n.ran.w)
     NAs.prd.w <- rep(NA, n.prd.w)
-    NAs.stat.w <- rep(NA, 3 * n.by)
+    NAs.stat.w <- rep(NA, n.stat.w)
     NAs.w <- rep(NA, n.com.w + n.ran.w + n.prd.w)
     #
     NAs.all <- c(NAs, NAs.w, NAs.stat.w)
@@ -6674,9 +6699,9 @@ forest.meta <- function(x,
     blanks.com.w <- rep("", n.com.w)
     blanks.ran.w <- rep("", n.ran.w)
     blanks.prd.w <- rep("", n.prd.w)
-    blanks.stat.w <- rep("", 3 * n.by)
+    blanks.stat.w <- rep("", n.stat.w)
     #
-    blanks.w <- rep("", n.com.w + n.ran.w + n.prd.w + 3 * n.by)
+    blanks.w <- rep("", n.com.w + n.ran.w + n.prd.w + n.stat.w)
     #
     idx.com.w <- 1 + (seq_len(n.by) * n.com) - n.com
     idx.ran.w <- 1 + (seq_len(n.by) * n.ran) - n.ran
@@ -6739,7 +6764,7 @@ forest.meta <- function(x,
     #
     sel.w <- c(first.com.w, first.ran.w, first.prd.w, all.stat.w)
     #
-    if (!metainf.metacum & common) {
+    if (!metainf & common) {
       if (!overall) {
         i <- 0
         for (bylev.i in subgroup.levels) {
@@ -6774,7 +6799,7 @@ forest.meta <- function(x,
         text.common.w <- rep("Overall", n.com.w)
     }
     #
-    if (!metainf.metacum & random) {
+    if (!metainf & random) {
       if (!overall) {
         i <- 0
         for (bylev.i in subgroup.levels) {
@@ -7500,10 +7525,10 @@ forest.meta <- function(x,
                digits = digits.pval,
                zero = zero.pval, JAMA = JAMA.pval,
                scientific = scientific.pval,
-               lab.NA = "NA")
+               lab.NA = lab.NA)
     statistics.effect.w <-
       formatN(c(statistic.common.w, statistic.random.w),
-              digits.stat, "NA", big.mark = big.mark)
+              digits.stat, lab.NA, big.mark = big.mark)
     #
     # Remove superfluous spaces
     #
@@ -7984,7 +8009,7 @@ forest.meta <- function(x,
     #
     # Freeman-Tukey Arcsin transformation
     #
-    if (metainf.metacum | metabind) {
+    if (metainf | metabind) {
       if (sm == "IRFT") {
         npft <- x$t.harmonic.mean
         npft.ma <- x$t.harmonic.mean.ma
@@ -8030,7 +8055,7 @@ forest.meta <- function(x,
       lowTE.random <- backtransf(lowTE.random, sm, npft.ma, npft.ma, fbt, abt)
       uppTE.random <- backtransf(uppTE.random, sm, npft.ma, npft.ma, fbt, abt)
       #
-      if (!metainf.metacum) {
+      if (!metainf) {
         lowTE.predict <-
           backtransf(lowTE.predict, sm, npft.ma, npft.ma, fbt, abt)
         uppTE.predict <-
@@ -8150,7 +8175,7 @@ forest.meta <- function(x,
     uppTE.predict <- NAs.prd
   }
   #
-  if (!metainf.metacum) {
+  if (!metainf) {
     if (by & !overall)
       w.common.p <- round(100 * x$w.common, digits.weight)
     else {
@@ -8261,7 +8286,7 @@ forest.meta <- function(x,
   # "sd.e", "sd.c",
   # "cor",
   # "time.e", "time.c",
-  # "pval", "tau2", "tau", "I2" (for metainf.metacum)
+  # "pval", "tau2", "tau", "I2" (for metainf)
   #
   # Check for "\n" in label of column 'studlab'
   #
@@ -9735,7 +9760,7 @@ forest.meta <- function(x,
   #
   # Leave-one-out / cumulative meta-analysis
   #
-  if (metainf.metacum) {
+  if (metainf) {
     tau2.format <- c(x$tau2.overall, x$tau2.overall, NA, x$tau2)
     tau.format <- c(x$tau.overall, x$tau.overall, NA, x$tau)
     I2.format <- c(x$I2.overall, x$I2.overall, NA, x$I2)
@@ -10465,7 +10490,7 @@ forest.meta <- function(x,
                         fontfamily,
                         n.com, n.ran, n.prd)
   #
-  if (metainf.metacum) {
+  if (metainf) {
     col.tau2 <- formatcol(labs[["lab.tau2"]], tau2.format, yS, just.c, fcs,
                           fontfamily,
                           n.com, n.ran, n.prd)
@@ -10476,8 +10501,6 @@ forest.meta <- function(x,
                         fontfamily,
                         n.com, n.ran, n.prd)
   }
-  #
-  #
   #
   col.effect.calc <- formatcol(longer.effect, effect.format, yS, just.c, fcs,
                                fontfamily,
@@ -10581,7 +10604,7 @@ forest.meta <- function(x,
                              fontfamily,
                              n.com, n.ran, n.prd)
   #
-  if (metainf.metacum) {
+  if (metainf) {
     col.tau2.calc <- formatcol(longer.tau2, tau2.format, yS, just.c, fcs,
                                fontfamily,
                                n.com, n.ran, n.prd)
@@ -10669,6 +10692,8 @@ forest.meta <- function(x,
                col.TE = col.TE,
                col.seTE = col.seTE)
   #
+  cols.new <- vector("list")
+  #
   if (ev.n.bin) {
     cols$col.event.n.e <- col.event.n.e
     cols$col.event.n.c <- col.event.n.c
@@ -10727,7 +10752,7 @@ forest.meta <- function(x,
   #
   cols[["col.pval"]] <- col.pval
   #
-  if (metainf.metacum) {
+  if (metainf) {
     cols[["col.tau2"]] <- col.tau2
     cols[["col.tau"]] <- col.tau
     cols[["col.I2"]] <- col.I2
@@ -10756,7 +10781,7 @@ forest.meta <- function(x,
   #
   cols.calc[["col.pval"]] <- col.pval.calc
   #
-  if (metainf.metacum) {
+  if (metainf) {
     cols.calc[["col.tau2"]] <- col.tau2.calc
     cols.calc[["col.tau"]] <- col.tau.calc
     cols.calc[["col.I2"]] <- col.I2.calc
@@ -10806,65 +10831,22 @@ forest.meta <- function(x,
     #
     if (by) {
       for (i in seq_along(rightcols.new)) {
-        tname <- paste0("col.", rightcols.new[i])
+        col.i <-
+          newCol(rightcols.new[i], rightlabs.new[i],
+                 rob, dataset1, dataset2, data.pooled,
+                 n.com, n.ran, n.prd,
+                 notavail.digits.addcols.right, lab.NA, big.mark,
+                 zero.pval, JAMA.pval, scientific.pval,
+                 digits.addcols.right[i],
+                 digits.pval, digits.tau2, digits.tau, digits.I2,
+                 all.prd,
+                 n.com.w, n.ran.w, n.prd.w, n.stat.w)
         #
-        rob.i <- length(rob[[rightcols.new[i]]]) != 0
+        cols.new[[col.i$colname]] <- col.i$format_var
         #
-        if (rob.i)
-          tmp.r <- rob[[rightcols.new[i]]]
-        else if (length(dataset1[[rightcols.new[i]]]) != 0)
-          tmp.r <- dataset1[[rightcols.new[i]]]
-        else if (length(dataset2[[rightcols.new[i]]]) != 0)
-          tmp.r <- dataset2[[rightcols.new[i]]]
-        else
-          stop("Variable '", rightcols.new[i],
-               "' not available in meta-analysis object.",
-               call. = FALSE)
-        #
-        if  (!is.character(tmp.r)) {
-          if (is.factor(tmp.r))
-            tmp.r <- as.character(tmp.r)
-          else if (notavail.digits.addcols.right &
-                   all(is_wholenumber(tmp.r), na.rm = TRUE))
-            tmp.r <- formatN(tmp.r, digits = 0,
-                             text.NA = lab.NA, big.mark = big.mark)
-          else if (is.numeric(tmp.r)) {
-            if (rightcols.new[i] == "pval")
-              tmp.r <- formatPT(tmp.r, digits = digits.pval,
-                                big.mark = big.mark)
-            else if (rightcols.new[i] == "tau2")
-              tmp.r <- formatPT(tmp.r, digits = digits.tau2,
-                                big.mark = big.mark)
-            else if (rightcols.new[i] == "tau")
-              tmp.r <- formatPT(tmp.r, digits = digits.tau,
-                                big.mark = big.mark)
-            else if (rightcols.new[i] == "I2") {
-              format.r <- formatN(100 * tmp.r, digits.I2, lab.NA)
-              tmp.r <- ifelse(format.r == lab.NA, lab.NA,
-                              paste0(format.r, "%"))
-            }
-            else
-              tmp.r <- formatN(tmp.r, digits = digits.addcols.right[i],
-                               text.NA = "", big.mark = big.mark)
-          }
-        }
-        #
-        tmp.r <- ifelse(is.na(tmp.r), lab.NA, tmp.r)
-        #
-        # Check for "\n" in label of new column
-        #
-        clines <- twolines(rightlabs.new[i], rightcols.new[i])
-        #
-        if (clines$newline) {
-          lab.new <- clines$bottom
-          longer.new <- clines$longer
-        }
-        else
-          lab.new <- longer.new <- rightlabs.new[i]
-        cols[[tname]] <-
-          formatcol(lab.new,
-                    c("", "", "", rep("", length(TE.w)), tmp.r),
-                    if (!rob.i) yS else yS.noma,
+        cols[[col.i$colname]] <-
+          formatcol(col.i$label, col.i$format_var,
+                    if (!col.i$rob) yS else yS.noma,
                     if (rightcols.new[i] %in%
                         c("pval", "tau2", "tau", "I2", "Q", "pval.Q"))
                       just
@@ -10873,159 +10855,68 @@ forest.meta <- function(x,
                     fcs, fontfamily,
                     n.com, n.ran, n.prd,
                     rightcols.new[i] %in% colnames(rob))
-        cols.calc[[tname]] <- formatcol(longer.new,
-                                        c("", "", "", rep("", length(TE.w)),
-                                          tmp.r),
-                                        yS,
-                                        just.addcols.right[i],
-                                        fcs, fontfamily,
-                                        n.com, n.ran, n.prd)
+        #
+        cols.calc[[col.i$colname]] <-
+          formatcol(col.i$longer, col.i$format_var,
+                    yS,
+                    just.addcols.right[i],
+                    fcs, fontfamily,
+                    n.com, n.ran, n.prd)
       }
       #
       for (i in seq_along(leftcols.new)) {
-        tname <- paste0("col.", leftcols.new[i])
+        col.i <-
+          newCol(leftcols.new[i], leftlabs.new[i],
+                 rob, dataset1, dataset2, data.pooled,
+                 n.com, n.ran, n.prd,
+                 notavail.digits.addcols.left, lab.NA, big.mark,
+                 zero.pval, JAMA.pval, scientific.pval,
+                 digits.addcols.left[i],
+                 digits.pval, digits.tau2, digits.tau, digits.I2,
+                 all.prd,
+                 n.com.w, n.ran.w, n.prd.w, n.stat.w)
         #
-        if (length(dataset1[[leftcols.new[i]]]) != 0)
-          tmp.l <- dataset1[[leftcols.new[i]]]        
-        else if (length(dataset2[[leftcols.new[i]]]) != 0)
-          tmp.l <- dataset2[[leftcols.new[i]]]
-        else
-          stop("Variable '", leftcols.new[i],
-               "' not available in meta-analysis object.",
-               call. = FALSE)
+        cols.new[[col.i$colname]] <- col.i$format_var
         #
-        if (!is.character(tmp.l)) {
-          if (is.factor(tmp.l))
-            tmp.l <- as.character(tmp.l)
-          else if (notavail.digits.addcols.left &
-                   all(is_wholenumber(tmp.l), na.rm = TRUE))
-            tmp.l <- formatN(tmp.l, digits = 0,
-                             text.NA = lab.NA, big.mark = big.mark)
-          else if (is.numeric(tmp.l)) {
-            if (leftcols.new[i] == "pval")
-              tmp.l <- formatPT(tmp.l, digits = digits.pval,
-                                big.mark = big.mark)
-            else if (leftcols.new[i] == "tau2")
-              tmp.l <- formatPT(tmp.l, digits = digits.tau2,
-                                big.mark = big.mark)
-            else if (leftcols.new[i] == "tau")
-              tmp.l <- formatPT(tmp.l, digits = digits.tau,
-                                big.mark = big.mark)
-            else if (leftcols.new[i] == "I2") {
-              format.l <- formatN(100 * tmp.l, digits.I2, lab.NA)
-              tmp.l <- ifelse(format.l == lab.NA, lab.NA,
-                              paste0(format.l, "%"))
-            }
-            else
-              tmp.l <- formatN(tmp.l, digits = digits.addcols.left[i],
-                               text.NA = "", big.mark = big.mark)
-          }
-        }
-        #
-        tmp.l <- ifelse(is.na(tmp.l), lab.NA, tmp.l)
-        #
-        # Check for "\n" in label of new column
-        #
-        clines <- twolines(leftlabs.new[i], leftcols.new[i])
-        #
-        if (clines$newline) {
-          lab.new <- clines$bottom
-          longer.new <- clines$longer
-        }
-        else
-          lab.new <- longer.new <- leftlabs.new[i]
-        #
-        cols[[tname]] <-
-          formatcol(lab.new,
-                    c("", "", "",
-                      rep("", length(TE.w)), tmp.l),
-                    yS,
+        cols[[col.i$colname]] <-
+          formatcol(col.i$label, col.i$format_var,
+                    if (!col.i$rob) yS else yS.noma,
                     if (leftcols.new[i] %in%
                         c("pval", "tau2", "tau", "I2", "Q", "pval.Q"))
                       just
                     else
                       just.addcols.left[i],
                     fcs, fontfamily,
-                    n.com, n.ran, n.prd)
+                    n.com, n.ran, n.prd,
+                    leftcols.new[i] %in% colnames(rob))
         #
-        cols.calc[[tname]] <- formatcol(longer.new,
-                                        c("", "", "",
-                                          rep("", length(TE.w)), tmp.l),
-                                        yS,
-                                        just.addcols.left[i],
-                                        fcs, fontfamily,
-                                        n.com, n.ran, n.prd)
+        cols.calc[[col.i$colname]] <-
+          formatcol(col.i$longer, col.i$format_var,
+                    yS,
+                    just.addcols.left[i],
+                    fcs, fontfamily,
+                    n.com, n.ran, n.prd)
       }
     }
     else {
       for (i in seq_along(rightcols.new)) {
-        tname <- paste0("col.", rightcols.new[i])
+        col.i <-
+          newCol(rightcols.new[i], rightlabs.new[i],
+                 rob, dataset1, dataset2, data.pooled,
+                 n.com, n.ran, n.prd,
+                 notavail.digits.addcols.right, lab.NA, big.mark,
+                 zero.pval, JAMA.pval, scientific.pval,
+                 digits.addcols.right[i],
+                 digits.pval, digits.tau2, digits.tau, digits.I2,
+                 all.prd)
         #
-        rob.i <- length(rob[[rightcols.new[i]]]) != 0
+        cols.new[[col.i$colname]] <- col.i$format_var
         #
-        if (rob.i)
-          tmp.r <- rob[[rightcols.new[i]]]
-        else if (length(dataset1[[rightcols.new[i]]]) != 0)
-          tmp.r <- dataset1[[rightcols.new[i]]]
-        else if (length(dataset2[[rightcols.new[i]]]) != 0)
-          tmp.r <- dataset2[[rightcols.new[i]]]
-        else
-          stop("Variable '", rightcols.new[i],
-               "' not available in meta-analysis object.",
-               call. = FALSE)
-        #
-        if (!is.character(tmp.r)) {
-          if (is.factor(tmp.r))
-            tmp.r <- as.character(tmp.r)
-          else if (notavail.digits.addcols.right &
-                   all(is_wholenumber(tmp.r), na.rm = TRUE))
-            tmp.r <- formatN(tmp.r, digits = 0,
-                             text.NA = lab.NA, big.mark = big.mark)
-          else if (is.numeric(tmp.r)) {
-            if (rightcols.new[i] == "pval")
-              tmp.r <- formatPT(tmp.r, digits = digits.pval,
-                                big.mark = big.mark,
-                                lab = FALSE, labval = "",
-                                zero = zero.pval, JAMA = JAMA.pval,
-                                scientific = scientific.pval,
-                                lab.NA = "NA")
-            else if (rightcols.new[i] == "tau2")
-              tmp.r <- formatPT(tmp.r, digits = digits.tau2,
-                                big.mark = big.mark,
-                                lab = FALSE, labval = "",
-                                lab.NA = "NA")
-            else if (rightcols.new[i] == "tau")
-              tmp.r <- formatPT(tmp.r, digits = digits.tau,
-                                big.mark = big.mark,
-                                lab = FALSE, labval = "",
-                                lab.NA = "NA")
-            else if (rightcols.new[i] == "I2")
-              tmp.r <-
-                paste0(formatN(100 * tmp.r, digits.I2, "NA"), "%")
-            else
-              tmp.r <- formatN(tmp.r, digits = digits.addcols.right[i],
-                               text.NA = "", big.mark = big.mark)
-          }
-        }
-        #
-        tmp.r <- ifelse(is.na(tmp.r), "", tmp.r)
-        #
-        # Check for "\n" in label of new column
-        #
-        clines <- twolines(rightlabs.new[i], rightcols.new[i])
-        #
-        if (clines$newline) {
-          lab.new <- clines$bottom
-          longer.new <- clines$longer
-        }
-        else
-          lab.new <- longer.new <- rightlabs.new[i]
-        #
-        cols[[tname]] <-
-          formatcol(lab.new,
-                    c("", "", "", tmp.r),
-                    if (!rob.i) yS else yS.noma,
-                    if (rightcols.new[i] %in% c("pval", "tau2", "tau", "I2"))
+        cols[[col.i$colname]] <-
+          formatcol(col.i$label, col.i$format_var,
+                    if (!col.i$rob) yS else yS.noma,
+                    if (rightcols.new[i] %in%
+                        c("pval", "tau2", "tau", "I2", "Q", "pval.Q"))
                       just
                     else
                       just.addcols.right[i],
@@ -11033,89 +10924,45 @@ forest.meta <- function(x,
                     n.com, n.ran, n.prd,
                     rightcols.new[i] %in% colnames(rob))
         #
-        cols.calc[[tname]] <- formatcol(longer.new,
-                                        c("", "", "", tmp.r),
-                                        yS,
-                                        just.addcols.right[i],
-                                        fcs, fontfamily,
-                                        n.com, n.ran, n.prd)
+        cols.calc[[col.i$colname]] <-
+          formatcol(col.i$longer, col.i$format_var,
+                    yS,
+                    just.addcols.right[i],
+                    fcs, fontfamily,
+                    n.com, n.ran, n.prd)
       }
       #
       for (i in seq_along(leftcols.new)) {
-        tname <- paste0("col.", leftcols.new[i])
+        col.i <-
+          newCol(leftcols.new[i], leftlabs.new[i],
+                 rob, dataset1, dataset2, data.pooled,
+                 n.com, n.ran, n.prd,
+                 notavail.digits.addcols.left, lab.NA, big.mark,
+                 zero.pval, JAMA.pval, scientific.pval,
+                 digits.addcols.left[i],
+                 digits.pval, digits.tau2, digits.tau, digits.I2,
+                 all.prd)
         #
-        if (length(dataset1[[leftcols.new[i]]]) != 0)
-          tmp.l <- dataset1[[leftcols.new[i]]]        
-        else if (length(dataset2[[leftcols.new[i]]]) != 0)
-          tmp.l <- dataset2[[leftcols.new[i]]]
-        else
-          stop("Variable '", leftcols.new[i],
-               "' not available in meta-analysis object.",
-               call. = FALSE)
+        cols.new[[col.i$colname]] <- col.i$format_var
         #
-        if (!is.character(tmp.l)) {
-          if (is.factor(tmp.l))
-            tmp.l <- as.character(tmp.l)
-          else if (notavail.digits.addcols.left &
-                   all(is_wholenumber(tmp.l), na.rm = TRUE))
-            tmp.l <- formatN(tmp.l, digits = 0,
-                             text.NA = lab.NA, big.mark = big.mark)
-          else if (is.numeric(tmp.l)) {
-            if (leftcols.new[i] == "pval")
-              tmp.l <- formatPT(tmp.l, digits = digits.pval,
-                                big.mark = big.mark,
-                                lab = FALSE, labval = "",
-                                zero = zero.pval, JAMA = JAMA.pval,
-                                scientific = scientific.pval,
-                                lab.NA = "NA")
-            else if (leftcols.new[i] == "tau2")
-              tmp.l <- formatPT(tmp.l, digits = digits.tau2,
-                                big.mark = big.mark,
-                                lab = FALSE, labval = "",
-                                lab.NA = "NA")
-            else if (leftcols.new[i] == "tau")
-              tmp.l <- formatPT(tmp.l, digits = digits.tau,
-                                big.mark = big.mark,
-                                lab = FALSE, labval = "",
-                                lab.NA = "NA")
-            else if (leftcols.new[i] == "I2")
-              tmp.l <-
-                paste0(formatN(100 * tmp.l, digits.I2, "NA"), "%")
-            else
-              tmp.l <- formatN(tmp.l, digits = digits.addcols.left[i],
-                               text.NA = "", big.mark = big.mark)
-          }
-        }
-        #
-        tmp.l <- ifelse(is.na(tmp.l), "", tmp.l)
-        #
-        # Check for "\n" in label of new column
-        #
-        clines <- twolines(leftlabs.new[i], leftcols.new[i])
-        #
-        if (clines$newline) {
-          lab.new <- clines$bottom
-          longer.new <- clines$longer
-        }
-        else
-          lab.new <- longer.new <- leftlabs.new[i]
-        #
-        cols[[tname]] <-
-          formatcol(lab.new,
-                    c("", "", "", tmp.l),
-                    yS,
-                    if (leftcols.new[i] %in% c("pval", "tau2", "tau", "I2"))
+        cols[[col.i$colname]] <-
+          formatcol(col.i$label, col.i$format_var,
+                    if (!col.i$rob) yS else yS.noma,
+                    if (leftcols.new[i] %in%
+                        c("pval", "tau2", "tau", "I2", "Q", "pval.Q"))
                       just
                     else
                       just.addcols.left[i],
                     fcs, fontfamily,
+                    n.com, n.ran, n.prd,
+                    leftcols.new[i] %in% colnames(rob))
+        #
+        cols.calc[[col.i$colname]] <-
+          formatcol(col.i$longer, col.i$format_var,
+                    yS,
+                    just.addcols.left[i],
+                    fcs, fontfamily,
                     n.com, n.ran, n.prd)
-        cols.calc[[tname]] <- formatcol(longer.new,
-                                        c("", "", "", tmp.l),
-                                        yS,
-                                        just.addcols.left[i],
-                                        fcs, fontfamily,
-                                        n.com, n.ran, n.prd)
       }
     }
   }
@@ -11251,7 +11098,7 @@ forest.meta <- function(x,
     col.add.time.c <- tgl(add.time.c, xpos.c, just.c, fs.head, ff.head,
                           fontfamily)
   #
-  if (metainf.metacum) {
+  if (metainf) {
     if (newline.pval)
       col.add.pval <- tgl(add.pval, xpos.c, just.c, fs.head, ff.head,
                           fontfamily)
@@ -11773,7 +11620,7 @@ forest.meta <- function(x,
         if (newline.time.c & leftcols[i] == "col.time.c")
           add.text(col.add.time.c, j)
         #
-        if (metainf.metacum) {
+        if (metainf) {
           if (newline.pval & leftcols[i] == "col.pval")
             add.text(col.add.pval, j)
           if (newline.tau2 & leftcols[i] == "col.tau2")
@@ -12041,7 +11888,7 @@ forest.meta <- function(x,
         if (newline.time.c & rightcols[i] == "col.time.c")
           add.text(col.add.time.c, j)
         #
-        if (metainf.metacum) {
+        if (metainf) {
           if (newline.pval & rightcols[i] == "col.pval")
             add.text(col.add.pval, j)
           if (newline.tau2 & rightcols[i] == "col.tau2")
@@ -12220,25 +12067,33 @@ forest.meta <- function(x,
               cycles.format = cycles.format,
               effect.format = effect.format,
               ci.format = ci.format,
-              effect.ci.format = effect.ci.format,
-              #
-              if (ev.n.bin | ev.n.prop) effect.ci.format = effect.ci.format,
-              if (ev.n.bin) effect.ci.format = effect.ci.format,
-              #
-              figheight = figheight,
-              #
-              leftcols = leftcols,
-              leftlabs= leftlabs,
-              rightcols = rightcols,
-              rightlabs = rightlabs)
+              effect.ci.format = effect.ci.format)
   #
-  if (metainf.metacum) {
+  if (ev.n.bin | ev.n.prop)
+    res$effect.ci.format <- effect.ci.format
+  #
+  if (ev.n.bin)
+    res$effect.ci.format <- effect.ci.format
+  #
+  if (length(cols.new) > 0) {
+    for (i in names(cols.new))
+      res[[i]] <- cols.new[[i]]
+  }
+  #
+  if (metainf) {
     res$pval.format <- pval.format
     res$tau2.format <- tau2.format
     res$tau.format <- tau.format
     res$I2.format <- I2.format
   }
-  
+  #
+  res$figheight <- figheight
+  #
+  res$leftcols <- leftcols
+  res$leftlabs <- leftlabs
+  res$rightcols <- rightcols
+  res$rightlabs <- rightlabs
+  #
   invisible(res)
 }
 

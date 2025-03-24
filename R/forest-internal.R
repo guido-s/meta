@@ -1199,3 +1199,129 @@ show_subgroup_results <- function(x, n, lower, upper) {
     return(x)
   }
 }
+
+newCol <- function(varname, label,
+                   rob, data1, data2, datap,
+                   n.com, n.ran, n.prd,
+                   notavail, lab.NA, big.mark,
+                   zero.pval, JAMA.pval, scientific.pval,
+                   digits, digits.pval, digits.tau2, digits.tau, digits.I2,
+                   sel.prd,
+                   n.com.w = 0, n.ran.w = 0, n.prd.w = 0, n.stat.w = 0) {
+  
+  by <- sum(c(n.com.w, n.ran.w, n.prd.w, n.stat.w) > 0)
+  #
+  n.subgroup <- n.com.w + n.ran.w + n.prd.w + n.stat.w
+  #
+  if (length(rob[[varname]]) != 0)
+    fvar <- rob[[varname]]
+  else if (length(data1[[varname]]) != 0)
+    fvar <- data1[[varname]]
+  else if (length(data2[[varname]]) != 0)
+    fvar <- data2[[varname]]
+  else
+    stop("Variable '", varname,
+         "' not available in meta-analysis object.",
+         call. = FALSE)
+  #
+  if (isCol(datap, varname)) {
+    if (nrow(datap) == 1) {
+      fvar <- c(rep(datap[[varname]], n.com),
+                rep(datap[[varname]], n.ran),
+                rep(NA, n.prd),
+                if (by) rep(NA, n.subgroup) else NULL,
+                fvar)
+    }
+    else if (nrow(datap) == n.com + n.ran)
+      fvar <- c(datap[[varname]],
+                rep(NA, n.prd),
+                if (by) rep(NA, n.subgroup) else NULL,
+                fvar)
+    else if (nrow(datap) == n.com + n.ran + n.com.w + n.ran.w)
+      fvar <- c(datap[[varname]][seq_len(n.com + n.ran)],
+                rep(NA, n.prd),
+                datap[[varname]][n.com + n.ran + seq_len(n.com.w + n.ran.w)],
+                rep(NA, n.prd.w + n.stat.w),
+                fvar)
+    else
+      stop("Wrong number of row in data set 'data.pooled' ",
+           "(must be 1",
+           if (by)", " else " or ", n.com + n.ran,,
+           if (by) " or ", n.com.w + n.ran.w, ").",
+           call. = FALSE)
+  }
+  #
+  if (!is.character(fvar)) {
+    if (is.factor(fvar))
+      fvar <- as.character(fvar)
+    else if (notavail & all(is_wholenumber(fvar), na.rm = TRUE))
+      fvar <-
+        formatN(fvar, digits = 0, text.NA = lab.NA, big.mark = big.mark)
+    else if (is.numeric(fvar)) {
+      if (varname == "pval")
+        fvar <- formatPT(fvar, digits = digits.pval,
+                          big.mark = big.mark,
+                          lab = FALSE, labval = "",
+                          zero = zero.pval, JAMA = JAMA.pval,
+                          scientific = scientific.pval,
+                          lab.NA = lab.NA)
+      else if (varname == "tau2")
+        fvar <- formatPT(fvar, digits = digits.tau2,
+                          big.mark = big.mark,
+                          lab = FALSE, labval = "",
+                          lab.NA = lab.NA)
+      else if (varname == "tau")
+        fvar <- formatPT(fvar, digits = digits.tau,
+                          big.mark = big.mark,
+                          lab = FALSE, labval = "",
+                          lab.NA = lab.NA)
+      else if (varname == "I2") {
+        sel.r <- !is.na(fvar)
+        fvar[sel.r] <-
+          paste0(formatN(100 * fvar[sel.r], digits.I2), "%")
+        fvar[!sel.r] <- lab.NA
+      }
+      else
+        fvar <-
+          formatN(fvar, digits = digits, text.NA = lab.NA, big.mark = big.mark)
+    }
+  }
+  #
+  fvar <- ifelse(is.na(fvar), "", fvar)
+  #
+  # Print nothing for lines with prediction interval
+  #
+  if (isCol(datap, varname))
+    fvar[sel.prd] <- ""
+  else
+    fvar <- c(rep("", n.com), rep("", n.ran), rep("", n.prd),
+              if (by) rep("", n.subgroup),
+              fvar)
+  #
+  # Print nothing for lines for subgroups
+  #
+  if (by) {
+    is_NA <- fvar == lab.NA
+    is_w <- rep(TRUE, length(fvar))
+    is_w[seq_len(n.com + n.ran + n.prd)] <- FALSE
+    #
+    fvar[is_NA & is_w] <- ""
+  }
+  #
+  # Check for "\n" in label of new column
+  #
+  clines <- twolines(label, varname)
+  #
+  if (clines$newline) {
+    label <- clines$bottom
+    longer <- clines$longer
+  }
+  else
+    label <- longer <- label
+  #
+  res <- list(format_var = fvar, colname = paste0("col.", varname),
+              label = label, longer = longer,
+              rob = length(rob[[varname]]) != 0)
+  #
+  res
+}

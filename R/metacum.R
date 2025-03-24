@@ -9,6 +9,8 @@
 #'   Details), \code{"common"}, or \code{"random"}, can be abbreviated.
 #' @param sortvar An optional vector used to sort the individual
 #'   studies (must be of same length as \code{x$TE}).
+#' @param prediction A logical indicating whether to report prediction
+#'   intervals.
 #' @param no A numeric specifying which meta-analysis results to
 #'   consider.
 #' @param \dots Additional arguments (ignored).
@@ -25,7 +27,7 @@
 #' \code{x$common} is \code{FALSE}.
 #' 
 #' @return
-#' An object of class \code{"meta"} and \code{"metacum"} with
+#' An object of class \code{"metacum"} and \code{"meta"} with
 #' corresponding generic functions (see \code{\link{meta-object}}).
 #' 
 #' The following list elements have a different meaning:
@@ -77,7 +79,7 @@
 #' @export
 
 
-metacum.meta <- function(x, pooled, sortvar, no = 1, ...) {
+metacum.meta <- function(x, pooled, sortvar, prediction, no = 1, ...) {
   
   
   ##
@@ -86,7 +88,8 @@ metacum.meta <- function(x, pooled, sortvar, no = 1, ...) {
   ##
   ##
   chkclass(x, "meta")
-  chksuitable(x, "Cumulative meta-analysis", c("metamerge", "netpairwise"))
+  chksuitable(x, "Cumulative meta-analysis",
+              c("trimfill", "metamerge", "netpairwise"))
   ##
   x <- updateversion(x)
   ##
@@ -111,7 +114,12 @@ metacum.meta <- function(x, pooled, sortvar, no = 1, ...) {
       pooled <- "random"
     else
       pooled <- "common"
-  ##
+  #
+  if (missing(prediction))
+    prediction <- pooled == "random" & x$prediction
+  else
+    chklogical(prediction)
+  #
   mc <- match.call()
   error <-
     try(sortvar <-
@@ -127,7 +135,7 @@ metacum.meta <- function(x, pooled, sortvar, no = 1, ...) {
     stop("Number of studies in object 'x' and argument 'sortvar' ",
          "have different length.")
   if (!sort)
-    sortvar <- 1:k.all
+    sortvar <- seq_len(k.all)
   
   
   ##
@@ -183,10 +191,8 @@ metacum.meta <- function(x, pooled, sortvar, no = 1, ...) {
   ##
   studlab <- x$studlab[o]
   slab <- character(k.all)
-  for (i in 1:k.all)
+  for (i in seq_len(k.all))
     slab[i] <- paste0("Adding ", studlab[i], " (k=", ncum[i], ")")
-  slab <- c(slab, "Pooled estimate")
-  studlab <- c(rev(rev(slab)[-1]), " ", rev(slab)[1])
   ##
   chknumeric(no, min = 1, length = 1)
   ##
@@ -257,10 +263,10 @@ metacum.meta <- function(x, pooled, sortvar, no = 1, ...) {
   ## (4) Do sensitivity analysis
   ##
   ##
-  res.i <- matrix(NA, ncol = 21, nrow = k.all)
+  res.i <- matrix(NA, ncol = 28, nrow = k.all)
   add.i <- matrix(NA, ncol = 3, nrow = k.all)
   ##
-  for (i in 1:k.all) {
+  for (i in seq_len(k.all)) {
     sel <- 1:i
     ##
     if (length(incr) > 1)
@@ -287,7 +293,11 @@ metacum.meta <- function(x, pooled, sortvar, no = 1, ...) {
                    level.ma = x$level.ma,
                    method.random.ci = x$method.random.ci,
                    adhoc.hakn.ci = x$adhoc.hakn.ci,
-                   ##
+                   #
+                   level.predict = x$level.predict,
+                   method.predict = x$method.predict,
+                   adhoc.hakn.pi = x$adhoc.hakn.pi,
+                   #
                    keepdata = FALSE,
                    warn = FALSE,
                    ##
@@ -308,7 +318,11 @@ metacum.meta <- function(x, pooled, sortvar, no = 1, ...) {
                     level.ma = x$level.ma,
                     method.random.ci = x$method.random.ci,
                     adhoc.hakn.ci = x$adhoc.hakn.ci,
-                    ##
+                    #
+                    level.predict = x$level.predict,
+                    method.predict = x$method.predict,
+                    adhoc.hakn.pi = x$adhoc.hakn.pi,
+                    #
                     keepdata = FALSE,
                     warn = FALSE,
                     ##
@@ -327,7 +341,11 @@ metacum.meta <- function(x, pooled, sortvar, no = 1, ...) {
                    level.ma = x$level.ma,
                    method.random.ci = x$method.random.ci,
                    adhoc.hakn.ci = x$adhoc.hakn.ci,
-                   ##
+                   #
+                   level.predict = x$level.predict,
+                   method.predict = x$method.predict,
+                   adhoc.hakn.pi = x$adhoc.hakn.pi,
+                   #
                    keepdata = FALSE,
                    ##
                    control = x$control)
@@ -345,7 +363,11 @@ metacum.meta <- function(x, pooled, sortvar, no = 1, ...) {
                    level.ma = x$level.ma,
                    method.random.ci = x$method.random.ci,
                    adhoc.hakn.ci = x$adhoc.hakn.ci,
-                   ##
+                   #
+                   level.predict = x$level.predict,
+                   method.predict = x$method.predict,
+                   adhoc.hakn.pi = x$adhoc.hakn.pi,
+                   #
                    keepdata = FALSE,
                    warn = FALSE,
                    ##
@@ -369,7 +391,11 @@ metacum.meta <- function(x, pooled, sortvar, no = 1, ...) {
                    level.ma = x$level.ma,
                    method.random.ci = x$method.random.ci,
                    adhoc.hakn.ci = x$adhoc.hakn.ci,
-                   ##
+                   #
+                   level.predict = x$level.predict,
+                   method.predict = x$method.predict,
+                   adhoc.hakn.pi = x$adhoc.hakn.pi,
+                   #
                    keepdata = FALSE,
                    warn = FALSE,
                    ##
@@ -388,7 +414,11 @@ metacum.meta <- function(x, pooled, sortvar, no = 1, ...) {
                     level.ma = x$level.ma,
                     method.random.ci = x$method.random.ci,
                     adhoc.hakn.ci = x$adhoc.hakn.ci,
-                    ##
+                    #
+                    level.predict = x$level.predict,
+                    method.predict = x$method.predict,
+                    adhoc.hakn.pi = x$adhoc.hakn.pi,
+                    #
                     keepdata = FALSE,
                     warn = FALSE,
                     ##
@@ -410,7 +440,11 @@ metacum.meta <- function(x, pooled, sortvar, no = 1, ...) {
                     level.ma = x$level.ma,
                     method.random.ci = x$method.random.ci,
                     adhoc.hakn.ci = x$adhoc.hakn.ci,
-                    ##
+                    #
+                    level.predict = x$level.predict,
+                    method.predict = x$method.predict,
+                    adhoc.hakn.pi = x$adhoc.hakn.pi,
+                    #
                     keepdata = FALSE,
                     warn = FALSE,
                     ##
@@ -431,7 +465,11 @@ metacum.meta <- function(x, pooled, sortvar, no = 1, ...) {
                     level.ma = x$level.ma,
                     method.random.ci = x$method.random.ci,
                     adhoc.hakn.ci = x$adhoc.hakn.ci,
-                    ##
+                    #
+                    level.predict = x$level.predict,
+                    method.predict = x$method.predict,
+                    adhoc.hakn.pi = x$adhoc.hakn.pi,
+                    #
                     keepdata = FALSE,
                     warn = FALSE,
                     ##
@@ -466,8 +504,15 @@ metacum.meta <- function(x, pooled, sortvar, no = 1, ...) {
                       if (sel.pft) 1 / mean(1 / n[sel]) else NA,     # 18
                       NA,                                            # 19
                       if (sel.irft) 1 / mean(1 / time[sel]) else NA, # 20
-                      m$Rb                                           # 21
-                      )
+                      m$Rb,                                          # 21
+                      NA,                                            # 22
+                      NA,                                            # 23
+                      m$k,                                           # 24
+                      m$k.study,                                     # 25
+                      m$k.all,                                       # 26
+                      m$k.TE,                                        # 27
+                      replaceNULL(m$k.MH)                            # 28
+      )
     }
     ##
     else if (pooled == "random") {
@@ -492,8 +537,15 @@ metacum.meta <- function(x, pooled, sortvar, no = 1, ...) {
                       if (x$method.random.ci %in% c("HK", "KR"))     #
                         m$df.random else NA,                         # 19
                       if (sel.irft) 1 / mean(1 / time[sel]) else NA, # 20
-                      m$Rb                                           # 21
-                      )
+                      m$Rb,                                          # 21
+                      m$lower.predict,                               # 22
+                      m$upper.predict,                               # 23
+                      m$k,                                           # 24
+                      m$k.study,                                     # 25
+                      m$k.all,                                       # 26
+                      m$k.TE,                                        # 27
+                      replaceNULL(m$k.MH)                            # 28
+      )
     }
   }
   ##
@@ -523,30 +575,65 @@ metacum.meta <- function(x, pooled, sortvar, no = 1, ...) {
     df.random.i <- res.i[, 19]
   t.harmonic.mean.i <- res.i[, 20]
   Rb.i <- res.i[, 21]
-  ##
-  method.tau.ci <- unique(add.i[, 1])
-  sign.lower.tau.i <- add.i[, 2]
-  sign.upper.tau.i <- add.i[, 3]
-  ##  
+  #
+  lower.predict.i <- res.i[, 22]
+  upper.predict.i <- res.i[, 23]
+  #
+  k.i <- res.i[, 24]
+  k.study.i <- res.i[, 25]
+  k.all.i <- res.i[, 26]
+  k.TE.i <- res.i[, 27]
+  k.MH.i <- res.i[, 28]
+  #
+  method.tau.ci <- replaceNULL(unique(add.i[add.i[, 1] != "", 1]), "")
+  sign.lower.tau.i <- replaceNULL(unique(add.i[add.i[, 2] != "", 2]), "")
+  sign.upper.tau.i <- replaceNULL(unique(add.i[add.i[, 3] != "", 3]), "")
+  #
   if (pooled == "common") {
-    TE.s <- x$TE.common
-    seTE.s <- x$seTE.common
-    lower.TE.s <- x$lower.common
-    upper.TE.s <- x$upper.common
-    statistic.s <- x$statistic.common
-    pval.s <- x$pval.common
-    w.s <- sum(x$w.common, na.rm = TRUE)
+    TE.pooled <- x$TE.common
+    seTE.pooled <- x$seTE.common
+    lower.pooled <- x$lower.common
+    upper.pooled <- x$upper.common
+    statistic.pooled <- x$statistic.common
+    pval.pooled <- x$pval.common
+    w.pooled <- sum(x$w.common, na.rm = TRUE)
+    #
+    lower.predict.pooled <- NA
+    upper.predict.pooled <- NA
   }
-  ##
+  #
   else if (pooled == "random") {
-    TE.s <- x$TE.random
-    seTE.s <- x$seTE.random
-    lower.TE.s <- x$lower.random
-    upper.TE.s <- x$upper.random
-    statistic.s <- x$statistic.random
-    pval.s <- x$pval.random
-    w.s <- sum(x$w.random, na.rm = TRUE)
+    TE.pooled <- x$TE.random
+    seTE.pooled <- x$seTE.random
+    lower.pooled <- x$lower.random
+    upper.pooled <- x$upper.random
+    statistic.pooled <- x$statistic.random
+    pval.pooled <- x$pval.random
+    w.pooled <- sum(x$w.random, na.rm = TRUE)
+    #
+    lower.predict.pooled <- x$lower.predict
+    upper.predict.pooled <- x$upper.predict
   }
+  #
+  df.random.pooled <- x$df.random
+  #
+  tau2.pooled <- x$tau2
+  se.tau2.pooled <- x$se.tau2
+  lower.tau2.pooled <- x$lower.tau2
+  upper.tau2.pooled <- x$upper.tau2
+  #
+  tau.pooled <- x$tau
+  lower.tau.pooled <- x$lower.tau
+  upper.tau.pooled <- x$upper.tau
+  #
+  I2.pooled <- x$I2
+  lower.I2.pooled <- x$lower.I2
+  upper.I2.pooled <- x$upper.I2
+  #
+  Rb.pooled <- x$Rb
+  #
+  n.harmonic.mean.pooled <- 1 / mean(1 / n)
+  t.harmonic.mean.pooled <- 1 / mean(1 / time)
   
   
   ##
@@ -554,74 +641,127 @@ metacum.meta <- function(x, pooled, sortvar, no = 1, ...) {
   ## (5) Generate R object
   ##
   ##
-  res <- list(studlab = studlab,
+  res <- list(studlab = slab,
               ##
               sm = x$sm,
               null.effect = x$null.effect,
               ##
-              TE = c(TE.i, NA, TE.s),
-              seTE = c(seTE.i, NA, seTE.s),
-              statistic = c(statistic.i, NA, statistic.s),
-              pval = c(pval.i, NA, pval.s),
+              TE = TE.i,
+              seTE = seTE.i,
+              statistic = statistic.i,
+              pval = pval.i,
               level = x$level.ma,
-              lower = c(lower.i, NA, lower.TE.s),
-              upper = c(upper.i, NA, upper.TE.s),
-              ##
+              lower = lower.i,
+              upper = upper.i,
+              lower.predict = lower.predict.i,
+              upper.predict = upper.predict.i,
+              w = weight.i,
+              #
+              tau2 = tau2.i,
+              se.tau2 = se.tau2.i,
+              lower.tau2 = lower.tau2.i,
+              upper.tau2 = upper.tau2.i,
+              #
+              tau = tau.i,
+              lower.tau = lower.tau.i,
+              upper.tau = upper.tau.i,
+              #
+              sign.lower.tau.i = sign.lower.tau.i,
+              sign.upper.tau.i = sign.upper.tau.i,
+              #
+              I2 = I2.i,
+              lower.I2 = lower.I2.i,
+              upper.I2 = upper.I2.i,
+              #
+              Rb = Rb.i,
+              #
+              n.harmonic.mean = n.harmonic.mean.i,
+              t.harmonic.mean = t.harmonic.mean.i,
+              #
+              k = k.i,
+              k.study = k.study.i,
+              k.all = k.all.i,
+              k.TE = k.TE.i,
+              k.MH = k.MH.i,
+              #
               three.level = x$three.level,
-              cluster = x$cluster, rho = x$rho,
-              ##
-              k = x$k, k.study = x$k.study, k.all = x$k.all, k.TE = x$k.TE,
-              ##
+              cluster = x$cluster,
+              rho = x$rho,
+              #
               pooled = pooled,
-              common = ifelse(pooled == "common", TRUE, FALSE),
-              random = ifelse(pooled == "random", TRUE, FALSE),
+              common = pooled == "common",
+              random = pooled == "random",
               overall = TRUE,
               overall.hetstat = TRUE,
-              prediction = FALSE,
+              prediction = prediction,
               method.predict = x$method.predict,
+              adhoc.hakn.pi = x$adhoc.hakn.pi,
+              df.predict = x$df.predict,
               backtransf = x$backtransf,
-              ##
+              func.backtransf = x$func.backtransf,
+              #
+              level.ma = x$level.ma,
+              level.predict = x$level.predict,
+              #
               method = x$method,
               method.random = x$method.random,
-              ##
-              w = c(weight.i, NA, w.s),
-              TE.common = NA, seTE.common = NA,
-              TE.random = NA, seTE.random = NA,
-              df.random =
-                if (pooled == "random" &
-                    x$method.random.ci %in% c("HK", "KR"))
-                  c(df.random.i, NA, x$df.random) else NULL,
-              level.ma = x$level.ma,
+              #
               method.random.ci = x$method.random.ci,
               adhoc.hakn.ci = x$adhoc.hakn.ci,
-              ##
-              Q = NA,
-              ##
+              #
               method.tau = x$method.tau,
               method.tau.ci = method.tau.ci,
-              tau2 = c(tau2.i, NA, x$tau2),
-              se.tau2 = c(se.tau2.i, NA, x$se.tau2),
-              lower.tau2 = c(lower.tau2.i, NA, x$lower.tau2),
-              upper.tau2 = c(upper.tau2.i, NA, x$upper.tau2),
-              tau = c(tau.i, NA, x$tau),
-              lower.tau = c(lower.tau.i, NA, x$lower.tau),
-              upper.tau = c(upper.tau.i, NA, x$upper.tau),
+              #
               tau.preset = x$tau.preset,
               TE.tau = x$TE.tau,
-              sign.lower.tau.i = c(sign.lower.tau.i, NA, x$sign.lower.tau),
-              sign.upper.tau.i = c(sign.upper.tau.i, NA, x$sign.upper.tau),
               #
               method.I2 = x$method.I2,
               #
-              I2 = c(I2.i, NA, x$I2),
-              lower.I2 = c(lower.I2.i, NA, x$lower.I2),
-              upper.I2 = c(upper.I2.i, NA, x$upper.I2),
-              ##
-              Rb = c(Rb.i, NA, x$Rb),
-              ##
-              n.harmonic.mean = c(n.harmonic.mean.i, NA, 1 / mean(1 / n)),
-              t.harmonic.mean = c(t.harmonic.mean.i, NA, 1 / mean(1 / time)),
-              ##
+              k.pooled = x$k,
+              k.study.pooled = x$k.study,
+              k.all.pooled = x$k.all,
+              k.TE.pooled = x$k.TE,
+              k.MH.pooled = x$k.MH,
+              #
+              df.random =
+                if (pooled == "random" &
+                    x$method.random.ci %in% c("HK", "KR"))
+                  df.random.i else NULL,
+              #
+              TE.pooled = TE.pooled,
+              seTE.pooled = seTE.pooled,
+              lower.pooled = lower.pooled,
+              upper.pooled = upper.pooled,
+              statistic.pooled = statistic.pooled,
+              pval.pooled = pval.pooled,
+              w.pooled = w.pooled,
+              text.pooled = "Pooled estimate",
+              #
+              lower.predict.pooled = lower.predict.pooled,
+              upper.predict.pooled = upper.predict.pooled,
+              #
+              df.random.pooled = df.random.pooled,
+              #
+              Q.pooled = x$Q,
+              #
+              tau2.pooled = tau2.pooled,
+              se.tau2.pooled = se.tau2.pooled,
+              lower.tau2.pooled = lower.tau2.pooled,
+              upper.tau2.pooled = upper.tau2.pooled,
+              #
+              tau.pooled = tau.pooled,
+              lower.tau.pooled = lower.tau.pooled,
+              upper.tau.pooled = upper.tau.pooled,
+              #
+              I2.pooled = I2.pooled,
+              lower.I2.pooled = lower.I2.pooled,
+              upper.I2.pooled = upper.I2.pooled,
+              #
+              Rb.pooled = Rb.pooled,
+              #
+              n.harmonic.mean.pooled = n.harmonic.mean.pooled,
+              t.harmonic.mean.pooled = t.harmonic.mean.pooled,
+              #
               pscale = x$pscale,
               irscale = x$irscale, irunit = x$irunit,
               #
@@ -645,22 +785,9 @@ metacum.meta <- function(x, pooled, sortvar, no = 1, ...) {
   ##
   res$x$common <- res$common
   res$x$random <- res$random
-  ##
-  ## Backward compatibility
-  ##
-  res$fixed <- res$x$fixed <- res$common
-  res$TE.fixed <- res$TE.common
-  res$seTE.fixed <- res$seTE.common
-  ##
-  res$text.fixed <- res$text.common
-  res$text.w.fixed <- res$text.w.common
-  
-  
-  class(res) <- c("metacum", "summary.meta", "meta")
-  ##
-  if (inherits(x, "trimfill"))
-    class(res) <- c(class(res), "trimfill")
-  
+  #
+  class(res) <- "metacum"
+  #
   res
 }
 

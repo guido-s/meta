@@ -1,5 +1,10 @@
 ## meta, version 8.1-0 (2025-mm-dd)
 
+### Major changes
+
+* Specialised functions print.metacum() and forest.metacum() for cumulative
+  meta-analysis
+
 ### Bug fixes
 
 * forest.meta():
@@ -27,12 +32,15 @@
   - argument 'n' considered for count data
 
 * metacr():
-  - new arguments 'label.left' and 'label.rigth' to fix
+  - new arguments 'label.left' and 'label.right' to fix
     [issue #66](https://github.com/guido-s/meta/pull/66)
 
 * metabin(), metacont(), metacor(), metainc(), metamean(), metaprop(),
   metarate(), update.meta():
   - new argument 'detail.tau'
+
+* metacum():
+  - new argument 'prediction'
 
 ### Internal changes
 

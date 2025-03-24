@@ -6,7 +6,7 @@
 \alias{metacum.default}
 \title{Cumulative meta-analysis}
 \usage{
-\method{metacum}{meta}(x, pooled, sortvar, no = 1, ...)
+\method{metacum}{meta}(x, pooled, sortvar, prediction, no = 1, ...)
 
 metacum(x, ...)
 
@@ -22,13 +22,16 @@ Details), \code{"common"}, or \code{"random"}, can be abbreviated.}
 \item{sortvar}{An optional vector used to sort the individual
 studies (must be of same length as \code{x$TE}).}
 
+\item{prediction}{A logical indicating whether to report prediction
+intervals.}
+
 \item{no}{A numeric specifying which meta-analysis results to
 consider.}
 
 \item{\dots}{Additional arguments (ignored).}
 }
 \value{
-An object of class \code{"meta"} and \code{"metacum"} with
+An object of class \code{"metacum"} and \code{"meta"} with
 corresponding generic functions (see \code{\link{meta-object}}).
 
 The following list elements have a different meaning:

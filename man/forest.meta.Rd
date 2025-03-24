@@ -156,6 +156,7 @@
   header.line,
   col.header.line = col.lines,
   col.jama.line = col.subgroup,
+  data.pooled = NULL,
   fontsize = gs("fontsize"),
   fontfamily = gs("fontfamily"),
   fs.heading = fontsize,
@@ -278,7 +279,7 @@ studies (must be of same length as \code{x$TE}).}
 
 \item{studlab}{A logical indicating whether study labels should be
 printed in the graph. A vector with study labels can also be
-provided (must be of same length as \code{x$TE} then).}
+provided (must be of same length as the vector with estimates \code{x$TE}).}
 
 \item{layout}{A character string specifying the layout of the
 forest plot (see Details).}
@@ -760,6 +761,9 @@ header line or a character string ("both", "below", "").}
 
 \item{col.jama.line}{Colour of the additional JAMA lines.}
 
+\item{data.pooled}{Data set with information for line(s) with pooled
+results (see Details).}
+
 \item{fontsize}{The size of text (in points), see
 \code{\link{gpar}}.}
 
@@ -1213,7 +1217,6 @@ side of the forest plot}}:
 \code{\link{metaprop}} \tab \code{c("studlab", "event", "n")} \cr
 \code{\link{metarate}} \tab \code{c("studlab", "event", "time", "n")}
   \cr
-\code{\link{metacum}} \tab \code{"studlab"} \cr
 \code{\link{metainf}} \tab \code{"studlab"}
 }
 
@@ -1281,17 +1284,17 @@ interval will be printed. Depending on arguments \code{common} and
 \code{random}, weights of the common effect and/or random effects
 model will be given too.
 
-For an object of class \code{\link{metacum}} or
-\code{\link{metainf}} the following columns will be printed:
+For an object of class \code{\link{metainf}} the following columns will
+be printed:
 \code{c("effect", "ci", "pval", "tau2", "tau", "I2")}. This
 information corresponds to the printout with
 \code{\link{print.meta}}.
 }
 
-\subsection{Predefined column names}{
+\subsection{Predefined columns and column labels}{
 
 The arguments \code{leftlabs} and \code{rightlabs} can be used to
-specify column headings which are printed on left or right side of
+specify column headings which are printed on the left or right side of
 the forest plot. For certain columns predefined labels exist which
 are used by default, i.e., if arguments \code{leftlabs} and
 \code{rightlabs} are \code{NULL}:
@@ -1314,7 +1317,11 @@ Label: \tab "SD" \tab "SD" \tab "Time" \tab "Time" \tab
 Column: \tab \code{ci} \tab \code{effect.ci} \tab
   \code{w.common} \tab \code{w.random} \tab \code{cycles} \tab \cr
 Label: \tab \code{x$level}"\%-CI" \tab \emph{effect+ci} \tab
-  "W(common)" \tab "W(random)" \tab "Cycles" \tab
+  "W(common)" \tab "W(random)" \tab "Cycles" \tab \cr
+\cr
+Column: \tab \code{pval} \tab \code{tau2} \tab
+  \code{tau} \tab \tab \tab \cr
+Label: \tab "P-value" \tab "Tau2" \tab "Tau" \tab \tab \tab
 }
 
 For other columns, the column name will be used as a label if no
@@ -1323,7 +1330,6 @@ new columns (see Examples). Otherwise the length of \code{leftlabs}
 and \code{rightlabs} must be the same as the number of printed
 columns. The value \code{NA} can be used to specify columns which
 should use default labels (see Examples).
-
 
 In pairwise meta-analysis comparing two groups (i.e.,
 \code{\link{metabin}}, \code{\link{metacont}},
@@ -1349,7 +1355,6 @@ of the forest plot. Thus, arguments \code{rightcols} and
 default on the right side of a forest plot will be moved to the
 left side.
 }
-
 
 \subsection{Information on heterogeneity and statistical tests}{
 
@@ -1423,6 +1428,27 @@ The following arguments can be used in a similar way:
 \item \code{test.effect.subgroup.random} (test for effect in
   subgroups, random effects model).
 }
+}
+
+\subsection{Data set with information to print with overall results}{
+
+Argument \code{data.pooled} can be used to provide information printed in
+the line(s) with overall results, i.e., for the common effect or random
+effects model. Input must be a data frame with variable names equal to those
+provided in arguments \code{leftcols} or \code{rightcols}. Only variables
+for additional variables are considered.
+
+It is possible to provide a row in data set \code{data.pooled} for each
+common effect or random effects estimate. The order in the data set
+corresponds to the order of common effect and random effects estimates in
+the forest plot, i.e., common effect followed by random effects estimates.
+If the data set contains a single row, the value provided for a variable is
+considered for all printed common effect and random effects estimates 
+
+In meta-analyses with subgroups, a row must be provided in data set
+\code{data.pooled} for each overall common effect or random effects estimate,
+followed by common effect or random effects estimates within subgroups. The
+order for subgroup results is the same as see in the forest plot.
 }
 
 \subsection{Additional general settings}{

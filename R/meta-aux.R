@@ -865,3 +865,22 @@ warn_set_input <- function(x, cond = TRUE, set, text = "") {
   #
   invisible(NULL)
 }
+
+drop_from_dots <- function(x, old, new) {
+  for (i in seq_along(old)) {
+    if (!is.null(x[[old[i]]])) {
+      if (new[i] != "")
+        warning("Argument '", old[i],
+                "' ignored; please use instead argument '",
+                new[i], "'.",
+                call. = FALSE)
+      else
+        warning("Argument '", old[i],
+                "' ignored as it is used internally.",
+                call. = FALSE)
+      #
+      x[[old[i]]] <- NULL
+    }
+  }
+  x
+}

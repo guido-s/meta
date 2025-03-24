@@ -249,7 +249,7 @@ print.meta <- function(x,
   chkclass(x, "meta")
   x <- updateversion(x)
   ##
-  if (inherits(x, "metacum") | inherits(x, "metainf"))
+  if (inherits(x, "metainf"))
     return(invisible(NULL))
   ##
   is.metabind <- inherits(x, "metabind")
@@ -315,6 +315,7 @@ print.meta <- function(x,
   chklogical(print.I2.ci)
   chklogical(print.H)
   chklogical(print.Rb)
+  #
   chkchar(text.tau2, length = 1)
   chkchar(text.tau, length = 1)
   chkchar(text.I2, length = 1)
