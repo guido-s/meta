@@ -54,8 +54,6 @@
 #' @param \dots Additional graphical arguments (passed on to
 #'   \code{\link{forest.meta}}).
 #' 
-#' 
-#' 
 #' @details
 #' A forest plot, also called confidence interval plot, is drawn in
 #' the active graphics window. The forest functions in R package
@@ -102,7 +100,6 @@
 #' @method forest metacum
 #' @export
 
-
 forest.metacum <- function(x,
                            leftcols = "studlab",
                            leftlabs = rep(NA, length(leftcols)),
@@ -138,7 +135,8 @@ forest.metacum <- function(x,
   # (1) Check and set arguments
   #
   #
-  chkclass(x, "metacum")
+  
+  chkclass(x, c("metacum", "metainf"))
   x <- updateversion(x)
   #
   type <-
@@ -184,7 +182,8 @@ forest.metacum <- function(x,
   #
   x.tmp <- x
   x.tmp$prediction <- any(prediction)
-  class(x.tmp) <- c(class(x.tmp), "metacum")
+  class(x.tmp) <-
+    c(class(x.tmp), if (inherits(x, "metainf")) "metainf" else "metacum")
   #
   text.details <-
     catmeth(x.tmp,
@@ -412,33 +411,6 @@ forest.metacum <- function(x,
          details = details)
   #
   res <- do.call("forest.meta", c(args_list, dots_list))
-  return(invisible(res))
-  res <- forest(m,
-                leftcols = leftcols,
-                rightcols = rightcols, rightlabs = rightlabs,
-                overall.hetstat = FALSE,
-                type.study = type.study,
-                weight.study = "same",
-                lab.NA = lab.NA, smlab = smlab,
-                data.pooled = data.p,
-                just.addcols = just.addcols,
-                #
-                backtransf = backtransf,
-                #
-                big.mark = big.mark,
-                #
-                digits = digits,
-                digits.tau2 = digits.tau2,
-                digits.tau = digits.tau,
-                digits.I2 = digits.I2,
-                #
-                addrows.below.overall = addrows.below.overall,
-                #
-                col.study = col,
-                col.square = col.bg, col.square.lines = col.border,
-                #
-                details = details,
-                ...)
   #
   invisible(res)
 }

@@ -2,8 +2,14 @@
 
 ### Major changes
 
-* Specialised functions print.metacum() and forest.metacum() for cumulative
-  meta-analysis
+* Rewrite of R function metacum() for cumulative meta-analysis with dedicated
+  print and forest functions
+
+* Rewrite of R function metainf() for leave-one-out meta-analysis with dedicated
+  print and forest functions
+
+* Remove R code for cumulative or leave-one-out meta-analysis from R function
+  forest.meta()
 
 ### Bug fixes
 

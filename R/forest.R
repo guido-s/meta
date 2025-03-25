@@ -690,8 +690,6 @@
 #'   \cr
 #' \code{\link{metaprop}} \tab \code{c("studlab", "event", "n")} \cr
 #' \code{\link{metarate}} \tab \code{c("studlab", "event", "time", "n")}
-#'   \cr
-#' \code{\link{metainf}} \tab \code{"studlab"}
 #' }
 #'
 #' For three-level models, the cluster variable is printed next to the
@@ -757,12 +755,6 @@
 #' interval will be printed. Depending on arguments \code{common} and
 #' \code{random}, weights of the common effect and/or random effects
 #' model will be given too.
-#'
-#' For an object of class \code{\link{metainf}} the following columns will
-#' be printed:
-#' \code{c("effect", "ci", "pval", "tau2", "tau", "I2")}. This
-#' information corresponds to the printout with
-#' \code{\link{print.meta}}.
 #' }
 #'
 #' \subsection{Predefined columns and column labels}{
@@ -1617,13 +1609,11 @@ forest.meta <- function(x,
   metarate <- inherits(x, "metarate")
   metabind <- inherits(x, "is.metabind")
   #
-  metainf <- inherits(x, "metainf")
-  #
   metamerge <- inherits(x, "metamerge")
   #
   meta <- !metabind &&
     (metabin | metacont | metacor | metagen | metainc | metamean |
-       metaprop | metarate | metainf)
+       metaprop | metarate)
   #
   ftr <- x$func.transf
   atr <- x$args.transf
@@ -1919,9 +1909,6 @@ forest.meta <- function(x,
                 #
                 "w.fixed", "w.common", "w.random")
   #
-  if (metainf)
-    colnames <- c(colnames, "pval", "tau2", "tau", "I2")
-  #
   # If any of the following list elements is NULL, these 'special'
   # variable names are searched for in original data set (i.e., list
   # element x$data)
@@ -2001,9 +1988,6 @@ forest.meta <- function(x,
         else if (length(dataset2[[firstvar]]) != 0)
           studlab.new <- dataset2[[firstvar]]
         #
-        if (metainf)
-          studlab.new <- c(studlab.new, "", rev(x$studlab)[1])
-        #
         if (length(x$studlab) != length(studlab.new))
           stop("Variable '", firstvar, "' has different length ",
                "than list element '", x.name, "' with study labels.",
@@ -2048,10 +2032,7 @@ forest.meta <- function(x,
       sortvar <- sortvar[x$data$.subset]
   }
   #
-  if (!is.null(sortvar) & metainf)
-    warning("Argument 'sortvar' ignored for objects ",
-            "created with metainf().")
-  sort <- !is.null(sortvar) & !metainf
+  sort <- !is.null(sortvar)
   if (sort && (length(sortvar) != K.all))
     stop("Number of studies in object 'x' and argument 'sortvar' ",
          "have different length.")
@@ -2116,7 +2097,7 @@ forest.meta <- function(x,
   if (missing.studlab && K.all == 1 && studlab == "")
     studlab <- "1"
   #
-  if (length(studlab) != (K.all - 2 * (metainf & !missing.studlab)))
+  if (length(studlab) != K.all)
     stop("Number of studies in object 'x' and argument 'studlab' have ",
          "different length.")
   #
@@ -2307,12 +2288,8 @@ forest.meta <- function(x,
   chklogical(bottom.lr)
   #
   chkchar(lab.NA)
-  if (is.null(lab.NA.effect)) {
-    if (metainf)
-      lab.NA.effect <- lab.NA
-    else
+  if (is.null(lab.NA.effect))
       lab.NA.effect <- ""
-  }
   #
   chkchar(lab.NA.effect)
   chkchar(lab.NA.weight)
@@ -3307,18 +3284,6 @@ forest.meta <- function(x,
                              round(x$level.predict * 100), "%-PI)")
   }
   #
-  if (metainf) {
-    overall.hetstat <- FALSE
-    test.overall.common <- FALSE
-    test.overall.random <- FALSE
-    resid.hetstat <- FALSE
-    test.subgroup.common <- FALSE
-    test.subgroup.random <- FALSE
-    #
-    hetstat <- FALSE
-    prediction <- FALSE
-  }
-  #
   if (is.null(x$null.effect) || is.na(x$null.effect)) {
     test.overall.common <- FALSE
     test.overall.random <- FALSE
@@ -3798,9 +3763,6 @@ forest.meta <- function(x,
                 #
                 "P-value")
   #
-  if (metainf)
-    labnames <- c(labnames, "Tau2", "Tau", "I2")
-  #
   if (newcols) {
     #
     if (length(rightcols.new) > 0) {
@@ -3950,9 +3912,6 @@ forest.meta <- function(x,
       leftcols <- c(leftcols, "cycles")
     #
     if (jama) {
-      if (metainf)
-        leftcols <- c(leftcols, "pval", "tau2", "tau", "I2")
-      #
       leftcols <- c(leftcols, "effect.ci")
     }
     else {
@@ -4125,15 +4084,12 @@ forest.meta <- function(x,
     #
     if (revman5) {
       #
-      if (!metainf & overall & study.results &
-          !any(x$method == "GLMM") & !metamerge) {
+      if (overall & study.results & !any(x$method == "GLMM") & !metamerge) {
         if (common && !all(is.na(x$w.common)))
           leftcols <- c(leftcols, "w.common")
         if (random && !all(is.na(x$w.random)))
           leftcols <- c(leftcols, "w.random")
       }
-      else if (metainf)
-        leftcols <- c(leftcols, "pval", "tau2", "tau", "I2")
       #
       leftcols <- c(leftcols, "effect.ci")
     }
@@ -4143,15 +4099,12 @@ forest.meta <- function(x,
     #
     if (!revman5.jama & rob.only) {
       #
-      if (!metainf & overall & study.results &
-          !any(x$method == "GLMM") & !metamerge) {
+      if (overall & study.results & !any(x$method == "GLMM") & !metamerge) {
         if (common)
           leftcols <- c(leftcols, "w.common")
         if (random)
           leftcols <- c(leftcols, "w.random")
       }
-      else if (metainf)
-        leftcols <- c(leftcols, "pval", "tau2", "tau", "I2")
       #
       if (bmj)
         leftcols <- c(leftcols, "effect.ci")
@@ -4169,8 +4122,7 @@ forest.meta <- function(x,
     else
       rightcols <- c("effect", "ci")
     #
-    if (!metainf & overall & study.results &
-        !any(x$method == "GLMM") & !metamerge) {
+    if (overall & study.results & !any(x$method == "GLMM") & !metamerge) {
       wcols <- c(if (common && !all(is.na(x$w.common))) "w.common",
                  if (random && !all(is.na(x$w.random))) "w.random")
       #
@@ -4179,14 +4131,10 @@ forest.meta <- function(x,
       else
         rightcols <- c(rightcols, wcols)
     }
-    #
-    if (metainf)
-      rightcols <- c(rightcols, "pval", "tau2", "tau", "I2")
   }
   else if (RoB.available & rob.only &
            missing.leftcols & !revman5.jama) {
-    if (!metainf & overall & study.results &
-        !any(x$method == "GLMM" & !metamerge)) {
+    if (overall & study.results & !any(x$method == "GLMM" & !metamerge)) {
       if (common)
         leftcols <- c(leftcols, "w.common")
       if (random)
@@ -4307,75 +4255,21 @@ forest.meta <- function(x,
     }
   }
   #
-  if (metainf) {
-    #
-    x$TE.common <- rev(x$TE)[1]
-    x$seTE.common <- rev(x$seTE)[1]
-    x$lower.common <- rev(x$lower)[1]
-    x$upper.common <- rev(x$upper)[1]
-    #
-    x$TE.random <- rev(x$TE)[1]
-    x$seTE.random <- rev(x$seTE)[1]
-    x$lower.random <- rev(x$lower)[1]
-    x$upper.random <- rev(x$upper)[1]
-    #
-    x$n.harmonic.mean.ma <- rev(x$n.harmonic.mean)[1]
-    x$t.harmonic.mean.ma <- rev(x$t.harmonic.mean)[1]
-    #
-    x$w.all <- rev(x$w)[1]
-    #
-    x$TE <- rev(rev(x$TE)[-(1:2)])
-    x$seTE <- rev(rev(x$seTE)[-(1:2)])
-    x$studlab <- rev(rev(x$studlab)[-(1:2)])
-    #
-    x$lower <- rev(rev(x$lower)[-(1:2)])
-    x$upper <- rev(rev(x$upper)[-(1:2)])
-    #
-    x$w.common <- rev(rev(x$w)[-(1:2)])
-    x$w.random <- rev(rev(x$w)[-(1:2)])
-    #
-    x$n.harmonic.mean <- rev(rev(x$n.harmonic.mean)[-(1:2)])
-    x$t.harmonic.mean <- rev(rev(x$t.harmonic.mean)[-(1:2)])
-    #
-    x$pval.common <- x$pval.random <- rev(x$pval)[1]
-    x$tau2.overall <- rev(x$tau2)[1]
-    x$tau.overall <- rev(x$tau)[1]
-    x$I2.overall <- rev(x$I2)[1]
-    #
-    x$pval <- rev(rev(x$pval)[-(1:2)])
-    x$tau2 <- rev(rev(x$tau2)[-(1:2)])
-    x$tau <- rev(rev(x$tau)[-(1:2)])
-    x$I2 <- rev(rev(x$I2)[-(1:2)])
-    #
-    if (overall & x$pooled == "common") {
-      common <- TRUE
-      random <- FALSE
-      if (weight.study != "same")
-        weight.study <- "common"
-    }
-    else if (overall & x$pooled == "random") {
-      common <- FALSE
-      random <- TRUE
-      if (weight.study != "same")
-        weight.study <- "random"
+  # Calculate random effects weights in subgroup meta-analysis if
+  # overall results are not shown (i.e., calculate weights based on
+  # subgroup specific variance estimates)
+  #
+  if (random & by & !overall & !all(is.na(x$w.random)) &
+      !(!is.null(x$tau.common) && x$tau.common)) {
+    for (i in unique(subgroup)) {
+      x$w.random[subgroup == i] <-
+        1 / (x$seTE[subgroup == i]^2 + replaceNA(x$tau.w[i]^2, 0))
+      x$w.random.w[i] <- sum(x$w.random[subgroup == i])
     }
   }
-  else {
-    #
-    # Calculate random effects weights in subgroup meta-analysis if
-    # overall results are not shown (i.e., calculate weights based on
-    # subgroup specific variance estimates)
-    #
-    if (random & by & !overall & !all(is.na(x$w.random)) &
-        !(!is.null(x$tau.common) && x$tau.common)) {
-      for (i in unique(subgroup)) {
-        x$w.random[subgroup == i] <-
-          1 / (x$seTE[subgroup == i]^2 + replaceNA(x$tau.w[i]^2, 0))
-        x$w.random.w[i] <- sum(x$w.random[subgroup == i])
-      }
-    }
-  }
+  #
   # Total number of studies to plot (*not* number of studies combined)
+  #
   k.all <- length(x$TE)
   #
   if (allstudies)
@@ -4445,12 +4339,6 @@ forest.meta <- function(x,
   #
   x$cycles <- x$cycles[sel]
   #
-  if (metainf) {
-    x$tau2 <- x$tau2[sel]
-    x$tau <- x$tau[sel]
-    x$I2 <- x$I2[sel]
-  }
-  #
   subgroup <- subgroup[sel]
   sortvar <- sortvar[sel]
   #
@@ -4519,12 +4407,6 @@ forest.meta <- function(x,
     #
     x$pval <- x$pval[o]
     #
-    if (metainf) {
-      x$tau2 <- x$tau2[o]
-      x$tau <- x$tau[o]
-      x$I2 <- x$I2[o]
-    }
-    #
     subgroup <- subgroup[o]
     sortvar <- sortvar[o]
     #
@@ -4551,206 +4433,161 @@ forest.meta <- function(x,
   if (bmj)
     studlab <- paste0(" ", studlab)
   #
-  if (metainf) {
-    TE    <- x$TE
-    seTE  <- x$seTE
-    lowTE <- x$lower
-    uppTE <- x$upper
-    #
-    TE.common    <- x$TE.common
-    lowTE.common <- x$lower.common
-    uppTE.common <- x$upper.common
-    #
-    TE.random    <- x$TE.random
-    lowTE.random <- x$lower.random
-    uppTE.random <- x$upper.random
-    #
-    lowTE.predict <- NA
-    uppTE.predict <- NA
-    #
-    Q    <- NA
-    df.Q <- NA
-    pval.Q <- NA
-    I2   <- NA
-    tau2 <- NA
-    lower.tau2 <- NA
-    upper.tau2 <- NA
-    tau <- NA
-    lower.tau <- NA
-    upper.tau <- NA
-    sign.lower.tau <- ""
-    sign.upper.tau <- ""
-    lowI2 <- NA
-    uppI2 <- NA
-    Rb   <- NA
-    lowRb <- NA
-    uppRb <- NA
-    #
-    Q.b.common <- NA
-    Q.b.random <- NA
-    df.Q.b <- NA
-    df.Q.b.common <- NA
-    df.Q.b.random <- NA
-    pval.Q.b.common <- NA
-    pval.Q.b.random <- NA
+  TE <- x$TE
+  seTE <- x$seTE
+  lowTE <- x$lower
+  uppTE <- x$upper
+  #
+  TE.common <- x$TE.common
+  lowTE.common <- x$lower.common
+  uppTE.common <- x$upper.common
+  #
+  TE.random <- x$TE.random
+  lowTE.random <- x$lower.random
+  uppTE.random <- x$upper.random
+  if (n.ran > 1 && length(TE.random) == 1)
+    TE.random <- rep(TE.random, n.ran)
+  #
+  lowTE.predict <- x$lower.predict
+  uppTE.predict <- x$upper.predict
+  #
+  if (LRT)
+    Q <- x$Q.LRT
+  else
+    Q <- unlist(x$Q)
+  #
+  df.Q <- unlist(x$df.Q)
+  pval.Q <- replaceNULL(unlist(x$pval.Q), pvalQ(Q, df.Q))
+  #
+  # Keep the first heterogeneity statistics
+  #
+  if (length(Q) > 1) {
+    Q <- Q[1]
+    df.Q <- df.Q[1]
+    pval.Q <- pval.Q[1]
   }
-  else {
-    TE <- x$TE
-    seTE <- x$seTE
-    lowTE <- x$lower
-    uppTE <- x$upper
-    #
-    TE.common <- x$TE.common
-    lowTE.common <- x$lower.common
-    uppTE.common <- x$upper.common
-    #
-    TE.random <- x$TE.random
-    lowTE.random <- x$lower.random
-    uppTE.random <- x$upper.random
-    if (n.ran > 1 && length(TE.random) == 1)
-      TE.random <- rep(TE.random, n.ran)
-    #
-    lowTE.predict <- x$lower.predict
-    uppTE.predict <- x$upper.predict
-    #
-    if (LRT)
-      Q <- x$Q.LRT
-    else
-      Q <- unlist(x$Q)
-    #
-    df.Q <- unlist(x$df.Q)
-    pval.Q <- replaceNULL(unlist(x$pval.Q), pvalQ(Q, df.Q))
-    #
-    # Keep the first heterogeneity statistics
-    #
-    if (length(Q) > 1) {
-      Q <- Q[1]
-      df.Q <- df.Q[1]
-      pval.Q <- pval.Q[1]
-    }
-    #
-    tau2 <- x$tau2
-    lower.tau2 <- x$lower.tau2
-    upper.tau2 <- x$upper.tau2
-    #
-    if (is.null(tau2)) {
-      tau2 <- x$tau^2
-      lower.tau2 <- upper.tau2 <- NA
-    }
-    #
-    if (length(tau2) > 1) {
-      if (three.level) {
-        tau2 <- sum(tau2)
-        lower.tau2 <- NA
-        upper.tau2 <- NA
-      }
-      else {
-        tau2 <- tau2[1]
-        lower.tau2 <- lower.tau2[1]
-        upper.tau2 <- upper.tau2[1]
-      }
-    }
-    #
-    tau <- x$tau
-    lower.tau <- x$lower.tau
-    upper.tau <- x$upper.tau
-    #
-    if (length(tau) > 1) {
-      if (three.level) {
-        tau <- sqrt(sum(tau^2))
-        lower.tau2 <- NA
-        upper.tau2 <- NA
-      }
-      else {
-        tau <- tau[1]
-        lower.tau <- lower.tau[1]
-        upper.tau <- upper.tau[1]
-      }
-    }
-    #
-    sign.lower.tau <- x$sign.lower.tau
-    sign.upper.tau <- x$sign.lower.tau
-    #
-    if (is.null(lower.tau)) {
-      lower.tau <- upper.tau <- NA
-      sign.lower.tau <- sign.upper.tau <- ""
-    }
-    #
-    I2 <- unlist(x$I2)
-    lowI2 <- unlist(x$lower.I2)
-    uppI2 <- unlist(x$upper.I2)
-    #
-    if (length(I2) > 1) {
-      I2 <- I2[1]
-      lowI2 <- lowI2[1]
-      uppI2 <- uppI2[1]
-    }
-    #
-    Rb <- unlist(x$Rb)
-    lowRb <- unlist(x$lower.Rb)
-    uppRb <- unlist(x$upper.Rb)
-    #
-    if (length(Rb) > 1) {
-      Rb <- Rb[1]
-      lowRb <- lowRb[1]
-      uppRb <- uppRb[1]
-    }
-    #
-    if (by) {
-      Q.b.common <- unlist(x$Q.b.common)
-      names(Q.b.common) <- colnames(lower.common.w)
-      Q.w.common <- x$Q.w.common
-      #
-      Q.b.random <- unlist(x$Q.b.random)
-      Q.w.random <- x$Q.w.random
-      #
-      Q.w <- x$Q.w
-      #
-      df.Q.w <- replaceNULL(x$df.Q.w, sum((k.w - 1)[!is.na(x$Q.w)]))
-      df.Q.b <- replaceNULL(x$df.Q.b, (k - 1) - sum((k.w - 1)[!is.na(x$Q.w)]))
-      df.Q.b.common <- replaceNULL(x$df.Q.b.common, df.Q.b)
-      df.Q.b.random <- replaceNULL(x$df.Q.b.random, df.Q.b)    
-      #
-      pval.Q.b.common <-
-        replaceNULL(x$pval.Q.b.common, pvalQ(Q.b.common, df.Q.b.common))
-      pval.Q.w.common <-
-        replaceNULL(x$pval.Q.w.common, pvalQ(Q.w.common, df.Q.w))
-      #
-      pval.Q.b.random <-
-        unlist(replaceNULL(x$pval.Q.b.random, pvalQ(Q.b.random, df.Q.b.random)))
-      pval.Q.w.random <-
-        unlist(replaceNULL(x$pval.Q.w.random, pvalQ(Q.w.random, df.Q.w)))
-      #
-      Q.resid <- x$Q.resid
-      df.Q.resid <- x$df.Q.resid
-      pval.Q.resid <- x$pval.Q.resid
-      #
-      tau2.resid <- x$tau2.resid
-      lower.tau2.resid <- x$lower.tau2.resid
-      upper.tau2.resid <- x$upper.tau2.resid
-      if (is.null(tau2.resid)) {
-        tau2.resid <- x$tau.resid^2
-        lower.tau2.resid <- upper.tau2.resid <- NA
-      }
-      tau.resid <- x$tau.resid
-      lower.tau.resid <- x$lower.tau.resid
-      upper.tau.resid <- x$upper.tau.resid
-      sign.lower.tau.resid <- x$sign.lower.tau.resid
-      sign.upper.tau.resid <- x$sign.lower.tau.resid
-      if (is.null(lower.tau.resid)) {
-        lower.tau.resid <- upper.tau.resid <- NA
-        sign.lower.tau.resid <- sign.upper.tau.resid <- ""
-      }
-      #
-      I2.resid <- x$I2.resid
-      lowI2.resid <- x$lower.I2.resid
-      uppI2.resid <- x$upper.I2.resid
+  #
+  tau2 <- x$tau2
+  lower.tau2 <- x$lower.tau2
+  upper.tau2 <- x$upper.tau2
+  #
+  if (is.null(tau2)) {
+    tau2 <- x$tau^2
+    lower.tau2 <- upper.tau2 <- NA
+  }
+  #
+  if (length(tau2) > 1) {
+    if (three.level) {
+      tau2 <- sum(tau2)
+      lower.tau2 <- NA
+      upper.tau2 <- NA
     }
     else {
-      Q.b.common <- Q.b.random <- NA
-      df.Q.b <- df.Q.b.common <- df.Q.b.random <- NA
-      pval.Q.b.common <- pval.Q.b.random <- NA
+      tau2 <- tau2[1]
+      lower.tau2 <- lower.tau2[1]
+      upper.tau2 <- upper.tau2[1]
     }
+  }
+  #
+  tau <- x$tau
+  lower.tau <- x$lower.tau
+  upper.tau <- x$upper.tau
+  #
+  if (length(tau) > 1) {
+    if (three.level) {
+      tau <- sqrt(sum(tau^2))
+      lower.tau2 <- NA
+      upper.tau2 <- NA
+    }
+    else {
+      tau <- tau[1]
+      lower.tau <- lower.tau[1]
+      upper.tau <- upper.tau[1]
+    }
+  }
+  #
+  sign.lower.tau <- x$sign.lower.tau
+  sign.upper.tau <- x$sign.lower.tau
+  #
+  if (is.null(lower.tau)) {
+    lower.tau <- upper.tau <- NA
+    sign.lower.tau <- sign.upper.tau <- ""
+  }
+  #
+  I2 <- unlist(x$I2)
+  lowI2 <- unlist(x$lower.I2)
+  uppI2 <- unlist(x$upper.I2)
+  #
+  if (length(I2) > 1) {
+    I2 <- I2[1]
+    lowI2 <- lowI2[1]
+    uppI2 <- uppI2[1]
+  }
+  #
+  Rb <- unlist(x$Rb)
+  lowRb <- unlist(x$lower.Rb)
+  uppRb <- unlist(x$upper.Rb)
+  #
+  if (length(Rb) > 1) {
+    Rb <- Rb[1]
+    lowRb <- lowRb[1]
+    uppRb <- uppRb[1]
+  }
+  #
+  if (by) {
+    Q.b.common <- unlist(x$Q.b.common)
+    names(Q.b.common) <- colnames(lower.common.w)
+    Q.w.common <- x$Q.w.common
+    #
+    Q.b.random <- unlist(x$Q.b.random)
+    Q.w.random <- x$Q.w.random
+    #
+    Q.w <- x$Q.w
+    #
+    df.Q.w <- replaceNULL(x$df.Q.w, sum((k.w - 1)[!is.na(x$Q.w)]))
+    df.Q.b <- replaceNULL(x$df.Q.b, (k - 1) - sum((k.w - 1)[!is.na(x$Q.w)]))
+    df.Q.b.common <- replaceNULL(x$df.Q.b.common, df.Q.b)
+    df.Q.b.random <- replaceNULL(x$df.Q.b.random, df.Q.b)    
+    #
+    pval.Q.b.common <-
+      replaceNULL(x$pval.Q.b.common, pvalQ(Q.b.common, df.Q.b.common))
+    pval.Q.w.common <-
+      replaceNULL(x$pval.Q.w.common, pvalQ(Q.w.common, df.Q.w))
+    #
+    pval.Q.b.random <-
+      unlist(replaceNULL(x$pval.Q.b.random, pvalQ(Q.b.random, df.Q.b.random)))
+    pval.Q.w.random <-
+      unlist(replaceNULL(x$pval.Q.w.random, pvalQ(Q.w.random, df.Q.w)))
+    #
+    Q.resid <- x$Q.resid
+    df.Q.resid <- x$df.Q.resid
+    pval.Q.resid <- x$pval.Q.resid
+    #
+    tau2.resid <- x$tau2.resid
+    lower.tau2.resid <- x$lower.tau2.resid
+    upper.tau2.resid <- x$upper.tau2.resid
+    if (is.null(tau2.resid)) {
+      tau2.resid <- x$tau.resid^2
+      lower.tau2.resid <- upper.tau2.resid <- NA
+    }
+    tau.resid <- x$tau.resid
+    lower.tau.resid <- x$lower.tau.resid
+    upper.tau.resid <- x$upper.tau.resid
+    sign.lower.tau.resid <- x$sign.lower.tau.resid
+    sign.upper.tau.resid <- x$sign.lower.tau.resid
+    if (is.null(lower.tau.resid)) {
+      lower.tau.resid <- upper.tau.resid <- NA
+      sign.lower.tau.resid <- sign.upper.tau.resid <- ""
+    }
+    #
+    I2.resid <- x$I2.resid
+    lowI2.resid <- x$lower.I2.resid
+    uppI2.resid <- x$upper.I2.resid
+  }
+  else {
+    Q.b.common <- Q.b.random <- NA
+    df.Q.b <- df.Q.b.common <- df.Q.b.random <- NA
+    pval.Q.b.common <- pval.Q.b.random <- NA
   }
   #
   hetstat.overall <- ""
@@ -6764,7 +6601,7 @@ forest.meta <- function(x,
     #
     sel.w <- c(first.com.w, first.ran.w, first.prd.w, all.stat.w)
     #
-    if (!metainf & common) {
+    if (common) {
       if (!overall) {
         i <- 0
         for (bylev.i in subgroup.levels) {
@@ -6799,7 +6636,7 @@ forest.meta <- function(x,
         text.common.w <- rep("Overall", n.com.w)
     }
     #
-    if (!metainf & random) {
+    if (random) {
       if (!overall) {
         i <- 0
         for (bylev.i in subgroup.levels) {
@@ -8009,7 +7846,7 @@ forest.meta <- function(x,
     #
     # Freeman-Tukey Arcsin transformation
     #
-    if (metainf | metabind) {
+    if (metabind) {
       if (sm == "IRFT") {
         npft <- x$t.harmonic.mean
         npft.ma <- x$t.harmonic.mean.ma
@@ -8055,12 +7892,10 @@ forest.meta <- function(x,
       lowTE.random <- backtransf(lowTE.random, sm, npft.ma, npft.ma, fbt, abt)
       uppTE.random <- backtransf(uppTE.random, sm, npft.ma, npft.ma, fbt, abt)
       #
-      if (!metainf) {
-        lowTE.predict <-
-          backtransf(lowTE.predict, sm, npft.ma, npft.ma, fbt, abt)
-        uppTE.predict <-
-          backtransf(uppTE.predict, sm, npft.ma, npft.ma, fbt, abt)
-      }
+      lowTE.predict <-
+        backtransf(lowTE.predict, sm, npft.ma, npft.ma, fbt, abt)
+      uppTE.predict <-
+        backtransf(uppTE.predict, sm, npft.ma, npft.ma, fbt, abt)
       #
       if (by) {
         if (sm == "IRFT")
@@ -8175,40 +8010,34 @@ forest.meta <- function(x,
     uppTE.predict <- NAs.prd
   }
   #
-  if (!metainf) {
-    if (by & !overall)
-      w.common.p <- round(100 * x$w.common, digits.weight)
-    else {
-      if (!all(is.na(x$w.common)) && sum(x$w.common) > 0) {
-        if (is.matrix(x$w.common))
-          w.common.p <-
-            round(apply(x$w.common, 2, calcPercent), digits.weight)
-        else
-          w.common.p <-
-            round(calcPercent(x$w.common), digits.weight)
-      }
-      else
-        w.common.p <- x$w.common
-    }
-    #
-    if (by & !overall)
-      w.random.p <- round(100 * x$w.random, digits.weight)
-    else {
-      if (!all(is.na(x$w.random)) && sum(x$w.random) > 0) {
-        if (is.matrix(x$w.random))
-          w.random.p <-
-            round(apply(x$w.random, 2, calcPercent), digits.weight)
-        else
-          w.random.p <-
-            round(calcPercent(x$w.random), digits.weight)
-      }
-      else
-        w.random.p <- x$w.random
-    }
-  }
+  if (by & !overall)
+    w.common.p <- round(100 * x$w.common, digits.weight)
   else {
-    w.common.p <- rep(NA, length(TE))
-    w.random.p <- rep(NA, length(TE))
+    if (!all(is.na(x$w.common)) && sum(x$w.common) > 0) {
+      if (is.matrix(x$w.common))
+        w.common.p <-
+          round(apply(x$w.common, 2, calcPercent), digits.weight)
+      else
+        w.common.p <-
+          round(calcPercent(x$w.common), digits.weight)
+    }
+    else
+      w.common.p <- x$w.common
+  }
+  #
+  if (by & !overall)
+    w.random.p <- round(100 * x$w.random, digits.weight)
+  else {
+    if (!all(is.na(x$w.random)) && sum(x$w.random) > 0) {
+      if (is.matrix(x$w.random))
+        w.random.p <-
+          round(apply(x$w.random, 2, calcPercent), digits.weight)
+      else
+        w.random.p <-
+          round(calcPercent(x$w.random), digits.weight)
+    }
+    else
+      w.random.p <- x$w.random
   }
   #
   if (is.matrix(w.common.p))
@@ -8285,8 +8114,7 @@ forest.meta <- function(x,
   # "mean.e", "mean.c",
   # "sd.e", "sd.c",
   # "cor",
-  # "time.e", "time.c",
-  # "pval", "tau2", "tau", "I2" (for metainf)
+  # "time.e", "time.c"
   #
   # Check for "\n" in label of column 'studlab'
   #
@@ -9758,29 +9586,6 @@ forest.meta <- function(x,
   if (by)
     cycles.format[sel.w] <- ""
   #
-  # Leave-one-out / cumulative meta-analysis
-  #
-  if (metainf) {
-    tau2.format <- c(x$tau2.overall, x$tau2.overall, NA, x$tau2)
-    tau.format <- c(x$tau.overall, x$tau.overall, NA, x$tau)
-    I2.format <- c(x$I2.overall, x$I2.overall, NA, x$I2)
-    #
-    tau2.format <- formatPT(tau2.format, digits = digits.tau2,
-                            big.mark = big.mark,
-                            lab = FALSE, labval = "",
-                            lab.NA = lab.NA)
-    tau.format <- formatPT(tau.format, digits = digits.tau,
-                           big.mark = big.mark,
-                           lab = FALSE, labval = "",
-                           lab.NA = lab.NA)
-    I2.format <- formatN(100 * I2.format, digits.I2, lab.NA)
-    I2.format <- paste0(I2.format, ifelse(I2.format == lab.NA, "", "%"))
-    #
-    # Print nothing for lines with prediction interval
-    #
-    tau2.format[all.prd] <- tau.format[all.prd] <- I2.format[all.prd] <- ""
-  }
-  #
   #
   # y-axis:
   #
@@ -10490,18 +10295,6 @@ forest.meta <- function(x,
                         fontfamily,
                         n.com, n.ran, n.prd)
   #
-  if (metainf) {
-    col.tau2 <- formatcol(labs[["lab.tau2"]], tau2.format, yS, just.c, fcs,
-                          fontfamily,
-                          n.com, n.ran, n.prd)
-    col.tau <- formatcol(labs[["lab.tau"]], tau.format, yS, just.c, fcs,
-                         fontfamily,
-                         n.com, n.ran, n.prd)
-    col.I2 <- formatcol(labs[["lab.I2"]], I2.format, yS, just.c, fcs,
-                        fontfamily,
-                        n.com, n.ran, n.prd)
-  }
-  #
   col.effect.calc <- formatcol(longer.effect, effect.format, yS, just.c, fcs,
                                fontfamily,
                                n.com, n.ran, n.prd)
@@ -10603,18 +10396,6 @@ forest.meta <- function(x,
   col.pval.calc <- formatcol(longer.pval, pval.format, yS, just.c, fcs,
                              fontfamily,
                              n.com, n.ran, n.prd)
-  #
-  if (metainf) {
-    col.tau2.calc <- formatcol(longer.tau2, tau2.format, yS, just.c, fcs,
-                               fontfamily,
-                               n.com, n.ran, n.prd)
-    col.tau.calc <- formatcol(longer.tau, tau.format, yS, just.c, fcs,
-                              fontfamily,
-                              n.com, n.ran, n.prd)
-    col.I2.calc <- formatcol(longer.I2, I2.format, yS, just.c, fcs,
-                             fontfamily,
-                             n.com, n.ran, n.prd)
-  }
   #
   col.forest <- list(eff = TEs.exclude,
                      low = lowTEs.exclude,
@@ -10752,12 +10533,6 @@ forest.meta <- function(x,
   #
   cols[["col.pval"]] <- col.pval
   #
-  if (metainf) {
-    cols[["col.tau2"]] <- col.tau2
-    cols[["col.tau"]] <- col.tau
-    cols[["col.I2"]] <- col.I2
-  }
-  #
   # Calculate
   #
   cols.calc[["col.cluster"]] <- col.cluster.calc
@@ -10780,12 +10555,6 @@ forest.meta <- function(x,
   cols.calc[["col.time.c"]] <- col.time.c.calc
   #
   cols.calc[["col.pval"]] <- col.pval.calc
-  #
-  if (metainf) {
-    cols.calc[["col.tau2"]] <- col.tau2.calc
-    cols.calc[["col.tau"]] <- col.tau.calc
-    cols.calc[["col.I2"]] <- col.I2.calc
-  }
   #
   if (newcols) {
     #
@@ -11097,21 +10866,6 @@ forest.meta <- function(x,
   if (newline.time.c)
     col.add.time.c <- tgl(add.time.c, xpos.c, just.c, fs.head, ff.head,
                           fontfamily)
-  #
-  if (metainf) {
-    if (newline.pval)
-      col.add.pval <- tgl(add.pval, xpos.c, just.c, fs.head, ff.head,
-                          fontfamily)
-    if (newline.tau2)
-      col.add.tau2 <- tgl(add.tau2, xpos.c, just.c, fs.head, ff.head,
-                          fontfamily)
-    if (newline.tau)
-      col.add.tau <- tgl(add.tau, xpos.c, just.c, fs.head, ff.head,
-                         fontfamily)
-    if (newline.I2)
-      col.add.I2 <- tgl(add.I2, xpos.c, just.c, fs.head, ff.head,
-                        fontfamily)
-  }
   #
   leftcols  <- paste0("col.", leftcols)
   rightcols <- paste0("col.", rightcols)
@@ -11620,17 +11374,6 @@ forest.meta <- function(x,
         if (newline.time.c & leftcols[i] == "col.time.c")
           add.text(col.add.time.c, j)
         #
-        if (metainf) {
-          if (newline.pval & leftcols[i] == "col.pval")
-            add.text(col.add.pval, j)
-          if (newline.tau2 & leftcols[i] == "col.tau2")
-            add.text(col.add.tau2, j)
-          if (newline.tau & leftcols[i] == "col.tau")
-            add.text(col.add.tau, j)
-          if (newline.I2 & leftcols[i] == "col.I2")
-            add.text(col.add.I2, j)
-        }
-        #
         # Add text in first line of forest plot for new columns
         #
         if (newcols)
@@ -11888,17 +11631,6 @@ forest.meta <- function(x,
         if (newline.time.c & rightcols[i] == "col.time.c")
           add.text(col.add.time.c, j)
         #
-        if (metainf) {
-          if (newline.pval & rightcols[i] == "col.pval")
-            add.text(col.add.pval, j)
-          if (newline.tau2 & rightcols[i] == "col.tau2")
-            add.text(col.add.tau2, j)
-          if (newline.tau & rightcols[i] == "col.tau")
-            add.text(col.add.tau, j)
-          if (newline.I2 & rightcols[i] == "col.I2")
-            add.text(col.add.I2, j)
-        }
-        #
         # Add text in first line of forest plot for new columns
         #
         if (newcols)
@@ -12078,13 +11810,6 @@ forest.meta <- function(x,
   if (length(cols.new) > 0) {
     for (i in names(cols.new))
       res[[i]] <- cols.new[[i]]
-  }
-  #
-  if (metainf) {
-    res$pval.format <- pval.format
-    res$tau2.format <- tau2.format
-    res$tau.format <- tau.format
-    res$I2.format <- I2.format
   }
   #
   res$figheight <- figheight

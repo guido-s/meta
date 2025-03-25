@@ -1216,8 +1216,6 @@ side of the forest plot}}:
   \cr
 \code{\link{metaprop}} \tab \code{c("studlab", "event", "n")} \cr
 \code{\link{metarate}} \tab \code{c("studlab", "event", "time", "n")}
-  \cr
-\code{\link{metainf}} \tab \code{"studlab"}
 }
 
 For three-level models, the cluster variable is printed next to the
@@ -1283,12 +1281,6 @@ By default, estimated treatment effect and corresponding confidence
 interval will be printed. Depending on arguments \code{common} and
 \code{random}, weights of the common effect and/or random effects
 model will be given too.
-
-For an object of class \code{\link{metainf}} the following columns will
-be printed:
-\code{c("effect", "ci", "pval", "tau2", "tau", "I2")}. This
-information corresponds to the printout with
-\code{\link{print.meta}}.
 }
 
 \subsection{Predefined columns and column labels}{

@@ -29,7 +29,7 @@ catmeth <- function(x,
   trimfill <- inherits(x, "trimfill")
   metamiss <- inherits(x, "metamiss")
   metabind <- inherits(x, "metabind")
-  metacum <- inherits(x, "metacum")
+  metacum.metainf <- inherits(x, "metacum") | inherits(x, "metainf")
   ##
   by <- !is.null(x$subgroup)
   ##
@@ -87,7 +87,7 @@ catmeth <- function(x,
   ##
   text.t <- ""
   ##
-  if (print.tau2 | metabind | metacum)
+  if (print.tau2 | metabind | metacum.metainf)
     text.t <- text.tau2
   else if (print.tau)
     text.t <- text.tau
@@ -101,7 +101,7 @@ catmeth <- function(x,
   ##
   ##
 
-  if (overall | metabind | metacum | by) {
+  if (overall | metabind | metacum.metainf | by) {
     
     meth.ma <- meth[meth$model %in% selmod, , drop = FALSE]
     ##
@@ -137,9 +137,9 @@ catmeth <- function(x,
   ## (3) Estimation of between-study variance
   ##
   ##
-  if (((random | (metacum & (print.tau2 | print.tau))) & 
+  if (((random | (metacum.metainf & (print.tau2 | print.tau))) & 
        (overall | metabind | by)) | overall.hetstat) {
-    if (metacum)
+    if (metacum.metainf)
       sel.mt <- meth$model %in% c("common", "random")
     else
       sel.mt <- meth$model == "random"

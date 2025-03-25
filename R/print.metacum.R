@@ -8,6 +8,13 @@
 #' @param x An object of class \code{\link{metacum}}.
 #' @param prediction A logical indicating whether prediction
 #'   intervals should be printed.
+#' @param backtransf A logical indicating whether printed results
+#'   should be back transformed. If \code{backtransf=TRUE}, results
+#'   for \code{sm="OR"} are printed as odds ratios rather than log
+#'   odds ratios, for example.
+#' @param header A logical indicating whether information on title of
+#'   meta-analysis, comparison and outcome should be printed at the
+#'   beginning of the printout.
 #' @param digits Minimal number of significant digits, see
 #'   \code{print.default}.
 #' @param digits.stat Minimal number of significant digits for z- or
@@ -30,6 +37,8 @@
 #' @param JAMA.pval A logical specifying whether p-values for test of
 #'   overall effect should be printed according to JAMA reporting
 #'   standards.
+#' @param print.stat A logical value indicating whether z- or t-value
+#'   for test of treatment effect should be printed.
 #' @param print.tau2 A logical specifying whether between-study
 #'   variance \eqn{\tau^2} should be printed.
 #' @param print.tau2.ci A logical value indicating whether to print
@@ -69,7 +78,12 @@
 #' @method print metacum
 #' @export
 
-print.metacum <- function(x, prediction = x$prediction,
+print.metacum <- function(x,
+                          #
+                          prediction = x$prediction,
+                          backtransf = x$backtransf,
+                          header = TRUE,
+                          #
                           digits = gs("digits"),
                           digits.stat = gs("digits.stat"),
                           digits.pval = gs("digits.pval"),
@@ -82,11 +96,11 @@ print.metacum <- function(x, prediction = x$prediction,
                           zero.pval = gs("zero.pval"),
                           JAMA.pval = gs("JAMA.pval"),
                           #
+                          print.stat = FALSE,
                           print.tau2 = TRUE,
                           print.tau2.ci = FALSE,
                           print.tau = TRUE,
                           print.tau.ci = FALSE,
-                          #
                           print.I2 = TRUE,
                           print.I2.ci = FALSE,
                           #
@@ -103,10 +117,12 @@ print.metacum <- function(x, prediction = x$prediction,
   #
   #
   
-  chkclass(x, "metacum")
+  chkclass(x, c("metacum", "metainf"))
   x <- updateversion(x)
   #
   chklogical(prediction)
+  chklogical(backtransf)
+  chklogical(header)
   #
   chknumeric(digits, min = 0, length = 1)
   chknumeric(digits.stat, min = 0, length = 1)
@@ -120,6 +136,7 @@ print.metacum <- function(x, prediction = x$prediction,
   chklogical(zero.pval)
   chklogical(JAMA.pval)
   #
+  chklogical(print.stat)
   chklogical(print.tau2)
   chklogical(print.tau2.ci)
   chklogical(print.tau)
@@ -138,6 +155,16 @@ print.metacum <- function(x, prediction = x$prediction,
   print.tau2.ci <- print.tau2 & print.tau2.ci
   print.tau.ci <- print.tau & print.tau.ci
   print.I2.ci <- print.I2 & print.I2.ci
+  #
+  sm <- x$sm
+  #
+  if (is.function(x$func.backtransf))
+    fbt <- deparse(substitute(x$func.backtransf))
+  else
+    fbt <- x$func.backtransf
+  ##
+  abt <- x$args.backtransf
+  
   
   #
   #
@@ -146,11 +173,13 @@ print.metacum <- function(x, prediction = x$prediction,
   #
   
   # Get rid of warning 'no visible binding for global variable'
+  #
   TE <- lower <- upper <- statistic <- pval <-
     lower.predict <- upper.predict <-
     tau2 <- lower.tau2 <- upper.tau2 <-
     tau <- lower.tau <- upper.tau <-
-    I2 <- lower.I2 <- upper.I2 <- NULL
+    I2 <- lower.I2 <- upper.I2 <-
+    harmonic.mean <- n.harmonic.mean <- t.harmonic.mean <- NULL
   #
   dat.cum <-
     with(x,
@@ -160,6 +189,8 @@ print.metacum <- function(x, prediction = x$prediction,
                     tau2, lower.tau2, upper.tau2,
                     tau, lower.tau, upper.tau,
                     I2, lower.I2, upper.I2,
+                    n.harmonic.mean,
+                    t.harmonic.mean,
                     row.names = studlab))
   #
   space <- data.frame(TE = NA, lower = NA, upper = NA,
@@ -168,6 +199,7 @@ print.metacum <- function(x, prediction = x$prediction,
                       tau2 = NA, lower.tau2 = NA, upper.tau2 = NA,
                       tau = NA, lower.tau = NA, upper.tau = NA, 
                       I2 = NA, lower.I2 = NA, upper.I2 = NA,
+                      n.harmonic.mean = NA, t.harmonic.mean = NA,
                       row.names = "")
   #
   dat.pooled <-
@@ -177,12 +209,37 @@ print.metacum <- function(x, prediction = x$prediction,
                     lower.predict.pooled, upper.predict.pooled,
                     tau2.pooled, lower.tau2.pooled, upper.tau2.pooled,
                     tau.pooled, lower.tau.pooled, upper.tau.pooled,
-                    I2.pooled, lower.I2.pooled, upper.I2.pooled)) %>%
+                    I2.pooled, lower.I2.pooled, upper.I2.pooled,
+                    n.harmonic.mean.pooled, t.harmonic.mean.pooled)) %>%
     rename_with(~ gsub(".pooled", "", .x, fixed = TRUE))
   #
   rownames(dat.pooled) <- x$text.pooled
   #
-  dat <- rbind(dat.cum, space, dat.pooled) %>%
+  dat <- rbind(dat.cum, space, dat.pooled)
+  #
+  if (sm == "IRFT")
+    dat %<>% rename(harmonic.mean = t.harmonic.mean) %>%
+      select(-n.harmonic.mean)
+  else
+    dat %<>% rename(harmonic.mean = n.harmonic.mean) %>%
+      select(-t.harmonic.mean)
+  #
+  if (backtransf) {
+    dat %<>%
+      mutate(
+        TE = backtransf(TE, sm, harmonic.mean, harmonic.mean, fbt, abt),
+        lower = backtransf(lower, sm, harmonic.mean, harmonic.mean, fbt, abt),
+        upper = backtransf(upper, sm, harmonic.mean, harmonic.mean, fbt, abt),
+        lower.predict =
+          backtransf(lower.predict, sm, harmonic.mean, harmonic.mean, fbt, abt),
+        upper.predict =
+          backtransf(upper.predict, sm, harmonic.mean, harmonic.mean, fbt, abt),
+      )    
+  }
+  #
+  dat %<>% select(-harmonic.mean)
+  #
+  dat %<>%
     mutate(TE = formatN(TE, digits = digits, text.NA = "", big.mark = big.mark),
            lower = 
              if_else(is.na(lower) & is.na(upper), "",
@@ -223,18 +280,26 @@ print.metacum <- function(x, prediction = x$prediction,
                                        lab.NA = "", big.mark = big.mark))),
            #
            I2 = if_else(is.na(I2), "",
-                        paste0(formatN(100 * I2, digits = digits.I2,
-                                              text.NA = ""), "%")),
-           lower.I2 = 
-             if_else(is.na(lower.I2) & is.na(upper.I2), "",
-                     formatCI(formatPT(lower.I2, digits = digits,
-                                       lab.NA = "", big.mark = big.mark),
-                              formatPT(upper.I2, digits = digits,
-                                       lab.NA = "", big.mark = big.mark)))
+                        paste0(formatPT(100 * I2, digits = digits.I2,
+                                        lab.NA = ""), "%")),
+           #
+           lower.I2 =
+             if_else(is.na(lower.I2), "",
+                     paste0(formatPT(100 * lower.I2, digits = digits.I2,
+                                     lab.NA = ""), "%")),
+           #
+           upper.I2 =
+             if_else(is.na(upper.I2), "",
+                     paste0(formatPT(100 * upper.I2, digits = digits.I2,
+                                     lab.NA = ""), "%")),
+           #
+           lower.I2 =
+             if_else(lower.I2 == "" & upper.I2 == "", "",
+                     formatCI(lower.I2, upper.I2)),
     ) %>%
     select(-upper, -upper.predict, -upper.tau2, -upper.tau, -upper.I2)
   #
-  names(dat)[names(dat) == "TE"] <- x$sm
+  names(dat)[names(dat) == "TE"] <- smlab(sm, backtransf, x$pscale, x$irscale)
   #
   names(dat)[names(dat) == "lower"] <-
     paste0(round(100 * x$level.ma, 1), "%-CI")
@@ -247,10 +312,14 @@ print.metacum <- function(x, prediction = x$prediction,
   #
   names(dat)[names(dat) == "pval"] <- "p-value"
   #
-  if (x$pooled == "random" & x$method.random.ci %in% c("HK", "KR"))
-    names(dat)[names(dat) == "statistic"] <- "t"
+  if (print.stat) {
+    if (x$pooled == "random" & x$method.random.ci %in% c("HK", "KR"))
+      names(dat)[names(dat) == "statistic"] <- "t"
+    else
+      names(dat)[names(dat) == "statistic"] <- "z"
+  }
   else
-    names(dat)[names(dat) == "statistic"] <- "z"
+    dat$statistic <- NULL
   #
   if (print.tau2)
     names(dat)[names(dat) == "tau2"] <- text.tau2
@@ -260,7 +329,8 @@ print.metacum <- function(x, prediction = x$prediction,
   }
   #
   if (print.tau2.ci)
-    names(dat)[names(dat) == "lower.tau2"] <- "x%-CI"
+    names(dat)[names(dat) == "lower.tau2"] <-
+    paste0(round(100 * x$level.hetstat, 1), "%-CI")
   else
     dat$lower.tau2 <- NULL
   #
@@ -270,7 +340,8 @@ print.metacum <- function(x, prediction = x$prediction,
     dat$tau <- NULL
   #
   if (print.tau.ci)
-    names(dat)[names(dat) == "lower.tau"] <- "x%-CI"
+    names(dat)[names(dat) == "lower.tau"] <-
+    paste0(round(100 * x$level.hetstat, 1), "%-CI")
   else
     dat$lower.tau <- NULL
   #
@@ -280,26 +351,36 @@ print.metacum <- function(x, prediction = x$prediction,
     dat$I2 <- NULL
   #
   if (print.I2.ci)
-    names(dat)[names(dat) == "lower.I2"] <- "x%-CI"
+    names(dat)[names(dat) == "lower.I2"] <-
+    paste0(round(100 * x$level.hetstat, 1), "%-CI")
   else
     dat$lower.I2 <- NULL
   #
   dat <- replaceNA(dat, "")
   
-  cat(paste0("Cumulative meta-analysis (",
-             if (x$pooled == "common") "common effect" else "random effects",
-             " model)\n\n"))
+  
+  #
+  #
+  # (4) Print results
+  #
+  #
+  
+  if (header)
+    crtitle(x)
+  #
+  cat(paste0(if (inherits(x, "metacum")) "Cumulative " else "Leave-one-out ",
+             "meta-analysis\n\n"))
   #
   prmatrix(dat, quote = FALSE, right = TRUE, ...)
-  
+  #
   if (details.methods)
     details <-
-    catmeth(x$x,
+    catmeth(x,
             x$pooled == "common", x$pooled == "random", prediction,
             TRUE, TRUE,
             #
             func.transf = x$func.transf,
-            backtransf = x$backtransf,
+            backtransf = backtransf,
             func.backtransf = x$func.backtransf,
             #
             big.mark = big.mark, digits = digits,
@@ -314,7 +395,6 @@ print.metacum <- function(x, prediction = x$prediction,
             print.I2 = print.I2, text.I2 = text.I2,
             #
             print.df = TRUE, prediction.subgroup = FALSE)
-  
-  
+  #
   invisible(NULL)
 }

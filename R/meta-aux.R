@@ -731,7 +731,10 @@ calcPercent <- function(x)
 cond <- function(x, only.finite = TRUE, digits = 2, big.mark = "") {
   if (is.null(x))
     return(x)
-  ##
+  #
+  if (is.character(x))
+    return(x)
+  #
   if (only.finite)
     x <- x[is.finite(x)]
   ##

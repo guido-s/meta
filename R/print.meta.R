@@ -1686,7 +1686,6 @@ print.meta <- function(x,
                 print.df = overall, prediction.subgroup = prediction.subgroup)
   }
   
-  
   invisible(details)
 }
 
