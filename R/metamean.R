@@ -451,7 +451,7 @@ metamean <- function(n, mean, sd, studlab,
                      level.hetstat = gs("level.hetstat"),
                      tau.preset = NULL, TE.tau = NULL,
                      tau.common = gs("tau.common"),
-                     detail.tau = "",
+                     detail.tau = NULL,
                      #
                      method.I2 = gs("method.I2"),
                      #

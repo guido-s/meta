@@ -449,18 +449,20 @@ chksuitable <- function(x, method,
   #
   for (i in seq_along(classes)) {
     if (inherits(x, classes[i])) {
-      func(method, " not ", status, " for an object of class \"",
-           classes[i], "\"", addtext[i], ".",
-           call. = FALSE)
-      ##
+      do.call(func,
+              list(paste0(method, " not ", status, " for an object of class \"",
+                          classes[i], "\"", addtext[i], "."),
+                   call. = FALSE))
+      #
       return(FALSE)
     }
   }
   ##
   if (check.mlm) {
     if (!is.null(x$three.level) && any(x$three.level)) {
-      func(method, " not implemented for three-level model.",
-           call. = FALSE)
+      do.call(func,
+              list(paste(method, "not implemented for three-level model."),
+                   call. = FALSE))
       ##
       return(FALSE)
     }

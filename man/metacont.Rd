@@ -52,7 +52,7 @@ metacont(
   tau.preset = NULL,
   TE.tau = NULL,
   tau.common = gs("tau.common"),
-  detail.tau = "",
+  detail.tau = NULL,
   method.I2 = gs("method.I2"),
   level.ma = gs("level.ma"),
   method.random.ci = gs("method.random.ci"),

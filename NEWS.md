@@ -22,6 +22,14 @@
   - consider setting for list element 'rho' for metabin(), metacor(),
     metainc(), metamean(), metaprop(), metarate()
 
+* metabin(), metacont(), metacor(), metainc(), metamean(), metaprop(),
+  metarate():
+  - bug fix for three-level model if argument 'detail.tau' is not specified by
+    the user
+
+* Fix bug 'could not find function "func"' in internal function chksuitable()
+
+
 ### User-visible changes
 
 * metabin(), metainc():

@@ -605,7 +605,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                      level.hetstat = gs("level.hetstat"),
                      tau.preset = NULL, TE.tau = NULL,
                      tau.common = gs("tau.common"),
-                     detail.tau = "",
+                     detail.tau = NULL,
                      #
                      method.I2 = gs("method.I2"),
                      #

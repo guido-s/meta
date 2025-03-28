@@ -682,7 +682,7 @@ metagen <- function(TE, seTE, studlab,
                     level.hetstat = gs("level.hetstat"),
                     tau.preset = NULL, TE.tau = NULL,
                     tau.common = gs("tau.common"),
-                    detail.tau = "",
+                    detail.tau = NULL,
                     #
                     method.I2 = gs("method.I2"),
                     #
@@ -771,6 +771,7 @@ metagen <- function(TE, seTE, studlab,
   #
   missing.method.tau <- missing(method.tau)
   missing.tau.common <- missing(tau.common)
+  avail.detail.tau <- !missing(detail.tau) & !is.null(detail.tau)
   missing.method.predict <- missing(method.predict)
   #
   missing.func.transf <- missing(func.transf)
@@ -2510,8 +2511,12 @@ metagen <- function(TE, seTE, studlab,
   ## (14) Generate R object
   ##
   ##
-  if (missing(detail.tau) && k != k.study)
-    detail.tau <- c("between cluster", "within cluster")
+  if (!avail.detail.tau) {
+    if (k != k.study)
+      detail.tau <- c("between cluster", "within cluster")
+    else
+      detail.tau <- ""
+  }
   ##
   ci.study <- ci(TE, seTE, level = level,
                  df =

@@ -215,8 +215,8 @@ baujat.meta <- function(x,
   
   
   m.inf <- metainf(x, pooled = pooled)
-  TE.inf <- m.inf$TE[seq_along(TE)]
-  seTE.inf <- m.inf$seTE[seq_along(TE)]
+  TE.inf <- m.inf$TE
+  seTE.inf <- m.inf$seTE
   ##
   ys <- (TE.inf - TE.s)^2 / seTE.inf^2
   ys <- ys * yscale
