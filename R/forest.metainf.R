@@ -19,6 +19,8 @@
 #'   (additional) columns on right side of the forest plot.
 #' @param prediction A logical indicating whether prediction
 #'   intervals should be printed.
+#' @param overall A logical indicating whether overall results should be
+#'   shown.
 #' @param just.addcols Justification of text for additional columns
 #'   (possible values: "left", "right", "center").
 #' @param smlab A label for the summary measure (printed at top of
@@ -34,18 +36,28 @@
 #' @param big.mark A character used as thousands separator.
 #' @param digits Minimal number of significant digits for treatment
 #'   effects, see \code{print.default}.
+#' @param digits.pval Minimal number of significant digits for
+#'   p-values.
 #' @param digits.tau2 Minimal number of significant digits for
 #'   between-study variance.
 #' @param digits.tau Minimal number of significant digits for square
 #'   root of between-study variance.
 #' @param digits.I2 Minimal number of significant digits for I-squared
 #'   statistic.
+#' @param digits.cid Minimal number of significant digits for
+#'   CID / decision thresholds, see \code{print.default}.
+#' @param digits.percent Minimal number of significant digits for
+#'   probabilities, printed as percentages, see \code{print.default}.
 #' @param col The colour for cumulative meta-analysis results (only considered
 #'   if \code{type = "square"}).
-#' @param col.bg The background colour for squares, diamonds and prediction
+#' @param col.bg The background colour for squares and diamonds of
+#'   cumulative meta-analysis results.
+#' @param col.border The colour for the outer lines of squares and diamonds of
+#'   cumulative meta-analysis results.
+#' @param col.bg.predict The background colour for prediction intervals of
+#'   cumulative meta-analysis results.
+#' @param col.border.predict The colour for the outer lines of prediction
 #'   intervals of cumulative meta-analysis results.
-#' @param col.border The colour for the outer lines of squares, diamonds and
-#'   prediction intervals of cumulative meta-analysis results.
 #' @param addrows.below.overall A numeric value indicating how many
 #'   empty rows are printed between meta-analysis results and
 #'   meta-analysis details.
@@ -101,30 +113,38 @@
 #' @export
 
 forest.metainf <- function(x,
-                           leftcols = "studlab",
-                           leftlabs = rep(NA, length(leftcols)),
-                           rightcols =
-                             c("effect", "ci", "pval", "tau2", "tau", "I2"),
-                           rightlabs = rep(NA, length(rightcols)),
+                           #
+                           leftcols = NULL, leftlabs = NULL,
+                           rightcols = NULL, rightlabs = NULL,
+                           #
                            prediction = x$prediction,
+                           overall = x$overall,
                            just.addcols = "right",
                            smlab = "Leave-One-Out Meta-Analysis",
                            type = "square",
-                           lab.NA = "",
+                           lab.NA = ".",
                            #
                            backtransf = x$backtransf,
                            #
                            big.mark = gs("big.mark"),
                            digits = gs("digits.forest"),
+                           digits.pval = gs("digits.pval"),
                            digits.tau2 = gs("digits.tau2"),
                            digits.tau = gs("digits.tau"),
                            digits.I2 = gs("digits.I2"),
+                           digits.cid = gs("digits.cid"),
+                           digits.percent = 1,
                            #
                            col = gs("col.study"),
-                           col.bg = gs("col.square"),
+                           col.bg = 
+                             ifelse(type == "diamond",
+                                    gs("col.diamond"), gs("col.square")),
                            col.border =
-                             if (type == "square") gs("col.square.lines")
-                             else "black",
+                             ifelse(type == "diamond",
+                                    gs("col.diamond.lines"),
+                                    gs("col.square.lines")),
+                           col.bg.predict = gs("col.predict"),
+                           col.border.predict = gs("col.predict.lines"),
                            #
                            addrows.below.overall = 1L * details,
                            details = gs("forest.details"),
@@ -137,6 +157,7 @@ forest.metainf <- function(x,
                         rightcols = rightcols,
                         rightlabs = rightlabs,
                         prediction = prediction,
+                        overall = overall,
                         just.addcols = just.addcols,
                         smlab = smlab,
                         type = type,
@@ -146,13 +167,18 @@ forest.metainf <- function(x,
                         #
                         big.mark = big.mark,
                         digits = digits,
+                        digits.pval = digits.pval,
                         digits.tau2 = digits.tau2,
                         digits.tau = digits.tau,
                         digits.I2 = digits.I2,
+                        digits.cid = digits.cid,
+                        digits.percent = digits.percent,
                         #
                         col = col,
                         col.bg = col.bg,
                         col.border = col.border,
+                        col.bg.predict = col.bg.predict,
+                        col.border.predict = col.border.predict,
                         #
                         addrows.below.overall = addrows.below.overall,
                         details = details,

@@ -642,7 +642,11 @@
 #' @import metadat
 #'
 #' @importFrom dplyr %>% across mutate all_of select rename rename_with mutate
-#'   if_else
+#'   if_else tibble filter
+#'
+#' @importFrom tibble column_to_rownames
+#'
+#' @importFrom scales number_format
 #'
 #' @importFrom stringr str_pad
 #'
@@ -655,18 +659,21 @@
 #' @importFrom grid arrow gpar grid.circle grid.draw grid.layout
 #'   grid.lines grid.newpage grid.polygon grid.rect grid.text
 #'   grid.xaxis textGrob popViewport pushViewport viewport unit unit.c
-#'   convertX
+#'   convertX grobTree rectGrob
 #'   grid.get grid.gget
 #'
 #' @importFrom grDevices gray gray.colors cairo_pdf cairo_ps pdf
-#'   postscript svg bmp jpeg png tiff
+#'   postscript svg bmp jpeg png tiff hcl.colors
 #'
 #' @importFrom graphics abline axis barplot box mtext lines par plot
 #'   points polygon text
+#'   
+#' @importFrom ggplot2 aes annotate geom_area geom_line geom_point
+#'   geom_polygon ggplot scale_x_continuous xlab ylab
 #' 
 #' @importFrom stats as.formula binom.test coef cor lm pchisq pf pnorm
 #'   poisson.test pt qlogis qnorm qt runif update var weighted.mean
-#'   weights glm binomial vcov fitted residuals
+#'   weights glm binomial vcov fitted residuals dt
 #'
 #' @importFrom utils count.fields read.table assignInNamespace
 #'   getFromNamespace packageDescription packageVersion head tail find

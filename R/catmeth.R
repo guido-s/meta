@@ -21,15 +21,20 @@ catmeth <- function(x,
   ##
   ##
   
-  metabin  <- inherits(x, "metabin")
-  metacont <- inherits(x, "metacont")
-  metainc  <- inherits(x, "metainc")
-  metaprop <- inherits(x, "metaprop")
-  metarate <- inherits(x, "metarate")
-  trimfill <- inherits(x, "trimfill")
-  metamiss <- inherits(x, "metamiss")
-  metabind <- inherits(x, "metabind")
   metacum.metainf <- inherits(x, "metacum") | inherits(x, "metainf")
+  metabind <- inherits(x, "metabind")
+  #
+  metabin  <- inherits(x, "metabin") & !metacum.metainf
+  metacont <- inherits(x, "metacont") & !metacum.metainf
+  metacor  <- inherits(x, "metacor") & !metacum.metainf
+  metagen  <- inherits(x, "metagen") & !metacum.metainf
+  metainc  <- inherits(x, "metainc") & !metacum.metainf
+  metamean <- inherits(x, "metamean") & !metacum.metainf
+  metaprop <- inherits(x, "metaprop") & !metacum.metainf
+  metarate <- inherits(x, "metarate") & !metacum.metainf
+  #
+  trimfill <- inherits(x, "trimfill") & !metacum.metainf
+  metamiss <- inherits(x, "metamiss") & !metacum.metainf
   ##
   by <- !is.null(x$subgroup)
   ##
@@ -64,19 +69,24 @@ catmeth <- function(x,
   #
   width <- options()$width
   ##
-  method <-
-    if (metacont)
-      "metacont"
-    else if (metabin)
-      "metabin"
-    else if (metainc)
-      "metainc"
-    else if (metaprop)
-      "metaprop"
-    else if (metarate)
-      "metarate"
-    else if (metabind)
-      x$classes
+  if (metabin)
+    method <- "metabin"
+  else if (metacont)
+    method <- "metacont"
+  else if (metacor)
+    method <- "metacor"
+  else if (metagen)
+    method <- "metagen"
+  else if (metainc)
+    method <- "metainc"
+  else if (metamean)
+    method <- "metamean"
+  else if (metaprop)
+    method <- "metaprop"
+  else if (metarate)
+    method <- "metarate"
+  else if (metacum.metainf | metabind)
+    method <- x$classes
   ##
   if (forest) {
     text.tau2 <- "tau^2"
@@ -197,7 +207,7 @@ catmeth <- function(x,
       }
     }
     ##
-    if (metabin) {
+    if (metabin | metacum.metainf) {
       dat.qc <-
         unique(meth[meth$model %in% "random" & is.na(meth$tau.preset),
                     c("method.tau", "Q.Cochrane")])

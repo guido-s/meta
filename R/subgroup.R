@@ -460,8 +460,17 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                        Q = meta1$Q,
                        ##
                        tau2 = sum(meta1$tau2),
+                       lower.tau2 =
+                         if (meta1$three.level) NA else meta1$lower.tau2,
+                       upper.tau2 =
+                         if (meta1$three.level) NA else meta1$upper.tau2,
+                       #
                        tau = sum(meta1$tau),
-                       ##
+                       lower.tau =
+                         if (meta1$three.level) NA else meta1$lower.tau,
+                       upper.tau =
+                         if (meta1$three.level) NA else meta1$upper.tau,
+                       #
                        H = meta1$H,
                        lower.H = meta1$lower.H,
                        upper.H = meta1$upper.H,
@@ -535,8 +544,13 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
   Q.w <- extrVec(res.i, "Q", levs, TRUE)
   ##
   tau2.w <- extrVec(res.i, "tau2", levs)
+  lower.tau2.w <- extrVec(res.i, "lower.tau2", levs)
+  upper.tau2.w <- extrVec(res.i, "upper.tau2", levs)
+  #
   tau.w <- extrVec(res.i, "tau", levs)
-  ##
+  lower.tau.w <- extrVec(res.i, "lower.tau", levs)
+  upper.tau.w <- extrVec(res.i, "upper.tau", levs)
+  #
   H.w <- extrVec(res.i, "H", levs)
   lower.H.w <- extrVec(res.i, "lower.H", levs)
   upper.H.w <- extrVec(res.i, "upper.H", levs)
@@ -676,8 +690,17 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
     ## Heterogeneity measures
     ##
     tau2.w <- rep_len(sum(mlm[[1]]$sigma2), n.levs)
+    lower.tau2.w <- tau2.w
+    upper.tau2.w <- tau2.w
+    lower.tau2.w[!is.na(lower.tau2.w)] <- NA
+    upper.tau2.w[!is.na(upper.tau2.w)] <- NA
+    #
     tau.w <- sqrt(tau2.w)
-    ##
+    lower.tau.w <- tau.w
+    upper.tau.w <- tau.w
+    lower.tau.w[!is.na(lower.tau.w)] <- NA
+    upper.tau.w[!is.na(upper.tau.w)] <- NA
+    #
     upper.Rb.w <- lower.Rb.w <- Rb.w <- rep_len(NA, n.levs)
     ##
     ## Prediction interval
@@ -872,8 +895,17 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
     ## Heterogeneity measures
     ##
     tau2.w <- rep_len(glmm.r[[1]]$tau2, n.levs)
+    lower.tau2.w <- tau2.w
+    upper.tau2.w <- tau2.w
+    lower.tau2.w[!is.na(lower.tau2.w)] <- NA
+    upper.tau2.w[!is.na(upper.tau2.w)] <- NA
+    #
     tau.w <- sqrt(tau2.w)
-    ##
+    lower.tau.w <- tau.w
+    upper.tau.w <- tau.w
+    lower.tau.w[!is.na(lower.tau.w)] <- NA
+    upper.tau.w[!is.na(upper.tau.w)] <- NA
+    #
     upper.Rb.w <- lower.Rb.w <- Rb.w <- rep_len(NA, n.levs)
     ##
     ## Prediction interval
@@ -1012,7 +1044,12 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
               pval.Q.w = pvalQ(Q.w, k.w - 1),
               ##
               tau2.w = tau2.w,
+              lower.tau2.w = lower.tau2.w,
+              upper.tau2.w = upper.tau2.w,
+              #
               tau.w = tau.w,
+              lower.tau.w = lower.tau.w,
+              upper.tau.w = upper.tau.w,
               ##
               H.w = H.w,
               lower.H.w = lower.H.w,

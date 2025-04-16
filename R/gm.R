@@ -58,9 +58,14 @@ gm <- function(x, digits = 4, debug = FALSE) {
         label.df.random <- ""
       else if (length(df.randoms) == 1)
         label.df.random <- df.randoms
-      else
-        label.df.random <-
-        paste0("{", paste(df.randoms, collapse = ", "), "}")
+      else {
+        if (all(diff(df.randoms) == 1) & length(df.randoms) > 5)
+          label.df.random <-
+            paste0("{", min(df.randoms), ", ..., ", max(df.randoms), "}")
+        else
+          label.df.random <-
+            paste0("{", paste(df.randoms, collapse = ", "), "}")
+      }
       #
       if (x$prediction) {
         df.predicts <-
@@ -72,9 +77,14 @@ gm <- function(x, digits = 4, debug = FALSE) {
           label.df.predict <- ""
         else if (length(df.predicts) == 1)
           label.df.predict <- df.predicts
-        else
-          label.df.predict <-
-          paste0("{", paste(df.predicts, collapse = ", "), "}")
+        else {
+          if (all(diff(df.predicts) == 1))
+            label.df.predict <-
+              paste0("{", min(df.predicts), ", ..., ", max(df.predicts), "}")
+          else
+            label.df.predict <-
+              paste0("{", paste(df.predicts, collapse = ", "), "}")
+        }
       }
       else
         label.df.predict <- ""
@@ -103,6 +113,7 @@ gm <- function(x, digits = 4, debug = FALSE) {
               method.I2 = method.I2,
               method.random.ci = method.random.ci,
               df.random = label.df.random,
+              Q.Cochrane = replaceNULL(x$Q.Cochrane, FALSE),
               adhoc.hakn.ci = adhoc.hakn.ci,
               rho = 0),
           pred =

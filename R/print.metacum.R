@@ -6,8 +6,10 @@
 #' @aliases print.metacum
 #' 
 #' @param x An object of class \code{\link{metacum}}.
-#' @param prediction A logical indicating whether prediction
-#'   intervals should be printed.
+#' @param prediction A logical indicating whether prediction intervals should
+#'   be printed.
+#' @param overall A logical indicating whether overall results should be
+#'   printed.
 #' @param backtransf A logical indicating whether printed results
 #'   should be back transformed. If \code{backtransf=TRUE}, results
 #'   for \code{sm="OR"} are printed as odds ratios rather than log
@@ -15,6 +17,7 @@
 #' @param header A logical indicating whether information on title of
 #'   meta-analysis, comparison and outcome should be printed at the
 #'   beginning of the printout.
+#' @param lab.NA A character string to label missing values.
 #' @param digits Minimal number of significant digits, see
 #'   \code{print.default}.
 #' @param digits.stat Minimal number of significant digits for z- or
@@ -28,6 +31,10 @@
 #'   \eqn{\tau^2}.
 #' @param digits.I2 Minimal number of significant digits for I-squared
 #'   and Rb statistic, see \code{print.default}.
+#' @param digits.cid Minimal number of significant digits for
+#'   CID / decision thresholds, see \code{print.default}.
+#' @param digits.percent Minimal number of significant digits for
+#'   probabilities, printed as percentages, see \code{print.default}.
 #' @param big.mark A character used as thousands separator.
 #' @param scientific.pval A logical specifying whether p-values should
 #'   be printed in scientific notation, e.g., 1.2345e-01 instead of
@@ -52,6 +59,8 @@
 #'   statistic I\eqn{^2} should be printed.
 #' @param print.I2.ci A logical specifying whether confidence interval for
 #'   heterogeneity statistic I\eqn{^2} should be printed.
+#' @param print.prob A logical specifying whether to print probabilities
+#'   of clinically important benefit or harm.
 #' @param text.tau2 Text printed to identify between-study variance
 #'   \eqn{\tau^2}.
 #' @param text.tau Text printed to identify \eqn{\tau}, the square
@@ -81,8 +90,11 @@
 print.metacum <- function(x,
                           #
                           prediction = x$prediction,
+                          overall = x$overall,
                           backtransf = x$backtransf,
                           header = TRUE,
+                          #
+                          lab.NA = ".",
                           #
                           digits = gs("digits"),
                           digits.stat = gs("digits.stat"),
@@ -90,6 +102,8 @@ print.metacum <- function(x,
                           digits.tau2 = gs("digits.tau2"),
                           digits.tau = gs("digits.tau"),
                           digits.I2 = gs("digits.I2"),
+                          digits.cid = gs("digits.cid"),
+                          digits.percent = 1,
                           #
                           big.mark = gs("big.mark"),
                           scientific.pval = gs("scientific.pval"),
@@ -103,6 +117,7 @@ print.metacum <- function(x,
                           print.tau.ci = FALSE,
                           print.I2 = TRUE,
                           print.I2.ci = FALSE,
+                          print.prob = TRUE,
                           #
                           text.tau2 = gs("text.tau2"),
                           text.tau = gs("text.tau"),
@@ -121,6 +136,7 @@ print.metacum <- function(x,
   x <- updateversion(x)
   #
   chklogical(prediction)
+  chklogical(overall)
   chklogical(backtransf)
   chklogical(header)
   #
@@ -130,6 +146,8 @@ print.metacum <- function(x,
   chknumeric(digits.tau2, min = 0, length = 1)
   chknumeric(digits.tau, min = 0, length = 1)
   chknumeric(digits.I2, min = 0, length = 1)
+  chknumeric(digits.cid, min = 0, length = 1)
+  chknumeric(digits.percent, min = 0, length = 1)
   #
   chkchar(big.mark, length = 1)
   chklogical(scientific.pval)
@@ -149,6 +167,8 @@ print.metacum <- function(x,
   #
   chklogical(print.I2)
   chklogical(print.I2.ci)
+  #
+  chklogical(print.prob)
   #
   chklogical(details.methods)
   #
@@ -175,47 +195,79 @@ print.metacum <- function(x,
   # Get rid of warning 'no visible binding for global variable'
   #
   TE <- lower <- upper <- statistic <- pval <-
-    lower.predict <- upper.predict <-
     tau2 <- lower.tau2 <- upper.tau2 <-
     tau <- lower.tau <- upper.tau <-
     I2 <- lower.I2 <- upper.I2 <-
+    lower.predict <- upper.predict <-
+    prob.cid.below.null <- prob.cid.above.null <-
     harmonic.mean <- n.harmonic.mean <- t.harmonic.mean <- NULL
   #
-  dat.cum <-
+  dat <-
     with(x,
          data.frame(TE, lower, upper,
                     statistic, pval,
-                    lower.predict, upper.predict,
                     tau2, lower.tau2, upper.tau2,
                     tau, lower.tau, upper.tau,
                     I2, lower.I2, upper.I2,
+                    lower.predict, upper.predict,
                     n.harmonic.mean,
                     t.harmonic.mean,
                     row.names = studlab))
   #
-  space <- data.frame(TE = NA, lower = NA, upper = NA,
-                      statistic = NA, pval = NA,
-                      lower.predict = NA, upper.predict = NA,
-                      tau2 = NA, lower.tau2 = NA, upper.tau2 = NA,
-                      tau = NA, lower.tau = NA, upper.tau = NA, 
-                      I2 = NA, lower.I2 = NA, upper.I2 = NA,
-                      n.harmonic.mean = NA, t.harmonic.mean = NA,
-                      row.names = "")
+  avail.prob.cid.below.null <-
+    !is.null(x$prob.cid.below.null) && !all(is.na(x$prob.cid.below.null))
   #
-  dat.pooled <-
-    with(x,
-         data.frame(TE.pooled, lower.pooled, upper.pooled,
-                    statistic.pooled, pval.pooled,
-                    lower.predict.pooled, upper.predict.pooled,
-                    tau2.pooled, lower.tau2.pooled, upper.tau2.pooled,
-                    tau.pooled, lower.tau.pooled, upper.tau.pooled,
-                    I2.pooled, lower.I2.pooled, upper.I2.pooled,
-                    n.harmonic.mean.pooled, t.harmonic.mean.pooled)) %>%
-    rename_with(~ gsub(".pooled", "", .x, fixed = TRUE))
+  avail.prob.cid.above.null <-
+    !is.null(x$prob.cid.above.null) && !all(is.na(x$prob.cid.above.null))
   #
-  rownames(dat.pooled) <- x$text.pooled
+  avail.prob.cid <- avail.prob.cid.below.null | avail.prob.cid.above.null
   #
-  dat <- rbind(dat.cum, space, dat.pooled)
+  if (avail.prob.cid.below.null)
+    dat$prob.cid.below.null <- x$prob.cid.below.null
+  else
+    dat$prob.cid.below.null <- NA
+  #
+  if (avail.prob.cid.above.null)
+    dat$prob.cid.above.null <- x$prob.cid.above.null
+  else
+    dat$prob.cid.above.null <- NA
+  #
+  if (overall) {
+    space <- data.frame(TE = NA, lower = NA, upper = NA,
+                        statistic = NA, pval = NA,
+                        tau2 = NA, lower.tau2 = NA, upper.tau2 = NA,
+                        tau = NA, lower.tau = NA, upper.tau = NA, 
+                        I2 = NA, lower.I2 = NA, upper.I2 = NA,
+                        lower.predict = NA, upper.predict = NA,
+                        prob.cid.below.null = NA, prob.cid.above.null = NA,
+                        n.harmonic.mean = NA, t.harmonic.mean = NA,
+                        row.names = "")
+    #
+    dat.pooled <-
+      with(x,
+           data.frame(TE.pooled, lower.pooled, upper.pooled,
+                      statistic.pooled, pval.pooled,
+                      tau2.pooled, lower.tau2.pooled, upper.tau2.pooled,
+                      tau.pooled, lower.tau.pooled, upper.tau.pooled,
+                      I2.pooled, lower.I2.pooled, upper.I2.pooled,
+                      lower.predict.pooled, upper.predict.pooled,
+                      n.harmonic.mean.pooled, t.harmonic.mean.pooled)) %>%
+      rename_with(~ gsub(".pooled", "", .x, fixed = TRUE))
+    #
+    rownames(dat.pooled) <- x$text.pooled
+    #
+    if (avail.prob.cid.below.null)
+      dat.pooled$prob.cid.below.null <- x$prob.cid.below.null.pooled
+    else
+      dat.pooled$prob.cid.below.null <- NA
+    #
+    if (avail.prob.cid.above.null)
+      dat.pooled$prob.cid.above.null <- x$prob.cid.above.null.pooled
+    else
+      dat.pooled$prob.cid.above.null <- NA
+    #
+    dat <- rbind(dat, space, dat.pooled)
+  }
   #
   if (sm == "IRFT")
     dat %<>% rename(harmonic.mean = t.harmonic.mean) %>%
@@ -240,64 +292,85 @@ print.metacum <- function(x,
   dat %<>% select(-harmonic.mean)
   #
   dat %<>%
-    mutate(TE = formatN(TE, digits = digits, text.NA = "", big.mark = big.mark),
+    mutate(TE = formatN(TE, digits = digits, text.NA = lab.NA, big.mark = big.mark),
            lower = 
-             if_else(is.na(lower) & is.na(upper), "",
-                     formatCI(formatN(lower, digits = digits, text.NA = "",
+             if_else(is.na(lower) & is.na(upper), lab.NA,
+                     formatCI(formatN(lower, digits = digits, text.NA = lab.NA,
                                       big.mark = big.mark),
-                              formatN(upper, digits = digits, text.NA = "",
+                              formatN(upper, digits = digits, text.NA = lab.NA,
                                       big.mark = big.mark))),
            #
-           statistic = formatN(statistic, digits = digits.stat, text.NA = ""),
+           statistic = formatN(statistic, digits = digits.stat, text.NA = lab.NA),
            #
-           pval = formatPT(pval, digits = digits.pval, lab.NA = "",
+           pval = formatPT(pval, digits = digits.pval, lab.NA = lab.NA,
                            scientific = scientific.pval,
                            zero = zero.pval, JAMA = JAMA.pval),
            #
-           lower.predict = 
-             if_else(is.na(lower.predict) & is.na(upper.predict), "",
-                     formatCI(formatN(lower.predict, digits = digits,
-                                      text.NA = "", big.mark = big.mark),
-                              formatN(upper.predict, digits = digits,
-                                      text.NA = "", big.mark = big.mark))),
-           #
-           tau2 = formatPT(tau2, digits = digits.tau2, lab.NA = "",
+           tau2 = formatPT(tau2, digits = digits.tau2, lab.NA = lab.NA,
                            big.mark = big.mark),
            lower.tau2 = 
-             if_else(is.na(lower.tau2) & is.na(upper.tau2), "",
+             if_else(is.na(lower.tau2) & is.na(upper.tau2), lab.NA,
                      formatCI(formatPT(lower.tau2, digits = digits,
-                                       lab.NA = "", big.mark = big.mark),
+                                       lab.NA = lab.NA, big.mark = big.mark),
                               formatPT(upper.tau2, digits = digits,
-                                       lab.NA = "", big.mark = big.mark))),
+                                       lab.NA = lab.NA, big.mark = big.mark))),
            #
-           tau = formatPT(tau, digits = digits.tau, lab.NA = "",
+           tau = formatPT(tau, digits = digits.tau, lab.NA = lab.NA,
                           big.mark = big.mark),
            lower.tau = 
-             if_else(is.na(lower.tau) & is.na(upper.tau), "",
+             if_else(is.na(lower.tau) & is.na(upper.tau), lab.NA,
                      formatCI(formatPT(lower.tau, digits = digits,
-                                       lab.NA = "", big.mark = big.mark),
+                                       lab.NA = lab.NA, big.mark = big.mark),
                               formatPT(upper.tau, digits = digits,
-                                       lab.NA = "", big.mark = big.mark))),
+                                       lab.NA = lab.NA, big.mark = big.mark))),
            #
-           I2 = if_else(is.na(I2), "",
+           I2 = if_else(is.na(I2), lab.NA,
                         paste0(formatPT(100 * I2, digits = digits.I2,
-                                        lab.NA = ""), "%")),
+                                        lab.NA = lab.NA), "%")),
            #
            lower.I2 =
-             if_else(is.na(lower.I2), "",
+             if_else(is.na(lower.I2), lab.NA,
                      paste0(formatPT(100 * lower.I2, digits = digits.I2,
-                                     lab.NA = ""), "%")),
+                                     lab.NA = lab.NA), "%")),
            #
            upper.I2 =
-             if_else(is.na(upper.I2), "",
+             if_else(is.na(upper.I2), lab.NA,
                      paste0(formatPT(100 * upper.I2, digits = digits.I2,
-                                     lab.NA = ""), "%")),
+                                     lab.NA = lab.NA), "%")),
            #
            lower.I2 =
-             if_else(lower.I2 == "" & upper.I2 == "", "",
+             if_else(lower.I2 == lab.NA & upper.I2 == lab.NA, lab.NA,
                      formatCI(lower.I2, upper.I2)),
+           #
+           lower.predict = 
+             if_else(is.na(lower.predict) & is.na(upper.predict), lab.NA,
+                     formatCI(formatN(lower.predict, digits = digits,
+                                      text.NA = lab.NA, big.mark = big.mark),
+                              formatN(upper.predict, digits = digits,
+                                      text.NA = lab.NA, big.mark = big.mark))),
+           #
+           prob.cid.below.null =
+             if_else(is.na(prob.cid.below.null), lab.NA,
+                     paste0(formatPT(100 * prob.cid.below.null,
+                                     digits = digits.percent,
+                                     lab.NA = lab.NA), "%")),
+           #
+           prob.cid.above.null =
+             if_else(is.na(prob.cid.above.null), lab.NA,
+                     paste0(formatPT(100 * prob.cid.above.null,
+                                     digits = digits.percent,
+                                     lab.NA = lab.NA), "%"))
     ) %>%
     select(-upper, -upper.predict, -upper.tau2, -upper.tau, -upper.I2)
+  #
+  # Use "" instead of lab.NA in empty row
+  #
+  sel.empty <- with(dat, TE == lab.NA & lower == lab.NA & I2 == lab.NA)
+  #
+  if (sum(sel.empty) > 0) {
+    for (i in names(dat))
+      dat[sel.empty, i] <- ""
+  }
   #
   names(dat)[names(dat) == "TE"] <- smlab(sm, backtransf, x$pscale, x$irscale)
   #
@@ -310,7 +383,10 @@ print.metacum <- function(x,
   else
     dat$lower.predict <- NULL
   #
-  names(dat)[names(dat) == "pval"] <- "p-value"
+  if (all(is.na(c(x$pval, x$pval.pooled))))
+    dat$pval <- NULL
+  else
+    names(dat)[names(dat) == "pval"] <- "p-value"
   #
   if (print.stat) {
     if (x$pooled == "random" & x$method.random.ci %in% c("HK", "KR"))
@@ -356,6 +432,30 @@ print.metacum <- function(x,
   else
     dat$lower.I2 <- NULL
   #
+  if (!avail.prob.cid.below.null)
+    dat$prob.cid.below.null <- NULL
+  #
+  if (!avail.prob.cid.above.null)
+    dat$prob.cid.above.null <- NULL
+  #
+  if (print.prob & avail.prob.cid.below.null) {
+    names(dat)[names(dat) == "prob.cid.below.null"] <-
+      paste0("P(",
+             if (x$small.values == "desirable") "benefit" else "harm",
+             ")")
+  }
+  else
+    dat$prob.cid.below.null <- NULL
+  #
+  if (print.prob & avail.prob.cid.above.null) {
+    names(dat)[names(dat) == "prob.cid.above.null"] <-
+      paste0("P(",
+             if (x$small.values == "desirable") "harm" else "benefit",
+             ")")
+  }
+  else
+    dat$prob.cid.above.null <- NULL
+  #
   dat <- replaceNA(dat, "")
   
   
@@ -373,28 +473,46 @@ print.metacum <- function(x,
   #
   prmatrix(dat, quote = FALSE, right = TRUE, ...)
   #
-  if (details.methods)
+  if (details.methods) {
     details <-
-    catmeth(x,
-            x$pooled == "common", x$pooled == "random", prediction,
-            TRUE, TRUE,
-            #
-            func.transf = x$func.transf,
-            backtransf = backtransf,
-            func.backtransf = x$func.backtransf,
-            #
-            big.mark = big.mark, digits = digits,
-            digits.tau = digits.tau,
-            text.tau = text.tau, text.tau2 = text.tau2,
-            #
-            print.tau2 = print.tau2,
-            print.tau2.ci = print.tau2.ci,
-            print.tau = print.tau,
-            print.tau.ci = print.tau.ci,
-            #
-            print.I2 = print.I2, text.I2 = text.I2,
-            #
-            print.df = TRUE, prediction.subgroup = FALSE)
+      catmeth(x,
+              x$pooled == "common", x$pooled == "random", prediction,
+              overall, TRUE,
+              #
+              func.transf = x$func.transf,
+              backtransf = backtransf,
+              func.backtransf = x$func.backtransf,
+              #
+              big.mark = big.mark, digits = digits,
+              digits.tau = digits.tau,
+              text.tau = text.tau, text.tau2 = text.tau2,
+              #
+              print.tau2 = print.tau2,
+              print.tau2.ci = print.tau2.ci,
+              print.tau = print.tau,
+              print.tau.ci = print.tau.ci,
+              #
+              print.I2 = print.I2, text.I2 = text.I2,
+              #
+              print.df = TRUE, prediction.subgroup = FALSE)
+    #
+    if (avail.prob.cid)
+      svd <- x$small.values == "desirable"
+    #
+    if (avail.prob.cid.below.null)
+      cat(paste0("- Lower decision threshold (",
+                 if (svd) "beneficial " else "harmful ",
+                 "effects): ",
+                 formatN(x$cid.below.null, digits = digits.cid, big.mark = big.mark),
+                 "\n"))
+    #
+    if (avail.prob.cid.above.null)
+      cat(paste0("- Upper decision threshold (",
+                 if (svd) "harmful " else "beneficial ",
+                 "effects): ",
+                 formatN(x$cid.above.null, digits = digits.cid, big.mark = big.mark),
+                 "\n"))
+  }
   #
   invisible(NULL)
 }

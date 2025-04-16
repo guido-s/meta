@@ -8,6 +8,8 @@
 #' @param x An object of class \code{\link{metainf}}.
 #' @param prediction A logical indicating whether prediction
 #'   intervals should be printed.
+#' @param overall A logical indicating whether overall results should be
+#'   printed.
 #' @param backtransf A logical indicating whether printed results
 #'   should be back transformed. If \code{backtransf=TRUE}, results
 #'   for \code{sm="OR"} are printed as odds ratios rather than log
@@ -15,6 +17,7 @@
 #' @param header A logical indicating whether information on title of
 #'   meta-analysis, comparison and outcome should be printed at the
 #'   beginning of the printout.
+#' @param lab.NA A character string to label missing values.
 #' @param digits Minimal number of significant digits, see
 #'   \code{print.default}.
 #' @param digits.stat Minimal number of significant digits for z- or
@@ -28,6 +31,10 @@
 #'   \eqn{\tau^2}.
 #' @param digits.I2 Minimal number of significant digits for I-squared
 #'   and Rb statistic, see \code{print.default}.
+#' @param digits.cid Minimal number of significant digits for
+#'   CID / decision thresholds, see \code{print.default}.
+#' @param digits.percent Minimal number of significant digits for
+#'   probabilities, printed as percentages, see \code{print.default}.
 #' @param big.mark A character used as thousands separator.
 #' @param scientific.pval A logical specifying whether p-values should
 #'   be printed in scientific notation, e.g., 1.2345e-01 instead of
@@ -52,6 +59,8 @@
 #'   statistic I\eqn{^2} should be printed.
 #' @param print.I2.ci A logical specifying whether confidence interval for
 #'   heterogeneity statistic I\eqn{^2} should be printed.
+#' @param print.prob A logical specifying whether to print probabilities
+#'   of clinically important benefit or harm.
 #' @param text.tau2 Text printed to identify between-study variance
 #'   \eqn{\tau^2}.
 #' @param text.tau Text printed to identify \eqn{\tau}, the square
@@ -81,8 +90,11 @@
 print.metainf <- function(x,
                           #
                           prediction = x$prediction,
+                          overall = x$overall,
                           backtransf = x$backtransf,
                           header = TRUE,
+                          #
+                          lab.NA = ".",
                           #
                           digits = gs("digits"),
                           digits.stat = gs("digits.stat"),
@@ -90,6 +102,8 @@ print.metainf <- function(x,
                           digits.tau2 = gs("digits.tau2"),
                           digits.tau = gs("digits.tau"),
                           digits.I2 = gs("digits.I2"),
+                          digits.cid = gs("digits.cid"),
+                          digits.percent = 1,
                           #
                           big.mark = gs("big.mark"),
                           scientific.pval = gs("scientific.pval"),
@@ -103,6 +117,7 @@ print.metainf <- function(x,
                           print.tau.ci = FALSE,
                           print.I2 = TRUE,
                           print.I2.ci = FALSE,
+                          print.prob = TRUE,
                           #
                           text.tau2 = gs("text.tau2"),
                           text.tau = gs("text.tau"),
@@ -116,6 +131,7 @@ print.metainf <- function(x,
   print.metacum(x,
                 #
                 prediction = prediction,
+                overall = overall,
                 backtransf = backtransf,
                 header = header,
                 #
@@ -125,6 +141,8 @@ print.metainf <- function(x,
                 digits.tau2 = digits.tau2,
                 digits.tau = digits.tau,
                 digits.I2 = digits.I2,
+                digits.cid = digits.cid,
+                digits.percent = digits.percent,
                 #
                 big.mark = big.mark,
                 scientific.pval = scientific.pval,
@@ -138,6 +156,7 @@ print.metainf <- function(x,
                 print.tau.ci = print.tau.ci,
                 print.I2 = print.I2,
                 print.I2.ci = print.I2.ci,
+                print.prob = print.prob,
                 #
                 text.tau2 = text.tau2,
                 text.tau = text.tau,

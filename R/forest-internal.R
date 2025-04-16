@@ -579,9 +579,9 @@ draw.lines <- function(x, column,
                        ymin.common, ymin.random, ymin.ref, ymax,
                        lwd, lty.common, lty.random, col.common, col.random,
                        xmin, xmax,
-                       lower.equi, upper.equi,
-                       lty.equi, col.equi,
-                       fill.lower.equi, fill.upper.equi,
+                       cid.below.null, cid.above.null,
+                       lty.cid, col.cid,
+                       fill.cid.below.null, fill.cid.above.null,
                        fill,
                        col.line) {
   ##
@@ -604,94 +604,94 @@ draw.lines <- function(x, column,
                           "lines"),
                  gp = gpar(col = fill, fill = fill))
   ##
-  ## Add equivalence region(s)
+  ## Add equivalence region
   ##
-  if (is.na(ref) & any(!is.na(lower.equi)) & any(!is.na(upper.equi)))
-    ref.equi <- min(lower.equi, na.rm = TRUE) +
-      0.5 * (max(upper.equi, na.rm = TRUE) - min(lower.equi, na.rm = TRUE))
+  if (is.na(ref) & any(!is.na(cid.below.null)) & any(!is.na(cid.above.null)))
+    ref.equi <- min(cid.below.null, na.rm = TRUE) +
+      0.5 * (max(cid.above.null, na.rm = TRUE) - min(cid.below.null, na.rm = TRUE))
   else
     ref.equi <- ref
   ##
   if (!is.na(ref.equi) && (xmin <= ref.equi & ref.equi <= xmax) &&
-      any(!is.na(lower.equi))) {
+      any(!is.na(cid.below.null))) {
     ##
-    n.lower.equi <- sum(!is.na(lower.equi))
-    n.fill.lower.equi <- length(fill.lower.equi)
+    n.cid.below.null <- sum(!is.na(cid.below.null))
+    n.fill.cid.below.null <- length(fill.cid.below.null)
     ##
-    if (n.lower.equi < n.fill.lower.equi) {
+    if (n.cid.below.null < n.fill.cid.below.null) {
       firstline <- FALSE
-      lower.equi <- c(xmin, lower.equi, ref.equi)
+      cid.below.null <- c(xmin, cid.below.null, ref.equi)
     }
     else {
       firstline <- TRUE
-      lower.equi <- c(lower.equi, ref.equi)
+      cid.below.null <- c(cid.below.null, ref.equi)
     }
     ##
-    n.lo <- length(lower.equi[-1])
+    n.lo <- length(cid.below.null[-1])
     ##
     for (i in seq_len(n.lo)) {
-      if (!is.na(lower.equi[i]) && !is.na(lower.equi[i + 1]) &&
-          ((xmin <= lower.equi[i] & lower.equi[i] <= lower.equi[i + 1]) &
-           (lower.equi[i + 1] <= xmax))) {
+      if (!is.na(cid.below.null[i]) && !is.na(cid.below.null[i + 1]) &&
+          ((xmin <= cid.below.null[i] & cid.below.null[i] <= cid.below.null[i + 1]) &
+           (cid.below.null[i + 1] <= xmax))) {
         ##
-        grid.polygon(x = unit(c(lower.equi[i], lower.equi[i + 1],
-                                lower.equi[i + 1], lower.equi[i]), "native"),
+        grid.polygon(x = unit(c(cid.below.null[i], cid.below.null[i + 1],
+                                cid.below.null[i + 1], cid.below.null[i]), "native"),
                      y = unit(c(ymin.ref, ymin.ref, ymax, ymax),
                               "lines"),
                      gp = gpar(lwd = lwd, col = "transparent",
-                               fill = fill.lower.equi[i]))
+                               fill = fill.cid.below.null[i]))
       }
     }
     ##
     for (i in seq_len(n.lo)) {
       if (!(i == 1 & !firstline) &
-          !is.na(lower.equi[i]) && !is.na(lower.equi[i + 1]) &&
-          ((xmin <= lower.equi[i] & lower.equi[i] <= lower.equi[i + 1]) &
-           (lower.equi[i + 1] <= xmax)))
-        grid.lines(x = unit(lower.equi[i], "native"),
+          !is.na(cid.below.null[i]) && !is.na(cid.below.null[i + 1]) &&
+          ((xmin <= cid.below.null[i] & cid.below.null[i] <= cid.below.null[i + 1]) &
+           (cid.below.null[i + 1] <= xmax)))
+        grid.lines(x = unit(cid.below.null[i], "native"),
                    y = unit(c(ymin.ref, ymax), "lines"),
-                   gp = gpar(lwd = lwd, col = col.equi, lty = lty.equi))
+                   gp = gpar(lwd = lwd, col = col.cid, lty = lty.cid))
     }
   }
   ##
   if (!is.na(ref.equi) && (xmin <= ref.equi & ref.equi <= xmax) &&
-      any(!is.na(upper.equi))) {
+      any(!is.na(cid.above.null))) {
     ##
-    n.upper.equi <- sum(!is.na(upper.equi))
-    n.fill.upper.equi <- length(fill.upper.equi)
+    n.cid.above.null <- sum(!is.na(cid.above.null))
+    n.fill.cid.above.null <- length(fill.cid.above.null)
     ##
-    if (n.upper.equi < n.fill.upper.equi) {
+    if (n.cid.above.null < n.fill.cid.above.null) {
       lastline <- FALSE
-      upper.equi <- c(ref.equi, upper.equi, xmax)
+      cid.above.null <- c(ref.equi, cid.above.null, xmax)
     }
     else {
       lastline <- TRUE
-      upper.equi <- c(ref.equi, upper.equi)
+      cid.above.null <- c(ref.equi, cid.above.null)
     }
     ##
-    n.up <- length(upper.equi[-1])
+    n.up <- length(cid.above.null[-1])
     ##
     for (i in seq_len(n.up)) {
-      if (!is.na(upper.equi[i]) && !is.na(upper.equi[i + 1]) &&
-          ((xmin <= upper.equi[i] & upper.equi[i] <= upper.equi[i + 1]) &
-           (upper.equi[i + 1] <= xmax))) {
+      if (!is.na(cid.above.null[i]) && !is.na(cid.above.null[i + 1]) &&
+          ((xmin <= cid.above.null[i] & cid.above.null[i] <= cid.above.null[i + 1]) &
+           (cid.above.null[i + 1] <= xmax))) {
         ##
-        grid.polygon(x = unit(c(upper.equi[i], upper.equi[i + 1],
-                                upper.equi[i + 1], upper.equi[i]), "native"),
+        grid.polygon(x = unit(c(cid.above.null[i], cid.above.null[i + 1],
+                                cid.above.null[i + 1], cid.above.null[i]), "native"),
                      y = unit(c(ymin.ref, ymin.ref, ymax, ymax),
                               "lines"),
                      gp = gpar(lwd = lwd, col = "transparent",
-                               fill = fill.upper.equi[i]))
+                               fill = fill.cid.above.null[i]))
       }
     }
     ##
     for (i in seq_len(n.up)) {
       if ((i != n.up | (i == n.up & lastline)) &
-          !is.na(upper.equi[i + 1]) &&
-          (xmin <= upper.equi[i + 1] & upper.equi[i + 1] <= xmax))
-          grid.lines(x = unit(upper.equi[i + 1], "native"),
+          !is.na(cid.above.null[i + 1]) &&
+          (xmin <= cid.above.null[i + 1] & cid.above.null[i + 1] <= xmax))
+          grid.lines(x = unit(cid.above.null[i + 1], "native"),
                      y = unit(c(ymin.ref, ymax), "lines"),
-                     gp = gpar(lwd = lwd, col = col.equi, lty = lty.equi))
+                     gp = gpar(lwd = lwd, col = col.cid, lty = lty.cid))
     }
   }
   ##

@@ -130,29 +130,37 @@
 #' @param ref A numerical giving the reference value to be plotted as
 #'   a line in the forest plot. No reference line is plotted if
 #'   argument \code{ref} is equal to \code{NA}.
-#' @param lower.equi A numerical giving the lower limit of equivalence
-#'   to be plotted as a line in the forest plot. Or a vector to
-#'   provide several limits, e.g., for large, moderate and small
-#'   effects. No line is plotted if argument \code{lower.equi} is
-#'   equal to \code{NA}.
-#' @param upper.equi A numerical giving the upper limit of equivalence
-#'   to be plotted as a line in the forest plot. Or a vector to
-#'   provide several limits, e.g., for small, moderate and large
-#'   effects. No line is plotted if argument \code{upper.equi} is
-#'   equal to \code{NA}.
-#' @param lty.equi Line type (limits of equivalence).
-#' @param col.equi Line colour (limits of equivalence).
-#' @param fill.equi Colour(s) for area between limits of equivalence
-#'   or more general limits.
-#' @param fill.lower.equi Colour of area between lower limit(s) and
+#' @param cid A numeric value or vector specifying clinically important
+#'   differences (CID) / decision thresholds used to calculate probabilities
+#'   of clinically important benefit or harm, or not important effects
+#'   (see Details).
+#' @param cid.below.null A numeric value or vector specifying CID limits below
+#'   the null effect (see Details).
+#' @param cid.above.null A numeric value or vector specifying CID limits above
+#'   the null effect (see Details).
+#' @param lty.cid Line type for CID lines.
+#' @param col.cid Line colour for CID lines.
+#' @param fill.cid Colour(s) for regions below or above CID limits.
+#' @param fill.cid.below.null Colour of CID regions below null effect /
+#'   reference value. Can be equal to the number of lower limits or
+#'   the number of limits plus 1 (in this case the region between
+#'   minimum and smallest limit is also filled).
+#' @param fill.cid.above.null Colour of CID regions above null effect /
+#'   reference value. Can be equal to the number of upper limits or the
+#'   number of limits plus 1 (in this case the region between largest
+#'   limit and maximum is also filled).
+#' @param fill Colour for background of confidence interval plot (also used
+#'   as colour for region between CID limits).
+#' @param fill.equi Colour(s) for region between limits of equivalence defined
+#'   by arguments \code{cid}, \code{cid.lower} or \code{cid.upper}.
+#' @param fill.lower.equi Colour of region between lower limit(s) and
 #'   reference value. Can be equal to the number of lower limits or
 #'   the number of limits plus 1 (in this case the the region between
 #'   minimum and smallest limit is also filled).
-#' @param fill.upper.equi Colour of area between reference value and
+#' @param fill.upper.equi Colour of region between reference value and
 #'   upper limit(s). Can be equal to the number of upper limits or the
 #'   number of limits plus 1 (in this case the region between largest
 #'   limit and maximum is also filled).
-#' @param fill Colour for background of confidence interval plot.
 #' @param leftcols A character vector specifying (additional) columns
 #'   to be printed on the left side of the forest plot or a logical
 #'   value (see Details).
@@ -863,6 +871,24 @@
 #' always print results of tests for an overall effect:
 #' \code{settings.meta(test.overall = TRUE)}.
 #' }
+#' 
+#' \subsection{Highlight regions corresponding to minimal clinically important
+#' differences}{
+#'
+#' Regions corresponding to minimal clinically important differences can be
+#' added to the forest plot using either argument \code{cid} or
+#' \code{cid.below.null} and \code{cid.above.null}. Input for the later arguments will
+#' be ignored if argument \code{cid} was specified. In this case, the values
+#' of \code{cid.below.null} and \code{cid.above.null} will be equal to
+#' \itemize{
+#' \item \code{cid} and \code{1 / cid} for ratio measures,
+#' \item \code{cid} and \code{-cid} for difference measures.
+#' }
+#' 
+#' Thresholds based on argument \code{cid} will always be symmetric. Asymmetric
+#' thresholds can be defined using arguments \code{cid.below.null} and
+#' \code{cid.above.null}.
+#' }
 #'
 #' \subsection{Flexible printing of subgroup results}{
 #'
@@ -1089,29 +1115,30 @@
 #' 
 #' # Define equivalence limits: 0.75 and 1 / 0.75
 #' #
-#' forest(m1, layout = "RevMan5", common = FALSE,
-#'   lower.equi = 0.75, upper.equi = 1 / 0.75, fill.equi = "lightgray")
+#' forest(m1, layout = "RevMan5", common = FALSE, cid = 0.75,
+#'   fill = "lightgray",
+#'   fill.cid = "white")
 #' 
-#' # Fill areas with beneficial and detrimental effects
+#' # Fill regions with beneficial and detrimental effects
 #' #
-#' forest(m1, layout = "RevMan5", common = FALSE,
-#'   lower.equi = 0.75, upper.equi = 1 / 0.75,
-#'   fill.lower.equi = c("green", "lightgray"),
-#'   fill.upper.equi = c("lightgray", "red"))
+#' forest(m1, layout = "RevMan5", common = FALSE, cid = 0.75,
+#'   fill = "lightgray",
+#'   fill.cid.below.null = "green",
+#'   fill.cid.above.null = "red")
 #' 
 #' # Define thresholds for small, moderate and large effects
-#' # and use hcl.colors() to define colours to fill areas
+#' # and use hcl.colors() to define colours to fill regions
 #' #
 #' thresholds <- c(0.25, 0.5, 0.75)
-#' n.cols <- length(thresholds) + 1
+#' n.cols <- length(thresholds)
 #' forest(m1, layout = "RevMan5", common = FALSE,
 #'   label.left = "Desirable effect", 
 #'   label.right = "Undesirable effect", 
-#'   lty.equi = 3, col.equi = "darkgray",
-#'   lower.equi = thresholds, upper.equi = 1 / rev(thresholds),
-#'   fill.lower.equi =
+#'   lty.cid = 3, col.cid = "darkgray",
+#'   cid.below.null = thresholds, cid.above.null = 1 / rev(thresholds),
+#'   fill.cid.below.null =
 #'     hcl.colors(n.cols, palette = "Blues 2", alpha = 0.6),
-#'   fill.upper.equi =
+#'   fill.cid.above.null =
 #'     hcl.colors(n.cols, palette = "Oranges", alpha = 0.6, rev = TRUE))
 #' 
 #' # Conduct subgroup meta-analysis
@@ -1326,15 +1353,20 @@ forest.meta <- function(x,
                         #
                         ref,
                         #
-                        lower.equi = gs("lower.equi"),
-                        upper.equi = gs("upper.equi"),
-                        lty.equi = gs("lty.equi"),
-                        col.equi = gs("col.equi"),
+                        cid = gs("cid"),
+                        cid.below.null = gs("cid.below.null"),
+                        cid.above.null = gs("cid.above.null"),
+                        lty.cid = gs("lty.cid"),
+                        col.cid = gs("col.cid"),
+                        fill.cid = gs("fill.cid"),
+                        fill.cid.below.null = fill.cid,
+                        fill.cid.above.null = rev(fill.cid),
+                        #
+                        fill = gs("fill"),
+                        #
                         fill.equi = gs("fill.equi"),
                         fill.lower.equi = fill.equi,
                         fill.upper.equi = rev(fill.equi),
-                        #
-                        fill = gs("fill"),
                         #
                         leftcols = gs("leftcols"),
                         rightcols = gs("rightcols"),
@@ -2194,70 +2226,188 @@ forest.meta <- function(x,
       ref <- 1
     else
       ref <- 0
-    #
   }
   else
     chknumeric(ref, length = 1)
   #
-  chknumeric(lower.equi)
-  chknumeric(upper.equi)
+  avail.cid <- !missing(cid) & !is.null(cid) & !all(is.na(cid))
+  chknumeric(cid)
   #
-  if (all(is.na(lower.equi)))
-    max.lower.equi <- NA
-  else {
-    max.lower.equi <- max(lower.equi, na.rm = TRUE)
+  cid.below.null <-
+    deprecated(cid.below.null, missing(cid.below.null),
+               args, "lower.equi", warn.deprecated)
+  #
+  cid.above.null <-
+    deprecated(cid.above.null, missing(cid.above.null),
+               args, "upper.equi", warn.deprecated)
+  #
+  lty.cid <-
+    deprecated(lty.cid, missing(lty.cid), args, "lty.equi", warn.deprecated)
+  chknumeric(lty.cid)
+  #
+  col.cid <-
+    deprecated(col.cid, missing(col.cid), args, "col.equi", warn.deprecated)
+  chkcolor(col.cid)
+  #
+  avail.cid.below.null <- !is.null(cid.below.null) & !all(is.na(cid.below.null))
+  avail.cid.above.null <- !is.null(cid.above.null) & !all(is.na(cid.above.null))
+  #
+  if (avail.cid) {
+    if (any(is.na(cid)))
+      stop("Missing values not allows in argument 'cid'.",
+           call. = FALSE)
     #
-    if (!is.na(ref) && any(lower.equi[!is.na(lower.equi)] > ref))
-      stop("All values provided for argument 'lower.equi' must be ",
+    if (avail.cid.below.null + avail.cid.above.null == 2)
+      warning("Arguments 'cid.below.null' and 'cid.above.null' ignored as ",
+              "argument 'cid' is provided.",
+              call. = FALSE)
+    else if (avail.cid.below.null)
+      warning(
+        "Argument 'cid.below.null' ignored as argument 'cid' is provided.",
+        call. = FALSE)
+    else if (avail.cid.above.null)
+      warning(
+        "Argument 'cid.above.null' ignored as argument 'cid' is provided.",
+        call. = FALSE)
+    #
+    if (any(diff(cid) <= 0))
+      stop("Values for argument 'cid' must be increasing.",
+           call. = FALSE)
+    #
+    if (any(cid < ref) & any(cid > ref))
+      stop("All values provided for argument 'cid' must be either ",
+           "smaller or larger than reference value of ", ref, ".",
+           call. = FALSE)
+    #
+    if (all(cid < ref)) {
+      cid.below.null <- cid
+      #
+      if (log.xaxis)
+        cid.above.null <- rev(1 / cid)
+      else
+        cid.above.null <- rev(-cid)
+    }
+    else {
+      cid.above.null <- cid
+      #
+      if (log.xaxis)
+        cid.below.null <- rev(1 / cid)
+      else
+        cid.below.null <- rev(-cid)
+    }
+    #
+    avail.cid.below.null <- TRUE
+    avail.cid.above.null <- TRUE
+  }
+  #
+  chknumeric(cid.below.null)
+  chknumeric(cid.above.null)
+  #
+  n.cid.below.null <- sum(!is.na(cid.below.null))
+  n.cid.above.null <- sum(!is.na(cid.above.null))
+  #
+  if (n.cid.below.null > 0) {
+    max.cid.below.null <- max(cid.below.null, na.rm = TRUE)
+    #
+    if (!is.na(ref) && any(cid.below.null[!is.na(cid.below.null)] > ref))
+      stop("All values provided for argument 'cid.below.null' must be ",
            "smaller than reference value of ", ref, ".",
            call. = FALSE)
   }
+  else
+    max.cid.below.null <- NA
   #
-  if (all(is.na(upper.equi)))
-    min.upper.equi <- NA
-  else {
-    min.upper.equi <- min(upper.equi, na.rm = TRUE)
+  if (n.cid.above.null > 0) {
+    min.cid.above.null <- min(cid.above.null, na.rm = TRUE)
     #
-    if (!is.na(ref) && any(upper.equi[!is.na(upper.equi)] < ref))
-      stop("All values provided for argument 'upper.equi' must be ",
+    if (!is.na(ref) && any(cid.above.null[!is.na(cid.above.null)] < ref))
+      stop("All values provided for argument 'cid.above.null' must be ",
            "larger than reference value of ", ref, ".",
            call. = FALSE)
   }
+  else
+    min.cid.above.null <- NA
   #
-  if (!is.na(max.lower.equi) && !is.na(min.upper.equi) &&
-      max.lower.equi > min.upper.equi)
-    stop("Value", if (length(lower.equi) > 1) "s " else " ",
-         "of 'lower.equi' must be smaller than 'upper.equi'.",
+  if (n.cid.below.null > 0 && n.cid.above.null > 0 &&
+      max.cid.below.null > min.cid.above.null)
+    stop("Value", if (length(cid.below.null) > 1) "s " else " ",
+         "of 'cid.below.null' must be smaller than 'cid.above.null'.",
          call. = FALSE)
   #
-  if (any(lower.equi != sort(lower.equi), na.rm = TRUE))
-    stop("Values of 'lower.equi' must be increasing.",
+  if (any(cid.below.null != sort(cid.below.null), na.rm = TRUE))
+    stop("Values of 'cid.below.null' must be increasing.",
          call. = FALSE)
   #
-  if (any(upper.equi != sort(upper.equi), na.rm = TRUE))
-    stop("Values of 'upper.equi' must be increasing.",
+  if (any(cid.above.null != sort(cid.above.null), na.rm = TRUE))
+    stop("Values of 'cid.above.null' must be increasing.",
          call. = FALSE)
   #
-  if (!is.na(max.lower.equi)) {
-    if (length(fill.lower.equi) == 1 & sum(!is.na(lower.equi)) > 1)
-      fill.lower.equi <- rep(fill.lower.equi, sum(!is.na(lower.equi)))
-    else if (all(length(fill.lower.equi) != sum(!is.na(lower.equi)) + 0:1))
+  # Define colours for CID regions
+  #
+  missing.fill.cid <- missing(fill.cid)
+  missing.fill.cid.below.null <- missing(fill.cid.below.null)
+  missing.fill.cid.above.null <- missing(fill.cid.above.null)
+  #
+  if (n.cid.below.null > 0) {
+    if (length(fill.cid.below.null) == 1 & n.cid.below.null > 1)
+      fill.cid.below.null <- rep(fill.cid.below.null, n.cid.below.null)
+    else if (all(length(fill.cid.below.null) != n.cid.below.null))
       stop("Number of fill colours must be equal to the number of values ",
-           "for 'lower.equi' or +1.",
+           "for 'cid.below.null'.",
            call. = FALSE)
   }
   #
-  if (!is.na(min.upper.equi)) {
-    if (length(fill.upper.equi) == 1 & sum(!is.na(upper.equi)) > 1)
-      fill.upper.equi <- rep(fill.upper.equi, sum(!is.na(upper.equi)))
-    else if (all(length(fill.upper.equi) != sum(!is.na(upper.equi)) + 0:1))
+  fill.cid.below.null <- c(fill.cid.below.null, fill)
+  #
+  if (n.cid.above.null > 0) {
+    if (length(fill.cid.above.null) == 1 & n.cid.above.null > 1)
+      fill.cid.above.null <- rep(fill.cid.above.null, n.cid.above.null)
+    else if (all(length(fill.cid.above.null) != n.cid.above.null))
       stop("Number of fill colours must be equal to the number of values ",
-           "for 'upper.equi' or +1.",
+           "for 'cid.above.null'.",
            call. = FALSE)
   }
   #
-  chknumeric(lty.equi)
-  chkcolor(col.equi)
+  fill.cid.above.null <- c(fill, fill.cid.above.null)
+  #
+  # Define colours based on equivalence limits
+  #
+  missing.fill.lower.equi <- missing(fill.lower.equi)
+  missing.fill.upper.equi <- missing(fill.upper.equi)
+  #
+  if (!missing.fill.lower.equi | !missing.fill.upper.equi) {
+    if (!missing.fill.cid |
+        !missing.fill.cid.above.null |
+        !missing.fill.cid.above.null) {
+      warning("Input for arguments 'fill.lower.equi' and 'fill.upper.equi' ",
+              "ignored if argument 'fill.cid', 'fill.cid.below.null' or ",
+              "'fill.cid.above.null' is provided.",
+              call. = FALSE)
+    }
+    else {
+      if (n.cid.below.null > 0) {
+        if (length(fill.lower.equi) == 1 & n.cid.below.null > 1)
+          fill.lower.equi <- rep(fill.lower.equi, n.cid.below.null)
+        else if (all(length(fill.lower.equi) != n.cid.below.null + 0:1))
+          stop("Number of fill colours must be equal to the number of values ",
+               "for 'cid.below.null' or +1.",
+               call. = FALSE)
+        #
+        fill.cid.below.null <- fill.lower.equi
+      }
+      #
+      if (n.cid.above.null > 0) {
+        if (length(fill.upper.equi) == 1 & n.cid.above.null > 1)
+          fill.upper.equi <- rep(fill.upper.equi, n.cid.above.null)
+        else if (all(length(fill.upper.equi) != n.cid.above.null + 0:1))
+          stop("Number of fill colours must be equal to the number of values ",
+               "for 'cid.above.null' or +1.",
+               call. = FALSE)
+        #
+        fill.cid.above.null <- fill.upper.equi
+      }
+    }
+  }
   #
   if (bmj)
     type.study <- "squarediamond"
@@ -3355,8 +3505,8 @@ forest.meta <- function(x,
   #
   if (log.xaxis) {
     ref <- log(ref)
-    lower.equi <- log(lower.equi)
-    upper.equi <- log(upper.equi)
+    cid.below.null <- log(cid.below.null)
+    cid.above.null <- log(cid.above.null)
   }
   #
   if (!backtransf & !missing.pscale & pscale != 1 & !is_untransformed(sm)) {
@@ -3376,7 +3526,7 @@ forest.meta <- function(x,
     irscale <- 1
   #
   if (is.null(xlab))
-    xlab <- xlab(sm, backtransf, newline = revman5.jama, revman5 = revman5,
+    xlab <- xlab_meta(sm, backtransf, newline = revman5.jama, revman5 = revman5,
                  big.mark = big.mark)
   #
   scale <- 1
@@ -3394,15 +3544,15 @@ forest.meta <- function(x,
   smlab.null <- is.null(smlab)
   if (smlab.null) {
     if (is_rate(sm))
-      smlab <- xlab(sm, backtransf, irscale = irscale, irunit = irunit,
+      smlab <- xlab_meta(sm, backtransf, irscale = irscale, irunit = irunit,
                     newline = !bmj.revman5.jama, revman5 = revman5,
                     big.mark = big.mark)
     else if (is_prop(sm))
-      smlab <- xlab(sm, backtransf, pscale = pscale,
+      smlab <- xlab_meta(sm, backtransf, pscale = pscale,
                     newline = !bmj.revman5.jama, revman5 = revman5,
                     big.mark = big.mark)
     else
-      smlab <- xlab(sm, backtransf, pscale = pscale,
+      smlab <- xlab_meta(sm, backtransf, pscale = pscale,
                     irscale = irscale, irunit = irunit,
                     newline = !bmj.revman5.jama, revman5 = revman5,
                     big.mark = big.mark)
@@ -6412,11 +6562,25 @@ forest.meta <- function(x,
     #
     if (is.list(x$tau2.w))
       x$tau2.w <- x$tau2.w[[1]]
+    if (is.list(x$lower.tau2.w))
+      x$lower.tau2.w <- x$lower.tau2.w[[1]]
+    if (is.list(x$upper.tau2.w))
+      x$upper.tau2.w <- x$upper.tau2.w[[1]]
+    #
     if (is.list(x$tau.w))
       x$tau.w <- x$tau.w[[1]]
+    if (is.list(x$lower.tau.w))
+      x$lower.tau.w <- x$lower.tau.w[[1]]
+    if (is.list(x$upper.tau.w))
+      x$upper.tau.w <- x$upper.tau.w[[1]]
     #
     tau2.w <- x$tau2.w[o.w]
+    lower.tau2.w <- x$lower.tau2.w[o.w]
+    upper.tau2.w <- x$upper.tau2.w[o.w]
+    #
     tau.w <- x$tau.w[o.w]
+    lower.tau.w <- x$lower.tau.w[o.w]
+    upper.tau.w <- x$upper.tau.w[o.w]
     #
     w.common.w <- collapsemat(x$w.common.w)
     if (is.list(w.common.w))
@@ -6491,7 +6655,12 @@ forest.meta <- function(x,
     uppRb.w <- uppRb.w[sel.w]
     #
     tau2.w <- tau2.w[sel.w]
+    lower.tau2.w <- lower.tau2.w[sel.w]
+    upper.tau2.w <- upper.tau2.w[sel.w]
+    #
     tau.w <- tau.w[sel.w]
+    lower.tau.w <- lower.tau.w[sel.w]
+    upper.tau.w <- upper.tau.w[sel.w]
     #
     w.common.w <- w.common.w[sel.w]
     w.random.w <- w.random.w[sel.w]
@@ -6683,12 +6852,28 @@ forest.meta <- function(x,
                       formatPT(tau2.w, digits = digits.tau2,
                                big.mark = big.mark, lab.NA = "NA"))))
       #
+      if (print.tau2.ci)
+        hetstat.tau2.w <-
+        paste0(hetstat.tau2.w,
+               ifelse(!(is.na(lower.tau2.w) | is.na(upper.tau2.w)),
+                      pasteCI(lower.tau2.w, upper.tau2.w, digits.tau2, big.mark,
+                              text.NA = lab.NA),
+                      ""))
+      #
       hetstat.tau.w <-
         paste0(hetseparator,
                ifelse(is.na(tau.w), "NA",
                ifelse(tau.w == 0, "0",
                       formatPT(tau.w, digits = digits.tau,
                                big.mark = big.mark, lab.NA = "NA"))))
+      #
+      if (print.tau.ci)
+        hetstat.tau.w <-
+        paste0(hetstat.tau.w,
+               ifelse(!(is.na(lower.tau.w) | is.na(upper.tau.w)),
+                      pasteCI(lower.tau.w, upper.tau.w, digits.tau, big.mark,
+                              text.NA = lab.NA),
+                      ""))
       #
       hetstat.Q.w <-
         paste0(hetseparator, round(Q.w, digits.Q),
@@ -9783,15 +9968,15 @@ forest.meta <- function(x,
     if (!is.na(ref) && ref > xlim[2])
       xlim[2] <- ref
     #
-    if (!is.na(lower.equi) && lower.equi < xlim[1])
-      xlim[1] <- lower.equi
-    if (!is.na(lower.equi) && lower.equi > xlim[2])
-      xlim[2] <- lower.equi
+    if (!is.na(cid.below.null) && cid.below.null < xlim[1])
+      xlim[1] <- cid.below.null
+    if (!is.na(cid.below.null) && cid.below.null > xlim[2])
+      xlim[2] <- cid.below.null
     #
-    if (!is.na(upper.equi) && upper.equi < xlim[1])
-      xlim[1] <- upper.equi
-    if (!is.na(upper.equi) && upper.equi > xlim[2])
-      xlim[2] <- upper.equi
+    if (!is.na(cid.above.null) && cid.above.null < xlim[1])
+      xlim[1] <- cid.above.null
+    if (!is.na(cid.above.null) && cid.above.null > xlim[2])
+      xlim[2] <- cid.above.null
   }
   #
   symmetric <- FALSE
@@ -11415,8 +11600,8 @@ forest.meta <- function(x,
              ymax + 0.5 * header.line * addrow,
              lwd, lty.common, lty.random, col.common, col.random,
              xlim[1], xlim[2],
-             lower.equi, upper.equi, lty.equi, col.equi,
-             fill.lower.equi, fill.upper.equi,
+             cid.below.null, cid.above.null, lty.cid, col.cid,
+             fill.cid.below.null, fill.cid.above.null,
              fill,
              col.lines)
   #

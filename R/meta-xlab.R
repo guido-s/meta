@@ -1,8 +1,8 @@
-xlab <- function(sm, backtransf,
-                 pscale = 1, irscale = 1, irunit = "person-years",
-                 newline = FALSE, revman5 = FALSE,
-                 big.mark = gs("big.mark"),
-                 func.transf = NULL, func.backtransf = NULL) {
+xlab_meta <- function(sm, backtransf,
+                      pscale = 1, irscale = 1, irunit = "person-years",
+                      newline = FALSE, revman5 = FALSE,
+                      big.mark = gs("big.mark"),
+                      func.transf = NULL, func.backtransf = NULL) {
   
   res <- sm
   

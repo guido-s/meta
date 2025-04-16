@@ -1686,6 +1686,10 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     TE <- asin(sqrt(n11 / n1.)) - asin(sqrt(n21 / n2.))
     seTE <- sqrt(0.25 * (1 / n1. + 1 / n2.))
   }
+  #
+  # Set NaN to NA
+  #
+  TE[is.nan(TE)] <- NA
   
   
   ##

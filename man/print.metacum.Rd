@@ -7,14 +7,18 @@
 \method{print}{metacum}(
   x,
   prediction = x$prediction,
+  overall = x$overall,
   backtransf = x$backtransf,
   header = TRUE,
+  lab.NA = ".",
   digits = gs("digits"),
   digits.stat = gs("digits.stat"),
   digits.pval = gs("digits.pval"),
   digits.tau2 = gs("digits.tau2"),
   digits.tau = gs("digits.tau"),
   digits.I2 = gs("digits.I2"),
+  digits.cid = gs("digits.cid"),
+  digits.percent = 1,
   big.mark = gs("big.mark"),
   scientific.pval = gs("scientific.pval"),
   zero.pval = gs("zero.pval"),
@@ -26,6 +30,7 @@
   print.tau.ci = FALSE,
   print.I2 = TRUE,
   print.I2.ci = FALSE,
+  print.prob = TRUE,
   text.tau2 = gs("text.tau2"),
   text.tau = gs("text.tau"),
   text.I2 = gs("text.I2"),
@@ -36,8 +41,11 @@
 \arguments{
 \item{x}{An object of class \code{\link{metacum}}.}
 
-\item{prediction}{A logical indicating whether prediction
-intervals should be printed.}
+\item{prediction}{A logical indicating whether prediction intervals should
+be printed.}
+
+\item{overall}{A logical indicating whether overall results should be
+printed.}
 
 \item{backtransf}{A logical indicating whether printed results
 should be back transformed. If \code{backtransf=TRUE}, results
@@ -47,6 +55,8 @@ odds ratios, for example.}
 \item{header}{A logical indicating whether information on title of
 meta-analysis, comparison and outcome should be printed at the
 beginning of the printout.}
+
+\item{lab.NA}{A character string to label missing values.}
 
 \item{digits}{Minimal number of significant digits, see
 \code{print.default}.}
@@ -66,6 +76,12 @@ between-study variance \eqn{\tau^2}, see \code{print.default}.}
 
 \item{digits.I2}{Minimal number of significant digits for I-squared
 and Rb statistic, see \code{print.default}.}
+
+\item{digits.cid}{Minimal number of significant digits for
+CID / decision thresholds, see \code{print.default}.}
+
+\item{digits.percent}{Minimal number of significant digits for
+probabilities, printed as percentages, see \code{print.default}.}
 
 \item{big.mark}{A character used as thousands separator.}
 
@@ -101,6 +117,9 @@ statistic I\eqn{^2} should be printed.}
 
 \item{print.I2.ci}{A logical specifying whether confidence interval for
 heterogeneity statistic I\eqn{^2} should be printed.}
+
+\item{print.prob}{A logical specifying whether to print probabilities
+of clinically important benefit or harm.}
 
 \item{text.tau2}{Text printed to identify between-study variance
 \eqn{\tau^2}.}

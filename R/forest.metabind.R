@@ -531,7 +531,7 @@ forest.metabind <- function(x,
   }
   ##
   if (missing(smlab))
-    smlab <- xlab(x$sm, x$backtransf)
+    smlab <- xlab_meta(x$sm, x$backtransf)
   ##
   if (!x$samedata) {
     overall <- FALSE

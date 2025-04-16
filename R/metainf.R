@@ -12,10 +12,25 @@
 #'   studies (must be of same length as \code{x$TE}).
 #' @param prediction A logical indicating whether to report prediction
 #'   intervals.
+#' @param overall A logical indicating whether overall results should be
+#'   reported.
 #' @param text.pooled A character string used in printouts and forest
 #'   plots to label the pooled effect estimate.
 #' @param no A numeric specifying which meta-analysis results to
 #'   consider.
+#' @param cid A single numeric specifying the clinically important
+#'   difference (CID) / decision threshold used to calculate probabilities
+#'   of clinically important benefit or harm (see \code{\link{cidprob}}).
+#' @param cid.below.null A single numeric defining the decision threshold below
+#'   the null effect to distinguish clinically important from not important
+#'   effects (see \code{\link{cidprob}}).
+#' @param cid.above.null A single numeric defining the decision threshold above
+#'   the null effect to distinguish clinically important from not important
+#'   effects (see \code{\link{cidprob}}).
+#' @param small.values A character string specifying whether small
+#'   treatment effects indicate a beneficial (\code{"desirable"}) or
+#'   harmful (\code{"undesirable"}) effect, can be abbreviated
+#'   (see \code{\link{cidprob}}).
 #' @param \dots Additional arguments (ignored).
 #' 
 #' @details
@@ -62,8 +77,8 @@
 #' 
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
-#' @seealso \code{\link{metabin}}, \code{\link{metacont}},
-#'   \code{\link{print.meta}}
+#' @seealso \code{\link{forest.metainf}}, \code{\link{print.metainf}},
+#'   \code{\link{cidprob}}
 #' 
 #' @references
 #' Cooper H & Hedges LV (1994):
@@ -96,9 +111,12 @@
 #' @method metainf meta
 #' @export
 
-
-metainf.meta <- function(x, pooled, sortvar, prediction,
-                         text.pooled, no = 1, ...) {
+metainf.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
+                         text.pooled, no = 1,
+                         cid = NULL,
+                         cid.below.null = NULL, cid.above.null = NULL,
+                         small.values = "desirable",
+                         ...) {
   
   
   ##
@@ -146,6 +164,8 @@ metainf.meta <- function(x, pooled, sortvar, prediction,
   else
     chklogical(prediction)
   #
+  chklogical(overall)
+  #
   tdist_random <- pooled == "random" & x$method.random.ci %in% c("HK", "KR")
   tdist_predict <- !(x$method.predict %in% c("S", ""))
   #
@@ -165,6 +185,23 @@ metainf.meta <- function(x, pooled, sortvar, prediction,
          "have different length.")
   if (!sort)
     sortvar <- seq_len(k.all)
+  #
+  if (!is.null(cid))
+    chknumeric(cid, length = 1)
+  #
+  if (!is.null(cid.below.null))
+    chknumeric(cid.below.null, length = 1)
+  #
+  if (!is.null(cid.above.null))
+    chknumeric(cid.above.null, length = 1)
+  #
+  avail.cid <- !is.null(cid) && !all(is.na(cid))
+  avail.cid.below.null <-
+    !is.null(cid.below.null) && !all(is.na(cid.below.null))
+  avail.cid.above.null <-
+    !is.null(cid.above.null) && !all(is.na(cid.above.null))
+  #
+  run_cidprob <- avail.cid | avail.cid.below.null | avail.cid.above.null
   
   
   ##
@@ -291,7 +328,7 @@ metainf.meta <- function(x, pooled, sortvar, prediction,
   ##
   ##
   
-  res.i <- matrix(NA, ncol = 29, nrow = k.all)
+  res.i <- matrix(NA, ncol = 31, nrow = k.all)
   add.i <- matrix(NA, ncol = 3, nrow = k.all)
   ##
   for (i in seq_len(k.all)) {
@@ -548,11 +585,29 @@ metainf.meta <- function(x, pooled, sortvar, prediction,
                       m$k.study,                                     # 26
                       m$k.all,                                       # 27
                       m$k.TE,                                        # 28
-                      replaceNULL(m$k.MH)                            # 29
+                      replaceNULL(m$k.MH),                           # 29
+                      NA,                                            # 30
+                      NA                                             # 31
       )
     }
     ##
     else if (pooled == "random") {
+      if (run_cidprob) {
+        pp <-
+          cidprob(m,
+                   cid = cid,
+                   cid.below.null = cid.below.null,
+                   cid.above.null = cid.above.null,
+                   small.values = small.values)
+        #
+        prob.cid.below.null <- pp$prob.cid.below.null
+        prob.cid.above.null <- pp$prob.cid.above.null
+      }
+      else {
+        prob.cid.below.null <- NA
+        prob.cid.above.null <- NA
+      }
+      #
       res.i[i, ] <- c(m$TE.random,                                   #  1
                       m$seTE.random,                                 #  2
                       m$lower.random,                                #  3
@@ -589,7 +644,9 @@ metainf.meta <- function(x, pooled, sortvar, prediction,
                       m$k.study,                                     # 26
                       m$k.all,                                       # 27
                       m$k.TE,                                        # 28
-                      replaceNULL(m$k.MH)                            # 29
+                      replaceNULL(m$k.MH),                           # 29
+                      prob.cid.below.null,                           # 30
+                      prob.cid.above.null                            # 31
       )
     }
   }
@@ -631,6 +688,9 @@ metainf.meta <- function(x, pooled, sortvar, prediction,
   k.all.i <- res.i[, 27]
   k.TE.i <- res.i[, 28]
   k.MH.i <- res.i[, 29]
+  #
+  prob.cid.below.null <- res.i[, 30]
+  prob.cid.above.null <- res.i[, 31]
   #
   method.tau.ci <- replaceNULL(unique(add.i[add.i[, 1] != "", 1]), "")
   sign.lower.tau.i <- replaceNULL(unique(add.i[add.i[, 2] != "", 2]), "")
@@ -681,6 +741,22 @@ metainf.meta <- function(x, pooled, sortvar, prediction,
   #
   n.harmonic.mean.pooled <- 1 / mean(1 / n)
   t.harmonic.mean.pooled <- 1 / mean(1 / time)
+  #
+  if (pooled == "random" & run_cidprob) {
+    pp.pooled <-
+      cidprob(x,
+               cid = cid,
+               cid.below.null = cid.below.null,
+               cid.above.null = cid.above.null,
+               small.values = small.values)
+    #
+    prob.cid.below.null.pooled <- pp.pooled$prob.cid.below.null
+    prob.cid.above.null.pooled <- pp.pooled$prob.cid.above.null
+  }
+  else {
+    prob.cid.below.null.pooled <- NA
+    prob.cid.above.null.pooled <- NA
+  }
   
   
   ##
@@ -735,13 +811,19 @@ metainf.meta <- function(x, pooled, sortvar, prediction,
               k.TE = k.TE.i,
               k.MH = k.MH.i,
               #
+              prob.cid.below.null = prob.cid.below.null,
+              prob.cid.above.null = prob.cid.above.null,
+              cid.below.null = cid.below.null,
+              cid.above.null = cid.above.null,
+              small.values = small.values,
+              #
               sm = x$sm,
               null.effect = x$null.effect,
               #
               pooled = pooled,
               common = pooled == "common",
               random = pooled == "random",
-              overall = TRUE,
+              overall = overall,
               overall.hetstat = FALSE,
               #
               prediction = prediction,
@@ -770,6 +852,12 @@ metainf.meta <- function(x, pooled, sortvar, prediction,
               #
               method.I2 = x$method.I2,
               #
+              k.pooled = x$k,
+              k.study.pooled = x$k.study,
+              k.all.pooled = x$k.all,
+              k.TE.pooled = x$k.TE,
+              k.MH.pooled = x$k.MH,
+              #
               TE.pooled = TE.pooled,
               seTE.pooled = seTE.pooled,
               lower.pooled = lower.pooled,
@@ -785,7 +873,11 @@ metainf.meta <- function(x, pooled, sortvar, prediction,
               df.predict.pooled = x$df.predict,
               text.predict = x$text.predict,
               #
+              prob.cid.below.null.pooled = prob.cid.below.null.pooled,
+              prob.cid.above.null.pooled = prob.cid.above.null.pooled,
+              #
               Q.pooled = x$Q,
+              Q.Cochrane = x$Q.Cochrane,
               #
               tau2.pooled = tau2.pooled,
               se.tau2.pooled = se.tau2.pooled,
@@ -808,18 +900,15 @@ metainf.meta <- function(x, pooled, sortvar, prediction,
               n.harmonic.mean.pooled = n.harmonic.mean.pooled,
               t.harmonic.mean.pooled = t.harmonic.mean.pooled,
               #
-              k.pooled = x$k,
-              k.study.pooled = x$k.study,
-              k.all.pooled = x$k.all,
-              k.TE.pooled = x$k.TE,
-              k.MH.pooled = x$k.MH,
-              #
               pscale = x$pscale,
               irscale = x$irscale, irunit = x$irunit,
               #
               label.e = x$label.e,
               label.c = x$label.c,
-              ##
+              #
+              label.left = x$label.left,
+              label.right = x$label.right,
+              #
               title = x$title, complab = x$complab,
               outclab = x$outclab,
               ##
@@ -828,11 +917,28 @@ metainf.meta <- function(x, pooled, sortvar, prediction,
               x = x,
               ##
               call = match.call())
-  
+  #
+  if (run_cidprob) {
+    res$cid.below.null <- pp$cid.below.null
+    res$cid.above.null <- pp$cid.above.null
+  }
+  else {
+    res$prob.cid.below.null <- NULL
+    res$prob.cid.above.null <- NULL
+    res$cid.below.null <- NULL
+    res$cid.above.null <- NULL
+    res$small.values <- NULL
+    #
+    res$prob.cid.below.null.pooled <- NULL
+    res$prob.cid.above.null.pooled <- NULL
+  }
+  #
   res$version <- packageDescription("meta")$Version
   ##
   res$x$common <- res$common
   res$x$random <- res$random
+  #
+  res$classes <- class(x)[class(x) != "meta"]
   #
   class(res) <- "metainf"
   #
@@ -840,24 +946,16 @@ metainf.meta <- function(x, pooled, sortvar, prediction,
 }
 
 
-
-
-
 #' @rdname metainf
 #' @export metainf
-
 
 metainf <- function(x, ...) 
   UseMethod("metainf")
 
 
-
-
-
 #' @rdname metainf
 #' @method metainf default
 #' @export
-
 
 metainf.default <- function(x, ...)
   stop("Leave-one-out meta-analysis not available for an object of class '",

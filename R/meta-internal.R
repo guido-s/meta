@@ -185,6 +185,25 @@ qdat <- function(Q, df.Q, pval.Q, hetlabel, text.common) {
 collapse <- function(x, quote = '"', collapse = ", ", sort = FALSE)
   paste0(paste0(quote, if (sort) sort(x) else x, quote, collapse = collapse))
 
+collapse2 <- function(x, quote = "", collapse = ", ", br1 = "", br2 = "",
+                      sort = FALSE, max.len = 5) {
+  if (sort)
+    x <- sort(x)
+  #
+  if (length(x) == 0)
+    res <- ""
+  else if (length(x) == 1)
+    res <- x
+  else {
+    if (is.numeric(x) && (all(diff(x) == 1) & length(x) > max.len))
+      res <-
+        paste0(br1, min(x, na.rm = TRUE), ", ..., ", max(x, na.rm = TRUE), br2)
+    else
+      res <- paste0(br1, paste(x, collapse = collapse), br2)
+  }
+  #
+  res
+}
 
 condense <- function(x, var)
   unlist(lapply(x, "[[" , var))
@@ -530,6 +549,16 @@ setVar <- function(var = NULL, arg = NULL) {
 
 second <- function(x) x[2]
 
+setOptionDepr <- function(x, new, old, func, ...) {
+  newval <- do.call(func, list(argname = new, args = x, ...))
+  oldval <- do.call(func, list(argname = old, args = x, ...))
+  #
+  if (is.na(newval) & !is.na(oldval))
+    setOption(new, x[[oldval]])
+  #
+  invisible(NULL)
+}
+
 
 
 
@@ -634,7 +663,7 @@ argslist <-
     "digits.prop", "digits.weight",
     "digits.pval", "digits.pval.Q",
     "digits.forest", "digits.TE.forest",
-    "digits.df",
+    "digits.df", "digits.cid",
     "scientific.pval", "big.mark", "zero.pval", "JAMA.pval",
     "details",
     "print.tau2", "print.tau2.ci", "print.tau", "print.tau.ci",
@@ -645,7 +674,7 @@ argslist <-
     "lty.common", "lty.random", "col.common", "col.random",
     "sort.subgroup",
     "pooled.events", "pooled.times", "study.results",
-    "lower.equi", "upper.equi", "lty.equi", "col.equi", "fill.equi",
+    "cid", "cid.below.null", "cid.above.null", "lty.cid", "col.cid", "fill.cid",
     "fill",
     "leftcols", "rightcols", "leftlabs", "rightlabs", 
     "label.e.attach", "label.c.attach",
@@ -690,7 +719,8 @@ argslist <-
 args.depr <- c("fixed", "comb.fixed", "comb.random", "level.comb",
                "hakn", "adhoc.hakn",
                "digits.zval", "print.byvar", "byseparator",
-               "addincr", "allincr")
+               "addincr", "allincr",
+               "lower.equi", "upper.equi", "lty.equi", "col.equi")
 #
 setOption("argslist", c(argslist, args.depr))
 #
@@ -764,6 +794,7 @@ setOption("digits.weight", 1)
 setOption("digits.pval", 4)
 setOption("digits.pval.Q", 4)
 setOption("digits.df", 4)
+setOption("digits.cid", 4)
 setOption("scientific.pval", FALSE)
 setOption("big.mark", "")
 setOption("zero.pval", TRUE)
@@ -855,13 +886,20 @@ setOption("sort.subgroup", FALSE)
 setOption("pooled.events", FALSE)
 setOption("pooled.times", FALSE)
 setOption("study.results", TRUE)
-##
+#
+setOption("cid", NA)
+setOption("cid.below.null", NA)
+setOption("cid.above.null", NA)
+setOption("lty.cid", 1)
+setOption("col.cid", "blue")
+setOption("fill.cid", "transparent")
+#
 setOption("lower.equi", NA)
 setOption("upper.equi", NA)
 setOption("lty.equi", 1)
 setOption("col.equi", "blue")
 setOption("fill.equi", "transparent")
-##
+#
 setOption("fill", "transparent")
 ##
 setOption("leftcols", NULL)

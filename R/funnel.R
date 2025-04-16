@@ -554,11 +554,11 @@ funnel.meta <- function(x,
   ##
   if (is.null(xlab))
     if (is_relative_effect(sm) | sm == "VE")
-      xlab <- xlab(sm, backtransf)
+      xlab <- xlab_meta(sm, backtransf)
     else if (sm == "PRAW")
       xlab <- "Proportion"
     else
-      xlab <- xlab(sm, FALSE)
+      xlab <- xlab_meta(sm, FALSE)
   ##
   if (is.null(xlim) & !is.null(level) &
       (yaxis == "se" |

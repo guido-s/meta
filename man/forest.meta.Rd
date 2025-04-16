@@ -61,14 +61,18 @@
   args.gr = NULL,
   dev.off = NULL,
   ref,
-  lower.equi = gs("lower.equi"),
-  upper.equi = gs("upper.equi"),
-  lty.equi = gs("lty.equi"),
-  col.equi = gs("col.equi"),
+  cid = gs("cid"),
+  cid.below.null = gs("cid.below.null"),
+  cid.above.null = gs("cid.above.null"),
+  lty.cid = gs("lty.cid"),
+  col.cid = gs("col.cid"),
+  fill.cid = gs("fill.cid"),
+  fill.cid.below.null = fill.cid,
+  fill.cid.above.null = rev(fill.cid),
+  fill = gs("fill"),
   fill.equi = gs("fill.equi"),
   fill.lower.equi = fill.equi,
   fill.upper.equi = rev(fill.equi),
-  fill = gs("fill"),
   leftcols = gs("leftcols"),
   rightcols = gs("rightcols"),
   leftlabs = gs("leftlabs"),
@@ -449,36 +453,48 @@ should be shut down, i.e., whether file should be stored.}
 a line in the forest plot. No reference line is plotted if
 argument \code{ref} is equal to \code{NA}.}
 
-\item{lower.equi}{A numerical giving the lower limit of equivalence
-to be plotted as a line in the forest plot. Or a vector to
-provide several limits, e.g., for large, moderate and small
-effects. No line is plotted if argument \code{lower.equi} is
-equal to \code{NA}.}
+\item{cid}{A numeric value or vector specifying clinically important
+differences (CID) / decision thresholds used to calculate probabilities
+of clinically important benefit or harm, or not important effects
+(see Details).}
 
-\item{upper.equi}{A numerical giving the upper limit of equivalence
-to be plotted as a line in the forest plot. Or a vector to
-provide several limits, e.g., for small, moderate and large
-effects. No line is plotted if argument \code{upper.equi} is
-equal to \code{NA}.}
+\item{cid.below.null}{A numeric value or vector specifying CID limits below
+the null effect (see Details).}
 
-\item{lty.equi}{Line type (limits of equivalence).}
+\item{cid.above.null}{A numeric value or vector specifying CID limits above
+the null effect (see Details).}
 
-\item{col.equi}{Line colour (limits of equivalence).}
+\item{lty.cid}{Line type for CID lines.}
 
-\item{fill.equi}{Colour(s) for area between limits of equivalence
-or more general limits.}
+\item{col.cid}{Line colour for CID lines.}
 
-\item{fill.lower.equi}{Colour of area between lower limit(s) and
+\item{fill.cid}{Colour(s) for regions below or above CID limits.}
+
+\item{fill.cid.below.null}{Colour of CID regions below null effect /
+reference value. Can be equal to the number of lower limits or
+the number of limits plus 1 (in this case the region between
+minimum and smallest limit is also filled).}
+
+\item{fill.cid.above.null}{Colour of CID regions above null effect /
+reference value. Can be equal to the number of upper limits or the
+number of limits plus 1 (in this case the region between largest
+limit and maximum is also filled).}
+
+\item{fill}{Colour for background of confidence interval plot (also used
+as colour for region between CID limits).}
+
+\item{fill.equi}{Colour(s) for region between limits of equivalence defined
+by arguments \code{cid}, \code{cid.lower} or \code{cid.upper}.}
+
+\item{fill.lower.equi}{Colour of region between lower limit(s) and
 reference value. Can be equal to the number of lower limits or
 the number of limits plus 1 (in this case the the region between
 minimum and smallest limit is also filled).}
 
-\item{fill.upper.equi}{Colour of area between reference value and
+\item{fill.upper.equi}{Colour of region between reference value and
 upper limit(s). Can be equal to the number of upper limits or the
 number of limits plus 1 (in this case the region between largest
 limit and maximum is also filled).}
-
-\item{fill}{Colour for background of confidence interval plot.}
 
 \item{leftcols}{A character vector specifying (additional) columns
 to be printed on the left side of the forest plot or a logical
@@ -1390,6 +1406,24 @@ always print results of tests for an overall effect:
 \code{settings.meta(test.overall = TRUE)}.
 }
 
+\subsection{Highlight regions corresponding to minimal clinically important
+differences}{
+
+Regions corresponding to minimal clinically important differences can be
+added to the forest plot using either argument \code{cid} or
+\code{cid.below.null} and \code{cid.above.null}. Input for the later arguments will
+be ignored if argument \code{cid} was specified. In this case, the values
+of \code{cid.below.null} and \code{cid.above.null} will be equal to
+\itemize{
+\item \code{cid} and \code{1 / cid} for ratio measures,
+\item \code{cid} and \code{-cid} for difference measures.
+}
+
+Thresholds based on argument \code{cid} will always be symmetric. Asymmetric
+thresholds can be defined using arguments \code{cid.below.null} and
+\code{cid.above.null}.
+}
+
 \subsection{Flexible printing of subgroup results}{
 
 Argument \code{subgroup} determines whether summary results are
@@ -1595,29 +1629,30 @@ dev.off()
 
 # Define equivalence limits: 0.75 and 1 / 0.75
 #
-forest(m1, layout = "RevMan5", common = FALSE,
-  lower.equi = 0.75, upper.equi = 1 / 0.75, fill.equi = "lightgray")
+forest(m1, layout = "RevMan5", common = FALSE, cid = 0.75,
+  fill = "lightgray",
+  fill.cid = "white")
 
-# Fill areas with beneficial and detrimental effects
+# Fill regions with beneficial and detrimental effects
 #
-forest(m1, layout = "RevMan5", common = FALSE,
-  lower.equi = 0.75, upper.equi = 1 / 0.75,
-  fill.lower.equi = c("green", "lightgray"),
-  fill.upper.equi = c("lightgray", "red"))
+forest(m1, layout = "RevMan5", common = FALSE, cid = 0.75,
+  fill = "lightgray",
+  fill.cid.below.null = "green",
+  fill.cid.above.null = "red")
 
 # Define thresholds for small, moderate and large effects
-# and use hcl.colors() to define colours to fill areas
+# and use hcl.colors() to define colours to fill regions
 #
 thresholds <- c(0.25, 0.5, 0.75)
-n.cols <- length(thresholds) + 1
+n.cols <- length(thresholds)
 forest(m1, layout = "RevMan5", common = FALSE,
   label.left = "Desirable effect", 
   label.right = "Undesirable effect", 
-  lty.equi = 3, col.equi = "darkgray",
-  lower.equi = thresholds, upper.equi = 1 / rev(thresholds),
-  fill.lower.equi =
+  lty.cid = 3, col.cid = "darkgray",
+  cid.below.null = thresholds, cid.above.null = 1 / rev(thresholds),
+  fill.cid.below.null =
     hcl.colors(n.cols, palette = "Blues 2", alpha = 0.6),
-  fill.upper.equi =
+  fill.cid.above.null =
     hcl.colors(n.cols, palette = "Oranges", alpha = 0.6, rev = TRUE))
 
 # Conduct subgroup meta-analysis

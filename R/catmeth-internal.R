@@ -1,10 +1,11 @@
 text_meth <- function(x, i, random, method) {
   ##
-  if (x$method[i] == "MH")
+  if (x$method[i] == "MH" & x$model[i] == "common")
     txt <- text_MH(x, i, random)
   else if (x$method[i] == "Peto")
     txt <- text_Peto(x, i, random)
-  else if (x$method[i] == "Inverse")
+  else if (x$method[i] == "Inverse" |
+           (x$method[i] == "MH" & x$model[i] == "random"))
     txt <- text_Inverse(x, i, random, method)
   else if (x$method[i] == "GLMM")
     txt <- text_GLMM(x, i, random, method)

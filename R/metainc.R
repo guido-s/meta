@@ -1229,6 +1229,10 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     TE <- sqrt(event.e / time.e) - sqrt(event.c / time.c)
     seTE <- sqrt(0.25 / time.e + 0.25 / time.c)
   }
+  #
+  # Set NaN to NA
+  #
+  TE[is.nan(TE)] <- NA
   
   
   ##

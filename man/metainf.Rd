@@ -6,7 +6,20 @@
 \alias{metainf.default}
 \title{Influence analysis in meta-analysis using leave-one-out method}
 \usage{
-\method{metainf}{meta}(x, pooled, sortvar, prediction, text.pooled, no = 1, ...)
+\method{metainf}{meta}(
+  x,
+  pooled,
+  sortvar,
+  prediction,
+  overall = x$overall,
+  text.pooled,
+  no = 1,
+  cid = NULL,
+  cid.below.null = NULL,
+  cid.above.null = NULL,
+  small.values = "desirable",
+  ...
+)
 
 metainf(x, ...)
 
@@ -25,11 +38,31 @@ studies (must be of same length as \code{x$TE}).}
 \item{prediction}{A logical indicating whether to report prediction
 intervals.}
 
+\item{overall}{A logical indicating whether overall results should be
+reported.}
+
 \item{text.pooled}{A character string used in printouts and forest
 plots to label the pooled effect estimate.}
 
 \item{no}{A numeric specifying which meta-analysis results to
 consider.}
+
+\item{cid}{A single numeric specifying the clinically important
+difference (CID) / decision threshold used to calculate probabilities
+of clinically important benefit or harm (see \code{\link{cidprob}}).}
+
+\item{cid.below.null}{A single numeric defining the decision threshold below
+the null effect to distinguish clinically important from not important
+effects (see \code{\link{cidprob}}).}
+
+\item{cid.above.null}{A single numeric defining the decision threshold above
+the null effect to distinguish clinically important from not important
+effects (see \code{\link{cidprob}}).}
+
+\item{small.values}{A character string specifying whether small
+treatment effects indicate a beneficial (\code{"desirable"}) or
+harmful (\code{"undesirable"}) effect, can be abbreviated
+(see \code{\link{cidprob}}).}
 
 \item{\dots}{Additional arguments (ignored).}
 }
@@ -108,8 +141,8 @@ Cooper H & Hedges LV (1994):
 Newbury Park, CA: Russell Sage Foundation
 }
 \seealso{
-\code{\link{metabin}}, \code{\link{metacont}},
-  \code{\link{print.meta}}
+\code{\link{forest.metainf}}, \code{\link{print.metainf}},
+  \code{\link{cidprob}}
 }
 \author{
 Guido Schwarzer \email{guido.schwarzer@uniklinik-freiburg.de}

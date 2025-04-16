@@ -6,11 +6,12 @@
 \usage{
 \method{forest}{metacum}(
   x,
-  leftcols = "studlab",
-  leftlabs = rep(NA, length(leftcols)),
-  rightcols = c("effect", "ci", "pval", "tau2", "tau", "I2"),
-  rightlabs = rep(NA, length(rightcols)),
+  leftcols = NULL,
+  leftlabs = NULL,
+  rightcols = NULL,
+  rightlabs = NULL,
   prediction = x$prediction,
+  overall = x$overall,
   just.addcols = "right",
   smlab = "Cumulative Meta-Analysis",
   type = "square",
@@ -18,12 +19,17 @@
   backtransf = x$backtransf,
   big.mark = gs("big.mark"),
   digits = gs("digits.forest"),
+  digits.pval = gs("digits.pval"),
   digits.tau2 = gs("digits.tau2"),
   digits.tau = gs("digits.tau"),
   digits.I2 = gs("digits.I2"),
+  digits.cid = gs("digits.cid"),
+  digits.percent = 1,
   col = gs("col.study"),
-  col.bg = gs("col.square"),
-  col.border = if (type == "square") gs("col.square.lines") else "black",
+  col.bg = ifelse(type == "diamond", gs("col.diamond"), gs("col.square")),
+  col.border = ifelse(type == "diamond", gs("col.diamond.lines"), gs("col.square.lines")),
+  col.bg.predict = gs("col.predict"),
+  col.border.predict = gs("col.predict.lines"),
   addrows.below.overall = 1L * details,
   details = gs("forest.details"),
   ...
@@ -49,6 +55,9 @@ value.}
 \item{prediction}{A logical indicating whether prediction
 intervals should be printed.}
 
+\item{overall}{A logical indicating whether overall results should be
+shown.}
+
 \item{just.addcols}{Justification of text for additional columns
 (possible values: "left", "right", "center").}
 
@@ -71,6 +80,9 @@ than log odds ratios, for example.}
 \item{digits}{Minimal number of significant digits for treatment
 effects, see \code{print.default}.}
 
+\item{digits.pval}{Minimal number of significant digits for
+p-values.}
+
 \item{digits.tau2}{Minimal number of significant digits for
 between-study variance.}
 
@@ -80,14 +92,26 @@ root of between-study variance.}
 \item{digits.I2}{Minimal number of significant digits for I-squared
 statistic.}
 
+\item{digits.cid}{Minimal number of significant digits for
+CID / decision thresholds, see \code{print.default}.}
+
+\item{digits.percent}{Minimal number of significant digits for
+probabilities, printed as percentages, see \code{print.default}.}
+
 \item{col}{The colour for cumulative meta-analysis results (only considered
 if \code{type = "square"}).}
 
-\item{col.bg}{The background colour for squares, diamonds and prediction
-intervals of cumulative meta-analysis results.}
+\item{col.bg}{The background colour for squares and diamonds of
+cumulative meta-analysis results.}
 
-\item{col.border}{The colour for the outer lines of squares, diamonds and
-prediction intervals of cumulative meta-analysis results.}
+\item{col.border}{The colour for the outer lines of squares and diamonds of
+cumulative meta-analysis results.}
+
+\item{col.bg.predict}{The background colour for prediction intervals of
+cumulative meta-analysis results.}
+
+\item{col.border.predict}{The colour for the outer lines of prediction
+intervals of cumulative meta-analysis results.}
 
 \item{addrows.below.overall}{A numeric value indicating how many
 empty rows are printed between meta-analysis results and

@@ -19,6 +19,8 @@
 #'   (additional) columns on right side of the forest plot.
 #' @param prediction A logical indicating whether prediction
 #'   intervals should be printed.
+#' @param overall A logical indicating whether overall results should be
+#'   shown.
 #' @param just.addcols Justification of text for additional columns
 #'   (possible values: "left", "right", "center").
 #' @param smlab A label for the summary measure (printed at top of
@@ -34,18 +36,28 @@
 #' @param big.mark A character used as thousands separator.
 #' @param digits Minimal number of significant digits for treatment
 #'   effects, see \code{print.default}.
+#' @param digits.pval Minimal number of significant digits for
+#'   p-values.
 #' @param digits.tau2 Minimal number of significant digits for
 #'   between-study variance.
 #' @param digits.tau Minimal number of significant digits for square
 #'   root of between-study variance.
 #' @param digits.I2 Minimal number of significant digits for I-squared
 #'   statistic.
+#' @param digits.cid Minimal number of significant digits for
+#'   CID / decision thresholds, see \code{print.default}.
+#' @param digits.percent Minimal number of significant digits for
+#'   probabilities, printed as percentages, see \code{print.default}.
 #' @param col The colour for cumulative meta-analysis results (only considered
 #'   if \code{type = "square"}).
-#' @param col.bg The background colour for squares, diamonds and prediction
+#' @param col.bg The background colour for squares and diamonds of
+#'   cumulative meta-analysis results.
+#' @param col.border The colour for the outer lines of squares and diamonds of
+#'   cumulative meta-analysis results.
+#' @param col.bg.predict The background colour for prediction intervals of
+#'   cumulative meta-analysis results.
+#' @param col.border.predict The colour for the outer lines of prediction
 #'   intervals of cumulative meta-analysis results.
-#' @param col.border The colour for the outer lines of squares, diamonds and
-#'   prediction intervals of cumulative meta-analysis results.
 #' @param addrows.below.overall A numeric value indicating how many
 #'   empty rows are printed between meta-analysis results and
 #'   meta-analysis details.
@@ -101,12 +113,12 @@
 #' @export
 
 forest.metacum <- function(x,
-                           leftcols = "studlab",
-                           leftlabs = rep(NA, length(leftcols)),
-                           rightcols =
-                             c("effect", "ci", "pval", "tau2", "tau", "I2"),
-                           rightlabs = rep(NA, length(rightcols)),
+                           #
+                           leftcols = NULL, leftlabs = NULL,
+                           rightcols = NULL, rightlabs = NULL,
+                           #
                            prediction = x$prediction,
+                           overall = x$overall,
                            just.addcols = "right",
                            smlab = "Cumulative Meta-Analysis",
                            type = "square",
@@ -116,15 +128,23 @@ forest.metacum <- function(x,
                            #
                            big.mark = gs("big.mark"),
                            digits = gs("digits.forest"),
+                           digits.pval = gs("digits.pval"),
                            digits.tau2 = gs("digits.tau2"),
                            digits.tau = gs("digits.tau"),
                            digits.I2 = gs("digits.I2"),
+                           digits.cid = gs("digits.cid"),
+                           digits.percent = 1,
                            #
                            col = gs("col.study"),
-                           col.bg = gs("col.square"),
+                           col.bg = 
+                             ifelse(type == "diamond",
+                                  gs("col.diamond"), gs("col.square")),
                            col.border =
-                             if (type == "square") gs("col.square.lines")
-                             else "black",
+                             ifelse(type == "diamond",
+                                    gs("col.diamond.lines"),
+                                    gs("col.square.lines")),
+                           col.bg.predict = gs("col.predict"),
+                           col.border.predict = gs("col.predict.lines"),
                            #
                            addrows.below.overall = 1L * details,
                            details = gs("forest.details"),
@@ -139,8 +159,7 @@ forest.metacum <- function(x,
   chkclass(x, c("metacum", "metainf"))
   x <- updateversion(x)
   #
-  type <-
-    setchar(type, c("square", "diamond", "predict", "circle", "squarediamond"))
+  type <- setchar(type, c("square", "diamond", "circle", "squarediamond"))
   #
   just.addcols <- setchar(just.addcols, c("left", "center", "right"))
   #
@@ -167,18 +186,76 @@ forest.metacum <- function(x,
   #
   prediction <- prediction & !common
   #
+  chklogical(overall)
+  #
   chklogical(backtransf)
   chknumeric(digits, min = 0, length = 1)
+  chknumeric(digits.pval, min = 0, length = 1)
   chknumeric(digits.tau2, min = 0, length = 1)
   chknumeric(digits.tau, min = 0, length = 1)
   chknumeric(digits.I2, min = 0, length = 1)
+  chknumeric(digits.cid, min = 0, length = 1)
+  chknumeric(digits.percent, min = 0, length = 1)
   chknumeric(addrows.below.overall, length = 1)
   #
   chklogical(details)
+  
+  avail.prob.cid.below.null <-
+    !is.null(x$prob.cid.below.null) && !(all(is.na(x$prob.cid.below.null)))
+  avail.prob.cid.above.null <-
+    !is.null(x$prob.cid.above.null) && !(all(is.na(x$prob.cid.above.null)))
+  #
+  avail.prob.cid <- avail.prob.cid.below.null | avail.prob.cid.above.null
+  #
+  if (is.null(leftcols))
+    leftcols <- "studlab"
+  #
+  if (is.null(leftlabs))
+    leftlabs <- rep(NA, length(leftcols))
+  #
+  if (is.null(rightcols)) {
+    rightcols <- c("effect", "ci", "pval", "tau2", "tau", "I2")
+    #
+    if (avail.prob.cid.below.null)
+      rightcols <- c(rightcols, "prob.cid.below.null")
+    #
+    if (avail.prob.cid.above.null)
+      rightcols <- c(rightcols, "prob.cid.above.null")
+  }
+  #
+  if (is.null(rightlabs))
+    rightlabs <- rep(NA, length(rightcols))
   #
   print.tau2 <- any(c("tau2" %in% leftcols, "tau2" %in% rightcols))
   print.tau <- any(c("tau" %in% leftcols, "tau" %in% rightcols))
   print.I2 <- any(c("I2" %in% leftcols, "I2" %in% rightcols))
+  #
+  print.cid.below.null <- any(c("prob.cid.below.null" %in% leftcols,
+                           "prob.cid.below.null" %in% rightcols))
+  #
+  print.cid.above.null <- any(c("prob.cid.above.null" %in% leftcols,
+                           "prob.cid.above.null" %in% rightcols))
+  #
+  pval <- formatPT(x$pval, digits = digits.pval, lab.NA = lab.NA)
+  tau2 <- formatPT(x$tau2, digits = digits.tau2, lab.NA = lab.NA)
+  tau <- formatPT(x$tau, digits = digits.tau2, lab.NA = lab.NA)
+  I2 <- ifelse(is.na(x$I2), lab.NA,
+               paste0(formatPT(100 * x$I2, digits = digits.I2,
+                               lab.NA = lab.NA), "%"))
+  #
+  if (avail.prob.cid.below.null) {
+    x$prob.cid.below.null <-
+      ifelse(is.na(x$prob.cid.below.null), lab.NA,
+             paste0(formatPT(100 * x$prob.cid.below.null,
+                             digits = digits.percent), "%"))
+  }
+  #
+  if (avail.prob.cid.above.null) {
+    x$prob.cid.above.null <-
+      ifelse(is.na(x$prob.cid.above.null), lab.NA,
+             paste0(formatPT(100 * x$prob.cid.above.null,
+                             digits = digits.percent), "%"))
+  }
   #
   x.tmp <- x
   x.tmp$prediction <- any(prediction)
@@ -187,8 +264,7 @@ forest.metacum <- function(x,
   #
   text.details <-
     catmeth(x.tmp,
-            x$pooled == "common", x$pooled == "random", any(prediction),
-            TRUE, FALSE,
+            x$common, x$random, any(prediction), overall, TRUE,
             #
             func.transf = x$func.transf,
             backtransf = backtransf, func.backtransf = x$func.backtransf,
@@ -207,6 +283,34 @@ forest.metacum <- function(x,
             print.df = TRUE, prediction.subgroup = FALSE,
             #
             forest = TRUE)
+  #
+  #
+  if (avail.prob.cid)
+    svd <- x$small.values == "desirable"
+  #
+  if (avail.prob.cid.below.null) {
+    text.details <-
+      paste0(text.details,
+             paste0("\n- Lower decision threshold (",
+                    if (svd) "beneficial " else "harmful ",
+                    "effects): ",
+                    formatN(x$cid.below.null, digits = digits.cid,
+                            big.mark = big.mark)))
+  }
+  #
+  if (avail.prob.cid.above.null) {
+    text.details <-
+      paste0(text.details,
+             paste0("\n- Upper decision threshold (",
+                    if (svd) "harmful " else "beneficial ",
+                    "effects): ",
+                    formatN(x$cid.above.null, digits = digits.cid,
+                            big.mark = big.mark)))
+  }
+  
+  
+  #
+  # Print prediction intervals in separate rows
   #
   if (any(prediction)) {
     TE <- as.vector(
@@ -231,6 +335,28 @@ forest.metacum <- function(x,
                rep("", k.all)),
                ncol = k.all, byrow = TRUE))
     #
+    if (print.cid.below.null)
+      prob.cid.below.null <- as.vector(
+        matrix(c(x$prob.cid.below.null,
+                 rep("", k.all)),
+               ncol = k.all, byrow = TRUE))
+    #
+    if (print.cid.above.null)
+      prob.cid.above.null <- as.vector(
+        matrix(c(x$prob.cid.above.null,
+                 rep("", k.all)),
+               ncol = k.all, byrow = TRUE))
+    #
+    col.bg <- as.vector(
+      matrix(c(rep(col.bg, k.all),
+               rep(col.bg.predict, k.all)),
+             ncol = k.all, byrow = TRUE))
+    #
+    col.border <- as.vector(
+      matrix(c(rep(col.border, k.all),
+               rep(col.border.predict, k.all)),
+             ncol = k.all, byrow = TRUE))
+    #
     sel.pred <- as.vector(
       matrix(c(rep(TRUE, k.all), prediction),
              ncol = k.all, byrow = TRUE))
@@ -238,28 +364,41 @@ forest.metacum <- function(x,
     m <- metagen(TE[sel.pred], seTE[sel.pred], studlab = studlab[sel.pred],
                  common = common, random = !common,
                  prediction = any(prediction),
+                 overall = overall,
                  sm = x$sm,
                  backtransf = backtransf,
-                 func.backtransf = x$func.backtransf)
+                 func.backtransf = x$func.backtransf,
+                 #
+                 label.left = x$label.left,
+                 label.right = x$label.right)
     #
     m$lower <- lower[sel.pred]
     m$upper <- upper[sel.pred]
     #
     m$pval <- as.vector(
-      matrix(c(x$pval, rep(NA, k.all)),
+      matrix(c(pval, rep("", k.all)),
              ncol = k.all, byrow = TRUE))[sel.pred]
     #
     m$I2 <- as.vector(
-      matrix(c(x$I2, rep(NA, k.all)),
+      matrix(c(I2, rep("", k.all)),
              ncol = k.all, byrow = TRUE))[sel.pred]
     m$tau2 <- as.vector(
-      matrix(c(x$tau2, rep(NA, k.all)),
+      matrix(c(tau2, rep("", k.all)),
              ncol = k.all, byrow = TRUE))[sel.pred]
     m$tau <- as.vector(
-      matrix(c(x$tau, rep(NA, k.all)),
+      matrix(c(tau, rep("", k.all)),
              ncol = k.all, byrow = TRUE))[sel.pred]
     #
+    if (print.cid.below.null)
+      m$prob.cid.below.null <- prob.cid.below.null[sel.pred]
+    #
+    if (print.cid.above.null)
+      m$prob.cid.above.null <- prob.cid.above.null[sel.pred]
+    #
     type.study <- rep(c(type, "predict"), k.all)[sel.pred]
+    #
+    col.bg <- col.bg[sel.pred]
+    col.border <- col.border[sel.pred]
   }
   #
   else {
@@ -274,16 +413,27 @@ forest.metacum <- function(x,
     m <- metagen(TE, seTE, studlab = studlab,
                  common = common, random = !common,
                  prediction = any(prediction),
+                 overall = overall,
                  sm = x$sm,
                  backtransf = backtransf,
-                 func.backtransf = x$func.backtransf)
+                 func.backtransf = x$func.backtransf,
+                 #
+                 label.left = x$label.left,
+                 label.right = x$label.right)
     #
     m$lower <- lower
     m$upper <- upper
     #
-    m$I2 <- x$I2
-    m$tau2 <- x$tau2
-    m$tau <- x$tau
+    m$pval <- pval
+    m$I2 <- I2
+    m$tau2 <- tau2
+    m$tau <- tau
+    #
+    if (print.cid.below.null)
+      m$prob.cid.below.null <- x$prob.cid.below.null
+    #
+    if (print.cid.below.null)
+      m$prob.cid.above.null <- x$prob.cid.above.null
     #
     type.study <- type
   }
@@ -368,20 +518,80 @@ forest.metacum <- function(x,
         paste(smlab(x$sm, backtransf, x$pscale, x$irscale), ci.lab)
   }
   #
-  m$.text.details.methods = text.details
+  # Set column labels for decision threshold probabilites
   #
-  data.p <- data.frame(pval = x$pval.pooled,
-                       tau2 = x$tau2.pooled,
-                       tau = x$tau.pooled,
-                       I2 = x$I2.pooled)
+  if (print.cid.below.null) {
+    sel.left <- leftcols == "prob.cid.below.null"
+    #
+    if (any(sel.left) && is.na(leftlabs[sel.left]))
+      leftlabs[sel.left] <-
+        paste0("P(",
+               if (x$small.values == "desirable") "benefit" else "harm",
+               ")")
+    #
+    sel.right <- rightcols == "prob.cid.below.null"
+    #
+    if (any(sel.right) && is.na(rightlabs[sel.right]))
+      rightlabs[sel.right] <-
+      paste0("P(",
+             if (x$small.values == "desirable") "benefit" else "harm",
+             ")")
+  }
   #
+  if (print.cid.above.null) {
+    sel.left <- leftcols == "prob.cid.above.null"
+    #
+    if (any(sel.left) && is.na(leftlabs[sel.left]))
+      leftlabs[sel.left] <-
+        paste0("P(",
+               if (x$small.values == "desirable") "harm" else "benefit",
+               ")")
+    #
+    sel.right <- rightcols == "prob.cid.above.null"
+    #
+    if (any(sel.right) && is.na(rightlabs[sel.right]))
+      rightlabs[sel.right] <-
+      paste0("P(",
+             if (x$small.values == "desirable") "harm" else "benefit",
+             ")")
+  }
+  #
+  m$.text.details.methods <- text.details
+  
+  
+  data.p <-
+    data.frame(pval = formatPT(x$pval.pooled, digits = digits.pval,
+                               lab.NA = lab.NA),
+               tau2 = formatPT(x$tau2.pooled, digits = digits.tau2,
+                               lab.NA = lab.NA),
+               tau = formatPT(x$tau.pooled, digits = digits.tau,
+                              lab.NA = lab.NA),
+               I2 = ifelse(is.na(x$I2.pooled), lab.NA,
+                           paste0(formatPT(100 * x$I2.pooled,
+                                           digits = digits.I2,
+                                           lab.NA = lab.NA), "%")))
+  #
+  if (avail.prob.cid.below.null) {
+    data.p$prob.cid.below.null <-
+      ifelse(is.na(x$prob.cid.below.null.pooled), lab.NA,
+             paste0(formatPT(100 * x$prob.cid.below.null.pooled,
+                             digits = digits.percent), "%"))
+  }
+  #
+  if (avail.prob.cid.above.null) {
+    data.p$prob.cid.above.null <-
+      ifelse(is.na(x$prob.cid.above.null.pooled), lab.NA,
+             paste0(formatPT(100 * x$prob.cid.above.null.pooled,
+                             digits = digits.percent), "%"))
+  }
+  
+  
   dots_list <- drop_from_dots(list(...),
                               c("col.study", "col.square", "col.square.lines",
                                 "overall.hetstat", "overall.hetstat",
                                 "data.pooled"),
                               c("col", "col.bg", "col.border",
-                                "", "",
-                                ""))
+                                "col.bg.predict", "col.border.predict"))
   #
   args_list <-
     list(x = m,
