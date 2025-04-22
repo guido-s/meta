@@ -675,7 +675,7 @@ argslist <-
     "sort.subgroup",
     "pooled.events", "pooled.times", "study.results",
     "cid", "cid.below.null", "cid.above.null", "lty.cid", "col.cid", "fill.cid",
-    "fill",
+    "fill", "fill.equi",
     "leftcols", "rightcols", "leftlabs", "rightlabs", 
     "label.e.attach", "label.c.attach",
     "bottom.lr",

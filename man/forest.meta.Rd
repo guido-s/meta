@@ -481,7 +481,8 @@ number of limits plus 1 (in this case the region between largest
 limit and maximum is also filled).}
 
 \item{fill}{Colour for background of confidence interval plot (also used
-as colour for region between CID limits).}
+as colour for region between CID limits if argument \code{fill.equi} was
+not provided).}
 
 \item{fill.equi}{Colour(s) for region between limits of equivalence defined
 by arguments \code{cid}, \code{cid.lower} or \code{cid.upper}.}

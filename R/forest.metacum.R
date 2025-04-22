@@ -591,7 +591,8 @@ forest.metacum <- function(x,
                                 "overall.hetstat", "overall.hetstat",
                                 "data.pooled"),
                               c("col", "col.bg", "col.border",
-                                "col.bg.predict", "col.border.predict"))
+                                "col.bg.predict", "col.border.predict",
+                                ""))
   #
   args_list <-
     list(x = m,

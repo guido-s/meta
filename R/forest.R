@@ -150,7 +150,8 @@
 #'   number of limits plus 1 (in this case the region between largest
 #'   limit and maximum is also filled).
 #' @param fill Colour for background of confidence interval plot (also used
-#'   as colour for region between CID limits).
+#'   as colour for region between CID limits if argument \code{fill.equi} was
+#'   not provided).
 #' @param fill.equi Colour(s) for region between limits of equivalence defined
 #'   by arguments \code{cid}, \code{cid.lower} or \code{cid.upper}.
 #' @param fill.lower.equi Colour of region between lower limit(s) and
@@ -1793,6 +1794,7 @@ forest.meta <- function(x,
     missing.digits.addcols & missing.digits.addcols.right
   #
   avail.xlim <- !missing(xlim)
+  avail.fill.equi <- !missing(fill.equi) & !is.null(fill.equi)
   
   
   #
@@ -2357,7 +2359,8 @@ forest.meta <- function(x,
            call. = FALSE)
   }
   #
-  fill.cid.below.null <- c(fill.cid.below.null, fill)
+  fill.cid.below.null <-
+    c(fill.cid.below.null, if (avail.fill.equi) fill.equi else fill)
   #
   if (n.cid.above.null > 0) {
     if (length(fill.cid.above.null) == 1 & n.cid.above.null > 1)
@@ -2368,7 +2371,8 @@ forest.meta <- function(x,
            call. = FALSE)
   }
   #
-  fill.cid.above.null <- c(fill, fill.cid.above.null)
+  fill.cid.above.null <-
+    c(if (avail.fill.equi) fill.equi else fill, fill.cid.above.null)
   #
   # Define colours based on equivalence limits
   #

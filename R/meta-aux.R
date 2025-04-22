@@ -874,8 +874,8 @@ drop_from_dots <- function(x, old, new) {
     if (!is.null(x[[old[i]]])) {
       if (new[i] != "")
         warning("Argument '", old[i],
-                "' ignored; please use instead argument '",
-                new[i], "'.",
+                "' ignored; please use argument '",
+                new[i], "' instead.",
                 call. = FALSE)
       else
         warning("Argument '", old[i],
