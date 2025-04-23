@@ -28,6 +28,10 @@
   - consider setting for list element 'null.effect' for metamean(), metaprop()
     and metarate() objects to fix
     [issue #67](https://github.com/guido-s/meta/pull/67)
+  - remove duplicated columns from forest plots with RevMan5 layout and risk of
+    bias information
+  - use correct column labels for log transformed treatment estimates and
+    standard errors (list elements TE and seTE) if argument 'backtransf = TRUE
 
 * update.meta():
   - consider setting for list element 'rho' for metabin(), metacor(),

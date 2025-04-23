@@ -1891,8 +1891,6 @@ forest.meta <- function(x,
     if (!inherits(rob, "rob"))
       stop("Argument 'rob' must be of class \"rob\".", call. = FALSE)
     #
-    rsel <- TRUE
-    #
     rob.labels <-
       colnames(rob)[!(colnames(rob) %in% c("Study", "Weight"))]
     rob.labels[rob.labels == "Overall"] <- "O"
@@ -2214,8 +2212,9 @@ forest.meta <- function(x,
   #
   # Use logarithmic x-axis?
   # (for back-transformed relative effect measures)
-  log.xaxis <-
-    backtransf & (is_relative_effect(sm) | (!is.null(fbt) && fbt == "exp"))
+  is_relative <- is_relative_effect(sm) | (!is.null(fbt) && fbt == "exp")
+  #
+  log.xaxis <- backtransf & is_relative
   #
   if (missing.ref) {
     if (is_prop(sm) | is_rate(sm) | is_mean(sm)) {
@@ -3876,9 +3875,9 @@ forest.meta <- function(x,
   #
   lab.TE <- sm
   #
-  if (log.xaxis | sm == "VE")
+  if (is_relative)
     lab.TE <- paste0("log", if (sm == "VE") "VR" else sm)
-  else if (!log.xaxis & !is.null(ftr)) {
+  else if (!is.null(ftr)) {
     lab.TE <-
       paste0(ftr, "(", sm,
              if (!is.null(atr) && length(names(atr)) >= 1)
@@ -4248,7 +4247,7 @@ forest.meta <- function(x,
       leftcols <- c(leftcols, "effect.ci")
     }
     #
-    # Add columns if risk of bias assessmen is only information on
+    # Add columns if risk of bias assessment is only information on
     # right side of the forest plot
     #
     if (!revman5.jama & rob.only) {
@@ -4286,8 +4285,9 @@ forest.meta <- function(x,
         rightcols <- c(rightcols, wcols)
     }
   }
-  else if (RoB.available & rob.only &
-           missing.leftcols & !revman5.jama) {
+  #
+  if (RoB.available & rob.only &
+      missing.leftcols & !revman5.jama) {
     if (overall & study.results & !any(x$method == "GLMM" & !metamerge)) {
       if (common)
         leftcols <- c(leftcols, "w.common")
@@ -4312,10 +4312,7 @@ forest.meta <- function(x,
          ".",
          call. = FALSE)
   #
-  if (rob.only)
-    rightcols <- rightcols.rob
-  else
-    rightcols <- c(rightcols, rightcols.rob)
+  rightcols <- c(rightcols, rightcols.rob)
   #
   if (any(leftcols == "w.common") & any(rightcols == "w.common"))
     leftcols <- leftcols[!leftcols == "w.common"]
@@ -11182,7 +11179,7 @@ forest.meta <- function(x,
     rob.attach <- colnames(rob)[1]
   }
   #
-  if (rsel) {
+  if (rsel | RoB.available) {
     for (i in seq_along(rightcols)) {
       colgap.right.i <- colgap.right
       #
@@ -11692,7 +11689,7 @@ forest.meta <- function(x,
   # Right side of forest plot
   #
   #
-  if (rsel) {
+  if (rsel | RoB.available) {
     i.rob <- 0
     #
     for (i in seq_along(rightcols)) {
