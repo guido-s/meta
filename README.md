@@ -40,7 +40,11 @@ Installation using R package
 [**remotes**](https://cran.r-project.org/package=remotes):
 ```r
 install.packages("remotes")
-remotes::install_github("guido-s/meta", ref = "develop", build_vignettes = TRUE)
+remotes::install_github("guido-s/meta", build_vignettes = TRUE)
+```
+or without the vignette
+```r
+remotes::install_github("guido-s/meta")
 ```
 
 
