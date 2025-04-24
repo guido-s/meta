@@ -1,16 +1,16 @@
-#' Calculate probability of clinically important benefit or harm from
-#' prediction interval
+#' Calculate expected proportion of comparable studies with clinically important
+#' benefit or harm
 #'
 #' @description
-#' Calculate probability of clinically important benefit or harm from
-#' prediction interval
+#' Calculate expected proportion of comparable studies with clinically important
+#' benefit or harm which is derived from the prediction interval.
 #'
-#' @aliases cidprob cidprob.meta
+#' @aliases cidprop cidprop.meta
 #'
 #' @param x An object of class \code{meta}.
 #' @param cid A numeric value or vector specifying clinically important
-#'   differences (CID) / decision thresholds used to calculate probabilities
-#'   of clinically important benefit or harm (see Details).
+#'   differences (CID) / decision thresholds used to calculate expected
+#'   proportions of clinically important benefit or harm (see Details).
 #' @param cid.below.null A numeric value or vector specifying CID limits below
 #'   the null effect (see Details).
 #' @param cid.above.null A numeric value or vector specifying CID limits above
@@ -31,12 +31,16 @@
 #' @param digits.cid Minimal number of significant digits for
 #'   CIDs / decision thresholds, see \code{print.default}.
 #' @param digits.percent Minimal number of significant digits for
-#'   probabilities, printed as percentages, see \code{print.default}.
+#'   expected proportions, printed as percentages, see \code{print.default}.
 #' @param details.methods A logical specifying whether details on
 #'   statistical methods should be printed.
 #' @param \dots Additional arguments (ignored)
 #' 
 #' @details
+#' Expected proportions of comparable studies with clinically important
+#' benefit or harm are derived from the prediction interval in
+#' the meta-analysis.
+#' 
 #' Clinically important benefit or harm can be defined using either argument
 #' \code{cid} or \code{cid.below.null} and \code{cid.above.null}.
 #' Input for the later arguments will be ignored if argument \code{cid} was
@@ -53,43 +57,49 @@
 #'
 #' @return
 #' A list with elements
-#' \item{prob.cid.below.null}{Probabilities for new study result below CIDs
-#'   below null effect}
-#' \item{prob.cid.above.null}{Probabilities for new study result above CIDs
-#'   above null effect}
-#' \item{prob.within.cid}{Probability for net study result between lower and upper
-#'   CIDs}
-#' \item{cid, cid.below.null, cid.above.null, small.values, x}{As defined above}
-#' \item{label.cid, label.cid.below.null, label.cid.above.null}{As defined above}
+#' \item{prop.cid.below.null}{Expected proportion of comparable studies below
+#'   lower CID(s)}
+#' \item{prop.cid.above.null}{Expected proportion of comparable studies above
+#'   upper CID(s)}
+#' \item{prop.within.cid}{Expected proportion of comparable studies between
+#'   lower and upper CID(s)}
+#' \item{cid, cid.below.null, cid.above.null, small.values, x}{As defined
+#'   above}
+#' \item{label.cid, label.cid.below.null, label.cid.above.null}{As defined
+#'   above}
 #' 
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #'
-#' @seealso \code{\link{plot.cidprob}}
+#' @seealso \code{\link{plot.cidprop}}
 #'
 #' @examples
+#' oldset <- settings.meta(digits.cid = 0)
+#' 
 #' m <- metagen(1:10 - 3, 1:10, sm = "MD")
 #' #
-#' pp1 <- cidprob(m, cid = 2)
+#' pp1 <- cidprop(m, cid = 2)
 #' pp1
 #' #
-#' pp2 <- cidprob(m, cid.below = 0.5, cid.above = 2)
+#' pp2 <- cidprop(m, cid.below = 0.5, cid.above = 2)
 #' pp2
 #' #
-#' pp3 <- cidprob(m, cid.below = 0.5, cid.above = 2, small.values = "u")
+#' pp3 <- cidprop(m, cid.below = 0.5, cid.above = 2, small.values = "u")
 #' pp3
 #' 
-#' pp4 <- cidprob(m, cid = 1:2, label.cid = c("moderate", "large"))
+#' pp4 <- cidprop(m, cid = 1:2, label.cid = c("moderate", "large"))
 #' pp4
 #' #
-#' pp5 <- cidprob(m, cid.below = -1.5, cid.above = 1:2,
+#' pp5 <- cidprop(m, cid.below = -1.5, cid.above = 1:2,
 #'   label.cid.below = "large", label.cid.above = c("moderate", "large"))
 #' pp5
+#' 
+#' settings.meta(oldset)
 #'
-#' @rdname cidprob
-#' @method cidprob meta
+#' @rdname cidprop
+#' @method cidprop meta
 #' @export
 
-cidprob.meta <- function(x,
+cidprop.meta <- function(x,
                           cid = NULL,
                           cid.below.null = NULL, cid.above.null = NULL,
                           #
@@ -300,35 +310,35 @@ cidprob.meta <- function(x,
   
   #
   #
-  # (3) Calculate probabilities
+  # (3) Calculate expected proportions
   #
   #
   
-  prob.cid.below.null <-
+  prop.cid.below.null <-
     pt((cid.below.null.transf - TE.random) / seTE.predict, df.predict)
   #
-  prob.cid.above.null <-
+  prop.cid.above.null <-
     pt((cid.above.null.transf - TE.random) / seTE.predict, df.predict,
        lower.tail = FALSE)
   #
-  prob.within.cid <-
+  prop.within.cid <-
     1 -
-    replaceNA(max(prob.cid.below.null), 0) -
-    replaceNA(max(prob.cid.above.null), 0)
+    replaceNA(max(prop.cid.below.null), 0) -
+    replaceNA(max(prop.cid.above.null), 0)
   #
-  if (is_zero(prob.within.cid))
-    prob.within.cid <- 0
+  if (is_zero(prop.within.cid))
+    prop.within.cid <- 0
   
   
   #
   #
-  # (4) Return cidprob object
+  # (4) Return cidprop object
   #
   #
   
-  res <- list(prob.cid.below.null = prob.cid.below.null, 
-              prob.cid.above.null = prob.cid.above.null,
-              prob.within.cid = prob.within.cid,
+  res <- list(prop.cid.below.null = prop.cid.below.null, 
+              prop.cid.above.null = prop.cid.above.null,
+              prop.within.cid = prop.within.cid,
               #
               cid = cid,
               cid.below.null = cid.below.null, cid.above.null = cid.above.null,
@@ -343,43 +353,60 @@ cidprob.meta <- function(x,
               #
               x = x)
   #
-  class(res) <- "cidprob"
+  class(res) <- "cidprop"
   #
   res
 }
 
 
-#' @rdname cidprob
-#' @export cidprob
+#' @rdname cidprop
+#' @export cidprop
 
-cidprob <- function(x, ...)
-  UseMethod("cidprob")
+cidprop <- function(x, ...)
+  UseMethod("cidprop")
 
 
-#' @rdname cidprob
-#' @method print cidprob
+#' @rdname cidprop
+#' @method print cidprop
 #' @export
 
-print.cidprob <- function(x,
+print.cidprop <- function(x,
                            digits.cid = gs("digits.cid"), digits.percent = 1,
                            big.mark = gs("big.mark"),
                            details.methods = gs("details"),
                            ...) {
-
-  chkclass(x, "cidprob")
+  
+  #
+  #
+  # (1) Check arguments
+  #
+  #
+    
+  chkclass(x, "cidprop")
   #
   chknumeric(digits.cid, min = 0, length = 1)
   chknumeric(digits.percent, min = 0, length = 1)
   chkchar(big.mark, length = 1)
   chklogical(details.methods)
+  
+  #
+  #
+  # (2) Extract information from cidprop object
+  #
+  #
     
-  
-  #
-  # Decision thresholds
-  #
-  
   cid.below.null <- x$cid.below.null
   cid.above.null <- x$cid.above.null
+  #
+  avail.cid.below.null <- !all(is.na(cid.below.null))
+  avail.cid.above.null <- !all(is.na(cid.above.null))
+  #
+  prop.cid.below.null <- x$prop.cid.below.null
+  prop.cid.above.null <- x$prop.cid.above.null
+  prop.within.cid <- x$prop.within.cid
+  #
+  label.cid.below.null <- x$label.cid.below.null
+  label.cid.above.null <- x$label.cid.above.null
   #
   # If meta-analysis object is available
   #
@@ -397,52 +424,83 @@ print.cidprob <- function(x,
     smlab <- ""
   #
   svd <- x$small.values == "desirable"
+  
   #
-  dat <- NULL
   #
-  if (any(!is.na(cid.below.null))) {
+  # (3) Data set with CID information
+  #
+  #
+  
+  dat.l <- dat.u <- dat.w <- NULL
+  #
+  if (avail.cid.below.null) {
     dat.l <-
-      data.frame(CID = cid.below.null, prob = x$prob.cid.below.null,
-                 label = x$label.cid.below.null,
+      data.frame(Threshold = cid.below.null, prop = prop.cid.below.null,
+                 label = label.cid.below.null,
                  category =
                    if (svd) "Beneficial effect" else "Harmful effect",
                  sign = "\u2264 ")
     #
-    dat <- rbind(dat, dat.l)
+    max.cid.below.null <- max(cid.below.null, na.rm = TRUE)
   }
   #
-  dat.t <-
-    data.frame(CID = NA, prob = x$prob.within.cid,
-               label = "", category = "Not important effect",
-               sign = "")
-  #
-  dat <- rbind(dat, dat.t)
-  #
-  if (any(!is.na(cid.above.null))) {
+  if (avail.cid.above.null) {
     dat.u <-
-      data.frame(CID = cid.above.null, prob = x$prob.cid.above.null,
-                 label = x$label.cid.above.null,
+      data.frame(Threshold = cid.above.null, prop = prop.cid.above.null,
+                 label = label.cid.above.null,
                  category =
                    if (svd) "Harmful effect" else "Beneficial effect",
                  sign = "\u2265 ")
     #
-    dat <- rbind(dat, dat.u)
+    min.cid.above.null <- min(cid.above.null, na.rm = TRUE)
   }
   #
-  CID <- prob <- label <- category <- sign <- NULL
+  if (prop.within.cid > 0) {
+    dat.w <- data.frame(Threshold = NA,
+                        prop = prop.within.cid,
+                        label = "",
+                        category = "Not important effect",
+                        sign = "")
+    #
+    if (avail.cid.below.null & avail.cid.above.null) {
+      within.cid <-
+        formatN(c(max.cid.below.null, min.cid.above.null),
+                digits = digits.cid, big.mark = big.mark)
+      #
+      within.cid <- paste(">", within.cid[1], "to", "<", within.cid[2])
+    }
+    else if (avail.cid.below.null) {
+      within.cid <-
+        formatN(max.cid.below.null, digits = digits.cid, big.mark = big.mark)
+      #
+      within.cid <- paste(">", within.cid)
+    }
+    else if (avail.cid.above.null) {
+      within.cid <-
+        formatN(min.cid.above.null, digits = digits.cid, big.mark = big.mark)
+      #
+      within.cid <- paste("<", within.cid)
+    }
+  }
   #
-  dat %<>%
-    mutate(CID = formatN(CID, digits = digits.cid, big.mark = big.mark,
-                         text.NA = "."),
-           CID = paste0(sign, CID),
-           prob = paste0(formatPT(100 * prob, digits = digits.percent), "%"),
+  dat.cid <- rbind(dat.l, dat.w, dat.u)
+  #
+  Threshold <- prop <- label <- category <- sign <- NULL
+  #
+  dat.cid %<>%
+    mutate(Threshold = formatN(Threshold, digits = digits.cid,
+                               big.mark = big.mark, text.NA = ""),
+           Threshold = if_else(category != "Not important effect",
+                               paste0(sign, Threshold), within.cid),
+           prop = paste0(formatPT(100 * prop, digits = digits.percent), "%"),
            category =
-             if_else(label == "", category, paste(category, label))) %>%
+             if_else(label == "", category, paste(category, label)),
+           category = paste0(category, " ")) %>%
     column_to_rownames("category") %>%
-    rename(Percent = prob) %>%
+    rename(Percent = prop) %>%
     select(-label, -sign)
   #
-  print(dat)
+  print(dat.cid)
   #
   if (details.methods & !is.null(x$x)) {
     catmeth(x$x,

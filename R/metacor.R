@@ -5,7 +5,7 @@
 #' meta-analyses with correlations; inverse variance weighting is used
 #' for pooling.
 #' 
-#' @param cor Correlation.
+#' @param cor Correlations.
 #' @param n Number of observations.
 #' @param studlab An optional vector with study labels.
 #' @param data An optional data frame containing the study
@@ -134,15 +134,17 @@
 #' @param \dots Additional arguments (to catch deprecated arguments).
 #' 
 #' @details
-#' Common effect and random effects meta-analysis of correlations
-#' based either on Fisher's z transformation of correlations (\code{sm
-#' = "ZCOR"}) or direct combination of (untransformed) correlations
-#' (\code{sm = "COR"}) (see Cooper et al., 2009, p264-5 and
-#' p273-4). Only few statisticians would advocate the use of
-#' untransformed correlations unless sample sizes are very large (see
-#' Cooper et al., 2009, p265). The artificial example given below
-#' shows that the smallest study gets the largest weight if
-#' correlations are combined directly because the correlation is
+#' This function conducts common effect and random effects meta-analysis of
+#' correlations based either on Fisher's z transformation of correlations
+#' (\code{sm = "ZCOR"}) or direct combination of (untransformed) correlations
+#' (\code{sm = "COR"}) (see Cooper et al., 2009, p264-5 and p273-4). Note, the
+#' input to argument \code{cor} is always correlations and not Fisher's z
+#' transformed correlations if \code{sm = "ZCOR"}.
+#' 
+#' Only few statisticians would advocate the use of untransformed correlations
+#' unless sample sizes are very large (see Cooper et al., 2009, p265). The
+#' artificial example given below shows that the smallest study gets the largest
+#' weight if correlations are combined directly because the correlation is
 #' closest to 1.
 #' 
 #' A three-level random effects meta-analysis model (Van den Noortgate
@@ -228,11 +230,11 @@
 #' # Print correlations (back transformed from Fisher's z
 #' # transformation)
 #' #
-#' m1
+#' summary(m1)
 #' 
 #' # Print Fisher's z transformed correlations 
 #' #
-#' print(m1, backtransf = FALSE)
+#' print(summary(m1), backtransf = FALSE)
 #' 
 #' # Forest plot with back transformed correlations
 #' #
@@ -243,7 +245,7 @@
 #' forest(m1, backtransf = FALSE)
 #' 
 #' m2 <- update(m1, sm = "cor")
-#' m2
+#' summary(m2)
 #'
 #' \dontrun{
 #' # Identical forest plots (as back transformation is the identity

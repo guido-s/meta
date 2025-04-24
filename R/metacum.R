@@ -17,19 +17,20 @@
 #'   plots to label the pooled effect estimate.
 #' @param no A numeric specifying which meta-analysis results to
 #'   consider.
-#' @param cid A single numeric specifying the clinically important
-#'   difference (CID) / decision threshold used to calculate probabilities
-#'   of clinically important benefit or harm (see \code{\link{cidprob}}).
+#' @param cid A numeric value or vector specifying clinically important
+#'   differences (CID) / decision thresholds used to calculate expected
+#'   proportions of clinically important benefit or harm
+#'   (see \code{\link{cidprop}}).
 #' @param cid.below.null A single numeric defining the decision threshold below
 #'   the null effect to distinguish clinically important from not important
-#'   effects (see \code{\link{cidprob}}).
+#'   effects (see \code{\link{cidprop}}).
 #' @param cid.above.null A single numeric defining the decision threshold above
 #'   the null effect to distinguish clinically important from not important
-#'   effects (see \code{\link{cidprob}}).
+#'   effects (see \code{\link{cidprop}}).
 #' @param small.values A character string specifying whether small
 #'   treatment effects indicate a beneficial (\code{"desirable"}) or
 #'   harmful (\code{"undesirable"}) effect, can be abbreviated
-#'   (see \code{\link{cidprob}}).
+#'   (see \code{\link{cidprop}}).
 #' @param \dots Additional arguments (ignored).
 #' 
 #' @details
@@ -76,7 +77,7 @@
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @seealso \code{\link{forest.metacum}}, \code{\link{print.metacum}},
-#'   \code{\link{cidprob}}
+#'   \code{\link{cidprop}}
 #' 
 #' @references
 #' Cooper H & Hedges LV (1994):
@@ -198,7 +199,7 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
   avail.cid.above.null <-
     !is.null(cid.above.null) && !all(is.na(cid.above.null))
   #
-  run_cidprob <- avail.cid | avail.cid.below.null | avail.cid.above.null
+  run_cidprop <- avail.cid | avail.cid.below.null | avail.cid.above.null
   
   
   ##
@@ -593,20 +594,20 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
     }
     ##
     else if (pooled == "random") {
-      if (run_cidprob) {
+      if (run_cidprop) {
         pp <-
-          cidprob(m,
+          cidprop(m,
                    cid = cid,
                    cid.below.null = cid.below.null,
                    cid.above.null = cid.above.null,
                    small.values = small.values)
         #
-        prob.cid.below.null <- pp$prob.cid.below.null
-        prob.cid.above.null <- pp$prob.cid.above.null
+        prop.cid.below.null <- pp$prop.cid.below.null
+        prop.cid.above.null <- pp$prop.cid.above.null
       }
       else {
-        prob.cid.below.null <- NA
-        prob.cid.above.null <- NA
+        prop.cid.below.null <- NA
+        prop.cid.above.null <- NA
       }
       #
       res.i[i, ] <- c(m$TE.random,                                   #  1
@@ -646,8 +647,8 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
                       m$k.all,                                       # 27
                       m$k.TE,                                        # 28
                       replaceNULL(m$k.MH),                           # 29
-                      prob.cid.below.null,                           # 30
-                      prob.cid.above.null                            # 31
+                      prop.cid.below.null,                           # 30
+                      prop.cid.above.null                            # 31
       )
     }
   }
@@ -690,8 +691,8 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
   k.TE.i <- res.i[, 28]
   k.MH.i <- res.i[, 29]
   #
-  prob.cid.below.null <- res.i[, 30]
-  prob.cid.above.null <- res.i[, 31]
+  prop.cid.below.null <- res.i[, 30]
+  prop.cid.above.null <- res.i[, 31]
   #
   method.tau.ci <- replaceNULL(unique(add.i[add.i[, 1] != "", 1]), "")
   sign.lower.tau.i <- replaceNULL(unique(add.i[add.i[, 2] != "", 2]), "")
@@ -743,20 +744,20 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
   n.harmonic.mean.pooled <- 1 / mean(1 / n)
   t.harmonic.mean.pooled <- 1 / mean(1 / time)
   #
-  if (pooled == "random" & run_cidprob) {
+  if (pooled == "random" & run_cidprop) {
     pp.pooled <-
-      cidprob(x,
+      cidprop(x,
                cid = cid,
                cid.below.null = cid.below.null,
                cid.above.null = cid.above.null,
                small.values = small.values)
     #
-    prob.cid.below.null.pooled <- pp.pooled$prob.cid.below.null
-    prob.cid.above.null.pooled <- pp.pooled$prob.cid.above.null
+    prop.cid.below.null.pooled <- pp.pooled$prop.cid.below.null
+    prop.cid.above.null.pooled <- pp.pooled$prop.cid.above.null
   }
   else {
-    prob.cid.below.null.pooled <- NA
-    prob.cid.above.null.pooled <- NA
+    prop.cid.below.null.pooled <- NA
+    prop.cid.above.null.pooled <- NA
   }
   
   
@@ -812,8 +813,8 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
               k.TE = k.TE.i,
               k.MH = k.MH.i,
               #
-              prob.cid.below.null = prob.cid.below.null,
-              prob.cid.above.null = prob.cid.above.null,
+              prop.cid.below.null = prop.cid.below.null,
+              prop.cid.above.null = prop.cid.above.null,
               cid.below.null = cid.below.null,
               cid.above.null = cid.above.null,
               small.values = small.values,
@@ -874,8 +875,8 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
               df.predict.pooled = x$df.predict,
               text.predict = x$text.predict,
               #
-              prob.cid.below.null.pooled = prob.cid.below.null.pooled,
-              prob.cid.above.null.pooled = prob.cid.above.null.pooled,
+              prop.cid.below.null.pooled = prop.cid.below.null.pooled,
+              prop.cid.above.null.pooled = prop.cid.above.null.pooled,
               #
               Q.pooled = x$Q,
               Q.Cochrane = x$Q.Cochrane,
@@ -919,19 +920,19 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
               ##
               call = match.call())
   #
-  if (run_cidprob) {
+  if (run_cidprop) {
     res$cid.below.null <- pp$cid.below.null
     res$cid.above.null <- pp$cid.above.null
   }
   else {
-    res$prob.cid.below.null <- NULL
-    res$prob.cid.above.null <- NULL
+    res$prop.cid.below.null <- NULL
+    res$prop.cid.above.null <- NULL
     res$cid.below.null <- NULL
     res$cid.above.null <- NULL
     res$small.values <- NULL
     #
-    res$prob.cid.below.null.pooled <- NULL
-    res$prob.cid.above.null.pooled <- NULL
+    res$prop.cid.below.null.pooled <- NULL
+    res$prop.cid.above.null.pooled <- NULL
   }
   #
   res$version <- packageDescription("meta")$Version

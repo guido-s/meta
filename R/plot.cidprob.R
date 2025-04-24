@@ -5,10 +5,10 @@
 #' Plot density of prediction distribution highlighting areas of clinically
 #' important benefit or harm
 #'
-#' @param x An object of class \code{cidprob}.
+#' @param x An object of class \code{cidprop}.
 #' @param cid A numeric value or vector specifying clinically important
-#'   differences (CID) / decision thresholds used to calculate probabilities
-#'   of clinically important benefit or harm (see Details).
+#'   differences (CID) / decision thresholds used to calculate expected
+#'   proportions of clinically important benefit or harm (see Details).
 #' @param cid.below.null A numeric value or vector specifying CID limits below
 #'   the null effect (see Details).
 #' @param cid.above.null A numeric value or vector specifying CID limits above
@@ -31,7 +31,7 @@
 #'   effect.
 #' @param fill Background colour for area between decision thresholds.
 #' @param legend A logical indicating whether to print a legend with
-#'   probabilities of beneficial, harmful, or not important effects.
+#'   expected proportions of beneficial, harmful, or not important effects.
 #' @param studies A logical indicating whether to print estimates of individual
 #'   studies.
 #' @param random A logical indicating whether to show diamond of the random
@@ -49,7 +49,8 @@
 #' @param digits.cid Minimal number of significant digits for
 #'   decision thresholds, see \code{\link{print.default}}.
 #' @param digits.percent Minimal number of significant digits for
-#'   probabilities, printed as percentages, see \code{\link{print.default}}.
+#'   expected proportions, printed as percentages, see
+#'   \code{\link{print.default}}.
 #' @param digits.xaxis Minimal number of significant digits for
 #'   labels on x-axis, see \code{\link{print.default}}.
 #' @param xlab Label on x-axis.
@@ -63,11 +64,11 @@
 #' Arguments \code{cid}, \code{cid.below.null}, \code{cid.above.null},
 #' \code{label.cid}, \code{label.cid.below.null}, \code{label.cid.above.null},
 #' and \code{small.values} are identical to the main arguments of R function
-#' \code{\link{cidprob}} which is called internally if any of these values has
+#' \code{\link{cidprop}} which is called internally if any of these values has
 #' been provided by the user.
 #' 
 #' R packages \bold{ggpubr} and \bold{gridExtra} must be installed in order to
-#' add a legend to the plot with the CIDs, predicted probabilities of clinically
+#' add a legend to the plot with the CIDs, expected proportions of clinically
 #' benefit or harm, and the area colours (due to using R functions
 #' \code{ggarrange} and \code{tableGrob}). The data and colours shown in the
 #' legend are stored in the attribute 'data.cid' of the returned ggplot object
@@ -79,29 +80,33 @@
 #' instead of \code{\link[grDevices]{pdf}} from R package \bold{grDevices}.
 #' 
 #' @return
-#' A ggplot object with additional class 'plot.cidprob'.
+#' A ggplot object with additional class 'plot.cidprop'.
 #' 
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #'
-#' @seealso \code{\link{cidprob}}
+#' @seealso \code{\link{cidprop}}
 #'
 #' @examples
+#' oldset <- settings.meta(digits.cid = 0)
+#' 
 #' m <- metagen(1:10 - 3, 1:10, sm = "MD")
 #' #
-#' pp1 <- cidprob(m, cid = 2)
+#' pp1 <- cidprop(m, cid = 2)
 #' pp1
 #' #
-#' pp2 <- cidprob(m, cid.below.null = 0.5, cid.above.null = 2)
+#' pp2 <- cidprop(m, cid.below.null = 0.5, cid.above.null = 2)
 #' pp2
 #' #
-#' pp3 <- cidprob(m, cid.below.null = 0.5, cid.above.null = 2, small.values = "u")
+#' pp3 <- cidprop(m, cid.below.null = 0.5, cid.above.null = 2,
+#'   small.values = "u")
 #' pp3
 #' 
-#' pp4 <- cidprob(m, cid = 1:2, label.cid = c("moderate", "large"))
+#' pp4 <- cidprop(m, cid = 1:2, label.cid = c("moderate", "large"))
 #' pp4
 #' #
-#' pp5 <- cidprob(m, cid.below.null = -1.5, cid.above.null = 1:2,
-#'   label.cid.below.null = "large", label.cid.above.null = c("moderate", "large"))
+#' pp5 <- cidprop(m, cid.below.null = -1.5, cid.above.null = 1:2,
+#'   label.cid.below.null = "large",
+#'   label.cid.above.null = c("moderate", "large"))
 #' pp5
 #' 
 #' plot(pp1, xlim = c(-4, 4))
@@ -122,10 +127,12 @@
 #' }
 #' }
 #' 
-#' @method plot cidprob
+#' settings.meta(oldset)
+#' 
+#' @method plot cidprop
 #' @export
 
-plot.cidprob <- function(x,
+plot.cidprop <- function(x,
                          cid = NULL,
                          cid.below.null = x$cid.below.null,
                          cid.above.null = x$cid.above.null,
@@ -169,7 +176,7 @@ plot.cidprob <- function(x,
   #
   #
   
-  chkclass(x, "cidprob")
+  chkclass(x, "cidprop")
   #
   missing.xlim <- missing(xlim)
   #
@@ -194,7 +201,7 @@ plot.cidprob <- function(x,
   
   #
   #
-  # (2) Re-run cidprob() if settings changed
+  # (2) Re-run cidprop() if settings changed
   #
   #
   
@@ -210,7 +217,7 @@ plot.cidprob <- function(x,
   #
   avail.small.values <- !missing(small.values)
   #
-  # Rerun cidprob()
+  # Rerun cidprop()
   #
   if (avail.cid | avail.cid.below.null | avail.cid.above.null |
       avail.label.cid |
@@ -235,12 +242,12 @@ plot.cidprob <- function(x,
                 "argument 'cid' is provided.",
                 call. = FALSE)
       #
-      x <- cidprob(x$x,
+      x <- cidprop(x$x,
                    cid = cid, label.cid = label.cid,
                    small.values = small.values)
     }
     else {
-      x <- cidprob(x$x,
+      x <- cidprop(x$x,
                    cid.below.null = cid.below.null,
                    cid.above.null = cid.above.null,
                    label.cid.below.null = label.cid.below.null,
@@ -251,7 +258,7 @@ plot.cidprob <- function(x,
   
   #
   #
-  # (3) Extract results from cidprob-object
+  # (3) Extract results from cidprop-object
   #
   #
     
@@ -285,9 +292,9 @@ plot.cidprob <- function(x,
   #
   svd <- x$small.values == "desirable"
   #
-  prob.cid.below.null <- x$prob.cid.below.null
-  prob.cid.above.null <- x$prob.cid.above.null
-  prob.within.cid <- x$prob.within.cid
+  prop.cid.below.null <- x$prop.cid.below.null
+  prop.cid.above.null <- x$prop.cid.above.null
+  prop.within.cid <- x$prop.within.cid
   #
   method.predict <- x.meta$method.predict[1]
   #
@@ -368,54 +375,75 @@ plot.cidprob <- function(x,
   #
   #
   
-  dat.cid <- NULL
+  dat.l <- dat.u <- dat.w <- NULL
   #
   if (avail.cid.below.null) {
     dat.l <-
       data.frame(Colour = fill.cid.below.null,
-                 CID = cid.below.null, prob = prob.cid.below.null,
+                 Threshold = cid.below.null, prop = prop.cid.below.null,
                  label = label.cid.below.null,
                  category =
                    if (svd) "Beneficial effect" else "Harmful effect",
                  sign = "\u2264 ")
     #
-    dat.cid <- rbind(dat.cid, dat.l)
+    max.cid.below.null <- max(cid.below.null, na.rm = TRUE)
   }
-  #
-  if (prob.within.cid == 0)
-    dat.t <- NULL
-  else
-    dat.t <- data.frame(Colour = fill,
-                        CID = NA, prob = prob.within.cid,
-                        label = "",
-                        category = "Not important effect",
-                        sign = "")
-  #
-  dat.cid <- rbind(dat.cid, dat.t)
   #
   if (avail.cid.above.null) {
     dat.u <-
       data.frame(Colour = fill.cid.above.null,
-                 CID = cid.above.null, prob = prob.cid.above.null,
+                 Threshold = cid.above.null, prop = prop.cid.above.null,
                  label = label.cid.above.null,
                  category =
                    if (svd) "Harmful effect" else "Beneficial effect",
                  sign = "\u2265 ")
     #
-    dat.cid <- rbind(dat.cid, dat.u)
+    min.cid.above.null <- min(cid.above.null, na.rm = TRUE)
   }
   #
-  CID <- prob <- label <- category <- sign <- NULL
+  if (prop.within.cid > 0) {
+    dat.w <- data.frame(Colour = fill,
+                        Threshold = NA,
+                        prop = prop.within.cid,
+                        label = "",
+                        category = "Not important effect",
+                        sign = "")
+    #
+    if (avail.cid.below.null & avail.cid.above.null) {
+      within.cid <-
+        formatN(c(max.cid.below.null, min.cid.above.null),
+                digits = digits.cid, big.mark = big.mark)
+      #
+     within.cid <- paste(">", within.cid[1], "to", "<", within.cid[2])
+    }
+    else if (avail.cid.below.null) {
+      within.cid <-
+        formatN(max.cid.below.null, digits = digits.cid, big.mark = big.mark)
+      #
+      within.cid <- paste(">", within.cid)
+    }
+    else if (avail.cid.above.null) {
+      within.cid <-
+        formatN(min.cid.above.null, digits = digits.cid, big.mark = big.mark)
+      #
+      within.cid <- paste("<", within.cid)
+    }
+  }
+  #
+  dat.cid <- rbind(dat.l, dat.w, dat.u)
+  #
+  Threshold <- prop <- label <- category <- sign <- NULL
   #
   dat.cid %<>%
-    mutate(CID = formatN(CID, digits = digits.cid, big.mark = big.mark,
-                         text.NA = ""),
-           CID = paste0(sign, CID),
-           prob = paste0(formatPT(100 * prob, digits = digits.percent), "%"),
+    mutate(Threshold = formatN(Threshold, digits = digits.cid,
+                               big.mark = big.mark, text.NA = ""),
+           Threshold = if_else(category != "Not important effect",
+                               paste0(sign, Threshold), within.cid),
+           prop = paste0(formatPT(100 * prop, digits = digits.percent), "%"),
            category =
              if_else(label == "", category, paste(category, label))) %>%
     column_to_rownames("category") %>%
-    rename(Percent = prob) %>%
+    rename(Percent = prop) %>%
     select(-label, -sign)
   
   #
@@ -472,7 +500,7 @@ plot.cidprob <- function(x,
           breaks = unique(c(-Inf, cid.below.null.transf,
                             cid.above.null.transf, Inf)))
     #
-    if (prob.within.cid == 0)
+    if (prop.within.cid == 0)
       fill.category <- c(fill.cid.below.null, fill.cid.above.null)
     else
       fill.category <- c(fill.cid.below.null, fill, fill.cid.above.null)
@@ -590,7 +618,7 @@ plot.cidprob <- function(x,
         scale_x_continuous(breaks = labels.x, labels = labels.x)
   }
   #
-  # Add legend with probabilities
+  # Add legend with expected proportions
   #
   if (legend) {
     dat.legend <- dat.cid %>% mutate(Colour = "")
@@ -619,7 +647,7 @@ plot.cidprob <- function(x,
   #
   attr(p, "data.cid") <- dat.cid
   #
-  class(p) <- c(class(p), "plot.cidprob")
+  class(p) <- c(class(p), "plot.cidprop")
   #
   p
 }

@@ -199,7 +199,7 @@ print.metacum <- function(x,
     tau <- lower.tau <- upper.tau <-
     I2 <- lower.I2 <- upper.I2 <-
     lower.predict <- upper.predict <-
-    prob.cid.below.null <- prob.cid.above.null <-
+    prop.cid.below.null <- prop.cid.above.null <-
     harmonic.mean <- n.harmonic.mean <- t.harmonic.mean <- NULL
   #
   dat <-
@@ -214,23 +214,23 @@ print.metacum <- function(x,
                     t.harmonic.mean,
                     row.names = studlab))
   #
-  avail.prob.cid.below.null <-
-    !is.null(x$prob.cid.below.null) && !all(is.na(x$prob.cid.below.null))
+  avail.prop.cid.below.null <-
+    !is.null(x$prop.cid.below.null) && !all(is.na(x$prop.cid.below.null))
   #
-  avail.prob.cid.above.null <-
-    !is.null(x$prob.cid.above.null) && !all(is.na(x$prob.cid.above.null))
+  avail.prop.cid.above.null <-
+    !is.null(x$prop.cid.above.null) && !all(is.na(x$prop.cid.above.null))
   #
-  avail.prob.cid <- avail.prob.cid.below.null | avail.prob.cid.above.null
+  avail.prop.cid <- avail.prop.cid.below.null | avail.prop.cid.above.null
   #
-  if (avail.prob.cid.below.null)
-    dat$prob.cid.below.null <- x$prob.cid.below.null
+  if (avail.prop.cid.below.null)
+    dat$prop.cid.below.null <- x$prop.cid.below.null
   else
-    dat$prob.cid.below.null <- NA
+    dat$prop.cid.below.null <- NA
   #
-  if (avail.prob.cid.above.null)
-    dat$prob.cid.above.null <- x$prob.cid.above.null
+  if (avail.prop.cid.above.null)
+    dat$prop.cid.above.null <- x$prop.cid.above.null
   else
-    dat$prob.cid.above.null <- NA
+    dat$prop.cid.above.null <- NA
   #
   if (overall) {
     space <- data.frame(TE = NA, lower = NA, upper = NA,
@@ -239,7 +239,7 @@ print.metacum <- function(x,
                         tau = NA, lower.tau = NA, upper.tau = NA, 
                         I2 = NA, lower.I2 = NA, upper.I2 = NA,
                         lower.predict = NA, upper.predict = NA,
-                        prob.cid.below.null = NA, prob.cid.above.null = NA,
+                        prop.cid.below.null = NA, prop.cid.above.null = NA,
                         n.harmonic.mean = NA, t.harmonic.mean = NA,
                         row.names = "")
     #
@@ -256,15 +256,15 @@ print.metacum <- function(x,
     #
     rownames(dat.pooled) <- x$text.pooled
     #
-    if (avail.prob.cid.below.null)
-      dat.pooled$prob.cid.below.null <- x$prob.cid.below.null.pooled
+    if (avail.prop.cid.below.null)
+      dat.pooled$prop.cid.below.null <- x$prop.cid.below.null.pooled
     else
-      dat.pooled$prob.cid.below.null <- NA
+      dat.pooled$prop.cid.below.null <- NA
     #
-    if (avail.prob.cid.above.null)
-      dat.pooled$prob.cid.above.null <- x$prob.cid.above.null.pooled
+    if (avail.prop.cid.above.null)
+      dat.pooled$prop.cid.above.null <- x$prop.cid.above.null.pooled
     else
-      dat.pooled$prob.cid.above.null <- NA
+      dat.pooled$prop.cid.above.null <- NA
     #
     dat <- rbind(dat, space, dat.pooled)
   }
@@ -349,15 +349,15 @@ print.metacum <- function(x,
                               formatN(upper.predict, digits = digits,
                                       text.NA = lab.NA, big.mark = big.mark))),
            #
-           prob.cid.below.null =
-             if_else(is.na(prob.cid.below.null), lab.NA,
-                     paste0(formatPT(100 * prob.cid.below.null,
+           prop.cid.below.null =
+             if_else(is.na(prop.cid.below.null), lab.NA,
+                     paste0(formatPT(100 * prop.cid.below.null,
                                      digits = digits.percent,
                                      lab.NA = lab.NA), "%")),
            #
-           prob.cid.above.null =
-             if_else(is.na(prob.cid.above.null), lab.NA,
-                     paste0(formatPT(100 * prob.cid.above.null,
+           prop.cid.above.null =
+             if_else(is.na(prop.cid.above.null), lab.NA,
+                     paste0(formatPT(100 * prop.cid.above.null,
                                      digits = digits.percent,
                                      lab.NA = lab.NA), "%"))
     ) %>%
@@ -432,29 +432,29 @@ print.metacum <- function(x,
   else
     dat$lower.I2 <- NULL
   #
-  if (!avail.prob.cid.below.null)
-    dat$prob.cid.below.null <- NULL
+  if (!avail.prop.cid.below.null)
+    dat$prop.cid.below.null <- NULL
   #
-  if (!avail.prob.cid.above.null)
-    dat$prob.cid.above.null <- NULL
+  if (!avail.prop.cid.above.null)
+    dat$prop.cid.above.null <- NULL
   #
-  if (print.prob & avail.prob.cid.below.null) {
-    names(dat)[names(dat) == "prob.cid.below.null"] <-
+  if (print.prob & avail.prop.cid.below.null) {
+    names(dat)[names(dat) == "prop.cid.below.null"] <-
       paste0("P(",
              if (x$small.values == "desirable") "benefit" else "harm",
              ")")
   }
   else
-    dat$prob.cid.below.null <- NULL
+    dat$prop.cid.below.null <- NULL
   #
-  if (print.prob & avail.prob.cid.above.null) {
-    names(dat)[names(dat) == "prob.cid.above.null"] <-
+  if (print.prob & avail.prop.cid.above.null) {
+    names(dat)[names(dat) == "prop.cid.above.null"] <-
       paste0("P(",
              if (x$small.values == "desirable") "harm" else "benefit",
              ")")
   }
   else
-    dat$prob.cid.above.null <- NULL
+    dat$prop.cid.above.null <- NULL
   #
   dat <- replaceNA(dat, "")
   
@@ -496,17 +496,17 @@ print.metacum <- function(x,
               #
               print.df = TRUE, prediction.subgroup = FALSE)
     #
-    if (avail.prob.cid)
+    if (avail.prop.cid)
       svd <- x$small.values == "desirable"
     #
-    if (avail.prob.cid.below.null)
+    if (avail.prop.cid.below.null)
       cat(paste0("- Lower decision threshold (",
                  if (svd) "beneficial " else "harmful ",
                  "effects): ",
                  formatN(x$cid.below.null, digits = digits.cid, big.mark = big.mark),
                  "\n"))
     #
-    if (avail.prob.cid.above.null)
+    if (avail.prop.cid.above.null)
       cat(paste0("- Upper decision threshold (",
                  if (svd) "harmful " else "beneficial ",
                  "effects): ",

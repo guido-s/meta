@@ -2,9 +2,9 @@
 
 ### Major changes
 
-* New functions cidprob() and plot.cidprob() to calculate and plot
-  probabilities of clinically important benefit or harm based on clinically
-  important differences (CID) and derived from the prediction interval
+* New functions cidprop() and plot.cidprop() to calculate and plot
+  expected proportions of comparable studies with clinically important benefit
+  or harm which are derived from the prediction interval
 
 * Rewrite of R function metacum() for cumulative meta-analysis with dedicated
   print and forest functions
@@ -100,7 +100,7 @@
 * pairwise(): add columns 'incr1' and 'incr2' to core variables
 
 * Internal function xlab() renamed to xlab_meta() as xlab() from the R package
-  **ggplot2** is used in plot.cidprob()
+  **ggplot2** is used in plot.cidprop()
 
 
 ## meta, version 8.0-2 (2025-01-21)

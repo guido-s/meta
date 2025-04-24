@@ -47,22 +47,23 @@ plots to label the pooled effect estimate.}
 \item{no}{A numeric specifying which meta-analysis results to
 consider.}
 
-\item{cid}{A single numeric specifying the clinically important
-difference (CID) / decision threshold used to calculate probabilities
-of clinically important benefit or harm (see \code{\link{cidprob}}).}
+\item{cid}{A numeric value or vector specifying clinically important
+differences (CID) / decision thresholds used to calculate expected
+proportions of clinically important benefit or harm
+(see \code{\link{cidprop}}).}
 
 \item{cid.below.null}{A single numeric defining the decision threshold below
 the null effect to distinguish clinically important from not important
-effects (see \code{\link{cidprob}}).}
+effects (see \code{\link{cidprop}}).}
 
 \item{cid.above.null}{A single numeric defining the decision threshold above
 the null effect to distinguish clinically important from not important
-effects (see \code{\link{cidprob}}).}
+effects (see \code{\link{cidprop}}).}
 
 \item{small.values}{A character string specifying whether small
 treatment effects indicate a beneficial (\code{"desirable"}) or
 harmful (\code{"undesirable"}) effect, can be abbreviated
-(see \code{\link{cidprob}}).}
+(see \code{\link{cidprop}}).}
 
 \item{\dots}{Additional arguments (ignored).}
 }
@@ -142,7 +143,7 @@ Newbury Park, CA: Russell Sage Foundation
 }
 \seealso{
 \code{\link{forest.metainf}}, \code{\link{print.metainf}},
-  \code{\link{cidprob}}
+  \code{\link{cidprop}}
 }
 \author{
 Guido Schwarzer \email{guido.schwarzer@uniklinik-freiburg.de}

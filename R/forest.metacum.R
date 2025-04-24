@@ -200,12 +200,12 @@ forest.metacum <- function(x,
   #
   chklogical(details)
   
-  avail.prob.cid.below.null <-
-    !is.null(x$prob.cid.below.null) && !(all(is.na(x$prob.cid.below.null)))
-  avail.prob.cid.above.null <-
-    !is.null(x$prob.cid.above.null) && !(all(is.na(x$prob.cid.above.null)))
+  avail.prop.cid.below.null <-
+    !is.null(x$prop.cid.below.null) && !(all(is.na(x$prop.cid.below.null)))
+  avail.prop.cid.above.null <-
+    !is.null(x$prop.cid.above.null) && !(all(is.na(x$prop.cid.above.null)))
   #
-  avail.prob.cid <- avail.prob.cid.below.null | avail.prob.cid.above.null
+  avail.prop.cid <- avail.prop.cid.below.null | avail.prop.cid.above.null
   #
   if (is.null(leftcols))
     leftcols <- "studlab"
@@ -216,11 +216,11 @@ forest.metacum <- function(x,
   if (is.null(rightcols)) {
     rightcols <- c("effect", "ci", "pval", "tau2", "tau", "I2")
     #
-    if (avail.prob.cid.below.null)
-      rightcols <- c(rightcols, "prob.cid.below.null")
+    if (avail.prop.cid.below.null)
+      rightcols <- c(rightcols, "prop.cid.below.null")
     #
-    if (avail.prob.cid.above.null)
-      rightcols <- c(rightcols, "prob.cid.above.null")
+    if (avail.prop.cid.above.null)
+      rightcols <- c(rightcols, "prop.cid.above.null")
   }
   #
   if (is.null(rightlabs))
@@ -230,11 +230,11 @@ forest.metacum <- function(x,
   print.tau <- any(c("tau" %in% leftcols, "tau" %in% rightcols))
   print.I2 <- any(c("I2" %in% leftcols, "I2" %in% rightcols))
   #
-  print.cid.below.null <- any(c("prob.cid.below.null" %in% leftcols,
-                           "prob.cid.below.null" %in% rightcols))
+  print.cid.below.null <- any(c("prop.cid.below.null" %in% leftcols,
+                           "prop.cid.below.null" %in% rightcols))
   #
-  print.cid.above.null <- any(c("prob.cid.above.null" %in% leftcols,
-                           "prob.cid.above.null" %in% rightcols))
+  print.cid.above.null <- any(c("prop.cid.above.null" %in% leftcols,
+                           "prop.cid.above.null" %in% rightcols))
   #
   pval <- formatPT(x$pval, digits = digits.pval, lab.NA = lab.NA)
   tau2 <- formatPT(x$tau2, digits = digits.tau2, lab.NA = lab.NA)
@@ -243,17 +243,17 @@ forest.metacum <- function(x,
                paste0(formatPT(100 * x$I2, digits = digits.I2,
                                lab.NA = lab.NA), "%"))
   #
-  if (avail.prob.cid.below.null) {
-    x$prob.cid.below.null <-
-      ifelse(is.na(x$prob.cid.below.null), lab.NA,
-             paste0(formatPT(100 * x$prob.cid.below.null,
+  if (avail.prop.cid.below.null) {
+    x$prop.cid.below.null <-
+      ifelse(is.na(x$prop.cid.below.null), lab.NA,
+             paste0(formatPT(100 * x$prop.cid.below.null,
                              digits = digits.percent), "%"))
   }
   #
-  if (avail.prob.cid.above.null) {
-    x$prob.cid.above.null <-
-      ifelse(is.na(x$prob.cid.above.null), lab.NA,
-             paste0(formatPT(100 * x$prob.cid.above.null,
+  if (avail.prop.cid.above.null) {
+    x$prop.cid.above.null <-
+      ifelse(is.na(x$prop.cid.above.null), lab.NA,
+             paste0(formatPT(100 * x$prop.cid.above.null,
                              digits = digits.percent), "%"))
   }
   #
@@ -285,10 +285,10 @@ forest.metacum <- function(x,
             forest = TRUE)
   #
   #
-  if (avail.prob.cid)
+  if (avail.prop.cid)
     svd <- x$small.values == "desirable"
   #
-  if (avail.prob.cid.below.null) {
+  if (avail.prop.cid.below.null) {
     text.details <-
       paste0(text.details,
              paste0("\n- Lower decision threshold (",
@@ -298,7 +298,7 @@ forest.metacum <- function(x,
                             big.mark = big.mark)))
   }
   #
-  if (avail.prob.cid.above.null) {
+  if (avail.prop.cid.above.null) {
     text.details <-
       paste0(text.details,
              paste0("\n- Upper decision threshold (",
@@ -336,14 +336,14 @@ forest.metacum <- function(x,
                ncol = k.all, byrow = TRUE))
     #
     if (print.cid.below.null)
-      prob.cid.below.null <- as.vector(
-        matrix(c(x$prob.cid.below.null,
+      prop.cid.below.null <- as.vector(
+        matrix(c(x$prop.cid.below.null,
                  rep("", k.all)),
                ncol = k.all, byrow = TRUE))
     #
     if (print.cid.above.null)
-      prob.cid.above.null <- as.vector(
-        matrix(c(x$prob.cid.above.null,
+      prop.cid.above.null <- as.vector(
+        matrix(c(x$prop.cid.above.null,
                  rep("", k.all)),
                ncol = k.all, byrow = TRUE))
     #
@@ -390,10 +390,10 @@ forest.metacum <- function(x,
              ncol = k.all, byrow = TRUE))[sel.pred]
     #
     if (print.cid.below.null)
-      m$prob.cid.below.null <- prob.cid.below.null[sel.pred]
+      m$prop.cid.below.null <- prop.cid.below.null[sel.pred]
     #
     if (print.cid.above.null)
-      m$prob.cid.above.null <- prob.cid.above.null[sel.pred]
+      m$prop.cid.above.null <- prop.cid.above.null[sel.pred]
     #
     type.study <- rep(c(type, "predict"), k.all)[sel.pred]
     #
@@ -430,10 +430,10 @@ forest.metacum <- function(x,
     m$tau <- tau
     #
     if (print.cid.below.null)
-      m$prob.cid.below.null <- x$prob.cid.below.null
+      m$prop.cid.below.null <- x$prop.cid.below.null
     #
     if (print.cid.below.null)
-      m$prob.cid.above.null <- x$prob.cid.above.null
+      m$prop.cid.above.null <- x$prop.cid.above.null
     #
     type.study <- type
   }
@@ -521,7 +521,7 @@ forest.metacum <- function(x,
   # Set column labels for decision threshold probabilites
   #
   if (print.cid.below.null) {
-    sel.left <- leftcols == "prob.cid.below.null"
+    sel.left <- leftcols == "prop.cid.below.null"
     #
     if (any(sel.left) && is.na(leftlabs[sel.left]))
       leftlabs[sel.left] <-
@@ -529,7 +529,7 @@ forest.metacum <- function(x,
                if (x$small.values == "desirable") "benefit" else "harm",
                ")")
     #
-    sel.right <- rightcols == "prob.cid.below.null"
+    sel.right <- rightcols == "prop.cid.below.null"
     #
     if (any(sel.right) && is.na(rightlabs[sel.right]))
       rightlabs[sel.right] <-
@@ -539,7 +539,7 @@ forest.metacum <- function(x,
   }
   #
   if (print.cid.above.null) {
-    sel.left <- leftcols == "prob.cid.above.null"
+    sel.left <- leftcols == "prop.cid.above.null"
     #
     if (any(sel.left) && is.na(leftlabs[sel.left]))
       leftlabs[sel.left] <-
@@ -547,7 +547,7 @@ forest.metacum <- function(x,
                if (x$small.values == "desirable") "harm" else "benefit",
                ")")
     #
-    sel.right <- rightcols == "prob.cid.above.null"
+    sel.right <- rightcols == "prop.cid.above.null"
     #
     if (any(sel.right) && is.na(rightlabs[sel.right]))
       rightlabs[sel.right] <-
@@ -571,17 +571,17 @@ forest.metacum <- function(x,
                                            digits = digits.I2,
                                            lab.NA = lab.NA), "%")))
   #
-  if (avail.prob.cid.below.null) {
-    data.p$prob.cid.below.null <-
-      ifelse(is.na(x$prob.cid.below.null.pooled), lab.NA,
-             paste0(formatPT(100 * x$prob.cid.below.null.pooled,
+  if (avail.prop.cid.below.null) {
+    data.p$prop.cid.below.null <-
+      ifelse(is.na(x$prop.cid.below.null.pooled), lab.NA,
+             paste0(formatPT(100 * x$prop.cid.below.null.pooled,
                              digits = digits.percent), "%"))
   }
   #
-  if (avail.prob.cid.above.null) {
-    data.p$prob.cid.above.null <-
-      ifelse(is.na(x$prob.cid.above.null.pooled), lab.NA,
-             paste0(formatPT(100 * x$prob.cid.above.null.pooled,
+  if (avail.prop.cid.above.null) {
+    data.p$prop.cid.above.null <-
+      ifelse(is.na(x$prop.cid.above.null.pooled), lab.NA,
+             paste0(formatPT(100 * x$prop.cid.above.null.pooled,
                              digits = digits.percent), "%"))
   }
   
