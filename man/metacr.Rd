@@ -20,6 +20,7 @@ metacr(
   tau.common = FALSE,
   method.I2 = gs("method.I2"),
   level.ma = gs("level.ma"),
+  method.common.ci = "classic",
   method.random.ci = "classic",
   adhoc.hakn.ci = gs("adhoc.hakn.ci"),
   level.predict = gs("level.predict"),
@@ -106,6 +107,10 @@ used to estimate the heterogeneity statistic I\eqn{^2}. Either
 
 \item{level.ma}{The level used to calculate confidence intervals
 for meta-analysis estimates.}
+
+\item{method.common.ci}{A character string indicating which method
+is used to calculate confidence interval and test statistic for
+common effect estimate (see \code{\link{meta-package}}).}
 
 \item{method.random.ci}{A character string indicating which method
 is used to calculate confidence interval and test statistic for

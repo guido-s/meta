@@ -30,6 +30,7 @@ gm <- function(x, digits = 4, debug = FALSE) {
               method.tau, method.tau.ci,
               tau = round(tau, digits), tau.preset,
               method.I2,
+              method.common.ci,
               method.random.ci,
               df.random = replaceNULL(df.random),
               adhoc.hakn.ci,
@@ -111,6 +112,7 @@ gm <- function(x, digits = 4, debug = FALSE) {
               tau = round(tau.pooled, digits),
               tau.preset = replaceNULL(tau.preset),
               method.I2 = method.I2,
+              method.common.ci = method.common.ci,
               method.random.ci = method.random.ci,
               df.random = label.df.random,
               Q.Cochrane = replaceNULL(x$Q.Cochrane, FALSE),
@@ -141,6 +143,8 @@ gm <- function(x, digits = 4, debug = FALSE) {
     ##
     x$method <- expandvar(x$method, n.com, 1)
     ##
+    x$method.common.ci <- expandvar(x$method.common.ci, n.com, 1)
+    #
     x$method.random <- expandvar(x$method.random, n.ran, 1)
     x$method.random.ci <- expandvar(x$method.random.ci, n.ran, 1)
     x$method.tau <- expandvar(x$method.tau, n.ran, 1)
@@ -172,6 +176,7 @@ gm <- function(x, digits = 4, debug = FALSE) {
                     #
                     method.I2 = x$method.I2,
                     #
+                    method.common.ci = c(method.common.ci, rep("", n.ran)),
                     method.random.ci = c(rep("", n.com), method.random.ci),
                     df.random = c(rep(NA, n.com), unlist(df.random)),
                     adhoc.hakn.ci = c(rep("", n.com), adhoc.hakn.ci),

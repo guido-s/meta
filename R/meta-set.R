@@ -8,7 +8,8 @@
 setchar <- function(x, val, text, list = FALSE, name = NULL,
                     stop.at.error = TRUE, addtext = "",
                     return.NULL = TRUE, nchar.equal = FALSE,
-                    setNA = FALSE, pre = "") {
+                    setNA = FALSE, pre = "",
+                    unique = FALSE) {
   val <- unique(val)
   ##
   if (is.null(name))
@@ -85,7 +86,10 @@ setchar <- function(x, val, text, list = FALSE, name = NULL,
   ##
   if (nchar.equal && nchar(res) != nchar(x))
     res <- x
-  ##
+  #
+  if (unique)
+    res <- unique(res)
+  #
   res
 }
 

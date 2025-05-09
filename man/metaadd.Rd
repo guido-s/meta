@@ -17,6 +17,7 @@ metaadd(
   method.common = "",
   method.random = "",
   method.tau = "",
+  method.common.ci = "",
   method.random.ci = "",
   method.predict = "",
   transf = gs("transf")
@@ -54,6 +55,10 @@ random effects method(s).}
 
 \item{method.tau}{A character string or vector to describe the
 estimator(s) of the between-study variance.}
+
+\item{method.common.ci}{A character string or vector to describe
+the method(s) to calculate confidence intervals under the common
+effect model.}
 
 \item{method.random.ci}{A character string or vector to describe
 the method(s) to calculate confidence intervals under the random

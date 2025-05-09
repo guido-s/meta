@@ -37,6 +37,9 @@
 #'   meta-analysis should be conducted.
 #' @param random A logical indicating whether a random effects
 #'   meta-analysis should be conducted.
+#' @param method.common.ci A character string indicating which method
+#'   is used to calculate confidence interval and test statistic for
+#'   common effect estimate (see \code{\link{meta-package}}).
 #' @param method.random.ci A character string indicating which method
 #'   is used to calculate confidence interval and test statistic for
 #'   random effects estimate (see \code{\link{meta-package}}).
@@ -540,6 +543,7 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
     m <- metagen(-TE, seTE, studlab = studlab, level = x$level,
                  ##
                  level.ma = x$level.ma,
+                 method.common.ci = x$method.common.ci,
                  method.random.ci = x$method.random.ci,
                  adhoc.hakn.ci = x$adhoc.hakn.ci,
                  ##
@@ -558,6 +562,7 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
     m <- metagen(TE, seTE, studlab = studlab, level = x$level,
                  ##
                  level.ma = x$level.ma,
+                 method.common.ci = x$method.common.ci,
                  method.random.ci = x$method.random.ci,
                  adhoc.hakn.ci = x$adhoc.hakn.ci,
                  ##
@@ -607,6 +612,7 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
                    exclude = exclude, level = x$level,
                    ##
                    level.ma = x$level.ma,
+                   method.common.ci = x$method.common.ci,
                    method.random.ci = x$method.random.ci,
                    adhoc.hakn.ci = x$adhoc.hakn.ci,
                    ##
@@ -627,6 +633,7 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
                    exclude = exclude, level = x$level,
                    ##
                    level.ma = x$level.ma,
+                   method.common.ci = x$method.common.ci,
                    method.random.ci = x$method.random.ci,
                    adhoc.hakn.ci = x$adhoc.hakn.ci,
                    ##
@@ -688,6 +695,7 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
               TE.random = m$TE.random, seTE.random = m$seTE.random,
               statistic.random = m$statistic.random,
               pval.random = m$pval.random,
+              method.common.ci = x$method.common.ci,
               method.random.ci = x$method.random.ci,
               df.random = m$df.random,
               lower.random = m$lower.random, upper.random = m$upper.random,
@@ -819,6 +827,7 @@ trimfill.default <- function(x, seTE, left = NULL, ma.common = TRUE,
                              level = 0.95, level.ma = level,
                              common = FALSE, random = TRUE,
                              ##
+                             method.common.ci = gs("method.common.ci"),
                              method.random.ci = gs("method.random.ci"),
                              adhoc.hakn.ci = gs("adhoc.hakn.ci"),
                              ##
@@ -869,6 +878,7 @@ trimfill.default <- function(x, seTE, left = NULL, ma.common = TRUE,
                level = level, level.ma = level.ma,
                common = common, random = random,
                ##
+               method.common.ci = method.common.ci,
                method.random.ci = method.random.ci,
                adhoc.hakn.ci = adhoc.hakn.ci,
                ##

@@ -30,6 +30,7 @@
 #' \item \code{settings.meta("IQWiG5")}
 #' \item \code{settings.meta("IQWiG6")}
 #' \item \code{settings.meta("geneexpr")}
+#' \item \code{settings.meta("IVhet")}
 #' \item \code{settings.meta("meta4")}
 #' \item \code{settings.meta("meta7")}
 #' }
@@ -53,6 +54,9 @@
 #' The setting \code{"geneexpr"} can be used to print p-values in
 #' scientific notation and to suppress the calculation of confidence
 #' intervals for the between-study variance.
+#'
+#' The setting \code{"IVhet"} can be used for the inverse variance
+#' heterogeneity model (Doi et al., 2015).
 #'
 #' The last settings use the default settings of R package
 #' \bold{meta}, version 4 and 7.0-0, respectively, or below.
@@ -208,6 +212,14 @@
 #'   no confidence interval for between-study \cr
 #'  \tab \tab heterogeneity variance \cr
 #' }
+#'
+#' IVhet settings:
+#' \tabular{lll}{
+#' \bold{Argument} \tab \bold{Value} \tab \bold{Comment} \cr
+#' \code{method.common.ci} \tab "IVhet" \tab inverse variance heterogeneity \cr
+#' \code{text.common} \tab "IVhet model" \tab  \cr
+#' \code{text.w.common} \tab "IVhet" \tab  \cr
+#' }
 #' 
 #' Settings for \bold{meta}, version 4 or below:
 #' \tabular{lll}{
@@ -255,6 +267,12 @@
 #'   \code{\link{print.meta}}, \code{\link{labels.meta}}
 #'
 #' @references
+#' Doi SAR, Barendregt JJ, Khan S, Thalib L, Williams GM (2015):
+#' Advances in the meta-analysis of heterogeneous clinical trials I:
+#' The inverse variance heterogeneity model.
+#' \emph{Contemporary Clinical Trials},
+#' \bold{45}, 130--8
+#' 
 #' White IR, Thomas J (2005):
 #' Standardized mean differences in individually-randomized and
 #' cluster-randomized trials, with applications to meta-analysis.
@@ -367,7 +385,9 @@ settings.meta <- function(..., quietly = TRUE) {
   ## Set internal variables
   ##
   settings <- c("BMJ", "JAMA", "RevMan5", 
-                "IQWiG5", "IQWiG6", "geneexpr", "meta4", "meta7")
+                "IQWiG5", "IQWiG6",
+                "geneexpr", "IVhet",
+                "meta4", "meta7")
   layouts <- c(settings[1:2], "meta")
   ##
   print.settings <- FALSE
@@ -534,6 +554,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("common", TRUE)
     setOption("fixed", TRUE)
     setOption("comb.fixed", TRUE)
+    setOption("method.common.ci", "classic")
     setOption("random", TRUE)
     setOption("comb.random", TRUE)
     setOption("method.random.ci", "classic")
@@ -1057,6 +1078,17 @@ settings.meta <- function(..., quietly = TRUE) {
                        setting = "Settings for gene expression data",
                        quietly = quietly)
     }
+    #
+    else if (setting == "IVhet") {
+      specificSettings(args = c("method.common.ci",
+                                "text.common", "text.w.common"),
+                       new =
+                         list(replaceNULL(args[["method.common.ci"]], "IVhet"),
+                              replaceNULL(args[["text.common"]], "IVhet model"),
+                              replaceNULL(args[["text.w.common"]], "IVhet")),
+                       setting = "Settings for IVhet model",
+                       quietly = quietly)
+    }
   }
   
   
@@ -1072,6 +1104,7 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("level              ")
     catarg("level.ma           ")
     catarg("common             ")
+    catarg("method.common.ci   ")
     catarg("random             ")
     catarg("method.random.ci   ")
     catarg("adhoc.hakn.ci      ")
@@ -1361,6 +1394,8 @@ settings.meta <- function(..., quietly = TRUE) {
     setOptionDepr(args, "common", "fixed", setlogical)
     #
     setOptionDepr(args, "random", "comb.random", setlogical)
+    #
+    setcharacter("method.common.ci", args, gs("meth4common.ci"))
     #
     na <- is.na(setcharacter("method.random.ci", args, gs("meth4random.ci")))
     depr <- setlogical("hakn", args)

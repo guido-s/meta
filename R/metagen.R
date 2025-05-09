@@ -72,6 +72,9 @@
 #'   (see \code{\link{meta-package}}).
 #' @param level.ma The level used to calculate confidence intervals
 #'   for meta-analysis estimates.
+#' @param method.common.ci A character string indicating which method
+#'   is used to calculate confidence interval and test statistic for
+#'   common effect estimate (see \code{\link{meta-package}}).
 #' @param method.random.ci A character string indicating which method
 #'   is used to calculate confidence interval and test statistic for
 #'   random effects estimate (see \code{\link{meta-package}}).
@@ -687,6 +690,7 @@ metagen <- function(TE, seTE, studlab,
                     method.I2 = gs("method.I2"),
                     #
                     level.ma = gs("level.ma"),
+                    method.common.ci = gs("method.common.ci"),
                     method.random.ci = gs("method.random.ci"),
                     adhoc.hakn.ci = gs("adhoc.hakn.ci"),
                     ##
@@ -802,6 +806,11 @@ metagen <- function(TE, seTE, studlab,
                          value = method.sd)
   ##
   chklevel(level)
+  #
+  if (length(method.common.ci) != 1)
+    stop("Argument 'method.common.ci' must be of length 1.",
+         call. = FALSE)
+  method.common.ci <- setchar(method.common.ci, gs("meth4common.ci"))
   #
   method.tau <- setchar(method.tau, gs("meth4tau"))
   #
@@ -2121,7 +2130,16 @@ metagen <- function(TE, seTE, studlab,
       w.common[is.na(w.common) | is.na(TE) | exclude] <- 0
       ##
       TE.common   <- weighted.mean(TE, w.common, na.rm = TRUE)
-      seTE.common <- sqrt(1 / sum(w.common, na.rm = TRUE))
+      #
+      if (method.common.ci == "classic") {
+        seTE.common <- sqrt(1 / sum(w.common, na.rm = TRUE))
+      }
+      else if (method.common.ci == "IVhet") {
+        seTE.common <-
+          sqrt(sum((w.common / (sum(w.common)))^2 * (seTE^2 + tau2.calc)))
+      }
+      else
+        seTE.common <- NA
       ##
       ci.c <- ci(TE.common, seTE.common, level = level.ma,
                  null.effect = null.effect)
@@ -2617,6 +2635,7 @@ metagen <- function(TE, seTE, studlab,
               statistic.common = statistic.common,
               pval.common = pval.common,
               level.ma = level.ma,
+              method.common.ci = method.common.ci,
               lower.common = lower.common,
               upper.common = upper.common,
               ##

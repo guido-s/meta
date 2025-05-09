@@ -358,6 +358,7 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
                    tau.preset = x$tau.preset, TE.tau = x$TE.tau,
                    ##
                    level.ma = x$level.ma,
+                   method.common.ci = x$method.common.ci,
                    method.random.ci = x$method.random.ci,
                    adhoc.hakn.ci = x$adhoc.hakn.ci,
                    #
@@ -383,6 +384,7 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
                     tau.preset = x$tau.preset, TE.tau = x$TE.tau,
                     ##
                     level.ma = x$level.ma,
+                    method.common.ci = x$method.common.ci,
                     method.random.ci = x$method.random.ci,
                     adhoc.hakn.ci = x$adhoc.hakn.ci,
                     #
@@ -406,6 +408,7 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
                    tau.preset = x$tau.preset, TE.tau = x$TE.tau,
                    ##
                    level.ma = x$level.ma,
+                   method.common.ci = x$method.common.ci,
                    method.random.ci = x$method.random.ci,
                    adhoc.hakn.ci = x$adhoc.hakn.ci,
                    #
@@ -428,6 +431,7 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
                    tau.preset = x$tau.preset, TE.tau = x$TE.tau,
                    ##
                    level.ma = x$level.ma,
+                   method.common.ci = x$method.common.ci,
                    method.random.ci = x$method.random.ci,
                    adhoc.hakn.ci = x$adhoc.hakn.ci,
                    #
@@ -456,6 +460,7 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
                    tau.preset = x$tau.preset, TE.tau = x$TE.tau,
                    ##
                    level.ma = x$level.ma,
+                   method.common.ci = x$method.common.ci,
                    method.random.ci = x$method.random.ci,
                    adhoc.hakn.ci = x$adhoc.hakn.ci,
                    #
@@ -479,6 +484,7 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
                     tau.preset = x$tau.preset, TE.tau = x$TE.tau,
                     ##
                     level.ma = x$level.ma,
+                    method.common.ci = x$method.common.ci,
                     method.random.ci = x$method.random.ci,
                     adhoc.hakn.ci = x$adhoc.hakn.ci,
                     #
@@ -505,6 +511,7 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
                     tau.preset = x$tau.preset, TE.tau = x$TE.tau,
                     ##
                     level.ma = x$level.ma,
+                    method.common.ci = x$method.common.ci,
                     method.random.ci = x$method.random.ci,
                     adhoc.hakn.ci = x$adhoc.hakn.ci,
                     #
@@ -530,6 +537,7 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
                     tau.preset = x$tau.preset, TE.tau = x$TE.tau,
                     ##
                     level.ma = x$level.ma,
+                    method.common.ci = x$method.common.ci,
                     method.random.ci = x$method.random.ci,
                     adhoc.hakn.ci = x$adhoc.hakn.ci,
                     #
@@ -842,6 +850,7 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
               method = x$method,
               method.random = x$method.random,
               #
+              method.common.ci = x$method.common.ci,
               method.random.ci = x$method.random.ci,
               adhoc.hakn.ci = x$adhoc.hakn.ci,
               #

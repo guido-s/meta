@@ -39,6 +39,9 @@
 #'   (see \code{\link{meta-package}}).
 #' @param level.ma The level used to calculate confidence intervals
 #'   for meta-analysis estimates.
+#' @param method.common.ci A character string indicating which method
+#'   is used to calculate confidence interval and test statistic for
+#'   common effect estimate (see \code{\link{meta-package}}).
 #' @param method.random.ci A character string indicating which method
 #'   is used to calculate confidence interval and test statistic for
 #'   random effects estimate (see \code{\link{meta-package}}).
@@ -203,6 +206,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                    method.I2 = gs("method.I2"),
                    #
                    level.ma = gs("level.ma"),
+                   method.common.ci = "classic",
                    method.random.ci = "classic",
                    adhoc.hakn.ci = gs("adhoc.hakn.ci"),
                    ##
@@ -308,7 +312,9 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
   ##
   chklevel(level)
   chklevel(level.ma)
-  ##
+  #
+  method.common.ci <- setchar(method.common.ci, gs("meth4common.ci"))
+  #
   method.tau <- setchar(method.tau, gs("meth4tau"))
   if (is.null(method.tau.ci))
     method.tau.ci <- if (method.tau == "DL") "J" else "QP"
@@ -533,6 +539,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       method.I2 = method.I2,
                       #
                       level.ma = level.ma,
+                      method.common.ci = method.common.ci,
                       method.random.ci = method.random.ci,
                       adhoc.hakn.ci = adhoc.hakn.ci,
                       ##
@@ -584,6 +591,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       method.I2 = method.I2,
                       #
                       level.ma = level.ma,
+                      method.common.ci = method.common.ci,
                       method.random.ci = method.random.ci,
                       adhoc.hakn.ci = adhoc.hakn.ci,
                       ##
@@ -637,6 +645,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                      method.I2 = method.I2,
                      #
                      level.ma = level.ma,
+                     method.common.ci = method.common.ci,
                      method.random.ci = method.random.ci,
                      adhoc.hakn.ci = adhoc.hakn.ci,
                      ##
@@ -684,6 +693,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     method.I2 = method.I2,
                     #
                     level.ma = level.ma,
+                    method.common.ci = method.common.ci,
                     method.random.ci = method.random.ci,
                     adhoc.hakn.ci = adhoc.hakn.ci,
                     ##
@@ -733,6 +743,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     method.I2 = method.I2,
                     #
                     level.ma = level.ma,
+                    method.common.ci = method.common.ci,
                     method.random.ci = method.random.ci,
                     adhoc.hakn.ci = adhoc.hakn.ci,
                     ##
@@ -785,6 +796,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     method.I2 = method.I2,
                     #
                     level.ma = level.ma,
+                    method.common.ci = method.common.ci,
                     method.random.ci = method.random.ci,
                     adhoc.hakn.ci = adhoc.hakn.ci,
                     ##
@@ -843,6 +855,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       method.I2 = method.I2,
                       #
                       level.ma = level.ma,
+                      method.common.ci = method.common.ci,
                       method.random.ci = method.random.ci,
                       adhoc.hakn.ci = adhoc.hakn.ci,
                       ##
@@ -887,6 +900,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                       method.I2 = method.I2,
                       #
                       level.ma = level.ma,
+                      method.common.ci = method.common.ci,
                       method.random.ci = method.random.ci,
                       adhoc.hakn.ci = adhoc.hakn.ci,
                       ##
@@ -932,6 +946,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                      method.I2 = method.I2,
                      #
                      level.ma = level.ma,
+                     method.common.ci = method.common.ci,
                      method.random.ci = method.random.ci,
                      adhoc.hakn.ci = adhoc.hakn.ci,
                      ##
@@ -972,6 +987,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     method.I2 = method.I2,
                     #
                     level.ma = level.ma,
+                    method.common.ci = method.common.ci,
                     method.random.ci = method.random.ci,
                     adhoc.hakn.ci = adhoc.hakn.ci,
                     ##
@@ -1014,6 +1030,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     method.I2 = method.I2,
                     #
                     level.ma = level.ma,
+                    method.common.ci = method.common.ci,
                     method.random.ci = method.random.ci,
                     adhoc.hakn.ci = adhoc.hakn.ci,
                     ##
@@ -1059,6 +1076,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
                     method.I2 = method.I2,
                     #
                     level.ma = level.ma,
+                    method.common.ci = method.common.ci,
                     method.random.ci = method.random.ci,
                     adhoc.hakn.ci = adhoc.hakn.ci,
                     ##

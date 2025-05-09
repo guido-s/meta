@@ -98,6 +98,9 @@
 #'   (see \code{\link{meta-package}}).
 #' @param level.ma The level used to calculate confidence intervals
 #'   for meta-analysis estimates.
+#' @param method.common.ci A character string indicating which method
+#'   is used to calculate confidence interval and test statistic for
+#'   common effect estimate (see \code{\link{meta-package}}).
 #' @param method.random.ci A character string indicating which method
 #'   is used to calculate confidence interval and test statistic for
 #'   random effects estimate (see \code{\link{meta-package}}).
@@ -610,6 +613,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                      method.I2 = gs("method.I2"),
                      #
                      level.ma = gs("level.ma"),
+                     method.common.ci = gs("method.common.ci"),
                      method.random.ci = gs("method.random.ci"),
                      adhoc.hakn.ci = gs("adhoc.hakn.ci"),
                      ##
@@ -723,7 +727,9 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   chknull(sm)
   sm <- setchar(sm, gs("sm4cont"))
   chklevel(level)
-  ##
+  #
+  method.common.ci <- setchar(method.common.ci, gs("meth4common.ci"))
+  #
   method.tau <- setchar(method.tau, gs("meth4tau"))
   ##
   tau.common <- replaceNULL(tau.common, FALSE)
@@ -734,13 +740,12 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   chklogical(prediction)
   chklevel(level.predict)
   ##
-  ##
   method.tau <-
     set_method_tau(method.tau, missing.method.tau,
-                 method.predict, missing.method.predict)
+                   method.predict, missing.method.predict)
   method.predict <-
     set_method_predict(method.predict, missing.method.predict,
-                     method.tau, missing.method.tau)
+                       method.tau, missing.method.tau)
   ##
   if (any(method.predict == "NNF"))
     is_installed_package("pimeta", argument = "method.predict", value = "NNF")
@@ -1940,6 +1945,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                method.I2 = method.I2,
                #
                level.ma = level.ma,
+               method.common.ci = method.common.ci,
                method.random.ci = method.random.ci,
                adhoc.hakn.ci = adhoc.hakn.ci,
                ##

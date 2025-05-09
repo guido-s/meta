@@ -68,7 +68,7 @@ specificSettings <- function(args, new, setting, quietly = FALSE) {
     if (!quietly) {
       if (substring(setting, 1, 1) == "s")
         setting <- paste0("S", substring(setting, 2))
-      cat(paste0("\n** ", setting, " already in used (R package meta). **\n\n"))
+      cat(paste0("\n** ", setting, " already in use (R package meta). **\n\n"))
     } 
   }
 }

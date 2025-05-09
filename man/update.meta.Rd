@@ -31,6 +31,7 @@
   random = object$random,
   overall = object$overall,
   overall.hetstat = object$overall.hetstat,
+  method.common.ci = object$method.common.ci,
   method.random.ci = object$method.random.ci,
   adhoc.hakn.ci = object$adhoc.hakn.ci,
   method.predict = object$method.predict,
@@ -199,6 +200,10 @@ heterogeneity measures for overall treatment comparisons. This
 argument is useful in a meta-analysis with subgroups if
 heterogeneity statistics should only be printed on subgroup
 level.}
+
+\item{method.common.ci}{A character string indicating which method
+is used to calculate confidence interval and test statistic for
+common effect estimate (see \code{\link{meta-package}}).}
 
 \item{method.random.ci}{A character string indicating which method
 is used to calculate confidence interval and test statistic for

@@ -38,6 +38,7 @@ Examples) or use one of the following general settings:
 \item \code{settings.meta("IQWiG5")}
 \item \code{settings.meta("IQWiG6")}
 \item \code{settings.meta("geneexpr")}
+\item \code{settings.meta("IVhet")}
 \item \code{settings.meta("meta4")}
 \item \code{settings.meta("meta7")}
 }
@@ -61,6 +62,9 @@ accordinging to General Methods 5 and 6, respectively
 The setting \code{"geneexpr"} can be used to print p-values in
 scientific notation and to suppress the calculation of confidence
 intervals for the between-study variance.
+
+The setting \code{"IVhet"} can be used for the inverse variance
+heterogeneity model (Doi et al., 2015).
 
 The last settings use the default settings of R package
 \bold{meta}, version 4 and 7.0-0, respectively, or below.
@@ -217,6 +221,14 @@ Settings for gene expression data:
  \tab \tab heterogeneity variance \cr
 }
 
+IVhet settings:
+\tabular{lll}{
+\bold{Argument} \tab \bold{Value} \tab \bold{Comment} \cr
+\code{method.common.ci} \tab "IVhet" \tab inverse variance heterogeneity \cr
+\code{text.common} \tab "IVhet model" \tab  \cr
+\code{text.w.common} \tab "IVhet" \tab  \cr
+}
+
 Settings for \bold{meta}, version 4 or below:
 \tabular{lll}{
 \bold{Argument} \tab \bold{Value} \tab \bold{Comment} \cr
@@ -342,6 +354,12 @@ settings.meta(oldset)
 
 }
 \references{
+Doi SAR, Barendregt JJ, Khan S, Thalib L, Williams GM (2015):
+Advances in the meta-analysis of heterogeneous clinical trials I:
+The inverse variance heterogeneity model.
+\emph{Contemporary Clinical Trials},
+\bold{45}, 130--8
+
 White IR, Thomas J (2005):
 Standardized mean differences in individually-randomized and
 cluster-randomized trials, with applications to meta-analysis.

@@ -58,6 +58,8 @@ provides the following statistical methods for meta-analysis.
 \item Kenward-Roger method for random effects meta-analysis
  (Partlett and Riley, 2017), see description of arguments
  \code{method.random.ci} and \code{method.predict} below
+\item Inverse variance heterogeneity method (Doi et al., 2015),
+ see description of argument \code{method.common.ci} below
 \item Prediction interval for the treatment effect of a new study
  (Veroniki et al., 2019; Higgins et al., 2009; Partlett and Riley, 2017;
  Nagashima et al., 2019), see description of argument \code{method.predict}
@@ -177,6 +179,21 @@ the Q statistic are in agreement. R package \bold{metafor} uses the second
 method (\code{method.I2 = "tau2"}) which is described in Higgins and Thompson
 (2002), section 3.2. This method is more general in the way that the value
 of I\eqn{^2} changes with the estimate of \eqn{\tau^2}.
+}
+
+\subsection{Confidence interval for common effect estimate}{
+
+The following methods are available in all meta-analysis functions
+to calculate a confidence interval for the common effect estimate.
+\tabular{ll}{
+\bold{Argument} \tab \bold{Method} \cr
+\code{method.common.ci = "classic"} \tab Based on standard normal
+  quantile \cr
+\code{method.common.ci = "IVhet"} \tab Method by Doi et al. (2015) \cr
+}
+
+The inverse variance heterogeneity method by Doi et al. (2015) is only
+available if argument \code{method = "Inverse"}.
 }
 
 \subsection{Confidence interval for random effects estimate}{
@@ -496,6 +513,12 @@ DerSimonian R & Laird N (1986):
 Meta-analysis in clinical trials.
 \emph{Controlled Clinical Trials},
 \bold{7}, 177--88
+
+Doi SAR, Barendregt JJ, Khan S, Thalib L, Williams GM (2015):
+Advances in the meta-analysis of heterogeneous clinical trials I:
+The inverse variance heterogeneity model.
+\emph{Contemporary Clinical Trials},
+\bold{45}, 130--8
 
 Evrenoglou T, White IR, Afach S, Mavridis D, Chaimani A. (2022):
 Network meta-analysis of rare events using penalized likelihood regression.

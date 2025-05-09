@@ -59,6 +59,9 @@
 #'   (see \code{\link{meta-package}}).
 #' @param level.ma The level used to calculate confidence intervals
 #'   for meta-analysis estimates.
+#' @param method.common.ci A character string indicating which method
+#'   is used to calculate confidence interval and test statistic for
+#'   common effect estimate (see \code{\link{meta-package}}).
 #' @param method.random.ci A character string indicating which method
 #'   is used to calculate confidence interval and test statistic for
 #'   random effects estimate (see \code{\link{meta-package}}).
@@ -285,6 +288,7 @@ metacor <- function(cor, n, studlab,
                     method.I2 = gs("method.I2"),
                     #
                     level.ma = gs("level.ma"),
+                    method.common.ci = gs("method.common.ci"),
                     method.random.ci = gs("method.random.ci"),
                     adhoc.hakn.ci = gs("adhoc.hakn.ci"),
                     ##
@@ -338,7 +342,9 @@ metacor <- function(cor, n, studlab,
   ##
   chknull(sm)
   chklevel(level)
-  ##
+  #
+  method.common.ci <- setchar(method.common.ci, gs("meth4common.ci"))
+  #
   missing.method.tau <- missing(method.tau)
   method.tau <- setchar(method.tau, gs("meth4tau"))
   ##
@@ -705,6 +711,7 @@ metacor <- function(cor, n, studlab,
                method.I2 = method.I2,
                #
                level.ma = level.ma,
+               method.common.ci = method.common.ci,
                method.random.ci = method.random.ci,
                adhoc.hakn.ci = adhoc.hakn.ci,
                ##

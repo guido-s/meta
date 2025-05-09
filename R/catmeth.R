@@ -288,9 +288,21 @@ catmeth <- function(x,
   }
   
   
+  #
+  #
+  # (6) Confidence interval of common effect estimate
+  #
+  #
+  
+  if (common &
+      any(meth$model == "common" & meth$method.common.ci == "IVhet"))
+    details <- paste0(details,
+                      "\n- Inverse variance heterogeneity model")
+  
+  
   ##
   ##
-  ## (6) Confidence interval of random effects estimate
+  ## (7) Confidence interval of random effects estimate
   ##
   ##
 
@@ -373,7 +385,7 @@ catmeth <- function(x,
   
   ##
   ##
-  ## (7) Prediction interval
+  ## (8) Prediction interval
   ##
   ##
 
@@ -513,7 +525,7 @@ catmeth <- function(x,
   
   ##
   ##
-  ## (8) Trim-and-fill method
+  ## (9) Trim-and-fill method
   ##
   ##
 
@@ -536,7 +548,7 @@ catmeth <- function(x,
   
   ##
   ##
-  ## (9) metamiss
+  ## (10) R function metamiss()
   ##
   ##
 
@@ -578,7 +590,7 @@ catmeth <- function(x,
   
   ##
   ##
-  ## (10) Information on effect measure
+  ## (11) Information on effect measure
   ##
   ##
   
@@ -659,7 +671,7 @@ catmeth <- function(x,
   
   ##
   ##
-  ## (11) Information on confidence interval for individual studies
+  ## (12) Information on confidence interval for individual studies
   ##
   ##
   
@@ -705,7 +717,7 @@ catmeth <- function(x,
   
   ##
   ##
-  ## (12) Information on continuity correction
+  ## (13) Information on continuity correction
   ##
   ##
   
@@ -835,7 +847,7 @@ catmeth <- function(x,
   
   ##
   ##
-  ## (13) Information on number of events and null hypothesis
+  ## (14) Information on number of events and null hypothesis
   ##
   ##
   

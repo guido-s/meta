@@ -1,3 +1,15 @@
+## meta, version 8.2-0 (2025-mm-dd)
+
+### Major changes
+
+* Inverse variance heterogeneity (IVhet) method by
+  ([Doi et al. (2015)](https://doi.org/10.1016/j.cct.2015.05.009))  added
+
+### User-visible changes
+
+* New argument 'method.common.ci' to choose IVhet method
+
+
 ## meta, version 8.1-0 (2025-05-02)
 
 ### Major changes

@@ -108,6 +108,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                        model.glmm = x$model.glmm,
                        ##
                        level.ma = x$level.ma,
+                       method.common.ci = x$method.common.ci,
                        method.random.ci = x$method.random.ci,
                        adhoc.hakn.ci = x$adhoc.hakn.ci,
                        ##
@@ -167,6 +168,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                         exact.smd = x$exact.smd,
                         ##
                         level.ma = x$level.ma,
+                        method.common.ci = x$method.common.ci,
                         method.random.ci = x$method.random.ci,
                         adhoc.hakn.ci = x$adhoc.hakn.ci,
                         ##
@@ -196,6 +198,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                        sm = x$sm,
                        ##
                        level.ma = x$level.ma,
+                       method.common.ci = x$method.common.ci,
                        method.random.ci = x$method.random.ci,
                        adhoc.hakn.ci = x$adhoc.hakn.ci,
                        ##
@@ -226,6 +229,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                        sm = x$sm,
                        ##
                        level.ma = x$level.ma,
+                       method.common.ci = x$method.common.ci,
                        method.random.ci = x$method.random.ci,
                        adhoc.hakn.ci = x$adhoc.hakn.ci,
                        ##
@@ -280,6 +284,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                        model.glmm = x$model.glmm,
                        ##
                        level.ma = x$level.ma,
+                       method.common.ci = x$method.common.ci,
                        method.random.ci = x$method.random.ci,
                        adhoc.hakn.ci = x$adhoc.hakn.ci,
                        ##
@@ -321,6 +326,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                         sm = x$sm,
                         ##
                         level.ma = x$level.ma,
+                        method.common.ci = x$method.common.ci,
                         method.random.ci = x$method.random.ci,
                         adhoc.hakn.ci = x$adhoc.hakn.ci,
                         ##
@@ -355,6 +361,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                         method.incr = x$method.incr,
                         ##
                         level.ma = x$level.ma,
+                        method.common.ci = x$method.common.ci,
                         method.random.ci = x$method.random.ci,
                         adhoc.hakn.ci = x$adhoc.hakn.ci,
                         ##
@@ -389,6 +396,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                         method.incr = x$method.incr,
                         ##
                         level.ma = x$level.ma,
+                        method.common.ci = x$method.common.ci,
                         method.random.ci = x$method.random.ci,
                         adhoc.hakn.ci = x$adhoc.hakn.ci,
                         ##

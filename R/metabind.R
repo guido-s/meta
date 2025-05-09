@@ -370,6 +370,7 @@ metabind <- function(..., subgroup = NULL,
   ##
   meth$prediction <- any(meth$prediction)
   ##
+  meth$method.common.ci <- unique(meth$method.common.ci)
   meth$method.random.ci <- unique(meth$method.random.ci)
   meth$adhoc.hakn.ci <- unique(meth$adhoc.hakn.ci)
   meth$method.tau <- unique(meth$method.tau)
@@ -613,6 +614,7 @@ metabind <- function(..., subgroup = NULL,
   ##
   res$method <- unique(res$method)
   res$method.random <- unique(res$method.random)
+  res$method.common.ci <- unique(res$method.common.ci)
   res$method.random.ci <- unique(res$method.random.ci)
   res$three.level <- unique(res$three.level)
   res$adhoc.hakn.ci <- unique(res$adhoc.hakn.ci)

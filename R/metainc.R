@@ -81,6 +81,9 @@
 #'   (see \code{\link{meta-package}}).
 #' @param level.ma The level used to calculate confidence intervals
 #'   for meta-analysis estimates.
+#' @param method.common.ci A character string indicating which method
+#'   is used to calculate confidence interval and test statistic for
+#'   common effect estimate (see \code{\link{meta-package}}).
 #' @param method.random.ci A character string indicating which method
 #'   is used to calculate confidence interval and test statistic for
 #'   random effects estimate (see \code{\link{meta-package}}).
@@ -445,6 +448,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
                     method.I2 = gs("method.I2"),
                     #
                     level.ma = gs("level.ma"),
+                    method.common.ci = gs("method.common.ci"),
                     method.random.ci = gs("method.random.ci"),
                     adhoc.hakn.ci = gs("adhoc.hakn.ci"),
                     ##
@@ -532,6 +536,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   missing.level.ma <- missing(level.ma)
   missing.common <- missing(common)
   missing.random <- missing(random)
+  missing.method.common.ci <- missing(method.common.ci)
   missing.method.random.ci <- missing(method.random.ci)
   #
   missing.hakn <- missing(hakn)
@@ -611,7 +616,17 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   }
   ##
   method <- setchar(method, gs("meth4inc"))
-  ##
+  #
+  method.common.ci <- setchar(method.common.ci, gs("meth4common.ci"))
+  #
+  if (method != "Inverse" & method.common.ci == "IVhet") {
+    if (!missing.method.common.ci)
+      warning("Argument 'method.common.ci = \"IVhet\"' only available ",
+              "if 'method = \"Inverse\".",
+              call. = FALSE)
+    method.common.ci <- "classic"
+  }
+  #
   method.incr <- setchar(method.incr, gs("meth4incr"))
   ##
   is.glmm <- method == "GLMM"
@@ -1411,6 +1426,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
                method.I2 = method.I2,
                #
                level.ma = level.ma,
+               method.common.ci = method.common.ci,
                method.random.ci = method.random.ci,
                adhoc.hakn.ci = adhoc.hakn.ci,
                ##

@@ -573,6 +573,7 @@ argslist.internal <-
     "ci4cont", "ci4prop", "ci4rate",
     "meth4bin", "meth4inc", "meth4prop", "meth4rate",
     "meth4tau", "meth4tau.ci", "meth4i2",
+    "meth4common.ci",
     "meth4random.ci", "meth4pi",
     "adhoc4hakn.ci", "adhoc4hakn.pi",
     "meth4bias", "meth4bias.old",
@@ -607,6 +608,7 @@ setOption("meth4rate", c("Inverse", "GLMM"))
 setOption("meth4tau", c("DL", "PM", "REML", "ML", "HS", "SJ", "HE", "EB"))
 setOption("meth4tau.ci", c("QP", "BJ", "J", "PL", ""))
 setOption("meth4i2", c("Q", "tau2"))
+setOption("meth4common.ci", c("classic", "IVhet"))
 setOption("meth4random.ci", c("classic", "HK", "KR"))
 setOption("meth4pi",
           c("V", "HTS", "HK", "HK-PR", "KR", "KR-PR", "NNF", "S", ""))
@@ -633,7 +635,7 @@ setOption("minor.update", 6)
 ##
 argslist <-
   c("level", "level.ma", "common", "random",
-    "method.random.ci", "method.predict",
+    "method.common.ci", "method.random.ci", "method.predict",
     "adhoc.hakn.ci", "adhoc.hakn.pi",
     "method.tau", "method.tau.ci", "level.hetstat", "tau.common",
     "method.I2",
@@ -737,6 +739,7 @@ setOption("fixed", TRUE)
 setOption("comb.fixed", TRUE)
 setOption("random", TRUE)
 setOption("comb.random", TRUE)
+setOption("method.common.ci", "classic")
 setOption("method.random.ci", "classic")
 setOption("hakn", FALSE)
 setOption("adhoc.hakn", "")

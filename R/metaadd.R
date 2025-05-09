@@ -26,6 +26,9 @@
 #'   random effects method(s).
 #' @param method.tau A character string or vector to describe the
 #'   estimator(s) of the between-study variance.
+#' @param method.common.ci A character string or vector to describe
+#'   the method(s) to calculate confidence intervals under the common
+#'   effect model.
 #' @param method.random.ci A character string or vector to describe
 #'   the method(s) to calculate confidence intervals under the random
 #'   effects model.
@@ -97,6 +100,7 @@ metaadd <- function(x, type,
                     ##
                     method.random = "",
                     method.tau = "",
+                    method.common.ci = "",
                     method.random.ci = "",
                     ##
                     method.predict = "",
@@ -160,6 +164,8 @@ metaadd <- function(x, type,
       method.random <- data$method.random
     if (missing(method.tau))
       method.tau <- data$method.tau
+    if (missing(method.common.ci))
+      method.common.ci <- data$method.common.ci
     if (missing(method.random.ci))
       method.random.ci <- data$method.random.ci
     ##
@@ -411,6 +417,8 @@ metaadd <- function(x, type,
         c(if (res$random) res$method.random, method.random[j.r])
       res$method.tau <-
         c(if (res$random) res$method.tau, method.tau[j.r])
+      res$method.common.ci <-
+        c(if (res$common) res$method.common.ci, method.common.ci[j.r])
       res$method.random.ci <-
         c(if (res$random) res$method.random.ci, method.random.ci[j.r])
       res$df.random <-
