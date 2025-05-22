@@ -10,13 +10,19 @@
 #' @param event1 Number of events (first treatment).
 #' @param n1 Number of observations (first treatment).
 #' @param event2 Number of events (second treatment).
-#' @param n2 Number of observations (second treatment)
+#' @param n2 Number of observations (second treatment).
 #' @param mean1 Estimated mean (first treatment).
 #' @param sd1 Standard deviation (first treatment).
 #' @param mean2 Estimated mean (second treatment).
 #' @param sd2 Standard deviation (second treatment).
-#' @param time1 Person time at risk (first treatment)
-#' @param time2 Person time at risk (second treatment)
+#' @param time1 Person time at risk (first treatment).
+#' @param time2 Person time at risk (second treatment).
+#' @param agent1 Agent (first treatment).
+#' @param agent2 Agent (second treatment).
+#' @param dose1 Dose (first treatment).
+#' @param dose2 Dose (second treatment).
+#' @param sep.ag A character used as separator between agent and dose to
+#'   create treatment labels.
 #' @param data An optional data frame containing the study
 #'   information.
 #' @param studlab A vector with study labels (optional).
@@ -111,6 +117,9 @@ longarm <- function(treat1, treat2,
                     event1, n1, event2, n2,
                     mean1, sd1, mean2, sd2,
                     time1, time2,
+                    agent1, agent2,
+                    dose1, dose2,
+                    sep.ag = "*",
                     data = NULL, studlab,
                     id1 = NULL,
                     id2 = NULL,
@@ -144,7 +153,10 @@ longarm <- function(treat1, treat2,
   ##
   missing.treat1 <- missing(treat1)
   missing.treat2 <- missing(treat2)
-  ##
+  #
+  dosres <-
+    !(missing(agent1) | missing(agent2) |missing(dose1) | missing(dose2))
+  #
   treat1 <- catch("treat1", mc, data, sfsp)
   ##
   ignore <- function(miss, name, func)
@@ -244,10 +256,15 @@ longarm <- function(treat1, treat2,
     ignore(missing(sd2), "sd2", "pairwise")
     ignore(missing(time1), "time1", "pairwise")
     ignore(missing(time2), "time2", "pairwise")
+    ignore(missing(agent1), "agent1", cls)
+    ignore(missing(agent2), "agent2", cls)
+    ignore(missing(dose1), "dose1", cls)
+    ignore(missing(dose2), "dose2", cls)
     ##
     event1 <- event2 <- n1 <- n2 <-
       mean1 <- mean2 <- sd1 <- sd2 <-
-        time1 <- time2 <- NULL
+      time1 <- time2 <-
+      agent1 <- agent2 <- dose1 <- dose2 <- NULL
     ##
     if (attr(treat1, "type") == "binary") {
       event1 <- treat1$event1
@@ -282,11 +299,30 @@ longarm <- function(treat1, treat2,
     ##
     studlab <- treat1$studlab
     treat2 <- treat1$treat2
+    #
+    dosres <- !is.null(treat1$agent1) & !is.null(treat1$agent2) &
+      !is.null(treat1$dose1) & !is.null(treat1$dose2)
+    #
+    if (dosres) {
+      agent1 <- treat1$agent1
+      agent2 <- treat1$agent2
+      dose1 <- treat1$dose1
+      dose2 <- treat1$dose2
+    }
+    #
     data <- treat1
     treat1 <- treat1$treat1
     ##
     data$.treat1 <- treat1
     data$.treat2 <- treat2
+    #
+    if (dosres) {
+      data$.agent1 <- agent1
+      data$.agent2 <- agent2
+      data$.dose1 <- dose1
+      data$.dose2 <- dose2
+    }
+    #
     data$.event1 <- event1
     data$.event2 <- event2
     data$.n1 <- n1
@@ -316,7 +352,12 @@ longarm <- function(treat1, treat2,
     sd2 <- catch("sd2", mc, data, sfsp)
     time1 <- catch("time1", mc, data, sfsp)
     time2 <- catch("time2", mc, data, sfsp)
-    ##
+    #
+    agent1 <- catch("agent1", mc, data, sfsp)
+    agent2 <- catch("agent2", mc, data, sfsp)
+    dose1 <- catch("dose1", mc, data, sfsp)
+    dose2 <- catch("dose2", mc, data, sfsp)
+    #
     if (!is.null(event1))
       chknumeric(event1)
     if (!is.null(event2))
@@ -363,20 +404,35 @@ longarm <- function(treat1, treat2,
            "- n1, mean1, sd1, n2, mean2, sd2 (continuous outcome)\n  ",
            "- event1, time1, event2, time2 (incidence rates).")
     #
-    if (type == "count")
+    if (type == "count") {
       k.all <-
-      max(length(event1), length(time1), length(event2), length(time2))
-    else if (type == "binary")
+        max(length(event1), length(time1), length(event2), length(time2))
+    }
+    else if (type == "binary") {
       k.all <-
-      max(length(event1), length(n1), length(event2), length(n2))
-    else if (type == "continuous")
+        max(length(event1), length(n1), length(event2), length(n2))
+    }
+    else if (type == "continuous") {
       k.all <-
-      max(length(n1), length(mean1), length(sd1),
-          length(n2), length(mean2), length(sd2))
+        max(length(n1), length(mean1), length(sd1),
+            length(n2), length(mean2), length(sd2))
+    }
     #
     if (missing.treat1 & missing.treat2) {
-      treat1 <- rep("B", k.all)
-      treat2 <- rep("A", k.all)
+      if (dosres) {
+        treat1 <- paste(agent1, dose1, sep = sep.ag)
+        treat2 <- paste(agent2, dose2, sep = sep.ag)
+        #
+        if (length(treat1) == 1)
+          treat1 <- rep(treat1, k.all)
+        #
+        if (length(treat2) == 1)
+          treat2 <- rep(treat2, k.all)
+      }
+      else {
+        treat1 <- rep("B", k.all)
+        treat2 <- rep("A", k.all)
+      }
       #
       missing.treat2 <- FALSE
     }
@@ -387,7 +443,21 @@ longarm <- function(treat1, treat2,
       if (length(treat2) == 1)
         treat2 <- rep(treat2, k.all)
     }
-    ##
+    #
+    if (dosres && (length(agent1) == 1 | length(dose1) == 1)) {
+      if (length(agent1) == 1)
+        agent1 <- rep(agent1, k.all)
+      if (length(dose1) == 1)
+        dose1 <- rep(dose1, k.all)
+    }
+    #
+    if (dosres && (length(agent2) == 1 | length(dose2) == 1)) {
+      if (length(agent2) == 1)
+        agent2 <- rep(agent2, k.all)
+      if (length(dose2) == 1)
+        dose2<- rep(dose2, k.all)
+    }
+    #
     if (missing.treat2)
       stop("Argument 'treat2' mandatory.")
     #
@@ -399,6 +469,10 @@ longarm <- function(treat1, treat2,
       data <-
         data.frame(.studlab = studlab,
                    .treat1 = treat1, .treat2 = treat2,
+                   .agent1 = if (dosres) agent1 else NA,
+                   .dose1 = if (dosres) dose1 else NA,
+                   .agent2 = if (dosres) agent2 else NA,
+                   .dose2 = if (dosres) dose2 else NA,
                    .n1 = n1, .n2 = n2)
       data$.mean1 <- mean1
       data$.mean2 <- mean2
@@ -410,6 +484,14 @@ longarm <- function(treat1, treat2,
     else {
       data$.treat1 <- treat1
       data$.treat2 <- treat2
+      #
+      if (dosres) {
+        data$.agent1 <- agent1
+        data$.agent2 <- agent2
+        data$.dose1 <- dose1
+        data$.dose2 <- dose2
+      }
+      #
       data$.event1 <- event1
       data$.event2 <- event2
       data$.n1 <- n1
@@ -469,6 +551,7 @@ longarm <- function(treat1, treat2,
   ## (4) Create data set in long arm-based format
   ##
   ##
+  
   if (type == "binary") {
     dat.l <-
       to.long("RD",
@@ -479,7 +562,9 @@ longarm <- function(treat1, treat2,
               var.names = c(".id.m4", ".grp.m4",
                             "events", "nonevents"))
     dat.l$n <- dat.l$events + dat.l$nonevents
-    nam <- c("studlab", "treat", "n", "events", "nonevents")
+    nam <- c("studlab", "treat",
+             if (dosres) "agent", if (dosres) "dose",
+             "n", "events", "nonevents")
   }
   else if (type == "continuous") {
     dat.l <-
@@ -490,7 +575,9 @@ longarm <- function(treat1, treat2,
               data = data,
               var.names = c(".id.m4", ".grp.m4",
                             "mean", "sd", "n"))
-    nam <- c("studlab", "treat", "n", "mean", "sd")
+    nam <- c("studlab", "treat",
+             if (dosres) "agent", if (dosres) "dose",
+             "n", "mean", "sd")
   }
   else if (type == "count") {
     dat.l <-
@@ -511,10 +598,18 @@ longarm <- function(treat1, treat2,
       dat.l$n <- ifelse(dat.l$.grp.m4 == 1, dat.l$.n.e, dat.l$.n.c)
     } 
     ##
-    nam <- c("studlab", "treat", if (n.given) "n", "events", "time")
+    nam <- c("studlab", "treat",
+             if (dosres) "agent", if (dosres) "dose",
+             if (n.given) "n", "events", "time")
   }
   ##
   dat.l$treat <- if_else(dat.l$.grp.m4 == 1, dat.l$.treat1, dat.l$.treat2)
+  #
+  if (dosres) {
+    dat.l$agent <- if_else(dat.l$.grp.m4 == 1, dat.l$.agent1, dat.l$.agent2)
+    dat.l$dose <- if_else(dat.l$.grp.m4 == 1, dat.l$.dose1, dat.l$.dose2)
+  }
+  #
   if (!isCol(dat.l, "studlab") & isCol(dat.l, ".studlab"))
     dat.l$studlab <- dat.l$.studlab
   ##
@@ -564,6 +659,8 @@ longarm <- function(treat1, treat2,
     #
     nam.internal <-
       c(".studlab", ".treat1", ".treat2",
+        #
+        if (dosres) c(".agent1", ".agent2", ".dose1", ".dose2"),
         #
         ".event1", ".time1", ".n1", ".incr1", ".mean1", ".sd1",
         ".event2", ".time2", ".n2", ".incr2", ".mean2", ".sd2",

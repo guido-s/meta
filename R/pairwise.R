@@ -48,8 +48,8 @@
 #'   or \code{"OR"}).
 #' @param reference.group Reference treatment (first treatment is used
 #'   if argument is missing).
-#' @param sep.ag A character used as separator
-#'   between agent in dose to create treatment labels.
+#' @param sep.ag A character used as separator between agent and dose to
+#'   create treatment labels.
 #' @param keep.all.comparisons A logical indicating whether all
 #'   pairwise comparisons or only comparisons with the study-specific
 #'   reference group should be kept ('basic parameters').

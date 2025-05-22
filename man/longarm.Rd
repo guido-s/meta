@@ -17,6 +17,11 @@ longarm(
   sd2,
   time1,
   time2,
+  agent1,
+  agent2,
+  dose1,
+  dose2,
+  sep.ag = "*",
   data = NULL,
   studlab,
   id1 = NULL,
@@ -38,7 +43,7 @@ or pairwise object (see Details).}
 
 \item{event2}{Number of events (second treatment).}
 
-\item{n2}{Number of observations (second treatment)}
+\item{n2}{Number of observations (second treatment).}
 
 \item{mean1}{Estimated mean (first treatment).}
 
@@ -48,9 +53,20 @@ or pairwise object (see Details).}
 
 \item{sd2}{Standard deviation (second treatment).}
 
-\item{time1}{Person time at risk (first treatment)}
+\item{time1}{Person time at risk (first treatment).}
 
-\item{time2}{Person time at risk (second treatment)}
+\item{time2}{Person time at risk (second treatment).}
+
+\item{agent1}{Agent (first treatment).}
+
+\item{agent2}{Agent (second treatment).}
+
+\item{dose1}{Dose (first treatment).}
+
+\item{dose2}{Dose (second treatment).}
+
+\item{sep.ag}{A character used as separator between agent and dose to
+create treatment labels.}
 
 \item{data}{An optional data frame containing the study
 information.}

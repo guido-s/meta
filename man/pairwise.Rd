@@ -96,8 +96,8 @@ if argument is missing).}
 pairwise comparisons or only comparisons with the study-specific
 reference group should be kept ('basic parameters').}
 
-\item{sep.ag}{A character used as separator
-between agent in dose to create treatment labels.}
+\item{sep.ag}{A character used as separator between agent and dose to
+create treatment labels.}
 
 \item{varnames}{Character vector of length 2 with the variable names for the
 treatment estimate and its standard error; by default, "TE" and "seTE".}

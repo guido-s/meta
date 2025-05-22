@@ -4,11 +4,16 @@
 
 * Inverse variance heterogeneity (IVhet) method by
   ([Doi et al. (2015)](https://doi.org/10.1016/j.cct.2015.05.009))  added
+  
+* R function longarm() can be used with dose-response data
 
 ### User-visible changes
 
 * New argument 'method.common.ci' to choose IVhet method
 
+* longarm():
+  - new arguments 'agent1', 'agent2', 'dose1', 'dose2', and 'sep.ag' for
+    dose-response data
 
 ## meta, version 8.1-0 (2025-05-02)
 
