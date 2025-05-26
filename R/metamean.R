@@ -20,6 +20,9 @@
 #'   from the same cluster resulting in the use of a three-level
 #'   meta-analysis model.
 #' @param rho Assumed correlation of estimates within a cluster.
+#' @param weights User-specified weights.
+#' @param weights.common User-specified weights (common effect model).
+#' @param weights.random User-specified weights (random effects model).
 #' @param median Median (used to estimate the mean and standard
 #'   deviation).
 #' @param q1 First quartile (used to estimate the mean and standard
@@ -430,7 +433,10 @@ metamean <- function(n, mean, sd, studlab,
                      ##
                      data = NULL, subset = NULL, exclude = NULL,
                      cluster = NULL, rho = 0,
-                     ##
+                     #
+                     weights = NULL,
+                     weights.common = weights, weights.random = weights,
+                     #
                      median, q1, q3, min, max,
                      method.mean = "Luo", method.sd = "Shi",
                      approx.mean, approx.sd,
@@ -713,6 +719,24 @@ metamean <- function(n, mean, sd, studlab,
   ##
   cluster <- catch("cluster", mc, data, sfsp)
   with.cluster <- !is.null(cluster)
+  #
+  # Catch 'weights', 'weights.common', and 'weights.random' from data:
+  #
+  if (!missing(weights))
+    weights <- catch("weights", mc, data, sfsp)
+  if (!missing(weights.common))
+    weights.common <- catch("weights.common", mc, data, sfsp)
+  if (!missing(weights.random))
+    weights.random <- catch("weights.random", mc, data, sfsp)
+  #
+  usw.common <- !is.null(weights.common)
+  usw.random <- !is.null(weights.random)
+  #
+  if (usw.common)
+    chknumeric(weights.common, min = 0)
+  #
+  if (usw.random)
+    chknumeric(weights.random, min = 0)
   ##
   ## Catch 'median', 'q1', 'q3', 'min', 'max', 'approx.mean', and
   ## 'approx.sd', from data:
@@ -753,9 +777,16 @@ metamean <- function(n, mean, sd, studlab,
   chklength(mean, k.All, fun)
   chklength(sd, k.All, fun)
   chklength(studlab, k.All, fun)
+  #
   if (with.cluster)
     chklength(cluster, k.All, fun)
-  ##
+  #
+  if (usw.common)
+    chklength(weights.common, k.All, fun)
+  #
+  if (usw.random)
+    chklength(weights.random, k.All, fun)
+  #
   if (avail.median)
     chklength(median, k.All, fun)
   if (avail.q1)
@@ -881,6 +912,12 @@ metamean <- function(n, mean, sd, studlab,
     ##
     if (with.cluster)
       data$.id <- data$.cluster <- cluster
+    #
+    if (usw.common)
+      data$.weights.common <- weights.common
+    #
+    if (usw.random)
+      data$.weights.random <- weights.random
   }
   
   
@@ -898,7 +935,10 @@ metamean <- function(n, mean, sd, studlab,
     ##
     cluster <- cluster[subset]
     exclude <- exclude[subset]
-    ##
+    #
+    weights.common <- weights.common[subset]
+    weights.random <- weights.random[subset]
+    #
     if (avail.median)
       median <- median[subset]
     if (avail.q1)
@@ -1219,7 +1259,10 @@ metamean <- function(n, mean, sd, studlab,
   m <- metagen(TE, seTE, studlab,
                exclude = if (missing.exclude) NULL else exclude,
                cluster = cluster, rho = rho,
-               ##
+               #
+               weights.common = weights.common,
+               weights.random = weights.random,
+               #
                sm = sm,
                level = level,
                ##

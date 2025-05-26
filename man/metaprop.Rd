@@ -13,6 +13,9 @@ metaprop(
   exclude = NULL,
   cluster = NULL,
   rho = 0,
+  weights = NULL,
+  weights.common = weights,
+  weights.random = weights,
   method,
   sm = gs("smprop"),
   incr = gs("incr"),
@@ -97,6 +100,12 @@ from the same cluster resulting in the use of a three-level
 meta-analysis model.}
 
 \item{rho}{Assumed correlation of estimates within a cluster.}
+
+\item{weights}{User-specified weights.}
+
+\item{weights.common}{User-specified weights (common effect model).}
+
+\item{weights.random}{User-specified weights (random effects model).}
 
 \item{method}{A character string indicating which method is to be
 used for pooling of studies. One of \code{"Inverse"} and

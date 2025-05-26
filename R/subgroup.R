@@ -230,7 +230,13 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                        cluster =
                          if (!is.null(x$cluster)) x$cluster[sel] else NULL,
                        rho = x$rho,
-                       ##
+                       #
+                       weights.common =
+                         if (!is.null(x$weights.common)) x$weights.common[sel] else NULL,
+                       #
+                       weights.random =
+                         if (!is.null(x$weights.random)) x$weights.random[sel] else NULL,
+                       #
                        sm = x$sm,
                        ##
                        level.ma = x$level.ma,

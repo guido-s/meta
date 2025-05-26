@@ -13,6 +13,8 @@
   cluster,
   rho = object$rho,
   cycles,
+  weights.common = object$weights.common,
+  weights.random = object$weights.random,
   method,
   sm = object$sm,
   incr = object$incr,
@@ -129,6 +131,10 @@ meta-analysis model.}
 
 \item{cycles}{A numeric vector with the number of cycles per patient / study
 in n-of-1 trials (see \code{\link{metagen}}).}
+
+\item{weights.common}{User-specified weights (common effect model).}
+
+\item{weights.random}{User-specified weights (random effects model).}
 
 \item{method}{A character string indicating which method is to be
 used for pooling of studies (see \code{\link{metabin}},

@@ -24,6 +24,9 @@
 #'   from the same cluster resulting in the use of a three-level
 #'   meta-analysis model.
 #' @param rho Assumed correlation of estimates within a cluster.
+#' @param weights User-specified weights.
+#' @param weights.common User-specified weights (common effect model).
+#' @param weights.random User-specified weights (random effects model).
 #' @param median.e Median in experimental group (used to estimate the
 #'   mean and standard deviation).
 #' @param q1.e First quartile in experimental group (used to estimate
@@ -577,7 +580,10 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                      ##
                      data = NULL, subset = NULL, exclude = NULL,
                      cluster = NULL, rho = 0,
-                     ##
+                     #
+                     weights = NULL,
+                     weights.common = weights, weights.random = weights,
+                     #
                      median.e, q1.e, q3.e, min.e, max.e,
                      median.c, q1.c, q3.c, min.c, max.c,
                      method.mean = "Luo", method.sd = "Shi",
@@ -1041,6 +1047,24 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
       method.tau.ci <- "QP"
   #
   method.tau.ci <- setchar(method.tau.ci, gs("meth4tau.ci"))
+  #
+  # Catch 'weights', 'weights.common', and 'weights.random' from data:
+  #
+  if (!missing(weights))
+    weights <- catch("weights", mc, data, sfsp)
+  if (!missing(weights.common))
+    weights.common <- catch("weights.common", mc, data, sfsp)
+  if (!missing(weights.random))
+    weights.random <- catch("weights.random", mc, data, sfsp)
+  #
+  usw.common <- !is.null(weights.common)
+  usw.random <- !is.null(weights.random)
+  #
+  if (usw.common)
+    chknumeric(weights.common, min = 0)
+  #
+  if (usw.random)
+    chknumeric(weights.random, min = 0)
   
   
   ##
@@ -1146,9 +1170,16 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   chklength(mean.c, k.All, arg)
   chklength(sd.c, k.All, arg)
   chklength(studlab, k.All, arg)
+  #
   if (with.cluster)
     chklength(cluster, k.All, arg)
-  ##
+  #
+  if (usw.common)
+    chklength(weights.common, k.All, arg)
+  #
+  if (usw.random)
+    chklength(weights.random, k.All, arg)
+  #
   if (avail.median.e)
     chklength(median.e, k.All, arg)
   if (avail.q1.e)
@@ -1306,6 +1337,12 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     ##
     if (with.cluster)
       data$.id <- data$.cluster <- cluster
+    #
+    if (usw.common)
+      data$.weights.common <- weights.common
+    #
+    if (usw.random)
+      data$.weights.random <- weights.random
   }
   
   
@@ -1325,7 +1362,10 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     ##
     cluster <- cluster[subset]
     exclude <- exclude[subset]
-    ##
+    #
+    weights.common <- weights.common[subset]
+    weights.random <- weights.random[subset]
+    #
     if (avail.median.e)
       median.e <- median.e[subset]
     if (avail.q1.e)
@@ -1925,7 +1965,10 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   m <- metagen(TE, seTE, studlab,
                exclude = if (missing.exclude) NULL else exclude,
                cluster = cluster, rho = rho,
-               ##
+               #
+               weights.common = weights.common,
+               weights.random = weights.random,
+               #
                sm = sm,
                level = level,
                ##

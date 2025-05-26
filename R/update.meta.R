@@ -16,6 +16,8 @@
 #' @param rho Assumed correlation of estimates within a cluster.
 #' @param cycles A numeric vector with the number of cycles per patient / study
 #'   in n-of-1 trials (see \code{\link{metagen}}).
+#' @param weights.common User-specified weights (common effect model).
+#' @param weights.random User-specified weights (random effects model).
 #' @param method A character string indicating which method is to be
 #'   used for pooling of studies (see \code{\link{metabin}},
 #'   \code{\link{metainc}}, \code{\link{metaprop}} and
@@ -306,7 +308,10 @@ update.meta <- function(object,
                         subset, studlab, exclude, cluster,
                         rho = object$rho,
                         cycles,
-                        ##
+                        #
+                        weights.common = object$weights.common,
+                        weights.random = object$weights.random,
+                        #
                         method,
                         sm = object$sm,
                         incr = object$incr,
@@ -1316,7 +1321,10 @@ update.meta <- function(object,
                  ##
                  data = data, subset = subset, exclude = exclude,
                  cluster = ...cluster, rho = rho,
-                 ##
+                 #
+                 weights.common = weights.common,
+                 weights.random = weights.random,
+                 #
                  method = method,
                  sm = sm,
                  #
@@ -1416,7 +1424,10 @@ update.meta <- function(object,
                   ##
                   data = data, subset = subset, exclude = exclude,
                   cluster = ...cluster, rho = rho,
-                  ##
+                  #
+                  weights.common = weights.common,
+                  weights.random = weights.random,
+                  #
                   median.e = setVal(object$data, ".median.e"),
                   q1.e = setVal(object$data, ".q1.e"),
                   q3.e = setVal(object$data, ".q3.e"),
@@ -1500,7 +1511,10 @@ update.meta <- function(object,
                  ##
                  data = data, subset = subset, exclude = exclude,
                  cluster = ...cluster, rho = rho,
-                 ##
+                 #
+                 weights.common = weights.common,
+                 weights.random = weights.random,
+                 #
                  sm = sm,
                  level = level, level.ma = level.ma,
                  common = common, random = random,
@@ -1581,6 +1595,9 @@ update.meta <- function(object,
                  cluster = ...cluster, rho = rho,
                  #
                  cycles = cycles,
+                 #
+                 weights.common = weights.common,
+                 weights.random = weights.random,
                  #
                  sm = sm,
                  method.ci = method.ci,
@@ -1711,7 +1728,10 @@ update.meta <- function(object,
                  ##
                  data = data, subset = subset, exclude = exclude,
                  cluster = ...cluster, rho = rho,
-                 ##
+                 #
+                 weights.common = weights.common,
+                 weights.random = weights.random,
+                 #
                  method = method,
                  sm = sm,
                  #
@@ -1783,7 +1803,10 @@ update.meta <- function(object,
                   ##
                   data = data, subset = subset, exclude = exclude,
                   cluster = ...cluster, rho = rho,
-                  ##
+                  #
+                  weights.common = weights.common,
+                  weights.random = weights.random,
+                  #
                   median = setVal(object$data, ".median"),
                   q1 = setVal(object$data, ".q1"),
                   q3 = setVal(object$data, ".q3"),
@@ -1869,7 +1892,10 @@ update.meta <- function(object,
                   ##
                   data = data, subset = subset, exclude = exclude,
                   cluster = ...cluster, rho = rho,
-                  ##
+                  #
+                  weights.common = weights.common,
+                  weights.random = weights.random,
+                  #
                   method = method,
                   sm = sm,
                   incr = incr,
@@ -1950,7 +1976,10 @@ update.meta <- function(object,
                   ##
                   data = data, subset = subset, exclude = exclude,
                   cluster = ...cluster, rho = rho,
-                  ##
+                  #
+                  weights.common = weights.common,
+                  weights.random = weights.random,
+                  #
                   method = method,
                   sm = sm,
                   incr = incr,

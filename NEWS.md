@@ -3,8 +3,10 @@
 ### Major changes
 
 * Inverse variance heterogeneity (IVhet) method by
-  ([Doi et al. (2015)](https://doi.org/10.1016/j.cct.2015.05.009))  added
-  
+  ([Doi et al. (2015)](https://doi.org/10.1016/j.cct.2015.05.009)) implemented
+
+* User-defined weights can be provided in meta-analysis functions
+
 * R function longarm() can be used with dose-response data
 
 ### Bug fixes
@@ -23,11 +25,16 @@
 
 ### User-visible changes
 
-* New argument 'method.common.ci' to choose IVhet method
+* metabin(), metacont(), metacor(), metagen(); metainc(), metamean(),
+  metaprop(), metarate(), update.meta():
+  - new argument 'method.common.ci' to choose IVhet method
+  - new arguments 'weights', 'weights.common', and 'weights.random' to provide
+    user-defined weights
 
 * longarm():
   - new arguments 'agent1', 'agent2', 'dose1', 'dose2', and 'sep.ag' for
     dose-response data
+
 
 ## meta, version 8.1-0 (2025-05-02)
 

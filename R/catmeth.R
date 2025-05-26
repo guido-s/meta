@@ -139,6 +139,20 @@ catmeth <- function(x,
       details.i[i] <- text_meth(meth.ma, i, random, method)
     ##
     details <- paste(c(details, unique(details.i)), collapse = "")
+    #
+    # Information on user-specified weights
+    #
+    if (!is.null(x$weights.common) | !is.null(x$weights.random)) {
+      if (!is.null(x$weights.common) & !is.null(x$weights.random))
+        details.usw <- ""
+      else if  (!is.null(x$weights.common))
+        details.usw <- " (common effect model)"
+      else
+        details.usw <- " (random effects model)"
+      #
+      details <-
+        paste0(details, "\n- User-specified weights", details.usw)
+    }
   }
   
   

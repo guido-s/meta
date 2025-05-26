@@ -196,11 +196,15 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
   chkclass(x, "meta")
   chksuitable(x, "Trim-and-fill method",
               c("metacum", "metainf", "metamerge", "netpairwise"))
-  ##
+  #
+  if (!is.null(x$weights.common) | !is.null(x$weights.random))
+    stop("Trim-and-fill method not implemented for user-specified weights.",
+         call. = FALSE)
+  #
   x <- updateversion(x)
   ##
   if (x$three.level)
-    stop("Trim-and-fill method not available for three-level model.",
+    stop("Trim-and-fill method not implemented for three-level model.",
          call. = FALSE)
   
   

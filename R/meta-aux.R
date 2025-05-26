@@ -351,7 +351,7 @@ setNAwithin <- function(x, condition) {
 extrVar <- function(x, name)
   x[[name]]
 
-# Function only used with MLM, GLMM, or LRP
+# Function only used with MLM, GLMM, LRP, or USW
 #
 calcPI <- function(x) {
   
@@ -453,6 +453,107 @@ extrMLM <- function(x, k, len, sel,
   ##
   res$k <- res$method.predict <- res$level.predict <- NULL
   ##
+  res
+}
+
+runUSW <- function(x, method.tau, method.random.ci, level,
+                   warn = TRUE, ...) {
+  
+  if (method.tau %in% c("FE", "CE")) {
+    n.methci <- 1
+    #
+    list.b <- list(level = 100 * level, method = method.tau, ...)
+    #
+    res <- list.c <- vector("list", n.methci)
+    #
+    for (i in seq_len(n.methci)) {
+      list.c[[i]] <- c(x, list.b, test = "z")
+      #
+      res[[i]] <- runNN(rma.uni, list.c[[i]], warn = warn)
+    }
+  }
+  else {
+    n.methci <- length(method.random.ci)
+    #
+    list.b <- list(level = 100 * level, method = method.tau, ...)
+    #
+    res <- list.r <- vector("list", n.methci)
+    #
+    for (i in seq_len(n.methci)) {
+      list.r[[i]] <- c(x, list.b,
+                       test = ifelse(method.random.ci[i] == "HK", "t", "z"))
+      #  
+      res[[i]] <- runNN(rma.uni, list.r[[i]], warn = warn)
+    }
+  }
+  #
+  res
+}
+
+extrUSW <- function(x, method.tau, null.effect,
+                    k, len, sel,
+                    method.random.ci, method.predict,
+                    level.ma, level.predict) {
+  if (method.tau %in% c("FE", "CE")) {
+    res <- list(
+      w.common = x[[1]]$weights,
+      TE.common = as.numeric(x[[1]]$b),
+      seTE.common = as.numeric(x[[1]]$se),
+      lower.common = x[[1]]$ci.lb,
+      upper.common = x[[1]]$ci.ub)
+    #
+    ci.c <- ci(res$TE.common - null.effect, res$seTE.common,
+         null.effect = null.effect)
+    #
+    res$statistic.common <- ci.c$statistic
+    res$pval.common <- ci.c$p
+    res$zval.common <- res$statistic.common
+  }
+  else {
+    #
+    # Random effects model(s)
+    #
+    res <- list(tau2 = NA, tau = NA, se.tau2 = NA)
+    #
+    res$k <- k
+    res$method.predict <- method.predict
+    res$level.predict <- level.predict
+    #
+    if (k > 1) {
+      res$tau2 <- x[[1]]$tau2
+      res$tau <- sqrt(res$tau2)
+    }
+    #
+    res$w.random <- x[[1]]$weights
+    #
+    res$TE.random   <- as.numeric(x[[1]]$b)
+    res$seTE.random <- sapply(x, extrVar, "se")
+    #
+    res$lower.random <- sapply(x, extrVar, "ci.lb")
+    res$upper.random <- sapply(x, extrVar, "ci.ub")
+    #
+    ci.r <- ci(res$TE.random, res$seTE.random,
+               level = level.ma,
+               null.effect = null.effect,
+               df = ifelse(method.random.ci == "HK", k - 1, Inf))
+    #
+    res$statistic.random <- ci.r$statistic
+    res$pval.random <- ci.r$p
+    res$zval.random <- res$statistic.random
+    #
+    if (length(method.random.ci) > 1)
+      names(res$seTE.random) <-
+      names(res$lower.random) <- names(res$upper.random) <-
+      names(res$statistic.random) <- names(res$pval.random) <-
+      names(res$zval.random) <- method.random.ci
+    #
+    # Prediction interval
+    #
+    res <- calcPI(res)
+  }
+  #
+  res$k <- res$method.predict <- res$level.predict <- NULL
+  #
   res
 }
 

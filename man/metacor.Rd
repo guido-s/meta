@@ -13,6 +13,9 @@ metacor(
   exclude = NULL,
   cluster = NULL,
   rho = 0,
+  weights = NULL,
+  weights.common = weights,
+  weights.random = weights,
   sm = gs("smcor"),
   level = gs("level"),
   common = gs("common"),
@@ -89,6 +92,12 @@ from the same cluster resulting in the use of a three-level
 meta-analysis model.}
 
 \item{rho}{Assumed correlation of estimates within a cluster.}
+
+\item{weights}{User-specified weights.}
+
+\item{weights.common}{User-specified weights (common effect model).}
+
+\item{weights.random}{User-specified weights (random effects model).}
 
 \item{sm}{A character string indicating which summary measure
 (\code{"ZCOR"} or \code{"COR"}) is to be used for pooling of

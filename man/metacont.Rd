@@ -17,6 +17,9 @@ metacont(
   exclude = NULL,
   cluster = NULL,
   rho = 0,
+  weights = NULL,
+  weights.common = weights,
+  weights.random = weights,
   median.e,
   q1.e,
   q3.e,
@@ -126,6 +129,12 @@ from the same cluster resulting in the use of a three-level
 meta-analysis model.}
 
 \item{rho}{Assumed correlation of estimates within a cluster.}
+
+\item{weights}{User-specified weights.}
+
+\item{weights.common}{User-specified weights (common effect model).}
+
+\item{weights.random}{User-specified weights (random effects model).}
 
 \item{median.e}{Median in experimental group (used to estimate the
 mean and standard deviation).}

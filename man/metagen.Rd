@@ -14,6 +14,9 @@ metagen(
   cluster = NULL,
   rho = 0,
   cycles = NULL,
+  weights = NULL,
+  weights.common = weights,
+  weights.random = weights,
   sm = "",
   method.ci = if (missing(df)) "z" else "t",
   level = gs("level"),
@@ -125,6 +128,12 @@ meta-analysis model.}
 
 \item{cycles}{A numeric vector with the number of cycles per patient / study
 in n-of-1 trials.}
+
+\item{weights}{User-specified weights.}
+
+\item{weights.common}{User-specified weights (common effect model).}
+
+\item{weights.random}{User-specified weights (random effects model).}
 
 \item{sm}{A character string indicating underlying summary measure,
 e.g., \code{"RD"}, \code{"RR"}, \code{"OR"}, \code{"ASD"},

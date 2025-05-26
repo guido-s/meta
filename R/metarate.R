@@ -21,6 +21,9 @@
 #'   from the same cluster resulting in the use of a three-level
 #'   meta-analysis model.
 #' @param rho Assumed correlation of estimates within a cluster.
+#' @param weights User-specified weights.
+#' @param weights.common User-specified weights (common effect model).
+#' @param weights.random User-specified weights (random effects model).
 #' @param n Number of observations.
 #' @param method A character string indicating which method is to be
 #'   used for pooling of studies. One of \code{"Inverse"} and
@@ -366,6 +369,10 @@ metarate <- function(event, time, studlab,
                      ##
                      data = NULL, subset = NULL, exclude = NULL,
                      cluster = NULL, rho = 0,
+                     #
+                     weights = NULL,
+                     weights.common = weights, weights.random = weights,
+                     #
                      n = NULL,
                      ##
                      method = "Inverse",
@@ -672,6 +679,34 @@ metarate <- function(event, time, studlab,
   ##
   cluster <- catch("cluster", mc, data, sfsp)
   with.cluster <- !is.null(cluster)
+  #
+  # Catch 'weights', 'weights.common', and 'weights.random' from data:
+  #
+  if (!missing(weights))
+    weights <- catch("weights", mc, data, sfsp)
+  if (!missing(weights.common))
+    weights.common <- catch("weights.common", mc, data, sfsp)
+  if (!missing(weights.random))
+    weights.random <- catch("weights.random", mc, data, sfsp)
+  #
+  usw.common <- !is.null(weights.common)
+  usw.random <- !is.null(weights.random)
+  #
+  if (usw.common)
+    chknumeric(weights.common, min = 0)
+  #
+  if (usw.random)
+    chknumeric(weights.random, min = 0)
+  #
+  if (usw.common & method != "Inverse")
+    stop("User-specified weights for the common effect model only implemented ",
+         "for the inverse variance method (method = \"Inverse\").",
+         call. = FALSE)
+  #
+  if (usw.random & method == "GLMM")
+    stop("User-specified weights for the random effects model not implemented ",
+         "for generalized linear mixed models (method = \"GLMM\").",
+         call. = FALSE)
   
   
   ##
@@ -684,9 +719,16 @@ metarate <- function(event, time, studlab,
   if (!is.null(n))
     chklength(n, k.All, fun)
   chklength(studlab, k.All, fun)
+  #
   if (with.cluster)
     chklength(cluster, k.All, fun)
-  ##
+  #
+  if (usw.common)
+    chklength(weights.common, k.All, fun)
+  #
+  if (usw.random)
+    chklength(weights.random, k.All, fun)
+  #
   if (length(incr) > 1)
     chklength(incr, k.All, fun)
   ##
@@ -773,6 +815,12 @@ metarate <- function(event, time, studlab,
     ##
     if (with.cluster)
       data$.id <- data$.cluster <- cluster
+    #
+    if (usw.common)
+      data$.weights.common <- weights.common
+    #
+    if (usw.random)
+      data$.weights.random <- weights.random
   }
   
     
@@ -791,6 +839,9 @@ metarate <- function(event, time, studlab,
     ##
     cluster <- cluster[subset]
     exclude <- exclude[subset]
+    #
+    weights.common <- weights.common[subset]
+    weights.random <- weights.random[subset]
     #
     if (length(incr) > 1)
       incr <- incr[subset]
@@ -1035,7 +1086,10 @@ metarate <- function(event, time, studlab,
   m <- metagen(TE, seTE, studlab,
                exclude = if (missing.exclude) NULL else exclude,
                cluster = cluster, rho = rho,
-               ##
+               #
+               weights.common = weights.common,
+               weights.random = weights.random,
+               #
                sm = sm,
                level = level,
                ##

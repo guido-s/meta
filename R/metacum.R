@@ -235,6 +235,21 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
   TE <- x$TE[o]
   seTE <- x$seTE[o]
   #
+  if (!is.null(x$cluster))
+    cluster <- x$cluster[o]
+  else
+    cluster <- NULL
+  #
+  if (!is.null(x$weights.common))
+    weights.common <- x$weights.common[o]
+  else
+    weights.common <- NULL
+  #
+  if (!is.null(x$weights.random))
+    weights.random <- x$weights.random[o]
+  else
+    weights.random <- NULL
+  #
   incr.e <- x$incr.e[o]
   incr.c <- x$incr.c[o]
   #
@@ -345,7 +360,12 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
       m <- metabin(event.e[sel], n.e[sel], event.c[sel], n.c[sel],
                    ##
                    exclude = exclude[sel],
-                   ##
+                   #
+                   cluster = cluster[sel], rho = x$rho,
+                   #
+                   weights.common = weights.common[sel],
+                   weights.random = weights.random[sel],
+                   #
                    method = x$method, sm = x$sm,
                    #
                    incr.e = incr.e[sel], incr.c = incr.c[sel],
@@ -376,7 +396,12 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
                     n.c[sel], mean.c[sel], sd.c[sel],
                     ##
                     exclude = exclude[sel],
-                    ##
+                    #
+                    cluster = cluster[sel], rho = x$rho,
+                    #
+                    weights.common = weights.common[sel],
+                    weights.random = weights.random[sel],
+                    #
                     sm = x$sm,
                     pooledvar = replaceNA(x$pooledvar, gs("pooledvar")),
                     ##
@@ -401,7 +426,12 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
       m <- metacor(cor[sel], n[sel],
                    ##
                    exclude = exclude[sel],
-                   ##
+                   #
+                   cluster = cluster[sel], rho = x$rho,
+                   #
+                   weights.common = weights.common[sel],
+                   weights.random = weights.random[sel],
+                   #
                    sm = x$sm, null.effect = x$null.effect,
                    ##
                    method.tau = x$method.tau,
@@ -424,7 +454,12 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
       m <- metagen(TE[sel], seTE[sel],
                    ##
                    exclude = exclude[sel],
-                   ##
+                   #
+                   cluster = cluster[sel], rho = x$rho,
+                   #
+                   weights.common = weights.common[sel],
+                   weights.random = weights.random[sel],
+                   #
                    sm = x$sm, null.effect = x$null.effect,
                    ##
                    method.tau = x$method.tau,
@@ -449,7 +484,12 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
                    event.c[sel], time.c[sel],
                    ##
                    exclude = exclude[sel],
-                   ##
+                   #
+                   cluster = cluster[sel], rho = x$rho,
+                   #
+                   weights.common = weights.common[sel],
+                   weights.random = weights.random[sel],
+                   #
                    method = x$method, sm = x$sm,
                    #
                    incr.e = incr.e[sel], incr.c = incr.c[sel],
@@ -477,7 +517,12 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
       m <- metamean(n[sel], mean[sel], sd[sel],
                     ##
                     exclude = exclude[sel],
-                    ##
+                    #
+                    cluster = cluster[sel], rho = x$rho,
+                    #
+                    weights.common = weights.common[sel],
+                    weights.random = weights.random[sel],
+                    #
                     sm = x$sm, null.effect = x$null.effect,
                     ##
                     method.tau = x$method.tau,
@@ -501,7 +546,12 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
       m <- metaprop(event[sel], n[sel],
                     ##
                     exclude = exclude[sel],
-                    ##
+                    #
+                    cluster = cluster[sel], rho = x$rho,
+                    #
+                    weights.common = weights.common[sel],
+                    weights.random = weights.random[sel],
+                    #
                     method = x$method, sm = x$sm, null.effect = x$null.effect,
                     ##
                     incr = incr.i, method.incr = x$method.incr,
@@ -528,7 +578,12 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
       m <- metarate(event[sel], time[sel],
                     ##
                     exclude = exclude[sel],
-                    ##
+                    #
+                    cluster = cluster[sel], rho = x$rho,
+                    #
+                    weights.common = weights.common[sel],
+                    weights.random = weights.random[sel],
+                    #
                     method = x$method, sm = x$sm, null.effect = x$null.effect,
                     ##
                     incr = incr.i, method.incr = x$method.incr,
@@ -928,6 +983,16 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
               x = x,
               ##
               call = match.call())
+  #
+  if (!is.null(weights.common) & pooled == "common") {
+    res$weights.common <- TRUE
+    res$weights.random <- FALSE
+  }
+  #
+  if (!is.null(weights.random) & pooled == "random") {
+    res$weights.common <- FALSE
+    res$weights.random <- TRUE
+  }
   #
   if (run_cidprop) {
     res$cid.below.null <- pp$cid.below.null
