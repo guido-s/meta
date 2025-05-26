@@ -261,7 +261,9 @@
 #' \code{incr}). This continuity correction is used both to calculate
 #' individual study results with confidence limits and to conduct
 #' meta-analysis based on the inverse variance method. For GLMMs no
-#' continuity correction is used.
+#' continuity correction is used. Furthermore, the value of \code{incr} is
+#' only considered in the calculation of confidence intervals for individual
+#' studies if \code{method.ci = "NAsm"} (see next subsection).
 #' }
 #' 
 #' \subsection{Confidence intervals for individual studies}{
@@ -288,7 +290,7 @@
 #' confidence interval is calculated for individual studies for any
 #' summary measure (argument \code{sm}) as only number of events and
 #' observations are used in the calculation disregarding the chosen
-#' transformation.
+#' transformation. Furthermore, the continuity correction 
 #'
 #' Results will be presented for transformed proportions if argument
 #' \code{backtransf = FALSE}. In this case, argument \code{method.ci =

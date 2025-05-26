@@ -4501,9 +4501,9 @@ forest.meta <- function(x,
   #
   col.inside <- col.inside[sel]
   #
-  null.exclude <- is.null(x$exclude)
-  if (!null.exclude)
-    exclude <- x$exclude[sel]
+  avail.exclude <- !is.null(x$exclude)
+  if (avail.exclude)
+    x$exclude <- x$exclude[sel]
   #
   if (sort | by) {
     if (sort.subgroup)
@@ -4569,8 +4569,8 @@ forest.meta <- function(x,
     #
     col.inside <- col.inside[o]
     #
-    if (!null.exclude)
-      exclude <- exclude[o]
+    if (avail.exclude)
+      x$exclude <- x$exclude[o]
     #
     if (newcols) {
       dataset1 <- dataset1[o, ]
@@ -8159,10 +8159,10 @@ forest.meta <- function(x,
   lowTE.exclude <- lowTE
   uppTE.exclude <- uppTE
   #
-  if (!null.exclude) {
-    TE.exclude[exclude] <- NA
-    lowTE.exclude[exclude] <- NA
-    uppTE.exclude[exclude] <- NA
+  if (avail.exclude) {
+    TE.exclude[x$exclude] <- NA
+    lowTE.exclude[x$exclude] <- NA
+    uppTE.exclude[x$exclude] <- NA
   }
   #
   if (!common) {
@@ -8990,8 +8990,7 @@ forest.meta <- function(x,
     lowTEs <- c(lowTE.common, lowTE.random, lowTE.predict, lowTE.w, lowTE)
     uppTEs <- c(uppTE.common, uppTE.random, uppTE.predict, uppTE.w, uppTE)
     #
-    TEs.exclude <- c(TE.common, TE.random, NAs.prd,
-                     TE.w, TE.exclude)
+    TEs.exclude <- c(TE.common, TE.random, NAs.prd, TE.w, TE.exclude)
     lowTEs.exclude <- c(lowTE.common, lowTE.random, lowTE.predict, lowTE.w,
                         lowTE.exclude)
     uppTEs.exclude <- c(uppTE.common, uppTE.random, uppTE.predict, uppTE.w,
@@ -9202,33 +9201,57 @@ forest.meta <- function(x,
   #
   if (!is.null(x$n.e.pooled))
     sum.n.e <- x$n.e.pooled
-  else
-    sum.n.e <- sum(x$n.e, na.rm = TRUE)
+  else {
+    if (avail.exclude)
+      sum.n.e <- sum(x$n.e[!x$exclude], na.rm = TRUE)
+    else
+      sum.n.e <- sum(x$n.e, na.rm = TRUE)
+  }
   #
   if (!is.null(x$n.c.pooled))
     sum.n.c <- x$n.c.pooled
-  else
-    sum.n.c <- sum(x$n.c, na.rm = TRUE)
+  else {
+    if (avail.exclude)
+      sum.n.c <- sum(x$n.c[!x$exclude], na.rm = TRUE)
+    else
+      sum.n.c <- sum(x$n.c, na.rm = TRUE)
+  }
   #
   if (!is.null(x$event.e.pooled))
     sum.e.e <- x$event.e.pooled
-  else
-    sum.e.e <- sum(x$event.e, na.rm = TRUE)
+  else {
+    if (avail.exclude)
+      sum.e.e <- sum(x$event.e[!x$exclude], na.rm = TRUE)
+    else
+      sum.e.e <- sum(x$event.e, na.rm = TRUE)
+  }
   #
   if (!is.null(x$event.c.pooled))
     sum.e.c <- x$event.c.pooled
-  else
-    sum.e.c <- sum(x$event.c, na.rm = TRUE)
+  else {
+    if (avail.exclude)
+      sum.e.c <- sum(x$event.c[!x$exclude], na.rm = TRUE)
+    else
+      sum.e.c <- sum(x$event.c, na.rm = TRUE)
+  }
   #
   if (!is.null(x$time.e.pooled))
     sum.t.e <- x$time.e.pooled
-  else
-    sum.t.e <- sum(x$time.e, na.rm = TRUE)
+  else {
+    if (avail.exclude)
+      sum.t.e <- sum(x$time.e[!x$exclude], na.rm = TRUE)
+    else
+      sum.t.e <- sum(x$time.e, na.rm = TRUE)
+  }
   #
   if (!is.null(x$time.c.pooled))
     sum.t.c <- x$time.c.pooled
-  else
-    sum.t.c <- sum(x$time.c, na.rm = TRUE)
+  else {
+    if (avail.exclude)
+      sum.t.c <- sum(x$time.c[!x$exclude], na.rm = TRUE)
+    else
+      sum.t.c <- sum(x$time.c, na.rm = TRUE)
+  }
   #
   if (is.character(x$cluster))
     as.character.cluster <- TRUE

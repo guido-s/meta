@@ -380,6 +380,8 @@ meta-analysis based on the inverse variance method.
 
 For the Freeman-Tukey (Freeman & Tukey, 1950) and square root
 transformation as well as GLMMs no continuity correction is used.
+Furthermore, the value of \code{incr} is not considered for Poisson
+confidence intervals for individual studies (\code{method.ci = "Poisson"}).
 }
 
 \subsection{Subgroup analysis}{

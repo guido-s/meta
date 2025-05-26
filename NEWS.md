@@ -7,6 +7,20 @@
   
 * R function longarm() can be used with dose-response data
 
+### Bug fixes
+
+* forest.meta():
+  - calculate and print correct totals if studies have been excluded from the
+    meta-analysis
+    [(issue #73)](https://github.com/guido-s/meta/pull/73)
+
+* subgroup():
+  - calculate correct totals in subgroups if studies have been excluded from the
+    meta-analysis
+
+* Do not print information on continuity correction for generalized linear
+  mixed model and argument 'method.ci != "NAsm"'
+
 ### User-visible changes
 
 * New argument 'method.common.ci' to choose IVhet method
@@ -44,7 +58,7 @@
 * forest.meta():
   - consider setting for list element 'null.effect' for metamean(), metaprop()
     and metarate() objects to fix
-    [issue #67](https://github.com/guido-s/meta/pull/67)
+    [(issue #67)](https://github.com/guido-s/meta/pull/67)
   - remove duplicated columns from forest plots with RevMan5 layout and risk of
     bias information
   - use correct column labels for log transformed treatment estimates and
@@ -79,7 +93,7 @@
 
 * metacr():
   - new arguments 'label.left' and 'label.right' to fix
-    [issue #66](https://github.com/guido-s/meta/pull/66)
+    [(issue #66)](https://github.com/guido-s/meta/pull/66)
 
 * metabin(), metacont(), metacor(), metainc(), metamean(), metaprop(),
   metarate(), update.meta():

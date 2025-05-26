@@ -761,72 +761,78 @@ catmeth <- function(x,
         }
         else
           txtCC.ind.i <- dat.cc$method[i] %in% c("GLMM", "LRP")
-        ##
-        if (method.incr.i == "user") {
-          if (incr.i != 0)
-            details.cc <- "\n- User-defined continuity correction"
-        }
-        else if (method.incr.i == "all") {
-          if (incr.i == "TACC") {
-            details.cc <- c(
-              details.cc,
-              if (k.all.i > 1)
-                "\n- Treatment arm continuity correction in all studies"
-              else
-                "\n- Treatment arm continuity correction")
+        #
+        # No continuity correction for generalized linear mixed model and
+        # argument 'method.ci != "NAsm"'
+        #
+        if (!(txtCC.ind.i &
+              (!is.null(x$method.ci) && x$method.ci != "NAsm"))) {
+          if (method.incr.i == "user") {
+            if (incr.i != 0)
+              details.cc <- "\n- User-defined continuity correction"
           }
-          else if (incr.i != 0)
-            details.cc <- c(
-              details.cc,
-              paste0("\n- Continuity correction of ",
-                     incr.i,
-                     if (k.all.i > 1)
-                       " in all studies",
-                     details.rr))
-        }
-        else if (sparse.i) {
-          if (incr.i == "TACC") {
-            details.cc <- c(
-              details.cc,
-              paste0(
-                "\n- Treatment arm continuity correction in ",
+          else  if (method.incr.i == "all") {
+            if (incr.i == "TACC") {
+              details.cc <- c(
+                details.cc,
                 if (k.all.i > 1)
-                  "studies "
+                  "\n- Treatment arm continuity correction in all studies"
                 else
-                  "study ",
-                "with",
-                if (width > 70 | forest)
-                  " "
-                else
-                  "\n  ",
-                "zero cell frequencies",
-                details.rr
-              ))
+                  "\n- Treatment arm continuity correction")
+            }
+            else if (incr.i != 0)
+              details.cc <- c(
+                details.cc,
+                paste0("\n- Continuity correction of ",
+                       incr.i,
+                       if (k.all.i > 1)
+                         " in all studies",
+                       details.rr))
           }
-          else if (incr.i != 0) {
-            details.cc <- c(
-              details.cc,
-              paste0(
-                "\n- Continuity correction of ",
-                incr.i,
-                if (k.all.i > 1)
-                  " in studies with",
-                if (k.all.i > 1 & width > 70)
-                  " "
-                else if (k.all.i > 1 & !forest)
-                  "\n  ",
-                if (k.all.i > 1)
+          else if (sparse.i) {
+            if (incr.i == "TACC") {
+              details.cc <- c(
+                details.cc,
+                paste0(
+                  "\n- Treatment arm continuity correction in ",
+                  if (k.all.i > 1)
+                    "studies "
+                  else
+                    "study ",
+                  "with",
+                  if (width > 70 | forest)
+                    " "
+                  else
+                    "\n  ",
                   "zero cell frequencies",
-                details.rr))
+                  details.rr
+                ))
+            }
+            else if (incr.i != 0) {
+              details.cc <- c(
+                details.cc,
+                paste0(
+                  "\n- Continuity correction of ",
+                  incr.i,
+                  if (k.all.i > 1)
+                    " in studies with",
+                  if (k.all.i > 1 & width > 70)
+                    " "
+                  else if (k.all.i > 1 & !forest)
+                    "\n  ",
+                  if (k.all.i > 1)
+                    "zero cell frequencies",
+                  details.rr))
+            }
+            ##
+            if ((incr.i == "TACC" || incr.i != 0) && txtCC.ind.i)
+              details.cc <- c(
+                details.cc,
+                if (forest) " " else "\n  ",
+                "(only used to calculate individual study results)")
           }
-          ##
-          if ((incr.i == "TACC" || incr.i != 0) && txtCC.ind.i)
-            details.cc <- c(
-              details.cc,
-              if (forest) " " else "\n  ",
-              "(only used to calculate individual study results)")
         }
-        ##
+        #
         if (metabin & method.incr.i != "user") {
           if ((!is.na(dat.cc$allstudies[i]) && dat.cc$allstudies[i]) &
               (!is.na(dat.cc$doublezeros[i]) && dat.cc$doublezeros[i]))
