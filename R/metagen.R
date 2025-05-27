@@ -27,7 +27,7 @@
 #' @param rho Assumed correlation of estimates within a cluster.
 #' @param cycles A numeric vector with the number of cycles per patient / study
 #'   in n-of-1 trials.
-#' @param weights User-specified weights.
+#' @param weights A single numeric or vector with user-specified weights.
 #' @param weights.common User-specified weights (common effect model).
 #' @param weights.random User-specified weights (random effects model).
 #' @param sm A character string indicating underlying summary measure,
@@ -1235,6 +1235,12 @@ metagen <- function(TE, seTE, studlab,
   if (!missing(weights.random))
     weights.random <- catch("weights.random", mc, data, sfsp)
   #
+  if (!is.null(weights) & is.null(weights.common))
+    weights.common <- weights
+  #
+  if (!is.null(weights) & is.null(weights.random))
+    weights.random <- weights
+  #
   usw.common <- !is.null(weights.common)
   usw.random <- !is.null(weights.random)
   #
@@ -1358,11 +1364,19 @@ metagen <- function(TE, seTE, studlab,
     tau.common <- TRUE
   }
   #
-  if (usw.common)
-    chklength(weights.common, k.All, arg)
+  if (usw.common) {
+    if (length(weights.common) == 1)
+      weights.common <- rep(weights.common, k.All)
+    else
+      chklength(weights.common, k.All, arg)
+  }
   #
-  if (usw.random)
-    chklength(weights.random, k.All, arg)
+  if (usw.random) {
+    if (length(weights.random) == 1)
+      weights.random <- rep(weights.random, k.All)
+    else
+      chklength(weights.random, k.All, arg)
+  }
   #
   if (!is.null(n.e))
     chklength(n.e, k.All, arg)
@@ -1487,7 +1501,13 @@ metagen <- function(TE, seTE, studlab,
     #
     if (with.cycles)
       data$.cycles <- cycles
-    ##
+    #
+    if (usw.common)
+      data$.weights.common <- weights.common
+    #
+    if (usw.random)
+      data$.weights.random <- weights.random
+    #
     if (avail.pval)
       data$.pval <- pval
     if (avail.df)

@@ -13,6 +13,7 @@
   cluster,
   rho = object$rho,
   cycles,
+  weights = NULL,
   weights.common = object$weights.common,
   weights.random = object$weights.random,
   method,
@@ -131,6 +132,8 @@ meta-analysis model.}
 
 \item{cycles}{A numeric vector with the number of cycles per patient / study
 in n-of-1 trials (see \code{\link{metagen}}).}
+
+\item{weights}{A single numeric or vector with user-specified weights.}
 
 \item{weights.common}{User-specified weights (common effect model).}
 

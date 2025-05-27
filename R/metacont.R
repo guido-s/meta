@@ -24,7 +24,7 @@
 #'   from the same cluster resulting in the use of a three-level
 #'   meta-analysis model.
 #' @param rho Assumed correlation of estimates within a cluster.
-#' @param weights User-specified weights.
+#' @param weights A single numeric or vector with user-specified weights.
 #' @param weights.common User-specified weights (common effect model).
 #' @param weights.random User-specified weights (random effects model).
 #' @param median.e Median in experimental group (used to estimate the
@@ -1057,6 +1057,12 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   if (!missing(weights.random))
     weights.random <- catch("weights.random", mc, data, sfsp)
   #
+  if (!is.null(weights) & is.null(weights.common))
+    weights.common <- weights
+  #
+  if (!is.null(weights) & is.null(weights.random))
+    weights.random <- weights
+  #
   usw.common <- !is.null(weights.common)
   usw.random <- !is.null(weights.random)
   #
@@ -1174,11 +1180,19 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   if (with.cluster)
     chklength(cluster, k.All, arg)
   #
-  if (usw.common)
-    chklength(weights.common, k.All, arg)
+  if (usw.common) {
+    if (length(weights.common) == 1)
+      weights.common <- rep(weights.common, k.All)
+    else
+      chklength(weights.common, k.All, arg)
+  }
   #
-  if (usw.random)
-    chklength(weights.random, k.All, arg)
+  if (usw.random) {
+    if (length(weights.random) == 1)
+      weights.random <- rep(weights.random, k.All)
+    else
+      chklength(weights.random, k.All, arg)
+  }
   #
   if (avail.median.e)
     chklength(median.e, k.All, arg)

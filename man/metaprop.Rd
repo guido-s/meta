@@ -101,7 +101,7 @@ meta-analysis model.}
 
 \item{rho}{Assumed correlation of estimates within a cluster.}
 
-\item{weights}{User-specified weights.}
+\item{weights}{A single numeric or vector with user-specified weights.}
 
 \item{weights.common}{User-specified weights (common effect model).}
 

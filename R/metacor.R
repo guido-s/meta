@@ -19,7 +19,7 @@
 #'   from the same cluster resulting in the use of a three-level
 #'   meta-analysis model.
 #' @param rho Assumed correlation of estimates within a cluster.
-#' @param weights User-specified weights.
+#' @param weights A single numeric or vector with user-specified weights.
 #' @param weights.common User-specified weights (common effect model).
 #' @param weights.random User-specified weights (random effects model).
 #' @param sm A character string indicating which summary measure
@@ -525,6 +525,12 @@ metacor <- function(cor, n, studlab,
   if (!missing(weights.random))
     weights.random <- catch("weights.random", mc, data, sfsp)
   #
+  if (!is.null(weights) & is.null(weights.common))
+    weights.common <- weights
+  #
+  if (!is.null(weights) & is.null(weights.random))
+    weights.random <- weights
+  #
   usw.common <- !is.null(weights.common)
   usw.random <- !is.null(weights.random)
   #
@@ -545,11 +551,19 @@ metacor <- function(cor, n, studlab,
   if (with.cluster)
     chklength(cluster, k.All, fun)
   #
-  if (usw.common)
-    chklength(weights.common, k.All, fun)
+  if (usw.common) {
+    if (length(weights.common) == 1)
+      weights.common <- rep(weights.common, k.All)
+    else
+      chklength(weights.common, k.All, fun)
+  }
   #
-  if (usw.random)
-    chklength(weights.random, k.All, fun)
+  if (usw.random) {
+    if (length(weights.random) == 1)
+      weights.random <- rep(weights.random, k.All)
+    else
+      chklength(weights.random, k.All, fun)
+  }
   #
   if (by) {
     chklength(subgroup, k.All, fun)

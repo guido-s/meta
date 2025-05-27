@@ -129,7 +129,7 @@ meta-analysis model.}
 \item{cycles}{A numeric vector with the number of cycles per patient / study
 in n-of-1 trials.}
 
-\item{weights}{User-specified weights.}
+\item{weights}{A single numeric or vector with user-specified weights.}
 
 \item{weights.common}{User-specified weights (common effect model).}
 
