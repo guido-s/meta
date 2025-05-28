@@ -69,6 +69,7 @@
   fill.cid = gs("fill.cid"),
   fill.cid.below.null = fill.cid,
   fill.cid.above.null = rev(fill.cid),
+  cid.pooled.only = gs("cid.pooled.only"),
   fill = gs("fill"),
   fill.equi = gs("fill.equi"),
   fill.lower.equi = fill.equi,
@@ -479,6 +480,9 @@ minimum and smallest limit is also filled).}
 reference value. Can be equal to the number of upper limits or the
 number of limits plus 1 (in this case the region between largest
 limit and maximum is also filled).}
+
+\item{cid.pooled.only}{A logical indicating whether CID regions should only
+be visible for pooled estimates or also individual studies.}
 
 \item{fill}{Colour for background of confidence interval plot (also used
 as colour for region between CID limits if argument \code{fill.equi} was

@@ -677,6 +677,7 @@ argslist <-
     "sort.subgroup",
     "pooled.events", "pooled.times", "study.results",
     "cid", "cid.below.null", "cid.above.null", "lty.cid", "col.cid", "fill.cid",
+    "cid.pooled.only",
     "fill", "fill.equi",
     "leftcols", "rightcols", "leftlabs", "rightlabs", 
     "label.e.attach", "label.c.attach",
@@ -896,6 +897,7 @@ setOption("cid.above.null", NA)
 setOption("lty.cid", 1)
 setOption("col.cid", "blue")
 setOption("fill.cid", "transparent")
+setOption("cid.pooled.only", FALSE)
 #
 setOption("lower.equi", NA)
 setOption("upper.equi", NA)

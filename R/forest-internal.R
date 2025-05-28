@@ -576,7 +576,7 @@ draw.forest <- function(x, column) {
 draw.lines <- function(x, column,
                        ref, TE.common, TE.random,
                        overall, common, random, prediction,
-                       ymin.common, ymin.random, ymin.ref, ymax,
+                       ymin.common, ymin.random, ymin.ref, ymax, ymax.ref,
                        lwd, lty.common, lty.random, col.common, col.random,
                        xmin, xmax,
                        cid.below.null, cid.above.null,
@@ -636,7 +636,7 @@ draw.lines <- function(x, column,
         ##
         grid.polygon(x = unit(c(cid.below.null[i], cid.below.null[i + 1],
                                 cid.below.null[i + 1], cid.below.null[i]), "native"),
-                     y = unit(c(ymin.ref, ymin.ref, ymax, ymax),
+                     y = unit(c(ymin.ref, ymin.ref, ymax.ref, ymax.ref),
                               "lines"),
                      gp = gpar(lwd = lwd, col = "transparent",
                                fill = fill.cid.below.null[i]))
@@ -649,7 +649,7 @@ draw.lines <- function(x, column,
           ((xmin <= cid.below.null[i] & cid.below.null[i] <= cid.below.null[i + 1]) &
            (cid.below.null[i + 1] <= xmax)))
         grid.lines(x = unit(cid.below.null[i], "native"),
-                   y = unit(c(ymin.ref, ymax), "lines"),
+                   y = unit(c(ymin.ref, ymax.ref), "lines"),
                    gp = gpar(lwd = lwd, col = col.cid, lty = lty.cid))
     }
   }
@@ -678,7 +678,7 @@ draw.lines <- function(x, column,
         ##
         grid.polygon(x = unit(c(cid.above.null[i], cid.above.null[i + 1],
                                 cid.above.null[i + 1], cid.above.null[i]), "native"),
-                     y = unit(c(ymin.ref, ymin.ref, ymax, ymax),
+                     y = unit(c(ymin.ref, ymin.ref, ymax.ref, ymax.ref),
                               "lines"),
                      gp = gpar(lwd = lwd, col = "transparent",
                                fill = fill.cid.above.null[i]))
@@ -690,7 +690,7 @@ draw.lines <- function(x, column,
           !is.na(cid.above.null[i + 1]) &&
           (xmin <= cid.above.null[i + 1] & cid.above.null[i + 1] <= xmax))
           grid.lines(x = unit(cid.above.null[i + 1], "native"),
-                     y = unit(c(ymin.ref, ymax), "lines"),
+                     y = unit(c(ymin.ref, ymax.ref), "lines"),
                      gp = gpar(lwd = lwd, col = col.cid, lty = lty.cid))
     }
   }

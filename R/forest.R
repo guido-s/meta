@@ -149,6 +149,8 @@
 #'   reference value. Can be equal to the number of upper limits or the
 #'   number of limits plus 1 (in this case the region between largest
 #'   limit and maximum is also filled).
+#' @param cid.pooled.only A logical indicating whether CID regions should only
+#'   be visible for pooled estimates or also individual studies.
 #' @param fill Colour for background of confidence interval plot (also used
 #'   as colour for region between CID limits if argument \code{fill.equi} was
 #'   not provided).
@@ -1362,6 +1364,7 @@ forest.meta <- function(x,
                         fill.cid = gs("fill.cid"),
                         fill.cid.below.null = fill.cid,
                         fill.cid.above.null = rev(fill.cid),
+                        cid.pooled.only = gs("cid.pooled.only"),
                         #
                         fill = gs("fill"),
                         #
@@ -2411,6 +2414,8 @@ forest.meta <- function(x,
       }
     }
   }
+  #
+  chklogical(cid.pooled.only)
   #
   if (bmj)
     type.study <- "squarediamond"
@@ -11294,6 +11299,12 @@ forest.meta <- function(x,
   #
   ymax <- spacing * (nrow - ifelse(is.na(yHeadadd), 1, 2) - 1 * addrow)
   #
+  if (cid.pooled.only)
+    ymax.ref <- spacing * (ymin.line + prediction * n.prd + random * n.ran +
+                             common * n.com)
+  else
+    ymax.ref <- ymax
+  #
   # Position on y-axis of left and right labels (at bottom of forest plot)
   #
   y.bottom.lr <- ymin.line - 2.5 + (!(overall | overall.hetstat) & addrow)
@@ -11622,6 +11633,7 @@ forest.meta <- function(x,
              overall, common, random, prediction,
              ymin.common, ymin.random, ymin.ref,
              ymax + 0.5 * header.line * addrow,
+             ymax.ref + 0.5 * header.line * addrow,
              lwd, lty.common, lty.random, col.common, col.random,
              xlim[1], xlim[2],
              cid.below.null, cid.above.null, lty.cid, col.cid,

@@ -15,6 +15,8 @@
   - calculate and print correct totals if studies have been excluded from the
     meta-analysis
     [(issue #73)](https://github.com/guido-s/meta/pull/73)
+  - region for clinically important difference (CID) can be restricted to
+    meta-analysis results
 
 * subgroup():
   - calculate correct totals in subgroups if studies have been excluded from the
@@ -34,6 +36,10 @@
 * longarm():
   - new arguments 'agent1', 'agent2', 'dose1', 'dose2', and 'sep.ag' for
     dose-response data
+
+* forest.meta(), settings.meta():
+  - new argument 'cid.pooled.only' to restrict CID region to meta-analysis
+    results
 
 
 ## meta, version 8.1-0 (2025-05-02)

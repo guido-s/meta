@@ -709,6 +709,8 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("lty.cid", 1)
     setOption("col.cid", "blue")
     setOption("fill.cid", "transparent")
+    setOption("cid.pooled.only", FALSE)
+    #
     setOption("fill", "transparent")
     setOption("fill.equi", "transparent")
     ##
@@ -1123,8 +1125,8 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("tool.rob           ")
     catarg("overall.hetstat    ")
     catarg("cid                ")
-    catarg("cid.below.null          ")
-    catarg("cid.above.null          ")
+    catarg("cid.below.null     ")
+    catarg("cid.above.null     ")
     catarg("text.common        ")
     catarg("text.random        ")
     catarg("text.predict       ")
@@ -1257,6 +1259,7 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("lty.cid                ")
     catarg("col.cid                ")
     catarg("fill.cid               ")
+    catarg("cid.pooled.only        ")
     catarg("fill.equi              ")
     ##
     catarg("fill                   ")
