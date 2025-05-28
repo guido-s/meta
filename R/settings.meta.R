@@ -1492,6 +1492,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setOptionDepr(args, "col.cid", "col.equi", setcolor)
     setcolor("fill.cid", args)
     setcolor("fill.equi", args)
+    setlogical("cid.pooled.only", args)
     ##
     ## R function metabin
     ##
