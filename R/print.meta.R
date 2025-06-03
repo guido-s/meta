@@ -1200,13 +1200,15 @@ print.meta <- function(x,
       print.tau2.ci <-
         print.tau2.ci & !all(is.na(x$lower.tau2) & is.na(x$upper.tau2))
       if (print.tau2.ci &&
-          (all(x$lower.tau2 == 0) & all(x$upper.tau2 == 0)))
+          (all(x$lower.tau2 == 0, na.rm = TRUE) &
+           all(x$upper.tau2 == 0, na.rm = TRUE)))
         print.tau2.ci <- FALSE
       #
       print.tau.ci <-
         print.tau.ci & !all(is.na(x$lower.tau) & is.na(x$upper.tau))
       if (print.tau.ci &&
-          (all(x$lower.tau == 0) & all(x$upper.tau == 0)))
+          (all(x$lower.tau == 0, na.rm = TRUE) &
+           all(x$upper.tau == 0, na.rm = TRUE)))
         print.tau.ci <- FALSE
       #
       cat(paste0("\nQuantifying heterogeneity",

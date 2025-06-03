@@ -7,6 +7,9 @@
 
 * User-defined weights can be provided in meta-analysis functions
 
+* Major revision of R function metaadd() to add meta-analysis results to
+  existing meta-analysis object
+
 * R function longarm() can be used with dose-response data
 
 ### Bug fixes
@@ -32,6 +35,16 @@
   - new argument 'method.common.ci' to choose IVhet method
   - new arguments 'weights', 'weights.common', and 'weights.random' to provide
     user-defined weights
+
+* metaadd():
+  - argument 'type' can be equal to 'tau2' to provide estimate for the
+    between-study variance (argument 'TE') and its confidence interval
+    (arguments 'lower' and 'upper')
+  - new argument 'df' to provide degrees of freedom for random effects estimate
+    or prediction interval
+  - argument 'method' replaces arguments 'method.common', 'method.random',
+    'method.tau' and 'method.predict'
+  - argument 'method.ci' replaces argument 'method.random.ci'
 
 * longarm():
   - new arguments 'agent1', 'agent2', 'dose1', 'dose2', and 'sep.ag' for

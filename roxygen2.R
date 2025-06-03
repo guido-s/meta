@@ -17,7 +17,7 @@ document()
 # (3) Build R package and PDF file with help pages
 #
 
-build(args = "--compact-vignettes=gs+qpdf")
+build(args = "--compact-vignettes=both")
 build_manual()
 
 

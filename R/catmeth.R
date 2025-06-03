@@ -110,9 +110,9 @@ catmeth <- function(x,
   ## (2) Meta-analysis methods
   ##
   ##
-
-  if (overall | metabind | metacum.metainf | by) {
     
+  if (overall | metabind | metacum.metainf | by) {
+      
     meth.ma <- meth[meth$model %in% selmod, , drop = FALSE]
     ##
     vars.ma <- c("model", "method")
