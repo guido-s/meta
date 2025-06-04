@@ -3113,7 +3113,7 @@ forest.meta <- function(x,
   #
   #
   n.com <- max(length(x$TE.common), 1)
-  n.ran <- max(length(x$seTE.random), 1)
+  n.ran <- max(length(x$lower.random), 1)
   n.prd <- max(length(x$lower.predict), 1)
   #
   prediction <- prediction &

@@ -17,6 +17,7 @@
 #' @param statistic Test statistic(s).
 #' @param pval P-value(s).
 #' @param df Degrees of freedom for confidence or prediction intervals.s
+#' @param se Standard error(s).
 #' @param method A character string or vector to describe the
 #'   method used to get the pooled estimate(s), prediction interval(s) or
 #'   between-study variance(s).
@@ -89,6 +90,7 @@ metaadd <- function(x, type = NULL,
                     TE = NA, lower = NA, upper = NA,
                     #
                     statistic = NA, pval = NA, df = NA,
+                    se = NA,
                     #
                     method = "", method.ci = "",
                     #
@@ -106,7 +108,12 @@ metaadd <- function(x, type = NULL,
   
   chkclass(x, "meta")
   res <- updateversion(x)
-  ##
+  #
+  if (res$k < 2)
+    stop("Meta-analysis object provided in argument 'x' must combine ",
+         "at least two studies.",
+         call. = FALSE)
+  #
   missing.type <- missing(type)
   ##
   missing.TE <- missing(TE)
@@ -115,6 +122,7 @@ metaadd <- function(x, type = NULL,
   missing.statistic <- missing(statistic)
   missing.pval <- missing(pval)
   missing.df <- missing(df)
+  missing.se <- missing(se)
   #
   missing.method <- missing(method)
   missing.method.ci <- missing(method.ci)
@@ -137,10 +145,16 @@ metaadd <- function(x, type = NULL,
   if (nulldata)
     data <- sfsp
   #
-  # Catch 'type', 'TE', 'lower', 'upper', 'statistic', 'pval', 'df',
+  # Catch 'type', 'TE', 'lower', 'upper', 'statistic', 'pval', 'df', 'se',
   # 'method' and 'method.ci' from data:
   #
   if (inherits(data, "meta")) {
+    if (inherits(data, "metaadd"))
+      stop("Argument 'data' cannot be of class 'metaadd'.",
+           call. = FALSE)
+    #
+    is.meta <- TRUE
+    #
     warnmeta <- function(miss, name)
       if (!miss)
         warning("Argument '", name, "' ignored as argument 'data' is a ",
@@ -154,6 +168,7 @@ metaadd <- function(x, type = NULL,
     warnmeta(missing.statistic, "statistic")
     warnmeta(missing.pval, "pval")
     warnmeta(missing.df, "df")
+    warnmeta(missing.se, "se")
     #
     warnmeta(missing.method, "method")
     warnmeta(missing.method.ci, "method.ci")
@@ -161,12 +176,13 @@ metaadd <- function(x, type = NULL,
     dat.c <- dat.r <- dat.t <- dat.p <- NULL
     #
     if (data$common | !(data$random | data$prediction)) {
-      if (data$method == "GLMM" & is.null(res$model.glmm))
+      if (any(data$method == "GLMM") & is.null(res$model.glmm))
         res$model.glmm <- data$model.glmm
       #
       dat.c <- data.frame(type = "common",
                           #
                           TE = data$TE.common,
+                          se = data$seTE.common,
                           lower = data$lower.common,
                           upper = data$upper.common,
                           statistic = data$statistic.common,
@@ -181,12 +197,13 @@ metaadd <- function(x, type = NULL,
     }
     #
     if (data$random) {
-      if (data$method.random == "GLMM" & is.null(res$model.glmm))
+      if (any(data$method.random == "GLMM") & is.null(res$model.glmm))
         res$model.glmm <- data$model.glmm
       #
       dat.r <- data.frame(type = "random",
                           #
                           TE = data$TE.random,
+                          se = data$seTE.random,
                           lower = data$lower.random,
                           upper = data$upper.random,
                           statistic = data$statistic.random,
@@ -202,6 +219,7 @@ metaadd <- function(x, type = NULL,
       dat.t <- data.frame(type = "tau2",
                           #
                           TE = data$tau2,
+                          se = data$se.tau2,
                           lower = data$lower.tau2,
                           upper = data$upper.tau2,
                           statistic = NA,
@@ -220,8 +238,9 @@ metaadd <- function(x, type = NULL,
       dat.p <- data.frame(type = "prediction",
                           #
                           TE = NA,
-                          lower = data$lower.random,
-                          upper = data$upper.random,
+                          se = data$seTE.predict,
+                          lower = data$lower.predict,
+                          upper = data$upper.predict,
                           statistic = NA,
                           pval = NA,
                           df = data$df.predict,
@@ -244,6 +263,8 @@ metaadd <- function(x, type = NULL,
     }
   }
   else {
+    is.meta <- FALSE
+    #
     type <- catch("type", mc, data, sfsp)
     type <- setchar(type, c("common", "random", "prediction", "tau2"))
     #
@@ -277,51 +298,56 @@ metaadd <- function(x, type = NULL,
     if (length(type) == 1 & length(lower) > 1)
       type <- rep_len(type, length(lower))
     #
-    k.all <- length(type)
+    n.type <- length(type)
     #
     if (!missing.TE) {
       chknumeric(TE)
-      chklength(TE, k.all, name = "type")
+      chklength(TE, n.type, name = "type")
     }
     ##
     chknumeric(lower)
-    chklength(lower, k.all, name = "type")
+    chklength(lower, n.type, name = "type")
     ##
     chknumeric(upper)
-    chklength(upper, k.all, name = "type")
+    chklength(upper, n.type, name = "type")
     ##
     if (!missing.statistic) {
       chknumeric(statistic)
-      chklength(statistic, k.all, name = "type")
+      chklength(statistic, n.type, name = "type")
     }
     #
     if (!missing.pval) {
       chknumeric(pval)
-      chklength(pval, k.all, name = "type")
+      chklength(pval, n.type, name = "type")
     }
     #
     if (!missing.df) {
       chknumeric(df)
-      chklength(df, k.all, name = "type")
+      chklength(df, n.type, name = "type")
+    }
+    #
+    if (!missing.se) {
+      chknumeric(se, min = 0)
+      chklength(se, n.type, name = "type")
     }
     #
     if (!missing.method) {
       chkchar(method)
-      chklength(method, k.all, name = "type")
+      chklength(method, n.type, name = "type")
     }
     #
     if (!missing.method.ci) {
       chkchar(method.ci)
-      chklength(method.ci, k.all, name = "type")
+      chklength(method.ci, n.type, name = "type")
     }
     #
-    if (length(text) == 1 & k.all > 1)
-      text <- rep_len(text, k.all)
+    if (length(text) == 1 & n.type > 1)
+      text <- rep_len(text, n.type)
     else
-      chklength(text, k.all)
+      chklength(text, n.type)
     #
     dat <- data.frame(type,
-                      TE, lower, upper, statistic, pval, df,
+                      TE, se, lower, upper, statistic, pval, df,
                       method, method.ci, text)
     #
     # Transform added results
@@ -342,6 +368,10 @@ metaadd <- function(x, type = NULL,
   ##
   ##
   
+  init.random <- res$random
+  #
+  j.t <- 0
+  #
   for (i in seq_len(nrow(dat))) {
     if (dat$type[i] == "common") {
       if (!res$common)
@@ -349,6 +379,8 @@ metaadd <- function(x, type = NULL,
       #
       res$TE.common <-
         c(if (res$common) res$TE.common, dat$TE[i])
+      res$seTE.common <-
+        c(if (res$common) res$seTE.common, dat$se[i])
       res$lower.common <-
         c(if (res$common) res$lower.common, dat$lower[i])
       res$upper.common <-
@@ -376,6 +408,8 @@ metaadd <- function(x, type = NULL,
       #
       res$TE.random <-
         c(if (res$random) res$TE.random, dat$TE[i])
+      res$seTE.random <-
+        c(if (res$random) res$seTE.random, dat$se[i])
       res$lower.random <-
         c(if (res$random) res$lower.random, dat$lower[i])
       res$upper.random <-
@@ -400,6 +434,8 @@ metaadd <- function(x, type = NULL,
     }
     #
     if (dat$type[i] == "prediction") {
+      res$seTE.predict <-
+        c(if (res$prediction) res$seTE.predict, dat$se[i])
       res$lower.predict <-
         c(if (res$prediction) res$lower.predict, dat$lower[i])
       res$upper.predict <-
@@ -420,15 +456,22 @@ metaadd <- function(x, type = NULL,
     }
     #
     if (dat$type[i] == "tau2") {
-      res$tau2 <- c(res$tau2, dat$TE[i])
-      res$lower.tau2 <- c(res$lower.tau2, dat$lower[i])
-      res$upper.tau2 <- c(res$upper.tau2, dat$upper[i])
+      j.t <- j.t + 1
       #
-      res$method.tau <- c(res$method.tau, dat$method[i])
-      res$method.tau.ci <- c(res$method.tau.ci, dat$method.ci[i])
+      sel.t.i <- res$random & ((is.meta & (init.random & j.t > 1)) | !is.meta)
+      #
+      res$tau2 <- c(if (sel.t.i) res$tau2, dat$TE[i])
+      res$se.tau2 <- c(if (sel.t.i) res$se.tau2, dat$se[i])
+      res$lower.tau2 <- c(if (sel.t.i) res$lower.tau2, dat$lower[i])
+      res$upper.tau2 <- c(if (sel.t.i) res$upper.tau2, dat$upper[i])
+      #
+      res$method.tau <- c(if (sel.t.i) res$method.tau, dat$method[i])
+      res$method.tau.ci <- c(if (sel.t.i) res$method.tau.ci, dat$method.ci[i])
       #
       if (!is.na(dat$phi[i]))
-        res$phi <- c(res$phi, dat$phi[i])
+        res$phi <- c(if (sel.t.i) res$phi, dat$phi[i])
+      #
+      res$random <- TRUE
     }
   }
   #

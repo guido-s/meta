@@ -13,6 +13,7 @@ metaadd(
   statistic = NA,
   pval = NA,
   df = NA,
+  se = NA,
   method = "",
   method.ci = "",
   text = "Added result",
@@ -39,6 +40,8 @@ prediction interval. Either \code{"common"}, \code{"random"},
 \item{pval}{P-value(s).}
 
 \item{df}{Degrees of freedom for confidence or prediction intervals.s}
+
+\item{se}{Standard error(s).}
 
 \item{method}{A character string or vector to describe the
 method used to get the pooled estimate(s), prediction interval(s) or

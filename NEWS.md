@@ -40,6 +40,7 @@
   - argument 'type' can be equal to 'tau2' to provide estimate for the
     between-study variance (argument 'TE') and its confidence interval
     (arguments 'lower' and 'upper')
+  - new argument 'se' to provide standard error
   - new argument 'df' to provide degrees of freedom for random effects estimate
     or prediction interval
   - argument 'method' replaces arguments 'method.common', 'method.random',
