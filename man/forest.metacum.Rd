@@ -15,6 +15,7 @@
   just.addcols = "right",
   smlab = "Cumulative Meta-Analysis",
   type = "square",
+  layout = gs("layout"),
   lab.NA = ".",
   backtransf = x$backtransf,
   big.mark = gs("big.mark"),
@@ -67,6 +68,9 @@ figure).}
 \item{type}{A character string or vector specifying how to
 plot treatment effects and confidence intervals for cumulative
 meta-analysis results.}
+
+\item{layout}{A character string specifying the layout of the
+forest plot (see \code{\link{forest.meta}}).}
 
 \item{lab.NA}{A character string to label missing values.}
 

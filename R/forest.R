@@ -1644,6 +1644,8 @@ forest.meta <- function(x,
   metaprop <- inherits(x, "metaprop")
   metarate <- inherits(x, "metarate")
   metabind <- inherits(x, "is.metabind")
+  metacum <- inherits(x, "metacum")
+  metainf <- inherits(x, "metainf")
   #
   metamerge <- inherits(x, "metamerge")
   #
@@ -1666,11 +1668,13 @@ forest.meta <- function(x,
   # Logical variables for missing arguments
   #
   missing.calcwidth.common <- missing(calcwidth.common)
-  missing.col.circle <- missing(col.circle)
-  missing.col.circle.lines <- missing(col.circle.lines)
+  missing.col.circle <- missing(col.circle) | is.null(col.circle)
+  missing.col.circle.lines <-
+    missing(col.circle.lines) | is.null(col.circle.lines)
   missing.col.common <- missing(col.common)
   missing.col.diamond <- missing(col.diamond)
-  missing.col.diamond.common <- missing(col.diamond.common)
+  missing.col.diamond.common <-
+    missing(col.diamond.common) | is.null(col.diamond.common)
   missing.col.diamond.fixed <- is.na(argid(nam.args, "col.diamond.fixed"))
   missing.col.diamond.fixed.lines <-
     is.na(argid(nam.args, "col.diamond.fixed.lines"))
@@ -1678,11 +1682,13 @@ forest.meta <- function(x,
   missing.col.diamond.lines.fixed <-
     is.na(argid(nam.args, "col.diamond.lines.fixed"))
   missing.col.diamond.lines.random <- missing(col.diamond.lines.random)
-  missing.col.diamond.random <- missing(col.diamond.random)
+  missing.col.diamond.random <-
+    missing(col.diamond.random) | is.null(col.diamond.random)
   missing.col.inside <- missing(col.inside)
   missing.col.inside.common <- missing(col.inside.common)
-  missing.col.square <- missing(col.square)
-  missing.col.square.lines <- missing(col.square.lines)
+  missing.col.square <- missing(col.square) | is.null(col.square)
+  missing.col.square.lines <-
+    missing(col.square.lines) | is.null(col.square.lines)
   missing.col.subgroup <- missing(col.subgroup)
   missing.common <- missing(common)
   missing.common.subgroup <- missing(common.subgroup)
@@ -3067,6 +3073,65 @@ forest.meta <- function(x,
   }
   #
   chklogical(details)
+  #
+  # Set colours for JAMA and RevMan5 layouts
+  #
+  if (jama) {
+    if (missing.col.square)
+      col.square <- rep("darkblue", K.all)
+    if (missing.col.square.lines)
+      col.square.lines <- rep("darkblue", K.all)
+    #
+    if (missing.col.circle)
+      col.circle <- rep("darkblue", K.all)
+    if (missing.col.circle.lines)
+      col.circle.lines <- rep("darkblue", K.all)
+    #
+    if (missing.col.diamond.common)
+      col.diamond.common <- "lightblue"
+    if (missing.col.diamond.random)
+      col.diamond.random <- "lightblue"
+  }
+  else if (revman5) {
+    if (missing.col.square) {
+      if (metacont | metamean)
+        col.square <- rep("green", K.all)
+      else if (metabin)
+        col.square <- rep("blue", K.all)
+      else
+        col.square <- rep("red", K.all)
+    }
+    if (missing.col.square.lines) {
+      if (metacont | metamean)
+        col.square.lines <- rep("green", K.all)
+      else if (metabin)
+        col.square.lines <- rep("darkblue", K.all)
+      else
+        col.square.lines <- rep("red", K.all)
+    }
+    #
+    if (missing.col.circle) {
+      if (metacont | metamean)
+        col.circle <- rep("green", K.all)
+      else if (metabin)
+        col.circle <- rep("blue", K.all)
+      else
+        col.circle <- rep("red", K.all)
+    }
+    if (missing.col.circle.lines) {
+      if (metacont | metamean)
+        col.circle.lines <- rep("green", K.all)
+      else if (metabin)
+        col.circle.lines <- rep("darkblue", K.all)
+      else
+        col.circle.lines <- rep("red", K.all)
+    }
+    #
+    if (missing.col.diamond.common)
+      col.diamond.common <- "black"
+    if (missing.col.diamond.random)
+      col.diamond.random <- "black"
+  }
   
   
   #
@@ -3487,8 +3552,12 @@ forest.meta <- function(x,
   chknumeric(addrows.below.overall, min = 0, length = 1, integer = TRUE)
   #
   if (!avail.xlim) {
+    mrm <- c("metaprop", "metarate", "metamean")
+    #
     if (metaprop || metarate || metamean ||
-        (metabind & sm %in% c(gs("sm4prop"), gs("sm4rate"), gs("sm4mean")))) {
+        (metabind && sm %in% c(gs("sm4prop"), gs("sm4rate"), gs("sm4mean"))) ||
+        (metacum && any(x$classes %in% mrm)) ||
+        (metainf && any(x$classes %in% mrm))) {
       xlim <- NULL
       #
       avail.xlim <- FALSE
@@ -3734,68 +3803,15 @@ forest.meta <- function(x,
   if (jama) {
     if (missing.ff.lr)
       ff.lr <- "bold"
+    #
     if (xlab == "")
       xlab <- paste0(sm.lab, " (", ci.lab, ")")
-    #
-    if (missing.col.square)
-      col.square <- rep("darkblue", K.all)
-    if (missing.col.square.lines)
-      col.square.lines <- rep("darkblue", K.all)
-    #
-    if (missing.col.circle)
-      col.circle <- rep("darkblue", K.all)
-    if (missing.col.circle.lines)
-      col.circle.lines <- rep("darkblue", K.all)
-    #
-    if (missing.col.diamond.common)
-      col.diamond.common <- "lightblue"
-    if (missing.col.diamond.random)
-      col.diamond.random <- "lightblue"
     #
     smlab <- ""
     bottom.lr <- FALSE
   }
   else {
     if (revman5) {
-      if (missing.col.square) {
-        if (metacont | metamean)
-          col.square <- rep("green", K.all)
-        else if (metabin)
-          col.square <- rep("blue", K.all)
-        else
-          col.square <- rep("red", K.all)
-      }
-      if (missing.col.square.lines) {
-        if (metacont | metamean)
-          col.square.lines <- rep("green", K.all)
-        else if (metabin)
-          col.square.lines <- rep("darkblue", K.all)
-        else
-          col.square.lines <- rep("red", K.all)
-      }
-      #
-      if (missing.col.circle) {
-        if (metacont | metamean)
-          col.circle <- rep("green", K.all)
-        else if (metabin)
-          col.circle <- rep("blue", K.all)
-        else
-          col.circle <- rep("red", K.all)
-      }
-      if (missing.col.circle.lines) {
-        if (metacont | metamean)
-          col.circle.lines <- rep("green", K.all)
-        else if (metabin)
-          col.circle.lines <- rep("darkblue", K.all)
-        else
-          col.circle.lines <- rep("red", K.all)
-      }
-      #
-      if (missing.col.diamond.common)
-        col.diamond.common <- "black"
-      if (missing.col.diamond.random)
-        col.diamond.random <- "black"
-      #
       sel.method <- pmatch(x$method, c("Inverse", "MH", "Peto", "GLMM"))
       lab.method <- c("IV", "MH", "Peto", "GLMM")[sel.method]
       #

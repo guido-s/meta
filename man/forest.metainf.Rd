@@ -6,15 +6,12 @@
 \usage{
 \method{forest}{metainf}(
   x,
-  leftcols = NULL,
-  leftlabs = NULL,
-  rightcols = NULL,
-  rightlabs = NULL,
   prediction = x$prediction,
   overall = x$overall,
   just.addcols = "right",
   smlab = "Leave-One-Out Meta-Analysis",
   type = "square",
+  layout = gs("layout"),
   lab.NA = ".",
   backtransf = x$backtransf,
   big.mark = gs("big.mark"),
@@ -38,20 +35,6 @@
 \arguments{
 \item{x}{An object of class \code{\link{metainf}}.}
 
-\item{leftcols}{A character vector specifying (additional) columns
-to be plotted on the left side of the forest plot or a logical
-value.}
-
-\item{leftlabs}{A character vector specifying labels for
-(additional) columns on left side of the forest plot.}
-
-\item{rightcols}{A character vector specifying (additional) columns
-to be plotted on the right side of the forest plot or a logical
-value.}
-
-\item{rightlabs}{A character vector specifying labels for
-(additional) columns on right side of the forest plot.}
-
 \item{prediction}{A logical indicating whether prediction
 intervals should be printed.}
 
@@ -67,6 +50,9 @@ figure).}
 \item{type}{A character string or vector specifying how to
 plot treatment effects and confidence intervals for cumulative
 meta-analysis results.}
+
+\item{layout}{A character string specifying the layout of the
+forest plot (see \code{\link{forest.meta}}).}
 
 \item{lab.NA}{A character string to label missing values.}
 
@@ -129,27 +115,8 @@ graphics system).
 }
 \details{
 A forest plot, also called confidence interval plot, is drawn in
-the active graphics window. The forest functions in R package
-\bold{meta} are based on the grid graphics system. In order to
-print the forest plot, resize the graphics window and either use
-\code{\link{dev.copy2eps}} or \code{\link{dev.copy2pdf}}. Another
-possibility is to create a file using \code{\link{pdf}},
-\code{\link{png}}, or \code{\link{svg}} and to specify the width
-and height of the graphic (see \code{\link{forest.meta}} examples).
-
-The arguments \code{leftcols} and \code{rightcols} can be used to
-specify columns which are plotted on the left and right side of the
-forest plot, respectively.
-
-The arguments \code{leftlabs} and \code{rightlabs} can be used to
-specify column headings which are plotted on left and right side of
-the forest plot, respectively. For certain columns predefined
-labels exist. For other columns, the column name will be used as a
-label. It is possible to only provide labels for new columns (see
-\code{\link{forest.meta}} examples). Otherwise the length of
-\code{leftlabs} and \code{rightlabs} must be the same as the number
-of printed columns, respectively. The value \code{NA} can be used
-to specify columns which should use default labels.
+the active graphics window. Internally, R function
+\code{\link{forest.metacum}} is called to produce the forest plot.
 }
 \examples{
 data(Fleiss1993bin)
@@ -165,8 +132,8 @@ forest(metainf(m1, pooled = "random", prediction = TRUE))
 
 }
 \seealso{
-\code{\link{forest.meta}}, \code{\link{metainf}},
-  \code{\link{settings.meta}}
+\code{\link{forest.metacum}}, \code{\link{forest.meta}},
+  \code{\link{metainf}}, \code{\link{settings.meta}}
 }
 \author{
 Guido Schwarzer \email{guido.schwarzer@uniklinik-freiburg.de}

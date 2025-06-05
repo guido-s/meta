@@ -28,6 +28,8 @@
 #' @param type A character string or vector specifying how to
 #'   plot treatment effects and confidence intervals for cumulative
 #'   meta-analysis results.
+#' @param layout A character string specifying the layout of the
+#'   forest plot (see \code{\link{forest.meta}}).
 #' @param lab.NA A character string to label missing values.
 #' @param backtransf A logical indicating whether results should be
 #'   back transformed in forest plots. If \code{backtransf = TRUE},
@@ -122,6 +124,7 @@ forest.metacum <- function(x,
                            just.addcols = "right",
                            smlab = "Cumulative Meta-Analysis",
                            type = "square",
+                           layout = gs("layout"),
                            lab.NA = ".",
                            #
                            backtransf = x$backtransf,
@@ -188,6 +191,8 @@ forest.metacum <- function(x,
   #
   chklogical(overall)
   #
+  layout <- setchar(layout, c("meta", "BMJ", "RevMan5", "JAMA"))
+  #
   chklogical(backtransf)
   chknumeric(digits, min = 0, length = 1)
   chknumeric(digits.pval, min = 0, length = 1)
@@ -199,6 +204,13 @@ forest.metacum <- function(x,
   chknumeric(addrows.below.overall, length = 1)
   #
   chklogical(details)
+  #
+  missing.leftcols <- missing(leftcols)
+  missing.rightcols <- missing(rightcols)
+  #
+  missing.col.bg <- missing(col.bg)
+  missing.col.border <- missing(col.border)
+  
   
   avail.prop.cid.below.null <-
     !is.null(x$prop.cid.below.null) && !(all(is.na(x$prop.cid.below.null)))
@@ -207,6 +219,8 @@ forest.metacum <- function(x,
   #
   avail.prop.cid <- avail.prop.cid.below.null | avail.prop.cid.above.null
   #
+  pvalNA <- all(is.na(x$pval))
+  #
   if (is.null(leftcols))
     leftcols <- "studlab"
   #
@@ -214,7 +228,7 @@ forest.metacum <- function(x,
     leftlabs <- rep(NA, length(leftcols))
   #
   if (is.null(rightcols)) {
-    rightcols <- c("effect", "ci", "pval", "tau2", "tau", "I2")
+    rightcols <- c("effect", "ci", if (!pvalNA) "pval", "tau2", "tau", "I2")
     #
     if (avail.prop.cid.below.null)
       rightcols <- c(rightcols, "prop.cid.below.null")
@@ -231,10 +245,10 @@ forest.metacum <- function(x,
   print.I2 <- any(c("I2" %in% leftcols, "I2" %in% rightcols))
   #
   print.cid.below.null <- any(c("prop.cid.below.null" %in% leftcols,
-                           "prop.cid.below.null" %in% rightcols))
+                                "prop.cid.below.null" %in% rightcols))
   #
   print.cid.above.null <- any(c("prop.cid.above.null" %in% leftcols,
-                           "prop.cid.above.null" %in% rightcols))
+                                "prop.cid.above.null" %in% rightcols))
   #
   pval <- formatPT(x$pval, digits = digits.pval, lab.NA = lab.NA)
   tau2 <- formatPT(x$tau2, digits = digits.tau2, lab.NA = lab.NA)
@@ -283,7 +297,6 @@ forest.metacum <- function(x,
             print.df = TRUE, prediction.subgroup = FALSE,
             #
             forest = TRUE)
-  #
   #
   if (avail.prop.cid)
     svd <- x$small.values == "desirable"
@@ -347,15 +360,17 @@ forest.metacum <- function(x,
                  rep("", k.all)),
                ncol = k.all, byrow = TRUE))
     #
-    col.bg <- as.vector(
-      matrix(c(rep(col.bg, k.all),
-               rep(col.bg.predict, k.all)),
-             ncol = k.all, byrow = TRUE))
+    if (!is.null(col.bg))
+      col.bg <- as.vector(
+        matrix(c(rep(col.bg, k.all),
+                 rep(col.bg.predict, k.all)),
+               ncol = k.all, byrow = TRUE))
     #
-    col.border <- as.vector(
-      matrix(c(rep(col.border, k.all),
-               rep(col.border.predict, k.all)),
-             ncol = k.all, byrow = TRUE))
+    if (!is.null(col.border))
+      col.border <- as.vector(
+        matrix(c(rep(col.border, k.all),
+                 rep(col.border.predict, k.all)),
+               ncol = k.all, byrow = TRUE))
     #
     sel.pred <- as.vector(
       matrix(c(rep(TRUE, k.all), prediction),
@@ -368,6 +383,8 @@ forest.metacum <- function(x,
                  sm = x$sm,
                  backtransf = backtransf,
                  func.backtransf = x$func.backtransf,
+                 #
+                 null.effect = x$null.effect,
                  #
                  label.left = x$label.left,
                  label.right = x$label.right)
@@ -397,8 +414,10 @@ forest.metacum <- function(x,
     #
     type.study <- rep(c(type, "predict"), k.all)[sel.pred]
     #
-    col.bg <- col.bg[sel.pred]
-    col.border <- col.border[sel.pred]
+    if (!is.null(col.bg))
+      col.bg <- col.bg[sel.pred]
+    if (!is.null(col.border))
+      col.border <- col.border[sel.pred]
   }
   #
   else {
@@ -417,6 +436,8 @@ forest.metacum <- function(x,
                  sm = x$sm,
                  backtransf = backtransf,
                  func.backtransf = x$func.backtransf,
+                 #
+                 null.effect = x$null.effect,
                  #
                  label.left = x$label.left,
                  label.right = x$label.right)
@@ -557,6 +578,23 @@ forest.metacum <- function(x,
   }
   #
   m$.text.details.methods <- text.details
+  #
+  # Move columns to left side of forest plot for JAMA and RevMan5 layouts
+  #
+  if (missing.leftcols & missing.rightcols & layout %in% c("JAMA", "RevMan5")) {
+    leftcols <- c(leftcols, rightcols[-(1:2)], rightcols[1:2])
+    rightcols <- NULL
+    leftlabs <- c(leftlabs, rightlabs[-(1:2)], rightlabs[1:2])
+    rightlabs <- NULL
+  }
+  #
+  # Use default colours for JAMA and RevMan5 layouts
+  #
+  if (missing.col.bg & layout %in% c("JAMA", "RevMan5"))
+    col.bg <- NULL
+  #
+  if (missing.col.border & layout %in% c("JAMA", "RevMan5"))
+    col.border <- NULL
   
   
   data.p <-
@@ -586,6 +624,9 @@ forest.metacum <- function(x,
   }
   
   
+  class(m) <- c(class(m), class(x))
+  m$classes <- x$classes
+  #
   dots_list <- drop_from_dots(list(...),
                               c("col.study", "col.square", "col.square.lines",
                                 "overall.hetstat", "overall.hetstat",
@@ -596,7 +637,7 @@ forest.metacum <- function(x,
   #
   args_list <-
     list(x = m,
-         leftcols = leftcols,
+         leftcols = leftcols, leftlabs = leftlabs,
          rightcols = rightcols, rightlabs = rightlabs,
          overall.hetstat = FALSE,
          type.study = type.study,
@@ -604,6 +645,8 @@ forest.metacum <- function(x,
          lab.NA = lab.NA, smlab = smlab,
          data.pooled = data.p,
          just.addcols = just.addcols,
+         #
+         layout = layout,
          #
          backtransf = backtransf,
          #
