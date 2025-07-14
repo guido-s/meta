@@ -20,6 +20,13 @@
     [(issue #73)](https://github.com/guido-s/meta/pull/73)
   - region for clinically important difference (CID) can be restricted to
     meta-analysis results
+  - bug fix for p-values below 0.0001 in R object created with
+    metacum() or metainf()
+
+* metaprop():
+  - use generalised linear mixed model if argument 'method' is missing and
+    argument 'sm' is equal to "PLO", "PLOG", or "PLOGI" (i.e., the abbreviation
+    of "PLOGIT")
 
 * subgroup():
   - calculate correct totals in subgroups if studies have been excluded from the
