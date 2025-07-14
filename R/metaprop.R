@@ -679,7 +679,10 @@ metaprop <- function(event, n, studlab,
   ##
   
   chknumeric(rho, min = -1, max = 1)
-  ##
+  #
+  chknull(sm)
+  sm <- setchar(sm, gs("sm4prop"))
+  #
   missing.method <- missing(method)
   if (missing.method)
     method <- if (sm == "PLOGIT") "GLMM" else "Inverse"
@@ -697,9 +700,6 @@ metaprop <- function(event, n, studlab,
               call. = FALSE)
     method.common.ci <- "classic"
   }
-  #
-  chknull(sm)
-  sm <- setchar(sm, gs("sm4prop"))
   ##
   missing.method.incr <- missing(method.incr)
   method.incr <- setchar(method.incr, gs("meth4incr"))
