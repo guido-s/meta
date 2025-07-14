@@ -9778,8 +9778,10 @@ forest.meta <- function(x,
   #
   # P-value of effect
   #
+  
   pval.format <-
-    formatPT(c(x$pval.common, x$pval.random, NAs.prd, x$pval),
+    formatPT(c(x$pval.common, x$pval.random, NAs.prd,
+               if (is.numeric(x$pval)) x$pval else rep(NA, length(x$pval))),
              digits = digits.pval,
              big.mark = big.mark,
              lab = FALSE, labval = "",
