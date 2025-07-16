@@ -525,6 +525,11 @@ oct2txt <- function(txt) {
   txt <- gsub("\376", "t", txt, useBytes = TRUE)
   txt <- gsub("\377", "y", txt, useBytes = TRUE)
   txt <- gsub("\303\237", "AY", txt, useBytes = TRUE)
+  
+  # replace any remaining non UTF-8 characters with question marks
+  # otherwise they crash the `extract_outcomes` function
+  txt <- iconv(txt, from = "", to = "UTF-8", sub = "???")
+  
   ##
   txt
 }
