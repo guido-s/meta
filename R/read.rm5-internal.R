@@ -928,6 +928,14 @@ read.rm5.rm5 <- function(file, title, numbers.in.labels = TRUE, debug = 0) {
   rdata <- oct2txt(rdata)
   
   
+  ## 
+  ## Deal with missing line breaks
+  ##
+  if (length(rdata) == 1 && sum(gregexpr(">", rdata)[[1]] > 0)) {
+    rdata <- unlist(strsplit(rdata, "(?<=>)", perl = TRUE))
+  }
+
+  
   ##
   ## Extract title
   ##
