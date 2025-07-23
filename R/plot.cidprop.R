@@ -90,39 +90,37 @@
 #' oldset <- settings.meta(digits.cid = 0)
 #' 
 #' m <- metagen(1:10 - 3, 1:10, sm = "MD")
-#' #
+#' 
 #' pp1 <- cidprop(m, cid = 2)
 #' pp1
-#' #
+#' plot(pp1, xlim = c(-4, 4))
+#' \donttest{
 #' pp2 <- cidprop(m, cid.below.null = 0.5, cid.above.null = 2)
 #' pp2
-#' #
+#' plot(pp2, xlim = c(-4, 4))
+#' 
 #' pp3 <- cidprop(m, cid.below.null = 0.5, cid.above.null = 2,
 #'   small.values = "u")
 #' pp3
+#' plot(pp3, xlim = c(-4, 4))
 #' 
 #' pp4 <- cidprop(m, cid = 1:2, label.cid = c("moderate", "large"))
 #' pp4
-#' #
+#' plot(pp4, xlim = c(-4, 4))
+#' 
 #' pp5 <- cidprop(m, cid.below.null = -1.5, cid.above.null = 1:2,
 #'   label.cid.below.null = "large",
 #'   label.cid.above.null = c("moderate", "large"))
 #' pp5
-#' 
-#' plot(pp1, xlim = c(-4, 4))
-#' plot(pp2, xlim = c(-4, 4))
-#' plot(pp3, xlim = c(-4, 4))
-#' plot(pp4, xlim = c(-4, 4))
 #' plpp5 <- plot(pp5, xlim = c(-4, 4))
 #' plpp5
 #' # Information on CIDs and colours
 #' attr(plpp5, "data.cid")
-#' 
+#' }
 #' \dontrun{
 #' # R packages 'ggpubr' and 'gridExtra' must be available
 #' if (requireNamespace("ggpubr", quietly = TRUE) &
 #'     requireNamespace("gridExtra", quietly = TRUE)) {
-#'   #
 #'   plot(pp1, xlim = c(-4, 4), legend = TRUE)
 #' }
 #' }

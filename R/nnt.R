@@ -137,7 +137,7 @@
 #' VA (editors) (2023):
 #' \emph{Cochrane Handbook for Systematic Reviews of Interventions
 #'   Version 6.4 (updated August 2023)}.
-#' Available from \url{https://training.cochrane.org/handbook/}
+#' Available from \url{https://www.cochrane.org/authors/handbooks-and-manuals/handbook}
 #'
 #' Laupacis A, Sackett DL, Roberts RS (1988):
 #' An assessment of clinically useful measures of the consequences of

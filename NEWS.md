@@ -1,4 +1,4 @@
-## meta, version 8.2-0 (2025-mm-dd)
+## meta, version 8.2-0 (2025-07-23)
 
 ### Major changes
 

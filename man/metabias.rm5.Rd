@@ -89,7 +89,7 @@ Higgins JPT, Thomas J, Chandler J, Cumpston M, Li T, Page MJ, Welch
 VA (editors) (2023):
 \emph{Cochrane Handbook for Systematic Reviews of Interventions
   Version 6.4 (updated August 2023)}.
-Available from \url{https://training.cochrane.org/handbook/}
+Available from \url{https://www.cochrane.org/authors/handbooks-and-manuals/handbook}
 }
 \seealso{
 \code{\link{metabias}}, \code{\link{metacr}},
