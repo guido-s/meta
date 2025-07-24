@@ -30,6 +30,7 @@
 #' \item \code{settings.meta("IQWiG5")}
 #' \item \code{settings.meta("IQWiG6")}
 #' \item \code{settings.meta("geneexpr")}
+#' \item \code{settings.meta("IVhet")}
 #' \item \code{settings.meta("meta4")}
 #' \item \code{settings.meta("meta7")}
 #' }
@@ -53,6 +54,9 @@
 #' The setting \code{"geneexpr"} can be used to print p-values in
 #' scientific notation and to suppress the calculation of confidence
 #' intervals for the between-study variance.
+#'
+#' The setting \code{"IVhet"} can be used for the inverse variance
+#' heterogeneity model (Doi et al., 2015).
 #'
 #' The last settings use the default settings of R package
 #' \bold{meta}, version 4 and 7.0-0, respectively, or below.
@@ -208,6 +212,14 @@
 #'   no confidence interval for between-study \cr
 #'  \tab \tab heterogeneity variance \cr
 #' }
+#'
+#' IVhet settings:
+#' \tabular{lll}{
+#' \bold{Argument} \tab \bold{Value} \tab \bold{Comment} \cr
+#' \code{method.common.ci} \tab "IVhet" \tab inverse variance heterogeneity \cr
+#' \code{text.common} \tab "IVhet model" \tab  \cr
+#' \code{text.w.common} \tab "IVhet" \tab  \cr
+#' }
 #' 
 #' Settings for \bold{meta}, version 4 or below:
 #' \tabular{lll}{
@@ -255,6 +267,12 @@
 #'   \code{\link{print.meta}}, \code{\link{labels.meta}}
 #'
 #' @references
+#' Doi SAR, Barendregt JJ, Khan S, Thalib L, Williams GM (2015):
+#' Advances in the meta-analysis of heterogeneous clinical trials I:
+#' The inverse variance heterogeneity model.
+#' \emph{Contemporary Clinical Trials},
+#' \bold{45}, 130--8
+#' 
 #' White IR, Thomas J (2005):
 #' Standardized mean differences in individually-randomized and
 #' cluster-randomized trials, with applications to meta-analysis.
@@ -367,7 +385,9 @@ settings.meta <- function(..., quietly = TRUE) {
   ## Set internal variables
   ##
   settings <- c("BMJ", "JAMA", "RevMan5", 
-                "IQWiG5", "IQWiG6", "geneexpr", "meta4", "meta7")
+                "IQWiG5", "IQWiG6",
+                "geneexpr", "IVhet",
+                "meta4", "meta7")
   layouts <- c(settings[1:2], "meta")
   ##
   print.settings <- FALSE
@@ -468,6 +488,11 @@ settings.meta <- function(..., quietly = TRUE) {
     ##
     chkdeprecated(names.all, "method.incr", "addincr")
     chkdeprecated(names.all, "method.incr", "allincr")
+    #
+    chkdeprecated(names.all, "cid.below.null", "lower.equi")
+    chkdeprecated(names.all, "cid.above.null", "upper.equi")
+    chkdeprecated(names.all, "lty.cid", "lty.equi")
+    chkdeprecated(names.all, "col.cid", "col.equi")
   }
   
   
@@ -529,6 +554,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("common", TRUE)
     setOption("fixed", TRUE)
     setOption("comb.fixed", TRUE)
+    setOption("method.common.ci", "classic")
     setOption("random", TRUE)
     setOption("comb.random", TRUE)
     setOption("method.random.ci", "classic")
@@ -590,6 +616,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("zero.pval", TRUE)
     setOption("JAMA.pval", FALSE)
     setOption("digits.df", 4)
+    setOption("digits.cid", 4)
     ##
     setOption("details", TRUE)
     ##
@@ -676,12 +703,16 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("pooled.times", FALSE)
     setOption("study.results", TRUE)
     ##
-    setOption("lower.equi", NA)
-    setOption("upper.equi", NA)
-    setOption("lty.equi", 1)
-    setOption("col.equi", "blue")
-    setOption("fill.equi", "transparent")
+    setOption("cid", NA)
+    setOption("cid.below.null", NA)
+    setOption("cid.above.null", NA)
+    setOption("lty.cid", 1)
+    setOption("col.cid", "blue")
+    setOption("fill.cid", "transparent")
+    setOption("cid.pooled.only", FALSE)
+    #
     setOption("fill", "transparent")
+    setOption("fill.equi", "transparent")
     ##
     setOption("leftcols", NULL)
     setOption("rightcols", NULL)
@@ -1049,6 +1080,17 @@ settings.meta <- function(..., quietly = TRUE) {
                        setting = "Settings for gene expression data",
                        quietly = quietly)
     }
+    #
+    else if (setting == "IVhet") {
+      specificSettings(args = c("method.common.ci",
+                                "text.common", "text.w.common"),
+                       new =
+                         list(replaceNULL(args[["method.common.ci"]], "IVhet"),
+                              replaceNULL(args[["text.common"]], "IVhet model"),
+                              replaceNULL(args[["text.w.common"]], "IVhet")),
+                       setting = "Settings for IVhet model",
+                       quietly = quietly)
+    }
   }
   
   
@@ -1064,6 +1106,7 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("level              ")
     catarg("level.ma           ")
     catarg("common             ")
+    catarg("method.common.ci   ")
     catarg("random             ")
     catarg("method.random.ci   ")
     catarg("adhoc.hakn.ci      ")
@@ -1081,6 +1124,9 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("method.bias        ")
     catarg("tool.rob           ")
     catarg("overall.hetstat    ")
+    catarg("cid                ")
+    catarg("cid.below.null     ")
+    catarg("cid.above.null     ")
     catarg("text.common        ")
     catarg("text.random        ")
     catarg("text.predict       ")
@@ -1118,6 +1164,7 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("zero.pval          ")
     catarg("JAMA.pval          ")
     catarg("digits.df          ")
+    catarg("digits.cid         ")
     catarg("details            ")
     catarg("print.tau2         ")
     catarg("print.tau2.ci      ")
@@ -1209,10 +1256,10 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("pooled.times           ")
     catarg("study.results          ")
     ##
-    catarg("lower.equi             ")
-    catarg("upper.equi             ")
-    catarg("lty.equi               ")
-    catarg("col.equi               ")
+    catarg("lty.cid                ")
+    catarg("col.cid                ")
+    catarg("fill.cid               ")
+    catarg("cid.pooled.only        ")
     catarg("fill.equi              ")
     ##
     catarg("fill                   ")
@@ -1343,22 +1390,16 @@ settings.meta <- function(..., quietly = TRUE) {
     ## General settings
     ##
     setlevel("level", args)
-    ##
-    na <- is.na(setlevel("level.ma", args))
-    depr <- setlevel("level.comb", args)
-    if (na & !is.na(depr))
-      setOption("level.ma", args[[depr]])
-    ##
-    na <- is.na(setlogical("common", args))
-    depr1 <- setlogical("comb.fixed", args)
-    depr2 <- setlogical("fixed", args)
-    if (na & !is.na(depr1))
-      setOption("common", args[[depr1]])
-    if (na & !is.na(depr2))
-      setOption("common", args[[depr2]])
-    ##      
-    setlogical("random", args)
-    ##
+    #
+    setOptionDepr(args, "level.ma", "level.comb", setlevel)
+    #
+    setOptionDepr(args, "common", "comb.fixed", setlogical)
+    setOptionDepr(args, "common", "fixed", setlogical)
+    #
+    setOptionDepr(args, "random", "comb.random", setlogical)
+    #
+    setcharacter("method.common.ci", args, gs("meth4common.ci"))
+    #
     na <- is.na(setcharacter("method.random.ci", args, gs("meth4random.ci")))
     depr <- setlogical("hakn", args)
     if (na & !is.na(depr)) {
@@ -1367,12 +1408,10 @@ settings.meta <- function(..., quietly = TRUE) {
       else
         setOption("method.random.ci", "classic")
     }
-    ##
-    na <- is.na(setcharacter("adhoc.hakn.ci", args, gs("adhoc4hakn.ci")))
-    depr <- setcharacter("adhoc.hakn", args, gs("adhoc4hakn.ci"))
-    if (na & !is.na(depr))
-      setOption("adhoc.hakn.ci", args[[depr]])
-    ##
+    #
+    setOptionDepr(args, "adhoc.hakn.ci", "adhoc.hakn", setcharacter,
+                  set = gs("adhoc4hakn.ci"))
+    #
     setcharacter("adhoc.hakn.pi", args, gs("adhoc4hakn.pi"))
     setcharacter("method.tau", args, gs("meth4tau"))
     setcharacter("method.tau.ci", args, c("J", "BJ", "QP", "PL", ""))
@@ -1396,17 +1435,11 @@ settings.meta <- function(..., quietly = TRUE) {
     setcharacter("CIseparator", args)
     setlogical("CIlower.blank", args)
     setlogical("CIupper.blank", args)
-    ##
-    na <- is.na(setlogical("print.subgroup.name", args))
-    depr <- setlogical("print.byvar", args)
-    if (na & !is.na(depr))
-      setOption("print.subgroup.name", args[[depr]])
-    ##    
-    na <- is.na(setcharacter("sep.subgroup", args))
-    depr <- setcharacter("byseparator", args)
-    if (na & !is.na(depr))
-      setOption("sep.subgroup", args[[depr]])
-    ##
+    #
+    setOptionDepr(args, "print.subgroup.name", "print.byvar", setlogical)
+    #
+    setOptionDepr(args, "sep.subgroup", "byseparator", setcharacter)
+    #
     setlogical("keepdata", args)
     setlogical("keeprma", args)
     setlogical("warn", args)
@@ -1416,12 +1449,9 @@ settings.meta <- function(..., quietly = TRUE) {
     setnumeric("digits.mean", args)
     setnumeric("digits.sd", args)
     setnumeric("digits.se", args)
-    ##
-    na <- is.na(setnumeric("digits.stat", args))
-    depr <- setnumeric("digits.zval", args)
-    if (na & !is.na(depr))
-      setOption("digits.stat", args[[depr]])
-    ##
+    #
+    setOptionDepr(args, "digits.stat", "digits.zval", setnumeric)
+    #
     setnumeric("digits.Q", args) 
     setnumeric("digits.tau2", args)
     setnumeric("digits.tau", args)
@@ -1436,6 +1466,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setlogical("zero.pval", args)
     setlogical("JAMA.pval", args)
     setnumeric("digits.df", args)
+    setnumeric("digits.cid", args)
     ##
     setlogical("details", args)
     setlogical("print.tau2", args)
@@ -1453,6 +1484,15 @@ settings.meta <- function(..., quietly = TRUE) {
     setcharacter("text.Rb", args)
     ##
     setlogical("print.Q", args)
+    #
+    setnumeric("cid", args)
+    setOptionDepr(args, "cid.below.null", "lower.equi", setnumeric)
+    setOptionDepr(args, "cid.above.null", "upper.equi", setnumeric)
+    setOptionDepr(args, "lty.cid", "lty.equi", setnumeric)
+    setOptionDepr(args, "col.cid", "col.equi", setcolor)
+    setcolor("fill.cid", args)
+    setcolor("fill.equi", args)
+    setlogical("cid.pooled.only", args)
     ##
     ## R function metabin
     ##
@@ -1539,12 +1579,6 @@ settings.meta <- function(..., quietly = TRUE) {
     setlogical("pooled.events", args)
     setlogical("pooled.times", args)
     setlogical("study.results", args)
-    ##
-    setnumeric("lower.equi", args)
-    setnumeric("upper.equi", args)
-    setnumeric("lty.equi", args)
-    setcolor("col.equi", args)
-    setcolor("fill.equi", args)
     ##
     setcolor("fill", args)
     ##

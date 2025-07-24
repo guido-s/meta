@@ -491,6 +491,24 @@ funnel.meta <- function(x,
       TE.xlim <- exp(TE.xlim)
     }
   }
+  else if (sm == "VE" & backtransf) {
+    TE <- -TE
+    TE.common <- -TE.common
+    TE.random <- -TE.random
+    ref <- -ref
+    #
+    if (!is.null(level)) {
+      tl <- -ciTE$upper
+      ciTE$lower <- -ciTE$lower
+      ciTE$upper <- tl
+      #
+      tr <- -ciTE.ref$upper
+      ciTE.ref$lower <- -ciTE.ref$lower
+      ciTE.ref$upper <- tr
+      #
+      TE.xlim <- rev(-TE.xlim)
+    }
+  }
   ##
   ## y-value: weight
   ##
@@ -535,12 +553,12 @@ funnel.meta <- function(x,
   ## x-axis: labels / xlim
   ##
   if (is.null(xlab))
-    if (is_relative_effect(sm))
-      xlab <- xlab(sm, backtransf)
+    if (is_relative_effect(sm) | sm == "VE")
+      xlab <- xlab_meta(sm, backtransf)
     else if (sm == "PRAW")
       xlab <- "Proportion"
     else
-      xlab <- xlab(sm, FALSE)
+      xlab <- xlab_meta(sm, FALSE)
   ##
   if (is.null(xlim) & !is.null(level) &
       (yaxis == "se" |
@@ -582,7 +600,13 @@ funnel.meta <- function(x,
   args$ylim <- ylim
   args$xlab <- xlab
   args$ylab <- ylab
+  #
+  if (sm == "VE" & backtransf) {
+    axes.orig <- axes
+    axes <- FALSE
+  }
   args$axes <- axes
+  #
   args$log <- log
   #
   args$fixed <- NULL
@@ -591,6 +615,13 @@ funnel.meta <- function(x,
   args$col.fixed <- NULL
   #
   do.call(plot, args)
+  #
+  if (sm == "VE" & backtransf && axes.orig) {
+    xs <- sort(c(0, TE))
+    axis(1, at = xs, labels = round(logVR2VE(-xs), 1))
+    axis(2)
+    box()
+  }
   ##
   ## Add contour shades (enhanced funnel plots)
   ##

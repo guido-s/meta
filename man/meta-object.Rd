@@ -261,6 +261,33 @@ additional components are added to the list.
   differences (random effects model)
 }
 
+For subgroup analysis assuming a common between-study variance in subgroups
+(argument \code{tau.common = TRUE}), the following additional components are
+added to the list.
+\tabular{ll}{
+\code{tau2.resid} \tab Residual between-study variance after accounting for
+  \cr
+\code{} \tab subgroup differences  (equal to entries in list element
+  \code{tau2.w}) \cr
+\code{lower.tau2.resid} \tab Lower confidence limit \cr
+\code{upper.tau2.resid} \tab Upper confidence limit \cr
+\code{tau.resid} \tab Square-root of residual between-study variance \cr
+\code{lower.tau.resid} \tab Lower confidence limit \cr
+\code{upper.tau.resid} \tab Upper confidence limit \cr
+\code{H.resid} \tab Heterogeneity statistic H after accounting for
+  subgroup differences \cr
+\code{lower.H.resid} \tab Lower confidence limit \cr
+\code{upper.H.resid} \tab Upper confidence limit \cr
+\code{I2.resid} \tab Heterogeneity statistic I\eqn{^2} after accounting for
+  subgroup differences \cr
+\code{lower.I2.resid} \tab Lower confidence limit \cr
+\code{upper.I2.resid} \tab Upper confidence limit \cr
+\code{Q.resid} \tab Heterogeneity statistic for residual heterogeneity \cr
+\code{df.Q.resid} \tab Degrees of freedom for heterogeneity statistic
+  \code{Q.resid} \cr
+\code{pval.Q.resid} \tab P-value of test for residual heterogeneity \cr
+}
+
 An object created with \code{\link{metabin}} has the additional
 class \code{"metabin"} and the following components.
 
@@ -347,8 +374,10 @@ class \code{"metainc"} and the following components.
 \code{incr} \tab Increment added to zero cells \cr
 \code{method.incr} \tab Continuity correction method \cr
 \code{sparse} \tab Continuity correction applied \cr
-\code{incr.event} \tab Continuity correction (individual studies)
-  \cr
+\code{incr.e} \tab Continuity correction in experimental group
+  (individual studies) \cr
+\code{incr.c} \tab Continuity correction in control group
+  (individual studies) \cr
 \code{k.MH} \tab Number of studies (Mantel-Haenszel method)
 }
 

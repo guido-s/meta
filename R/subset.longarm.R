@@ -12,14 +12,19 @@
 #' @seealso \code{\link{longarm}}
 #' 
 #' @examples
-#' # Artificial example with three studies
-#' m <- metabin(1:3, 100:102, 4:6, 200:202, studlab = LETTERS[1:3])
-#' # Transform data to long arm-based format
-#' l1 <- longarm(m)
-#' l1
+#' # Transform data from wide arm-based format to contrast-based format
+#' pw1 <- pairwise(list(Treatment1, Treatment2, Treatment3),
+#'   n = list(n1, n2, n3),
+#'   mean = list(y1, y2, y3), sd = list(sd1, sd2, sd3),
+#'   data = dat.franchini2012, studlab = Study)
+#' 
+#' # Transform data from contrast-based to long arm-based format
+#' # and only keep the main variables
+#' la1 <- longarm(pw1, append = FALSE)
+#' head(la1)
 #'
-#' # Subset without Study B
-#' subset(l1, studlab != "B")
+#' # Subset without Lieberman studies
+#' subset(la1, grepl("Lieberman", studlab))
 #'
 #' @method subset longarm
 #' @export
@@ -28,6 +33,10 @@
 subset.longarm <- function(x, subset, ...){
   
   chkclass(x, "longarm")
+  #
+  attribs <- attributes(x)
+  #
+  attribs$names <- attribs$row.names <- NULL
   
   
   ## Catch 'subset'
@@ -53,7 +62,8 @@ subset.longarm <- function(x, subset, ...){
   
   ## Return subset
   ## 
-  attr(res, "type") <- attr(x, "type")
+  for (i in names(attribs))
+    attr(res, i) <- attr(x, i)
   #
   class(res) <- unique(c("longarm", class(res)))
   #

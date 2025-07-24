@@ -594,7 +594,27 @@ print.summary.meta <- function(x,
     ##
     if (by)
       res <- cbind(res, subgroup = as.character(subgroup))
-    ##
+    #
+    if (common & !is.null(x$weights.common))
+      res <- cbind(res, weights.common = x$weights.common)
+    #
+    if (random & !is.null(x$weights.random))
+      res <- cbind(res, weights.random = x$weights.random)
+    #
+    if ("weights.common" %in% colnames(res)) {
+      if (!random)
+        colnames(res)[colnames(res) == "weights.common"] <- "W"
+      else
+        colnames(res)[colnames(res) == "weights.common"] <- "W(common)"
+    }
+    #
+    if ("weights.random" %in% colnames(res)) {
+      if (!common)
+        colnames(res)[colnames(res) == "weights.random"] <- "W"
+      else
+        colnames(res)[colnames(res) == "weights.random"] <- "W(random)"
+    }
+    #
     dimnames(res)[[1]] <- x$studlab
     ##
     if (!missing.truncate) {

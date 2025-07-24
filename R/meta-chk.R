@@ -242,7 +242,8 @@ chknull <- function(x, name = NULL) {
 }
 
 chknumeric <- function(x, min, max, zero = FALSE, length = 0,
-                       name = NULL, single = FALSE, integer = FALSE) {
+                       name = NULL, single = FALSE, integer = FALSE,
+                       NA.ok = TRUE) {
   if (!missing(single) && single)
     length <- 1
   ##
@@ -250,8 +251,13 @@ chknumeric <- function(x, min, max, zero = FALSE, length = 0,
   ##
   if (is.null(name))
     name <- deparse(substitute(x))
-  ##
-  x <- x[!is.na(x)]
+  #
+  if (NA.ok)
+    x <- x[!is.na(x)]
+  else if (anyNA(x))
+    stop("Missing values not allowed in argument '", name, "'.",
+         call. = FALSE)
+  #
   if (length(x) == 0)
     return(NULL)
   ##
@@ -294,7 +300,7 @@ chknumeric <- function(x, min, max, zero = FALSE, length = 0,
       stop("Argument '", name, "' may only contain integers.",
            call. = FALSE)
   }
-  ##
+  #
   invisible(NULL)
 }
 
@@ -438,23 +444,25 @@ chksuitable <- function(x, method,
     addtext[classes == "netpairwise"] <-
       " without argument 'separate = TRUE'"
   }
-  ##
-  func <- if (stop) stop else warning
-  ##
+  #
+  func <- if (stop) base::stop else base::warning
+  #
   for (i in seq_along(classes)) {
     if (inherits(x, classes[i])) {
-      func(method, " not ", status, " for an object of class \"",
-           classes[i], "\"", addtext[i], ".",
-           call. = FALSE)
-      ##
+      do.call(func,
+              list(paste0(method, " not ", status, " for an object of class \"",
+                          classes[i], "\"", addtext[i], "."),
+                   call. = FALSE))
+      #
       return(FALSE)
     }
   }
   ##
   if (check.mlm) {
     if (!is.null(x$three.level) && any(x$three.level)) {
-      func(method, " not implemented for three-level model.",
-           call. = FALSE)
+      do.call(func,
+              list(paste(method, "not implemented for three-level model."),
+                   call. = FALSE))
       ##
       return(FALSE)
     }

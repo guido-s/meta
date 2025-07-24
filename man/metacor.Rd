@@ -13,6 +13,9 @@ metacor(
   exclude = NULL,
   cluster = NULL,
   rho = 0,
+  weights = NULL,
+  weights.common = weights,
+  weights.random = weights,
   sm = gs("smcor"),
   level = gs("level"),
   common = gs("common"),
@@ -27,8 +30,10 @@ metacor(
   tau.preset = NULL,
   TE.tau = NULL,
   tau.common = gs("tau.common"),
+  detail.tau = NULL,
   method.I2 = gs("method.I2"),
   level.ma = gs("level.ma"),
+  method.common.ci = gs("method.common.ci"),
   method.random.ci = gs("method.random.ci"),
   adhoc.hakn.ci = gs("adhoc.hakn.ci"),
   level.predict = gs("level.predict"),
@@ -66,7 +71,7 @@ metacor(
 )
 }
 \arguments{
-\item{cor}{Correlation.}
+\item{cor}{Correlations.}
 
 \item{n}{Number of observations.}
 
@@ -87,6 +92,12 @@ from the same cluster resulting in the use of a three-level
 meta-analysis model.}
 
 \item{rho}{Assumed correlation of estimates within a cluster.}
+
+\item{weights}{A single numeric or vector with user-specified weights.}
+
+\item{weights.common}{User-specified weights (common effect model).}
+
+\item{weights.random}{User-specified weights (random effects model).}
 
 \item{sm}{A character string indicating which summary measure
 (\code{"ZCOR"} or \code{"COR"}) is to be used for pooling of
@@ -134,6 +145,8 @@ between-study variance tau-squared.}
 \item{tau.common}{A logical indicating whether tau-squared should
 be the same across subgroups.}
 
+\item{detail.tau}{Detail on between-study variance estimate.}
+
 \item{method.I2}{A character string indicating which method is
 used to estimate the heterogeneity statistic I\eqn{^2}. Either
 \code{"Q"} or \code{"tau2"}, can be abbreviated
@@ -141,6 +154,10 @@ used to estimate the heterogeneity statistic I\eqn{^2}. Either
 
 \item{level.ma}{The level used to calculate confidence intervals
 for meta-analysis estimates.}
+
+\item{method.common.ci}{A character string indicating which method
+is used to calculate confidence interval and test statistic for
+common effect estimate (see \code{\link{meta-package}}).}
 
 \item{method.random.ci}{A character string indicating which method
 is used to calculate confidence interval and test statistic for
@@ -259,15 +276,17 @@ meta-analyses with correlations; inverse variance weighting is used
 for pooling.
 }
 \details{
-Common effect and random effects meta-analysis of correlations
-based either on Fisher's z transformation of correlations (\code{sm
-= "ZCOR"}) or direct combination of (untransformed) correlations
-(\code{sm = "COR"}) (see Cooper et al., 2009, p264-5 and
-p273-4). Only few statisticians would advocate the use of
-untransformed correlations unless sample sizes are very large (see
-Cooper et al., 2009, p265). The artificial example given below
-shows that the smallest study gets the largest weight if
-correlations are combined directly because the correlation is
+This function conducts common effect and random effects meta-analysis of
+correlations based either on Fisher's z transformation of correlations
+(\code{sm = "ZCOR"}) or direct combination of (untransformed) correlations
+(\code{sm = "COR"}) (see Cooper et al., 2009, p264-5 and p273-4). Note, the
+input to argument \code{cor} is always correlations and not Fisher's z
+transformed correlations if \code{sm = "ZCOR"}.
+
+Only few statisticians would advocate the use of untransformed correlations
+unless sample sizes are very large (see Cooper et al., 2009, p265). The
+artificial example given below shows that the smallest study gets the largest
+weight if correlations are combined directly because the correlation is
 closest to 1.
 
 A three-level random effects meta-analysis model (Van den Noortgate
@@ -332,11 +351,11 @@ m1 <- metacor(c(0.85, 0.7, 0.95), c(20, 40, 10))
 # Print correlations (back transformed from Fisher's z
 # transformation)
 #
-m1
+summary(m1)
 
 # Print Fisher's z transformed correlations 
 #
-print(m1, backtransf = FALSE)
+print(summary(m1), backtransf = FALSE)
 
 # Forest plot with back transformed correlations
 #
@@ -347,7 +366,7 @@ forest(m1)
 forest(m1, backtransf = FALSE)
 
 m2 <- update(m1, sm = "cor")
-m2
+summary(m2)
 
 \dontrun{
 # Identical forest plots (as back transformation is the identity

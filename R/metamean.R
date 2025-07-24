@@ -20,6 +20,9 @@
 #'   from the same cluster resulting in the use of a three-level
 #'   meta-analysis model.
 #' @param rho Assumed correlation of estimates within a cluster.
+#' @param weights A single numeric or vector with user-specified weights.
+#' @param weights.common User-specified weights (common effect model).
+#' @param weights.random User-specified weights (random effects model).
 #' @param median Median (used to estimate the mean and standard
 #'   deviation).
 #' @param q1 First quartile (used to estimate the mean and standard
@@ -73,12 +76,16 @@
 #'   between-study variance tau-squared.
 #' @param tau.common A logical indicating whether tau-squared should
 #'   be the same across subgroups.
+#' @param detail.tau Detail on between-study variance estimate.
 #' @param method.I2 A character string indicating which method is
 #'   used to estimate the heterogeneity statistic I\eqn{^2}. Either
 #'   \code{"Q"} or \code{"tau2"}, can be abbreviated
 #'   (see \code{\link{meta-package}}).
 #' @param level.ma The level used to calculate confidence intervals
 #'   for meta-analysis estimates.
+#' @param method.common.ci A character string indicating which method
+#'   is used to calculate confidence interval and test statistic for
+#'   common effect estimate (see \code{\link{meta-package}}).
 #' @param method.random.ci A character string indicating which method
 #'   is used to calculate confidence interval and test statistic for
 #'   random effects estimate (see \code{\link{meta-package}}).
@@ -426,7 +433,10 @@ metamean <- function(n, mean, sd, studlab,
                      ##
                      data = NULL, subset = NULL, exclude = NULL,
                      cluster = NULL, rho = 0,
-                     ##
+                     #
+                     weights = NULL,
+                     weights.common = weights, weights.random = weights,
+                     #
                      median, q1, q3, min, max,
                      method.mean = "Luo", method.sd = "Shi",
                      approx.mean, approx.sd,
@@ -450,10 +460,12 @@ metamean <- function(n, mean, sd, studlab,
                      level.hetstat = gs("level.hetstat"),
                      tau.preset = NULL, TE.tau = NULL,
                      tau.common = gs("tau.common"),
+                     detail.tau = NULL,
                      #
                      method.I2 = gs("method.I2"),
                      #
                      level.ma = gs("level.ma"),
+                     method.common.ci = gs("method.common.ci"),
                      method.random.ci = gs("method.random.ci"),
                      adhoc.hakn.ci = gs("adhoc.hakn.ci"),
                      ##
@@ -507,7 +519,9 @@ metamean <- function(n, mean, sd, studlab,
   ##
   chknull(sm)
   chklevel(level)
-  ##
+  #
+  method.common.ci <- setchar(method.common.ci, gs("meth4common.ci"))
+  #
   missing.method.tau <- missing(method.tau)
   method.tau <- setchar(method.tau, gs("meth4tau"))
   ##
@@ -705,6 +719,30 @@ metamean <- function(n, mean, sd, studlab,
   ##
   cluster <- catch("cluster", mc, data, sfsp)
   with.cluster <- !is.null(cluster)
+  #
+  # Catch 'weights', 'weights.common', and 'weights.random' from data:
+  #
+  if (!missing(weights))
+    weights <- catch("weights", mc, data, sfsp)
+  if (!missing(weights.common))
+    weights.common <- catch("weights.common", mc, data, sfsp)
+  if (!missing(weights.random))
+    weights.random <- catch("weights.random", mc, data, sfsp)
+  #
+  if (!is.null(weights) & is.null(weights.common))
+    weights.common <- weights
+  #
+  if (!is.null(weights) & is.null(weights.random))
+    weights.random <- weights
+  #
+  usw.common <- !is.null(weights.common)
+  usw.random <- !is.null(weights.random)
+  #
+  if (usw.common)
+    chknumeric(weights.common, min = 0)
+  #
+  if (usw.random)
+    chknumeric(weights.random, min = 0)
   ##
   ## Catch 'median', 'q1', 'q3', 'min', 'max', 'approx.mean', and
   ## 'approx.sd', from data:
@@ -745,9 +783,24 @@ metamean <- function(n, mean, sd, studlab,
   chklength(mean, k.All, fun)
   chklength(sd, k.All, fun)
   chklength(studlab, k.All, fun)
+  #
   if (with.cluster)
     chklength(cluster, k.All, fun)
-  ##
+  #
+  if (usw.common) {
+    if (length(weights.common) == 1)
+      weights.common <- rep(weights.common, k.All)
+    else
+      chklength(weights.common, k.All, fun)
+  }
+  #
+  if (usw.random) {
+    if (length(weights.random) == 1)
+      weights.random <- rep(weights.random, k.All)
+    else
+      chklength(weights.random, k.All, fun)
+  }
+  #
   if (avail.median)
     chklength(median, k.All, fun)
   if (avail.q1)
@@ -873,6 +926,12 @@ metamean <- function(n, mean, sd, studlab,
     ##
     if (with.cluster)
       data$.id <- data$.cluster <- cluster
+    #
+    if (usw.common)
+      data$.weights.common <- weights.common
+    #
+    if (usw.random)
+      data$.weights.random <- weights.random
   }
   
   
@@ -890,7 +949,10 @@ metamean <- function(n, mean, sd, studlab,
     ##
     cluster <- cluster[subset]
     exclude <- exclude[subset]
-    ##
+    #
+    weights.common <- weights.common[subset]
+    weights.random <- weights.random[subset]
+    #
     if (avail.median)
       median <- median[subset]
     if (avail.q1)
@@ -1211,7 +1273,10 @@ metamean <- function(n, mean, sd, studlab,
   m <- metagen(TE, seTE, studlab,
                exclude = if (missing.exclude) NULL else exclude,
                cluster = cluster, rho = rho,
-               ##
+               #
+               weights.common = weights.common,
+               weights.random = weights.random,
+               #
                sm = sm,
                level = level,
                ##
@@ -1226,10 +1291,12 @@ metamean <- function(n, mean, sd, studlab,
                tau.preset = tau.preset,
                TE.tau = TE.tau,
                tau.common = FALSE,
+               detail.tau = detail.tau,
                #
                method.I2 = method.I2,
                #
                level.ma = level.ma,
+               method.common.ci = method.common.ci,
                method.random.ci = method.random.ci,
                adhoc.hakn.ci = adhoc.hakn.ci,
                ##
@@ -1311,6 +1378,8 @@ metamean <- function(n, mean, sd, studlab,
   ##
   ## Add data
   ##
+  res$pairwise <- FALSE
+  #
   res$call <- match.call()
   ##
   if (keepdata) {

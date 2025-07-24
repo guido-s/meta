@@ -13,11 +13,17 @@
   cluster,
   rho = object$rho,
   cycles,
+  weights = NULL,
+  weights.common = object$weights.common,
+  weights.random = object$weights.random,
   method,
   sm = object$sm,
-  incr,
+  incr = object$incr,
   method.incr = object$method.incr,
   allstudies = object$allstudies,
+  incr.e,
+  incr.c,
+  incr.event,
   MH.exact = object$MH.exact,
   RR.Cochrane = object$RR.Cochrane,
   Q.Cochrane = object$Q.Cochrane,
@@ -28,6 +34,7 @@
   random = object$random,
   overall = object$overall,
   overall.hetstat = object$overall.hetstat,
+  method.common.ci = object$method.common.ci,
   method.random.ci = object$method.random.ci,
   adhoc.hakn.ci = object$adhoc.hakn.ci,
   method.predict = object$method.predict,
@@ -39,6 +46,7 @@
   tau.preset = object$tau.preset,
   TE.tau = object$TE.tau,
   tau.common = object$tau.common,
+  detail.tau = object$detail.tau,
   method.I2 = object$method.I2,
   prediction = object$prediction,
   level.predict = object$level.predict,
@@ -125,6 +133,12 @@ meta-analysis model.}
 \item{cycles}{A numeric vector with the number of cycles per patient / study
 in n-of-1 trials (see \code{\link{metagen}}).}
 
+\item{weights}{A single numeric or vector with user-specified weights.}
+
+\item{weights.common}{User-specified weights (common effect model).}
+
+\item{weights.random}{User-specified weights (random effects model).}
+
 \item{method}{A character string indicating which method is to be
 used for pooling of studies (see \code{\link{metabin}},
 \code{\link{metainc}}, \code{\link{metaprop}} and
@@ -147,6 +161,15 @@ correction method should be used (see \code{\link{metabin}},
 events in both groups are to be included in the meta-analysis
 (applies only to \code{\link{metabin}} object with \code{sm}
 equal to \code{"RR"} or \code{"OR"}).}
+
+\item{incr.e}{Continuity correction in experimental group (see
+\code{\link{metabin}} and \code{\link{metainc}}).}
+
+\item{incr.c}{Continuity correction in control group (see
+\code{\link{metabin}} and \code{\link{metainc}}).}
+
+\item{incr.event}{Continuity correction (see
+\code{\link{metaprop}} and \code{\link{metarate}}).}
 
 \item{MH.exact}{A logical indicating if \code{incr} is not to be
 added to all cell frequencies for studies with a zero cell count
@@ -187,6 +210,10 @@ argument is useful in a meta-analysis with subgroups if
 heterogeneity statistics should only be printed on subgroup
 level.}
 
+\item{method.common.ci}{A character string indicating which method
+is used to calculate confidence interval and test statistic for
+common effect estimate (see \code{\link{meta-package}}).}
+
 \item{method.random.ci}{A character string indicating which method
 is used to calculate confidence interval and test statistic for
 random effects estimate (see \code{\link{meta-package}}).}
@@ -226,6 +253,8 @@ between-study variance tau-squared.}
 
 \item{tau.common}{A logical indicating whether tau-squared should
 be the same across subgroups.}
+
+\item{detail.tau}{Detail on between-study variance estimate.}
 
 \item{method.I2}{A character string indicating which method is
 used to estimate the heterogeneity statistic I\eqn{^2}. Either
@@ -307,10 +336,10 @@ the null effect.}
 the null effect.}
 
 \item{n.e}{Number of observations in experimental group (only for
-\code{\link{metagen}} object).}
+\code{\link{metagen}} or \code{\link{metainc}} object).}
 
 \item{n.c}{Number of observations in control group (only for
-metagen object).}
+\code{\link{metagen}} or \code{\link{metainc}} object).}
 
 \item{method.mean}{A character string indicating which method to
 use to approximate the mean from the median and other statistics

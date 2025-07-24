@@ -25,16 +25,24 @@
 #'   'label1.random', 'label1.predict' and 'label1.subgroup'.
 #' @param label2 Default setting for arguments 'label2.common',
 #'   'label2.random', 'label2.predict' and 'label2.subgroup'.
-#' @param label1.common A character string ...
-#' @param label2.common A character string ...
-#' @param label1.random A character string ... (default label for
-#'   arguments 'hetlabel1' and 'taulabel1').
-#' @param label2.random A character string ... (default label for
-#'   arguments 'hetlabel2' and 'taulabel2').
-#' @param label1.predict A character string ...
-#' @param label2.predict A character string ...
-#' @param label1.subgroup A character string ...
-#' @param label2.subgroup A character string ...
+#' @param label1.common A character string to label the common effect estimate
+#'   from the first meta-analysis.
+#' @param label2.common A character string to label the common effect estimate
+#'   from the second meta-analysis.
+#' @param label1.random A character string to label the random effects estimate
+#'   from the first meta-analysis (default label for arguments 'hetlabel1' and
+#'   'taulabel1').
+#' @param label2.random A character string to label the random effects estimate
+#'   from the second meta-analysis (default label for arguments 'hetlabel2' and
+#'   'taulabel2').
+#' @param label1.predict A character string to label the prediction interval
+#'   from the first meta-analysis.
+#' @param label2.predict A character string to label the prediction interval
+#'   from the second meta-analysis.
+#' @param label1.subgroup A character string to label the subgroup results
+#'   from the first meta-analysis.
+#' @param label2.subgroup A character string to label the subgroup results
+#'   from the second meta-analysis.
 #' @param text.pooled1 A character string used in printouts and forest
 #'   plot to label the results from the first meta-analysis.
 #' @param text.pooled2 A character string used in printouts and forest
@@ -169,7 +177,7 @@
 #' 
 #' The following list elements have a different meaning:
 #' \item{TE, seTE, studlab}{Treatment estimate, standard error, and
-#'   study labels (first meta-analyis).}
+#'   study labels (first meta-analysis).}
 #' \item{lower, upper}{Lower and upper confidence interval limits for
 #'   individual studies (first meta-analysis).}
 #' \item{statistic, pval}{Statistic and p-value for test of treatment
@@ -439,10 +447,14 @@ metamerge <- function(meta1, meta2,
   }
   ##
   chkclass(meta1, "meta")
+  chksuitable(meta1, "R function metamerge()", classes = "metaprop",
+              check.mlm = FALSE)
   meta1 <- updateversion(meta1)
-  ##
+  #
   chkclass(meta2, c("meta", "limitmeta", "copas", "robu"))
-  ##
+  chksuitable(meta2, "R function metamerge()", classes = "metaprop",
+              check.mlm = FALSE)
+  #
   if (inherits(meta1, "netpairwise") | inherits(meta2, "netpairwise"))
     stop("R objects of class 'netpairwise' cannot be merged.",
          call. = FALSE)

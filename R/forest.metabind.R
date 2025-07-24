@@ -166,8 +166,8 @@
 #'
 #' # Conduct two subgroup analyses
 #' #
-#' mu1 <- update(m1, subgroup = age, bylab = "Age group")
-#' mu2 <- update(m1, subgroup = region, bylab = "Region")
+#' mu1 <- update(m1, subgroup = age, subgroup.name = "Age group")
+#' mu2 <- update(m1, subgroup = region, subgroup.name = "Region")
 #'
 #' # Combine subgroup meta-analyses and show forest plot with subgroup
 #' # results
@@ -178,7 +178,6 @@
 #'
 #' @method forest metabind
 #' @export
-
 
 forest.metabind <- function(x,
                             leftcols, leftlabs,
@@ -532,7 +531,7 @@ forest.metabind <- function(x,
   }
   ##
   if (missing(smlab))
-    smlab <- xlab(x$sm, x$backtransf)
+    smlab <- xlab_meta(x$sm, x$backtransf)
   ##
   if (!x$samedata) {
     overall <- FALSE
