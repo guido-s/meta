@@ -21,6 +21,9 @@
 #'   from the same cluster resulting in the use of a three-level
 #'   meta-analysis model.
 #' @param rho Assumed correlation of estimates within a cluster.
+#' @param weights A single numeric or vector with user-specified weights.
+#' @param weights.common User-specified weights (common effect model).
+#' @param weights.random User-specified weights (random effects model).
 #' @param n Number of observations.
 #' @param method A character string indicating which method is to be
 #'   used for pooling of studies. One of \code{"Inverse"} and
@@ -29,7 +32,8 @@
 #'   (\code{"IR"}, \code{"IRLN"}, \code{"IRS"}, or \code{"IRFT"}) is
 #'   to be used for pooling of studies, see Details.
 #' @param incr A numeric which is added to the event number of studies
-#'   with zero events, i.e., studies with an incidence rate of 0.
+#'   with zero events, i.e., studies with an incidence rate of 0. Or a
+#'   numeric vector with the continuity correction for each study.
 #' @param method.incr A character string indicating which continuity
 #'   correction method should be used (\code{"only0"},
 #'   \code{"if0all"}, or \code{"all"}), see Details.
@@ -66,12 +70,16 @@
 #'   between-study variance tau-squared.
 #' @param tau.common A logical indicating whether tau-squared should
 #'   be the same across subgroups.
+#' @param detail.tau Detail on between-study variance estimate.
 #' @param method.I2 A character string indicating which method is
 #'   used to estimate the heterogeneity statistic I\eqn{^2}. Either
 #'   \code{"Q"} or \code{"tau2"}, can be abbreviated
 #'   (see \code{\link{meta-package}}).
 #' @param level.ma The level used to calculate confidence intervals
 #'   for meta-analysis estimates.
+#' @param method.common.ci A character string indicating which method
+#'   is used to calculate confidence interval and test statistic for
+#'   common effect estimate (see \code{\link{meta-package}}).
 #' @param method.random.ci A character string indicating which method
 #'   is used to calculate confidence interval and test statistic for
 #'   random effects estimate (see \code{\link{meta-package}}).
@@ -227,6 +235,8 @@
 #'
 #' For the Freeman-Tukey (Freeman & Tukey, 1950) and square root
 #' transformation as well as GLMMs no continuity correction is used.
+#' Furthermore, the value of \code{incr} is not considered for Poisson
+#' confidence intervals for individual studies (\code{method.ci = "Poisson"}).
 #' }
 #'
 #' \subsection{Subgroup analysis}{
@@ -359,6 +369,10 @@ metarate <- function(event, time, studlab,
                      ##
                      data = NULL, subset = NULL, exclude = NULL,
                      cluster = NULL, rho = 0,
+                     #
+                     weights = NULL,
+                     weights.common = weights, weights.random = weights,
+                     #
                      n = NULL,
                      ##
                      method = "Inverse",
@@ -383,10 +397,12 @@ metarate <- function(event, time, studlab,
                      level.hetstat = gs("level.hetstat"),
                      tau.preset = NULL, TE.tau = NULL,
                      tau.common = gs("tau.common"),
+                     detail.tau = NULL,
                      #
                      method.I2 = gs("method.I2"),
                      #
                      level.ma = gs("level.ma"),
+                     method.common.ci = gs("method.common.ci"),
                      method.random.ci = gs("method.random.ci"),
                      adhoc.hakn.ci = gs("adhoc.hakn.ci"),
                      ##
@@ -438,6 +454,7 @@ metarate <- function(event, time, studlab,
   ## (1) Check and set arguments
   ##
   ##
+  
   chknumeric(rho, min = -1, max = 1)
   ##
   missing.method <- missing(method)
@@ -510,7 +527,18 @@ metarate <- function(event, time, studlab,
   ##
   method <- setchar(method, gs("meth4rate"))
   is.glmm <- method == "GLMM"
-  ##
+  #
+  missing.method.common.ci <- missing(method.common.ci)
+  method.common.ci <- setchar(method.common.ci, gs("meth4common.ci"))
+  #
+  if (method != "Inverse" & method.common.ci == "IVhet") {
+    if (!missing.method.common.ci)
+      warning("Argument 'method.common.ci = \"IVhet\"' only available ",
+              "if 'method = \"Inverse\".",
+              call. = FALSE)
+    method.common.ci <- "classic"
+  }
+  #
   missing.method.incr <- missing(method.incr)
   method.incr <- setchar(method.incr, gs("meth4incr"))
   ##
@@ -603,6 +631,7 @@ metarate <- function(event, time, studlab,
   ## (2) Read data
   ##
   ##
+  
   nulldata <- is.null(data)
   sfsp <- sys.frame(sys.parent())
   mc <- match.call()
@@ -650,6 +679,40 @@ metarate <- function(event, time, studlab,
   ##
   cluster <- catch("cluster", mc, data, sfsp)
   with.cluster <- !is.null(cluster)
+  #
+  # Catch 'weights', 'weights.common', and 'weights.random' from data:
+  #
+  if (!missing(weights))
+    weights <- catch("weights", mc, data, sfsp)
+  if (!missing(weights.common))
+    weights.common <- catch("weights.common", mc, data, sfsp)
+  if (!missing(weights.random))
+    weights.random <- catch("weights.random", mc, data, sfsp)
+  #
+  if (!is.null(weights) & is.null(weights.common))
+    weights.common <- weights
+  #
+  if (!is.null(weights) & is.null(weights.random))
+    weights.random <- weights
+  #
+  usw.common <- !is.null(weights.common)
+  usw.random <- !is.null(weights.random)
+  #
+  if (usw.common)
+    chknumeric(weights.common, min = 0)
+  #
+  if (usw.random)
+    chknumeric(weights.random, min = 0)
+  #
+  if (usw.common & method != "Inverse")
+    stop("User-specified weights for the common effect model only implemented ",
+         "for the inverse variance method (method = \"Inverse\").",
+         call. = FALSE)
+  #
+  if (usw.random & method == "GLMM")
+    stop("User-specified weights for the random effects model not implemented ",
+         "for generalized linear mixed models (method = \"GLMM\").",
+         call. = FALSE)
   
   
   ##
@@ -657,13 +720,29 @@ metarate <- function(event, time, studlab,
   ## (3) Check length of essential variables
   ##
   ##
+  
   chklength(time, k.All, fun)
   if (!is.null(n))
     chklength(n, k.All, fun)
   chklength(studlab, k.All, fun)
+  #
   if (with.cluster)
     chklength(cluster, k.All, fun)
-  ##
+  #
+  if (usw.common) {
+    if (length(weights.common) == 1)
+      weights.common <- rep(weights.common, k.All)
+    else
+      chklength(weights.common, k.All, fun)
+  }
+  #
+  if (usw.random) {
+    if (length(weights.random) == 1)
+      weights.random <- rep(weights.random, k.All)
+    else
+      chklength(weights.random, k.All, fun)
+  }
+  #
   if (length(incr) > 1)
     chklength(incr, k.All, fun)
   ##
@@ -694,6 +773,7 @@ metarate <- function(event, time, studlab,
   ## (4) Subset, exclude studies, and subgroups
   ##
   ##
+  
   if (!missing.subset)
     if ((is.logical(subset) & (sum(subset) > k.All)) ||
         (length(subset) > k.All))
@@ -718,6 +798,7 @@ metarate <- function(event, time, studlab,
   ##     (if argument keepdata is TRUE)
   ##
   ##
+  
   if (keepdata) {
     if (nulldata)
       data <- data.frame(.event = event)
@@ -729,7 +810,7 @@ metarate <- function(event, time, studlab,
     if (!is.null(n))
       data$.n <- n
     ##
-    data$.incr <- incr
+    data$.incr <- NA
     ##
     if (by)
       data$.subgroup <- subgroup
@@ -748,14 +829,21 @@ metarate <- function(event, time, studlab,
     ##
     if (with.cluster)
       data$.id <- data$.cluster <- cluster
+    #
+    if (usw.common)
+      data$.weights.common <- weights.common
+    #
+    if (usw.random)
+      data$.weights.random <- weights.random
   }
   
-  
+    
   ##
   ##
   ## (6) Use subset for analysis
   ##
   ##
+  
   if (!missing.subset) {
     event <- event[subset]
     time  <- time[subset]
@@ -765,7 +853,10 @@ metarate <- function(event, time, studlab,
     ##
     cluster <- cluster[subset]
     exclude <- exclude[subset]
-    ##
+    #
+    weights.common <- weights.common[subset]
+    weights.random <- weights.random[subset]
+    #
     if (length(incr) > 1)
       incr <- incr[subset]
     ##
@@ -831,32 +922,53 @@ metarate <- function(event, time, studlab,
     chkchar(subgroup.name, length = 1)
   
   
-  ##
-  ##
-  ## (7) Calculate results for individual studies
-  ##
-  ##
+  #
+  #
+  # (7) Continuity correction
+  #
+  #
+  
   sel <- switch(sm,
                 IR   = event == 0,
                 IRLN = event == 0,
                 IRS  = rep(FALSE, length(event)),
                 IRFT = rep(FALSE, length(event)))
-  ##
+  #
   sparse <- any(sel, na.rm = TRUE)
-  ##
-  ## No need to add anything to cell counts for arcsine transformation
-  ##
-  if (addincr)
+  #
+  # No need to add anything to cell counts for arcsine transformation
+  #
+  if (addincr | method.incr == "user")
     incr.event <- if (length(incr) == 1) rep(incr, k.all) else incr
-  else
-    if (sparse)
+  else {
+    if (sparse) {
       if (allincr)
         incr.event <- if (length(incr) == 1) rep(incr, k.all) else incr
       else
         incr.event <- incr * sel
-  else
-    incr.event <- rep(0, k.all)
+    }
+    else
+      incr.event <- rep(0, k.all)
+  }
+  #
+  if (keepdata) {
+    if (missing.subset) {
+      data$.incr <- incr.event
+    }
+    else {
+      data$.incr <- NA
+      #
+      data$.incr[subset] <- incr.event
+    }
+  }
+  
+  
   ##
+  ##
+  ## (8) Calculate results for individual studies
+  ##
+  ##
+  
   if (sm == "IR") {
     TE <- (event + incr.event) / time
     seTE <- sqrt(TE / time)
@@ -912,9 +1024,10 @@ metarate <- function(event, time, studlab,
   
   ##
   ##
-  ## (8) Additional checks for three-level model
+  ## (9) Additional checks for three-level model
   ##
   ##
+  
   three.level <- FALSE
   sel.ni <- !is.infinite(TE) & !is.infinite(seTE)
   ##
@@ -941,9 +1054,10 @@ metarate <- function(event, time, studlab,
   
   ##
   ##
-  ## (9) Additional checks for GLMM
+  ## (10) Additional checks for GLMM
   ##
   ##
+  
   if (is.glmm) {
     chkglmm(sm, method.tau, method.random.ci, method.predict,
             adhoc.hakn.ci, adhoc.hakn.pi,
@@ -973,9 +1087,10 @@ metarate <- function(event, time, studlab,
   
   ##
   ##
-  ## (10) Do meta-analysis
+  ## (11) Do meta-analysis
   ##
   ##
+  
   k <- sum(!is.na(event[!exclude]) & !is.na(time[!exclude]))
   ##
   for (i in seq_along(method.random.ci))
@@ -985,7 +1100,10 @@ metarate <- function(event, time, studlab,
   m <- metagen(TE, seTE, studlab,
                exclude = if (missing.exclude) NULL else exclude,
                cluster = cluster, rho = rho,
-               ##
+               #
+               weights.common = weights.common,
+               weights.random = weights.random,
+               #
                sm = sm,
                level = level,
                ##
@@ -1001,10 +1119,12 @@ metarate <- function(event, time, studlab,
                tau.preset = tau.preset,
                TE.tau = TE.tau,
                tau.common = FALSE,
+               detail.tau = detail.tau,
                #
                method.I2 = method.I2,
                #
                level.ma = level.ma,
+               method.common.ci = method.common.ci,
                method.random.ci = method.random.ci,
                adhoc.hakn.ci = adhoc.hakn.ci,
                ##
@@ -1043,9 +1163,10 @@ metarate <- function(event, time, studlab,
   
   ##
   ##
-  ## (9) Generate R object
+  ## (12) Generate R object
   ##
   ##
+  
   res <- list(event = event, time = time,
               n = n,
               incr = if (length(unique(incr)) == 1) unique(incr) else incr,
@@ -1149,11 +1270,11 @@ metarate <- function(event, time, studlab,
   ##
   res$irscale <- irscale
   res$irunit  <- irunit
-  ##
+  #
+  res$pairwise <- FALSE
+  #
   res$call <- match.call()
-  res$allincr <- allincr
-  res$addincr <- addincr
-  ##
+  #
   if (keepdata) {
     res$data <- data
     if (!missing.subset)

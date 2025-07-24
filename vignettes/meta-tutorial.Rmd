@@ -102,6 +102,7 @@ Create Figure 2 (file 'figure2.pdf').
 
 ```{r}
 forest(m.publ, sortvar = year, prediction = TRUE,
+  digits.pval.Q = 3,
   file = "figure2.pdf", width = 10)
 ```
 
@@ -123,7 +124,7 @@ Create Figure 3 (file 'figure3.pdf').
 ```{r}
 forest(m.publ.sub, sortvar = year,
   xlim = c(0.1, 100), at = c(0.1, 0.3, 1, 3, 10, 30, 100),
-  test.subgroup.common = FALSE,
+  digits.pval.Q = 3, test.subgroup.common = FALSE,
   label.test.subgroup.random = "Test for subgroup differences:",
   file = "figure3.pdf", width = 10)
 ```

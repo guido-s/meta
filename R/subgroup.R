@@ -45,11 +45,16 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
   is.glmm <- x$method == "GLMM"
   is.mlm <- !is.null(x$three.level) && x$three.level
   ##
-  sumNA <- function(x)
+  sumNA <- function(x, exclude = NULL) {
     if (all(is.na(x)))
-      NA
-    else
-      sum(x, na.rm = TRUE)
+      return(NA)
+    else {
+      if (is.null(exclude))
+        return(sum(x, na.rm = TRUE))
+      else
+        return(sum(x[!exclude], na.rm = TRUE))
+    }
+  }
   
   
   ##
@@ -72,7 +77,21 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
     else
       seed.i <- NULL
     ##
-    if (bin)
+    if (bin) {
+      if (x$method.incr == "user") {
+        incr <- NULL
+        incr.e <- x$incr.e[sel]
+        incr.c <- x$incr.c[sel]
+      }
+      else {
+        incr <- x$incr
+        if (length(incr) > 1)
+          incr <- incr[sel]
+        #
+        incr.e <- NULL
+        incr.c <- NULL
+      }
+      #
       meta1 <- metabin(x$event.e[sel], x$n.e[sel],
                        x$event.c[sel], x$n.c[sel],
                        studlab = x$studlab[sel],
@@ -83,15 +102,18 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                        ##
                        method = x$method,
                        sm = x$sm,
-                       incr = if (length(x$incr) == 1) x$incr else x$incr[sel],
-                       method.incr = x$method.incr,
-                       allstudies = x$allstudies,
+                       #
+                       incr = incr,
+                       incr.e = incr.e, incr.c = incr.c,
+                       method.incr = x$method.incr, allstudies = x$allstudies,
+                       #
                        MH.exact = x$MH.exact,
                        RR.Cochrane = x$RR.Cochrane,
                        Q.Cochrane = x$Q.Cochrane,
                        model.glmm = x$model.glmm,
                        ##
                        level.ma = x$level.ma,
+                       method.common.ci = x$method.common.ci,
                        method.random.ci = x$method.random.ci,
                        adhoc.hakn.ci = x$adhoc.hakn.ci,
                        ##
@@ -109,7 +131,8 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                        keepdata = FALSE,
                        warn = x$warn,
                        control = x$control)
-    ##
+    }
+    #
     else if (cont)
       meta1 <- metacont(x$n.e[sel], x$mean.e[sel],
                         x$sd.e[sel],
@@ -150,6 +173,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                         exact.smd = x$exact.smd,
                         ##
                         level.ma = x$level.ma,
+                        method.common.ci = x$method.common.ci,
                         method.random.ci = x$method.random.ci,
                         adhoc.hakn.ci = x$adhoc.hakn.ci,
                         ##
@@ -179,6 +203,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                        sm = x$sm,
                        ##
                        level.ma = x$level.ma,
+                       method.common.ci = x$method.common.ci,
                        method.random.ci = x$method.random.ci,
                        adhoc.hakn.ci = x$adhoc.hakn.ci,
                        ##
@@ -205,10 +230,17 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                        cluster =
                          if (!is.null(x$cluster)) x$cluster[sel] else NULL,
                        rho = x$rho,
-                       ##
+                       #
+                       weights.common =
+                         if (!is.null(x$weights.common)) x$weights.common[sel] else NULL,
+                       #
+                       weights.random =
+                         if (!is.null(x$weights.random)) x$weights.random[sel] else NULL,
+                       #
                        sm = x$sm,
                        ##
                        level.ma = x$level.ma,
+                       method.common.ci = x$method.common.ci,
                        method.random.ci = x$method.random.ci,
                        adhoc.hakn.ci = x$adhoc.hakn.ci,
                        ##
@@ -230,7 +262,21 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                        warn = x$warn,
                        control = x$control)
     ##
-    else if (inc)
+    else if (inc) {
+      if (x$method.incr == "user") {
+        incr <- NULL
+        incr.e <- x$incr.e[sel]
+        incr.c <- x$incr.c[sel]
+      }
+      else {
+        incr <- x$incr
+        if (length(incr) > 1)
+          incr <- incr[sel]
+        #
+        incr.e <- NULL
+        incr.c <- NULL
+      }
+      #
       meta1 <- metainc(x$event.e[sel], x$time.e[sel],
                        x$event.c[sel], x$time.c[sel],
                        studlab = x$studlab[sel],
@@ -241,11 +287,15 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                        ##
                        method = x$method,
                        sm = x$sm,
-                       incr = if (length(x$incr) == 1) x$incr else x$incr[sel],
+                       #
+                       incr = incr,
+                       incr.e = incr.e, incr.c = incr.c,
                        method.incr = x$method.incr,
+                       #
                        model.glmm = x$model.glmm,
                        ##
                        level.ma = x$level.ma,
+                       method.common.ci = x$method.common.ci,
                        method.random.ci = x$method.random.ci,
                        adhoc.hakn.ci = x$adhoc.hakn.ci,
                        ##
@@ -265,7 +315,8 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                        keepdata = FALSE,
                        warn = x$warn,
                        control = x$control)
-    ##
+    }
+    #
     else if (mean)
       meta1 <- metamean(x$n[sel], x$mean[sel], x$sd[sel],
                         studlab = x$studlab[sel],
@@ -286,6 +337,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                         sm = x$sm,
                         ##
                         level.ma = x$level.ma,
+                        method.common.ci = x$method.common.ci,
                         method.random.ci = x$method.random.ci,
                         adhoc.hakn.ci = x$adhoc.hakn.ci,
                         ##
@@ -320,6 +372,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                         method.incr = x$method.incr,
                         ##
                         level.ma = x$level.ma,
+                        method.common.ci = x$method.common.ci,
                         method.random.ci = x$method.random.ci,
                         adhoc.hakn.ci = x$adhoc.hakn.ci,
                         ##
@@ -354,6 +407,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                         method.incr = x$method.incr,
                         ##
                         level.ma = x$level.ma,
+                        method.common.ci = x$method.common.ci,
                         method.random.ci = x$method.random.ci,
                         adhoc.hakn.ci = x$adhoc.hakn.ci,
                         ##
@@ -425,8 +479,17 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                        Q = meta1$Q,
                        ##
                        tau2 = sum(meta1$tau2),
+                       lower.tau2 =
+                         if (meta1$three.level) NA else meta1$lower.tau2,
+                       upper.tau2 =
+                         if (meta1$three.level) NA else meta1$upper.tau2,
+                       #
                        tau = sum(meta1$tau),
-                       ##
+                       lower.tau =
+                         if (meta1$three.level) NA else meta1$lower.tau,
+                       upper.tau =
+                         if (meta1$three.level) NA else meta1$upper.tau,
+                       #
                        H = meta1$H,
                        lower.H = meta1$lower.H,
                        upper.H = meta1$upper.H,
@@ -439,16 +502,24 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                        lower.Rb = meta1$lower.Rb,
                        upper.Rb = meta1$upper.Rb,
                        ##
-                       event = if (prop) sumNA(meta1$event) else NA,
-                       n = if (cor.prop.mean.rate) sumNA(meta1$n) else NA,
+                       event =
+                         if (prop) sumNA(meta1$event, meta1$exclude) else NA,
+                       n =
+                         if (cor.prop.mean.rate) sumNA(meta1$n, meta1$exclude) else NA,
                        ##
-                       event.e = if (bin.inc) sumNA(meta1$event.e) else NA,
-                       n.e = if (bin.cont.gen) sumNA(meta1$n.e) else NA,
-                       event.c = if (bin.inc) sumNA(meta1$event.c) else NA,
-                       n.c = if (bin.cont.gen) sumNA(meta1$n.c) else NA,
+                       event.e =
+                         if (bin.inc) sumNA(meta1$event.e, meta1$exclude) else NA,
+                       n.e =
+                         if (bin.cont.gen) sumNA(meta1$n.e, meta1$exclude) else NA,
+                       event.c =
+                         if (bin.inc) sumNA(meta1$event.c, meta1$exclude) else NA,
+                       n.c =
+                         if (bin.cont.gen) sumNA(meta1$n.c, meta1$exclude) else NA,
                        ##
-                       time.e = if (inc) sumNA(meta1$time.e) else NA,
-                       time.c = if (inc) sumNA(meta1$time.c) else NA,
+                       time.e =
+                         if (inc) sumNA(meta1$time.e, meta1$exclude) else NA,
+                       time.c =
+                         if (inc) sumNA(meta1$time.c, meta1$exclude) else NA,
                        ##
                        n.harmonic.mean = 1 / mean(1 / x$n[sel]),
                        t.harmonic.mean = 1 / mean(1 / x$time[sel]))
@@ -500,8 +571,13 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
   Q.w <- extrVec(res.i, "Q", levs, TRUE)
   ##
   tau2.w <- extrVec(res.i, "tau2", levs)
+  lower.tau2.w <- extrVec(res.i, "lower.tau2", levs)
+  upper.tau2.w <- extrVec(res.i, "upper.tau2", levs)
+  #
   tau.w <- extrVec(res.i, "tau", levs)
-  ##
+  lower.tau.w <- extrVec(res.i, "lower.tau", levs)
+  upper.tau.w <- extrVec(res.i, "upper.tau", levs)
+  #
   H.w <- extrVec(res.i, "H", levs)
   lower.H.w <- extrVec(res.i, "lower.H", levs)
   upper.H.w <- extrVec(res.i, "upper.H", levs)
@@ -641,8 +717,17 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
     ## Heterogeneity measures
     ##
     tau2.w <- rep_len(sum(mlm[[1]]$sigma2), n.levs)
+    lower.tau2.w <- tau2.w
+    upper.tau2.w <- tau2.w
+    lower.tau2.w[!is.na(lower.tau2.w)] <- NA
+    upper.tau2.w[!is.na(upper.tau2.w)] <- NA
+    #
     tau.w <- sqrt(tau2.w)
-    ##
+    lower.tau.w <- tau.w
+    upper.tau.w <- tau.w
+    lower.tau.w[!is.na(lower.tau.w)] <- NA
+    upper.tau.w[!is.na(upper.tau.w)] <- NA
+    #
     upper.Rb.w <- lower.Rb.w <- Rb.w <- rep_len(NA, n.levs)
     ##
     ## Prediction interval
@@ -837,8 +922,17 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
     ## Heterogeneity measures
     ##
     tau2.w <- rep_len(glmm.r[[1]]$tau2, n.levs)
+    lower.tau2.w <- tau2.w
+    upper.tau2.w <- tau2.w
+    lower.tau2.w[!is.na(lower.tau2.w)] <- NA
+    upper.tau2.w[!is.na(upper.tau2.w)] <- NA
+    #
     tau.w <- sqrt(tau2.w)
-    ##
+    lower.tau.w <- tau.w
+    upper.tau.w <- tau.w
+    lower.tau.w[!is.na(lower.tau.w)] <- NA
+    upper.tau.w[!is.na(upper.tau.w)] <- NA
+    #
     upper.Rb.w <- lower.Rb.w <- Rb.w <- rep_len(NA, n.levs)
     ##
     ## Prediction interval
@@ -977,7 +1071,12 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
               pval.Q.w = pvalQ(Q.w, k.w - 1),
               ##
               tau2.w = tau2.w,
+              lower.tau2.w = lower.tau2.w,
+              upper.tau2.w = upper.tau2.w,
+              #
               tau.w = tau.w,
+              lower.tau.w = lower.tau.w,
+              upper.tau.w = upper.tau.w,
               ##
               H.w = H.w,
               lower.H.w = lower.H.w,

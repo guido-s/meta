@@ -6,19 +6,18 @@
 \usage{
 metaadd(
   x,
-  type,
-  TE,
-  lower,
-  upper,
+  type = NULL,
+  TE = NA,
+  lower = NA,
+  upper = NA,
   statistic = NA,
   pval = NA,
-  text,
+  df = NA,
+  se = NA,
+  method = "",
+  method.ci = "",
+  text = "Added result",
   data = NULL,
-  method.common = "",
-  method.random = "",
-  method.tau = "",
-  method.random.ci = "",
-  method.predict = "",
   transf = gs("transf")
 )
 }
@@ -27,10 +26,10 @@ metaadd(
 
 \item{type}{A character string or vector indicating whether added
 results are from common effect, random effects model or
-prediction interval. Either \code{"common"}, \code{"random"} or
-\code{"prediction"}, can be abbreviated.}
+prediction interval. Either \code{"common"}, \code{"random"},
+\code{"prediction"}, or \code{"tau2"} can be abbreviated.}
 
-\item{TE}{Pooled estimate(s).}
+\item{TE}{Pooled estimate(s) or between-study variance.}
 
 \item{lower}{Lower limit(s) of confidence or prediction interval.}
 
@@ -40,27 +39,22 @@ prediction interval. Either \code{"common"}, \code{"random"} or
 
 \item{pval}{P-value(s).}
 
+\item{df}{Degrees of freedom for confidence or prediction intervals.s}
+
+\item{se}{Standard error(s).}
+
+\item{method}{A character string or vector to describe the
+method used to get the pooled estimate(s), prediction interval(s) or
+between-study variance(s).}
+
+\item{method.ci}{A character string or vector to describe the
+method used to get the confidence or prediction interval.}
+
 \item{text}{A character string or vector used in printouts and
 forest plot to label the added results.}
 
 \item{data}{An optional data frame containing the new results or an
 object of class \code{meta}.}
-
-\item{method.common}{A character string or vector to describe the
-common effect method(s).}
-
-\item{method.random}{A character string or vector to describe the
-random effects method(s).}
-
-\item{method.tau}{A character string or vector to describe the
-estimator(s) of the between-study variance.}
-
-\item{method.random.ci}{A character string or vector to describe
-the method(s) to calculate confidence intervals under the random
-effects model.}
-
-\item{method.predict}{A character string or vector to describe the
-method(s) used for prediction intervals.}
 
 \item{transf}{A logical indicating whether inputs for arguments
 \code{TE}, \code{lower} and \code{upper} are already
@@ -114,7 +108,7 @@ m2 <- metabin(sum(d.asp), sum(n.asp), sum(d.plac), sum(n.plac),
   data = Fleiss1993bin, sm = "OR", text.common = "Naive pooling")
 
 # Add results of second meta-analysis from common effect model
-m12 <- metaadd(m1, data = m2, method.common = "Naive pooling")
+m12 <- metaadd(m1, data = m2)
 m12
 
 forest(m12)

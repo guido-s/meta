@@ -347,7 +347,7 @@ bubble.metareg <- function(x,
     ylim <- scale * range(ys)
   #
   if (missing(ylab)) {
-    ylab <- xlab(sm, backtransf, func.transf = m1$func.transf,
+    ylab <- xlab_meta(sm, backtransf, func.transf = m1$func.transf,
                  func.backtransf = m1$func.backtransf)
     #
     if (ylab == "") {

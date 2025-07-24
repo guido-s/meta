@@ -249,7 +249,7 @@ print.meta <- function(x,
   chkclass(x, "meta")
   x <- updateversion(x)
   ##
-  if (inherits(x, "metacum") | inherits(x, "metainf"))
+  if (inherits(x, "metainf"))
     return(invisible(NULL))
   ##
   is.metabind <- inherits(x, "metabind")
@@ -274,6 +274,8 @@ print.meta <- function(x,
   abt <- x$args.backtransf
   #
   print.I2 <- print.I2 & ((overall.hetstat & !by) | by)
+  #
+  pairwise <- replaceNULL(x$pairwise, FALSE) & any(table(x$studlab) > 1)
   
   
   ##
@@ -313,6 +315,7 @@ print.meta <- function(x,
   chklogical(print.I2.ci)
   chklogical(print.H)
   chklogical(print.Rb)
+  #
   chkchar(text.tau2, length = 1)
   chkchar(text.tau, length = 1)
   chkchar(text.I2, length = 1)
@@ -1155,13 +1158,17 @@ print.meta <- function(x,
                      format(cond(x$k.study, digits = 0),
                             big.mark = big.mark), "\n"))
           cat(paste0("Number of ",
-                     if (is.netpairwise)
-                       "pairwise comparisons: m = " else "estimates: k = ",
+                     if (is.netpairwise | pairwise)
+                       "pairwise comparisons: m"
+                     else
+                       "estimates: k",
+                     " = ",
                      format(cond(k, digits = 0),
                             big.mark = big.mark), "\n"))
         }
         else
-          cat(paste0("Number of studies: k = ",
+          cat(paste0("Number of studies: k",
+                     " = ",
                      format(cond(k, digits = 0),
                             big.mark = big.mark), "\n"))
         ##
@@ -1193,13 +1200,15 @@ print.meta <- function(x,
       print.tau2.ci <-
         print.tau2.ci & !all(is.na(x$lower.tau2) & is.na(x$upper.tau2))
       if (print.tau2.ci &&
-          (all(x$lower.tau2 == 0) & all(x$upper.tau2 == 0)))
+          (all(x$lower.tau2 == 0, na.rm = TRUE) &
+           all(x$upper.tau2 == 0, na.rm = TRUE)))
         print.tau2.ci <- FALSE
       #
       print.tau.ci <-
         print.tau.ci & !all(is.na(x$lower.tau) & is.na(x$upper.tau))
       if (print.tau.ci &&
-          (all(x$lower.tau == 0) & all(x$upper.tau == 0)))
+          (all(x$lower.tau == 0, na.rm = TRUE) &
+           all(x$upper.tau == 0, na.rm = TRUE)))
         print.tau.ci <- FALSE
       #
       cat(paste0("\nQuantifying heterogeneity",
@@ -1382,13 +1391,13 @@ print.meta <- function(x,
                            ifelse(is.na(Rb.w),
                                   "--",
                                   paste0(formatN(Rb.w, digits.I2), "%")),
-                         if (!random & !is.list(x$tau.w))
+                         if (print.tau2 & !random & !is.list(x$tau.w))
                            ifelse(k.w == 1 & !x$tau.common, "--",
                                   formatPT(x$tau.w^2,
                                            digits = digits.tau2,
                                            big.mark = big.mark,
                                            noblanks = TRUE)),
-                         if (!random & !is.list(x$tau.w))
+                         if (print.tau & !random & !is.list(x$tau.w))
                            ifelse(k.w == 1 & !x$tau.common, "--",
                                   formatPT(x$tau.w,
                                            digits = digits.tau,
@@ -1401,14 +1410,14 @@ print.meta <- function(x,
                                big.mark = big.mark)
           ##
           dimnames(Tdata) <- list(bylab.txt,
-                                  c(if (is.netpairwise)
+                                  c(if (is.netpairwise | pairwise)
                                       "  m" else "  k",
                                     sm.lab, ci.lab,
                                     if (print.Q) "Q",
                                     if (print.I2) text.I2,
                                     if (print.Rb) text.Rb,
-                                    if (!random) text.tau2,
-                                    if (!random) text.tau)
+                                    if (print.tau2 & !random) text.tau2,
+                                    if (print.tau & !random) text.tau)
                                   )
           ##
           if (is.metabind & !is.null(x$common.meta))
@@ -1508,13 +1517,13 @@ print.meta <- function(x,
                                           big.mark = big.mark),
                                   formatN(uppTE.random.w[, i], digits, "NA",
                                           big.mark = big.mark)),
-                         if (i == 1 | tau.i)
+                         if (print.tau2 & (i == 1 | tau.i))
                            ifelse(k.w == 1 & !x$tau.common, "--",
                                   formatPT(x$tau.w[[i]]^2,
                                            digits = digits.tau2,
                                            big.mark = big.mark,
                                            noblanks = TRUE)),
-                         if (i == 1 | tau.i)
+                         if (print.tau & (i == 1 | tau.i))
                            ifelse(k.w == 1 & !x$tau.common, "--",
                                   formatPT(x$tau.w[[i]],
                                            digits = digits.tau,
@@ -1539,11 +1548,13 @@ print.meta <- function(x,
                                big.mark = big.mark)
           ##
           dimnames(Tdata) <- list(bylab.txt,
-                                  c(if (is.netpairwise)
+                                  c(if (is.netpairwise | pairwise)
                                       "  m" else "  k",
                                     sm.lab, ci.lab,
-                                    if (i == 1 | tau.i) text.tau2,
-                                    if (i == 1 | tau.i) text.tau,
+                                    if (print.tau2 & (i == 1 | tau.i))
+                                      text.tau2,
+                                    if (print.tau & (i == 1 | tau.i))
+                                      text.tau,
                                     if (i == 1 & !common & print.Q) "Q",
                                     if (i == 1 & !common & print.I2) text.I2,
                                     if (i == 1 & !common & print.Rb) text.Rb)
@@ -1676,7 +1687,6 @@ print.meta <- function(x,
                 #
                 print.df = overall, prediction.subgroup = prediction.subgroup)
   }
-  
   
   invisible(details)
 }

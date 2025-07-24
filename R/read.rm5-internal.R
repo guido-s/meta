@@ -525,6 +525,11 @@ oct2txt <- function(txt) {
   txt <- gsub("\376", "t", txt, useBytes = TRUE)
   txt <- gsub("\377", "y", txt, useBytes = TRUE)
   txt <- gsub("\303\237", "AY", txt, useBytes = TRUE)
+  
+  # replace any remaining non UTF-8 characters with question marks
+  # otherwise they crash the `extract_outcomes` function
+  txt <- iconv(txt, from = "", to = "UTF-8", sub = "???")
+  
   ##
   txt
 }
@@ -927,6 +932,14 @@ read.rm5.rm5 <- function(file, title, numbers.in.labels = TRUE, debug = 0) {
   ##
   rdata <- oct2txt(rdata)
   
+  
+  ## 
+  ## Deal with missing line breaks
+  ##
+  if (length(rdata) == 1 && sum(gregexpr(">", rdata)[[1]] > 0)) {
+    rdata <- unlist(strsplit(rdata, "(?<=>)", perl = TRUE))
+  }
+
   
   ##
   ## Extract title

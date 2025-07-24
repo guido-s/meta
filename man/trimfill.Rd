@@ -37,6 +37,7 @@
   level.ma = level,
   common = FALSE,
   random = TRUE,
+  method.common.ci = gs("method.common.ci"),
   method.random.ci = gs("method.random.ci"),
   adhoc.hakn.ci = gs("adhoc.hakn.ci"),
   method.tau = gs("method.tau"),
@@ -129,6 +130,10 @@ for \code{level}; otherwise 0.95 is used.}
 \item{level.ma}{The level used to calculate confidence interval for
 the pooled estimate. If existing, \code{x$level.ma} is used as
 value for \code{level.ma}; otherwise 0.95 is used.}
+
+\item{method.common.ci}{A character string indicating which method
+is used to calculate confidence interval and test statistic for
+common effect estimate (see \code{\link{meta-package}}).}
 
 \item{method.random.ci}{A character string indicating which method
 is used to calculate confidence interval and test statistic for

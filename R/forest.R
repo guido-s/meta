@@ -11,7 +11,7 @@
 #'   studies (must be of same length as \code{x$TE}).
 #' @param studlab A logical indicating whether study labels should be
 #'   printed in the graph. A vector with study labels can also be
-#'   provided (must be of same length as \code{x$TE} then).
+#'   provided (must be of same length as the vector with estimates \code{x$TE}).
 #' @param layout A character string specifying the layout of the
 #'   forest plot (see Details).
 #' @param common A logical indicating whether common effect estimate
@@ -130,29 +130,40 @@
 #' @param ref A numerical giving the reference value to be plotted as
 #'   a line in the forest plot. No reference line is plotted if
 #'   argument \code{ref} is equal to \code{NA}.
-#' @param lower.equi A numerical giving the lower limit of equivalence
-#'   to be plotted as a line in the forest plot. Or a vector to
-#'   provide several limits, e.g., for large, moderate and small
-#'   effects. No line is plotted if argument \code{lower.equi} is
-#'   equal to \code{NA}.
-#' @param upper.equi A numerical giving the upper limit of equivalence
-#'   to be plotted as a line in the forest plot. Or a vector to
-#'   provide several limits, e.g., for small, moderate and large
-#'   effects. No line is plotted if argument \code{upper.equi} is
-#'   equal to \code{NA}.
-#' @param lty.equi Line type (limits of equivalence).
-#' @param col.equi Line colour (limits of equivalence).
-#' @param fill.equi Colour(s) for area between limits of equivalence
-#'   or more general limits.
-#' @param fill.lower.equi Colour of area between lower limit(s) and
+#' @param cid A numeric value or vector specifying clinically important
+#'   differences (CID) / decision thresholds used to calculate probabilities
+#'   of clinically important benefit or harm, or not important effects
+#'   (see Details).
+#' @param cid.below.null A numeric value or vector specifying CID limits below
+#'   the null effect (see Details).
+#' @param cid.above.null A numeric value or vector specifying CID limits above
+#'   the null effect (see Details).
+#' @param lty.cid Line type for CID lines.
+#' @param col.cid Line colour for CID lines.
+#' @param fill.cid Colour(s) for regions below or above CID limits.
+#' @param fill.cid.below.null Colour of CID regions below null effect /
+#'   reference value. Can be equal to the number of lower limits or
+#'   the number of limits plus 1 (in this case the region between
+#'   minimum and smallest limit is also filled).
+#' @param fill.cid.above.null Colour of CID regions above null effect /
+#'   reference value. Can be equal to the number of upper limits or the
+#'   number of limits plus 1 (in this case the region between largest
+#'   limit and maximum is also filled).
+#' @param cid.pooled.only A logical indicating whether CID regions should only
+#'   be visible for pooled estimates or also individual studies.
+#' @param fill Colour for background of confidence interval plot (also used
+#'   as colour for region between CID limits if argument \code{fill.equi} was
+#'   not provided).
+#' @param fill.equi Colour(s) for region between limits of equivalence defined
+#'   by arguments \code{cid}, \code{cid.lower} or \code{cid.upper}.
+#' @param fill.lower.equi Colour of region between lower limit(s) and
 #'   reference value. Can be equal to the number of lower limits or
 #'   the number of limits plus 1 (in this case the the region between
 #'   minimum and smallest limit is also filled).
-#' @param fill.upper.equi Colour of area between reference value and
+#' @param fill.upper.equi Colour of region between reference value and
 #'   upper limit(s). Can be equal to the number of upper limits or the
 #'   number of limits plus 1 (in this case the region between largest
 #'   limit and maximum is also filled).
-#' @param fill Colour for background of confidence interval plot.
 #' @param leftcols A character vector specifying (additional) columns
 #'   to be printed on the left side of the forest plot or a logical
 #'   value (see Details).
@@ -347,6 +358,8 @@
 #'   header line or a character string ("both", "below", "").
 #' @param col.header.line Colour of the header line(s).
 #' @param col.jama.line Colour of the additional JAMA lines.
+#' @param data.pooled Data set with information for line(s) with pooled
+#'   results (see Details).
 #' @param fontsize The size of text (in points), see
 #'   \code{\link{gpar}}.
 #' @param fontfamily The font family, see \code{\link{gpar}}.
@@ -688,9 +701,6 @@
 #'   \cr
 #' \code{\link{metaprop}} \tab \code{c("studlab", "event", "n")} \cr
 #' \code{\link{metarate}} \tab \code{c("studlab", "event", "time", "n")}
-#'   \cr
-#' \code{\link{metacum}} \tab \code{"studlab"} \cr
-#' \code{\link{metainf}} \tab \code{"studlab"}
 #' }
 #'
 #' For three-level models, the cluster variable is printed next to the
@@ -756,18 +766,12 @@
 #' interval will be printed. Depending on arguments \code{common} and
 #' \code{random}, weights of the common effect and/or random effects
 #' model will be given too.
-#'
-#' For an object of class \code{\link{metacum}} or
-#' \code{\link{metainf}} the following columns will be printed:
-#' \code{c("effect", "ci", "pval", "tau2", "tau", "I2")}. This
-#' information corresponds to the printout with
-#' \code{\link{print.meta}}.
 #' }
 #'
-#' \subsection{Predefined column names}{
+#' \subsection{Predefined columns and column labels}{
 #' 
 #' The arguments \code{leftlabs} and \code{rightlabs} can be used to
-#' specify column headings which are printed on left or right side of
+#' specify column headings which are printed on the left or right side of
 #' the forest plot. For certain columns predefined labels exist which
 #' are used by default, i.e., if arguments \code{leftlabs} and
 #' \code{rightlabs} are \code{NULL}:
@@ -790,7 +794,11 @@
 #' Column: \tab \code{ci} \tab \code{effect.ci} \tab
 #'   \code{w.common} \tab \code{w.random} \tab \code{cycles} \tab \cr
 #' Label: \tab \code{x$level}"\%-CI" \tab \emph{effect+ci} \tab
-#'   "W(common)" \tab "W(random)" \tab "Cycles" \tab
+#'   "W(common)" \tab "W(random)" \tab "Cycles" \tab \cr
+#' \cr
+#' Column: \tab \code{pval} \tab \code{tau2} \tab
+#'   \code{tau} \tab \tab \tab \cr
+#' Label: \tab "P-value" \tab "Tau2" \tab "Tau" \tab \tab \tab
 #' }
 #'
 #' For other columns, the column name will be used as a label if no
@@ -799,7 +807,6 @@
 #' and \code{rightlabs} must be the same as the number of printed
 #' columns. The value \code{NA} can be used to specify columns which
 #' should use default labels (see Examples).
-#'
 #'
 #' In pairwise meta-analysis comparing two groups (i.e.,
 #' \code{\link{metabin}}, \code{\link{metacont}},
@@ -812,7 +819,7 @@
 #' }
 #'
 #' \subsection{Risk of bias assessment}{
-#'
+#' 
 #' A risk of bias (RoB) assessment can be shown in the forest plot by
 #' either using a meta-analysis object with an RoB assessment as main
 #' input or providing a suitable object created with
@@ -826,7 +833,6 @@
 #' left side.
 #' }
 #' 
-#'
 #' \subsection{Information on heterogeneity and statistical tests}{
 #' 
 #' Argument \code{hetstat} can be a character string to specify where
@@ -868,6 +874,24 @@
 #' always print results of tests for an overall effect:
 #' \code{settings.meta(test.overall = TRUE)}.
 #' }
+#' 
+#' \subsection{Highlight regions corresponding to minimal clinically important
+#' differences}{
+#'
+#' Regions corresponding to minimal clinically important differences can be
+#' added to the forest plot using either argument \code{cid} or
+#' \code{cid.below.null} and \code{cid.above.null}. Input for the later arguments will
+#' be ignored if argument \code{cid} was specified. In this case, the values
+#' of \code{cid.below.null} and \code{cid.above.null} will be equal to
+#' \itemize{
+#' \item \code{cid} and \code{1 / cid} for ratio measures,
+#' \item \code{cid} and \code{-cid} for difference measures.
+#' }
+#' 
+#' Thresholds based on argument \code{cid} will always be symmetric. Asymmetric
+#' thresholds can be defined using arguments \code{cid.below.null} and
+#' \code{cid.above.null}.
+#' }
 #'
 #' \subsection{Flexible printing of subgroup results}{
 #'
@@ -899,6 +923,27 @@
 #' \item \code{test.effect.subgroup.random} (test for effect in
 #'   subgroups, random effects model).
 #' }
+#' }
+#'
+#' \subsection{Data set with information to print with overall results}{
+#' 
+#' Argument \code{data.pooled} can be used to provide information printed in
+#' the line(s) with overall results, i.e., for the common effect or random
+#' effects model. Input must be a data frame with variable names equal to those
+#' provided in arguments \code{leftcols} or \code{rightcols}. Only variables
+#' for additional variables are considered.
+#' 
+#' It is possible to provide a row in data set \code{data.pooled} for each
+#' common effect or random effects estimate. The order in the data set
+#' corresponds to the order of common effect and random effects estimates in
+#' the forest plot, i.e., common effect followed by random effects estimates.
+#' If the data set contains a single row, the value provided for a variable is
+#' considered for all printed common effect and random effects estimates 
+#' 
+#' In meta-analyses with subgroups, a row must be provided in data set
+#' \code{data.pooled} for each overall common effect or random effects estimate,
+#' followed by common effect or random effects estimates within subgroups. The
+#' order for subgroup results is the same as see in the forest plot.
 #' }
 #' 
 #' \subsection{Additional general settings}{
@@ -1073,29 +1118,30 @@
 #' 
 #' # Define equivalence limits: 0.75 and 1 / 0.75
 #' #
-#' forest(m1, layout = "RevMan5", common = FALSE,
-#'   lower.equi = 0.75, upper.equi = 1 / 0.75, fill.equi = "lightgray")
+#' forest(m1, layout = "RevMan5", common = FALSE, cid = 0.75,
+#'   fill = "lightgray",
+#'   fill.cid = "white")
 #' 
-#' # Fill areas with beneficial and detrimental effects
+#' # Fill regions with beneficial and detrimental effects
 #' #
-#' forest(m1, layout = "RevMan5", common = FALSE,
-#'   lower.equi = 0.75, upper.equi = 1 / 0.75,
-#'   fill.lower.equi = c("green", "lightgray"),
-#'   fill.upper.equi = c("lightgray", "red"))
+#' forest(m1, layout = "RevMan5", common = FALSE, cid = 0.75,
+#'   fill = "lightgray",
+#'   fill.cid.below.null = "green",
+#'   fill.cid.above.null = "red")
 #' 
 #' # Define thresholds for small, moderate and large effects
-#' # and use hcl.colors() to define colours to fill areas
+#' # and use hcl.colors() to define colours to fill regions
 #' #
 #' thresholds <- c(0.25, 0.5, 0.75)
-#' n.cols <- length(thresholds) + 1
+#' n.cols <- length(thresholds)
 #' forest(m1, layout = "RevMan5", common = FALSE,
 #'   label.left = "Desirable effect", 
 #'   label.right = "Undesirable effect", 
-#'   lty.equi = 3, col.equi = "darkgray",
-#'   lower.equi = thresholds, upper.equi = 1 / rev(thresholds),
-#'   fill.lower.equi =
+#'   lty.cid = 3, col.cid = "darkgray",
+#'   cid.below.null = thresholds, cid.above.null = 1 / rev(thresholds),
+#'   fill.cid.below.null =
 #'     hcl.colors(n.cols, palette = "Blues 2", alpha = 0.6),
-#'   fill.upper.equi =
+#'   fill.cid.above.null =
 #'     hcl.colors(n.cols, palette = "Oranges", alpha = 0.6, rev = TRUE))
 #' 
 #' # Conduct subgroup meta-analysis
@@ -1310,15 +1356,21 @@ forest.meta <- function(x,
                         #
                         ref,
                         #
-                        lower.equi = gs("lower.equi"),
-                        upper.equi = gs("upper.equi"),
-                        lty.equi = gs("lty.equi"),
-                        col.equi = gs("col.equi"),
+                        cid = gs("cid"),
+                        cid.below.null = gs("cid.below.null"),
+                        cid.above.null = gs("cid.above.null"),
+                        lty.cid = gs("lty.cid"),
+                        col.cid = gs("col.cid"),
+                        fill.cid = gs("fill.cid"),
+                        fill.cid.below.null = fill.cid,
+                        fill.cid.above.null = rev(fill.cid),
+                        cid.pooled.only = gs("cid.pooled.only"),
+                        #
+                        fill = gs("fill"),
+                        #
                         fill.equi = gs("fill.equi"),
                         fill.lower.equi = fill.equi,
                         fill.upper.equi = rev(fill.equi),
-                        #
-                        fill = gs("fill"),
                         #
                         leftcols = gs("leftcols"),
                         rightcols = gs("rightcols"),
@@ -1435,6 +1487,8 @@ forest.meta <- function(x,
                         header.line,
                         col.header.line = col.lines,
                         col.jama.line = col.subgroup,
+                        #
+                        data.pooled = NULL,
                         #
                         fontsize = gs("fontsize"),
                         fontfamily = gs("fontfamily"),
@@ -1590,14 +1644,14 @@ forest.meta <- function(x,
   metaprop <- inherits(x, "metaprop")
   metarate <- inherits(x, "metarate")
   metabind <- inherits(x, "is.metabind")
-  #
-  metainf.metacum <- inherits(x, "metainf") | inherits(x, "metacum")
+  metacum <- inherits(x, "metacum")
+  metainf <- inherits(x, "metainf")
   #
   metamerge <- inherits(x, "metamerge")
   #
   meta <- !metabind &&
     (metabin | metacont | metacor | metagen | metainc | metamean |
-       metaprop | metarate | metainf.metacum)
+       metaprop | metarate)
   #
   ftr <- x$func.transf
   atr <- x$args.transf
@@ -1614,11 +1668,13 @@ forest.meta <- function(x,
   # Logical variables for missing arguments
   #
   missing.calcwidth.common <- missing(calcwidth.common)
-  missing.col.circle <- missing(col.circle)
-  missing.col.circle.lines <- missing(col.circle.lines)
+  missing.col.circle <- missing(col.circle) | is.null(col.circle)
+  missing.col.circle.lines <-
+    missing(col.circle.lines) | is.null(col.circle.lines)
   missing.col.common <- missing(col.common)
   missing.col.diamond <- missing(col.diamond)
-  missing.col.diamond.common <- missing(col.diamond.common)
+  missing.col.diamond.common <-
+    missing(col.diamond.common) | is.null(col.diamond.common)
   missing.col.diamond.fixed <- is.na(argid(nam.args, "col.diamond.fixed"))
   missing.col.diamond.fixed.lines <-
     is.na(argid(nam.args, "col.diamond.fixed.lines"))
@@ -1626,11 +1682,13 @@ forest.meta <- function(x,
   missing.col.diamond.lines.fixed <-
     is.na(argid(nam.args, "col.diamond.lines.fixed"))
   missing.col.diamond.lines.random <- missing(col.diamond.lines.random)
-  missing.col.diamond.random <- missing(col.diamond.random)
+  missing.col.diamond.random <-
+    missing(col.diamond.random) | is.null(col.diamond.random)
   missing.col.inside <- missing(col.inside)
   missing.col.inside.common <- missing(col.inside.common)
-  missing.col.square <- missing(col.square)
-  missing.col.square.lines <- missing(col.square.lines)
+  missing.col.square <- missing(col.square) | is.null(col.square)
+  missing.col.square.lines <-
+    missing(col.square.lines) | is.null(col.square.lines)
   missing.col.subgroup <- missing(col.subgroup)
   missing.common <- missing(common)
   missing.common.subgroup <- missing(common.subgroup)
@@ -1745,6 +1803,7 @@ forest.meta <- function(x,
     missing.digits.addcols & missing.digits.addcols.right
   #
   avail.xlim <- !missing(xlim)
+  avail.fill.equi <- !missing(fill.equi) & !is.null(fill.equi)
   
   
   #
@@ -1841,8 +1900,6 @@ forest.meta <- function(x,
     if (!inherits(rob, "rob"))
       stop("Argument 'rob' must be of class \"rob\".", call. = FALSE)
     #
-    rsel <- TRUE
-    #
     rob.labels <-
       colnames(rob)[!(colnames(rob) %in% c("Study", "Weight"))]
     rob.labels[rob.labels == "Overall"] <- "O"
@@ -1891,12 +1948,7 @@ forest.meta <- function(x,
                 "effect", "ci",
                 "effect.ci",
                 #
-                "w.fixed", "w.common", "w.random",
-                #
-                "pval")
-  #
-  if (metainf.metacum)
-    colnames <- c(colnames, "tau2", "tau", "I2")
+                "w.fixed", "w.common", "w.random")
   #
   # If any of the following list elements is NULL, these 'special'
   # variable names are searched for in original data set (i.e., list
@@ -1977,9 +2029,6 @@ forest.meta <- function(x,
         else if (length(dataset2[[firstvar]]) != 0)
           studlab.new <- dataset2[[firstvar]]
         #
-        if (metainf.metacum)
-          studlab.new <- c(studlab.new, "", rev(x$studlab)[1])
-        #
         if (length(x$studlab) != length(studlab.new))
           stop("Variable '", firstvar, "' has different length ",
                "than list element '", x.name, "' with study labels.",
@@ -2024,10 +2073,7 @@ forest.meta <- function(x,
       sortvar <- sortvar[x$data$.subset]
   }
   #
-  if (!is.null(sortvar) & metainf.metacum)
-    warning("Argument 'sortvar' ignored for objects ",
-            "created with metacum() or metainf().")
-  sort <- !is.null(sortvar) & !metainf.metacum
+  sort <- !is.null(sortvar)
   if (sort && (length(sortvar) != K.all))
     stop("Number of studies in object 'x' and argument 'sortvar' ",
          "have different length.")
@@ -2092,7 +2138,7 @@ forest.meta <- function(x,
   if (missing.studlab && K.all == 1 && studlab == "")
     studlab <- "1"
   #
-  if (length(studlab) != (K.all - 2 * (metainf.metacum & !missing.studlab)))
+  if (length(studlab) != K.all)
     stop("Number of studies in object 'x' and argument 'studlab' have ",
          "different length.")
   #
@@ -2175,80 +2221,207 @@ forest.meta <- function(x,
   #
   # Use logarithmic x-axis?
   # (for back-transformed relative effect measures)
-  log.xaxis <-
-    backtransf & (is_relative_effect(sm) | (!is.null(fbt) && fbt == "exp"))
+  is_relative <- is_relative_effect(sm) | (!is.null(fbt) && fbt == "exp")
+  #
+  log.xaxis <- backtransf & is_relative
   #
   if (missing.ref) {
-    if (is_prop(sm) | is_rate(sm) | is_mean(sm))
-      ref <- NA
+    if (is_prop(sm) | is_rate(sm) | is_mean(sm)) {
+      if (!is.null(x$null.effect))
+        ref <- x$null.effect
+      else
+        ref <- NA
+    }
     else if (log.xaxis)
       ref <- 1
     else
       ref <- 0
-    #
   }
   else
     chknumeric(ref, length = 1)
   #
-  chknumeric(lower.equi)
-  chknumeric(upper.equi)
+  avail.cid <- !missing(cid) & !is.null(cid) & !all(is.na(cid))
+  chknumeric(cid)
   #
-  if (all(is.na(lower.equi)))
-    max.lower.equi <- NA
-  else {
-    max.lower.equi <- max(lower.equi, na.rm = TRUE)
+  cid.below.null <-
+    deprecated(cid.below.null, missing(cid.below.null),
+               args, "lower.equi", warn.deprecated)
+  #
+  cid.above.null <-
+    deprecated(cid.above.null, missing(cid.above.null),
+               args, "upper.equi", warn.deprecated)
+  #
+  lty.cid <-
+    deprecated(lty.cid, missing(lty.cid), args, "lty.equi", warn.deprecated)
+  chknumeric(lty.cid)
+  #
+  col.cid <-
+    deprecated(col.cid, missing(col.cid), args, "col.equi", warn.deprecated)
+  chkcolor(col.cid)
+  #
+  avail.cid.below.null <- !is.null(cid.below.null) & !all(is.na(cid.below.null))
+  avail.cid.above.null <- !is.null(cid.above.null) & !all(is.na(cid.above.null))
+  #
+  if (avail.cid) {
+    if (any(is.na(cid)))
+      stop("Missing values not allows in argument 'cid'.",
+           call. = FALSE)
     #
-    if (!is.na(ref) && any(lower.equi[!is.na(lower.equi)] > ref))
-      stop("All values provided for argument 'lower.equi' must be ",
+    if (avail.cid.below.null + avail.cid.above.null == 2)
+      warning("Arguments 'cid.below.null' and 'cid.above.null' ignored as ",
+              "argument 'cid' is provided.",
+              call. = FALSE)
+    else if (avail.cid.below.null)
+      warning(
+        "Argument 'cid.below.null' ignored as argument 'cid' is provided.",
+        call. = FALSE)
+    else if (avail.cid.above.null)
+      warning(
+        "Argument 'cid.above.null' ignored as argument 'cid' is provided.",
+        call. = FALSE)
+    #
+    if (any(diff(cid) <= 0))
+      stop("Values for argument 'cid' must be increasing.",
+           call. = FALSE)
+    #
+    if (any(cid < ref) & any(cid > ref))
+      stop("All values provided for argument 'cid' must be either ",
+           "smaller or larger than reference value of ", ref, ".",
+           call. = FALSE)
+    #
+    if (all(cid < ref)) {
+      cid.below.null <- cid
+      #
+      if (log.xaxis)
+        cid.above.null <- rev(1 / cid)
+      else
+        cid.above.null <- rev(-cid)
+    }
+    else {
+      cid.above.null <- cid
+      #
+      if (log.xaxis)
+        cid.below.null <- rev(1 / cid)
+      else
+        cid.below.null <- rev(-cid)
+    }
+    #
+    avail.cid.below.null <- TRUE
+    avail.cid.above.null <- TRUE
+  }
+  #
+  chknumeric(cid.below.null)
+  chknumeric(cid.above.null)
+  #
+  n.cid.below.null <- sum(!is.na(cid.below.null))
+  n.cid.above.null <- sum(!is.na(cid.above.null))
+  #
+  if (n.cid.below.null > 0) {
+    max.cid.below.null <- max(cid.below.null, na.rm = TRUE)
+    #
+    if (!is.na(ref) && any(cid.below.null[!is.na(cid.below.null)] > ref))
+      stop("All values provided for argument 'cid.below.null' must be ",
            "smaller than reference value of ", ref, ".",
            call. = FALSE)
   }
+  else
+    max.cid.below.null <- NA
   #
-  if (all(is.na(upper.equi)))
-    min.upper.equi <- NA
-  else {
-    min.upper.equi <- min(upper.equi, na.rm = TRUE)
+  if (n.cid.above.null > 0) {
+    min.cid.above.null <- min(cid.above.null, na.rm = TRUE)
     #
-    if (!is.na(ref) && any(upper.equi[!is.na(upper.equi)] < ref))
-      stop("All values provided for argument 'upper.equi' must be ",
+    if (!is.na(ref) && any(cid.above.null[!is.na(cid.above.null)] < ref))
+      stop("All values provided for argument 'cid.above.null' must be ",
            "larger than reference value of ", ref, ".",
            call. = FALSE)
   }
+  else
+    min.cid.above.null <- NA
   #
-  if (!is.na(max.lower.equi) && !is.na(min.upper.equi) &&
-      max.lower.equi > min.upper.equi)
-    stop("Value", if (length(lower.equi) > 1) "s " else " ",
-         "of 'lower.equi' must be smaller than 'upper.equi'.",
+  if (n.cid.below.null > 0 && n.cid.above.null > 0 &&
+      max.cid.below.null > min.cid.above.null)
+    stop("Value", if (length(cid.below.null) > 1) "s " else " ",
+         "of 'cid.below.null' must be smaller than 'cid.above.null'.",
          call. = FALSE)
   #
-  if (any(lower.equi != sort(lower.equi), na.rm = TRUE))
-    stop("Values of 'lower.equi' must be increasing.",
+  if (any(cid.below.null != sort(cid.below.null), na.rm = TRUE))
+    stop("Values of 'cid.below.null' must be increasing.",
          call. = FALSE)
   #
-  if (any(upper.equi != sort(upper.equi), na.rm = TRUE))
-    stop("Values of 'upper.equi' must be increasing.",
+  if (any(cid.above.null != sort(cid.above.null), na.rm = TRUE))
+    stop("Values of 'cid.above.null' must be increasing.",
          call. = FALSE)
   #
-  if (!is.na(max.lower.equi)) {
-    if (length(fill.lower.equi) == 1 & sum(!is.na(lower.equi)) > 1)
-      fill.lower.equi <- rep(fill.lower.equi, sum(!is.na(lower.equi)))
-    else if (all(length(fill.lower.equi) != sum(!is.na(lower.equi)) + 0:1))
+  # Define colours for CID regions
+  #
+  missing.fill.cid <- missing(fill.cid)
+  missing.fill.cid.below.null <- missing(fill.cid.below.null)
+  missing.fill.cid.above.null <- missing(fill.cid.above.null)
+  #
+  if (n.cid.below.null > 0) {
+    if (length(fill.cid.below.null) == 1 & n.cid.below.null > 1)
+      fill.cid.below.null <- rep(fill.cid.below.null, n.cid.below.null)
+    else if (all(length(fill.cid.below.null) != n.cid.below.null))
       stop("Number of fill colours must be equal to the number of values ",
-           "for 'lower.equi' or +1.",
+           "for 'cid.below.null'.",
            call. = FALSE)
   }
   #
-  if (!is.na(min.upper.equi)) {
-    if (length(fill.upper.equi) == 1 & sum(!is.na(upper.equi)) > 1)
-      fill.upper.equi <- rep(fill.upper.equi, sum(!is.na(upper.equi)))
-    else if (all(length(fill.upper.equi) != sum(!is.na(upper.equi)) + 0:1))
+  fill.cid.below.null <-
+    c(fill.cid.below.null, if (avail.fill.equi) fill.equi else fill)
+  #
+  if (n.cid.above.null > 0) {
+    if (length(fill.cid.above.null) == 1 & n.cid.above.null > 1)
+      fill.cid.above.null <- rep(fill.cid.above.null, n.cid.above.null)
+    else if (all(length(fill.cid.above.null) != n.cid.above.null))
       stop("Number of fill colours must be equal to the number of values ",
-           "for 'upper.equi' or +1.",
+           "for 'cid.above.null'.",
            call. = FALSE)
   }
   #
-  chknumeric(lty.equi)
-  chkcolor(col.equi)
+  fill.cid.above.null <-
+    c(if (avail.fill.equi) fill.equi else fill, fill.cid.above.null)
+  #
+  # Define colours based on equivalence limits
+  #
+  missing.fill.lower.equi <- missing(fill.lower.equi)
+  missing.fill.upper.equi <- missing(fill.upper.equi)
+  #
+  if (!missing.fill.lower.equi | !missing.fill.upper.equi) {
+    if (!missing.fill.cid |
+        !missing.fill.cid.above.null |
+        !missing.fill.cid.above.null) {
+      warning("Input for arguments 'fill.lower.equi' and 'fill.upper.equi' ",
+              "ignored if argument 'fill.cid', 'fill.cid.below.null' or ",
+              "'fill.cid.above.null' is provided.",
+              call. = FALSE)
+    }
+    else {
+      if (n.cid.below.null > 0) {
+        if (length(fill.lower.equi) == 1 & n.cid.below.null > 1)
+          fill.lower.equi <- rep(fill.lower.equi, n.cid.below.null)
+        else if (all(length(fill.lower.equi) != n.cid.below.null + 0:1))
+          stop("Number of fill colours must be equal to the number of values ",
+               "for 'cid.below.null' or +1.",
+               call. = FALSE)
+        #
+        fill.cid.below.null <- fill.lower.equi
+      }
+      #
+      if (n.cid.above.null > 0) {
+        if (length(fill.upper.equi) == 1 & n.cid.above.null > 1)
+          fill.upper.equi <- rep(fill.upper.equi, n.cid.above.null)
+        else if (all(length(fill.upper.equi) != n.cid.above.null + 0:1))
+          stop("Number of fill colours must be equal to the number of values ",
+               "for 'cid.above.null' or +1.",
+               call. = FALSE)
+        #
+        fill.cid.above.null <- fill.upper.equi
+      }
+    }
+  }
+  #
+  chklogical(cid.pooled.only)
   #
   if (bmj)
     type.study <- "squarediamond"
@@ -2279,12 +2452,8 @@ forest.meta <- function(x,
   chklogical(bottom.lr)
   #
   chkchar(lab.NA)
-  if (is.null(lab.NA.effect)) {
-    if (metainf.metacum)
-      lab.NA.effect <- lab.NA
-    else
+  if (is.null(lab.NA.effect))
       lab.NA.effect <- ""
-  }
   #
   chkchar(lab.NA.effect)
   chkchar(lab.NA.weight)
@@ -2904,6 +3073,65 @@ forest.meta <- function(x,
   }
   #
   chklogical(details)
+  #
+  # Set colours for JAMA and RevMan5 layouts
+  #
+  if (jama) {
+    if (missing.col.square)
+      col.square <- rep("darkblue", K.all)
+    if (missing.col.square.lines)
+      col.square.lines <- rep("darkblue", K.all)
+    #
+    if (missing.col.circle)
+      col.circle <- rep("darkblue", K.all)
+    if (missing.col.circle.lines)
+      col.circle.lines <- rep("darkblue", K.all)
+    #
+    if (missing.col.diamond.common)
+      col.diamond.common <- "lightblue"
+    if (missing.col.diamond.random)
+      col.diamond.random <- "lightblue"
+  }
+  else if (revman5) {
+    if (missing.col.square) {
+      if (metacont | metamean)
+        col.square <- rep("green", K.all)
+      else if (metabin)
+        col.square <- rep("blue", K.all)
+      else
+        col.square <- rep("red", K.all)
+    }
+    if (missing.col.square.lines) {
+      if (metacont | metamean)
+        col.square.lines <- rep("green", K.all)
+      else if (metabin)
+        col.square.lines <- rep("darkblue", K.all)
+      else
+        col.square.lines <- rep("red", K.all)
+    }
+    #
+    if (missing.col.circle) {
+      if (metacont | metamean)
+        col.circle <- rep("green", K.all)
+      else if (metabin)
+        col.circle <- rep("blue", K.all)
+      else
+        col.circle <- rep("red", K.all)
+    }
+    if (missing.col.circle.lines) {
+      if (metacont | metamean)
+        col.circle.lines <- rep("green", K.all)
+      else if (metabin)
+        col.circle.lines <- rep("darkblue", K.all)
+      else
+        col.circle.lines <- rep("red", K.all)
+    }
+    #
+    if (missing.col.diamond.common)
+      col.diamond.common <- "black"
+    if (missing.col.diamond.random)
+      col.diamond.random <- "black"
+  }
   
   
   #
@@ -2950,7 +3178,7 @@ forest.meta <- function(x,
   #
   #
   n.com <- max(length(x$TE.common), 1)
-  n.ran <- max(length(x$seTE.random), 1)
+  n.ran <- max(length(x$lower.random), 1)
   n.prd <- max(length(x$lower.predict), 1)
   #
   prediction <- prediction &
@@ -3279,18 +3507,6 @@ forest.meta <- function(x,
                              round(x$level.predict * 100), "%-PI)")
   }
   #
-  if (metainf.metacum) {
-    overall.hetstat <- FALSE
-    test.overall.common <- FALSE
-    test.overall.random <- FALSE
-    resid.hetstat <- FALSE
-    test.subgroup.common <- FALSE
-    test.subgroup.random <- FALSE
-    #
-    hetstat <- FALSE
-    prediction <- FALSE
-  }
-  #
   if (is.null(x$null.effect) || is.na(x$null.effect)) {
     test.overall.common <- FALSE
     test.overall.random <- FALSE
@@ -3336,8 +3552,12 @@ forest.meta <- function(x,
   chknumeric(addrows.below.overall, min = 0, length = 1, integer = TRUE)
   #
   if (!avail.xlim) {
+    mrm <- c("metaprop", "metarate", "metamean")
+    #
     if (metaprop || metarate || metamean ||
-        (metabind & sm %in% c(gs("sm4prop"), gs("sm4rate"), gs("sm4mean")))) {
+        (metabind && sm %in% c(gs("sm4prop"), gs("sm4rate"), gs("sm4mean"))) ||
+        (metacum && any(x$classes %in% mrm)) ||
+        (metainf && any(x$classes %in% mrm))) {
       xlim <- NULL
       #
       avail.xlim <- FALSE
@@ -3362,8 +3582,8 @@ forest.meta <- function(x,
   #
   if (log.xaxis) {
     ref <- log(ref)
-    lower.equi <- log(lower.equi)
-    upper.equi <- log(upper.equi)
+    cid.below.null <- log(cid.below.null)
+    cid.above.null <- log(cid.above.null)
   }
   #
   if (!backtransf & !missing.pscale & pscale != 1 & !is_untransformed(sm)) {
@@ -3383,7 +3603,7 @@ forest.meta <- function(x,
     irscale <- 1
   #
   if (is.null(xlab))
-    xlab <- xlab(sm, backtransf, newline = revman5.jama, revman5 = revman5,
+    xlab <- xlab_meta(sm, backtransf, newline = revman5.jama, revman5 = revman5,
                  big.mark = big.mark)
   #
   scale <- 1
@@ -3401,15 +3621,15 @@ forest.meta <- function(x,
   smlab.null <- is.null(smlab)
   if (smlab.null) {
     if (is_rate(sm))
-      smlab <- xlab(sm, backtransf, irscale = irscale, irunit = irunit,
+      smlab <- xlab_meta(sm, backtransf, irscale = irscale, irunit = irunit,
                     newline = !bmj.revman5.jama, revman5 = revman5,
                     big.mark = big.mark)
     else if (is_prop(sm))
-      smlab <- xlab(sm, backtransf, pscale = pscale,
+      smlab <- xlab_meta(sm, backtransf, pscale = pscale,
                     newline = !bmj.revman5.jama, revman5 = revman5,
                     big.mark = big.mark)
     else
-      smlab <- xlab(sm, backtransf, pscale = pscale,
+      smlab <- xlab_meta(sm, backtransf, pscale = pscale,
                     irscale = irscale, irunit = irunit,
                     newline = !bmj.revman5.jama, revman5 = revman5,
                     big.mark = big.mark)
@@ -3583,68 +3803,15 @@ forest.meta <- function(x,
   if (jama) {
     if (missing.ff.lr)
       ff.lr <- "bold"
+    #
     if (xlab == "")
       xlab <- paste0(sm.lab, " (", ci.lab, ")")
-    #
-    if (missing.col.square)
-      col.square <- rep("darkblue", K.all)
-    if (missing.col.square.lines)
-      col.square.lines <- rep("darkblue", K.all)
-    #
-    if (missing.col.circle)
-      col.circle <- rep("darkblue", K.all)
-    if (missing.col.circle.lines)
-      col.circle.lines <- rep("darkblue", K.all)
-    #
-    if (missing.col.diamond.common)
-      col.diamond.common <- "lightblue"
-    if (missing.col.diamond.random)
-      col.diamond.random <- "lightblue"
     #
     smlab <- ""
     bottom.lr <- FALSE
   }
   else {
     if (revman5) {
-      if (missing.col.square) {
-        if (metacont | metamean)
-          col.square <- rep("green", K.all)
-        else if (metabin)
-          col.square <- rep("blue", K.all)
-        else
-          col.square <- rep("red", K.all)
-      }
-      if (missing.col.square.lines) {
-        if (metacont | metamean)
-          col.square.lines <- rep("green", K.all)
-        else if (metabin)
-          col.square.lines <- rep("darkblue", K.all)
-        else
-          col.square.lines <- rep("red", K.all)
-      }
-      #
-      if (missing.col.circle) {
-        if (metacont | metamean)
-          col.circle <- rep("green", K.all)
-        else if (metabin)
-          col.circle <- rep("blue", K.all)
-        else
-          col.circle <- rep("red", K.all)
-      }
-      if (missing.col.circle.lines) {
-        if (metacont | metamean)
-          col.circle.lines <- rep("green", K.all)
-        else if (metabin)
-          col.circle.lines <- rep("darkblue", K.all)
-        else
-          col.circle.lines <- rep("red", K.all)
-      }
-      #
-      if (missing.col.diamond.common)
-        col.diamond.common <- "black"
-      if (missing.col.diamond.random)
-        col.diamond.random <- "black"
-      #
       sel.method <- pmatch(x$method, c("Inverse", "MH", "Peto", "GLMM"))
       lab.method <- c("IV", "MH", "Peto", "GLMM")[sel.method]
       #
@@ -3729,9 +3896,9 @@ forest.meta <- function(x,
   #
   lab.TE <- sm
   #
-  if (log.xaxis | sm == "VE")
+  if (is_relative)
     lab.TE <- paste0("log", if (sm == "VE") "VR" else sm)
-  else if (!log.xaxis & !is.null(ftr)) {
+  else if (!is.null(ftr)) {
     lab.TE <-
       paste0(ftr, "(", sm,
              if (!is.null(atr) && length(names(atr)) >= 1)
@@ -3769,9 +3936,6 @@ forest.meta <- function(x,
                 text.w.random,
                 #
                 "P-value")
-  #
-  if (metainf.metacum)
-    labnames <- c(labnames, "Tau2", "Tau", "I2")
   #
   if (newcols) {
     #
@@ -3922,9 +4086,6 @@ forest.meta <- function(x,
       leftcols <- c(leftcols, "cycles")
     #
     if (jama) {
-      if (metainf.metacum)
-        leftcols <- c(leftcols, "pval", "tau2", "tau", "I2")
-      #
       leftcols <- c(leftcols, "effect.ci")
     }
     else {
@@ -4097,33 +4258,27 @@ forest.meta <- function(x,
     #
     if (revman5) {
       #
-      if (!metainf.metacum & overall & study.results &
-          !any(x$method == "GLMM") & !metamerge) {
+      if (overall & study.results & !any(x$method == "GLMM") & !metamerge) {
         if (common && !all(is.na(x$w.common)))
           leftcols <- c(leftcols, "w.common")
         if (random && !all(is.na(x$w.random)))
           leftcols <- c(leftcols, "w.random")
       }
-      else if (metainf.metacum)
-        leftcols <- c(leftcols, "pval", "tau2", "tau", "I2")
       #
       leftcols <- c(leftcols, "effect.ci")
     }
     #
-    # Add columns if risk of bias assessmen is only information on
+    # Add columns if risk of bias assessment is only information on
     # right side of the forest plot
     #
     if (!revman5.jama & rob.only) {
       #
-      if (!metainf.metacum & overall & study.results &
-          !any(x$method == "GLMM") & !metamerge) {
+      if (overall & study.results & !any(x$method == "GLMM") & !metamerge) {
         if (common)
           leftcols <- c(leftcols, "w.common")
         if (random)
           leftcols <- c(leftcols, "w.random")
       }
-      else if (metainf.metacum)
-        leftcols <- c(leftcols, "pval", "tau2", "tau", "I2")
       #
       if (bmj)
         leftcols <- c(leftcols, "effect.ci")
@@ -4141,8 +4296,7 @@ forest.meta <- function(x,
     else
       rightcols <- c("effect", "ci")
     #
-    if (!metainf.metacum & overall & study.results &
-        !any(x$method == "GLMM") & !metamerge) {
+    if (overall & study.results & !any(x$method == "GLMM") & !metamerge) {
       wcols <- c(if (common && !all(is.na(x$w.common))) "w.common",
                  if (random && !all(is.na(x$w.random))) "w.random")
       #
@@ -4151,14 +4305,11 @@ forest.meta <- function(x,
       else
         rightcols <- c(rightcols, wcols)
     }
-    #
-    if (metainf.metacum)
-      rightcols <- c(rightcols, "pval", "tau2", "tau", "I2")
   }
-  else if (RoB.available & rob.only &
-           missing.leftcols & !revman5.jama) {
-    if (!metainf.metacum & overall & study.results &
-        !any(x$method == "GLMM" & !metamerge)) {
+  #
+  if (RoB.available & rob.only &
+      missing.leftcols & !revman5.jama) {
+    if (overall & study.results & !any(x$method == "GLMM" & !metamerge)) {
       if (common)
         leftcols <- c(leftcols, "w.common")
       if (random)
@@ -4182,10 +4333,7 @@ forest.meta <- function(x,
          ".",
          call. = FALSE)
   #
-  if (rob.only)
-    rightcols <- rightcols.rob
-  else
-    rightcols <- c(rightcols, rightcols.rob)
+  rightcols <- c(rightcols, rightcols.rob)
   #
   if (any(leftcols == "w.common") & any(rightcols == "w.common"))
     leftcols <- leftcols[!leftcols == "w.common"]
@@ -4279,75 +4427,21 @@ forest.meta <- function(x,
     }
   }
   #
-  if (metainf.metacum) {
-    #
-    x$TE.common <- rev(x$TE)[1]
-    x$seTE.common <- rev(x$seTE)[1]
-    x$lower.common <- rev(x$lower)[1]
-    x$upper.common <- rev(x$upper)[1]
-    #
-    x$TE.random <- rev(x$TE)[1]
-    x$seTE.random <- rev(x$seTE)[1]
-    x$lower.random <- rev(x$lower)[1]
-    x$upper.random <- rev(x$upper)[1]
-    #
-    x$n.harmonic.mean.ma <- rev(x$n.harmonic.mean)[1]
-    x$t.harmonic.mean.ma <- rev(x$t.harmonic.mean)[1]
-    #
-    x$w.all <- rev(x$w)[1]
-    #
-    x$TE <- rev(rev(x$TE)[-(1:2)])
-    x$seTE <- rev(rev(x$seTE)[-(1:2)])
-    x$studlab <- rev(rev(x$studlab)[-(1:2)])
-    #
-    x$lower <- rev(rev(x$lower)[-(1:2)])
-    x$upper <- rev(rev(x$upper)[-(1:2)])
-    #
-    x$w.common <- rev(rev(x$w)[-(1:2)])
-    x$w.random <- rev(rev(x$w)[-(1:2)])
-    #
-    x$n.harmonic.mean <- rev(rev(x$n.harmonic.mean)[-(1:2)])
-    x$t.harmonic.mean <- rev(rev(x$t.harmonic.mean)[-(1:2)])
-    #
-    x$pval.common <- x$pval.random <- rev(x$pval)[1]
-    x$tau2.overall <- rev(x$tau2)[1]
-    x$tau.overall <- rev(x$tau)[1]
-    x$I2.overall <- rev(x$I2)[1]
-    #
-    x$pval <- rev(rev(x$pval)[-(1:2)])
-    x$tau2 <- rev(rev(x$tau2)[-(1:2)])
-    x$tau <- rev(rev(x$tau)[-(1:2)])
-    x$I2 <- rev(rev(x$I2)[-(1:2)])
-    #
-    if (overall & x$pooled == "common") {
-      common <- TRUE
-      random <- FALSE
-      if (weight.study != "same")
-        weight.study <- "common"
-    }
-    else if (overall & x$pooled == "random") {
-      common <- FALSE
-      random <- TRUE
-      if (weight.study != "same")
-        weight.study <- "random"
+  # Calculate random effects weights in subgroup meta-analysis if
+  # overall results are not shown (i.e., calculate weights based on
+  # subgroup specific variance estimates)
+  #
+  if (random & by & !overall & !all(is.na(x$w.random)) &
+      !(!is.null(x$tau.common) && x$tau.common)) {
+    for (i in unique(subgroup)) {
+      x$w.random[subgroup == i] <-
+        1 / (x$seTE[subgroup == i]^2 + replaceNA(x$tau.w[i]^2, 0))
+      x$w.random.w[i] <- sum(x$w.random[subgroup == i])
     }
   }
-  else {
-    #
-    # Calculate random effects weights in subgroup meta-analysis if
-    # overall results are not shown (i.e., calculate weights based on
-    # subgroup specific variance estimates)
-    #
-    if (random & by & !overall & !all(is.na(x$w.random)) &
-        !(!is.null(x$tau.common) && x$tau.common)) {
-      for (i in unique(subgroup)) {
-        x$w.random[subgroup == i] <-
-          1 / (x$seTE[subgroup == i]^2 + replaceNA(x$tau.w[i]^2, 0))
-        x$w.random.w[i] <- sum(x$w.random[subgroup == i])
-      }
-    }
-  }
+  #
   # Total number of studies to plot (*not* number of studies combined)
+  #
   k.all <- length(x$TE)
   #
   if (allstudies)
@@ -4417,12 +4511,6 @@ forest.meta <- function(x,
   #
   x$cycles <- x$cycles[sel]
   #
-  if (metainf.metacum) {
-    x$tau2 <- x$tau2[sel]
-    x$tau <- x$tau[sel]
-    x$I2 <- x$I2[sel]
-  }
-  #
   subgroup <- subgroup[sel]
   sortvar <- sortvar[sel]
   #
@@ -4434,9 +4522,9 @@ forest.meta <- function(x,
   #
   col.inside <- col.inside[sel]
   #
-  null.exclude <- is.null(x$exclude)
-  if (!null.exclude)
-    exclude <- x$exclude[sel]
+  avail.exclude <- !is.null(x$exclude)
+  if (avail.exclude)
+    x$exclude <- x$exclude[sel]
   #
   if (sort | by) {
     if (sort.subgroup)
@@ -4491,12 +4579,6 @@ forest.meta <- function(x,
     #
     x$pval <- x$pval[o]
     #
-    if (metainf.metacum) {
-      x$tau2 <- x$tau2[o]
-      x$tau <- x$tau[o]
-      x$I2 <- x$I2[o]
-    }
-    #
     subgroup <- subgroup[o]
     sortvar <- sortvar[o]
     #
@@ -4508,8 +4590,8 @@ forest.meta <- function(x,
     #
     col.inside <- col.inside[o]
     #
-    if (!null.exclude)
-      exclude <- exclude[o]
+    if (avail.exclude)
+      x$exclude <- x$exclude[o]
     #
     if (newcols) {
       dataset1 <- dataset1[o, ]
@@ -4523,206 +4605,161 @@ forest.meta <- function(x,
   if (bmj)
     studlab <- paste0(" ", studlab)
   #
-  if (metainf.metacum) {
-    TE    <- x$TE
-    seTE  <- x$seTE
-    lowTE <- x$lower
-    uppTE <- x$upper
-    #
-    TE.common    <- x$TE.common
-    lowTE.common <- x$lower.common
-    uppTE.common <- x$upper.common
-    #
-    TE.random    <- x$TE.random
-    lowTE.random <- x$lower.random
-    uppTE.random <- x$upper.random
-    #
-    lowTE.predict <- NA
-    uppTE.predict <- NA
-    #
-    Q    <- NA
-    df.Q <- NA
-    pval.Q <- NA
-    I2   <- NA
-    tau2 <- NA
-    lower.tau2 <- NA
-    upper.tau2 <- NA
-    tau <- NA
-    lower.tau <- NA
-    upper.tau <- NA
-    sign.lower.tau <- ""
-    sign.upper.tau <- ""
-    lowI2 <- NA
-    uppI2 <- NA
-    Rb   <- NA
-    lowRb <- NA
-    uppRb <- NA
-    #
-    Q.b.common <- NA
-    Q.b.random <- NA
-    df.Q.b <- NA
-    df.Q.b.common <- NA
-    df.Q.b.random <- NA
-    pval.Q.b.common <- NA
-    pval.Q.b.random <- NA
+  TE <- x$TE
+  seTE <- x$seTE
+  lowTE <- x$lower
+  uppTE <- x$upper
+  #
+  TE.common <- x$TE.common
+  lowTE.common <- x$lower.common
+  uppTE.common <- x$upper.common
+  #
+  TE.random <- x$TE.random
+  lowTE.random <- x$lower.random
+  uppTE.random <- x$upper.random
+  if (n.ran > 1 && length(TE.random) == 1)
+    TE.random <- rep(TE.random, n.ran)
+  #
+  lowTE.predict <- x$lower.predict
+  uppTE.predict <- x$upper.predict
+  #
+  if (LRT)
+    Q <- x$Q.LRT
+  else
+    Q <- unlist(x$Q)
+  #
+  df.Q <- unlist(x$df.Q)
+  pval.Q <- replaceNULL(unlist(x$pval.Q), pvalQ(Q, df.Q))
+  #
+  # Keep the first heterogeneity statistics
+  #
+  if (length(Q) > 1) {
+    Q <- Q[1]
+    df.Q <- df.Q[1]
+    pval.Q <- pval.Q[1]
   }
-  else {
-    TE <- x$TE
-    seTE <- x$seTE
-    lowTE <- x$lower
-    uppTE <- x$upper
-    #
-    TE.common <- x$TE.common
-    lowTE.common <- x$lower.common
-    uppTE.common <- x$upper.common
-    #
-    TE.random <- x$TE.random
-    lowTE.random <- x$lower.random
-    uppTE.random <- x$upper.random
-    if (n.ran > 1 && length(TE.random) == 1)
-      TE.random <- rep(TE.random, n.ran)
-    #
-    lowTE.predict <- x$lower.predict
-    uppTE.predict <- x$upper.predict
-    #
-    if (LRT)
-      Q <- x$Q.LRT
-    else
-      Q <- unlist(x$Q)
-    #
-    df.Q <- unlist(x$df.Q)
-    pval.Q <- replaceNULL(unlist(x$pval.Q), pvalQ(Q, df.Q))
-    #
-    # Keep the first heterogeneity statistics
-    #
-    if (length(Q) > 1) {
-      Q <- Q[1]
-      df.Q <- df.Q[1]
-      pval.Q <- pval.Q[1]
-    }
-    #
-    tau2 <- x$tau2
-    lower.tau2 <- x$lower.tau2
-    upper.tau2 <- x$upper.tau2
-    #
-    if (is.null(tau2)) {
-      tau2 <- x$tau^2
-      lower.tau2 <- upper.tau2 <- NA
-    }
-    #
-    if (length(tau2) > 1) {
-      if (three.level) {
-        tau2 <- sum(tau2)
-        lower.tau2 <- NA
-        upper.tau2 <- NA
-      }
-      else {
-        tau2 <- tau2[1]
-        lower.tau2 <- lower.tau2[1]
-        upper.tau2 <- upper.tau2[1]
-      }
-    }
-    #
-    tau <- x$tau
-    lower.tau <- x$lower.tau
-    upper.tau <- x$upper.tau
-    #
-    if (length(tau) > 1) {
-      if (three.level) {
-        tau <- sqrt(sum(tau^2))
-        lower.tau2 <- NA
-        upper.tau2 <- NA
-      }
-      else {
-        tau <- tau[1]
-        lower.tau <- lower.tau[1]
-        upper.tau <- upper.tau[1]
-      }
-    }
-    #
-    sign.lower.tau <- x$sign.lower.tau
-    sign.upper.tau <- x$sign.lower.tau
-    #
-    if (is.null(lower.tau)) {
-      lower.tau <- upper.tau <- NA
-      sign.lower.tau <- sign.upper.tau <- ""
-    }
-    #
-    I2 <- unlist(x$I2)
-    lowI2 <- unlist(x$lower.I2)
-    uppI2 <- unlist(x$upper.I2)
-    #
-    if (length(I2) > 1) {
-      I2 <- I2[1]
-      lowI2 <- lowI2[1]
-      uppI2 <- uppI2[1]
-    }
-    #
-    Rb <- unlist(x$Rb)
-    lowRb <- unlist(x$lower.Rb)
-    uppRb <- unlist(x$upper.Rb)
-    #
-    if (length(Rb) > 1) {
-      Rb <- Rb[1]
-      lowRb <- lowRb[1]
-      uppRb <- uppRb[1]
-    }
-    #
-    if (by) {
-      Q.b.common <- unlist(x$Q.b.common)
-      names(Q.b.common) <- colnames(lower.common.w)
-      Q.w.common <- x$Q.w.common
-      #
-      Q.b.random <- unlist(x$Q.b.random)
-      Q.w.random <- x$Q.w.random
-      #
-      Q.w <- x$Q.w
-      #
-      df.Q.w <- replaceNULL(x$df.Q.w, sum((k.w - 1)[!is.na(x$Q.w)]))
-      df.Q.b <- replaceNULL(x$df.Q.b, (k - 1) - sum((k.w - 1)[!is.na(x$Q.w)]))
-      df.Q.b.common <- replaceNULL(x$df.Q.b.common, df.Q.b)
-      df.Q.b.random <- replaceNULL(x$df.Q.b.random, df.Q.b)    
-      #
-      pval.Q.b.common <-
-        replaceNULL(x$pval.Q.b.common, pvalQ(Q.b.common, df.Q.b.common))
-      pval.Q.w.common <-
-        replaceNULL(x$pval.Q.w.common, pvalQ(Q.w.common, df.Q.w))
-      #
-      pval.Q.b.random <-
-        unlist(replaceNULL(x$pval.Q.b.random, pvalQ(Q.b.random, df.Q.b.random)))
-      pval.Q.w.random <-
-        unlist(replaceNULL(x$pval.Q.w.random, pvalQ(Q.w.random, df.Q.w)))
-      #
-      Q.resid <- x$Q.resid
-      df.Q.resid <- x$df.Q.resid
-      pval.Q.resid <- x$pval.Q.resid
-      #
-      tau2.resid <- x$tau2.resid
-      lower.tau2.resid <- x$lower.tau2.resid
-      upper.tau2.resid <- x$upper.tau2.resid
-      if (is.null(tau2.resid)) {
-        tau2.resid <- x$tau.resid^2
-        lower.tau2.resid <- upper.tau2.resid <- NA
-      }
-      tau.resid <- x$tau.resid
-      lower.tau.resid <- x$lower.tau.resid
-      upper.tau.resid <- x$upper.tau.resid
-      sign.lower.tau.resid <- x$sign.lower.tau.resid
-      sign.upper.tau.resid <- x$sign.lower.tau.resid
-      if (is.null(lower.tau.resid)) {
-        lower.tau.resid <- upper.tau.resid <- NA
-        sign.lower.tau.resid <- sign.upper.tau.resid <- ""
-      }
-      #
-      I2.resid <- x$I2.resid
-      lowI2.resid <- x$lower.I2.resid
-      uppI2.resid <- x$upper.I2.resid
+  #
+  tau2 <- x$tau2
+  lower.tau2 <- x$lower.tau2
+  upper.tau2 <- x$upper.tau2
+  #
+  if (is.null(tau2)) {
+    tau2 <- x$tau^2
+    lower.tau2 <- upper.tau2 <- NA
+  }
+  #
+  if (length(tau2) > 1) {
+    if (three.level) {
+      tau2 <- sum(tau2)
+      lower.tau2 <- NA
+      upper.tau2 <- NA
     }
     else {
-      Q.b.common <- Q.b.random <- NA
-      df.Q.b <- df.Q.b.common <- df.Q.b.random <- NA
-      pval.Q.b.common <- pval.Q.b.random <- NA
+      tau2 <- tau2[1]
+      lower.tau2 <- lower.tau2[1]
+      upper.tau2 <- upper.tau2[1]
     }
+  }
+  #
+  tau <- x$tau
+  lower.tau <- x$lower.tau
+  upper.tau <- x$upper.tau
+  #
+  if (length(tau) > 1) {
+    if (three.level) {
+      tau <- sqrt(sum(tau^2))
+      lower.tau2 <- NA
+      upper.tau2 <- NA
+    }
+    else {
+      tau <- tau[1]
+      lower.tau <- lower.tau[1]
+      upper.tau <- upper.tau[1]
+    }
+  }
+  #
+  sign.lower.tau <- x$sign.lower.tau
+  sign.upper.tau <- x$sign.lower.tau
+  #
+  if (is.null(lower.tau)) {
+    lower.tau <- upper.tau <- NA
+    sign.lower.tau <- sign.upper.tau <- ""
+  }
+  #
+  I2 <- unlist(x$I2)
+  lowI2 <- unlist(x$lower.I2)
+  uppI2 <- unlist(x$upper.I2)
+  #
+  if (length(I2) > 1) {
+    I2 <- I2[1]
+    lowI2 <- lowI2[1]
+    uppI2 <- uppI2[1]
+  }
+  #
+  Rb <- unlist(x$Rb)
+  lowRb <- unlist(x$lower.Rb)
+  uppRb <- unlist(x$upper.Rb)
+  #
+  if (length(Rb) > 1) {
+    Rb <- Rb[1]
+    lowRb <- lowRb[1]
+    uppRb <- uppRb[1]
+  }
+  #
+  if (by) {
+    Q.b.common <- unlist(x$Q.b.common)
+    names(Q.b.common) <- colnames(lower.common.w)
+    Q.w.common <- x$Q.w.common
+    #
+    Q.b.random <- unlist(x$Q.b.random)
+    Q.w.random <- x$Q.w.random
+    #
+    Q.w <- x$Q.w
+    #
+    df.Q.w <- replaceNULL(x$df.Q.w, sum((k.w - 1)[!is.na(x$Q.w)]))
+    df.Q.b <- replaceNULL(x$df.Q.b, (k - 1) - sum((k.w - 1)[!is.na(x$Q.w)]))
+    df.Q.b.common <- replaceNULL(x$df.Q.b.common, df.Q.b)
+    df.Q.b.random <- replaceNULL(x$df.Q.b.random, df.Q.b)    
+    #
+    pval.Q.b.common <-
+      replaceNULL(x$pval.Q.b.common, pvalQ(Q.b.common, df.Q.b.common))
+    pval.Q.w.common <-
+      replaceNULL(x$pval.Q.w.common, pvalQ(Q.w.common, df.Q.w))
+    #
+    pval.Q.b.random <-
+      unlist(replaceNULL(x$pval.Q.b.random, pvalQ(Q.b.random, df.Q.b.random)))
+    pval.Q.w.random <-
+      unlist(replaceNULL(x$pval.Q.w.random, pvalQ(Q.w.random, df.Q.w)))
+    #
+    Q.resid <- x$Q.resid
+    df.Q.resid <- x$df.Q.resid
+    pval.Q.resid <- x$pval.Q.resid
+    #
+    tau2.resid <- x$tau2.resid
+    lower.tau2.resid <- x$lower.tau2.resid
+    upper.tau2.resid <- x$upper.tau2.resid
+    if (is.null(tau2.resid)) {
+      tau2.resid <- x$tau.resid^2
+      lower.tau2.resid <- upper.tau2.resid <- NA
+    }
+    tau.resid <- x$tau.resid
+    lower.tau.resid <- x$lower.tau.resid
+    upper.tau.resid <- x$upper.tau.resid
+    sign.lower.tau.resid <- x$sign.lower.tau.resid
+    sign.upper.tau.resid <- x$sign.lower.tau.resid
+    if (is.null(lower.tau.resid)) {
+      lower.tau.resid <- upper.tau.resid <- NA
+      sign.lower.tau.resid <- sign.upper.tau.resid <- ""
+    }
+    #
+    I2.resid <- x$I2.resid
+    lowI2.resid <- x$lower.I2.resid
+    uppI2.resid <- x$upper.I2.resid
+  }
+  else {
+    Q.b.common <- Q.b.random <- NA
+    df.Q.b <- df.Q.b.common <- df.Q.b.random <- NA
+    pval.Q.b.common <- pval.Q.b.random <- NA
   }
   #
   hetstat.overall <- ""
@@ -6024,9 +6061,9 @@ forest.meta <- function(x,
                             digits = digits.pval,
                             zero = zero.pval, JAMA = JAMA.pval,
                             scientific = scientific.pval,
-                            lab.NA = "NA")
+                            lab.NA = lab.NA)
   statistics.overall <- formatN(c(x$statistic.common, x$statistic.random),
-                                digits.stat, "NA", big.mark = big.mark)
+                                digits.stat, lab.NA, big.mark = big.mark)
   #
   # Remove superfluous spaces
   #
@@ -6547,11 +6584,25 @@ forest.meta <- function(x,
     #
     if (is.list(x$tau2.w))
       x$tau2.w <- x$tau2.w[[1]]
+    if (is.list(x$lower.tau2.w))
+      x$lower.tau2.w <- x$lower.tau2.w[[1]]
+    if (is.list(x$upper.tau2.w))
+      x$upper.tau2.w <- x$upper.tau2.w[[1]]
+    #
     if (is.list(x$tau.w))
       x$tau.w <- x$tau.w[[1]]
+    if (is.list(x$lower.tau.w))
+      x$lower.tau.w <- x$lower.tau.w[[1]]
+    if (is.list(x$upper.tau.w))
+      x$upper.tau.w <- x$upper.tau.w[[1]]
     #
     tau2.w <- x$tau2.w[o.w]
+    lower.tau2.w <- x$lower.tau2.w[o.w]
+    upper.tau2.w <- x$upper.tau2.w[o.w]
+    #
     tau.w <- x$tau.w[o.w]
+    lower.tau.w <- x$lower.tau.w[o.w]
+    upper.tau.w <- x$upper.tau.w[o.w]
     #
     w.common.w <- collapsemat(x$w.common.w)
     if (is.list(w.common.w))
@@ -6626,7 +6677,12 @@ forest.meta <- function(x,
     uppRb.w <- uppRb.w[sel.w]
     #
     tau2.w <- tau2.w[sel.w]
+    lower.tau2.w <- lower.tau2.w[sel.w]
+    upper.tau2.w <- upper.tau2.w[sel.w]
+    #
     tau.w <- tau.w[sel.w]
+    lower.tau.w <- lower.tau.w[sel.w]
+    upper.tau.w <- upper.tau.w[sel.w]
     #
     w.common.w <- w.common.w[sel.w]
     w.random.w <- w.random.w[sel.w]
@@ -6657,12 +6713,13 @@ forest.meta <- function(x,
     n.com.w <- n.com * n.by
     n.ran.w <- n.ran * n.by
     n.prd.w <- n.prd * n.by
+    n.stat.w <- 3 * n.by
     #
     NAs.by <- rep(NA, n.by)
     NAs.com.w <- rep(NA, n.com.w)
     NAs.ran.w <- rep(NA, n.ran.w)
     NAs.prd.w <- rep(NA, n.prd.w)
-    NAs.stat.w <- rep(NA, 3 * n.by)
+    NAs.stat.w <- rep(NA, n.stat.w)
     NAs.w <- rep(NA, n.com.w + n.ran.w + n.prd.w)
     #
     NAs.all <- c(NAs, NAs.w, NAs.stat.w)
@@ -6670,9 +6727,9 @@ forest.meta <- function(x,
     blanks.com.w <- rep("", n.com.w)
     blanks.ran.w <- rep("", n.ran.w)
     blanks.prd.w <- rep("", n.prd.w)
-    blanks.stat.w <- rep("", 3 * n.by)
+    blanks.stat.w <- rep("", n.stat.w)
     #
-    blanks.w <- rep("", n.com.w + n.ran.w + n.prd.w + 3 * n.by)
+    blanks.w <- rep("", n.com.w + n.ran.w + n.prd.w + n.stat.w)
     #
     idx.com.w <- 1 + (seq_len(n.by) * n.com) - n.com
     idx.ran.w <- 1 + (seq_len(n.by) * n.ran) - n.ran
@@ -6735,7 +6792,7 @@ forest.meta <- function(x,
     #
     sel.w <- c(first.com.w, first.ran.w, first.prd.w, all.stat.w)
     #
-    if (!metainf.metacum & common) {
+    if (common) {
       if (!overall) {
         i <- 0
         for (bylev.i in subgroup.levels) {
@@ -6770,7 +6827,7 @@ forest.meta <- function(x,
         text.common.w <- rep("Overall", n.com.w)
     }
     #
-    if (!metainf.metacum & random) {
+    if (random) {
       if (!overall) {
         i <- 0
         for (bylev.i in subgroup.levels) {
@@ -6817,12 +6874,28 @@ forest.meta <- function(x,
                       formatPT(tau2.w, digits = digits.tau2,
                                big.mark = big.mark, lab.NA = "NA"))))
       #
+      if (print.tau2.ci)
+        hetstat.tau2.w <-
+        paste0(hetstat.tau2.w,
+               ifelse(!(is.na(lower.tau2.w) | is.na(upper.tau2.w)),
+                      pasteCI(lower.tau2.w, upper.tau2.w, digits.tau2, big.mark,
+                              text.NA = lab.NA),
+                      ""))
+      #
       hetstat.tau.w <-
         paste0(hetseparator,
                ifelse(is.na(tau.w), "NA",
                ifelse(tau.w == 0, "0",
                       formatPT(tau.w, digits = digits.tau,
                                big.mark = big.mark, lab.NA = "NA"))))
+      #
+      if (print.tau.ci)
+        hetstat.tau.w <-
+        paste0(hetstat.tau.w,
+               ifelse(!(is.na(lower.tau.w) | is.na(upper.tau.w)),
+                      pasteCI(lower.tau.w, upper.tau.w, digits.tau, big.mark,
+                              text.NA = lab.NA),
+                      ""))
       #
       hetstat.Q.w <-
         paste0(hetseparator, round(Q.w, digits.Q),
@@ -7496,10 +7569,10 @@ forest.meta <- function(x,
                digits = digits.pval,
                zero = zero.pval, JAMA = JAMA.pval,
                scientific = scientific.pval,
-               lab.NA = "NA")
+               lab.NA = lab.NA)
     statistics.effect.w <-
       formatN(c(statistic.common.w, statistic.random.w),
-              digits.stat, "NA", big.mark = big.mark)
+              digits.stat, lab.NA, big.mark = big.mark)
     #
     # Remove superfluous spaces
     #
@@ -7980,7 +8053,7 @@ forest.meta <- function(x,
     #
     # Freeman-Tukey Arcsin transformation
     #
-    if (metainf.metacum | metabind) {
+    if (metabind) {
       if (sm == "IRFT") {
         npft <- x$t.harmonic.mean
         npft.ma <- x$t.harmonic.mean.ma
@@ -8026,12 +8099,10 @@ forest.meta <- function(x,
       lowTE.random <- backtransf(lowTE.random, sm, npft.ma, npft.ma, fbt, abt)
       uppTE.random <- backtransf(uppTE.random, sm, npft.ma, npft.ma, fbt, abt)
       #
-      if (!metainf.metacum) {
-        lowTE.predict <-
-          backtransf(lowTE.predict, sm, npft.ma, npft.ma, fbt, abt)
-        uppTE.predict <-
-          backtransf(uppTE.predict, sm, npft.ma, npft.ma, fbt, abt)
-      }
+      lowTE.predict <-
+        backtransf(lowTE.predict, sm, npft.ma, npft.ma, fbt, abt)
+      uppTE.predict <-
+        backtransf(uppTE.predict, sm, npft.ma, npft.ma, fbt, abt)
       #
       if (by) {
         if (sm == "IRFT")
@@ -8109,10 +8180,10 @@ forest.meta <- function(x,
   lowTE.exclude <- lowTE
   uppTE.exclude <- uppTE
   #
-  if (!null.exclude) {
-    TE.exclude[exclude] <- NA
-    lowTE.exclude[exclude] <- NA
-    uppTE.exclude[exclude] <- NA
+  if (avail.exclude) {
+    TE.exclude[x$exclude] <- NA
+    lowTE.exclude[x$exclude] <- NA
+    uppTE.exclude[x$exclude] <- NA
   }
   #
   if (!common) {
@@ -8146,40 +8217,34 @@ forest.meta <- function(x,
     uppTE.predict <- NAs.prd
   }
   #
-  if (!metainf.metacum) {
-    if (by & !overall)
-      w.common.p <- round(100 * x$w.common, digits.weight)
-    else {
-      if (!all(is.na(x$w.common)) && sum(x$w.common) > 0) {
-        if (is.matrix(x$w.common))
-          w.common.p <-
-            round(apply(x$w.common, 2, calcPercent), digits.weight)
-        else
-          w.common.p <-
-            round(calcPercent(x$w.common), digits.weight)
-      }
-      else
-        w.common.p <- x$w.common
-    }
-    #
-    if (by & !overall)
-      w.random.p <- round(100 * x$w.random, digits.weight)
-    else {
-      if (!all(is.na(x$w.random)) && sum(x$w.random) > 0) {
-        if (is.matrix(x$w.random))
-          w.random.p <-
-            round(apply(x$w.random, 2, calcPercent), digits.weight)
-        else
-          w.random.p <-
-            round(calcPercent(x$w.random), digits.weight)
-      }
-      else
-        w.random.p <- x$w.random
-    }
-  }
+  if (by & !overall)
+    w.common.p <- round(100 * x$w.common, digits.weight)
   else {
-    w.common.p <- rep(NA, length(TE))
-    w.random.p <- rep(NA, length(TE))
+    if (!all(is.na(x$w.common)) && sum(x$w.common) > 0) {
+      if (is.matrix(x$w.common))
+        w.common.p <-
+          round(apply(x$w.common, 2, calcPercent), digits.weight)
+      else
+        w.common.p <-
+          round(calcPercent(x$w.common), digits.weight)
+    }
+    else
+      w.common.p <- x$w.common
+  }
+  #
+  if (by & !overall)
+    w.random.p <- round(100 * x$w.random, digits.weight)
+  else {
+    if (!all(is.na(x$w.random)) && sum(x$w.random) > 0) {
+      if (is.matrix(x$w.random))
+        w.random.p <-
+          round(apply(x$w.random, 2, calcPercent), digits.weight)
+      else
+        w.random.p <-
+          round(calcPercent(x$w.random), digits.weight)
+    }
+    else
+      w.random.p <- x$w.random
   }
   #
   if (is.matrix(w.common.p))
@@ -8256,8 +8321,7 @@ forest.meta <- function(x,
   # "mean.e", "mean.c",
   # "sd.e", "sd.c",
   # "cor",
-  # "time.e", "time.c",
-  # "pval", "tau2", "tau", "I2" (for metainf.metacum)
+  # "time.e", "time.c"
   #
   # Check for "\n" in label of column 'studlab'
   #
@@ -8947,8 +9011,7 @@ forest.meta <- function(x,
     lowTEs <- c(lowTE.common, lowTE.random, lowTE.predict, lowTE.w, lowTE)
     uppTEs <- c(uppTE.common, uppTE.random, uppTE.predict, uppTE.w, uppTE)
     #
-    TEs.exclude <- c(TE.common, TE.random, NAs.prd,
-                     TE.w, TE.exclude)
+    TEs.exclude <- c(TE.common, TE.random, NAs.prd, TE.w, TE.exclude)
     lowTEs.exclude <- c(lowTE.common, lowTE.random, lowTE.predict, lowTE.w,
                         lowTE.exclude)
     uppTEs.exclude <- c(uppTE.common, uppTE.random, uppTE.predict, uppTE.w,
@@ -9159,33 +9222,57 @@ forest.meta <- function(x,
   #
   if (!is.null(x$n.e.pooled))
     sum.n.e <- x$n.e.pooled
-  else
-    sum.n.e <- sum(x$n.e, na.rm = TRUE)
+  else {
+    if (avail.exclude)
+      sum.n.e <- sum(x$n.e[!x$exclude], na.rm = TRUE)
+    else
+      sum.n.e <- sum(x$n.e, na.rm = TRUE)
+  }
   #
   if (!is.null(x$n.c.pooled))
     sum.n.c <- x$n.c.pooled
-  else
-    sum.n.c <- sum(x$n.c, na.rm = TRUE)
+  else {
+    if (avail.exclude)
+      sum.n.c <- sum(x$n.c[!x$exclude], na.rm = TRUE)
+    else
+      sum.n.c <- sum(x$n.c, na.rm = TRUE)
+  }
   #
   if (!is.null(x$event.e.pooled))
     sum.e.e <- x$event.e.pooled
-  else
-    sum.e.e <- sum(x$event.e, na.rm = TRUE)
+  else {
+    if (avail.exclude)
+      sum.e.e <- sum(x$event.e[!x$exclude], na.rm = TRUE)
+    else
+      sum.e.e <- sum(x$event.e, na.rm = TRUE)
+  }
   #
   if (!is.null(x$event.c.pooled))
     sum.e.c <- x$event.c.pooled
-  else
-    sum.e.c <- sum(x$event.c, na.rm = TRUE)
+  else {
+    if (avail.exclude)
+      sum.e.c <- sum(x$event.c[!x$exclude], na.rm = TRUE)
+    else
+      sum.e.c <- sum(x$event.c, na.rm = TRUE)
+  }
   #
   if (!is.null(x$time.e.pooled))
     sum.t.e <- x$time.e.pooled
-  else
-    sum.t.e <- sum(x$time.e, na.rm = TRUE)
+  else {
+    if (avail.exclude)
+      sum.t.e <- sum(x$time.e[!x$exclude], na.rm = TRUE)
+    else
+      sum.t.e <- sum(x$time.e, na.rm = TRUE)
+  }
   #
   if (!is.null(x$time.c.pooled))
     sum.t.c <- x$time.c.pooled
-  else
-    sum.t.c <- sum(x$time.c, na.rm = TRUE)
+  else {
+    if (avail.exclude)
+      sum.t.c <- sum(x$time.c[!x$exclude], na.rm = TRUE)
+    else
+      sum.t.c <- sum(x$time.c, na.rm = TRUE)
+  }
   #
   if (is.character(x$cluster))
     as.character.cluster <- TRUE
@@ -9691,8 +9778,10 @@ forest.meta <- function(x,
   #
   # P-value of effect
   #
+  
   pval.format <-
-    formatPT(c(x$pval.common, x$pval.random, NAs.prd, x$pval),
+    formatPT(c(x$pval.common, x$pval.random, NAs.prd,
+               if (is.numeric(x$pval)) x$pval else rep(NA, length(x$pval))),
              digits = digits.pval,
              big.mark = big.mark,
              lab = FALSE, labval = "",
@@ -9728,29 +9817,6 @@ forest.meta <- function(x,
   #
   if (by)
     cycles.format[sel.w] <- ""
-  #
-  # Leave-one-out / cumulative meta-analysis
-  #
-  if (metainf.metacum) {
-    tau2.format <- c(x$tau2.overall, x$tau2.overall, NA, x$tau2)
-    tau.format <- c(x$tau.overall, x$tau.overall, NA, x$tau)
-    I2.format <- c(x$I2.overall, x$I2.overall, NA, x$I2)
-    #
-    tau2.format <- formatPT(tau2.format, digits = digits.tau2,
-                            big.mark = big.mark,
-                            lab = FALSE, labval = "",
-                            lab.NA = lab.NA)
-    tau.format <- formatPT(tau.format, digits = digits.tau,
-                           big.mark = big.mark,
-                           lab = FALSE, labval = "",
-                           lab.NA = lab.NA)
-    I2.format <- formatN(100 * I2.format, digits.I2, lab.NA)
-    I2.format <- paste0(I2.format, ifelse(I2.format == lab.NA, "", "%"))
-    #
-    # Print nothing for lines with prediction interval
-    #
-    tau2.format[all.prd] <- tau.format[all.prd] <- I2.format[all.prd] <- ""
-  }
   #
   #
   # y-axis:
@@ -9949,15 +10015,15 @@ forest.meta <- function(x,
     if (!is.na(ref) && ref > xlim[2])
       xlim[2] <- ref
     #
-    if (!is.na(lower.equi) && lower.equi < xlim[1])
-      xlim[1] <- lower.equi
-    if (!is.na(lower.equi) && lower.equi > xlim[2])
-      xlim[2] <- lower.equi
+    if (!is.na(cid.below.null) && cid.below.null < xlim[1])
+      xlim[1] <- cid.below.null
+    if (!is.na(cid.below.null) && cid.below.null > xlim[2])
+      xlim[2] <- cid.below.null
     #
-    if (!is.na(upper.equi) && upper.equi < xlim[1])
-      xlim[1] <- upper.equi
-    if (!is.na(upper.equi) && upper.equi > xlim[2])
-      xlim[2] <- upper.equi
+    if (!is.na(cid.above.null) && cid.above.null < xlim[1])
+      xlim[1] <- cid.above.null
+    if (!is.na(cid.above.null) && cid.above.null > xlim[2])
+      xlim[2] <- cid.above.null
   }
   #
   symmetric <- FALSE
@@ -10461,20 +10527,6 @@ forest.meta <- function(x,
                         fontfamily,
                         n.com, n.ran, n.prd)
   #
-  if (metainf.metacum) {
-    col.tau2 <- formatcol(labs[["lab.tau2"]], tau2.format, yS, just.c, fcs,
-                          fontfamily,
-                          n.com, n.ran, n.prd)
-    col.tau <- formatcol(labs[["lab.tau"]], tau.format, yS, just.c, fcs,
-                         fontfamily,
-                         n.com, n.ran, n.prd)
-    col.I2 <- formatcol(labs[["lab.I2"]], I2.format, yS, just.c, fcs,
-                        fontfamily,
-                        n.com, n.ran, n.prd)
-  }
-  #
-  #
-  #
   col.effect.calc <- formatcol(longer.effect, effect.format, yS, just.c, fcs,
                                fontfamily,
                                n.com, n.ran, n.prd)
@@ -10577,18 +10629,6 @@ forest.meta <- function(x,
                              fontfamily,
                              n.com, n.ran, n.prd)
   #
-  if (metainf.metacum) {
-    col.tau2.calc <- formatcol(longer.tau2, tau2.format, yS, just.c, fcs,
-                               fontfamily,
-                               n.com, n.ran, n.prd)
-    col.tau.calc <- formatcol(longer.tau, tau.format, yS, just.c, fcs,
-                              fontfamily,
-                              n.com, n.ran, n.prd)
-    col.I2.calc <- formatcol(longer.I2, I2.format, yS, just.c, fcs,
-                             fontfamily,
-                             n.com, n.ran, n.prd)
-  }
-  #
   col.forest <- list(eff = TEs.exclude,
                      low = lowTEs.exclude,
                      upp = uppTEs.exclude,
@@ -10665,6 +10705,8 @@ forest.meta <- function(x,
                col.TE = col.TE,
                col.seTE = col.seTE)
   #
+  cols.new <- vector("list")
+  #
   if (ev.n.bin) {
     cols$col.event.n.e <- col.event.n.e
     cols$col.event.n.c <- col.event.n.c
@@ -10723,12 +10765,6 @@ forest.meta <- function(x,
   #
   cols[["col.pval"]] <- col.pval
   #
-  if (metainf.metacum) {
-    cols[["col.tau2"]] <- col.tau2
-    cols[["col.tau"]] <- col.tau
-    cols[["col.I2"]] <- col.I2
-  }
-  #
   # Calculate
   #
   cols.calc[["col.cluster"]] <- col.cluster.calc
@@ -10751,12 +10787,6 @@ forest.meta <- function(x,
   cols.calc[["col.time.c"]] <- col.time.c.calc
   #
   cols.calc[["col.pval"]] <- col.pval.calc
-  #
-  if (metainf.metacum) {
-    cols.calc[["col.tau2"]] <- col.tau2.calc
-    cols.calc[["col.tau"]] <- col.tau.calc
-    cols.calc[["col.I2"]] <- col.I2.calc
-  }
   #
   if (newcols) {
     #
@@ -10802,65 +10832,22 @@ forest.meta <- function(x,
     #
     if (by) {
       for (i in seq_along(rightcols.new)) {
-        tname <- paste0("col.", rightcols.new[i])
+        col.i <-
+          newCol(rightcols.new[i], rightlabs.new[i],
+                 rob, dataset1, dataset2, data.pooled,
+                 n.com, n.ran, n.prd,
+                 notavail.digits.addcols.right, lab.NA, big.mark,
+                 zero.pval, JAMA.pval, scientific.pval,
+                 digits.addcols.right[i],
+                 digits.pval, digits.tau2, digits.tau, digits.I2,
+                 all.prd,
+                 n.com.w, n.ran.w, n.prd.w, n.stat.w)
         #
-        rob.i <- length(rob[[rightcols.new[i]]]) != 0
+        cols.new[[col.i$colname]] <- col.i$format_var
         #
-        if (rob.i)
-          tmp.r <- rob[[rightcols.new[i]]]
-        else if (length(dataset1[[rightcols.new[i]]]) != 0)
-          tmp.r <- dataset1[[rightcols.new[i]]]
-        else if (length(dataset2[[rightcols.new[i]]]) != 0)
-          tmp.r <- dataset2[[rightcols.new[i]]]
-        else
-          stop("Variable '", rightcols.new[i],
-               "' not available in meta-analysis object.",
-               call. = FALSE)
-        #
-        if  (!is.character(tmp.r)) {
-          if (is.factor(tmp.r))
-            tmp.r <- as.character(tmp.r)
-          else if (notavail.digits.addcols.right &
-                   all(is_wholenumber(tmp.r), na.rm = TRUE))
-            tmp.r <- formatN(tmp.r, digits = 0,
-                             text.NA = lab.NA, big.mark = big.mark)
-          else if (is.numeric(tmp.r)) {
-            if (rightcols.new[i] == "pval")
-              tmp.r <- formatPT(tmp.r, digits = digits.pval,
-                                big.mark = big.mark)
-            else if (rightcols.new[i] == "tau2")
-              tmp.r <- formatPT(tmp.r, digits = digits.tau2,
-                                big.mark = big.mark)
-            else if (rightcols.new[i] == "tau")
-              tmp.r <- formatPT(tmp.r, digits = digits.tau,
-                                big.mark = big.mark)
-            else if (rightcols.new[i] == "I2") {
-              format.r <- formatN(100 * tmp.r, digits.I2, lab.NA)
-              tmp.r <- ifelse(format.r == lab.NA, lab.NA,
-                              paste0(format.r, "%"))
-            }
-            else
-              tmp.r <- formatN(tmp.r, digits = digits.addcols.right[i],
-                               text.NA = "", big.mark = big.mark)
-          }
-        }
-        #
-        tmp.r <- ifelse(is.na(tmp.r), lab.NA, tmp.r)
-        #
-        # Check for "\n" in label of new column
-        #
-        clines <- twolines(rightlabs.new[i], rightcols.new[i])
-        #
-        if (clines$newline) {
-          lab.new <- clines$bottom
-          longer.new <- clines$longer
-        }
-        else
-          lab.new <- longer.new <- rightlabs.new[i]
-        cols[[tname]] <-
-          formatcol(lab.new,
-                    c("", "", "", rep("", length(TE.w)), tmp.r),
-                    if (!rob.i) yS else yS.noma,
+        cols[[col.i$colname]] <-
+          formatcol(col.i$label, col.i$format_var,
+                    if (!col.i$rob) yS else yS.noma,
                     if (rightcols.new[i] %in%
                         c("pval", "tau2", "tau", "I2", "Q", "pval.Q"))
                       just
@@ -10869,159 +10856,68 @@ forest.meta <- function(x,
                     fcs, fontfamily,
                     n.com, n.ran, n.prd,
                     rightcols.new[i] %in% colnames(rob))
-        cols.calc[[tname]] <- formatcol(longer.new,
-                                        c("", "", "", rep("", length(TE.w)),
-                                          tmp.r),
-                                        yS,
-                                        just.addcols.right[i],
-                                        fcs, fontfamily,
-                                        n.com, n.ran, n.prd)
+        #
+        cols.calc[[col.i$colname]] <-
+          formatcol(col.i$longer, col.i$format_var,
+                    yS,
+                    just.addcols.right[i],
+                    fcs, fontfamily,
+                    n.com, n.ran, n.prd)
       }
       #
       for (i in seq_along(leftcols.new)) {
-        tname <- paste0("col.", leftcols.new[i])
+        col.i <-
+          newCol(leftcols.new[i], leftlabs.new[i],
+                 rob, dataset1, dataset2, data.pooled,
+                 n.com, n.ran, n.prd,
+                 notavail.digits.addcols.left, lab.NA, big.mark,
+                 zero.pval, JAMA.pval, scientific.pval,
+                 digits.addcols.left[i],
+                 digits.pval, digits.tau2, digits.tau, digits.I2,
+                 all.prd,
+                 n.com.w, n.ran.w, n.prd.w, n.stat.w)
         #
-        if (length(dataset1[[leftcols.new[i]]]) != 0)
-          tmp.l <- dataset1[[leftcols.new[i]]]        
-        else if (length(dataset2[[leftcols.new[i]]]) != 0)
-          tmp.l <- dataset2[[leftcols.new[i]]]
-        else
-          stop("Variable '", leftcols.new[i],
-               "' not available in meta-analysis object.",
-               call. = FALSE)
+        cols.new[[col.i$colname]] <- col.i$format_var
         #
-        if (!is.character(tmp.l)) {
-          if (is.factor(tmp.l))
-            tmp.l <- as.character(tmp.l)
-          else if (notavail.digits.addcols.left &
-                   all(is_wholenumber(tmp.l), na.rm = TRUE))
-            tmp.l <- formatN(tmp.l, digits = 0,
-                             text.NA = lab.NA, big.mark = big.mark)
-          else if (is.numeric(tmp.l)) {
-            if (leftcols.new[i] == "pval")
-              tmp.l <- formatPT(tmp.l, digits = digits.pval,
-                                big.mark = big.mark)
-            else if (leftcols.new[i] == "tau2")
-              tmp.l <- formatPT(tmp.l, digits = digits.tau2,
-                                big.mark = big.mark)
-            else if (leftcols.new[i] == "tau")
-              tmp.l <- formatPT(tmp.l, digits = digits.tau,
-                                big.mark = big.mark)
-            else if (leftcols.new[i] == "I2") {
-              format.l <- formatN(100 * tmp.l, digits.I2, lab.NA)
-              tmp.l <- ifelse(format.l == lab.NA, lab.NA,
-                              paste0(format.l, "%"))
-            }
-            else
-              tmp.l <- formatN(tmp.l, digits = digits.addcols.left[i],
-                               text.NA = "", big.mark = big.mark)
-          }
-        }
-        #
-        tmp.l <- ifelse(is.na(tmp.l), lab.NA, tmp.l)
-        #
-        # Check for "\n" in label of new column
-        #
-        clines <- twolines(leftlabs.new[i], leftcols.new[i])
-        #
-        if (clines$newline) {
-          lab.new <- clines$bottom
-          longer.new <- clines$longer
-        }
-        else
-          lab.new <- longer.new <- leftlabs.new[i]
-        #
-        cols[[tname]] <-
-          formatcol(lab.new,
-                    c("", "", "",
-                      rep("", length(TE.w)), tmp.l),
-                    yS,
+        cols[[col.i$colname]] <-
+          formatcol(col.i$label, col.i$format_var,
+                    if (!col.i$rob) yS else yS.noma,
                     if (leftcols.new[i] %in%
                         c("pval", "tau2", "tau", "I2", "Q", "pval.Q"))
                       just
                     else
                       just.addcols.left[i],
                     fcs, fontfamily,
-                    n.com, n.ran, n.prd)
+                    n.com, n.ran, n.prd,
+                    leftcols.new[i] %in% colnames(rob))
         #
-        cols.calc[[tname]] <- formatcol(longer.new,
-                                        c("", "", "",
-                                          rep("", length(TE.w)), tmp.l),
-                                        yS,
-                                        just.addcols.left[i],
-                                        fcs, fontfamily,
-                                        n.com, n.ran, n.prd)
+        cols.calc[[col.i$colname]] <-
+          formatcol(col.i$longer, col.i$format_var,
+                    yS,
+                    just.addcols.left[i],
+                    fcs, fontfamily,
+                    n.com, n.ran, n.prd)
       }
     }
     else {
       for (i in seq_along(rightcols.new)) {
-        tname <- paste0("col.", rightcols.new[i])
+        col.i <-
+          newCol(rightcols.new[i], rightlabs.new[i],
+                 rob, dataset1, dataset2, data.pooled,
+                 n.com, n.ran, n.prd,
+                 notavail.digits.addcols.right, lab.NA, big.mark,
+                 zero.pval, JAMA.pval, scientific.pval,
+                 digits.addcols.right[i],
+                 digits.pval, digits.tau2, digits.tau, digits.I2,
+                 all.prd)
         #
-        rob.i <- length(rob[[rightcols.new[i]]]) != 0
+        cols.new[[col.i$colname]] <- col.i$format_var
         #
-        if (rob.i)
-          tmp.r <- rob[[rightcols.new[i]]]
-        else if (length(dataset1[[rightcols.new[i]]]) != 0)
-          tmp.r <- dataset1[[rightcols.new[i]]]
-        else if (length(dataset2[[rightcols.new[i]]]) != 0)
-          tmp.r <- dataset2[[rightcols.new[i]]]
-        else
-          stop("Variable '", rightcols.new[i],
-               "' not available in meta-analysis object.",
-               call. = FALSE)
-        #
-        if (!is.character(tmp.r)) {
-          if (is.factor(tmp.r))
-            tmp.r <- as.character(tmp.r)
-          else if (notavail.digits.addcols.right &
-                   all(is_wholenumber(tmp.r), na.rm = TRUE))
-            tmp.r <- formatN(tmp.r, digits = 0,
-                             text.NA = lab.NA, big.mark = big.mark)
-          else if (is.numeric(tmp.r)) {
-            if (rightcols.new[i] == "pval")
-              tmp.r <- formatPT(tmp.r, digits = digits.pval,
-                                big.mark = big.mark,
-                                lab = FALSE, labval = "",
-                                zero = zero.pval, JAMA = JAMA.pval,
-                                scientific = scientific.pval,
-                                lab.NA = "NA")
-            else if (rightcols.new[i] == "tau2")
-              tmp.r <- formatPT(tmp.r, digits = digits.tau2,
-                                big.mark = big.mark,
-                                lab = FALSE, labval = "",
-                                lab.NA = "NA")
-            else if (rightcols.new[i] == "tau")
-              tmp.r <- formatPT(tmp.r, digits = digits.tau,
-                                big.mark = big.mark,
-                                lab = FALSE, labval = "",
-                                lab.NA = "NA")
-            else if (rightcols.new[i] == "I2")
-              tmp.r <-
-                paste0(formatN(100 * tmp.r, digits.I2, "NA"), "%")
-            else
-              tmp.r <- formatN(tmp.r, digits = digits.addcols.right[i],
-                               text.NA = "", big.mark = big.mark)
-          }
-        }
-        #
-        tmp.r <- ifelse(is.na(tmp.r), "", tmp.r)
-        #
-        # Check for "\n" in label of new column
-        #
-        clines <- twolines(rightlabs.new[i], rightcols.new[i])
-        #
-        if (clines$newline) {
-          lab.new <- clines$bottom
-          longer.new <- clines$longer
-        }
-        else
-          lab.new <- longer.new <- rightlabs.new[i]
-        #
-        cols[[tname]] <-
-          formatcol(lab.new,
-                    c("", "", "", tmp.r),
-                    if (!rob.i) yS else yS.noma,
-                    if (rightcols.new[i] %in% c("pval", "tau2", "tau", "I2"))
+        cols[[col.i$colname]] <-
+          formatcol(col.i$label, col.i$format_var,
+                    if (!col.i$rob) yS else yS.noma,
+                    if (rightcols.new[i] %in%
+                        c("pval", "tau2", "tau", "I2", "Q", "pval.Q"))
                       just
                     else
                       just.addcols.right[i],
@@ -11029,89 +10925,45 @@ forest.meta <- function(x,
                     n.com, n.ran, n.prd,
                     rightcols.new[i] %in% colnames(rob))
         #
-        cols.calc[[tname]] <- formatcol(longer.new,
-                                        c("", "", "", tmp.r),
-                                        yS,
-                                        just.addcols.right[i],
-                                        fcs, fontfamily,
-                                        n.com, n.ran, n.prd)
+        cols.calc[[col.i$colname]] <-
+          formatcol(col.i$longer, col.i$format_var,
+                    yS,
+                    just.addcols.right[i],
+                    fcs, fontfamily,
+                    n.com, n.ran, n.prd)
       }
       #
       for (i in seq_along(leftcols.new)) {
-        tname <- paste0("col.", leftcols.new[i])
+        col.i <-
+          newCol(leftcols.new[i], leftlabs.new[i],
+                 rob, dataset1, dataset2, data.pooled,
+                 n.com, n.ran, n.prd,
+                 notavail.digits.addcols.left, lab.NA, big.mark,
+                 zero.pval, JAMA.pval, scientific.pval,
+                 digits.addcols.left[i],
+                 digits.pval, digits.tau2, digits.tau, digits.I2,
+                 all.prd)
         #
-        if (length(dataset1[[leftcols.new[i]]]) != 0)
-          tmp.l <- dataset1[[leftcols.new[i]]]        
-        else if (length(dataset2[[leftcols.new[i]]]) != 0)
-          tmp.l <- dataset2[[leftcols.new[i]]]
-        else
-          stop("Variable '", leftcols.new[i],
-               "' not available in meta-analysis object.",
-               call. = FALSE)
+        cols.new[[col.i$colname]] <- col.i$format_var
         #
-        if (!is.character(tmp.l)) {
-          if (is.factor(tmp.l))
-            tmp.l <- as.character(tmp.l)
-          else if (notavail.digits.addcols.left &
-                   all(is_wholenumber(tmp.l), na.rm = TRUE))
-            tmp.l <- formatN(tmp.l, digits = 0,
-                             text.NA = lab.NA, big.mark = big.mark)
-          else if (is.numeric(tmp.l)) {
-            if (leftcols.new[i] == "pval")
-              tmp.l <- formatPT(tmp.l, digits = digits.pval,
-                                big.mark = big.mark,
-                                lab = FALSE, labval = "",
-                                zero = zero.pval, JAMA = JAMA.pval,
-                                scientific = scientific.pval,
-                                lab.NA = "NA")
-            else if (leftcols.new[i] == "tau2")
-              tmp.l <- formatPT(tmp.l, digits = digits.tau2,
-                                big.mark = big.mark,
-                                lab = FALSE, labval = "",
-                                lab.NA = "NA")
-            else if (leftcols.new[i] == "tau")
-              tmp.l <- formatPT(tmp.l, digits = digits.tau,
-                                big.mark = big.mark,
-                                lab = FALSE, labval = "",
-                                lab.NA = "NA")
-            else if (leftcols.new[i] == "I2")
-              tmp.l <-
-                paste0(formatN(100 * tmp.l, digits.I2, "NA"), "%")
-            else
-              tmp.l <- formatN(tmp.l, digits = digits.addcols.left[i],
-                               text.NA = "", big.mark = big.mark)
-          }
-        }
-        #
-        tmp.l <- ifelse(is.na(tmp.l), "", tmp.l)
-        #
-        # Check for "\n" in label of new column
-        #
-        clines <- twolines(leftlabs.new[i], leftcols.new[i])
-        #
-        if (clines$newline) {
-          lab.new <- clines$bottom
-          longer.new <- clines$longer
-        }
-        else
-          lab.new <- longer.new <- leftlabs.new[i]
-        #
-        cols[[tname]] <-
-          formatcol(lab.new,
-                    c("", "", "", tmp.l),
-                    yS,
-                    if (leftcols.new[i] %in% c("pval", "tau2", "tau", "I2"))
+        cols[[col.i$colname]] <-
+          formatcol(col.i$label, col.i$format_var,
+                    if (!col.i$rob) yS else yS.noma,
+                    if (leftcols.new[i] %in%
+                        c("pval", "tau2", "tau", "I2", "Q", "pval.Q"))
                       just
                     else
                       just.addcols.left[i],
                     fcs, fontfamily,
+                    n.com, n.ran, n.prd,
+                    leftcols.new[i] %in% colnames(rob))
+        #
+        cols.calc[[col.i$colname]] <-
+          formatcol(col.i$longer, col.i$format_var,
+                    yS,
+                    just.addcols.left[i],
+                    fcs, fontfamily,
                     n.com, n.ran, n.prd)
-        cols.calc[[tname]] <- formatcol(longer.new,
-                                        c("", "", "", tmp.l),
-                                        yS,
-                                        just.addcols.left[i],
-                                        fcs, fontfamily,
-                                        n.com, n.ran, n.prd)
       }
     }
   }
@@ -11247,21 +11099,6 @@ forest.meta <- function(x,
     col.add.time.c <- tgl(add.time.c, xpos.c, just.c, fs.head, ff.head,
                           fontfamily)
   #
-  if (metainf.metacum) {
-    if (newline.pval)
-      col.add.pval <- tgl(add.pval, xpos.c, just.c, fs.head, ff.head,
-                          fontfamily)
-    if (newline.tau2)
-      col.add.tau2 <- tgl(add.tau2, xpos.c, just.c, fs.head, ff.head,
-                          fontfamily)
-    if (newline.tau)
-      col.add.tau <- tgl(add.tau, xpos.c, just.c, fs.head, ff.head,
-                         fontfamily)
-    if (newline.I2)
-      col.add.I2 <- tgl(add.I2, xpos.c, just.c, fs.head, ff.head,
-                        fontfamily)
-  }
-  #
   leftcols  <- paste0("col.", leftcols)
   rightcols <- paste0("col.", rightcols)
   
@@ -11388,7 +11225,7 @@ forest.meta <- function(x,
     rob.attach <- colnames(rob)[1]
   }
   #
-  if (rsel) {
+  if (rsel | RoB.available) {
     for (i in seq_along(rightcols)) {
       colgap.right.i <- colgap.right
       #
@@ -11479,6 +11316,12 @@ forest.meta <- function(x,
   ymin.ref    <- spacing * (ymin.line + (!(overall | overall.hetstat) & addrow))
   #
   ymax <- spacing * (nrow - ifelse(is.na(yHeadadd), 1, 2) - 1 * addrow)
+  #
+  if (cid.pooled.only)
+    ymax.ref <- spacing * (ymin.line + prediction * n.prd + random * n.ran +
+                             common * n.com)
+  else
+    ymax.ref <- ymax
   #
   # Position on y-axis of left and right labels (at bottom of forest plot)
   #
@@ -11769,17 +11612,6 @@ forest.meta <- function(x,
         if (newline.time.c & leftcols[i] == "col.time.c")
           add.text(col.add.time.c, j)
         #
-        if (metainf.metacum) {
-          if (newline.pval & leftcols[i] == "col.pval")
-            add.text(col.add.pval, j)
-          if (newline.tau2 & leftcols[i] == "col.tau2")
-            add.text(col.add.tau2, j)
-          if (newline.tau & leftcols[i] == "col.tau")
-            add.text(col.add.tau, j)
-          if (newline.I2 & leftcols[i] == "col.I2")
-            add.text(col.add.I2, j)
-        }
-        #
         # Add text in first line of forest plot for new columns
         #
         if (newcols)
@@ -11819,10 +11651,11 @@ forest.meta <- function(x,
              overall, common, random, prediction,
              ymin.common, ymin.random, ymin.ref,
              ymax + 0.5 * header.line * addrow,
+             ymax.ref + 0.5 * header.line * addrow,
              lwd, lty.common, lty.random, col.common, col.random,
              xlim[1], xlim[2],
-             lower.equi, upper.equi, lty.equi, col.equi,
-             fill.lower.equi, fill.upper.equi,
+             cid.below.null, cid.above.null, lty.cid, col.cid,
+             fill.cid.below.null, fill.cid.above.null,
              fill,
              col.lines)
   #
@@ -11909,7 +11742,7 @@ forest.meta <- function(x,
   # Right side of forest plot
   #
   #
-  if (rsel) {
+  if (rsel | RoB.available) {
     i.rob <- 0
     #
     for (i in seq_along(rightcols)) {
@@ -12036,17 +11869,6 @@ forest.meta <- function(x,
           add.text(col.add.time.e, j)
         if (newline.time.c & rightcols[i] == "col.time.c")
           add.text(col.add.time.c, j)
-        #
-        if (metainf.metacum) {
-          if (newline.pval & rightcols[i] == "col.pval")
-            add.text(col.add.pval, j)
-          if (newline.tau2 & rightcols[i] == "col.tau2")
-            add.text(col.add.tau2, j)
-          if (newline.tau & rightcols[i] == "col.tau")
-            add.text(col.add.tau, j)
-          if (newline.I2 & rightcols[i] == "col.I2")
-            add.text(col.add.I2, j)
-        }
         #
         # Add text in first line of forest plot for new columns
         #
@@ -12216,25 +12038,26 @@ forest.meta <- function(x,
               cycles.format = cycles.format,
               effect.format = effect.format,
               ci.format = ci.format,
-              effect.ci.format = effect.ci.format,
-              #
-              if (ev.n.bin | ev.n.prop) effect.ci.format = effect.ci.format,
-              if (ev.n.bin) effect.ci.format = effect.ci.format,
-              #
-              figheight = figheight,
-              #
-              leftcols = leftcols,
-              leftlabs= leftlabs,
-              rightcols = rightcols,
-              rightlabs = rightlabs)
+              effect.ci.format = effect.ci.format)
   #
-  if (metainf.metacum) {
-    res$pval.format <- pval.format
-    res$tau2.format <- tau2.format
-    res$tau.format <- tau.format
-    res$I2.format <- I2.format
+  if (ev.n.bin | ev.n.prop)
+    res$effect.ci.format <- effect.ci.format
+  #
+  if (ev.n.bin)
+    res$effect.ci.format <- effect.ci.format
+  #
+  if (length(cols.new) > 0) {
+    for (i in names(cols.new))
+      res[[i]] <- cols.new[[i]]
   }
-  
+  #
+  res$figheight <- figheight
+  #
+  res$leftcols <- leftcols
+  res$leftlabs <- leftlabs
+  res$rightcols <- rightcols
+  res$rightlabs <- rightlabs
+  #
   invisible(res)
 }
 

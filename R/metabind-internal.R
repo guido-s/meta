@@ -18,6 +18,7 @@ meta2meth <- function(x, outclab = NULL) {
        overall = x$overall,
        overall.hetstat = x$overall.hetstat,
        ##
+       method.common.ci = x$method.common.ci,
        method.random.ci = x$method.random.ci,
        adhoc.hakn.ci = x$adhoc.hakn.ci,
        method.tau = x$method.tau,
@@ -352,6 +353,11 @@ subgr2data <- function(x, common, random, prediction, name, debug = FALSE) {
       if (random) rep(x$method.I2, n.subgr),
       if (prediction) rep("", n.subgr))
   #
+  res$method.common.ci <-
+    c(if (common) rep(x$method.common.ci, n.subgr),
+      if (random) rep("", n.subgr),
+      if (prediction) rep("", n.subgr))
+  #
   res$method.random.ci <-
     c(if (common) rep("", n.subgr),
       if (random) rep(x$method.random.ci, n.subgr),
@@ -541,6 +547,11 @@ overall2data <- function(x, common, random, prediction, name, subgroup,
   res$method.I2 <-
     c(if (common) x$method.I2,
       if (random) x$method.I2,
+      if (prediction) "")
+  #
+  res$method.common.ci <-
+    c(if (common) x$method.common.ci,
+      if (random) "",
       if (prediction) "")
   #
   res$method.random.ci <-

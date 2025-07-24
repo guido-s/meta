@@ -19,13 +19,13 @@
 #' 
 #' @examples
 #' # Transform data from arm-based format to contrast-based format
-#' p1 <- pairwise(list(Treatment1, Treatment2, Treatment3),
+#' pw1 <- pairwise(list(Treatment1, Treatment2, Treatment3),
 #'   n = list(n1, n2, n3),
 #'   mean = list(y1, y2, y3), sd = list(sd1, sd2, sd3),
 #'   data = dat.franchini2012, studlab = Study)
 #' 
-#' p1[, 1:5]
-#' p1[!grepl("Lieberman", p1$studlab), 1:5]
+#' pw1[, 1:5]
+#' pw1[!grepl("Lieberman", pw1$studlab), 1:5]
 #'
 #' @method [ pairwise
 #' @export
@@ -33,6 +33,10 @@
 `[.pairwise` <- function(x, ...) {
   
   chkclass(x, "pairwise")
+  #
+  attribs <- attributes(x)
+  #
+  attribs$names <- attribs$row.names <- NULL
   
   res <- x
   class(res) <- "data.frame"
@@ -48,20 +52,10 @@
   
   # Return results
   # 
-  attr(res, "sm") <- attr(x, "sm")
-  attr(res, "method") <- attr(x, "method")
-  attr(res, "incr") <- attr(x, "incr")
-  attr(res, "allincr") <- attr(x, "allincr")
-  attr(res, "addincr") <- attr(x, "addincr")
-  attr(res, "addstudies") <- attr(x, "addstudies")
-  attr(res, "pairwise") <- attr(x, "pairwise")
-  attr(res, "reference.group") <- reference.group
-  attr(res, "keep.all.comparisons") <- attr(x, "keep.all.comparisons")
-  attr(res, "type") <- attr(x, "type")
-  attr(res, "varnames") <- attr(x, "varnames")
-  attr(res, "version") <- attr(x, "version")
+  for (i in names(attribs))
+    attr(res, i) <- attr(x, i)
   #
-  class(res) <- c("pairwise", class(res))
+  class(res) <- unique(c("pairwise", class(res)))
   #
   res
 }

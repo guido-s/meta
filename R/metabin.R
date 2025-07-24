@@ -32,6 +32,9 @@
 #'   from the same cluster resulting in the use of a three-level
 #'   meta-analysis model.
 #' @param rho Assumed correlation of estimates within a cluster.
+#' @param weights A single numeric or vector with user-specified weights.
+#' @param weights.common User-specified weights (common effect model).
+#' @param weights.random User-specified weights (random effects model).
 #' @param method A character string indicating which method is to be
 #'   used for pooling of studies. One of \code{"Inverse"},
 #'   \code{"MH"}, \code{"Peto"}, \code{"GLMM"}, \code{"LRP"}, or \code{"SSW"},
@@ -41,16 +44,19 @@
 #'   \code{"DOR"}, or \code{"VE"}) is to be used for pooling of
 #'   studies, see Details.
 #' @param incr Could be either a numerical value which is added to
-#'   cell frequencies for studies with a zero cell count or the
+#'   cell frequencies for studies with a zero cell count, the
 #'   character string \code{"TACC"} which stands for treatment arm
-#'   continuity correction, see Details.
+#'   continuity correction, or a numeric vector with the continuity
+#'   correction for each study, see Details.
 #' @param method.incr A character string indicating which continuity
 #'   correction method should be used (\code{"only0"},
-#'   \code{"if0all"}, or \code{"all"}), see Details.
+#'   \code{"if0all"}, \code{"all"}, or \code{"user"}), see Details.
 #' @param allstudies A logical indicating if studies with zero or all
 #'   events in both groups are to be included in the meta-analysis
 #'   (applies only if \code{sm} is equal to \code{"RR"}, \code{"OR"},
 #'   or \code{"DOR"}).
+#' @param incr.e Continuity correction in experimental group, see Details.
+#' @param incr.c Continuity correction in control group, see Details.
 #' @param MH.exact A logical indicating if \code{incr} is not to be
 #'   added to cell frequencies for studies with a zero cell count to
 #'   calculate the pooled estimate based on the Mantel-Haenszel
@@ -97,12 +103,16 @@
 #'   between-study variance tau-squared.
 #' @param tau.common A logical indicating whether tau-squared should
 #'   be the same across subgroups.
+#' @param detail.tau Detail on between-study variance estimate.
 #' @param method.I2 A character string indicating which method is
 #'   used to estimate the heterogeneity statistic I\eqn{^2}. Either
 #'   \code{"Q"} or \code{"tau2"}, can be abbreviated
 #'   (see \code{\link{meta-package}}).
 #' @param level.ma The level used to calculate confidence intervals
 #'   for meta-analysis estimates.
+#' @param method.common.ci A character string indicating which method
+#'   is used to calculate confidence interval and test statistic for
+#'   common effect estimate (see \code{\link{meta-package}}).
 #' @param method.random.ci A character string indicating which method
 #'   is used to calculate confidence interval and test statistic for
 #'   random effects estimate (see \code{\link{meta-package}}).
@@ -325,7 +335,7 @@
 #' 
 #' \subsection{Continuity correction}{
 #'
-#' Three approaches are available to apply a continuity correction:
+#' Four approaches are available to apply a continuity correction:
 #' \itemize{
 #' \item Only studies with a zero cell count (\code{method.incr =
 #'   "only0"})
@@ -333,8 +343,10 @@
 #'   (\code{method.incr = "if0all"})
 #' \item All studies irrespective of zero cell counts
 #'   (\code{method.incr = "all"})
+#' \item Use values provided in arguments \code{incr.e} and \code{incr.c}
+#'   (\code{method.incr = "user"})
 #' }
-#' 
+#'
 #' By default, a continuity correction is only applied to studies with
 #' a zero cell count (\code{method.incr = "only0"}). This method
 #' showed the best performance for the odds ratio in a simulation
@@ -630,7 +642,10 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                     ##
                     data = NULL, subset = NULL, exclude = NULL,
                     cluster = NULL, rho = 0,
-                    ##
+                    #
+                    weights = NULL,
+                    weights.common = weights, weights.random = weights,
+                    #
                     method = ifelse(tau.common, "Inverse", gs("method")),
                     sm =
                       ifelse(!is.na(charmatch(tolower(method),
@@ -639,7 +654,9 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                              "OR", gs("smbin")),
                     incr = gs("incr"), method.incr = gs("method.incr"),
                     allstudies = gs("allstudies"),
-                    ##
+                    incr.e = if (length(incr) > 1) incr else NULL,
+                    incr.c = if (length(incr) > 1) incr else NULL,
+                    #
                     level = gs("level"),
                     ##
                     MH.exact = gs("MH.exact"), RR.Cochrane = gs("RR.Cochrane"),
@@ -662,10 +679,12 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                     level.hetstat = gs("level.hetstat"),
                     tau.preset = NULL, TE.tau = NULL,
                     tau.common = gs("tau.common"),
+                    detail.tau = NULL,
                     #
                     method.I2 = gs("method.I2"),
                     #
                     level.ma = gs("level.ma"),
+                    method.common.ci = gs("method.common.ci"),
                     method.random.ci = gs("method.random.ci"),
                     adhoc.hakn.ci = gs("adhoc.hakn.ci"),
                     ##
@@ -721,6 +740,9 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   ##
   
+  args <- list(...)
+  nam.args <- names(args)
+  #
   missing.sm <- missing(sm)
   missing.subgroup <- missing(subgroup)
   missing.byvar <- missing(byvar)
@@ -735,8 +757,15 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   missing.studlab <- missing(studlab)
   #
   missing.incr <- missing(incr)
+  avail.incr <- !missing.incr && !is.null(incr)
+  #
   missing.method.incr <- missing(method.incr)
+  avail.method.incr <- !missing.method.incr && !is.null(method.incr)
+  #
   missing.allstudies <- missing(allstudies)
+  #
+  missing.incr.e <- missing(incr.e)
+  missing.incr.c <- missing(incr.c)
   #
   missing.method.tau <- missing(method.tau)
   missing.tau.common <- missing(tau.common)
@@ -746,7 +775,9 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   missing.level.ma <- missing(level.ma)
   missing.common <- missing(common)
   missing.random <- missing(random)
+  missing.method.common.ci <- missing(method.common.ci)
   missing.method.random.ci <- missing(method.random.ci)
+  missing.method.I2 <- missing(method.I2)
   #
   missing.hakn <- missing(hakn)
   missing.adhoc.hakn.ci <- missing(adhoc.hakn.ci)
@@ -756,6 +787,9 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   missing.subgroup.name <- missing(subgroup.name)
   missing.print.subgroup.name <- missing(print.subgroup.name)
   missing.sep.subgroup <- missing(sep.subgroup)
+  #
+  missing.label.e <- missing(label.e)
+  missing.label.c <- missing(label.c)
   missing.complab <- missing(complab)
   #
   missing.cluster <- missing(cluster)
@@ -763,21 +797,24 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   chknumeric(rho, min = -1, max = 1)
   ##
   chknull(sm)
-  sm.metafor <- c("PHI", "YUQ", "YUY", "RTET",
-                  "PBIT", "OR2D", "OR2DN", "OR2DL",
-                  "MPRD", "MPRR", "MPOR", "MPORC", "MPPETO")
-  ## sm <- setchar(sm, c(gs("sm4bin"), sm.metafor))
   sm <- setchar(sm, gs("sm4bin"))
-  metafor <- sm %in% sm.metafor
-  ##
+  #
   chklevel(level)
   #
   method <- setchar(method, gs("meth4bin"))
-  if (metafor)
-    method <- "Inverse"
   #
   is.glmm <- method == "GLMM"
   is.lrp <- method == "LRP"
+  #
+  method.common.ci <- setchar(method.common.ci, gs("meth4common.ci"))
+  #
+  if (method != "Inverse" & method.common.ci == "IVhet") {
+    if (!missing.method.common.ci)
+      warning("Argument 'method.common.ci = \"IVhet\"' only available ",
+              "if 'method = \"Inverse\".",
+              call. = FALSE)
+    method.common.ci <- "classic"
+  }
   #
   if (missing.method.tau) {
     if (is.lrp)
@@ -793,7 +830,6 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   tau.common <- replaceNULL(tau.common, FALSE)
   chklogical(tau.common)
   #
-  missing.method.I2 <- missing(method.I2)
   method.I2 <- setchar(method.I2, gs("meth4i2"))
   #
   chklogical(prediction)
@@ -813,8 +849,6 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   adhoc.hakn.pi <- setchar(replaceNA(adhoc.hakn.pi, ""), gs("adhoc4hakn.pi"))
   #
-  method.bias <- setmethodbias(method.bias)
-  ##
   chklogical(backtransf)
   ##
   chknumeric(pscale, length = 1)
@@ -847,6 +881,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   method.incr <- setchar(method.incr, gs("meth4incr"))
   ##
   chklogical(allstudies)
+  #
   chklogical(MH.exact)
   chklogical(Q.Cochrane)
   if (Q.Cochrane & (method != "MH" | method.tau != "DL")) {
@@ -875,7 +910,6 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   ## Check for deprecated arguments in '...'
   ##
-  args <- list(...)
   chklogical(warn.deprecated)
   ##
   level.ma <- deprecated(level.ma, missing.level.ma, args, "level.comb",
@@ -935,6 +969,15 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   chklogical(overall)
   chklogical(overall.hetstat)
+  #
+  # Ignore deprecated arguments 'addincr' and 'allincr'
+  #
+  txt.ignore <- "(deprecated); use argument 'method.incr'"
+  #
+  if (!is.na(charmatch("addincr", nam.args)))
+    warn_ignore_input(addincr, TRUE, txt.ignore)
+  if (!is.na(charmatch("allincr", nam.args)))
+    warn_ignore_input(allincr, TRUE, txt.ignore)
   
   
   ##
@@ -946,53 +989,52 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   nulldata <- is.null(data)
   sfsp <- sys.frame(sys.parent())
   mc <- match.call()
-  ##
-  if (nulldata)
-    data <- sfsp
   #
-  # Catch 'event.e', 'n.e', 'event.c', 'n.c', 'studlab', 'subgroup', and
-  # 'incr' from data:
+  if (nulldata) {
+    data <- sfsp
+    data.pairwise <- FALSE
+  }
+  else
+    data.pairwise <- inherits(data, "pairwise")
+  #
+  # Catch 'event.e', 'n.e', 'event.c', 'n.c', 'studlab', 'subgroup', 'incr',
+  # 'incr.e' and 'incr.c' from data:
   #
   event.e <- catch("event.e", mc, data, sfsp)
   chknull(event.e)
   #
-  if (is.data.frame(event.e) & !is.null(attr(event.e, "pairwise"))) {
+  if (inherits(event.e, "pairwise")) {
+    is.pairwise <- TRUE
+    #
     type <- attr(event.e, "type")
     if (type != "binary")
       stop("Wrong type for pairwise() object: '", type, "'.", call. = FALSE)
     #
-    is.pairwise <- TRUE
+    txt.ignore <- "as first argument is a pairwise object"
     #
-    txt.ignore <- "ignored as first argument is a pairwise object"
+    warn_ignore_input(event.c, !missing.event.c, txt.ignore)
+    warn_ignore_input(n.e, !missing.n.e, txt.ignore)
+    warn_ignore_input(n.c, !missing.n.c, txt.ignore)
+    warn_ignore_input(incr.e, !missing.incr.e, txt.ignore)
+    warn_ignore_input(incr.c, !missing.incr.c, txt.ignore)
     #
-    ignore_input(event.c, !missing.event.c, txt.ignore)
-    ignore_input(n.e, !missing.n.e, txt.ignore)
-    ignore_input(n.c, !missing.n.c, txt.ignore)
-    ignore_input(studlab, !missing.studlab, txt.ignore)
-    #
-    missing.event.c <- FALSE
-    missing.n.e <- FALSE
-    missing.n.c <- FALSE
-    #
-    if (missing.method) {
-      method <- attr(event.e, "method")
-      if (method == "" | method == "Inverse")
-        method <- ifelse(tau.common, "Inverse", gs("method"))
-    }
+    warn_ignore_input(studlab, !missing.studlab, txt.ignore)
     #
     if (missing.sm)
       sm <- attr(event.e, "sm")
     #
-    if (missing.incr)
-      incr <- attr(event.e, "incr")
-    if (missing.method.incr)
-      method.incr <- attr(event.e, "method.incr")
-    if (missing.allstudies)
-      allstudies <- attr(event.e, "allstudies")
+    if (missing.method)
+      method <- attr(event.e, "method")
     #
+    if (!avail.method.incr & !avail.incr)
+      method.incr <- "user"
+    #
+    missing.sm <- FALSE
+    missing.method <- FALSE
+    #
+    avail.method.incr <- TRUE
     missing.incr <- FALSE
     missing.method.incr <- FALSE
-    missing.allstudies <- FALSE
     #
     reference.group <- attr(event.e, "reference.group")
     #
@@ -1002,8 +1044,20 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     treat2 <- event.e$treat2
     #
     event.c <- event.e$event2
+    #
     n.e <- event.e$n1
     n.c <- event.e$n2
+    #
+    incr.e <- event.e$incr1
+    incr.c <- event.e$incr2
+    #
+    if (avail.incr | method.incr != "user") {
+      incr.e <- NULL
+      incr.c <- NULL
+    }
+    #
+    if (!avail.incr)
+      incr <- attr(event.e, "incr")
     #
     pairdata <- event.e
     data <- event.e
@@ -1025,17 +1079,25 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
       tn.e <- n.e
       n.e[wo] <- n.c[wo]
       n.c[wo] <- tn.e[wo]
+      #
+      if (!(is.null(incr.e) | is.null(incr.c))) {
+        tincr.e <- incr.e
+        incr.e[wo] <- incr.c[wo]
+        incr.c[wo] <- tincr.e[wo]
+      }
     }
     #
-    if (missing.subgroup) {
-      #subgroup <- paste(paste0("'", treat1, "'"),
-      #                  paste0("'", treat2, "'"),
-      #                  sep = " vs ")
+    if (missing.subgroup & missing.byvar) {
       subgroup <- paste(treat1, treat2, sep = " vs ")
       #
       if (length(unique(subgroup)) == 1) {
         if (missing.complab)
           complab <- unique(subgroup)
+        #
+        if (missing.label.e)
+          label.e <- unique(treat1)
+        if (missing.label.c)
+          label.c <- unique(treat2)
         #
         subgroup <- NULL
       }
@@ -1048,8 +1110,13 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
           test.subgroup <- FALSE
       }
     }
-    else
+    else {
       subgroup <- catch("subgroup", mc, data, sfsp)
+      byvar <- catch("byvar", mc, data, sfsp)
+      #
+      subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
+                              warn.deprecated)
+    }
   }
   else {
     is.pairwise <- FALSE
@@ -1072,30 +1139,65 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     #
     if (!missing.incr)
       incr <- catch("incr", mc, data, sfsp)
+    #
+    if (!missing.incr.e)
+      incr.e <- catch("incr.e", mc, data, sfsp)
+    if (!missing.incr.c)
+      incr.c <- catch("incr.c", mc, data, sfsp)
   }
   #
-  addincr <-
-    deprecated(method.incr, missing.method.incr, args, "addincr",
-               warn.deprecated)
-  allincr <-
-    deprecated(method.incr, missing.method.incr, args, "allincr",
-               warn.deprecated)
+  method.bias <- setmethodbias(method.bias)
   #
-  if (missing.method.incr) {
-    method.incr <- gs("method.incr")
-    ##
-    if (is.logical(addincr) && addincr)
-      method.incr <- "all"
-    else if (is.logical(allincr) && allincr)
-      method.incr <- "if0all"
+  is.tacc <- FALSE
+  #
+  if (is.numeric(incr))
+    chknumeric(incr, min = 0)
+  else {
+    incr <- setchar(incr, "TACC",
+                    "should be numeric or the character string \"TACC\"")
+    is.tacc <- TRUE
   }
   #
-  addincr <- allincr <- FALSE
-  if (!(sm == "ASD" | method %in% c("Peto", "GLMM"))) {
+  avail.incr.e <- !is.null(incr.e)
+  avail.incr.c <- !is.null(incr.c)
+  avail.incr.both <- avail.incr.e & avail.incr.c
+  #
+  if (avail.incr.e + avail.incr.c == 1)
+    stop("Arguments 'incr.e' and 'incr.c' are required together.",
+         call. = FALSE)
+  #
+  if (avail.incr.e)
+    chknumeric(incr.e, min = 0)
+  #
+  if (avail.incr.c)
+    chknumeric(incr.c, min = 0)
+  #
+  if (avail.incr.both) {
+    if (!avail.method.incr)
+      method.incr <- "user"
+    #
+    txt.ignore <- "as arguments 'incr.e' and 'incr.c' are provided"
+    #
+    warn_set_input(method.incr, method.incr != "user", '"user"', txt.ignore)
+    #
+    if (length(incr) != length(incr.e) | any(incr != incr.e))
+      warn_ignore_input(incr, avail.incr, txt.ignore)
+  }
+  else {
+    addincr <- allincr <- FALSE
+    #
     if (method.incr == "all")
       addincr <- TRUE
     else if (method.incr == "if0all")
       allincr <- TRUE
+    addincr <- allincr <- FALSE
+    #
+    if (!(sm == "ASD" | method %in% c("Peto", "GLMM"))) {
+      if (method.incr == "all")
+        addincr <- TRUE
+      else if (method.incr == "if0all")
+        allincr <- TRUE
+    }
   }
   #
   k.All <- length(event.e)
@@ -1103,27 +1205,6 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   chknull(n.e)
   chknull(event.c)
   chknull(n.c)
-  #
-  if (is.numeric(incr))
-    chknumeric(incr, min = 0)
-  else
-    incr <- setchar(incr, "TACC",
-                    "should be numeric or the character string \"TACC\"")
-  #
-  if (metafor) {
-    if (length(incr) > 1) {
-      if (!missing.incr)
-        warning("Increment of 0.5 used for effect measure '", sm, "'",
-                call. = FALSE)
-      incr <- 0.5
-    }
-    else if (incr == "TACC") {
-      if (!missing.incr)
-        warning("Increment of 0.5 used for effect measure '", sm, "'",
-                call. = FALSE)
-      incr <- 0.5
-    }
-  }
   #
   studlab <- setstudlab(studlab, k.All)
   #
@@ -1139,6 +1220,54 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##
   cluster <- catch("cluster", mc, data, sfsp)
   with.cluster <- !is.null(cluster)
+  #
+  # Catch 'weights', 'weights.common', and 'weights.random' from data:
+  #
+  if (!missing(weights))
+    weights <- catch("weights", mc, data, sfsp)
+  if (!missing(weights.common))
+    weights.common <- catch("weights.common", mc, data, sfsp)
+  if (!missing(weights.random))
+    weights.random <- catch("weights.random", mc, data, sfsp)
+  #
+  if (!is.null(weights) & is.null(weights.common))
+    weights.common <- weights
+  #
+  if (!is.null(weights) & is.null(weights.random))
+    weights.random <- weights
+  #
+  usw.common <- !is.null(weights.common)
+  usw.random <- !is.null(weights.random)
+  #
+  if (usw.common)
+    chknumeric(weights.common, min = 0)
+  #
+  if (usw.random)
+    chknumeric(weights.random, min = 0)
+  #
+  if (usw.common & method != "Inverse")
+    stop("User-specified weights for the common effect model only implemented ",
+         "for the inverse variance method (method = \"Inverse\").",
+         call. = FALSE)
+  #
+  if (usw.random & method %in% c("GLMM", "LRP", "SSW"))
+    stop("User-specified weights for the random effects model not implemented ",
+         "for method = \"GLMM\",  \"LRP\" or  \"SSW\".",
+         call. = FALSE)
+  #
+  # Check variable values
+  #
+  chknumeric(event.e)
+  chknumeric(n.e)
+  chknumeric(event.c)
+  chknumeric(n.c)
+  #
+  # Recode integer as numeric:
+  #
+  event.e <- int2num(event.e)
+  n.e     <- int2num(n.e)
+  event.c <- int2num(event.c)
+  n.c     <- int2num(n.c)
   
   
   ##
@@ -1151,12 +1280,41 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   chklength(event.c, k.All, fun)
   chklength(n.c, k.All, fun)
   chklength(studlab, k.All, fun)
+  #
   if (with.cluster)
     chklength(cluster, k.All, fun)
-  ##
+  #
+  if (usw.common) {
+    if (length(weights.common) == 1)
+      weights.common <- rep(weights.common, k.All)
+    else
+      chklength(weights.common, k.All, fun)
+  }
+  #
+  if (usw.random) {
+    if (length(weights.random) == 1)
+      weights.random <- rep(weights.random, k.All)
+    else
+      chklength(weights.random, k.All, fun)
+  }
+  #
   if (length(incr) > 1)
     chklength(incr, k.All, fun)
-  ##
+  #
+  if (avail.incr.e) {
+    if (length(incr.e) == 1)  
+      incr.e <- rep_len(incr.e, k.All)
+    else
+      chklength(incr.e, k.All, fun)
+  }
+  #
+  if (avail.incr.c) {
+    if (length(incr.c) == 1)  
+      incr.c <- rep_len(incr.c, k.All)
+    else
+      chklength(incr.c, k.All, fun)
+  }
+  #
   if (by) {
     chklength(subgroup, k.All, fun)
     chklogical(test.subgroup)
@@ -1172,6 +1330,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
               call. = FALSE)
     tau.common <- FALSE
   }
+  #
   if (by & !tau.common & !is.null(tau.preset)) {
     if (warn)
       warning("Argument 'tau.common' set to TRUE as ",
@@ -1179,8 +1338,19 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
               call. = FALSE)
     tau.common <- TRUE
   }
-
-
+  #
+  if (method.incr == "user" & !avail.incr.both) {
+    if (is.null(incr.e) | is.null(incr.c))
+      stop("Non-null input for arguments 'incr.e' and 'incr.c' required if ",
+           "'method.incr = \"user\"'.",
+           call. = FALSE)
+    else
+      stop("Arguments 'incr.e' and 'incr.c' are required if ",
+           "'method.incr = \"user\"'.",
+           call. = FALSE)
+  }
+  
+  
   ##
   ##
   ## (4) Subset, exclude studies, and subgroups
@@ -1214,16 +1384,17 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   
   if (keepdata) {
     if (nulldata)
-      data <- data.frame(.event.e = event.e)
+      data <- data.frame(.studlab = studlab)
     else
-      data$.event.e <- event.e
+      data$.studlab <- studlab
     ##
+    data$.event.e <- event.e
     data$.n.e <- n.e
     data$.event.c <- event.c
     data$.n.c <- n.c
-    data$.studlab <- studlab
-    ##
-    data$.incr <- incr
+    #
+    data$.incr.e <- NA
+    data$.incr.c <- NA
     ##
     if (by)
       data$.subgroup <- subgroup
@@ -1242,9 +1413,15 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     ##
     if (with.cluster)
       data$.id <- data$.cluster <- cluster
+    #
+    if (usw.common)
+      data$.weights.common <- weights.common
+    #
+    if (usw.random)
+      data$.weights.random <- weights.random
   }
-
-
+  
+  
   ##
   ##
   ## (6) Use subset for analysis
@@ -1260,12 +1437,37 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     ##
     cluster <- cluster[subset]
     exclude <- exclude[subset]
-    ##
+    #
+    weights.common <- weights.common[subset]
+    weights.random <- weights.random[subset]
+    #
+    incr.e <- incr.e[subset]
+    incr.c <- incr.c[subset]
+    #
     if (length(incr) > 1)
       incr <- incr[subset]
-    ##
+    #
     if (by)
       subgroup <- subgroup[subset]
+  }
+  #
+  if (missing.subgroup & is.pairwise & by) {
+    if (length(unique(subgroup)) == 1) {
+      by <- FALSE
+      #
+      if (missing.complab)
+        complab <- unique(subgroup)
+      #
+      subgroup <- NULL
+      #
+      if (keepdata)
+        data$.subgroup <- NULL
+      #
+      if (missing.overall)
+        overall <- TRUE
+      if (missing.overall.hetstat)
+        overall.hetstat <- TRUE
+    }
   }
   ##
   ## Determine total number of studies
@@ -1285,20 +1487,6 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     overall.hetstat <- FALSE
   }
   ##
-  ## Check variable values
-  ##
-  chknumeric(event.e)
-  chknumeric(n.e)
-  chknumeric(event.c)
-  chknumeric(n.c)
-  ##
-  ## Recode integer as numeric:
-  ##
-  event.e <- int2num(event.e)
-  n.e     <- int2num(n.e)
-  event.c <- int2num(event.c)
-  n.c     <- int2num(n.c)
-  ##
   if (by) {
     chkmiss(subgroup)
     ##
@@ -1314,32 +1502,34 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     chkchar(subgroup.name, length = 1)
   
   
-  ##
-  ##
-  ## (7) Calculate results for individual studies
-  ##
-  ##
+  #
+  #
+  # (7) Continuity correction
+  #
+  #
   
+  #
   # Include non-informative studies?
   # (i.e. studies with either zero or all events in both groups)
   #
-  if (sm == "RD" | sm == "ASD" | metafor)
+  allevents <- event.c == n.c & event.e == n.e
+  #
+  if (sm == "RD" | sm == "ASD")
     incl <- rep(1, k.all)
   else {
-    allevents <- event.c == n.c & event.e == n.e
     if (allstudies)
       incl <- rep(1, k.all)
     else {
       if (sm %in% c("OR", "DOR"))
         incl <- ifelse((event.c == 0   & event.e == 0) |
-                       (event.c == n.c & event.e == n.e), NA, 1)
+                         (event.c == n.c & event.e == n.e), NA, 1)
       if (sm %in% c("RR", "VE"))
         incl <- ifelse((event.c == 0 & event.e == 0), NA, 1)
     }
   }
-  ##
-  ## Exclude studies from meta-analysis:
-  ##
+  #
+  # Exclude studies from meta-analysis:
+  #
   sel1 <- event.e > n.e
   sel2 <- event.c > n.c
   if ((any(sel1, na.rm = TRUE)) & warn)
@@ -1349,42 +1539,43 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     warning("Studies with event.c > n.c get no weight in meta-analysis.",
             call. = FALSE)
   incl[sel1 | sel2] <- NA
-  ##
+  #
   sel3 <- n.e <= 0 | n.c <= 0
   if ((any(sel3, na.rm = TRUE)) & warn)
     warning("Studies with non-positive values for n.e and / or n.c ",
             "get no weight in meta-analysis.",
             call. = FALSE)
   incl[sel3] <- NA
-  ##
+  #
   sel4 <- event.e < 0 | event.c < 0
   if ((any(sel4, na.rm = TRUE)) & warn)
     warning("Studies with negative values for event.e and / or event.c ",
             "get no weight in meta-analysis.",
             call. = FALSE)
   incl[sel4] <- NA
-  ##
-  ## Sparse computation
-  ##
+  #
+  # Sparse computation
+  #
   sel <- switch(sm,
                 OR = ((n.e - event.e) == 0 | event.e == 0 |
-                      (n.c - event.c) == 0 | event.c == 0),
+                        (n.c - event.c) == 0 | event.c == 0),
                 RD = ((n.e - event.e) == 0 | event.e == 0 |
-                      (n.c - event.c) == 0 | event.c == 0),
+                        (n.c - event.c) == 0 | event.c == 0),
                 RR = ((n.e - event.e) == 0 | event.e == 0 |
-                      (n.c - event.c) == 0 | event.c == 0),
+                        (n.c - event.c) == 0 | event.c == 0),
                 VE = ((n.e - event.e) == 0 | event.e == 0 |
-                      (n.c - event.c) == 0 | event.c == 0),
+                        (n.c - event.c) == 0 | event.c == 0),
                 ASD = rep(FALSE, length(event.e)),
                 DOR = ((n.e - event.e) == 0 | event.e == 0 |
-                       (n.c - event.c) == 0 | event.c == 0))
-  ##
+                         (n.c - event.c) == 0 | event.c == 0))
+  #
   sel[is.na(incl)] <- FALSE
-  ##
+  incl[is.na(incl)] <- 0
+  #
   sparse <- any(sel, na.rm = TRUE)
-  ##
-  ## Check for studies with zero cell frequencies in both groups
-  ##
+  #
+  # Check for pairwise comparisons with zero cell frequencies in both groups
+  #
   doublezeros <- FALSE
   if (sparse & sm %in% c("RR", "OR") & !(method %in% c("Peto", "GLMM"))) {
     sel.doublezeros <- switch(sm,
@@ -1394,77 +1585,110 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     if (any(sel.doublezeros, na.rm = TRUE))
       doublezeros <- TRUE
   }
-  ##
-  ## Define continuity correction
-  ##
-  if (addincr) {
-    ##
-    if (is.numeric(incr)) {
-      incr.e <- if (length(incr) == 1) rep(incr, k.all) else incr
-      incr.c <- if (length(incr) == 1) rep(incr, k.all) else incr
-    }
-    else {
-      if (all(incr == "TACC")) {
-        ##
-        ## Treatment arm continuity correction:
-        ##
-        incr.e <- n.e / (n.e + n.c)
-        incr.c <- n.c / (n.e + n.c)
-      }
-    }
+  #
+  # Define continuity correction
+  #
+  #
+  if (avail.incr.both) {
+    chknumeric(incr.e, min = 0, NA.ok = FALSE)
+    chknumeric(incr.c, min = 0, NA.ok = FALSE)
   }
   else {
-    if (sparse) {
-      if (allincr) {
-        ##
-        if (is.numeric(incr)) {
+    if (addincr) {
+      #
+      if (is.numeric(incr)) {
+        if (is.null(incr.e))
           incr.e <- if (length(incr) == 1) rep(incr, k.all) else incr
+        if (is.null(incr.c))
           incr.c <- if (length(incr) == 1) rep(incr, k.all) else incr
+      }
+      else {
+        if (is.tacc) {
+          #
+          # Treatment arm continuity correction:
+          #
+          incr.e <- n.e / (n.e + n.c)
+          incr.c <- n.c / (n.e + n.c)
+        }
+      }
+    }
+    else {
+      if (sparse) {
+        if (allincr) {
+          #
+          if (is.numeric(incr)) {
+            incr.e <- if (length(incr) == 1) rep(incr, k.all) else incr
+            incr.c <- if (length(incr) == 1) rep(incr, k.all) else incr
+          }
+          else {
+            if (is.tacc) {
+              #
+              # Treatment arm continuity correction:
+              #
+              incr.e <- n.e / (n.e + n.c)
+              incr.c <- n.c / (n.e + n.c)
+            }
+          }
         }
         else {
-          if (all(incr == "TACC")) {
-            ##
-            ## Treatment arm continuity correction:
-            ##
-            incr.e <- n.e / (n.e + n.c)
-            incr.c <- n.c / (n.e + n.c)
+          #
+          # Bradburn, Deeks, Altman, Stata-procedure "metan":
+          # & SAS PROC FREQ (for method = "Inverse")
+          #
+          if (is.numeric(incr)) {
+            incr.e <- incr * sel
+            incr.c <- incr * sel
+          }
+          else {
+            if (is.tacc) {
+              #
+              # Treatment arm continuity correction:
+              #
+              incr.e <- n.e / (n.e + n.c) * sel
+              incr.c <- n.c / (n.e + n.c) * sel
+            }
           }
         }
       }
       else {
-        ##
-        ## Bradburn, Deeks, Altman, Stata-procedure "metan":
-        ## & SAS PROC FREQ (for method = "Inverse")
-        ##
-        if (is.numeric(incr)) {
-          incr.e <- incr * sel
-          incr.c <- incr * sel
-        }
-        else {
-          if (all(incr == "TACC")) {
-            ##
-            ## Treatment arm continuity correction:
-            ##
-            incr.e <- n.e / (n.e + n.c) * sel
-            incr.c <- n.c / (n.e + n.c) * sel
-          }
-        }
+        incr.e <- rep(0, k.all)
+        incr.c <- rep(0, k.all)
       }
     }
-    else {
+    #
+    # No continuity correction for Peto method
+    #
+    if (method == "Peto") {
+      incr <- 0
       incr.e <- rep(0, k.all)
       incr.c <- rep(0, k.all)
     }
   }
-  ##
-  ## No continuity correction for Peto method
-  ##
-  if (method == "Peto") {
-    incr <- 0
-    incr.e <- rep(0, k.all)
-    incr.c <- rep(0, k.all)
+  #
+  incr.e <- incr.e * incl
+  incr.c <- incr.c * incl
+  #
+  if (keepdata) {
+    if (missing.subset) {
+      data$.incr.e <- incr.e
+      data$.incr.c <- incr.c
+    }
+    else {
+      data$.incr.e <- NA
+      data$.incr.c <- NA
+      #
+      data$.incr.e[subset] <- incr.e
+      data$.incr.c[subset] <- incr.c
+    }
   }
+  
+  
   ##
+  ##
+  ## (8) Calculate results for individual studies
+  ##
+  ##
+  
   n11 <- event.e * incl
   n21 <- event.c * incl
   n1. <- n.e * incl
@@ -1541,21 +1765,15 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     TE <- asin(sqrt(n11 / n1.)) - asin(sqrt(n21 / n2.))
     seTE <- sqrt(0.25 * (1 / n1. + 1 / n2.))
   }
-  else if (metafor) {
-    ##
-    ## Other effect measures calculated in R package metafor
-    ##
-    tmp <- escalc(measure = sm,
-                  ai = n11, bi = n12, ci = n21, di = n22,
-                  add = incr, to = method.incr, drop00 = !allstudies)
-    TE <- tmp$yi
-    seTE <- sqrt(tmp$vi)
-  }
+  #
+  # Set NaN to NA
+  #
+  TE[is.nan(TE)] <- NA
   
   
   ##
   ##
-  ## (8) Additional checks for three-level model
+  ## (9) Additional checks for three-level model
   ##
   ##
   
@@ -1587,7 +1805,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     is_installed_package("brglm2", fun, "method", " = \"LRP\"")
     #
     if (!missing.method.tau & method.tau != "DL")
-      ignore_input(method.tau, text = "for penalised logistic regression")
+      warn_ignore_input(method.tau, text = "for penalised logistic regression")
     #
     if (by & tau.common)
       stop("Subgroup analysis not defined for penalised logistic regression ",
@@ -1598,8 +1816,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   
   ##
   ##
-  ## (9) Additional checks for GLMM, penalised logistic regression,
-  ##     Peto method or SSW
+  ## (10) Additional checks for GLMM, penalised logistic regression,
+  ##      Peto method or SSW
   ##
   ##
   
@@ -1646,8 +1864,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     if (warn) {
       txt.warn <- "for penalised logistic regression"
       #
-      ignore_input(TE.tau, !is.null(TE.tau), txt.warn)
-      ignore_input(tau.preset, !is.null(tau.preset), txt.warn)
+      warn_ignore_input(TE.tau, !is.null(TE.tau), txt.warn)
+      warn_ignore_input(tau.preset, !is.null(tau.preset), txt.warn)
       #
       if (!missing.method.I2 & method.I2 == "tau2")
         warning("Argument 'method.I2' set to \"Q\" for ",
@@ -1664,38 +1882,32 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   ##  (i)  arcsine difference as summary measure
   ##  (ii) Peto method, GLMM, or penalised logistic regression
   ##
-  if (sm == "ASD" | method %in% c("Peto", "GLMM", "LRP")) {
-    if ((!missing.incr & any(incr != 0)) |
-        allincr | addincr |
-        (!missing.allstudies & allstudies)
-        )
-      if (sm == "ASD") {
-        if ((sparse | addincr) & warn) {
-          warning("Note, no continuity correction considered ",
-                  "for arcsine difference (sm = \"ASD\").",
-                  call. = FALSE)
+  if (!avail.incr.both) {
+    if (sm == "ASD" | method %in% c("Peto", "GLMM", "LRP")) {
+      if ((!missing.incr & any(incr != 0)) |
+          allincr | addincr |
+          (!missing.allstudies & allstudies)
+      )
+        if (sm == "ASD") {
+          if ((sparse | addincr) & warn) {
+            warning("Note, no continuity correction considered ",
+                    "for arcsine difference (sm = \"ASD\").",
+                    call. = FALSE)
+          }
         }
-      }
       else if (method == "Peto") {
         if ((sparse | addincr) & warn)
           warning("Note, no continuity correction considered ",
                   "for method = \"Peto\".",
                   call. = FALSE)
       }
-    else if (is.glmm | is.lrp) {
-      if (sparse & warn &
-          ((!missing.incr & any(incr != 0)) | allincr | addincr))
-        warning("Note, for method = \"", method,
-                "\", continuity correction ",
-                "only used to calculate individual study results.",
-                call. = FALSE)
     }
   }
   
   
   ##
   ##
-  ## (10) Do meta-analysis
+  ## (11) Do meta-analysis
   ##
   ##
   
@@ -1705,11 +1917,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   for (i in seq_along(method.random.ci))
     if (k == 1 & method.random.ci[i] == "HK")
       method.random.ci[i] <- "classic"
-  ##
-  if (all(incr.e == 0) & all(incr.c == 0) & method == "MH" &
-      MH.exact == FALSE)
-    MH.exact <- TRUE
-  ##
+  #
   if (method == "MH") {
     incr.e <- incr.e * (!MH.exact)
     incr.c <- incr.c * (!MH.exact)
@@ -1837,7 +2045,10 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   m <- metagen(TE, seTE, studlab,
                exclude = if (missing.exclude) NULL else exclude,
                cluster = cluster, rho = rho,
-               ##
+               #
+               weights.common = weights.common,
+               weights.random = weights.random,
+               #
                sm = sm,
                level = level,
                ##
@@ -1853,10 +2064,12 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                tau.preset = tau.preset,
                TE.tau = if (Q.Cochrane) TE.common else TE.tau,
                tau.common = FALSE,
+               detail.tau = detail.tau,
                #
                method.I2 = method.I2,
                #
                level.ma = level.ma,
+               method.common.ci = method.common.ci,
                method.random.ci = method.random.ci,
                adhoc.hakn.ci = adhoc.hakn.ci,
                ##
@@ -1905,7 +2118,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   
   ##
   ##
-  ## (11) Generate R object
+  ## (12) Generate R object
   ##
   ##
   
@@ -1946,10 +2159,13 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   res$TE.tau <- TE.tau
   ##
   res$pscale <- pscale
-  ##
+  #
+  if (is.pairwise | data.pairwise) {
+    res$pairwise <- TRUE
+    res$k.study <- length(unique(res$studlab[!is.na(res$TE)]))
+  }
+  #
   res$call <- match.call()
-  res$allincr <- allincr
-  res$addincr <- addincr
   ##
   if (method %in% c("MH", "Peto", "GLMM", "LRP", "SSW")) {
     res <- ci2meta(res, ci.c = ci(TE.common, seTE.common, level = level.ma))

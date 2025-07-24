@@ -6,7 +6,20 @@
 \alias{metacum.default}
 \title{Cumulative meta-analysis}
 \usage{
-\method{metacum}{meta}(x, pooled, sortvar, no = 1, ...)
+\method{metacum}{meta}(
+  x,
+  pooled,
+  sortvar,
+  prediction,
+  overall = x$overall,
+  text.pooled,
+  no = 1,
+  cid = NULL,
+  cid.below.null = NULL,
+  cid.above.null = NULL,
+  small.values = "desirable",
+  ...
+)
 
 metacum(x, ...)
 
@@ -22,26 +35,67 @@ Details), \code{"common"}, or \code{"random"}, can be abbreviated.}
 \item{sortvar}{An optional vector used to sort the individual
 studies (must be of same length as \code{x$TE}).}
 
+\item{prediction}{A logical indicating whether to report prediction
+intervals.}
+
+\item{overall}{A logical indicating whether overall results should be
+reported.}
+
+\item{text.pooled}{A character string used in printouts and forest
+plots to label the pooled effect estimate.}
+
 \item{no}{A numeric specifying which meta-analysis results to
 consider.}
+
+\item{cid}{A numeric value or vector specifying clinically important
+differences (CID) / decision thresholds used to calculate expected
+proportions of clinically important benefit or harm
+(see \code{\link{cidprop}}).}
+
+\item{cid.below.null}{A single numeric defining the decision threshold below
+the null effect to distinguish clinically important from not important
+effects (see \code{\link{cidprop}}).}
+
+\item{cid.above.null}{A single numeric defining the decision threshold above
+the null effect to distinguish clinically important from not important
+effects (see \code{\link{cidprop}}).}
+
+\item{small.values}{A character string specifying whether small
+treatment effects indicate a beneficial (\code{"desirable"}) or
+harmful (\code{"undesirable"}) effect, can be abbreviated
+(see \code{\link{cidprop}}).}
 
 \item{\dots}{Additional arguments (ignored).}
 }
 \value{
-An object of class \code{"meta"} and \code{"metacum"} with
-corresponding generic functions (see \code{\link{meta-object}}).
+An object of class \code{"metacum"} with dedicated print and forest
+functions.
 
-The following list elements have a different meaning:
-\item{TE, seTE}{Estimated treatment effect and standard error of
-  pooled estimate in cumulative meta-analyses.}
-\item{lower, upper}{Lower and upper confidence interval limits.}
-\item{statistic}{Statistic for test of overall effect.}
-\item{pval}{P-value for test of overall effect.}
-\item{studlab}{Study label describing addition of studies.}
-\item{w}{Sum of weights from common effect or random effects model.}
-\item{TE.common, seTE.common}{Value is \code{NA}.}
-\item{TE.random, seTE.random}{Value is \code{NA}.}
-\item{Q}{Value is \code{NA}.}
+The following list elements provide results from meta-analyses, each
+adding one study at a time (see \code{\link{meta-object}} for more
+information on these list elements):
+\tabular{l}{
+\cr
+studlab, TE, seTE, df.random, lower, upper, statistic, pval, \cr
+lower.predict, upper.predict, df.predict, w (sum of weights), \cr
+tau2, se.tau2, lower.tau2, upper.tau2, tau, lower.tau, upper.tau, \cr
+I2, lower.I2, upper.I2, Rb, n.harmonic.mean, t.harmonic.mean, \cr
+k, k.study, k.all, k.TE, k.MH.
+}
+
+The following list elements contain results of the original meta-analysis:
+\tabular{l}{
+\cr
+TE.pooled, seTE.pooled, df.random.pooled, \cr
+lower.pooled, upper.pooled, statistic.pooled, pval.pooled, \cr
+lower.predict.pooled, upper.predict.pooled, \cr
+df.predict.pooled, w.pooled, \cr
+tau2.pooled, se.tau2.pooled, lower.tau2.pooled, upper.tau2.pooled, \cr
+tau.pooled, lower.tau.pooled, upper.tau.pooled, \cr
+I2.pooled, lower.I2.pooled, upper.I2.pooled, Rb.pooled, \cr
+n.harmonic.mean.pooled, t.harmonic.mean.pooled, \cr
+k.pooled, k.study.pooled, k.all.pooled, k.TE.pooled, k.MH.pooled.
+}
 }
 \description{
 Performs a cumulative meta-analysis.
@@ -86,8 +140,8 @@ Cooper H & Hedges LV (1994):
 Newbury Park, CA: Russell Sage Foundation
 }
 \seealso{
-\code{\link{metabin}}, \code{\link{metacont}},
-  \code{\link{print.meta}}
+\code{\link{forest.metacum}}, \code{\link{print.metacum}},
+  \code{\link{cidprop}}
 }
 \author{
 Guido Schwarzer \email{guido.schwarzer@uniklinik-freiburg.de}

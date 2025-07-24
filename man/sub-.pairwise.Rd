@@ -17,13 +17,13 @@ Auxiliary function to extract parts of \code{\link{pairwise}} object.
 }
 \examples{
 # Transform data from arm-based format to contrast-based format
-p1 <- pairwise(list(Treatment1, Treatment2, Treatment3),
+pw1 <- pairwise(list(Treatment1, Treatment2, Treatment3),
   n = list(n1, n2, n3),
   mean = list(y1, y2, y3), sd = list(sd1, sd2, sd3),
   data = dat.franchini2012, studlab = Study)
 
-p1[, 1:5]
-p1[!grepl("Lieberman", p1$studlab), 1:5]
+pw1[, 1:5]
+pw1[!grepl("Lieberman", pw1$studlab), 1:5]
 
 }
 \seealso{

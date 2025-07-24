@@ -9,28 +9,24 @@
 #' @param x Meta-analysis object.
 #' @param type A character string or vector indicating whether added
 #'   results are from common effect, random effects model or
-#'   prediction interval. Either \code{"common"}, \code{"random"} or
-#'   \code{"prediction"}, can be abbreviated.
-#' @param TE Pooled estimate(s).
+#'   prediction interval. Either \code{"common"}, \code{"random"},
+#'   \code{"prediction"}, or \code{"tau2"} can be abbreviated.
+#' @param TE Pooled estimate(s) or between-study variance.
 #' @param lower Lower limit(s) of confidence or prediction interval.
 #' @param upper Upper limit(s) of confidence or prediction interval.
 #' @param statistic Test statistic(s).
 #' @param pval P-value(s).
+#' @param df Degrees of freedom for confidence or prediction intervals.s
+#' @param se Standard error(s).
+#' @param method A character string or vector to describe the
+#'   method used to get the pooled estimate(s), prediction interval(s) or
+#'   between-study variance(s).
+#' @param method.ci A character string or vector to describe the
+#'   method used to get the confidence or prediction interval.
 #' @param text A character string or vector used in printouts and
 #'   forest plot to label the added results.
 #' @param data An optional data frame containing the new results or an
 #'   object of class \code{meta}.
-#' @param method.common A character string or vector to describe the
-#'   common effect method(s).
-#' @param method.random A character string or vector to describe the
-#'   random effects method(s).
-#' @param method.tau A character string or vector to describe the
-#'   estimator(s) of the between-study variance.
-#' @param method.random.ci A character string or vector to describe
-#'   the method(s) to calculate confidence intervals under the random
-#'   effects model.
-#' @param method.predict A character string or vector to describe the
-#'   method(s) used for prediction intervals.
 #' @param transf A logical indicating whether inputs for arguments
 #'   \code{TE}, \code{lower} and \code{upper} are already
 #'   appropriately transformed to conduct the meta-analysis or on the
@@ -81,7 +77,7 @@
 #'   data = Fleiss1993bin, sm = "OR", text.common = "Naive pooling")
 #'
 #' # Add results of second meta-analysis from common effect model
-#' m12 <- metaadd(m1, data = m2, method.common = "Naive pooling")
+#' m12 <- metaadd(m1, data = m2)
 #' m12
 #'
 #' forest(m12)
@@ -89,18 +85,19 @@
 #' @export metaadd
 
 
-metaadd <- function(x, type,
-                    TE, lower, upper, statistic = NA, pval = NA,
-                    text, data = NULL,
-                    ##
-                    method.common = "",
-                    ##
-                    method.random = "",
-                    method.tau = "",
-                    method.random.ci = "",
-                    ##
-                    method.predict = "",
-                    ##
+metaadd <- function(x, type = NULL,
+                    #
+                    TE = NA, lower = NA, upper = NA,
+                    #
+                    statistic = NA, pval = NA, df = NA,
+                    se = NA,
+                    #
+                    method = "", method.ci = "",
+                    #
+                    text = "Added result",
+                    #
+                    data = NULL,
+                    #
                     transf = gs("transf")) {
   
   ##
@@ -111,7 +108,12 @@ metaadd <- function(x, type,
   
   chkclass(x, "meta")
   res <- updateversion(x)
-  ##
+  #
+  if (res$k < 2)
+    stop("Meta-analysis object provided in argument 'x' must combine ",
+         "at least two studies.",
+         call. = FALSE)
+  #
   missing.type <- missing(type)
   ##
   missing.TE <- missing(TE)
@@ -119,8 +121,14 @@ metaadd <- function(x, type,
   missing.upper <- missing(upper)
   missing.statistic <- missing(statistic)
   missing.pval <- missing(pval)
+  missing.df <- missing(df)
+  missing.se <- missing(se)
+  #
+  missing.method <- missing(method)
+  missing.method.ci <- missing(method.ci)
+  #
   missing.text <- missing(text)
-  ##
+  #
   chklogical(transf)
   
   
@@ -136,10 +144,17 @@ metaadd <- function(x, type,
   ##
   if (nulldata)
     data <- sfsp
-  ##
-  ## Catch 'type', 'TE', 'lower', 'upper', 'statistic', and 'pval' from data:
-  ##
+  #
+  # Catch 'type', 'TE', 'lower', 'upper', 'statistic', 'pval', 'df', 'se',
+  # 'method' and 'method.ci' from data:
+  #
   if (inherits(data, "meta")) {
+    if (inherits(data, "metaadd"))
+      stop("Argument 'data' cannot be of class 'metaadd'.",
+           call. = FALSE)
+    #
+    is.meta <- TRUE
+    #
     warnmeta <- function(miss, name)
       if (!miss)
         warning("Argument '", name, "' ignored as argument 'data' is a ",
@@ -152,293 +167,323 @@ metaadd <- function(x, type,
     warnmeta(missing.upper, "upper")
     warnmeta(missing.statistic, "statistic")
     warnmeta(missing.pval, "pval")
-    ##
-    if (missing(method.common))
-      method.common <- data$method
-    ##
-    if (missing(method.random))
-      method.random <- data$method.random
-    if (missing(method.tau))
-      method.tau <- data$method.tau
-    if (missing(method.random.ci))
-      method.random.ci <- data$method.random.ci
-    ##
-    if (missing(method.predict))
-      method.predict <- data$method.predict
-    ##
-    n.com <- length(data$lower.common)
-    n.ran <- length(data$lower.random)
-    n.prd <- length(data$lower.predict)
-    ##
-    type <- c(if (data$common)
-                rep_len("common", n.com),
-              if (data$random)
-                rep_len("random", n.ran),
-              if (data$prediction)
-                rep_len("prediction", n.prd))
-    ##
-    if (length(type) == 0)
-      type <- "common"
-    ##
-    res$tau <-
-      c(if (res$random | !data$random) res$tau,
-        if (data$random) data$tau)
-    res$lower.tau <-
-      c(if (res$random | !data$random) res$lower.tau,
-        if (data$random) data$lower.tau)
-    res$upper.tau <-
-      c(if (res$random | !data$random) res$upper.tau,
-        if (data$random) data$upper.tau)
-    ##
-    res$tau2 <-
-      c(if (res$random | !data$random) res$tau2,
-        if (data$random) data$tau2)
-    res$lower.tau2 <-
-      c(if (res$random | !data$random) res$lower.tau2,
-        if (data$random) data$lower.tau2)
-    res$upper.tau2 <-
-      c(if (res$random | !data$random) res$upper.tau2,
-        if (data$random) data$upper.tau2)
-    ##
-    res$method.tau <-
-      c(if (res$random | !data$random) res$method.tau,
-        if (data$random) data$method.tau)
-    ##
-    res$method.tau.ci <-
-      c(if (res$random | !data$random) res$method.tau.ci,
-        if (data$random) data$method.tau.ci)
-    ##
-    TE <- lower <- upper <- statistic <- pval <-
-      vector("numeric", length(type))
-    ##
-    if (length(data$TE.common) == 1 & n.com > 1)
-      data$TE.common <- rep_len(data$TE.common, n.com)
-    ##
-    if (length(data$TE.random) == 1 & n.ran > 1)
-      data$TE.random <- rep_len(data$TE.random, n.ran)
-    ##
-    text <- vector("character", length(type))
-    ##
-    if (!missing.text) {
-      text <- catch("text", mc, data, sfsp)
-      ##
-      if (length(text) == 1 & length(type) > 1)
-        text <- rep_len(text, length(type))
-      else
-        chklength(text, length(type),
-                  text =
-                    paste0("Argument 'text' must be of length ",
-                          length(type), "."))
+    warnmeta(missing.df, "df")
+    warnmeta(missing.se, "se")
+    #
+    warnmeta(missing.method, "method")
+    warnmeta(missing.method.ci, "method.ci")
+    
+    dat.c <- dat.r <- dat.t <- dat.p <- NULL
+    #
+    if (data$common | !(data$random | data$prediction)) {
+      if (any(data$method == "GLMM") & is.null(res$model.glmm))
+        res$model.glmm <- data$model.glmm
+      #
+      dat.c <- data.frame(type = "common",
+                          #
+                          TE = data$TE.common,
+                          se = data$seTE.common,
+                          lower = data$lower.common,
+                          upper = data$upper.common,
+                          statistic = data$statistic.common,
+                          pval = data$pval.common,
+                          df = NA,
+                          #
+                          method = data$method,
+                          method.ci = data$method.common.ci,
+                          #
+                          text = data$text.common,
+                          phi = NA)
     }
-    ##
-    j.c <- j.r <- j.p <- 0
-    ##
-    for (i in seq_along(type)) {
-      if (type[i] == "common") {
-        j.c <- j.c + 1
-        ##
-        TE[i] <- data$TE.common[j.c]
-        lower[i] <- data$lower.common[j.c]
-        upper[i] <- data$upper.common[j.c]
-        statistic[i] <- data$statistic.common[j.c]
-        pval[i] <- data$pval.common[j.c]
-        ##
-        if (missing.text)
-          text[i] <- data$text.common[j.c]
-      }
-      else if (type[i] == "random") {
-        j.r <- j.r + 1
-        ##
-        TE[i] <- data$TE.random[j.r]
-        lower[i] <- data$lower.random[j.r]
-        upper[i] <- data$upper.random[j.r]
-        statistic[i] <- data$statistic.random[j.r]
-        pval[i] <- data$pval.random[j.r]
-        ##
-        if (missing.text)
-          text[i] <- data$text.random[j.r]
-      }
-      else if (type[i] == "prediction") {
-        j.r <- j.r + 1
-        ##
-        TE[i] <- NA
-        lower[i] <- data$lower.predict[j.p]
-        upper[i] <- data$upper.predict[j.p]
-        statistic[i] <- NA
-        pval[i] <- NA
-        ##
-        if (missing.text)
-          text[i] <- data$text.predict[j.p]
-      }
+    #
+    if (data$random) {
+      if (any(data$method.random == "GLMM") & is.null(res$model.glmm))
+        res$model.glmm <- data$model.glmm
+      #
+      dat.r <- data.frame(type = "random",
+                          #
+                          TE = data$TE.random,
+                          se = data$seTE.random,
+                          lower = data$lower.random,
+                          upper = data$upper.random,
+                          statistic = data$statistic.random,
+                          pval = data$pval.random,
+                          df = data$df.random,
+                          #
+                          method = data$method.random,
+                          method.ci = data$method.random.ci,
+                          #
+                          text = data$text.random,
+                          phi = NA)
+      #
+      dat.t <- data.frame(type = "tau2",
+                          #
+                          TE = data$tau2,
+                          se = data$se.tau2,
+                          lower = data$lower.tau2,
+                          upper = data$upper.tau2,
+                          statistic = NA,
+                          pval = NA,
+                          df = NA,
+                          #
+                          method = data$method.tau,
+                          method.ci = data$method.tau.ci,
+                          #
+                          text = "",
+                          #
+                          phi = replaceNULL(data$phi))
+    }
+    #
+    if (data$prediction) {
+      dat.p <- data.frame(type = "prediction",
+                          #
+                          TE = NA,
+                          se = data$seTE.predict,
+                          lower = data$lower.predict,
+                          upper = data$upper.predict,
+                          statistic = NA,
+                          pval = NA,
+                          df = data$df.predict,
+                          #
+                          method = data$method.predict,
+                          method.ci = data$method.predict.ci,
+                          #
+                          text = data$text.predict,
+                          phi = NA)
+      #
+      n.prd <- nrow(dat.p)
+    }
+    #
+    dat <- rbind(dat.c, dat.r, dat.t, dat.p)
+    #
+    if (nrow(dat) == 0) {
+      warning("No pooled results in meta-analysis object.",
+              call. = FALSE)  
+      return(res)
     }
   }
   else {
+    is.meta <- FALSE
+    #
     type <- catch("type", mc, data, sfsp)
-    ##
-    if (any(type %in% c("common", "random")))
+    type <- setchar(type, c("common", "random", "prediction", "tau2"))
+    #
+    if (any(type %in% c("common", "random", "tau2")))
       if (missing.TE)
-        stop("Argument 'TE' must be provided for common effect or ",
-             "random effects model.",
+        stop("Argument 'TE' must be provided for common effect, ",
+             "random effects model, or between-study variance.",
              call. = FALSE)
-    ##
-    if (missing.lower)
+    #
+    if (missing.lower & any(type %in% c("common", "random", "prediction")))
       stop("Argument 'lower' must be provided.",
            call. = FALSE)
-    ##
-    if (missing.upper)
+    #
+    if (missing.upper & any(type %in% c("common", "random", "prediction")))
       stop("Argument 'upper' must be provided.",
            call. = FALSE)
-    ##
+    #
     TE <- catch("TE", mc, data, sfsp)
     lower <- catch("lower", mc, data, sfsp)
     upper <- catch("upper", mc, data, sfsp)
+    #
     statistic <- catch("statistic", mc, data, sfsp)
     pval <- catch("pval", mc, data, sfsp)
+    df <- catch("df", mc, data, sfsp)
+    #
+    method <- catch("method", mc, data, sfsp)
+    method.ci <- catch("method.ci", mc, data, sfsp)
+    #
     text <- catch("text", mc, data, sfsp)
-    ##
-    type <- setchar(type, c("common", "random", "prediction"))
-    ##
+    #
     if (length(type) == 1 & length(lower) > 1)
       type <- rep_len(type, length(lower))
-    ##
-    k.all <- length(type)
-    ##
+    #
+    n.type <- length(type)
+    #
     if (!missing.TE) {
       chknumeric(TE)
-      chklength(TE, k.all, name = "type")
+      chklength(TE, n.type, name = "type")
     }
     ##
     chknumeric(lower)
-    chklength(lower, k.all, name = "type")
+    chklength(lower, n.type, name = "type")
     ##
     chknumeric(upper)
-    chklength(upper, k.all, name = "type")
+    chklength(upper, n.type, name = "type")
     ##
     if (!missing.statistic) {
       chknumeric(statistic)
-      chklength(statistic, k.all, name = "type")
+      chklength(statistic, n.type, name = "type")
     }
-    else
-      statistic <- rep_len(NA, k.all)
-    ##
+    #
     if (!missing.pval) {
       chknumeric(pval)
-      chklength(pval, k.all, name = "type")
+      chklength(pval, n.type, name = "type")
     }
-    else
-      pval <- rep_len(NA, k.all)
-    ##
-    if (!missing.text) {
-      if (length(text) == 1 & k.all > 1)
-        text <- rep_len(text, k.all)
-      else
-        chklength(text, k.all)
+    #
+    if (!missing.df) {
+      chknumeric(df)
+      chklength(df, n.type, name = "type")
     }
+    #
+    if (!missing.se) {
+      chknumeric(se, min = 0)
+      chklength(se, n.type, name = "type")
+    }
+    #
+    if (!missing.method) {
+      chkchar(method)
+      chklength(method, n.type, name = "type")
+    }
+    #
+    if (!missing.method.ci) {
+      chkchar(method.ci)
+      chklength(method.ci, n.type, name = "type")
+    }
+    #
+    if (length(text) == 1 & n.type > 1)
+      text <- rep_len(text, n.type)
     else
-      text <- rep_len("Added result", k.all)
+      chklength(text, n.type)
+    #
+    dat <- data.frame(type,
+                      TE, se, lower, upper, statistic, pval, df,
+                      method, method.ci, text)
+    #
+    # Transform added results
+    #
+    for (i in seq_len(nrow(dat))) {
+      if (dat$type != "tau2") {
+        dat$TE[i] <- transf(dat$TE[i], x$sm, x$func.transf, x$args.transf)
+        dat$lower[i] <- transf(dat$lower[i], x$sm, x$func.transf, x$args.transf)
+        dat$upper[i] <- transf(dat$upper[i], x$sm, x$func.transf, x$args.transf)
+      }
+    }
   }
-
-  
-  ##
-  ##
-  ## (3) Transform added results
-  ##
-  ##
-  
-  if (!transf) {
-    TE <- transf(TE, x$sm, x$func.transf, x$args.transf)
-    lower <- transf(lower, x$sm, x$func.transf, x$args.transf)
-    upper <- transf(upper, x$sm, x$func.transf, x$args.transf)
-  }
   
   
   ##
   ##
-  ## (4) Add results
+  ## (3) Add results
   ##
   ##
   
-  j.c <- j.r <- j.p <- 0
-  ##
-  for (i in seq_along(type)) {
-    if (type[i] == "common") {
-      j.c <- j.c + 1
-      ##
+  init.random <- res$random
+  #
+  j.t <- 0
+  #
+  for (i in seq_len(nrow(dat))) {
+    if (dat$type[i] == "common") {
       if (!res$common)
         res$w.common[!is.na(res$w.common)] <- NA
-      ##
+      #
       res$TE.common <-
-        c(if (res$common) res$TE.common, TE[i])
+        c(if (res$common) res$TE.common, dat$TE[i])
+      res$seTE.common <-
+        c(if (res$common) res$seTE.common, dat$se[i])
       res$lower.common <-
-        c(if (res$common) res$lower.common, lower[i])
+        c(if (res$common) res$lower.common, dat$lower[i])
       res$upper.common <-
-        c(if (res$common) res$upper.common, upper[i])
+        c(if (res$common) res$upper.common, dat$upper[i])
       res$statistic.common <-
-        c(if (res$common) res$statistic.common, statistic[i])
+        c(if (res$common) res$statistic.common, dat$statistic[i])
       res$pval.common <-
-        c(if (res$common) res$pval.common, pval[i])
+        c(if (res$common) res$pval.common, dat$pval[i])
+      #
+      res$method <-
+        c(if (res$common) res$method, dat$method[i])
+      res$method.common.ci <-
+        c(if (res$common) res$method.common.ci, dat$method.ci[i])
+      #
       res$text.common <-
-        c(if (res$common) res$text.common, text[i])
-      ##
-      res$method <- c(if (res$common) res$method, method.common[j.c])
+        c(if (res$common) res$text.common, dat$text[i])
       ##
       res$common <- TRUE
       res$overall <- TRUE
     }
     ##
-    if (type[i] == "random") {
-      j.r <- j.r + 1
-      ##
+    if (dat$type[i] == "random") {
       if (!res$random)
         res$w.random[!is.na(res$w.random)] <- NA
-      ##
+      #
       res$TE.random <-
-        c(if (res$random) res$TE.random, TE[i])
+        c(if (res$random) res$TE.random, dat$TE[i])
       res$seTE.random <-
-        c(if (res$random) res$seTE.random, NA)
+        c(if (res$random) res$seTE.random, dat$se[i])
       res$lower.random <-
-        c(if (res$random) res$lower.random, lower[i])
+        c(if (res$random) res$lower.random, dat$lower[i])
       res$upper.random <-
-        c(if (res$random) res$upper.random, upper[i])
+        c(if (res$random) res$upper.random, dat$upper[i])
       res$statistic.random <-
-        c(if (res$random) res$statistic.random, statistic[i])
+        c(if (res$random) res$statistic.random, dat$statistic[i])
       res$pval.random <-
-        c(if (res$random) res$pval.random, pval[i])
-      res$text.random <-
-        c(if (res$random) res$text.random, text[i])
-      ##
-      res$method.random <-
-        c(if (res$random) res$method.random, method.random[j.r])
-      res$method.tau <-
-        c(if (res$random) res$method.tau, method.tau[j.r])
-      res$method.random.ci <-
-        c(if (res$random) res$method.random.ci, method.random.ci[j.r])
+        c(if (res$random) res$pval.random, dat$pval[i])
       res$df.random <-
-        c(if (res$random) res$df.random, NA)
-      ##
+        c(if (res$random) res$df.random, dat$df[i])
+      #
+      res$method.random <-
+        c(if (res$random) res$method.random, dat$method[i])
+      res$method.random.ci <-
+        c(if (res$random) res$method.random.ci, dat$method.ci[i])
+      #
+      res$text.random <-
+        c(if (res$random) res$text.random, dat$text[i])
+      #
       res$random <- TRUE
       res$overall <- TRUE
     }
-    ##
-    if (type[i] == "prediction") {
-      j.p <- j.p + 1
-      ##
+    #
+    if (dat$type[i] == "prediction") {
+      res$seTE.predict <-
+        c(if (res$prediction) res$seTE.predict, dat$se[i])
       res$lower.predict <-
-        c(if (res$prediction) res$lower.predict, lower[i])
+        c(if (res$prediction) res$lower.predict, dat$lower[i])
       res$upper.predict <-
-        c(if (res$prediction) res$upper.predict, upper[i])
-      res$text.predict <-
-        c(if (res$prediction) res$text.predict, text[i])
-      ##
+        c(if (res$prediction) res$upper.predict, dat$upper[i])
+      res$df.prediction <-
+        c(if (res$prediction) res$df.predict, dat$df[i])
+      #
       res$method.predict <-
-        c(if (res$prediction) res$method.predict, method.predict[j.p])
-      ##
+        c(if (res$prediction) res$method.predict, dat$method[i])
+      res$method.predict.ci <-
+        c(if (res$prediction) res$method.predict.ci, dat$method.ci[i])
+      #
+      res$text.predict <-
+        c(if (res$prediction) res$text.predict, dat$text[i])
+      #
       res$prediction <- TRUE
       res$overall <- TRUE
     }
+    #
+    if (dat$type[i] == "tau2") {
+      j.t <- j.t + 1
+      #
+      sel.t.i <- res$random & ((is.meta & (init.random & j.t > 1)) | !is.meta)
+      #
+      res$tau2 <- c(if (sel.t.i) res$tau2, dat$TE[i])
+      res$se.tau2 <- c(if (sel.t.i) res$se.tau2, dat$se[i])
+      res$lower.tau2 <- c(if (sel.t.i) res$lower.tau2, dat$lower[i])
+      res$upper.tau2 <- c(if (sel.t.i) res$upper.tau2, dat$upper[i])
+      #
+      res$method.tau <- c(if (sel.t.i) res$method.tau, dat$method[i])
+      res$method.tau.ci <- c(if (sel.t.i) res$method.tau.ci, dat$method.ci[i])
+      #
+      if (!is.na(dat$phi[i]))
+        res$phi <- c(if (sel.t.i) res$phi, dat$phi[i])
+      #
+      res$random <- TRUE
+    }
   }
-  ##
+  #
+  # Change results for between-study standard deviation
+  #
+  res$tau <- sqrt(res$tau2)
+  res$lower.tau <- sqrt(res$lower.tau2)
+  res$upper.tau <- sqrt(res$upper.tau2)
+  #
+  if (all(is.na(res$phi)))
+    res$phi <- NULL
+  #
   class(res) <- c(class(res), "metaadd")
-  
   res
 }

@@ -20,6 +20,7 @@ metacr(
   tau.common = FALSE,
   method.I2 = gs("method.I2"),
   level.ma = gs("level.ma"),
+  method.common.ci = "classic",
   method.random.ci = "classic",
   adhoc.hakn.ci = gs("adhoc.hakn.ci"),
   level.predict = gs("level.predict"),
@@ -46,6 +47,8 @@ metacr(
   title,
   complab,
   outclab,
+  label.left,
+  label.right,
   col.label.left = gs("col.label.left"),
   col.label.right = gs("col.label.right"),
   keepdata = gs("keepdata"),
@@ -104,6 +107,10 @@ used to estimate the heterogeneity statistic I\eqn{^2}. Either
 
 \item{level.ma}{The level used to calculate confidence intervals
 for meta-analysis estimates.}
+
+\item{method.common.ci}{A character string indicating which method
+is used to calculate confidence interval and test statistic for
+common effect estimate (see \code{\link{meta-package}}).}
 
 \item{method.random.ci}{A character string indicating which method
 is used to calculate confidence interval and test statistic for
@@ -191,6 +198,10 @@ random effects model.}
 \item{complab}{Comparison label.}
 
 \item{outclab}{Outcome label.}
+
+\item{label.left}{Graph label on left side of null effect in forest plot.}
+
+\item{label.right}{Graph label on right side of null effect in forest plot.}
 
 \item{col.label.left}{The colour of the graph label on the left side of
 the null effect.}

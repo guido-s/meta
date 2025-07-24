@@ -50,7 +50,6 @@ taudat <- function(method.tau, detail.tau,
                    tau, lower.tau, upper.tau, print.tau.ci, digits.tau,
                    tau2, lower.tau2, upper.tau2, print.tau2.ci, digits.tau2,
                    sign.lower, sign.upper) {
-  
   dat <- data.frame(method.tau, names = detail.tau, tau, tau2)
   ##
   ## In order to use duplicated()
@@ -185,6 +184,25 @@ qdat <- function(Q, df.Q, pval.Q, hetlabel, text.common) {
 collapse <- function(x, quote = '"', collapse = ", ", sort = FALSE)
   paste0(paste0(quote, if (sort) sort(x) else x, quote, collapse = collapse))
 
+collapse2 <- function(x, quote = "", collapse = ", ", br1 = "", br2 = "",
+                      sort = FALSE, max.len = 5) {
+  if (sort)
+    x <- sort(x)
+  #
+  if (length(x) == 0)
+    res <- ""
+  else if (length(x) == 1)
+    res <- x
+  else {
+    if (is.numeric(x) && (all(diff(x) == 1) & length(x) > max.len))
+      res <-
+        paste0(br1, min(x, na.rm = TRUE), ", ..., ", max(x, na.rm = TRUE), br2)
+    else
+      res <- paste0(br1, paste(x, collapse = collapse), br2)
+  }
+  #
+  res
+}
 
 condense <- function(x, var)
   unlist(lapply(x, "[[" , var))
@@ -530,6 +548,16 @@ setVar <- function(var = NULL, arg = NULL) {
 
 second <- function(x) x[2]
 
+setOptionDepr <- function(x, new, old, func, ...) {
+  newval <- do.call(func, list(argname = new, args = x, ...))
+  oldval <- do.call(func, list(argname = old, args = x, ...))
+  #
+  if (is.na(newval) & !is.na(oldval))
+    setOption(new, x[[oldval]])
+  #
+  invisible(NULL)
+}
+
 
 
 
@@ -544,6 +572,7 @@ argslist.internal <-
     "ci4cont", "ci4prop", "ci4rate",
     "meth4bin", "meth4inc", "meth4prop", "meth4rate",
     "meth4tau", "meth4tau.ci", "meth4i2",
+    "meth4common.ci",
     "meth4random.ci", "meth4pi",
     "adhoc4hakn.ci", "adhoc4hakn.pi",
     "meth4bias", "meth4bias.old",
@@ -578,6 +607,7 @@ setOption("meth4rate", c("Inverse", "GLMM"))
 setOption("meth4tau", c("DL", "PM", "REML", "ML", "HS", "SJ", "HE", "EB"))
 setOption("meth4tau.ci", c("QP", "BJ", "J", "PL", ""))
 setOption("meth4i2", c("Q", "tau2"))
+setOption("meth4common.ci", c("classic", "IVhet"))
 setOption("meth4random.ci", c("classic", "HK", "KR"))
 setOption("meth4pi",
           c("V", "HTS", "HK", "HK-PR", "KR", "KR-PR", "NNF", "S", ""))
@@ -593,7 +623,7 @@ setOption("tool4rob",
           c("RoB1", "RoB2", "RoB2-cluster", "RoB2-crossover",
             "ROBINS-I", "ROBINS-E"))
 ##
-setOption("meth4incr", c("only0", "if0all", "all"))
+setOption("meth4incr", c("only0", "if0all", "all", "user"))
 #
 setOption("special.characters", c("+", ".", "&", "$", "#", "|", "*", "^"))
 #
@@ -604,7 +634,7 @@ setOption("minor.update", 6)
 ##
 argslist <-
   c("level", "level.ma", "common", "random",
-    "method.random.ci", "method.predict",
+    "method.common.ci", "method.random.ci", "method.predict",
     "adhoc.hakn.ci", "adhoc.hakn.pi",
     "method.tau", "method.tau.ci", "level.hetstat", "tau.common",
     "method.I2",
@@ -634,7 +664,7 @@ argslist <-
     "digits.prop", "digits.weight",
     "digits.pval", "digits.pval.Q",
     "digits.forest", "digits.TE.forest",
-    "digits.df",
+    "digits.df", "digits.cid",
     "scientific.pval", "big.mark", "zero.pval", "JAMA.pval",
     "details",
     "print.tau2", "print.tau2.ci", "print.tau", "print.tau.ci",
@@ -645,8 +675,9 @@ argslist <-
     "lty.common", "lty.random", "col.common", "col.random",
     "sort.subgroup",
     "pooled.events", "pooled.times", "study.results",
-    "lower.equi", "upper.equi", "lty.equi", "col.equi", "fill.equi",
-    "fill",
+    "cid", "cid.below.null", "cid.above.null", "lty.cid", "col.cid", "fill.cid",
+    "cid.pooled.only",
+    "fill", "fill.equi",
     "leftcols", "rightcols", "leftlabs", "rightlabs", 
     "label.e.attach", "label.c.attach",
     "bottom.lr",
@@ -690,7 +721,8 @@ argslist <-
 args.depr <- c("fixed", "comb.fixed", "comb.random", "level.comb",
                "hakn", "adhoc.hakn",
                "digits.zval", "print.byvar", "byseparator",
-               "addincr", "allincr")
+               "addincr", "allincr",
+               "lower.equi", "upper.equi", "lty.equi", "col.equi")
 #
 setOption("argslist", c(argslist, args.depr))
 #
@@ -707,6 +739,7 @@ setOption("fixed", TRUE)
 setOption("comb.fixed", TRUE)
 setOption("random", TRUE)
 setOption("comb.random", TRUE)
+setOption("method.common.ci", "classic")
 setOption("method.random.ci", "classic")
 setOption("hakn", FALSE)
 setOption("adhoc.hakn", "")
@@ -764,6 +797,7 @@ setOption("digits.weight", 1)
 setOption("digits.pval", 4)
 setOption("digits.pval.Q", 4)
 setOption("digits.df", 4)
+setOption("digits.cid", 4)
 setOption("scientific.pval", FALSE)
 setOption("big.mark", "")
 setOption("zero.pval", TRUE)
@@ -855,13 +889,21 @@ setOption("sort.subgroup", FALSE)
 setOption("pooled.events", FALSE)
 setOption("pooled.times", FALSE)
 setOption("study.results", TRUE)
-##
+#
+setOption("cid", NA)
+setOption("cid.below.null", NA)
+setOption("cid.above.null", NA)
+setOption("lty.cid", 1)
+setOption("col.cid", "blue")
+setOption("fill.cid", "transparent")
+setOption("cid.pooled.only", FALSE)
+#
 setOption("lower.equi", NA)
 setOption("upper.equi", NA)
 setOption("lty.equi", 1)
 setOption("col.equi", "blue")
 setOption("fill.equi", "transparent")
-##
+#
 setOption("fill", "transparent")
 ##
 setOption("leftcols", NULL)

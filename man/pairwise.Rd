@@ -2,8 +2,8 @@
 % Please edit documentation in R/pairwise.R
 \name{pairwise}
 \alias{pairwise}
-\title{Transform meta-analysis data from two arm-based formats into
-contrast-based format}
+\title{Transform meta-analysis data from two arm-based formats into contrast-based
+format}
 \usage{
 pairwise(
   treat,
@@ -18,8 +18,9 @@ pairwise(
   dose,
   data = NULL,
   studlab,
-  incr = gs("incr"),
   method = "Inverse",
+  sm = NULL,
+  incr = gs("incr"),
   method.incr = gs("method.incr"),
   allstudies = gs("allstudies"),
   reference.group,
@@ -70,12 +71,14 @@ information.}
 
 \item{studlab}{A vector with study labels (optional).}
 
+\item{method}{A character string indicating which method is to be
+used to calculate treatment estimates (see Details).}
+
+\item{sm}{A character string indicating which summary measure is to be
+used to calculate treatment estimates (see Details).}
+
 \item{incr}{A numerical value which is added to cell frequencies
 for studies with a zero cell count, see Details.}
-
-\item{method}{A character string indicating which method is to be
-used to calculate treatment estimates. Either \code{"Inverse"}
-or \code{"Peto"} (only for binary outcome), can be abbreviated.}
 
 \item{method.incr}{A character string indicating which continuity
 correction method should be used (\code{"only0"},
@@ -93,8 +96,8 @@ if argument is missing).}
 pairwise comparisons or only comparisons with the study-specific
 reference group should be kept ('basic parameters').}
 
-\item{sep.ag}{A character used as separator
-between agent in dose to create treatment labels.}
+\item{sep.ag}{A character used as separator between agent and dose to
+create treatment labels.}
 
 \item{varnames}{Character vector of length 2 with the variable names for the
 treatment estimate and its standard error; by default, "TE" and "seTE".}
@@ -165,9 +168,10 @@ All variables from the original dataset are also part of the output
 dataset; see Details.
 }
 \description{
-This function transforms data that are given in wide or long
-arm-based format (e.g. input format for WinBUGS) to a
-contrast-based format that is needed, for example, as input to R function
+This function transforms data that are given in wide or long arm-based
+format (e.g. input format for WinBUGS) to a contrast-based format that is
+needed as input to R functions \code{\link{metabin}}, \code{\link{metacont}},
+\code{\link{metainc}}, \code{\link{metagen}}, or
 \code{\link[netmeta]{netmeta}} from R package \bold{netmeta}. The function
 can transform data with binary, continuous, or generic outcomes as well as
 incidence rates from arm-based to contrast-based format.
@@ -175,11 +179,12 @@ incidence rates from arm-based to contrast-based format.
 \details{
 The pairwise function transforms data given in (wide or long)
 arm-based format into the contrast-based format which consists of
-\emph{pairwise} comparisons and is needed, for example, as input to the
-\code{\link[netmeta]{netmeta}} function.
+\emph{pairwise} comparisons and which is needed as input to R functions
+\code{\link{metabin}}, \code{\link{metacont}}, \code{\link{metainc}},
+\code{\link{metagen}}, or \code{\link[netmeta]{netmeta}} from R package
+\bold{netmeta}.
 
 The pairwise function can transform data with binary outcomes
-(using the \code{\link{metabin}} function from R package meta),
 continuous outcomes (\code{\link{metacont}} function), incidence
 rates (\code{\link{metainc}} function), and generic outcomes
 (\code{\link{metagen}} function). Depending on the outcome, the
@@ -190,6 +195,12 @@ following arguments are mandatory:
 \item treat, event, time (see \code{\link{metainc}});
 \item treat, TE, seTE (see \code{\link{metagen}}).
 }
+
+(using the \code{\link{metabin}} function from R package meta),
+
+Admissible values for arguments \code{method} and \code{sm} are outcome
+specific; see help pages of R functions \code{\link{metabin}},
+\code{\link{metacont}}, \code{\link{metainc}}, and \code{\link{metagen}}.
 
 Argument \code{treat} is mandatory to identify the individual
 treatments. The other arguments contain outcome specific
@@ -214,11 +225,9 @@ In the long arm-based format, argument \code{studlab} is mandatory
 to identify rows contributing to individual studies.
 
 Additional arguments for meta-analysis functions can be provided
-using argument '\dots'. The most important argument is \code{sm}
-defining the summary measure. More information on this and other
-arguments is given in the help pages of R functions
+using argument '\dots'; see help pages of R functions
 \code{\link{metabin}}, \code{\link{metacont}},
-\code{\link{metainc}}, and \code{\link{metagen}}, respectively.
+\code{\link{metainc}}, and \code{\link{metagen}}.
 
 For standardised mean differences (argument \code{sm = "SMD"}),
 equations (4) and (5) in Crippa & Orsini (2016) are used to
@@ -301,12 +310,12 @@ which can be used to conduct pairwise meta-analyses for all
 comparisons with direct evidence in a network meta-analysis.
 }
 \examples{
-p0 <- pairwise(studlab = study, treat = treatment,
+pw0 <- pairwise(studlab = study, treat = treatment,
   n = ni, mean = mi, sd = sdi, data = dat.senn2013,
   append = c("study", "comment"))
-head(p0)
+head(pw0)
 # Meta-analysis of studies comparing metformin to placebo
-metagen(p0, subset = treat1 == "metformin" & treat2 == "placebo")
+metagen(pw0, subset = treat1 == "metformin" & treat2 == "placebo")
 
 \dontrun{
 # Use pairwise() to run network meta-analyses
@@ -317,16 +326,16 @@ if (requireNamespace("netmeta", quietly = TRUE)) {
  #
  Franchini2012 <- dat.franchini2012
  # Transform data from arm-based format to contrast-based format
- p1 <- pairwise(list(Treatment1, Treatment2, Treatment3),
+ pw1 <- pairwise(list(Treatment1, Treatment2, Treatment3),
    n = list(n1, n2, n3),
    mean = list(y1, y2, y3), sd = list(sd1, sd2, sd3),
    data = Franchini2012, studlab = Study)
- p1
+ pw1
 
  # Conduct network meta-analysis
  library("netmeta")
  #
- net1 <- netmeta(p1)
+ net1 <- netmeta(pw1)
  net1
 
  # Draw network graphs
@@ -350,23 +359,23 @@ if (requireNamespace("netmeta", quietly = TRUE)) {
  # Transform data from arm-based format to contrast-based format
  # using means and standard errors (note, argument 'sm' has to be
  # used to specify that argument 'TE' is a mean difference)
- p2 <- pairwise(list(Treatment1, Treatment2, Treatment3),
+ pw2 <- pairwise(list(Treatment1, Treatment2, Treatment3),
    TE = list(y1, y2, y3), seTE = list(se1, se2, se3),
    n = list(n1, n2, n3),
    data = Franchini2012, studlab = Study,
    sm = "MD")
- p2
+ pw2
 
- # Compare pairwise objects p1 (based on continuous outcomes) and p2
+ # Compare pairwise objects pw1 (based on continuous outcomes) and pw2
  # (based on generic outcomes)
  #
  all.equal(
-   p1[, c("TE", "seTE", "studlab", "treat1", "treat2")],
-   p2[, c("TE", "seTE", "studlab", "treat1", "treat2")])
+   pw1[, c("TE", "seTE", "studlab", "treat1", "treat2")],
+   pw2[, c("TE", "seTE", "studlab", "treat1", "treat2")])
 
  # Same result as network meta-analysis based on continuous outcomes
  # (object net1)
- net2 <- netmeta(p2)
+ net2 <- netmeta(pw2)
  net2
 
  # Example with binary data
@@ -377,15 +386,15 @@ if (requireNamespace("netmeta", quietly = TRUE)) {
  # for odds ratio as risk ratio (sm = "RR") is default of metabin
  # function.
  #
- p3 <- pairwise(list(treat1, treat2, treat3),
+ pw3 <- pairwise(list(treat1, treat2, treat3),
    list(event1, event2, event3), list(n1, n2, n3),
    data = smokingcessation,
    sm = "OR")
- p3
+ pw3
 
  # Conduct network meta-analysis
  #
- net3 <- netmeta(p3)
+ net3 <- netmeta(pw3)
  net3
 
  # Example with incidence rates
@@ -394,17 +403,17 @@ if (requireNamespace("netmeta", quietly = TRUE)) {
 
  # Transform data from arm-based format to contrast-based format
  #
- p4 <- pairwise(list(treat1, treat2, treat3),
+ pw4 <- pairwise(list(treat1, treat2, treat3),
    list(d1, d2, d3), time = list(years1, years2, years3),
    studlab = ID,
    data = dietaryfat)
- p4
+ pw4
 
  # Conduct network meta-analysis using incidence rate ratios (sm =
  # "IRR"). Note, the argument 'sm' is not necessary as this is the
  # default in R function metainc called internally.
  #
- net4 <- netmeta(p4, sm = "IRR")
+ net4 <- netmeta(pw4, sm = "IRR")
  summary(net4)
 
  # Example with long data format
@@ -414,12 +423,12 @@ if (requireNamespace("netmeta", quietly = TRUE)) {
  # measure; by default the risk ratio is used in the metabin
  # function called internally.
  #
- p5 <- pairwise(treatment, event = r, n = N,
+ pw5 <- pairwise(treatment, event = r, n = N,
    studlab = author, data = dat.woods2010, sm = "OR")
- p5
+ pw5
 
  # Conduct network meta-analysis
- net5 <- netmeta(p5)
+ net5 <- netmeta(pw5)
  net5
 }
 }

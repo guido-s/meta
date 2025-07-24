@@ -15,10 +15,15 @@ metainc(
   exclude = NULL,
   cluster = NULL,
   rho = 0,
+  weights = NULL,
+  weights.common = weights,
+  weights.random = weights,
   method = if (sm == "IRSD") "Inverse" else "MH",
   sm = gs("sminc"),
   incr = gs("incr"),
   method.incr = gs("method.incr"),
+  incr.e = if (length(incr) > 1) incr else NULL,
+  incr.c = if (length(incr) > 1) incr else NULL,
   model.glmm = "UM.FS",
   level = gs("level"),
   common = gs("common"),
@@ -34,8 +39,10 @@ metainc(
   tau.preset = NULL,
   TE.tau = NULL,
   tau.common = gs("tau.common"),
+  detail.tau = NULL,
   method.I2 = gs("method.I2"),
   level.ma = gs("level.ma"),
+  method.common.ci = gs("method.common.ci"),
   method.random.ci = gs("method.random.ci"),
   adhoc.hakn.ci = gs("adhoc.hakn.ci"),
   level.predict = gs("level.predict"),
@@ -107,6 +114,12 @@ meta-analysis model.}
 
 \item{rho}{Assumed correlation of estimates within a cluster.}
 
+\item{weights}{A single numeric or vector with user-specified weights.}
+
+\item{weights.common}{User-specified weights (common effect model).}
+
+\item{weights.random}{User-specified weights (random effects model).}
+
 \item{method}{A character string indicating which method is to be
 used for pooling of studies. One of \code{"MH"},
 \code{"Inverse"}, \code{"Cochran"}, or \code{"GLMM"} can be
@@ -117,11 +130,16 @@ abbreviated.}
 be used for pooling of studies, see Details.}
 
 \item{incr}{A numerical value which is added to cell frequencies
-for studies with a zero cell count, see Details.}
+for studies with a zero cell count or a numeric vector with the continuity
+correction for each study, see Details.}
 
 \item{method.incr}{A character string indicating which continuity
 correction method should be used (\code{"only0"},
-\code{"if0all"}, or \code{"all"}), see Details.}
+\code{"if0all"}, \code{"all"}, or \code{"user"}), see Details.}
+
+\item{incr.e}{Continuity correction in experimental group, see Details.}
+
+\item{incr.c}{Continuity correction in control group, see Details.}
 
 \item{model.glmm}{A character string indicating which GLMM should
 be used. One of \code{"UM.FS"}, \code{"UM.RS"}, and
@@ -169,6 +187,8 @@ between-study variance tau-squared.}
 \item{tau.common}{A logical indicating whether tau-squared should
 be the same across subgroups.}
 
+\item{detail.tau}{Detail on between-study variance estimate.}
+
 \item{method.I2}{A character string indicating which method is
 used to estimate the heterogeneity statistic I\eqn{^2}. Either
 \code{"Q"} or \code{"tau2"}, can be abbreviated
@@ -176,6 +196,10 @@ used to estimate the heterogeneity statistic I\eqn{^2}. Either
 
 \item{level.ma}{The level used to calculate confidence intervals
 for meta-analysis estimates.}
+
+\item{method.common.ci}{A character string indicating which method
+is used to calculate confidence interval and test statistic for
+common effect estimate (see \code{\link{meta-package}}).}
 
 \item{method.random.ci}{A character string indicating which method
 is used to calculate confidence interval and test statistic for
@@ -406,7 +430,7 @@ model (with random treatment effects).
 
 \subsection{Continuity correction}{
 
-Three approaches are available to apply a continuity correction:
+Four approaches are available to apply a continuity correction:
 \itemize{
 \item Only studies with a zero cell count (\code{method.incr =
   "only0", default})
@@ -414,6 +438,8 @@ Three approaches are available to apply a continuity correction:
   (\code{method.incr = "if0all"})
 \item All studies irrespective of zero cell counts
   (\code{method.incr = "all"})
+\item Use values provided in arguments \code{incr.e} and \code{incr.c}
+  (\code{method.incr = "user"})
 }
 
 For studies with a zero cell count, by default, 0.5 is added to all
