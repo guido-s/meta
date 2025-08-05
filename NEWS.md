@@ -1,5 +1,16 @@
 ## meta, version 8.2-0 (2025-07-23)
 
+### Bug fixes
+
+* forest.metacum() / forest.metainf():
+  - use 'method.tau = "DL"' in internal calls to metagen() to get rid of
+    error "Fisher scoring algorithm did not converge."
+    (results for metacum() or metainf() are not changed by the use of the
+     DL estimator)
+
+
+## meta, version 8.2-0 (2025-07-23)
+
 ### Major changes
 
 * Inverse variance heterogeneity (IVhet) method by
