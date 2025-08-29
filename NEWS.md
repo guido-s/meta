@@ -1,4 +1,4 @@
-## meta, version 8.2-0 (2025-07-23)
+## meta, version 8.2-1 (2025-mm-dd)
 
 ### Bug fixes
 
@@ -8,6 +8,8 @@
     (results for metacum() or metainf() are not changed by the use of the
      DL estimator)
 
+* metaadd():
+  - fix some bugs
 
 ## meta, version 8.2-0 (2025-07-23)
 

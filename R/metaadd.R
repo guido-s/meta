@@ -89,8 +89,7 @@ metaadd <- function(x, type = NULL,
                     #
                     TE = NA, lower = NA, upper = NA,
                     #
-                    statistic = NA, pval = NA, df = NA,
-                    se = NA,
+                    statistic = NA, pval = NA, df = NA, se = NA,
                     #
                     method = "", method.ci = "",
                     #
@@ -126,6 +125,10 @@ metaadd <- function(x, type = NULL,
   #
   missing.method <- missing(method)
   missing.method.ci <- missing(method.ci)
+  #
+  if (missing.type & missing.TE & missing.lower & missing.upper &
+      missing.statistic & missing.pval & missing.df & missing.se)
+    return(x)
   #
   missing.text <- missing(text)
   #
@@ -265,7 +268,9 @@ metaadd <- function(x, type = NULL,
   else {
     is.meta <- FALSE
     #
-    type <- catch("type", mc, data, sfsp)
+    if (!missing.type)
+      type <- catch("type", mc, data, sfsp)
+    type <- replaceNULL(type, "")
     type <- setchar(type, c("common", "random", "prediction", "tau2"))
     #
     if (any(type %in% c("common", "random", "tau2")))
@@ -282,69 +287,49 @@ metaadd <- function(x, type = NULL,
       stop("Argument 'upper' must be provided.",
            call. = FALSE)
     #
-    TE <- catch("TE", mc, data, sfsp)
-    lower <- catch("lower", mc, data, sfsp)
-    upper <- catch("upper", mc, data, sfsp)
-    #
-    statistic <- catch("statistic", mc, data, sfsp)
-    pval <- catch("pval", mc, data, sfsp)
-    df <- catch("df", mc, data, sfsp)
-    #
-    method <- catch("method", mc, data, sfsp)
-    method.ci <- catch("method.ci", mc, data, sfsp)
-    #
-    text <- catch("text", mc, data, sfsp)
-    #
-    if (length(type) == 1 & length(lower) > 1)
-      type <- rep_len(type, length(lower))
-    #
-    n.type <- length(type)
-    #
     if (!missing.TE) {
+      TE <- catch("TE", mc, data, sfsp)
       chknumeric(TE)
-      chklength(TE, n.type, name = "type")
     }
-    ##
-    chknumeric(lower)
-    chklength(lower, n.type, name = "type")
-    ##
-    chknumeric(upper)
-    chklength(upper, n.type, name = "type")
-    ##
+    if (!missing.lower) {
+      lower <- catch("lower", mc, data, sfsp)
+      chknumeric(lower)
+    }
+    if (!missing.upper) {
+      upper <- catch("upper", mc, data, sfsp)
+      chknumeric(upper)
+    }
+    #
     if (!missing.statistic) {
+      statistic <- catch("statistic", mc, data, sfsp)
       chknumeric(statistic)
-      chklength(statistic, n.type, name = "type")
     }
-    #
     if (!missing.pval) {
+      pval <- catch("pval", mc, data, sfsp)
       chknumeric(pval)
-      chklength(pval, n.type, name = "type")
     }
-    #
     if (!missing.df) {
+      df <- catch("df", mc, data, sfsp)
       chknumeric(df)
-      chklength(df, n.type, name = "type")
     }
-    #
     if (!missing.se) {
+      se <- catch("se", mc, data, sfsp)
       chknumeric(se, min = 0)
-      chklength(se, n.type, name = "type")
     }
     #
     if (!missing.method) {
+      method <- catch("method", mc, data, sfsp)
       chkchar(method)
-      chklength(method, n.type, name = "type")
     }
-    #
     if (!missing.method.ci) {
+      method.ci <- catch("method.ci", mc, data, sfsp)
       chkchar(method.ci)
-      chklength(method.ci, n.type, name = "type")
     }
     #
-    if (length(text) == 1 & n.type > 1)
-      text <- rep_len(text, n.type)
-    else
-      chklength(text, n.type)
+    if (!missing.text) {
+      text <- catch("text", mc, data, sfsp)
+      chkchar(text)
+    }
     #
     dat <- data.frame(type,
                       TE, se, lower, upper, statistic, pval, df,
@@ -353,7 +338,7 @@ metaadd <- function(x, type = NULL,
     # Transform added results
     #
     for (i in seq_len(nrow(dat))) {
-      if (dat$type != "tau2") {
+      if (!transf && dat$type[i] != "tau2") {
         dat$TE[i] <- transf(dat$TE[i], x$sm, x$func.transf, x$args.transf)
         dat$lower[i] <- transf(dat$lower[i], x$sm, x$func.transf, x$args.transf)
         dat$upper[i] <- transf(dat$upper[i], x$sm, x$func.transf, x$args.transf)
