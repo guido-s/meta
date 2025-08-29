@@ -184,11 +184,13 @@
 #' \bold{Argument} \tab \bold{Method} \cr
 #' \code{method.common.ci = "classic"} \tab Based on standard normal
 #'   quantile \cr
-#' \code{method.common.ci = "IVhet"} \tab Method by Doi et al. (2015) \cr
+#' \code{method.common.ci = "IVhet"} \tab Method by Doi et al. (2015) going
+#'   back to Henmi and Copas (2010) \cr
 #' }
 #' 
-#' The inverse variance heterogeneity method by Doi et al. (2015) is only
-#' available if argument \code{method = "Inverse"}.
+#' The inverse variance heterogeneity method (IVhet) uses the weights under the
+#' random effects model to calculate the confidence interval. This method is
+#' only available if argument \code{method = "Inverse"}.
 #' }
 #' 
 #' \subsection{Confidence interval for random effects estimate}{
@@ -541,6 +543,12 @@
 #' Hedges LV & Olkin I (1985):
 #' \emph{Statistical methods for meta-analysis}.
 #' San Diego, CA: Academic Press
+#' 
+#' Henmi M & Copas JB (2010):
+#' Confidence intervals for random effects meta-analysis and
+#' robustness to publication bias.
+#' \emph{Statistics in Medicine},
+#' \bold{29}, 2969--83
 #' 
 #' Higgins JPT & Thompson SG (2002):
 #' Quantifying heterogeneity in a meta-analysis.

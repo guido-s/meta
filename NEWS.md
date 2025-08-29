@@ -1,4 +1,4 @@
-## meta, version 8.2-1 (2025-mm-dd)
+## meta, version 8.2-1 (2025-08-29)
 
 ### Bug fixes
 
@@ -9,14 +9,17 @@
      DL estimator)
 
 * metaadd():
-  - fix some bugs
+  - fix some bugs introduced in **meta**, version 8.2-0
+
 
 ## meta, version 8.2-0 (2025-07-23)
 
 ### Major changes
 
 * Inverse variance heterogeneity (IVhet) method by
-  ([Doi et al. (2015)](https://doi.org/10.1016/j.cct.2015.05.009)) implemented
+  [Doi et al. (2015)](https://doi.org/10.1016/j.cct.2015.05.009) going
+  back to [Henmi and Copas (2010)](https://doi.org/10.1002/sim.4029)
+  implemented
 
 * User-defined weights can be provided in meta-analysis functions
 
