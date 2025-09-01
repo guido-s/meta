@@ -3,7 +3,7 @@ Official Git repository of R package **meta**
 
 [![License: GPL (>=2)](https://img.shields.io/badge/license-GPL-blue)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
 [![CRAN Version](https://www.r-pkg.org/badges/version/meta)](https://cran.r-project.org/package=meta)
-[![GitHub develop](https://img.shields.io/badge/develop-8.2--0-purple)](https://img.shields.io/badge/develop-8.2--0-purple)
+[![GitHub develop](https://img.shields.io/badge/develop-8.2--1-purple)](https://img.shields.io/badge/develop-8.2--1-purple)
 [![Monthly Downloads](https://cranlogs.r-pkg.org/badges/meta)](https://cranlogs.r-pkg.org/badges/meta)
 [![Total Downloads](https://cranlogs.r-pkg.org/badges/grand-total/meta)](https://cranlogs.r-pkg.org/badges/grand-total/meta)
 
@@ -34,7 +34,7 @@ User-friendly general package providing standard methods for meta-analysis and s
 install.packages("meta")
 ```
 
-### Current [![GitHub develop](https://img.shields.io/badge/develop-8.2--0-purple)](https://img.shields.io/badge/develop-8.2--0-purple) release on GitHub:
+### Current [![GitHub develop](https://img.shields.io/badge/develop-8.2--1-purple)](https://img.shields.io/badge/develop-8.2--1-purple) release on GitHub:
 
 Installation using R package
 [**remotes**](https://cran.r-project.org/package=remotes):

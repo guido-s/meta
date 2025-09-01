@@ -243,20 +243,19 @@
 #'
 #' Hedges (1981) calculated the exact bias in Cohen's d which is a
 #' ratio of gamma distributions with the degrees of freedom,
-#' i.e. total sample size minus two, as argument. By default (argument
-#' \code{exact.smd = FALSE}), an accurate approximation of this bias
-#' provided in Hedges (1981) is utilised for Hedges' g as well as its
-#' standard error; these approximations are also used in RevMan
-#' 5. Following Borenstein et al. (2009) these approximations are not
-#' used in the estimation of Cohen's d. White and Thomas (2005) argued
-#' that approximations are unnecessary with modern software and
-#' accordingly promote to use the exact formulae; this is possible
-#' using argument \code{exact.smd = TRUE}. For Hedges' g the exact
-#' formulae are used to calculate the standardised mean difference as
-#' well as the standard error; for Cohen's d the exact formula is only
-#' used to calculate the standard error. In typical applications (with
-#' sample sizes above 10), the differences between using the exact
-#' formulae and the approximation will be minimal.
+#' i.e. total sample size minus two, as parameter. In the 1980s and 1990s, the
+#' gamma distribution was not easily accessible in statistical software.
+#' Accordingly, an accurate approximation of the exact bias, also provided in
+#' Hedges (1981), was utilised for Hedges' g and its standard error in software
+#' like RevMan 5. White and Thomas (2005) argued that approximations are
+#' unnecessary with modern software and accordingly promoted to use the exact
+#' formulae which is the default in R function metacont
+#' (argument \code{exact.smd = TRUE}). For Hedges' g, the exact formulae are
+#' used to calculate the standardised mean difference as well as the standard
+#' error; for Cohen's d the exact formula is only used to calculate the standard
+#' error. In typical applications (with sample sizes above 10), the differences
+#' between using the exact formulae (\code{exact.smd = TRUE}) and the
+#' approximation (\code{exact.smd = FALSE}) will be minimal.
 #' 
 #' For Glass' delta, by default (argument \code{sd.glass =
 #' "control"}), the standard deviation in the control group
