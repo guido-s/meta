@@ -387,7 +387,9 @@ forest.metacum <- function(x,
                  null.effect = x$null.effect,
                  #
                  label.left = x$label.left,
-                 label.right = x$label.right)
+                 label.right = x$label.right,
+                 #
+                 method.tau = "DL")
     #
     m$lower <- lower[sel.pred]
     m$upper <- upper[sel.pred]
@@ -440,7 +442,9 @@ forest.metacum <- function(x,
                  null.effect = x$null.effect,
                  #
                  label.left = x$label.left,
-                 label.right = x$label.right)
+                 label.right = x$label.right,
+                 #
+                 method.tau = "DL")
     #
     m$lower <- lower
     m$upper <- upper

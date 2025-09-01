@@ -64,7 +64,7 @@ scientific notation and to suppress the calculation of confidence
 intervals for the between-study variance.
 
 The setting \code{"IVhet"} can be used for the inverse variance
-heterogeneity model (Doi et al., 2015).
+heterogeneity model (Henmi & Copas, 2010; Doi et al., 2015).
 
 The last settings use the default settings of R package
 \bold{meta}, version 4 and 7.0-0, respectively, or below.
@@ -359,6 +359,12 @@ Advances in the meta-analysis of heterogeneous clinical trials I:
 The inverse variance heterogeneity model.
 \emph{Contemporary Clinical Trials},
 \bold{45}, 130--8
+
+Henmi M & Copas JB (2010):
+Confidence intervals for random effects meta-analysis and
+robustness to publication bias.
+\emph{Statistics in Medicine},
+\bold{29}, 2969--83
 
 White IR, Thomas J (2005):
 Standardized mean differences in individually-randomized and

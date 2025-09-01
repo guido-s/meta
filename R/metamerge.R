@@ -1065,6 +1065,9 @@ metamerge <- function(meta1, meta2,
   res$model.glmm <-
     expandmerge(meta1$model.glmm, meta2$model.glmm,
                 ncom1, nran1, ncom2, nran2)
+  res$phi <-
+    expandmerge(meta1$phi, meta2$phi,
+                ncom1, nran1, ncom2, nran2)
   ##
   ## Additional arguments from metacont()
   ##

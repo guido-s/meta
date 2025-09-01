@@ -112,7 +112,7 @@ catmeth <- function(x,
   ##
     
   if (overall | metabind | metacum.metainf | by) {
-      
+    
     meth.ma <- meth[meth$model %in% selmod, , drop = FALSE]
     ##
     vars.ma <- c("model", "method")
