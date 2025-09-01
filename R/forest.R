@@ -179,10 +179,10 @@
 #' @param label.e Label to be used for experimental group in table
 #'   heading.
 #' @param label.c Label to be used for control group in table heading.
-#' @param label.e.attach A character specifying the column name where
-#'   label \code{label.e} should be attached to in table heading.
-#' @param label.c.attach A character specifying the column name where
-#'   label \code{label.c} should be attached to in table heading.
+#' @param label.e.attach A character string or vector specifying the column
+#'   name(s) where label \code{label.e} should be attached to in table heading.
+#' @param label.c.attach A character string or vector specifying the column
+#'   name(s) where label \code{label.c} should be attached to in table heading.
 #' @param label.left Graph label on left side of null effect.
 #' @param label.right Graph label on right side of null effect.
 #' @param bottom.lr A logical indicating whether labels on right and
@@ -523,6 +523,10 @@
 #'   columns on right side of forest plot (possible values: "left",
 #'   "right", "center"). Can be of same length as number of additional
 #'   columns on right side of forest plot.
+#' @param just.label.e Justification of text for experimental group in table
+#'   heading (possible values: "left", "right", "center").
+#' @param just.label.c Justification of text for control group in table
+#'   heading (possible values: "left", "right", "center").
 #' @param bmj.text A character string used in the plot with BMJ layout
 #'   to label the group specific information.
 #' @param bmj.xpos A numeric specifying the horizontal position of the
@@ -1572,6 +1576,8 @@ forest.meta <- function(x,
                         just.addcols = gs("just.addcols"),
                         just.addcols.left = just.addcols,
                         just.addcols.right = just.addcols,
+                        just.label.e = just,
+                        just.label.c = just,
                         #
                         bmj.text = NULL,
                         bmj.xpos = 0,
@@ -2760,6 +2766,8 @@ forest.meta <- function(x,
   just.addcols.left <- setchar(just.addcols.left, c("right", "center", "left"))
   just.addcols.right <-
     setchar(just.addcols.right, c("right", "center", "left"))
+  just.label.e <- setchar(just.label.e, c("right", "center", "left"))
+  just.label.c <- setchar(just.label.c, c("right", "center", "left"))
   #
   if (!is.null(bmj.text))
     chkchar(bmj.text, length = 1)
@@ -3579,6 +3587,20 @@ forest.meta <- function(x,
     xpos.c <- 0.5
   else if (just.cols == "right")
     xpos.c <- 1
+  #
+  if (just.label.e == "left")
+    xpos.label.e <- 0
+  else if (just.label.e == "center")
+    xpos.label.e <- 0.5
+  else if (just.label.e == "right")
+    xpos.label.e <- 1
+  #
+  if (just.label.c == "left")
+    xpos.label.c <- 0
+  else if (just.label.c == "center")
+    xpos.label.c <- 0.5
+  else if (just.label.c == "right")
+    xpos.label.c <- 1
   #
   if (log.xaxis) {
     ref <- log(ref)
@@ -10970,11 +10992,15 @@ forest.meta <- function(x,
   #
   col.label.e <-
     tgl(label.e,
-        if (bmj) bmj.xpos else xpos.c,
-        if (bmj) "left" else just.c,
+        if (bmj) bmj.xpos else xpos.label.e,
+        if (bmj) "left" else just.label.e,
         fs.head, ff.head, fontfamily)
   #
-  col.label.c <- tgl(label.c, xpos.c, just.c, fs.head, ff.head, fontfamily)
+  col.label.c <-
+    tgl(label.c,
+        if (bmj) bmj.xpos else xpos.label.c,
+        if (bmj) "left" else just.label.c,
+        fs.head, ff.head, fontfamily)
   #
   col.rob <- tgl(rob.text, rob.xpos, "left", fs.head, ff.head, fontfamily)
   #
@@ -11494,71 +11520,94 @@ forest.meta <- function(x,
   j <- 1
   #
   if (lsel) {
+    #
+    # Add text for label.e and label.c (if position was specified by the user)
+    #
+    if (!is.na(yHeadadd)) {
+      if (!is.null(label.e.attach)) {
+        vars.e <- paste0("col.", label.e.attach)
+        if (all(vars.e %in% leftcols)) {
+          id.e <- seq_along(leftcols)[leftcols %in% vars.e]
+          id.e <- 2 * (range(id.e) - 1) + 1
+          id.e <- seq(min(id.e), max(id.e))
+          #
+          add.text(col.label.e, id.e)
+        }
+      }
+      #
+      if (!is.null(label.c.attach)) {
+        vars.c <- paste0("col.", label.c.attach)
+        if (all(vars.c %in% leftcols)) {
+          id.c <- seq_along(leftcols)[leftcols %in% vars.c]
+          id.c <- 2 * (range(id.c) - 1) + 1
+          id.c <- seq(min(id.c), max(id.c))
+          #
+          add.text(col.label.c, id.c)
+        }
+      }
+    }
+    #
     for (i in seq_along(leftcols)) {
       add.text(cols[[leftcols[i]]], j)
       #
       if (!is.na(yHeadadd)) {
-        if (!is.null(label.e.attach)) {
-          if (leftcols[i] == paste0("col.", label.e.attach))
-            add.text(col.label.e, j)
-        }
-        else if (metabin) {
-          if (leftcols[i] == "col.n.e" & just.c == "right")
-            add.text(col.label.e, j)
-          else if (leftcols[i] == "col.event.e" &
-                   just.c %in% c("left", "center"))
-            add.text(col.label.e, j)
-        }
-        else if (metacont) {
-          if (leftcols[i] == "col.sd.e" & just.c == "right")
-            add.text(col.label.e, j)
-          else if (leftcols[i] == "col.mean.e" &
-                   just.c %in% c("left", "center"))
-            add.text(col.label.e, j)
-        }
-        else if (metainc) {
-          if (leftcols[i] == "col.time.e" & just.c == "right")
-            add.text(col.label.e, j)
-          else if (leftcols[i] == "col.event.e" &
-                   just.c %in% c("left", "center"))
-            add.text(col.label.e, j)
-        }
-        else if (metamean) {
-          if (revman5 & leftcols[i] == "col.n.e" &
-              just.c == "right")
-            add.text(col.label.e, j)
-          else if (!revman5 & leftcols[i] == "col.sd.e" &
-                   just.c == "right")
-            add.text(col.label.e, j)
-          else if (leftcols[i] == "col.sd.e" &
-                   just.c %in% c("left", "center"))
-            add.text(col.label.e, j)
+        if (is.null(label.e.attach)) {
+          if (metabin) {
+            if (leftcols[i] == "col.n.e" & just.label.e == "right")
+              add.text(col.label.e, j)
+            else if (leftcols[i] == "col.event.e" &
+                     just.label.e %in% c("left", "center"))
+              add.text(col.label.e, j)
+          }
+          else if (metacont) {
+            if (leftcols[i] == "col.sd.e" & just.label.e == "right")
+              add.text(col.label.e, j)
+            else if (leftcols[i] == "col.mean.e" &
+                     just.label.e %in% c("left", "center"))
+              add.text(col.label.e, j)
+          }
+          else if (metainc) {
+            if (leftcols[i] == "col.time.e" & just.label.e == "right")
+              add.text(col.label.e, j)
+            else if (leftcols[i] == "col.event.e" &
+                     just.label.e %in% c("left", "center"))
+              add.text(col.label.e, j)
+          }
+          else if (metamean) {
+            if (revman5 & leftcols[i] == "col.n.e" &
+                just.label.e == "right")
+              add.text(col.label.e, j)
+            else if (!revman5 & leftcols[i] == "col.sd.e" &
+                     just.label.e == "right")
+              add.text(col.label.e, j)
+            else if (leftcols[i] == "col.sd.e" &
+                     just.label.e %in% c("left", "center"))
+              add.text(col.label.e, j)
+          } 
         }
         #
-        if (!is.null(label.c.attach)) {
-          if (leftcols[i] == paste0("col.", label.c.attach))
-            add.text(col.label.c, j)
-        }
-        else if (metabin) {
-          if (leftcols[i] == "col.n.c" & just.c == "right")
-            add.text(col.label.c, j)
-          else if (leftcols[i] == "col.event.c" &
-                   just.c %in% c("left", "center"))
-            add.text(col.label.c, j)
-        }
-        else if (metacont) {
-          if (leftcols[i] == "col.sd.c" & just.c == "right")
-            add.text(col.label.c, j)
-          else if (leftcols[i] == "col.mean.c" &
-                   just.c %in% c("left", "center"))
-            add.text(col.label.c, j)
-        }
-        else if (metainc) {
-          if (leftcols[i] == "col.time.c" & just.c == "right")
-            add.text(col.label.c, j)
-          else if (leftcols[i] == "col.event.c" &
-                   just.c %in% c("left", "center"))
-            add.text(col.label.c, j)
+        if (is.null(label.c.attach)) {
+          if (metabin) {
+            if (leftcols[i] == "col.n.c" & just.label.c == "right")
+              add.text(col.label.c, j)
+            else if (leftcols[i] == "col.event.c" &
+                     just.label.c %in% c("left", "center"))
+              add.text(col.label.c, j)
+          }
+          else if (metacont) {
+            if (leftcols[i] == "col.sd.c" & just.label.c == "right")
+              add.text(col.label.c, j)
+            else if (leftcols[i] == "col.mean.c" &
+                     just.label.c %in% c("left", "center"))
+              add.text(col.label.c, j)
+          }
+          else if (metainc) {
+            if (leftcols[i] == "col.time.c" & just.label.c == "right")
+              add.text(col.label.c, j)
+            else if (leftcols[i] == "col.event.c" &
+                     just.label.c %in% c("left", "center"))
+              add.text(col.label.c, j)
+          }
         }
         #
         if (newline.studlab & leftcols[i] == "col.studlab")
@@ -11743,6 +11792,33 @@ forest.meta <- function(x,
   #
   #
   if (rsel | RoB.available) {
+    #
+    # Add text for label.e and label.c (if position was specified by the user)
+    #
+    if (!is.na(yHeadadd)) {
+      if (!is.null(label.e.attach)) {
+        vars.e <- paste0("col.", label.e.attach)
+        if (all(vars.e %in% rightcols)) {
+          id.e <- seq_along(rightcols)[rightcols %in% vars.e]
+          id.e <- 2 * (range(id.e) - 1)
+          id.e <- seq(min(id.e), max(id.e))
+          #
+          add.text(col.label.e, j + id.e)
+        }
+      }
+      #
+      if (!is.null(label.c.attach)) {
+        vars.c <- paste0("col.", label.c.attach)
+        if (all(vars.c %in% rightcols)) {
+          id.c <- seq_along(rightcols)[rightcols %in% vars.c]
+          id.c <- 2 * (range(id.c) - 1)
+          id.c <- seq(min(id.c), max(id.c))
+          #
+          add.text(col.label.c, j + id.c)
+        }
+      }
+    }
+    #
     i.rob <- 0
     #
     for (i in seq_along(rightcols)) {
@@ -11758,64 +11834,60 @@ forest.meta <- function(x,
         add.text(cols[[rightcols[i]]], j)
       #
       if (!is.na(yHeadadd)) {
-        if (!is.null(label.e.attach)) {
-          if (rightcols[i] == paste0("col.", label.e.attach))
-            add.text(col.label.e, j)
-        }
-        else if (metabin) {
-          if (rightcols[i] == "col.n.e" & just.c == "right")
-            add.text(col.label.e, j)
-          else if (rightcols[i] == "col.event.e" &
-                   just.c %in% c("left", "center"))
-            add.text(col.label.e, j)
-        }
-        else if (metacont) {
-          if (rightcols[i] == "col.sd.e" & just.c == "right")
-            add.text(col.label.e, j)
-          else if (rightcols[i] == "col.mean.e" &
-                   just.c %in% c("left", "center"))
-            add.text(col.label.e, j)
-        }
-        else if (metainc) {
-          if (rightcols[i] == "col.time.e" & just.c == "right")
-            add.text(col.label.e, j)
-          else if (rightcols[i] == "col.event.e" &
-                   just.c %in% c("left", "center"))
-            add.text(col.label.e, j)
-        }
-        else if (metamean) {
-          if (revman5 & rightcols[i] == "col.n.e" & just.c == "right")
-            add.text(col.label.e, j)
-          else if (!revman5 & rightcols[i] == "col.sd.e" & just.c == "right")
-            add.text(col.label.e, j)
-          else if (rightcols[i] == "col.sd.e" & just.c %in% c("left", "center"))
-            add.text(col.label.e, j)
+        if (is.null(label.e.attach)) {
+          if (metabin) {
+            if (rightcols[i] == "col.n.e" & just.label.e == "right")
+              add.text(col.label.e, j)
+            else if (rightcols[i] == "col.event.e" &
+                     just.label.e %in% c("left", "center"))
+              add.text(col.label.e, j)
+          }
+          else if (metacont) {
+            if (rightcols[i] == "col.sd.e" & just.label.e == "right")
+              add.text(col.label.e, j)
+            else if (rightcols[i] == "col.mean.e" &
+                     just.label.e %in% c("left", "center"))
+              add.text(col.label.e, j)
+          }
+          else if (metainc) {
+            if (rightcols[i] == "col.time.e" & just.label.e == "right")
+              add.text(col.label.e, j)
+            else if (rightcols[i] == "col.event.e" &
+                     just.label.e %in% c("left", "center"))
+              add.text(col.label.e, j)
+          }
+          else if (metamean) {
+            if (revman5 & rightcols[i] == "col.n.e" & just.label.e == "right")
+              add.text(col.label.e, j)
+            else if (!revman5 & rightcols[i] == "col.sd.e" & just.label.e == "right")
+              add.text(col.label.e, j)
+            else if (rightcols[i] == "col.sd.e" & just.label.e %in% c("left", "center"))
+              add.text(col.label.e, j)
+          }
         }
         #
-        if (!is.null(label.c.attach)) {
-          if (rightcols[i] == paste0("col.", label.c.attach))
-            add.text(col.label.c, j)
-        }
-        else if (metabin) {
-          if (rightcols[i] == "col.n.c" & just.c == "right")
-            add.text(col.label.c, j)
-          else if (rightcols[i] == "col.event.c" &
-                   just.c %in% c("left", "center"))
-            add.text(col.label.c, j)
-        }
-        else if (metacont) {
-          if (rightcols[i] == "col.sd.c" & just.c == "right")
-            add.text(col.label.c, j)
-          else if (rightcols[i] == "col.mean.c" &
-                   just.c %in% c("left", "center"))
-            add.text(col.label.c, j)
-        }
-        else if (metainc) {
-          if (rightcols[i] == "col.time.c" & just.c == "right")
-            add.text(col.label.c, j)
-          else if (rightcols[i] == "col.event.c" &
-                   just.c %in% c("left", "center"))
-            add.text(col.label.c, j)
+        if (is.null(label.c.attach)) {
+          if (metabin) {
+            if (rightcols[i] == "col.n.c" & just.label.c == "right")
+              add.text(col.label.c, j)
+            else if (rightcols[i] == "col.event.c" &
+                     just.label.c %in% c("left", "center"))
+              add.text(col.label.c, j)
+          }
+          else if (metacont) {
+            if (rightcols[i] == "col.sd.c" & just.label.c == "right")
+              add.text(col.label.c, j)
+            else if (rightcols[i] == "col.mean.c" &
+                     just.label.c %in% c("left", "center"))
+              add.text(col.label.c, j)
+          }
+          else if (metainc) {
+            if (rightcols[i] == "col.time.c" & just.label.c == "right")
+              add.text(col.label.c, j)
+            else if (rightcols[i] == "col.event.c" &
+                     just.label.c %in% c("left", "center"))
+              add.text(col.label.c, j)
+          }
         }
         #
         if (!is.null(rob.attach)) {

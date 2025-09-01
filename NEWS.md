@@ -1,4 +1,17 @@
-## meta, version 8.2-1 (2025-08-29)
+## meta, version 8.2-1 (2025-09-01)
+
+### Major changes
+
+* More flexible printing of treatment labels in forest plots provided in
+  arguments 'label.e' and 'label.c'
+
+### User-visible changes
+
+* forest.meta():
+  - new arguments 'just.label.e' and 'just.label.c' to define the justification
+    of treatment labels
+  - arguments 'label.e.attach' and 'label.c.attach' can be vectors to define
+    columns to print treatment labels
 
 ### Bug fixes
 

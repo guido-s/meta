@@ -234,6 +234,8 @@
   just.addcols = gs("just.addcols"),
   just.addcols.left = just.addcols,
   just.addcols.right = just.addcols,
+  just.label.e = just,
+  just.label.c = just,
   bmj.text = NULL,
   bmj.xpos = 0,
   bmj.sep = " / ",
@@ -522,11 +524,11 @@ heading.}
 
 \item{label.c}{Label to be used for control group in table heading.}
 
-\item{label.e.attach}{A character specifying the column name where
-label \code{label.e} should be attached to in table heading.}
+\item{label.e.attach}{A character string or vector specifying the column
+name(s) where label \code{label.e} should be attached to in table heading.}
 
-\item{label.c.attach}{A character specifying the column name where
-label \code{label.c} should be attached to in table heading.}
+\item{label.c.attach}{A character string or vector specifying the column
+name(s) where label \code{label.c} should be attached to in table heading.}
 
 \item{label.left}{Graph label on left side of null effect.}
 
@@ -1019,6 +1021,12 @@ columns on left side of forest plot.}
 columns on right side of forest plot (possible values: "left",
 "right", "center"). Can be of same length as number of additional
 columns on right side of forest plot.}
+
+\item{just.label.e}{Justification of text for experimental group in table
+heading (possible values: "left", "right", "center").}
+
+\item{just.label.c}{Justification of text for control group in table
+heading (possible values: "left", "right", "center").}
 
 \item{bmj.text}{A character string used in the plot with BMJ layout
 to label the group specific information.}
