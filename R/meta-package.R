@@ -673,7 +673,7 @@
 #' @import metadat
 #'
 #' @importFrom dplyr %>% across mutate all_of select rename rename_with mutate
-#'   if_else tibble filter
+#'   if_else tibble filter bind_rows group_by group_map relocate
 #'
 #' @importFrom tibble column_to_rownames
 #'
@@ -708,7 +708,7 @@
 #'
 #' @importFrom utils count.fields read.table assignInNamespace
 #'   getFromNamespace packageDescription packageVersion head tail find
-#'   unzip
+#'   unzip combn
 #'
 #' @importFrom metafor forest funnel funnel.default baujat labbe
 #'   radial trimfill rma.uni rma.glmm rma.mv predict.rma
