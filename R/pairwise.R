@@ -1116,7 +1116,7 @@ pairwise <- function(treat,
       sel.ref <- is.na(TE)
       #
       if (sum(sel.ref) != length(unique(studlab)))
-        stop("In each stud, relative effect must be 'NA' for the ",
+        stop("In each study, relative effect must be 'NA' for the ",
              "reference treatment.",
              call. = FALSE)
       #
@@ -1125,7 +1125,7 @@ pairwise <- function(treat,
         dat.ref$treat[dat.ref$studlab == x]
       })
       #
-      res <- pwgen(studlab, treat, treat.ref, TE, seTE)
+      res <- pwgen(studlab, treat, treat.ref, TE, seTE, n)
     }
     else {
       #
