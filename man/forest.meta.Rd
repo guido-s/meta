@@ -31,6 +31,7 @@
   subgroup.name = x$subgroup.name,
   print.subgroup.name = x$print.subgroup.name,
   sep.subgroup = x$sep.subgroup,
+  text.subgroup = NULL,
   text.common.w = text.common,
   text.random.w = text.random,
   text.predict.w = text.predict,
@@ -351,6 +352,10 @@ labels.}
 
 \item{sep.subgroup}{A character string defining the separator
 between label and levels of grouping variable.}
+
+\item{text.subgroup}{A character vector or expression to label the subgroups.
+The vector must be of the same length as the number of subgroups. Labels
+are printed from top to bottom in the forest plot.}
 
 \item{text.common.w}{A character string to label the pooled common
 effect estimate within subgroups, or a character vector of same

@@ -6,6 +6,9 @@
 
 ### User-visible changes
 
+* forest.meta():
+  - new argument 'text.subgroup' to provide subgroup labels (#82)
+
 * [Siemens et al. (2025)](https://doi.org/10.1186/s12874-025-02733-9) added as
   reference for the expected proportion of comparable studies with
   clinically important benefit or harm implemented in cidprop()

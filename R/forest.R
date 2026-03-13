@@ -56,6 +56,9 @@
 #'   labels.
 #' @param sep.subgroup A character string defining the separator
 #'   between label and levels of grouping variable.
+#' @param text.subgroup A character vector or expression to label the subgroups.
+#'   The vector must be of the same length as the number of subgroups. Labels
+#'   are printed from top to bottom in the forest plot.
 #' @param text.common.w A character string to label the pooled common
 #'   effect estimate within subgroups, or a character vector of same
 #'   length as number of subgroups with corresponging labels.
@@ -1329,6 +1332,7 @@ forest.meta <- function(x,
                         subgroup.name = x$subgroup.name,
                         print.subgroup.name = x$print.subgroup.name,
                         sep.subgroup = x$sep.subgroup,
+                        text.subgroup = NULL,
                         text.common.w = text.common,
                         text.random.w = text.random,
                         text.predict.w = text.predict,
@@ -8934,9 +8938,17 @@ forest.meta <- function(x,
   #
   if (by) {
     #
-    subgroup.name <-
-      bylabel(subgroup.name, subgroup.levels, print.subgroup.name,
-              sep.subgroup, big.mark = big.mark)
+    if (!is.null(text.subgroup)) {
+      if (length(text.subgroup) != length(subgroup.levels))
+        stop("Length of argument 'text.subgroup' must be equal to ",
+             length(subgroup.levels), ", i.e., the number of subgroups.")
+      #
+      subgroup.name <- text.subgroup
+    }
+    else
+      subgroup.name <-
+        bylabel(subgroup.name, subgroup.levels, print.subgroup.name,
+                sep.subgroup, big.mark = big.mark)
     #
     wrong.common <- FALSE
     wrong.random <- FALSE
