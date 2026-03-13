@@ -14,6 +14,9 @@
   - input to arguments 'prediction', 'overall', and 'backtransf' was
     ignored (#83)
 
+* forest.metabind():
+  - input to argument 'col.square' was ignored for square colour (#81)
+
 
 ## meta, version 8.2-1 (2025-09-01)
 

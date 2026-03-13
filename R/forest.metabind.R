@@ -525,7 +525,7 @@ forest.metabind <- function(x,
       cols.square.lines[i] <- col.circle.lines
     }
     else {
-      cols.square[i] <- gs("col.square")
+      cols.square[i] <- col.square
       cols.square.lines[i] <- col.square.lines
     }
   }
