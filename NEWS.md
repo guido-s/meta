@@ -4,6 +4,12 @@
 
 * R package **metabook** added to Depends (to access meta-analysis datasets)
 
+### Bug fixes
+
+* forest.meta():
+  - reference line and CID lines had wrong length in forest plots with
+    risk of bias information and without overall heterogeneity statistics (#84)
+
 
 ## meta, version 8.2-1 (2025-09-01)
 

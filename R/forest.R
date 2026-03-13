@@ -8057,8 +8057,10 @@ forest.meta <- function(x,
       }
     }
     #
-    if (length(td) == 0)
+    if (length(td) == 0) {
       text.details <- ""
+      details <- FALSE
+    }
     else
       text.details <- td
   }
@@ -11321,6 +11323,9 @@ forest.meta <- function(x,
       #
       if (addrow.overall & !addrow & n.lines == 0)
         ymin.line <- ymin.line - 1
+      #
+      if (!overall.hetstat & RoB.legend)
+        ymin.line <- ymin.line + 1
     }
     #
     if (!overall & addrow & n.lines == 0)
