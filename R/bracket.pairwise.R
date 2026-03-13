@@ -15,14 +15,14 @@
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @seealso \code{\link{pairwise}}, \code{\link{subset.pairwise}},
-#'   \code{\link[metadat]{dat.franchini2012}}
+#'   \code{\link[metabook]{Franchini2012}}
 #' 
 #' @examples
 #' # Transform data from arm-based format to contrast-based format
 #' pw1 <- pairwise(list(Treatment1, Treatment2, Treatment3),
 #'   n = list(n1, n2, n3),
 #'   mean = list(y1, y2, y3), sd = list(sd1, sd2, sd3),
-#'   data = dat.franchini2012, studlab = Study)
+#'   data = Franchini2012, studlab = Study)
 #' 
 #' pw1[, 1:5]
 #' pw1[!grepl("Lieberman", pw1$studlab), 1:5]

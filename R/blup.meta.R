@@ -49,7 +49,7 @@
 #' 
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
-#' @seealso \code{\link{metabin}}, \code{\link[metadat]{dat.bcg}}
+#' @seealso \code{\link{metabin}}
 #' 
 #' @examples
 #' m1 <- metabin(tpos, tpos + tneg, cpos, cpos + cneg,

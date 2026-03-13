@@ -1,3 +1,10 @@
+## meta, version 8.3-0 (2026-mm-dd)
+
+### Major changes
+
+* R package **metabook** added to Depends (to access meta-analysis datasets)
+
+
 ## meta, version 8.2-1 (2025-09-01)
 
 ### Major changes

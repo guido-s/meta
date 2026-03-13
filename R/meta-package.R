@@ -459,8 +459,8 @@
 #' \code{\link{woodyplants}} \tab Elevated CO$_2$ and total biomass of woody plants
 #' }
 #' 
-#' \bold{R} package \bold{metadat} has a large collection of meta-analysis data
-#' sets.
+#' \bold{R} packages \bold{metabook} and \bold{metadat} have a large collection
+#'  of meta-analysis data sets.
 #' }
 #'
 #' @note
@@ -669,6 +669,8 @@
 #' @keywords package
 #' 
 #' @seealso \code{\link{meta-object}}, \code{\link{meta-sm}}
+#'
+#' @import metabook
 #'
 #' @import metadat
 #'

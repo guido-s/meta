@@ -782,10 +782,9 @@ metabin(d.asp, n.asp, d.plac, n.plac, study,
   subset = (n.asp + n.plac) > 1500,
   exclude = grep("MRC", study))
 
-\dontrun{
+\donttest{
 # Three-level model: effects of modified school calendars on
 # student achievement
-data(dat.konstantopoulos2011, package = "metadat")
 metagen(yi, sqrt(vi), studlab = study, data = dat.konstantopoulos2011,
   sm = "SMD",
   cluster = district, detail.tau = c("district", "district/school"))

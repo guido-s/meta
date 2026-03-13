@@ -116,7 +116,7 @@ if (requireNamespace("writexl", quietly = TRUE))
 
 }
 \seealso{
-\code{\link{metabin}}, \code{\link[metadat]{dat.bcg}}
+\code{\link{metabin}}
 }
 \author{
 Guido Schwarzer \email{guido.schwarzer@uniklinik-freiburg.de}
