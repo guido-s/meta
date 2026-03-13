@@ -4,6 +4,12 @@
 
 * R package **metabook** added to Depends (to access meta-analysis datasets)
 
+### User-visible changes
+
+* [Siemens et al. (2025)](https://doi.org/10.1186/s12874-025-02733-9) added as
+  reference for the expected proportion of comparable studies with
+  clinically important benefit or harm implemented in cidprop()
+
 ### Bug fixes
 
 * forest.meta():
@@ -4027,7 +4033,7 @@ This functionality is now provided by update.meta().
 * forest.meta():
   - bug fix for metacum() or metainf() object with Freeman-Tukey
     double arcsine transformation (error message: 'Error in if
-    (col$range[1] <= TE.fixed & TE.fixed <= col$range[2]) ...')
+    (col$range[1] <= TE.fixed and TE.fixed <= col$range[2]) ...')
 
 
 ## meta, version 2.1-2 (2012-10-25)

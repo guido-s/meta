@@ -61,6 +61,9 @@
 #' @param \dots Additional arguments (ignored)
 #' 
 #' @details
+#' This function plots the density of the prediction distribution highlighting
+#' areas of clinically important benefit or harm (Siemens et al., 2025).
+#' 
 #' Arguments \code{cid}, \code{cid.below.null}, \code{cid.above.null},
 #' \code{label.cid}, \code{label.cid.below.null}, \code{label.cid.above.null},
 #' and \code{small.values} are identical to the main arguments of R function
@@ -85,6 +88,13 @@
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #'
 #' @seealso \code{\link{cidprop}}
+#' 
+#' @references
+#' Siemens W, Borenstein M, Evrenoglou T, Meerpohl JJ, Schwarzer G (2025):
+#' Beyond prediction intervals in meta-analysis: reporting the expected
+#' proportion of comparable studies with clinically relevant benefit or harm.
+#' \emph{BMC Medical Research Methodology},
+#' \bold{25}, 275
 #'
 #' @examples
 #' oldset <- settings.meta(digits.cid = 0)

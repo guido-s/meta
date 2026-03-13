@@ -92,7 +92,7 @@ benefit or harm which is derived from the prediction interval.
 \details{
 Expected proportions of comparable studies with clinically important
 benefit or harm are derived from the prediction interval in
-the meta-analysis.
+the meta-analysis (Siemens et al., 2025).
 
 Clinically important benefit or harm can be defined using either argument
 \code{cid} or \code{cid.below.null} and \code{cid.above.null}.
@@ -131,6 +131,13 @@ pp5
 
 settings.meta(oldset)
 
+}
+\references{
+Siemens W, Borenstein M, Evrenoglou T, Meerpohl JJ, Schwarzer G (2025):
+Beyond prediction intervals in meta-analysis: reporting the expected
+proportion of comparable studies with clinically relevant benefit or harm.
+\emph{BMC Medical Research Methodology},
+\bold{25}, 275
 }
 \seealso{
 \code{\link{plot.cidprop}}

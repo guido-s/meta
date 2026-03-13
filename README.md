@@ -14,12 +14,14 @@ User-friendly general package providing standard methods for meta-analysis and s
  - common effect and random effects meta-analysis;
  - several plots (forest, funnel, Galbraith / radial, L'Abbe, Baujat, bubble);
  - statistical tests and trim-and-fill method to evaluate bias in meta-analysis;
- - import data from 'RevMan Web' and 'RevMan 5';
- - prediction interval, Hartung-Knapp method for random effects model;
+ - Hartung-Knapp method for random effects model;
+ - prediction interval and density of the prediction distribution;
+ - expected proportion of comparable studies with clinically important benefit or harm;
  - cumulative meta-analysis and leave-one-out meta-analysis;
  - meta-regression;
  - generalised linear mixed models;
  - logistic regression with penalised likelihood for rare events;
+ - import data from 'RevMan Web' and 'RevMan 5';
  - produce forest plot summarising several (subgroup) meta-analyses.
  
 ### References

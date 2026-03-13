@@ -129,6 +129,9 @@ Plot density of prediction distribution highlighting areas of clinically
 important benefit or harm
 }
 \details{
+This function plots the density of the prediction distribution highlighting
+areas of clinically important benefit or harm (Siemens et al., 2025).
+
 Arguments \code{cid}, \code{cid.below.null}, \code{cid.above.null},
 \code{label.cid}, \code{label.cid.below.null}, \code{label.cid.above.null},
 and \code{small.values} are identical to the main arguments of R function
@@ -188,6 +191,13 @@ if (requireNamespace("ggpubr", quietly = TRUE) &
 
 settings.meta(oldset)
 
+}
+\references{
+Siemens W, Borenstein M, Evrenoglou T, Meerpohl JJ, Schwarzer G (2025):
+Beyond prediction intervals in meta-analysis: reporting the expected
+proportion of comparable studies with clinically relevant benefit or harm.
+\emph{BMC Medical Research Methodology},
+\bold{25}, 275
 }
 \seealso{
 \code{\link{cidprop}}
