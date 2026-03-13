@@ -10,6 +10,10 @@
   - reference line and CID lines had wrong length in forest plots with
     risk of bias information and without overall heterogeneity statistics (#84)
 
+* forest.metainf():
+  - input to arguments 'prediction', 'overall', and 'backtransf' was
+    ignored (#83)
+
 
 ## meta, version 8.2-1 (2025-09-01)
 
