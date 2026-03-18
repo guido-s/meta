@@ -12,15 +12,14 @@ hetcalc <- function(TE, seTE,
     res
   }
   
-  
-  by <- !missing(subgroup)
+  tau.common <- !missing(subgroup)
   ##
   sel.noInf <- !is.infinite(TE) & !is.infinite(seTE)
   TE <- TE[sel.noInf]
   seTE <- seTE[sel.noInf]
   if (!is.null(cluster))
     cluster <- cluster[sel.noInf]
-  if (by)
+  if (tau.common)
     subgroup <- subgroup[sel.noInf]
   ##
   sel.noNA <- !(is.na(TE) | is.na(seTE))
@@ -28,7 +27,7 @@ hetcalc <- function(TE, seTE,
   seTE <- seTE[sel.noNA]
   if (!is.null(cluster))
     cluster <- cluster[sel.noNA]
-  if (by)
+  if (tau.common)
     subgroup <- subgroup[sel.noNA]
   ##
   noHet <- all(!sel.noNA) || sum(sel.noNA) < 2
@@ -131,7 +130,7 @@ hetcalc <- function(TE, seTE,
       df.Q <- mf0$k - mf0$p
       pval.Q <- pvalQ(Q, df.Q)
       #
-      if (df.Q < 2)
+      if (df.Q < 1)
         method.tau.ci <- ""
       else if (three.level & method.tau.ci != "")
         method.tau.ci <- "PL"
@@ -162,8 +161,18 @@ hetcalc <- function(TE, seTE,
         I2 <- isquared(Q, df.Q, level)
       }
       else {
-        H <- list(TE = sqrt(mf0$H2), lower = NA, upper = NA)
-        I2 <- list(TE = mf0$I2 / 100, lower = NA, upper = NA)
+        H <- list(TE = sqrt(replaceNULL(mf0$H2)), lower = NA, upper = NA)
+        I2 <- list(TE = replaceNULL(mf0$I2) / 100, lower = NA, upper = NA)
+        #
+        # No confidence interval for H and I2 for three-level model
+        #
+        if (method.tau.ci %in% c("BJ", "J", "QP")) {
+          H$lower <- sqrt(ci0$random["H^2", "ci.lb"])
+          H$upper <- sqrt(ci0$random["H^2", "ci.ub"])
+          #
+          I2$lower <- ci0$random["I^2(%)", "ci.lb"] / 100
+          I2$upper <- ci0$random["I^2(%)", "ci.ub"] / 100
+        }
       }
     }
   }
@@ -174,7 +183,7 @@ hetcalc <- function(TE, seTE,
   ##
   useFE <- FALSE
   ##
-  if (by) {
+  if (tau.common) {
     if (is.numeric(subgroup))
       subgroup <- as.factor(subgroup)
     ##
@@ -273,8 +282,8 @@ hetcalc <- function(TE, seTE,
       I2.resid <- isquared(Q.resid, df.Q.resid, level)
     }
     else {
-      H.resid <- list(TE = sqrt(mf1$H2), lower = NA, upper = NA)
-      I2.resid <- list(TE = mf1$I2 / 100, lower = NA, upper = NA)
+      H.resid <- list(TE = sqrt(replaceNULL(mf1$H2)), lower = NA, upper = NA)
+      I2.resid <- list(TE = replaceNULL(mf1$I2) / 100, lower = NA, upper = NA)
     }
     ##
     if (df.Q < 2 || useFE)
@@ -306,6 +315,16 @@ hetcalc <- function(TE, seTE,
       ci1 <- confint.rma.uni(mf1, level = 100 * level)
     else if (method.tau.ci == "PL")
       ci1 <- confint.rma.mv(mf1, level = 100 * level)
+    #
+    # No confidence interval for H and I2 for three-level model
+    #
+    if (method.tau.ci %in% c("BJ", "J", "QP")) {
+      H.resid$lower <- sqrt(ci1$random["H^2", "ci.lb"])
+      H.resid$upper <- sqrt(ci1$random["H^2", "ci.ub"])
+      #
+      I2.resid$lower <- ci1$random["I^2(%)", "ci.lb"] / 100
+      I2.resid$upper <- ci1$random["I^2(%)", "ci.ub"] / 100
+    }
   }
   
   
@@ -355,7 +374,7 @@ hetcalc <- function(TE, seTE,
   ##
   ## Confidence interval for tau2.resid and tau.resid
   ##
-  if (by) {
+  if (tau.common) {
     if (method.tau.ci %in% c("QP", "BJ", "J")) {
       lower.tau2.resid <- ci1$random["tau^2", "ci.lb"]
       upper.tau2.resid <- ci1$random["tau^2", "ci.ub"]
@@ -420,26 +439,26 @@ hetcalc <- function(TE, seTE,
               lower.I2 = I2$lower,
               upper.I2 = I2$upper,
               ##
-              tau2.resid = if (by) tau2.resid else NA,
-              se.tau2.resid = if (by) se.tau2.resid else NA,
-              lower.tau2.resid = if (by) lower.tau2.resid else NA,
-              upper.tau2.resid = if (by) upper.tau2.resid else NA,
+              tau2.resid = if (tau.common) tau2.resid else NA,
+              se.tau2.resid = if (tau.common) se.tau2.resid else NA,
+              lower.tau2.resid = if (tau.common) lower.tau2.resid else NA,
+              upper.tau2.resid = if (tau.common) upper.tau2.resid else NA,
               ##
-              tau.resid = if (by) tau.resid else NA,
-              lower.tau.resid = if (by) lower.tau.resid else NA,
-              upper.tau.resid = if (by) upper.tau.resid else NA,
+              tau.resid = if (tau.common) tau.resid else NA,
+              lower.tau.resid = if (tau.common) lower.tau.resid else NA,
+              upper.tau.resid = if (tau.common) upper.tau.resid else NA,
               ##
-              Q.resid = if (by) Q.resid else NA,
-              df.Q.resid = if (by) df.Q.resid else NA,
-              pval.Q.resid = if (by) pval.Q.resid else NA,
+              Q.resid = if (tau.common) Q.resid else NA,
+              df.Q.resid = if (tau.common) df.Q.resid else NA,
+              pval.Q.resid = if (tau.common) pval.Q.resid else NA,
               #
-              H.resid = if (by) H.resid$TE else NA,
-              lower.H.resid = if (by) H.resid$lower else NA,
-              upper.H.resid = if (by) H.resid$upper else NA,
+              H.resid = if (tau.common) H.resid$TE else NA,
+              lower.H.resid = if (tau.common) H.resid$lower else NA,
+              upper.H.resid = if (tau.common) H.resid$upper else NA,
               ##
-              I2.resid = if (by) I2.resid$TE else NA,
-              lower.I2.resid = if (by) I2.resid$lower else NA,
-              upper.I2.resid = if (by) I2.resid$upper else NA
+              I2.resid = if (tau.common) I2.resid$TE else NA,
+              lower.I2.resid = if (tau.common) I2.resid$lower else NA,
+              upper.I2.resid = if (tau.common) I2.resid$upper else NA
               )
   ##
   res

@@ -2,12 +2,28 @@
 
 ### Major changes
 
+* Relax the minimum number of studies in a meta-analysis required to calculate
+  confidence and prediction intervals
+  [(issue #80)](https://github.com/guido-s/meta/pull/80):
+  - calculate confidence interval for *tau2* and *tau* for two or more studies
+    (was more than 2 studies)
+  - calculate Hartung-Knapp prediction interval
+    (argument 'method.predict = "HK"') for two or more studies
+    (was more than 2 studies)
+  - calculate Partlett and Riley prediction interval
+    (argument 'method.predict = "HK-PR"') for three or more studies
+    (was more than 3 studies)
+
+* Calculate confidence for I2 and H if argument 'method.I2 = "tau2"'
+  [(issue #80)](https://github.com/guido-s/meta/pull/80):
+  
 * R package **metabook** added to Depends (to access meta-analysis datasets)
 
 ### User-visible changes
 
 * forest.meta():
-  - new argument 'text.subgroup' to provide subgroup labels (#82)
+  - new argument 'text.subgroup' to provide subgroup labels
+    [(issue #82)](https://github.com/guido-s/meta/pull/82)
 
 * [Siemens et al. (2025)](https://doi.org/10.1186/s12874-025-02733-9) added as
   reference for the expected proportion of comparable studies with
@@ -17,14 +33,17 @@
 
 * forest.meta():
   - reference line and CID lines had wrong length in forest plots with
-    risk of bias information and without overall heterogeneity statistics (#84)
+    risk of bias information and without overall heterogeneity statistics
+    [(issue #84)](https://github.com/guido-s/meta/pull/84)
 
 * forest.metainf():
   - input to arguments 'prediction', 'overall', and 'backtransf' was
-    ignored (#83)
+    ignored
+    [(issue #83)](https://github.com/guido-s/meta/pull/83)
 
 * forest.metabind():
-  - input to argument 'col.square' was ignored for square colour (#81)
+  - input to argument 'col.square' was ignored for square colour
+    [(issue #81)](https://github.com/guido-s/meta/pull/81)
 
 
 ## meta, version 8.2-1 (2025-09-01)
