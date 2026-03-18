@@ -21,9 +21,9 @@ smlab <- function(sm, backtransf, pscale, irscale) {
   }
   else {
     if (is_relative_effect(sm))
-      res <- paste0("log", sm)
+      res <- paste0("ln", sm)
     else if (sm == "VE")
-      res <- "logVR"
+      res <- "lnVR"
   }
   #
   res

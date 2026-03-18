@@ -16,10 +16,15 @@
 
 * Calculate confidence for I2 and H if argument 'method.I2 = "tau2"'
   [(issue #80)](https://github.com/guido-s/meta/pull/80):
-  
+
+* R function cidprop() uses null effect as threshold, if defined
+
 * R package **metabook** added to Depends (to access meta-analysis datasets)
 
 ### User-visible changes
+
+* For relative effect measures show "ln" instead of "log" in printouts if
+  'backtransf = FALSE'
 
 * forest.meta():
   - new argument 'text.subgroup' to provide subgroup labels

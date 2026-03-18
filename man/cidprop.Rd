@@ -104,6 +104,9 @@ specified. In this case, the values of \code{cid.below.null} and
 \item \code{cid} and \code{-cid} for difference measures.
 }
 
+By default, i.e., if no input is provided for argument \code{cid}, the
+null effect is used as threshold.
+
 Thresholds based on argument \code{cid} will always be symmetric. Asymmetric
 thresholds can be defined using arguments \code{cid.below.null} and
 \code{cid.above.null}.
