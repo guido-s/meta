@@ -658,6 +658,7 @@ argslist <-
     "label.e", "label.c", "label.left", "label.right",
     "layout", "forest.details",
     "test.overall", "test.subgroup", "prediction.subgroup",
+    "print.tau2.ci.subgroup", "print.tau.ci.subgroup",
     "test.effect.subgroup",
     "digits", "digits.mean", "digits.sd", "digits.se", "digits.stat",
     "digits.Q", "digits.tau2", "digits.tau", "digits.H", "digits.I2",
@@ -695,6 +696,11 @@ argslist <-
     "forest.I2", "forest.I2.ci", "forest.tau2", "forest.tau2.ci",
     "forest.tau", "forest.tau.ci", "forest.Q", "forest.pval.Q",
     "forest.Rb", "forest.Rb.ci",
+    "label.n", "label.events",
+    "label.mean", "label.sd",
+    "label.cor", "label.time",
+    "label.pval", "label.tau2", "label.tau", "label.I2",
+    "label.cluster", "label.cycles",
     "text.subgroup.nohet",
     "LRT",
     "forest.stat", "forest.Q.subgroup",
@@ -775,6 +781,8 @@ setOption("sep.subgroup", " = ")
 setOption("byseparator", " = ")
 setOption("test.subgroup", TRUE)
 setOption("prediction.subgroup", FALSE)
+setOption("print.tau2.ci.subgroup", NULL)
+setOption("print.tau.ci.subgroup", NULL)
 setOption("keepdata", TRUE)
 setOption("keeprma", FALSE)
 setOption("warn", TRUE)
@@ -960,7 +968,20 @@ setOption("forest.Q", FALSE)
 setOption("forest.pval.Q", NULL)
 setOption("forest.Rb", FALSE)
 setOption("forest.Rb.ci", FALSE)
-##
+#
+setOption("label.n", "Total")
+setOption("label.events", "Events")
+setOption("label.mean", "Mean")
+setOption("label.sd", "SD")
+setOption("label.cor", "Cor")
+setOption("label.time", "Time")
+setOption("label.pval", "P-value")
+setOption("label.tau2", "Tau2")
+setOption("label.tau", "Tau")
+setOption("label.I2", "I2")
+setOption("label.cluster", "Cluster")
+setOption("label.cycles", "Cycles")
+#
 setOption("text.subgroup.nohet", "not applicable")
 ##
 setOption("LRT", FALSE)

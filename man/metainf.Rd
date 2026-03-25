@@ -124,6 +124,14 @@ metainf(m1, pooled = "random")
 forest(metainf(m1))
 forest(metainf(m1, pooled = "random"))
 
+\dontrun{
+# Create a PDF file with a forest plot containing UTF-8 characters
+# for tau^2, tau, and I^2
+forest(metainf(m1, pooled = "random"),
+  label.tau2 = "\u03c4\u00b2", label.tau = "\u03c4", label.I2 = "I\u00b2",
+  file = "forest_with_unicode.pdf", width = 8.5, func.gr = "cairo_pdf")
+}
+
 metainf(m1, sortvar = study)
 metainf(m1, sortvar = 7:1)
 
