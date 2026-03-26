@@ -1325,3 +1325,14 @@ newCol <- function(varname, label,
   #
   res
 }
+
+warn_only_subgroup <- function(x) {
+  x.name <- gsub("missing.", "", deparse(substitute(x)))
+  #
+  if (!x)
+    warning("Argument '", x.name, "' only considered for ",
+            "meta-analysis with subgroups.",
+            call. = FALSE)
+  #
+  invisible(NULL)
+}

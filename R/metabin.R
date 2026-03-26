@@ -671,7 +671,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                       if (is.null(gs("overall.hetstat")))
                         common | random
                       else
-                        gs("overall.hetstat"),   
+                        gs("overall.hetstat"),
                     prediction = gs("prediction") | !missing(method.predict),
                     ##
                     method.tau,
@@ -2110,8 +2110,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   #
   # Estimate common tau-squared across subgroups
   #
-  if (by & tau.common & !is.glmm)
-    hcc <- hetcalc(TE, seTE, method.tau, "",
+  if (by & tau.common & !(is.glmm | is.lrp))
+    hcc <- hetcalc(TE, seTE, method.tau, m$method.tau.ci,
                    if (Q.Cochrane & method == "MH") TE.common else TE.tau,
                    method.I2, level.hetstat, subgroup, control)
   

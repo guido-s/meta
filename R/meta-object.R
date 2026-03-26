@@ -117,29 +117,31 @@
 #' \code{control} \tab Additional arguments for iterative estimation
 #'   of \eqn{\tau^2} \cr
 #' \code{method.tau.ci} \tab Method for confidence interval of \eqn{\tau^2} \cr
+#' \code{method.I2} \tab Method to estimate heterogeneity statistics I\eqn{^2}
+#'   and H \cr
 #' \code{level.hetstat} \tab Level of confidence intervals for heterogeneity
 #'   statistics \cr
 #' \code{tau2} \tab Between-study variance \eqn{\tau^2} \cr
 #' \code{se.tau2} \tab Standard error of \eqn{\tau^2} \cr
-#' \code{lower.tau2} \tab Lower confidence limit (\eqn{\tau^2}) \cr
-#' \code{upper.tau2} \tab Upper confidence limit (\eqn{\tau^2}) \cr
+#' \code{lower.tau2} \tab Lower confidence limit for \eqn{\tau^2} [1] \cr
+#' \code{upper.tau2} \tab Upper confidence limit for \eqn{\tau^2} [1] \cr
 #' \code{tau} \tab Square-root of between-study variance \eqn{\tau} \cr
-#' \code{lower.tau} \tab Lower confidence limit (\eqn{\tau}) \cr
-#' \code{upper.tau} \tab Upper confidence limit (\eqn{\tau}) \cr
+#' \code{lower.tau} \tab Lower confidence limit for \eqn{\tau} [1] \cr
+#' \code{upper.tau} \tab Upper confidence limit for \eqn{\tau} [1] \cr
 #' \code{tau.preset} \tab Prespecified value for \eqn{\tau} \cr
 #' \code{TE.tau} \tab Effect estimate used to estimate \eqn{\tau^2} \cr
 #' \code{detail.tau} \tab Detail on between-study variance estimate \cr
-#' \code{phi} \tab Multiplicative heterogeneity parameter \eqn{phi} in
+#' \code{phi} \tab Multiplicative heterogeneity parameter \eqn{\phi} in
 #'   penalised logistic regression \cr
 #' \code{H} \tab Heterogeneity statistic H \cr
-#' \code{lower.H} \tab Lower confidence limit (heterogeneity statistic H) \cr
-#' \code{upper.H} \tab Upper confidence limit (heterogeneity statistic H) \cr
+#' \code{lower.H} \tab Lower confidence limit for H [2] \cr
+#' \code{upper.H} \tab Upper confidence limit for H [2] \cr
 #' \code{I2} \tab Heterogeneity statistic I\eqn{^2} \cr
-#' \code{lower.I2} \tab Lower confidence limit (heterogeneity statistic I\eqn{^2}) \cr
-#' \code{upper.I2} \tab Upper confidence limit (heterogeneity statistic I\eqn{^2}) \cr
+#' \code{lower.I2} \tab Lower confidence limit for I\eqn{^2} [2] \cr
+#' \code{upper.I2} \tab Upper confidence limit for I\eqn{^2} [2] \cr
 #' \code{Rb} \tab Heterogeneity statistic R\eqn{_b} \cr
-#' \code{lower.Rb} \tab Lower confidence limit (heterogeneity statistic R\eqn{_b}) \cr
-#' \code{upper.Rb} \tab Upper confidence limit (heterogeneity statistic R\eqn{_b}) \cr
+#' \code{lower.Rb} \tab Lower confidence limit for R\eqn{_b} \cr
+#' \code{upper.Rb} \tab Upper confidence limit for R\eqn{_b} \cr
 #' \code{method.bias} \tab Method to test for funnel plot asymmetry \cr
 #' \code{text.common} \tab Label for common effect model \cr
 #' \code{text.random} \tab Label for random effects model \cr
@@ -165,6 +167,11 @@
 #' \code{version} \tab Version of R package \bold{meta} used to create
 #'   object
 #' }
+#' with
+#' [1] not available for generalized linear mixed model;
+#' [2] not available for generalized linear mixed model or multi-level model
+#'   if calculation of I\eqn{^2} is based on \eqn{\tau^2}
+#'    (argument \code{method.I2 = "tau2"}).
 #' 
 #' For subgroup analysis (argument \code{subgroup}), the following
 #' additional components are added to the list.
@@ -178,11 +185,9 @@
 #' \code{tau.common} \tab Assumption of common between-study variance in subgroups \cr
 #' \code{subgroup.levels} \tab Levels of grouping variable \cr
 #' \code{k.w} \tab Number of estimates combined in subgroups \cr
-#' \code{k.study.w} \tab Number of studies combined in subgroups
-#'   \cr
+#' \code{k.study.w} \tab Number of studies combined in subgroups \cr
 #' \code{k.all.w} \tab Number of studies in subgroups \cr
-#' \code{k.TE.w} \tab Number of studies with estimable effects
-#'   in subgroups \cr
+#' \code{k.TE.w} \tab Number of studies with estimable effects in subgroups \cr
 #' \code{TE.common.w} \tab Estimated effect in subgroups (common
 #'   effect model) \cr
 #' \code{seTE.common.w} \tab Standard error in subgroups (common effect model) \cr
@@ -216,16 +221,19 @@
 #' \code{df.predict.w} \tab Degrees of freedom for prediction interval in subgroups \cr
 #' \code{lower.predict.w} \tab Lower limit of prediction interval in subgroups \cr
 #' \code{upper.predict.w} \tab Upper limit of prediction interval in subgroups \cr
-#' \code{seTE.hakn.pi.w} \tab Standard error for Hartung-Knapp method in subgroups (prediction intervals)
-#'   \cr
-#' \tab (not taking \emph{ad hoc} variance correction into account)
-#'   \cr
+#' \code{seTE.hakn.pi.w} \tab Standard error for Hartung-Knapp method in
+#'   subgroups (prediction intervals) \cr
+#' \tab (not taking \emph{ad hoc} variance correction into account) \cr
 #' \code{seTE.hakn.adhoc.pi.w} \tab Standard error for Hartung-Knapp
 #'   method in subgroups (prediction intervals) \cr
 #' \code{Q.w} \tab Heterogeneity statistic Q in subgroups \cr
 #' \code{pval.Q.w} \tab P-value for test of heterogeneity in subgroups \cr
 #' \code{tau2.w} \tab Between-study variance \eqn{\tau^2} in subgroups \cr
+#' \code{lower.tau2.w} \tab Lower confidence limit for \eqn{\tau^2} in subgroups \cr
+#' \code{upper.tau2.w} \tab Upper confidence limit for \eqn{\tau^2} in subgroups \cr
 #' \code{tau.w} \tab Square-root of between-study variance \eqn{\tau} in subgroups \cr
+#' \code{lower.tau.w} \tab Lower confidence limit for \eqn{\tau} in subgroups \cr
+#' \code{upper.tau.w} \tab Upper confidence limit for \eqn{\tau} in subgroups \cr
 #' \code{H.w} \tab Heterogeneity statistic H in subgroups \cr
 #' \code{lower.H.w} \tab Lower confidence limit for H in subgroups \cr
 #' \code{upper.H.w} \tab Upper confidence limit for H in subgroups \cr
@@ -247,14 +255,12 @@
 #'   heterogeneity (random effects model) \cr
 #' \code{Q.b.common} \tab Between-groups heterogeneity statistic
 #'   Q (common effect model) \cr
-#' \code{df.Q.b.common} \tab Degrees of freedom for \code{Q.b.common}
-#'   \cr
+#' \code{df.Q.b.common} \tab Degrees of freedom for \code{Q.b.common} \cr
 #' \code{pval.Q.b.common} \tab P-value of test for subgroup
 #'   differences (common effect model) \cr
 #' \code{Q.b.random} \tab Between-groups heterogeneity statistic
 #'   Q (random effects model) \cr
-#' \code{df.Q.b.random} \tab Degrees of freedom for \code{Q.b.random}
-#'   \cr
+#' \code{df.Q.b.random} \tab Degrees of freedom for \code{Q.b.random} \cr
 #' \code{pval.Q.b.random} \tab P-value of test for subgroup
 #'   differences (random effects model)
 #' }
@@ -265,26 +271,37 @@
 #' \tabular{ll}{
 #' \code{tau2.resid} \tab Residual between-study variance after accounting for
 #'   \cr
-#' \code{} \tab subgroup differences  (equal to entries in list element
+#' \code{} \tab subgroup differences (equal to entries in list element
 #'   \code{tau2.w}) \cr
-#' \code{lower.tau2.resid} \tab Lower confidence limit \cr
-#' \code{upper.tau2.resid} \tab Upper confidence limit \cr
+#' \code{lower.tau2.resid} \tab Lower confidence limit for
+#'   residual \eqn{\tau^2} [1] \cr
+#' \code{upper.tau2.resid} \tab Upper confidence limit for
+#'   residual \eqn{\tau^2} [1] \cr
 #' \code{tau.resid} \tab Square-root of residual between-study variance \cr
-#' \code{lower.tau.resid} \tab Lower confidence limit \cr
-#' \code{upper.tau.resid} \tab Upper confidence limit \cr
+#' \code{lower.tau.resid} \tab Lower confidence limit for
+#'   residual \eqn{\tau} [1] \cr
+#' \code{upper.tau.resid} \tab Upper confidence limit for
+#'   residual \eqn{\tau} [1] \cr
 #' \code{H.resid} \tab Heterogeneity statistic H after accounting for
 #'   subgroup differences \cr
-#' \code{lower.H.resid} \tab Lower confidence limit \cr
-#' \code{upper.H.resid} \tab Upper confidence limit \cr
+#' \code{lower.H.resid} \tab Lower confidence limit for residual H [2] \cr
+#' \code{upper.H.resid} \tab Upper confidence limit for residual H [2] \cr
 #' \code{I2.resid} \tab Heterogeneity statistic I\eqn{^2} after accounting for
 #'   subgroup differences \cr
-#' \code{lower.I2.resid} \tab Lower confidence limit \cr
-#' \code{upper.I2.resid} \tab Upper confidence limit \cr
+#' \code{lower.I2.resid} \tab Lower confidence limit for
+#'   residual I\eqn{^2} [2] \cr
+#' \code{upper.I2.resid} \tab Upper confidence limit for
+#'   residual I\eqn{^2} [2] \cr
 #' \code{Q.resid} \tab Heterogeneity statistic for residual heterogeneity \cr
 #' \code{df.Q.resid} \tab Degrees of freedom for heterogeneity statistic
 #'   \code{Q.resid} \cr
 #' \code{pval.Q.resid} \tab P-value of test for residual heterogeneity \cr
 #' }
+#' with
+#' [1] not available for generalized linear mixed model;
+#' [2] not available for generalized linear mixed model or multi-level model
+#'   if calculation of I\eqn{^2} is based on \eqn{\tau^2}
+#'    (argument \code{method.I2 = "tau2"}).
 #' 
 #' An object created with \code{\link{metabin}} has the additional
 #' class \code{"metabin"} and the following components.

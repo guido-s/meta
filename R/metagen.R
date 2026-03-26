@@ -649,10 +649,9 @@
 #'   subset = (n.asp + n.plac) > 1500,
 #'   exclude = grep("MRC", study))
 #'
-#' \dontrun{
+#' \donttest{
 #' # Three-level model: effects of modified school calendars on
 #' # student achievement
-#' data(dat.konstantopoulos2011, package = "metadat")
 #' metagen(yi, sqrt(vi), studlab = study, data = dat.konstantopoulos2011,
 #'   sm = "SMD",
 #'   cluster = district, detail.tau = c("district", "district/school"))
@@ -2411,7 +2410,7 @@ metagen <- function(TE, seTE, studlab,
         df.hakn.pi <- rep(df.hakn, length(method.predict))
         #
         for (i in seq_along(method.predict)) {
-          if (method.predict[i] == "HK" && df.hakn.pi[i] > 1) {
+          if (method.predict[i] == "HK" && df.hakn.pi[i] >= 1) {
             if (adhoc.hakn.pi[i] == "se") {
               #
               # Variance correction if SE_HK < SE_notHK (Knapp and
@@ -2424,7 +2423,7 @@ metagen <- function(TE, seTE, studlab,
             pi.i <- ci(TE.random, sqrt(seTE.hakn.adhoc.pi[i]^2 + tau2.calc),
                        level = level.predict, df = df.hakn.pi[i])
           }
-          else if (method.predict[i] == "HK-PR" && df.hakn.pi[i] > 2) {
+          else if (method.predict[i] == "HK-PR" && df.hakn.pi[i] >= 2) {
             if (adhoc.hakn.pi[i] == "se") {
               #
               # Variance correction if SE_HK < SE_notHK (Knapp and

@@ -258,9 +258,8 @@
 #'   \code{\link{metacont}}, \code{\link{metagen}},
 #'   \code{\link{metainc}}, \code{\link[netmeta]{netmeta}},
 #'   \code{\link[netmeta]{netgraph.netmeta}},
-#'   \code{\link[metadat]{dat.senn2013}},
-#'   \code{\link[metadat]{dat.franchini2012}},
-#'   \code{\link[metadat]{dat.franchini2012}}
+#'   \code{\link[metabook]{Senn2013}},
+#'   \code{\link[metabook]{Franchini2012}}
 #'
 #' @references
 #' Crippa A, Orsini N (2016):
@@ -272,21 +271,18 @@
 #' 
 #' @examples
 #' pw0 <- pairwise(studlab = study, treat = treatment,
-#'   n = ni, mean = mi, sd = sdi, data = dat.senn2013,
-#'   append = c("study", "comment"))
+#'   n = n, mean = mean, sd = sd, data = Senn2013,
+#'   varnames = c("MD", "seMD"), append = c("study", "type"))
 #' head(pw0)
 #' # Meta-analysis of studies comparing metformin to placebo
-#' metagen(pw0, subset = treat1 == "metformin" & treat2 == "placebo")
+#' metagen(pw0, subset = treat1 == "Metformin" & treat2 == "Placebo")
 #' 
 #' \dontrun{
 #' # Use pairwise() to run network meta-analyses
 #' # (R package 'netmeta' must be available)
 #' if (requireNamespace("netmeta", quietly = TRUE)) {
-#'  # Example using continuous outcomes (internal call of function
-#'  # metacont)
-#'  #
-#'  Franchini2012 <- dat.franchini2012
-#'  # Transform data from arm-based format to contrast-based format
+#'  # Example with continuous outcome - transform data from wide arm-based to
+#'  # contrast-based format (internal call of function metacont)
 #'  pw1 <- pairwise(list(Treatment1, Treatment2, Treatment3),
 #'    n = list(n1, n2, n3),
 #'    mean = list(y1, y2, y3), sd = list(sd1, sd2, sd3),
@@ -296,21 +292,21 @@
 #'  # Conduct network meta-analysis
 #'  library("netmeta")
 #'  #
-#'  net1 <- netmeta(pw1)
-#'  net1
+#'  nma1 <- netmeta(pw1)
+#'  nma1
 #' 
 #'  # Draw network graphs
 #'  #
-#'  netgraph(net1, points = TRUE, cex.points = 3, cex = 1.5,
+#'  netgraph(nma1, points = TRUE, cex.points = 3, cex = 1.5,
 #'    thickness = "se.common")
-#'  netgraph(net1, points = TRUE, cex.points = 3, cex = 1.5,
+#'  netgraph(nma1, points = TRUE, cex.points = 3, cex = 1.5,
 #'    plastic = TRUE, thickness = "se.common",
 #'    iterate = TRUE)
-#'  netgraph(net1, points = TRUE, cex.points = 3, cex = 1.5,
+#'  netgraph(nma1, points = TRUE, cex.points = 3, cex = 1.5,
 #'    plastic = TRUE, thickness = "se.common",
 #'    iterate = TRUE, start = "eigen")
 #' 
-#'  # Example using generic outcomes (internal call of function
+#'  # Example using generic outcome (internal call of function
 #'  # metagen)
 #'  #
 #'  # Calculate standard error for means y1, y2, y3
@@ -335,9 +331,9 @@
 #'    pw2[, c("TE", "seTE", "studlab", "treat1", "treat2")])
 #' 
 #'  # Same result as network meta-analysis based on continuous outcomes
-#'  # (object net1)
-#'  net2 <- netmeta(pw2)
-#'  net2
+#'  # (object nma1)
+#'  nma2 <- netmeta(pw2)
+#'  nma2
 #' 
 #'  # Example with binary data
 #'  #
@@ -355,8 +351,8 @@
 #' 
 #'  # Conduct network meta-analysis
 #'  #
-#'  net3 <- netmeta(pw3)
-#'  net3
+#'  nma3 <- netmeta(pw3)
+#'  nma3
 #' 
 #'  # Example with incidence rates
 #'  #
@@ -374,8 +370,8 @@
 #'  # "IRR"). Note, the argument 'sm' is not necessary as this is the
 #'  # default in R function metainc called internally.
 #'  #
-#'  net4 <- netmeta(pw4, sm = "IRR")
-#'  summary(net4)
+#'  nma4 <- netmeta(pw4, sm = "IRR")
+#'  summary(nma4)
 #' 
 #'  # Example with long data format
 #'  #
@@ -385,12 +381,12 @@
 #'  # function called internally.
 #'  #
 #'  pw5 <- pairwise(treatment, event = r, n = N,
-#'    studlab = author, data = dat.woods2010, sm = "OR")
+#'    studlab = author, data = Woods2010, sm = "OR")
 #'  pw5
 #' 
 #'  # Conduct network meta-analysis
-#'  net5 <- netmeta(pw5)
-#'  net5
+#'  nma5 <- netmeta(pw5)
+#'  nma5
 #' }
 #' }
 #' 

@@ -61,6 +61,9 @@
 #' @param \dots Additional arguments (ignored)
 #' 
 #' @details
+#' This function plots the density of the prediction distribution highlighting
+#' areas of clinically important benefit or harm (Siemens et al., 2025).
+#' 
 #' Arguments \code{cid}, \code{cid.below.null}, \code{cid.above.null},
 #' \code{label.cid}, \code{label.cid.below.null}, \code{label.cid.above.null},
 #' and \code{small.values} are identical to the main arguments of R function
@@ -85,6 +88,13 @@
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #'
 #' @seealso \code{\link{cidprop}}
+#' 
+#' @references
+#' Siemens W, Borenstein M, Evrenoglou T, Meerpohl JJ, Schwarzer G (2025):
+#' Beyond prediction intervals in meta-analysis: reporting the expected
+#' proportion of comparable studies with clinically relevant benefit or harm.
+#' \emph{BMC Medical Research Methodology},
+#' \bold{25}, 275
 #'
 #' @examples
 #' oldset <- settings.meta(digits.cid = 0)
@@ -397,6 +407,11 @@ plot.cidprop <- function(x,
                  sign = "\u2265 ")
     #
     min.cid.above.null <- min(cid.above.null, na.rm = TRUE)
+    #
+    if (avail.cid.below.null & prop.within.cid ==  0) {
+      dat.u %<>%
+        mutate(sign = if_else(Threshold == min.cid.above.null, "> ", sign))
+    }
   }
   #
   if (prop.within.cid > 0) {
@@ -412,7 +427,7 @@ plot.cidprop <- function(x,
         formatN(c(max.cid.below.null, min.cid.above.null),
                 digits = digits.cid, big.mark = big.mark)
       #
-     within.cid <- paste(">", within.cid[1], "to", "<", within.cid[2])
+     within.cid <- paste(within.cid[1], "to", within.cid[2])
     }
     else if (avail.cid.below.null) {
       within.cid <-
@@ -427,6 +442,8 @@ plot.cidprop <- function(x,
       within.cid <- paste("<", within.cid)
     }
   }
+  else
+    within.cid <- ""
   #
   dat.cid <- rbind(dat.l, dat.w, dat.u)
   #

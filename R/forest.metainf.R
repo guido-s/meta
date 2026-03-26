@@ -123,16 +123,17 @@ forest.metainf <- function(x,
   
   chkclass(x, "metainf")
   #
+  x$prediction <- prediction
+  x$overall <- overall
+  x$backtransf <- backtransf
+  #
   res <- forest.metacum(x,
-                        prediction = prediction,
-                        overall = overall,
+                        #
                         just.addcols = just.addcols,
                         smlab = smlab,
                         type = type,
                         layout = layout,
                         lab.NA = lab.NA,
-                        #
-                        backtransf = backtransf,
                         #
                         big.mark = big.mark,
                         digits = digits,

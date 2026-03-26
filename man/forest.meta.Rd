@@ -31,6 +31,7 @@
   subgroup.name = x$subgroup.name,
   print.subgroup.name = x$print.subgroup.name,
   sep.subgroup = x$sep.subgroup,
+  text.subgroup = NULL,
   text.common.w = text.common,
   text.random.w = text.random,
   text.predict.w = text.predict,
@@ -132,6 +133,18 @@
   print.pval.Q = gs("forest.pval.Q"),
   print.Rb = gs("forest.Rb"),
   print.Rb.ci = gs("forest.Rb.ci"),
+  label.n = gs("label.n"),
+  label.events = gs("label.events"),
+  label.mean = gs("label.mean"),
+  label.sd = gs("label.sd"),
+  label.cor = gs("label.cor"),
+  label.time = gs("label.time"),
+  label.pval = gs("label.pval"),
+  label.tau2 = gs("label.tau2"),
+  label.tau = gs("label.tau"),
+  label.I2 = gs("label.I2"),
+  label.cluster = gs("label.cluster"),
+  label.cycles = gs("label.cycles"),
   text.subgroup.nohet = gs("text.subgroup.nohet"),
   LRT = gs("LRT"),
   test.overall = gs("test.overall"),
@@ -146,6 +159,8 @@
   common.subgroup = common,
   random.subgroup = random,
   prediction.subgroup = x$prediction.subgroup,
+  print.tau2.ci.subgroup = gs("print.tau2.ci.subgroup"),
+  print.tau.ci.subgroup = gs("print.tau.ci.subgroup"),
   print.Q.subgroup = gs("forest.Q.subgroup"),
   label.test.subgroup.common,
   label.test.subgroup.random,
@@ -351,6 +366,10 @@ labels.}
 
 \item{sep.subgroup}{A character string defining the separator
 between label and levels of grouping variable.}
+
+\item{text.subgroup}{A character vector or expression to label the subgroups.
+The vector must be of the same length as the number of subgroups. Labels
+are printed from top to bottom in the forest plot.}
 
 \item{text.common.w}{A character string to label the pooled common
 effect estimate within subgroups, or a character vector of same
@@ -687,6 +706,42 @@ value of the I-squared statistic.}
 \item{print.Rb.ci}{A logical value indicating whether to print the
 confidence interval of the I-squared statistic.}
 
+\item{label.n}{A character string specifying the column label for
+the sample size.}
+
+\item{label.events}{A character string specifying the column label for
+the number of events.}
+
+\item{label.mean}{A character string specifying the column label for
+means.}
+
+\item{label.sd}{A character string specifying the column label for
+standard deviations.}
+
+\item{label.cor}{A character string specifying the column label for
+correlations.}
+
+\item{label.time}{A character string specifying the column label for
+times.}
+
+\item{label.pval}{A character string specifying the column label for
+p-values.}
+
+\item{label.tau2}{A character string specifying the column label for
+the between-study variance.}
+
+\item{label.tau}{A character string specifying the column label for
+the between-study standard deviation.}
+
+\item{label.I2}{A character string specifying the column label for
+the heterogeneity statistic I2.}
+
+\item{label.cluster}{A character string specifying the column label for
+the cluster variable.}
+
+\item{label.cycles}{A character string specifying the column label for
+the number of cycles.}
+
 \item{text.subgroup.nohet}{A logical value or character string
 which is printed to indicate subgroups with less than two studies
 contributing to meta-analysis (and thus without
@@ -737,6 +792,14 @@ printed for subgroups.}
 \item{prediction.subgroup}{A single logical or logical vector
 indicating whether / which prediction intervals should be printed
 for subgroups.}
+
+\item{print.tau2.ci.subgroup}{A single logical or logical vector
+indicating whether / which confidence intervals for between-study
+variances should be printed for subgroups.}
+
+\item{print.tau.ci.subgroup}{A single logical or logical vector
+indicating whether / which confidence intervals for between-study
+standard deviations should be printed for subgroups.}
 
 \item{print.Q.subgroup}{A logical value indicating whether to print
 the value of the heterogeneity statistic Q (test for subgroup
@@ -1319,31 +1382,35 @@ specify column headings which are printed on the left or right side of
 the forest plot. For certain columns predefined labels exist which
 are used by default, i.e., if arguments \code{leftlabs} and
 \code{rightlabs} are \code{NULL}:
-\tabular{rcccccc}{
-Column: \tab \code{studlab} \tab \code{TE} \tab \code{seTE} \tab
-  \code{cluster} \tab \code{n.e} \tab \code{n.c} \cr 
-Label: \tab "Study" \tab "TE" \tab "seTE" \tab "Cluster" \tab
-  "Total" \tab "Total" \cr
+\tabular{rccc}{
+Column: \tab \code{n.e}, \code{n.c}, \code{n} \tab
+  \code{mean.e}, \code{mean.c}, \code{mean} \tab
+  \code{sd.e}, \code{sd.c}, \code{sd} \cr 
+Label: \tab \code{gs("label.n")} \tab
+  \code{gs("label.mean")} \tab \code{gs("label.sd")} \cr
 \cr
-Column: \tab \code{n} \tab \code{event.e} \tab \code{event.c} \tab
-  \code{event} \tab \code{mean.e} \tab \code{mean.c} \cr
-Label: \tab "Total" \tab "Events" \tab "Events" \tab "Events" \tab
-  "Mean" \tab "Mean" \cr
+Column: \tab \code{event.e}, \code{event.c}, \code{event} \tab
+  \code{time.e}, \code{time.c}, \code{time} \tab \code{cor} \cr
+Label: \tab \code{gs("label.events")} \tab \code{gs("label.time")} \tab
+  \code{gs("label.cor")} \cr
 \cr
-Column: \tab \code{sd.e} \tab \code{sd.c} \tab \code{time.e}
-  \tab \code{time.c} \tab \code{effect} \tab \cr
-Label: \tab "SD" \tab "SD" \tab "Time" \tab "Time" \tab
-  \code{x$sm} \tab \cr
+Column: \tab \code{effect} \tab \code{ci} \tab \code{effect.ci} \cr
+Label: \tab \code{x$sm} \tab \code{x$level}"\%-CI" \tab \emph{effect+ci} \cr
 \cr
-Column: \tab \code{ci} \tab \code{effect.ci} \tab
-  \code{w.common} \tab \code{w.random} \tab \code{cycles} \tab \cr
-Label: \tab \code{x$level}"\%-CI" \tab \emph{effect+ci} \tab
-  "W(common)" \tab "W(random)" \tab "Cycles" \tab \cr
+Column: \tab \code{cluster} \tab \code{cycles} \tab \code{pval} \cr
+Label: \tab \code{gs("label.cluster")} \tab \code{gs("label.cycles")} \tab
+  \code{gs("label.pval")} \cr
 \cr
-Column: \tab \code{pval} \tab \code{tau2} \tab
-  \code{tau} \tab \tab \tab \cr
-Label: \tab "P-value" \tab "Tau2" \tab "Tau" \tab \tab \tab
+Column: \tab \code{tau2} \tab \code{tau} \tab \code{I2} \cr
+Label: \tab \code{gs("label.tau2")} \tab \code{gs("label.tau")} \tab
+  \code{gs("label.I2")}
 }
+
+For the columns \code{studlab} (study labels), \code{TE}
+(treatment estimates), \code{seTE} (standard errors of treatment estimates),
+\code{w.common} (weights under the common effect model), and \code{w.random}
+(weights under the random effects model), context-specific column labels
+are used.
 
 For other columns, the column name will be used as a label if no
 column label is defined. It is possible to only provide labels for

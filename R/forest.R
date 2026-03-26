@@ -56,6 +56,9 @@
 #'   labels.
 #' @param sep.subgroup A character string defining the separator
 #'   between label and levels of grouping variable.
+#' @param text.subgroup A character vector or expression to label the subgroups.
+#'   The vector must be of the same length as the number of subgroups. Labels
+#'   are printed from top to bottom in the forest plot.
 #' @param text.common.w A character string to label the pooled common
 #'   effect estimate within subgroups, or a character vector of same
 #'   length as number of subgroups with corresponging labels.
@@ -290,6 +293,30 @@
 #'   value of the I-squared statistic.
 #' @param print.Rb.ci A logical value indicating whether to print the
 #'   confidence interval of the I-squared statistic.
+#' @param label.n A character string specifying the column label for
+#'   the sample size.
+#' @param label.events A character string specifying the column label for
+#'   the number of events.
+#' @param label.mean A character string specifying the column label for
+#'   means.
+#' @param label.sd A character string specifying the column label for
+#'   standard deviations.
+#' @param label.time A character string specifying the column label for
+#'   times.
+#' @param label.cor A character string specifying the column label for
+#'   correlations.
+#' @param label.pval A character string specifying the column label for
+#'   p-values.
+#' @param label.tau2 A character string specifying the column label for
+#'   the between-study variance.
+#' @param label.tau A character string specifying the column label for
+#'   the between-study standard deviation.
+#' @param label.I2 A character string specifying the column label for
+#'   the heterogeneity statistic I2.
+#' @param label.cluster A character string specifying the column label for
+#'   the cluster variable.
+#' @param label.cycles A character string specifying the column label for
+#'   the number of cycles.
 #' @param text.subgroup.nohet A logical value or character string
 #'   which is printed to indicate subgroups with less than two studies
 #'   contributing to meta-analysis (and thus without
@@ -327,6 +354,12 @@
 #' @param prediction.subgroup A single logical or logical vector
 #'   indicating whether / which prediction intervals should be printed
 #'   for subgroups.
+#' @param print.tau2.ci.subgroup A single logical or logical vector
+#'   indicating whether / which confidence intervals for between-study
+#'   variances should be printed for subgroups.
+#' @param print.tau.ci.subgroup A single logical or logical vector
+#'   indicating whether / which confidence intervals for between-study
+#'   standard deviations should be printed for subgroups.
 #' @param print.Q.subgroup A logical value indicating whether to print
 #'   the value of the heterogeneity statistic Q (test for subgroup
 #'   differences).
@@ -779,31 +812,35 @@
 #' the forest plot. For certain columns predefined labels exist which
 #' are used by default, i.e., if arguments \code{leftlabs} and
 #' \code{rightlabs} are \code{NULL}:
-#' \tabular{rcccccc}{
-#' Column: \tab \code{studlab} \tab \code{TE} \tab \code{seTE} \tab
-#'   \code{cluster} \tab \code{n.e} \tab \code{n.c} \cr 
-#' Label: \tab "Study" \tab "TE" \tab "seTE" \tab "Cluster" \tab
-#'   "Total" \tab "Total" \cr
+#' \tabular{rccc}{
+#' Column: \tab \code{n.e}, \code{n.c}, \code{n} \tab
+#'   \code{mean.e}, \code{mean.c}, \code{mean} \tab
+#'   \code{sd.e}, \code{sd.c}, \code{sd} \cr 
+#' Label: \tab \code{gs("label.n")} \tab
+#'   \code{gs("label.mean")} \tab \code{gs("label.sd")} \cr
 #' \cr
-#' Column: \tab \code{n} \tab \code{event.e} \tab \code{event.c} \tab
-#'   \code{event} \tab \code{mean.e} \tab \code{mean.c} \cr
-#' Label: \tab "Total" \tab "Events" \tab "Events" \tab "Events" \tab
-#'   "Mean" \tab "Mean" \cr
+#' Column: \tab \code{event.e}, \code{event.c}, \code{event} \tab
+#'   \code{time.e}, \code{time.c}, \code{time} \tab \code{cor} \cr
+#' Label: \tab \code{gs("label.events")} \tab \code{gs("label.time")} \tab
+#'   \code{gs("label.cor")} \cr
 #' \cr
-#' Column: \tab \code{sd.e} \tab \code{sd.c} \tab \code{time.e}
-#'   \tab \code{time.c} \tab \code{effect} \tab \cr
-#' Label: \tab "SD" \tab "SD" \tab "Time" \tab "Time" \tab
-#'   \code{x$sm} \tab \cr
+#' Column: \tab \code{effect} \tab \code{ci} \tab \code{effect.ci} \cr
+#' Label: \tab \code{x$sm} \tab \code{x$level}"\%-CI" \tab \emph{effect+ci} \cr
 #' \cr
-#' Column: \tab \code{ci} \tab \code{effect.ci} \tab
-#'   \code{w.common} \tab \code{w.random} \tab \code{cycles} \tab \cr
-#' Label: \tab \code{x$level}"\%-CI" \tab \emph{effect+ci} \tab
-#'   "W(common)" \tab "W(random)" \tab "Cycles" \tab \cr
+#' Column: \tab \code{cluster} \tab \code{cycles} \tab \code{pval} \cr
+#' Label: \tab \code{gs("label.cluster")} \tab \code{gs("label.cycles")} \tab
+#'   \code{gs("label.pval")} \cr
 #' \cr
-#' Column: \tab \code{pval} \tab \code{tau2} \tab
-#'   \code{tau} \tab \tab \tab \cr
-#' Label: \tab "P-value" \tab "Tau2" \tab "Tau" \tab \tab \tab
+#' Column: \tab \code{tau2} \tab \code{tau} \tab \code{I2} \cr
+#' Label: \tab \code{gs("label.tau2")} \tab \code{gs("label.tau")} \tab
+#'   \code{gs("label.I2")}
 #' }
+#'
+#' For the columns \code{studlab} (study labels), \code{TE}
+#' (treatment estimates), \code{seTE} (standard errors of treatment estimates),
+#' \code{w.common} (weights under the common effect model), and \code{w.random}
+#' (weights under the random effects model), context-specific column labels
+#' are used.
 #'
 #' For other columns, the column name will be used as a label if no
 #' column label is defined. It is possible to only provide labels for
@@ -1329,6 +1366,7 @@ forest.meta <- function(x,
                         subgroup.name = x$subgroup.name,
                         print.subgroup.name = x$print.subgroup.name,
                         sep.subgroup = x$sep.subgroup,
+                        text.subgroup = NULL,
                         text.common.w = text.common,
                         text.random.w = text.random,
                         text.predict.w = text.predict,
@@ -1451,6 +1489,20 @@ forest.meta <- function(x,
                         print.pval.Q = gs("forest.pval.Q"),
                         print.Rb = gs("forest.Rb"),
                         print.Rb.ci = gs("forest.Rb.ci"),
+                        #
+                        label.n = gs("label.n"),
+                        label.events = gs("label.events"),
+                        label.mean = gs("label.mean"),
+                        label.sd = gs("label.sd"),
+                        label.cor = gs("label.cor"),
+                        label.time = gs("label.time"),
+                        label.pval = gs("label.pval"),
+                        label.tau2 = gs("label.tau2"),
+                        label.tau = gs("label.tau"),
+                        label.I2 = gs("label.I2"),
+                        label.cluster = gs("label.cluster"),
+                        label.cycles = gs("label.cycles"),
+                        #
                         text.subgroup.nohet = gs("text.subgroup.nohet"),
                         #
                         LRT = gs("LRT"),
@@ -1471,6 +1523,8 @@ forest.meta <- function(x,
                         common.subgroup = common,
                         random.subgroup = random,
                         prediction.subgroup = x$prediction.subgroup,
+                        print.tau2.ci.subgroup = gs("print.tau2.ci.subgroup"),
+                        print.tau.ci.subgroup = gs("print.tau.ci.subgroup"),
                         #
                         print.Q.subgroup = gs("forest.Q.subgroup"),
                         label.test.subgroup.common,
@@ -1763,6 +1817,8 @@ forest.meta <- function(x,
   missing.overall.hetstat <- missing(overall.hetstat)
   missing.pooled.totals <- missing(pooled.totals)
   missing.prediction.subgroup <- missing(prediction.subgroup)
+  missing.print.tau2.ci.subgroup <- missing(print.tau2.ci.subgroup)
+  missing.print.tau.ci.subgroup <- missing(print.tau.ci.subgroup)
   missing.print.I2 <- missing(print.I2)
   missing.print.Q <- missing(print.Q)
   missing.print.Rb <- missing(print.Rb)
@@ -2087,38 +2143,14 @@ forest.meta <- function(x,
     sortvar <- 1:K.all
   #
   if (!by) {
-    if (!missing.subgroup)
-      warning("Argument 'subgroup' only considered for ",
-              "meta-analysis with subgroups.",
-              call. = FALSE)
-    if (!missing.subgroup.hetstat)
-      warning("Argument 'subgroup.hetstat' only considered for ",
-              "meta-analysis with subgroups.",
-              call. = FALSE)
-    if (!missing.common.subgroup)
-      warning("Argument 'common.subgroup' only considered for ",
-              "meta-analysis with subgroups.",
-              call. = FALSE)
-    if (!missing.random.subgroup)
-      warning("Argument 'random.subgroup' only considered for ",
-              "meta-analysis with subgroups.",
-              call. = FALSE)
-    if (!missing.prediction.subgroup)
-      warning("Argument 'prediction.subgroup' only considered for ",
-              "meta-analysis with subgroups.",
-              call. = FALSE)
-    if (!missing.test.effect.subgroup)
-      warning("Argument 'test.effect.subgroup' only considered for ",
-              "meta-analysis with subgroups.",
-              call. = FALSE)
-    if (!missing.test.effect.subgroup.common)
-      warning("Argument 'test.effect.subgroup.common' only considered for ",
-              "meta-analysis with subgroups.",
-              call. = FALSE)
-    if (!missing.test.effect.subgroup.random)
-      warning("Argument 'test.effect.subgroup.random' only considered for ",
-              "meta-analysis with subgroups.",
-              call. = FALSE)
+    warn_only_subgroup(missing.subgroup)
+    warn_only_subgroup(missing.subgroup.hetstat)
+    warn_only_subgroup(missing.common.subgroup)
+    warn_only_subgroup(missing.random.subgroup)
+    warn_only_subgroup(missing.prediction.subgroup)
+    warn_only_subgroup(missing.test.effect.subgroup)
+    warn_only_subgroup(missing.test.effect.subgroup.common)
+    warn_only_subgroup(missing.test.effect.subgroup.random)
   }
   #
   if (!missing.studlab) {
@@ -2526,6 +2558,19 @@ forest.meta <- function(x,
   #
   chklogical(print.Rb)
   chklogical(print.Rb.ci)
+  #
+  chkchar(label.n, length = 1)
+  chkchar(label.events, length = 1)
+  chkchar(label.mean, length = 1)
+  chkchar(label.sd, length = 1)
+  chkchar(label.cor, length = 1)
+  chkchar(label.time, length = 1)
+  chkchar(label.pval, length = 1)
+  chkchar(label.tau2, length = 1)
+  chkchar(label.tau, length = 1)
+  chkchar(label.I2, length = 1)
+  chkchar(label.cluster, length = 1)
+  chkchar(label.cycles, length = 1)
   #
   if (bmj & overall.hetstat) {
     if (!missing.print.I2 && !print.I2)
@@ -3234,9 +3279,23 @@ forest.meta <- function(x,
     if (!missing.prediction.subgroup & !metabind)
       prediction.subgroup <- catch("prediction.subgroup", mc, x, sfsp)
     #
+    if (!missing.print.tau2.ci.subgroup & !metabind)
+      print.tau2.ci.subgroup <- catch("print.tau2.ci.subgroup", mc, x, sfsp)
+    #
+    if (!missing.print.tau.ci.subgroup & !metabind)
+      print.tau.ci.subgroup <- catch("print.tau.ci.subgroup", mc, x, sfsp)
+    #
     common.subgroup <- replaceNULL(common.subgroup, FALSE)
     random.subgroup <- replaceNULL(random.subgroup, FALSE)
     prediction.subgroup <- replaceNULL(prediction.subgroup, FALSE)
+    #
+    missing.null.print.tau2.ci.subgroup <-
+      missing.print.tau2.ci.subgroup & is.null(print.tau2.ci.subgroup)
+    print.tau2.ci.subgroup <- replaceNULL(print.tau2.ci.subgroup, FALSE)
+    #
+    missing.null.print.tau.ci.subgroup <-
+      missing.print.tau.ci.subgroup & is.null(print.tau.ci.subgroup)
+    print.tau.ci.subgroup <- replaceNULL(print.tau.ci.subgroup, FALSE)
     #
     # if (length(prediction.subgroup) == 1) {
     #   if (is.matrix(x$lower.predict.w))
@@ -3273,9 +3332,19 @@ forest.meta <- function(x,
       show_subgroup_results(prediction.subgroup, n.by,
                             x$lower.predict.w, x$upper.predict.w)
     #
+    print.tau2.ci.subgroup.logical <-
+      show_subgroup_results(print.tau2.ci.subgroup, n.by,
+                            x$lower.tau2.w, x$upper.tau2.w)
+    #
+    print.tau.ci.subgroup.logical <-
+      show_subgroup_results(print.tau.ci.subgroup, n.by,
+                            x$lower.tau.w, x$upper.tau.w)
+    #
     chklogical(common.subgroup[1])
     chklogical(random.subgroup[1])
     chklogical(prediction.subgroup[1])
+    chklogical(print.tau2.ci.subgroup[1])
+    chklogical(print.tau.ci.subgroup[1])
     #
     if (!missing.test.effect.subgroup) {
       test.effect.subgroup <-
@@ -3793,7 +3862,7 @@ forest.meta <- function(x,
   }
   else if (is_relative_effect(sm) | sm == "VE" |
            (!is.null(fbt) && fbt == "exp"))
-    sm.lab <- paste0("log", if (sm == "VE") "VR" else sm)
+    sm.lab <- paste0("ln", if (sm == "VE") "VR" else sm)
   #
   sel.studlab <-
     pmatch(layout, c("meta", "BMJ", "RevMan5", "JAMA", "subgroup"))
@@ -3919,7 +3988,7 @@ forest.meta <- function(x,
   lab.TE <- sm
   #
   if (is_relative)
-    lab.TE <- paste0("log", if (sm == "VE") "VR" else sm)
+    lab.TE <- paste0("ln", if (sm == "VE") "VR" else sm)
   else if (!is.null(ftr)) {
     lab.TE <-
       paste0(ftr, "(", sm,
@@ -3936,15 +4005,15 @@ forest.meta <- function(x,
   labnames <- c(lab.studlab,
                 lab.TE,
                 if (revman5) "SE" else paste0("SE(", lab.TE, ")"),
-                "Cluster", "Cycles",
+                label.cluster, label.cycles,
                 #
-                "Total", "Total", "Events", "Events",
+                label.n, label.n, label.events, label.events,
                 label.e, label.c, label.e,
-                "Mean", "Mean", "SD", "SD",
+                label.mean, label.mean, label.sd, label.sd,
                 label.e, label.c, label.e,
                 #
-                "Cor",
-                "Time", "Time",
+                label.cor,
+                label.time, label.time,
                 #
                 sm.lab,
                 ci.lab,
@@ -3957,46 +4026,58 @@ forest.meta <- function(x,
                 text.w.common,
                 text.w.random,
                 #
-                "P-value")
+                label.pval)
   #
   if (newcols) {
     #
     if (length(rightcols.new) > 0) {
-      if (missing.rightlabs) {
+      if (missing.rightlabs ||
+          any(is.na(rightlabs[rightcols.new %in% rightcols]))) {
         rightlabs.new <- rightcols.new
+        #
         if (RoB.available)
           rightlabs.new[rightlabs.new %in% colnames(rob)] <- rob.labels
         #
-        if ((metacor | metaprop | metamean | metarate) &
-            any(rightcols.new == "n"))
-          rightlabs.new[rightlabs.new == "n"] <- "Total"
+        if ((metacor | metaprop | metamean | metarate) &&
+            any(rightcols.new == "n") &&
+            (is.null(rightlabs) || is.na(rightlabs[rightcols == "n"])))
+          rightlabs.new[rightlabs.new == "n"] <- label.n
         #
-        if (metamean & any(rightcols.new == "mean"))
-          rightlabs.new[rightlabs.new == "mean"] <- "Mean"
+        if (metamean && any(rightcols.new == "mean") &&
+            (is.null(rightlabs) || is.na(rightlabs[rightcols == "mean"])))
+          rightlabs.new[rightlabs.new == "mean"] <- label.mean
         #
-        if (metamean & any(rightcols.new == "sd"))
-          rightlabs.new[rightlabs.new == "sd"] <- "SD"
+        if (metamean && any(rightcols.new == "sd") &&
+            (is.null(rightlabs) || is.na(rightlabs[rightcols == "sd"])))
+          rightlabs.new[rightlabs.new == "sd"] <- label.sd
         #
-        if (metarate & any(rightcols.new == "time"))
-          rightlabs.new[rightlabs.new == "time"] <- "Time"
+        if (metarate && any(rightcols.new == "time") &&
+            (is.null(rightlabs) || is.na(rightlabs[rightcols == "time"])))
+          rightlabs.new[rightlabs.new == "time"] <- label.time
         #
-        if (any(rightcols.new == "pval"))
-          rightlabs.new[rightlabs.new == "pval"] <- "P-value"
+        if (any(rightcols.new == "pval") &&
+            (is.null(rightlabs) || is.na(rightlabs[rightcols == "pval"])))
+          rightlabs.new[rightlabs.new == "pval"] <- label.pval
         #
-        if (any(rightcols.new == "tau2"))
-          rightlabs.new[rightlabs.new == "tau2"] <- "Tau2"
+        if (any(rightcols.new == "tau2") &&
+            (is.null(rightlabs) || is.na(rightlabs[rightcols == "tau2"])))
+          rightlabs.new[rightlabs.new == "tau2"] <- label.tau2
         #
-        if (any(rightcols.new == "tau"))
-          rightlabs.new[rightlabs.new == "tau"] <- "Tau"
+        if (any(rightcols.new == "tau") &&
+            (is.null(rightlabs) || is.na(rightlabs[rightcols == "tau"])))
+          rightlabs.new[rightlabs.new == "tau"] <- label.tau
         #
-        if (any(rightcols.new == "I2"))
-          rightlabs.new[rightlabs.new == "I2"] <- "I2"
+        if (any(rightcols.new == "I2") &&
+            (is.null(rightlabs) || is.na(rightlabs[rightcols == "I2"])))
+          rightlabs.new[rightlabs.new == "I2"] <- label.I2
         #
-        if (three.level & any(rightcols.new == "cluster"))
-          rightlabs.new[rightlabs.new == "cluster"] <- "Cluster"
+        if (three.level && any(rightcols.new == "cluster") &&
+            (is.null(rightlabs) || is.na(rightlabs[rightcols == "cluster"])))
+          rightlabs.new[rightlabs.new == "cluster"] <- label.cluster
         #
-        if (n_of_1 & any(rightcols.new == "cycles"))
-          rightlabs.new[rightlabs.new == "cycles"] <- "Cycles"
+        if (n_of_1 && any(rightcols.new == "cycles") &&
+            (is.null(rightlabs) || is.na(rightlabs[rightcols == "cycles"])))
+          rightlabs.new[rightlabs.new == "cycles"] <- label.cycles
       }
       else {
         if (length(rightcols.new) == length(rightlabs))
@@ -4015,13 +4096,13 @@ forest.meta <- function(x,
               if (!is.na(match2.i))
                 rightlabs.new[i] <- labnames[match2.i]
               else if (rightcols.new[i] == "pval")
-                rightlabs.new[i] <- "P-value"
+                rightlabs.new[i] <- label.pval
               else if (rightcols.new[i] == "tau2")
-                rightlabs.new[i] <- "Tau2"
+                rightlabs.new[i] <- label.tau2
               else if (rightcols.new[i] == "tau")
-                rightlabs.new[i] <- "Tau"
+                rightlabs.new[i] <- label.tau
               else if (rightcols.new[i] == "I2")
-                rightlabs.new[i] <- "I2"
+                rightlabs.new[i] <- label.I2
             }
           }
         }
@@ -4029,39 +4110,50 @@ forest.meta <- function(x,
     }
     #
     if (length(leftcols.new) > 0) {
-      if (missing.leftlabs) {
+      if (missing.leftlabs |
+          any(is.na(leftlabs[leftcols.new %in% leftcols]))) {
         leftlabs.new <- leftcols.new
         #
-        if ((metacor | metaprop | metamean | metarate) &
-            any(leftcols.new == "n"))
-          leftlabs.new[leftlabs.new == "n"] <- "Total"
+        if ((metacor | metaprop | metamean | metarate) &&
+            any(leftcols.new == "n") &&
+            (is.null(leftlabs) || is.na(leftlabs[leftcols == "n"])))
+          leftlabs.new[leftlabs.new == "n"] <- label.n
         #
-        if (metamean & any(leftcols.new == "mean"))
-          leftlabs.new[leftlabs.new == "mean"] <- "Mean"
+        if (metamean && any(leftcols.new == "mean") &&
+            (is.null(leftlabs) || is.na(leftlabs[leftcols == "mean"])))
+          leftlabs.new[leftlabs.new == "mean"] <- label.mean
         #
-        if (metamean & any(leftcols.new == "sd"))
-          leftlabs.new[leftlabs.new == "sd"] <- "SD"
+        if (metamean && any(leftcols.new == "sd") &&
+            (is.null(leftlabs) || is.na(leftlabs[leftcols == "sd"])))
+          leftlabs.new[leftlabs.new == "sd"] <- label.sd
         #
-        if (metarate & any(leftcols.new == "time"))
-          leftlabs.new[leftlabs.new == "time"] <- "Time"
+        if (metarate && any(leftcols.new == "time") &&
+            (is.null(leftlabs) || is.na(leftlabs[leftcols == "time"])))
+          leftlabs.new[leftlabs.new == "time"] <- label.time
         #
-        if (any(leftcols.new == "pval"))
-          leftlabs.new[leftlabs.new == "pval"] <- "P-value"
+        if (any(leftcols.new == "pval") &&
+            (is.null(leftlabs) || is.na(leftlabs[leftcols == "pval"])))
+          leftlabs.new[leftlabs.new == "pval"] <- label.pval
         #
-        if (any(leftcols.new == "tau2"))
-          leftlabs.new[leftlabs.new == "tau2"] <- "Tau2"
+        if (any(leftcols.new == "tau2") &&
+            (is.null(leftlabs) || is.na(leftlabs[leftcols == "tau2"])))
+          leftlabs.new[leftlabs.new == "tau2"] <- label.tau2
         #
-        if (any(leftcols.new == "tau"))
-          leftlabs.new[leftlabs.new == "tau"] <- "Tau"
+        if (any(leftcols.new == "tau") &&
+            (is.null(leftlabs) || is.na(leftlabs[leftcols == "tau"])))
+          leftlabs.new[leftlabs.new == "tau"] <- label.tau
         #
-        if (any(leftcols.new == "I2"))
-          leftlabs.new[leftlabs.new == "I2"] <- "I2"
+        if (any(leftcols.new == "I2") &&
+            (is.null(leftlabs) || is.na(leftlabs[leftcols == "I2"])))
+          leftlabs.new[leftlabs.new == "I2"] <- label.I2
         #
-        if (three.level & any(leftcols.new == "cluster"))
-          leftlabs.new[leftlabs.new == "cluster"] <- "Cluster"
+        if (three.level && any(leftcols.new == "cluster") &&
+            (is.null(leftlabs) || is.na(leftlabs[leftcols == "cluster"])))
+          leftlabs.new[leftlabs.new == "cluster"] <- label.cluster
         #
-        if (n_of_1 & any(leftcols.new == "cycles"))
-          leftlabs.new[leftlabs.new == "cycles"] <- "Cycles"
+        if (n_of_1 && any(leftcols.new == "cycles") &&
+            (is.null(leftlabs) || is.na(leftlabs[leftcols == "cycles"])))
+          leftlabs.new[leftlabs.new == "cycles"] <- label.cycles
       }
       else {
         if (length(leftcols.new) == length(leftlabs))
@@ -4080,13 +4172,13 @@ forest.meta <- function(x,
               if (!is.na(match2.i))
                 leftlabs.new[i] <- labnames[match2.i]
               else if (leftcols.new[i] == "pval")
-                leftlabs.new[i] <- "P-value"
+                leftlabs.new[i] <- label.pval
               else if (leftcols.new[i] == "tau2")
-                leftlabs.new[i] <- "Tau2"
+                leftlabs.new[i] <- label.tau2
               else if (leftcols.new[i] == "tau")
-                leftlabs.new[i] <- "Tau"
+                leftlabs.new[i] <- label.tau
               else if (leftcols.new[i] == "I2")
-                leftlabs.new[i] <- "I2"
+                leftlabs.new[i] <- label.I2
             }
           }
         }
@@ -6660,6 +6752,8 @@ forest.meta <- function(x,
     common.subgroup.logical <- common.subgroup.logical[o.w]
     random.subgroup.logical <- random.subgroup.logical[o.w]
     prediction.subgroup.logical <- prediction.subgroup.logical[o.w]
+    print.tau2.ci.subgroup.logical <- print.tau2.ci.subgroup.logical[o.w]
+    print.tau.ci.subgroup.logical <- print.tau.ci.subgroup.logical[o.w]
     #
     # Do (not) drop subgroups without studies in subgroup
     # meta-analysis
@@ -6728,6 +6822,20 @@ forest.meta <- function(x,
     common.subgroup.logical <- common.subgroup.logical[sel.w]
     random.subgroup.logical <- random.subgroup.logical[sel.w]
     prediction.subgroup.logical <- prediction.subgroup.logical[sel.w]
+    print.tau2.ci.subgroup.logical <- print.tau2.ci.subgroup.logical[sel.w]
+    print.tau.ci.subgroup.logical <- print.tau.ci.subgroup.logical[sel.w]
+    #
+    if (missing.null.print.tau2.ci.subgroup)
+      print.tau2.ci.subgroup.logical <- k.w > 2
+    #
+    lower.tau2.w[!print.tau2.ci.subgroup.logical] <- NA
+    upper.tau2.w[!print.tau2.ci.subgroup.logical] <- NA
+    #
+    if (missing.null.print.tau.ci.subgroup)
+      print.tau.ci.subgroup.logical <- k.w > 2
+    #
+    lower.tau.w[!print.tau.ci.subgroup.logical] <- NA
+    upper.tau.w[!print.tau.ci.subgroup.logical] <- NA
     #
     subgroup.levels <- subgroup.levels[sel.w]
     #
@@ -7977,16 +8085,16 @@ forest.meta <- function(x,
     #
     tau.ci.line <-
       grepl(" of tau^2 and tau", text.details, fixed = TRUE) |
-      grepl(" of tau", text.details, fixed = TRUE) |
-      grepl(" of tau^2", text.details, fixed = TRUE)
+      grepl(" of tau^2", text.details, fixed = TRUE) |
+      grepl(" of tau", text.details, fixed = TRUE)
     #
     if (any(tau.ci.line)) {
       id <- seq_along(tau.ci.line)[tau.ci.line]
       #
       for (i in id) {
         td[[i]] <- gsub(" of tau^2 and tau", " of ", td[[i]], fixed = TRUE)
-        td[[i]] <- gsub(" of tau", " of ", td[[i]], fixed = TRUE)
         td[[i]] <- gsub(" of tau^2", " of ", td[[i]], fixed = TRUE)
+        td[[i]] <- gsub(" of tau", " of ", td[[i]], fixed = TRUE)
       }
       #
       if (print.tau.ci) {
@@ -8057,8 +8165,10 @@ forest.meta <- function(x,
       }
     }
     #
-    if (length(td) == 0)
+    if (length(td) == 0) {
       text.details <- ""
+      details <- FALSE
+    }
     else
       text.details <- td
   }
@@ -8932,9 +9042,17 @@ forest.meta <- function(x,
   #
   if (by) {
     #
-    subgroup.name <-
-      bylabel(subgroup.name, subgroup.levels, print.subgroup.name,
-              sep.subgroup, big.mark = big.mark)
+    if (!is.null(text.subgroup)) {
+      if (length(text.subgroup) != length(subgroup.levels))
+        stop("Length of argument 'text.subgroup' must be equal to ",
+             length(subgroup.levels), ", i.e., the number of subgroups.")
+      #
+      subgroup.name <- text.subgroup
+    }
+    else
+      subgroup.name <-
+        bylabel(subgroup.name, subgroup.levels, print.subgroup.name,
+                sep.subgroup, big.mark = big.mark)
     #
     wrong.common <- FALSE
     wrong.random <- FALSE
@@ -11321,6 +11439,9 @@ forest.meta <- function(x,
       #
       if (addrow.overall & !addrow & n.lines == 0)
         ymin.line <- ymin.line - 1
+      #
+      if (!overall.hetstat & RoB.legend)
+        ymin.line <- ymin.line + 1
     }
     #
     if (!overall & addrow & n.lines == 0)

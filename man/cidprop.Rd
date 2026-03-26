@@ -92,7 +92,7 @@ benefit or harm which is derived from the prediction interval.
 \details{
 Expected proportions of comparable studies with clinically important
 benefit or harm are derived from the prediction interval in
-the meta-analysis.
+the meta-analysis (Siemens et al., 2025).
 
 Clinically important benefit or harm can be defined using either argument
 \code{cid} or \code{cid.below.null} and \code{cid.above.null}.
@@ -103,6 +103,9 @@ specified. In this case, the values of \code{cid.below.null} and
 \item \code{cid} and \code{1 / cid} for ratio measures,
 \item \code{cid} and \code{-cid} for difference measures.
 }
+
+By default, i.e., if no input is provided for argument \code{cid}, the
+null effect is used as threshold.
 
 Thresholds based on argument \code{cid} will always be symmetric. Asymmetric
 thresholds can be defined using arguments \code{cid.below.null} and
@@ -131,6 +134,13 @@ pp5
 
 settings.meta(oldset)
 
+}
+\references{
+Siemens W, Borenstein M, Evrenoglou T, Meerpohl JJ, Schwarzer G (2025):
+Beyond prediction intervals in meta-analysis: reporting the expected
+proportion of comparable studies with clinically relevant benefit or harm.
+\emph{BMC Medical Research Methodology},
+\bold{25}, 275
 }
 \seealso{
 \code{\link{plot.cidprop}}

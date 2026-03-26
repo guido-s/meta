@@ -258,7 +258,14 @@ addHet <- function(x, hcc, within = TRUE) {
   res$I2.resid <- hcc$I2.resid
   res$lower.I2.resid <- hcc$lower.I2.resid
   res$upper.I2.resid <- hcc$upper.I2.resid
-  ##
+  #
+  # No confidence interval for tau2.w for three-level model
+  #
+  if (x$tau.common & x$method.tau.ci %in% c("BJ", "J", "QP")) {
+    res$lower.tau2.w[is.na(res$lower.tau2.w)] <- res$lower.tau2.resid
+    res$upper.tau2.w[is.na(res$upper.tau2.w)] <- res$upper.tau2.resid
+  }
+  #
   res
 }
 
@@ -611,6 +618,7 @@ addGLMM <- function(x, glmm, method.I2, null.effect = x$null.effect) {
   k <- x$k
   len <- length(x$TE)
   level.ma <- x$level.ma
+  level.hetstat <- x$level.hetstat
   level.predict <- x$level.predict
   method.random.ci <- x$method.random.ci
   method.predict <- x$method.predict
@@ -688,22 +696,22 @@ addGLMM <- function(x, glmm, method.I2, null.effect = x$null.effect) {
   res$sign.upper.tau <- res$sign.lower.tau <- res$method.tau.ci <- ""
   ##
   if (method.I2 == "Q") {
-    H <- calcH(Q, df.Q, level.ma)
+    H <- calcH(Q, df.Q, level.hetstat)
     res$H <- H$TE
     res$lower.H <- H$lower
     res$upper.H <- H$upper
     #
-    I2 <- isquared(Q, df.Q, level.ma)
+    I2 <- isquared(Q, df.Q, level.hetstat)
     res$I2 <- I2$TE
     res$lower.I2 <- I2$lower
     res$upper.I2 <- I2$upper
   }
   else {
-    res$H <- sqrt(glmm$H2)
+    res$H <- sqrt(gr1$H2)
     res$lower.H <- NA
     res$upper.H <- NA
     #
-    res$I2 <- glmm$I2 / 100
+    res$I2 <- gr1$I2 / 100
     res$lower.I2 <- NA
     res$upper.I2 <- NA
   }
@@ -727,8 +735,8 @@ hccGLMM <- function(x, glmm, method.I2) {
   df.Q.r <- glmm$k - glmm$p
   ##
   if (method.I2 == "Q") {
-    H.r  <- calcH(Q.r, df.Q.r, x$level.ma)
-    I2.r <- isquared(Q.r, df.Q.r, x$level.ma)
+    H.r  <- calcH(Q.r, df.Q.r, x$level.hetstat)
+    I2.r <- isquared(Q.r, df.Q.r, x$level.hetstat)
   }
   else {
     H.r  <- list(TE = sqrt(glmm$H2), lower = NA, upper = NA)

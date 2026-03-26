@@ -578,6 +578,8 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("method.predict", "V")
     setOption("test.subgroup", TRUE)
     setOption("prediction.subgroup", FALSE)
+    setOption("print.tau2.ci.subgroup", NULL)
+    setOption("print.tau.ci.subgroup", NULL)
     setOption("method.bias", "Egger")
     setOption("tool.rob", NULL)
     setOption("overall.hetstat", NULL)
@@ -774,7 +776,20 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("forest.pval.Q", NULL)
     setOption("forest.Rb", FALSE)
     setOption("forest.Rb.ci", FALSE)
-    ##
+    #
+    setOption("label.n", "Total")
+    setOption("label.events", "Events")
+    setOption("label.mean", "Mean")
+    setOption("label.sd", "SD")
+    setOption("label.cor", "Cor")
+    setOption("label.time", "Time")
+    setOption("label.pval", "P-value")
+    setOption("label.tau2", "Tau2")
+    setOption("label.tau", "Tau")
+    setOption("label.I2", "I2")
+    setOption("label.cluster", "Cluster")
+    setOption("label.cycles", "Cycles")
+    #
     setOption("text.subgroup.nohet", "not applicable")
     ##
     setOption("LRT", FALSE)
@@ -1269,7 +1284,10 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("fill.equi              ")
     ##
     catarg("fill                   ")
-    ##
+    #
+    catarg("print.tau2.ci.subgroup ")
+    catarg("print.tau.ci.subgroup  ")
+    #
     catarg("leftcols               ")
     catarg("rightcols              ")
     catarg("leftlabs               ")
@@ -1324,7 +1342,20 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("forest.pval.Q          ")
     catarg("forest.Rb              ")
     catarg("forest.Rb.ci           ")
-    ##
+    #
+    catarg("label.n                ")
+    catarg("label.events           ")
+    catarg("label.mean             ")
+    catarg("label.sd               ")
+    catarg("label.cor              ")
+    catarg("label.time             ")
+    catarg("label.pval             ")
+    catarg("label.tau2             ")
+    catarg("label.tau              ")
+    catarg("label.I2               ")
+    catarg("label.cluster          ")
+    catarg("label.cycles           ")
+    #
     catarg("text.subgroup.nohet    ")
     ##
     catarg("LRT                    ")
@@ -1571,6 +1602,8 @@ settings.meta <- function(..., quietly = TRUE) {
     setlogical("test.overall", args)
     setlogical("test.subgroup", args)
     setlogical("prediction.subgroup", args)
+    setlogical("print.tau2.ci.subgroup", args, NULL.ok = TRUE)
+    setlogical("print.tau.ci.subgroup", args, NULL.ok = TRUE)
     setlogical("test.effect.subgroup", args)
     setnumeric("digits.forest", args)
     setnumeric("digits.TE.forest", args)
@@ -1644,7 +1677,20 @@ settings.meta <- function(..., quietly = TRUE) {
     setlogical("forest.pval.Q", args, TRUE)
     setlogical("forest.Rb", args)
     setlogical("forest.Rb.ci", args)
-    ##
+    #
+    setcharacter("label.n", args)
+    setcharacter("label.events", args)
+    setcharacter("label.mean", args)
+    setcharacter("label.sd", args)
+    setcharacter("label.cor", args)
+    setcharacter("label.time", args)
+    setcharacter("label.pval", args)
+    setcharacter("label.tau2", args)
+    setcharacter("label.tau", args)
+    setcharacter("label.I2", args)
+    setcharacter("label.cluster", args)
+    setcharacter("label.cycles", args)
+    #
     setcharacter("text.subgroup.nohet", args)
     ##
     setlogical("LRT", args)
