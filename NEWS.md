@@ -22,6 +22,9 @@
 
 * R function cidprop() uses null effect as threshold, if defined
 
+* R function pairwise() accepts data in the common BUGS format, i.e.,
+  relative treatment effects in comparison to a reference treatment
+
 * R package **metabook** added to Depends (to access meta-analysis datasets)
 
 ### User-visible changes
@@ -37,6 +40,11 @@
   - new arguments 'print.tau2.ci.subgroup' and 'print.tau.ci.subgroup'
     to specify which confidence intervals for *tau2* or *tau* should be printed
     for subgroups
+
+* pairwise():
+  - new argument 'relative.effects' to indicate that the input to arguments
+    'TE' and 'seTE' are relative treatment effects in comparison to a
+    study specific reference treatment
 
 * settings.meta():
   - new arguments to define default column labels in forest plots

@@ -23,6 +23,7 @@ pairwise(
   incr = gs("incr"),
   method.incr = gs("method.incr"),
   allstudies = gs("allstudies"),
+  relative.effects = FALSE,
   reference.group,
   keep.all.comparisons,
   sep.ag = "*",
@@ -88,6 +89,10 @@ correction method should be used (\code{"only0"},
 events in two treatment arms are to be included in the
 meta-analysis (applies only if \code{sm} is equal to \code{"RR"}
 or \code{"OR"}).}
+
+\item{relative.effects}{A logical indicating whether treatment estimates
+and standard errors provided in \code{TE} and \code{seTE} are relative
+treatment effects.}
 
 \item{reference.group}{Reference treatment (first treatment is used
 if argument is missing).}
