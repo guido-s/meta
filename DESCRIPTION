@@ -6,7 +6,7 @@ Depends: R (>= 4.0.0), metabook (>= 0.2-0), metadat
 Imports: metafor (>= 3.0-0), grid, ggplot2, lme4, CompQuadForm, xml2,
   methods, readr, dplyr, magrittr, purrr, stringr, tibble, scales
 Suggests: netmeta, BiasedUrn, pimeta, estmeansd, robvis, brglm2, writexl,
-  rmarkdown, knitr, ggpubr, gridExtra
+  rmarkdown, knitr, ggpubr, gridExtra, gemtc
 Authors@R: person("Guido", "Schwarzer",
                   role = c("cre", "aut"),
                   email = "guido.schwarzer@uniklinik-freiburg.de",

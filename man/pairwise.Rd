@@ -201,11 +201,16 @@ following arguments are mandatory:
 \item treat, TE, seTE (see \code{\link{metagen}}).
 }
 
-(using the \code{\link{metabin}} function from R package meta),
-
 Admissible values for arguments \code{method} and \code{sm} are outcome
 specific; see help pages of R functions \code{\link{metabin}},
 \code{\link{metacont}}, \code{\link{metainc}}, and \code{\link{metagen}}.
+
+It is also possible to provide data in the common BUGS format, i.e.,
+relative treatment effects in comparison to a reference treatment. In this
+case, the user has to specify argument \code{relative.effects = TRUE} and
+the data set must provide the relative treatment estimates and standard
+errors. The relative treatment effect for the study-specific reference
+treatment must be equal to \code{NA} (see Examples).
 
 Argument \code{treat} is mandatory to identify the individual
 treatments. The other arguments contain outcome specific
@@ -432,6 +437,39 @@ if (requireNamespace("netmeta", quietly = TRUE)) {
  # Conduct network meta-analysis
  nma5 <- netmeta(pw5)
  nma5
+ 
+ # Relative treatment effects as input, i.e., common BUGS format
+ #
+ if (requireNamespace("gemtc", quietly = TRUE) ) {
+ library(gemtc)
+ 
+ dat1 <- parkinson_diff$data
+ 
+ pw6 <- pairwise(treatment, TE = diff, seTE = std.err, studlab = study,
+   data = dat1, relative.effects = TRUE, sm = "MD")
+ pw6
+ #
+ nma6 <- netmeta(pw6, common = FALSE, method.tau = "REML",
+   small.values = "undesirable")
+ nma6
+
+ datE <- dat1[nrow(dat1), ]
+ datE$treatment <- "E"
+ dat2 <- rbind(dat1, datE)
+ #
+ pw7 <- pairwise(treatment, TE = diff, seTE = std.err, studlab = study,
+   data = dat2, relative.effects = TRUE, sm = "MD")
+ nma7 <- netmeta(pw7, common = FALSE, method.tau = "REML",
+   small.values = "undesirable")
+ nma7
+ #
+ # Number of pairwise comparisons
+ #
+ nma6$m
+ nma7$m
+ #
+ detach("package:gemtc")
+}
 }
 }
 
