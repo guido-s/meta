@@ -1,10 +1,14 @@
-# for use with dplyr::group_map
+# For use with dplyr::group_map
+#
 pwgen_study <- function(input, studlab) {
   # Get rid of warning 'Undefined global functions or variables'
   treat1 <- NULL
   #
   studlab <- studlab$studlab
 
+  # Get rid of warning 'Undefined global functions or variables'
+  n <- NULL
+  
   # separate the reference arm from the other rows
   ref <- input[input$treat1 == input$treat2, ]
   stopifnot(nrow(ref) == 1)
@@ -48,19 +52,26 @@ pwgen_study <- function(input, studlab) {
 #    estimate, otherwise it is the standard error of the reference arm
 #    (or the square root of the covariance between treatment effects) - optional
 #    for two-arm studies.
+#
 pwgen <- function(studlab, treat1, treat2, TE, seTE, n) {
   nulln <- is.null(n)
   if (nulln) {
     n <- rep(NA, length(TE))
   }
+  
+  # Get rid of warning 'Undefined global functions or variables'
+  n1 <- n2 <- NULL
+  
   result <- data.frame(studlab, treat1, treat2, TE, seTE, n) %>%
     group_by(studlab) %>%
     group_map(pwgen_study) %>%
     bind_rows() %>%
     relocate(studlab)
+  
   if (nulln) {
     result %>% select(!c(n1, n2)) %>% as.data.frame
-  } else {
+  }
+  else {
     as.data.frame(result)
   }
 }
