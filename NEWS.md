@@ -1,4 +1,4 @@
-## meta, version 8.3-0 (2026-mm-dd)
+## meta, version 8.3-0 (2026-04-01)
 
 ### Major changes
 
