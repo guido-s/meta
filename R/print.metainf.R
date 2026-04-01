@@ -77,12 +77,12 @@
 #' 
 #' @examples
 #' data(Fleiss1993bin)
-#' m1 <- metabin(d.asp, n.asp, d.plac, n.plac,
+#' ma <- metabin(d.asp, n.asp, d.plac, n.plac,
 #'   data = Fleiss1993bin, studlab = study, sm = "RR", method = "I")
-#' m1
-#' metainf(m1)
-#' metainf(m1, pooled = "random")
-#' metainf(m1, pooled = "random", prediction = TRUE)
+#' ma
+#' metainf(ma)
+#' metainf(ma, pooled = "random")
+#' metainf(ma, pooled = "random", prediction = TRUE)
 #'
 #' @method print metainf
 #' @export

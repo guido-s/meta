@@ -93,13 +93,13 @@ drawn.
 }
 \examples{
 data(Olkin1995)
-m1 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
+ma <- metabin(ev.exp, n.exp, ev.cont, n.cont,
   data = Olkin1995, subset = c(41, 47, 51, 59),
   studlab = paste(author, year), sm = "RR", method = "I")
 
 # Radial plot
 #
-radial(m1, level = 0.95)
+radial(ma, level = 0.95)
 
 }
 \references{

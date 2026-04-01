@@ -124,47 +124,46 @@
 #' 
 #' @examples
 #' data(Olkin1995)
-#' m1 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
+#' ma <- metabin(ev.exp, n.exp, ev.cont, n.cont,
 #'   data = Olkin1995, studlab = paste(author, year),
 #'   sm = "RR", method = "I")
 #' 
 #' # L'Abbe plot for risk ratio
 #' #
-#' labbe(m1)
+#' labbe(ma)
 #' 
 #' # L'Abbe plot for odds ratio
 #' #
-#' labbe(m1, sm = "OR")
+#' labbe(ma, sm = "OR")
 #' # same plot
-#' labbe(update(m1, sm = "OR"))
+#' labbe(update(ma, sm = "OR"))
 #' 
 #' # L'Abbe plot for risk difference
 #' #
-#' labbe(m1, sm = "RD")
+#' labbe(ma, sm = "RD")
 #' 
 #' # L'Abbe plot on log odds scale
 #' #
-#' labbe(m1, sm = "OR", backtransf = FALSE)
+#' labbe(ma, sm = "OR", backtransf = FALSE)
 #' 
 #' # L'Abbe plot for odds ratio with coloured lines for various
 #' # treatment effects (defined as log odds ratios)
 #' #
 #' mycols <- c("blue", "yellow", "green", "red", "green", "yellow", "blue")
-#' labbe(m1, sm = "OR", random = FALSE,
+#' labbe(ma, sm = "OR", random = FALSE,
 #'   TE.common = log(c(1 / 10, 1 / 5, 1 / 2, 1, 2, 5, 10)),
 #'   col.common = mycols, lwd.common = 2)
 #' 
 #' # L'Abbe plot on log odds scale with coloured lines for various
 #' # treatment effects (defined as log odds ratios)
 #' #
-#' labbe(m1, sm = "OR", random = FALSE, backtransf = FALSE,
+#' labbe(ma, sm = "OR", random = FALSE, backtransf = FALSE,
 #'   TE.common = log(c(1 / 10, 1 / 5, 1 / 2, 1, 2, 5, 10)),
 #'   col.common = mycols, lwd.common = 2)
 #' 
 #' @rdname labbe
 #' @method labbe metabin
 #' @export
-
 
 labbe.metabin <- function(x,
                           xlim, ylim,
@@ -186,26 +185,26 @@ labbe.metabin <- function(x,
                           studlab = FALSE, cex.studlab = 0.8, pos.studlab = 2,
                           label.e = x$label.e, label.c = x$label.c,
                           warn.deprecated = gs("warn.deprecated"),
-                          ##
+                          #
                           TE.fixed, fixed, lwd.fixed, lty.fixed, col.fixed,
-                          ##
+                          #
                           ...) {
   
   
-  ##
-  ##
-  ## (1) Check for meta object and upgrade older meta objects
-  ##
-  ##
+  #
+  #
+  # (1) Check for meta object and upgrade older meta objects
+  #
+  #
   chkclass(x, "metabin")
   x <- updateversion(x)
   
   
-  ##
-  ##
-  ## (2) Check other arguments
-  ##
-  ##
+  #
+  #
+  # (2) Check other arguments
+  #
+  #
   common <-
     deprecated2(common, missing(common), fixed, missing(fixed),
                 warn.deprecated)
@@ -236,7 +235,7 @@ labbe.metabin <- function(x,
   sm <- setchar(sm, gs("sm4bin"))
   chknumeric(cex.studlab)
   chklogical(warn.deprecated)
-  ##
+  #
   pos.studlab <- as.numeric(setchar(pos.studlab, as.character(1:4)))
   
   
@@ -248,7 +247,7 @@ labbe.metabin <- function(x,
     xpos <- x$event.c / x$n.c
     ypos <- x$event.e / x$n.e
   }
-  ##
+  #
   if(length(xpos) != length(ypos))
     stop("event rates must be of same length")
   
@@ -266,7 +265,7 @@ labbe.metabin <- function(x,
     }
     else
       TE.common <- m$TE.common
-    ##
+    #
     if (missing(TE.random))
       TE.random <- m$TE.random
     w.common <- m$w.common
@@ -276,9 +275,9 @@ labbe.metabin <- function(x,
     w.common <- x$w.common
     w.random <- x$w.random
   }
-  ##
-  ## Exclude studies from meta-analysis
-  ##
+  #
+  # Exclude studies from meta-analysis
+  #
   if (!is.null(x$exclude)) {
     xpos <- xpos[!x$exclude]
     ypos <- ypos[!x$exclude]
@@ -305,22 +304,22 @@ labbe.metabin <- function(x,
   
   if (missing(weight))
     weight <- ifelse(random & !common, "random", "common")
-  ##
+  #
   iweight <- charmatch(tolower(weight),
                        c("same", "common", "random"), nomatch = NA)
-  ##
+  #
   if(is.na(iweight))
     stop("weight should be \"same\", \"common\", or \"random\"")
-  ##
+  #
   weight <- c("same", "common", "random")[iweight]
-  ##
+  #
   if (weight == "common")
     cex.i <- 4 * cex * sqrt(w.common) / sqrt(max(w.common))
   else if (weight == "random")
     cex.i <- 4 * cex * sqrt(w.random) / sqrt(max(w.random))
   else if (weight == "same")
     cex.i <- cex
-  ##
+  #
   if (min(cex.i) < 0.5)
     cex.i <- cex.i + (0.5 - min(cex.i))
   
@@ -339,7 +338,7 @@ labbe.metabin <- function(x,
     minval <- min(c(xpos, ypos), na.rm = TRUE)
   else
     minval <- 0
-  ##
+  #
   if (missing(xlim) & missing(ylim)) {
     xlim <- c(minval, max(c(xpos, ypos), na.rm = TRUE))
     ylim <- xlim
@@ -348,7 +347,7 @@ labbe.metabin <- function(x,
     xlim <- c(minval, max(c(xpos, ypos), na.rm = TRUE))
   if (missing(ylim))
     ylim <- xlim
-  ##
+  #
   chknumeric(xlim, length = 2)
   chknumeric(ylim, length = 2)
   
@@ -379,7 +378,7 @@ labbe.metabin <- function(x,
           xlab <- "Arcsin-transformed event rate (Control)"
     }
   }
-  ##
+  #
   if (is.null(ylab)) {
     if (length(label.e) > 0) {
       ylab <- paste0("Event rate (", label.e, ")")
@@ -406,39 +405,39 @@ labbe.metabin <- function(x,
   
   if (common && length(lty.common) == 1 & length(TE.common) > 1)
     lty.common <- rep(lty.common, length(TE.common))
-  ##
+  #
   if (common && length(lwd.common) == 1 & length(TE.common) > 1)
     lwd.common <- rep(lwd.common, length(TE.common))
-  ##
+  #
   if (common && length(col.common) == 1 & length(TE.common) > 1)
     col.common <- rep(col.common, length(TE.common))
   
   if (random && length(lty.random) == 1 & length(TE.random) > 1)
     lty.random <- rep(lty.random, length(TE.random))
-  ##
+  #
   if (random && length(lwd.random) == 1 & length(TE.random) > 1)
     lwd.random <- rep(lwd.random, length(TE.random))
-  ##
+  #
   if (random && length(col.random) == 1 & length(TE.random) > 1)
     col.random <- rep(col.random, length(TE.random))
   
   
-  ##
-  ## Generate L'Abbe plot
-  ##
+  #
+  # Generate L'Abbe plot
+  #
   plot(xpos, ypos, type = "n", 
        xlim = xlim, ylim = ylim, xlab = xlab, ylab = ylab,
        axes = axes, ...)
-  ##
+  #
   if (nulleffect)
     abline(0, 1, lwd = lwd.nulleffect, col = col.nulleffect)
-  ##
+  #
   points(xpos, ypos, pch = pch, cex = cex.i, col = col, bg = bg, lwd = lwd)
   
   
-  ##
-  ## Auxillary function
-  ##
+  #
+  # Auxillary function
+  #
   addlines <- function(x.line, y.line, ylim, lty, lwd, col) {
     sel <- min(ylim) <= y.line & y.line <= max(ylim)
     if (sum(sel) > 1)
@@ -447,12 +446,12 @@ labbe.metabin <- function(x,
   }
   
   
-  ##
-  ## Add results for common effect model
-  ##
+  #
+  # Add results for common effect model
+  #
   if (common & length(TE.common) > 0) {
     x.line <- seq(min(xlim), max(xlim), len = 100)
-    ##
+    #
     if (!backtransf)
       for (i in 1:length(TE.common))
         abline(TE.common[i], 1,
@@ -492,12 +491,12 @@ labbe.metabin <- function(x,
   }
   
   
-  ##
-  ## Add results for random effects model
-  ##
+  #
+  # Add results for random effects model
+  #
   if (random & length(TE.random) > 0) {
     x.line <- seq(min(xlim), max(xlim), len = 100)
-    ##
+    #
     if (!backtransf)
       for (i in 1:length(TE.random))
         abline(TE.random[i], 1,
@@ -537,9 +536,9 @@ labbe.metabin <- function(x,
   }
 
 
-  ##
-  ## Add study labels
-  ##
+  #
+  # Add study labels
+  #
   if (!is.logical(studlab) && length(studlab) > 0)
     text(xpos, ypos, labels = studlab, pos = pos.studlab, cex = cex.studlab)
   
@@ -554,7 +553,6 @@ labbe.metabin <- function(x,
 #' @rdname labbe
 #' @method labbe default
 #' @export
-
 
 labbe.default <- function(x, y,
                           xlim, ylim,
@@ -574,22 +572,22 @@ labbe.default <- function(x, y,
                           sm = "", weight,
                           studlab = FALSE, cex.studlab = 0.8, pos.studlab = 2,
                           label.e = NULL, label.c = NULL,
-                          ##
+                          #
                           warn.deprecated = gs("warn.deprecated"),
                           TE.fixed, fixed, lwd.fixed, lty.fixed, col.fixed,
                           ...) {
   
-  ##
-  ##
-  ## (1) Check arguments
-  ##
-  ##
+  #
+  #
+  # (1) Check arguments
+  #
+  #
   xpos <- x
   ypos <- y
-  ##
+  #
   if(length(xpos) != length(ypos))
     stop("arguments 'x' and 'y' must be of same length")
-  ##
+  #
   common <-
     deprecated2(common, missing(common), fixed, missing(fixed),
                 warn.deprecated)
@@ -621,7 +619,7 @@ labbe.default <- function(x, y,
   sm <- setchar(sm, gs("sm4bin"))
   chknumeric(cex.studlab)
   chklogical(warn.deprecated)
-  ##
+  #
   pos.studlab <- as.numeric(setchar(pos.studlab, as.character(1:4)))
   
   
@@ -645,7 +643,7 @@ labbe.default <- function(x, y,
     cex.i <- 4 * cex * sqrt(weight) / sqrt(max(weight))
   else
     cex.i <- rep(cex, length(xpos))
-  ##
+  #
   if (min(cex.i) < 0.5)
     cex.i <- cex.i + (0.5 - min(cex.i))
   
@@ -654,7 +652,7 @@ labbe.default <- function(x, y,
     minval <- 0
   else
     minval <- min(c(xpos, ypos), na.rm = TRUE)
-  ##
+  #
   if (missing(xlim) & missing(ylim)) {
     xlim <- c(minval, max(c(xpos, ypos), na.rm = TRUE))
     ylim <- xlim
@@ -691,7 +689,7 @@ labbe.default <- function(x, y,
           xlab <- "Arcsin-transformed event rate (Control)"
     }
   }
-  ##
+  #
   if (is.null(ylab)) {
     if (length(label.e) > 0) {
       ylab <- paste0("Event rate (", label.e, ")")
@@ -718,39 +716,39 @@ labbe.default <- function(x, y,
   
   if (common && length(lty.common) == 1 & length(TE.common) > 1)
     lty.common <- rep(lty.common, length(TE.common))
-  ##
+  #
   if (common && length(lwd.common) == 1 & length(TE.common) > 1)
     lwd.common <- rep(lwd.common, length(TE.common))
-  ##
+  #
   if (common && length(col.common) == 1 & length(TE.common) > 1)
     col.common <- rep(col.common, length(TE.common))
   
   if (random && length(lty.random) == 1 & length(TE.random) > 1)
     lty.random <- rep(lty.random, length(TE.random))
-  ##
+  #
   if (random && length(lwd.random) == 1 & length(TE.random) > 1)
     lwd.random <- rep(lwd.random, length(TE.random))
-  ##
+  #
   if (random && length(col.random) == 1 & length(TE.random) > 1)
     col.random <- rep(col.random, length(TE.random))
   
   
-  ##
-  ## Generate L'Abbe plot
-  ##
+  #
+  # Generate L'Abbe plot
+  #
   plot(xpos, ypos, type = "n", 
        xlim = xlim, ylim = ylim, xlab = xlab, ylab = ylab,
        axes = axes, ...)
-  ##
+  #
   if (nulleffect)
     abline(0, 1, lwd = lwd.nulleffect, col = col.nulleffect)
-  ##
+  #
   points(xpos, ypos, pch = pch, cex = cex.i, col = col, bg = bg, lwd = lwd)
   
   
-  ##
-  ## Auxillary function
-  ##
+  #
+  # Auxillary function
+  #
   addlines <- function(x.line, y.line, ylim, lty, lwd, col) {
     sel <- min(ylim) <= y.line & y.line <= max(ylim)
     if (sum(sel) > 1)
@@ -759,12 +757,12 @@ labbe.default <- function(x, y,
   }
   
   
-  ##
-  ## Add results for common effect model
-  ##
+  #
+  # Add results for common effect model
+  #
   if (common & length(TE.common) > 0) {
     x.line <- seq(min(xlim), max(xlim), len = 100)
-    ##
+    #
     if (!backtransf)
       for (i in 1:length(TE.common))
         abline(TE.common[i], 1,
@@ -804,12 +802,12 @@ labbe.default <- function(x, y,
   }
   
   
-  ##
-  ## Add results for random effects model
-  ##
+  #
+  # Add results for random effects model
+  #
   if (random & length(TE.random) > 0) {
     x.line <- seq(min(xlim), max(xlim), len = 100)
-    ##
+    #
     if (!backtransf)
       for (i in 1:length(TE.random))
         abline(TE.random[i], 1,
@@ -849,9 +847,9 @@ labbe.default <- function(x, y,
   }
 
 
-  ##
-  ## Add study labels
-  ##
+  #
+  # Add study labels
+  #
   if (!is.logical(studlab) && length(studlab) > 0)
     text(xpos, ypos, labels = studlab, pos = pos.studlab, cex = cex.studlab)
   

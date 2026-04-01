@@ -122,32 +122,32 @@ the values on the y-axis.
 data(Olkin1995)
 
 # Only consider first ten studies
-m1 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
+ma1 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
   data = Olkin1995, sm = "OR", method = "I", studlab = paste(author, year),
   subset = 1:10)
 
 # Generate Baujat plot
-baujat(m1)
+baujat(ma1)
 
 \dontrun{
-m1 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
+ma2 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
   data = Olkin1995, sm = "OR", method = "I", studlab = paste(author, year))
 
 # Do not print study labels if the x-value is smaller than 4 and
 # the y-value is smaller than 1
-baujat(m1, yscale = 10, xmin = 4, ymin = 1)
+baujat(ma2, yscale = 10, xmin = 4, ymin = 1)
 
 # Change position of study labels
-baujat(m1, yscale = 10, xmin = 4, ymin = 1,
-       pos = 1, xlim = c(0, 6.5))
+baujat(ma2, yscale = 10, xmin = 4, ymin = 1,
+  pos = 1, xlim = c(0, 6.5))
 
 # Generate Baujat plot and assign x- and y- coordinates to R object
-# b1
-b1 <- baujat(m1)
+# ba2
+ba2 <- baujat(ma2)
 
 # Calculate overall heterogeneity statistic
-sum(b1$x)
-m1$Q
+sum(ba2$x)
+ma2$Q
 }
 
 }

@@ -77,20 +77,19 @@
 #' @examples
 #' # Example from Borenstein et al. (2009), Chapter 7
 #' #
-#' mb <- or2smd(0.9069, sqrt(0.0676))
+#' ma0 <- or2smd(0.9069, sqrt(0.0676))
 #' # TE = standardised mean difference (SMD); seTE = standard error of SMD
-#' data.frame(SMD = round(mb$TE, 4), varSMD = round(mb$seTE^2, 4))
+#' data.frame(SMD = round(ma0$TE, 4), varSMD = round(ma0$seTE^2, 4))
 #'
 #' # Use dataset from Fleiss (1993)
 #' #
 #' data(Fleiss1993bin)
-#' m1 <- metabin(d.asp, n.asp, d.plac, n.plac,
+#' ma1 <- metabin(d.asp, n.asp, d.plac, n.plac,
 #'   data = Fleiss1993bin, studlab = paste(study, year),
 #'   sm = "OR", random = FALSE)
-#' or2smd(m1)
+#' or2smd(ma1)
 #' 
 #' @export or2smd
-
 
 or2smd <- function(lnOR, selnOR, studlab,
                    data = NULL, subset = NULL, exclude = NULL,
@@ -98,7 +97,7 @@ or2smd <- function(lnOR, selnOR, studlab,
   
   
   is.meta <- inherits(lnOR, "meta")
-  ##
+  #
   if (is.meta) {
     lnOR <- updateversion(lnOR)
     if (lnOR$sm != "OR")
@@ -110,51 +109,51 @@ or2smd <- function(lnOR, selnOR, studlab,
     }
   }
   else {
-    ##
-    ## Read data
-    ##
+    #
+    # Read data
+    #
     nulldata <- is.null(data)
     sfsp <- sys.frame(sys.parent())
     mc <- match.call()
-    ##
+    #
     if (nulldata)
       data <- sfsp
-    ##
-    ## Catch 'lnOR' and 'selnOR' from data:
-    ##
+    #
+    # Catch 'lnOR' and 'selnOR' from data:
+    #
     lnOR <- catch("lnOR", mc, data, sfsp)
-    ##
+    #
     selnOR <- catch("selnOR", mc, data, sfsp)
-    ##
+    #
     k.All <- length(lnOR)
     chknull(lnOR)
-    ##
-    ## Catch 'studlab', 'subset', and 'exclude' from data:
-    ##
+    #
+    # Catch 'studlab', 'subset', and 'exclude' from data:
+    #
     studlab <- catch("studlab", mc, data, sfsp)
     studlab <- setstudlab(studlab, k.All)
     print(studlab)
-    ##
+    #
     missing.subset <- missing(subset)
     subset <- catch("subset", mc, data, sfsp)
-    ##
+    #
     missing.exclude <- missing(exclude)
     exclude <- catch("exclude", mc, data, sfsp)
-    ##
-    ## Check length of essential variables
-    ##
+    #
+    # Check length of essential variables
+    #
     arg <- "lnOR"
-    ##
+    #
     chklength(selnOR, k.All, arg)
     chklength(studlab, k.All, arg)
-    ##
-    ## Subset and exclude studies
-    ##
+    #
+    # Subset and exclude studies
+    #
     if (!missing.subset)
       if ((is.logical(subset) & (sum(subset) > k.All)) ||
           (length(subset) > k.All))
         stop("Length of argument 'subset' is larger than number of studies.")
-    ##
+    #
     if (!missing.exclude)
       if ((is.logical(exclude) & (sum(exclude) > k.All)) ||
           (length(exclude) > k.All))
@@ -163,7 +162,7 @@ or2smd <- function(lnOR, selnOR, studlab,
   
   
   method <- setchar(method, c("HH", "CS"))
-  ##  
+  #  
   if (method == "HH") {
     smd <- lnOR * sqrt(3) / pi
     se.smd <- selnOR * sqrt(3) / pi
@@ -180,39 +179,39 @@ or2smd <- function(lnOR, selnOR, studlab,
                      data = mdat,
                      subset = mdat$subset, exclude = mdat$exclude,
                      cluster = mdat$cluster,
-                     ##
+                     #
                      sm = "SMD",
-                     ##
+                     #
                      level = mdat$level, level.ma = mdat$level.ma,
                      common = mdat$common,
                      random = mdat$random,
                      overall = mdat$overall,
                      overall.hetstat = mdat$overall.hetstat,
-                     ##
+                     #
                      method.random.ci = mdat$method.random.ci,
                      adhoc.hakn.ci = mdat$adhoc.hakn.ci,
-                     ##
+                     #
                      prediction = mdat$prediction,
                      method.predict = mdat$method.predict,
                      adhoc.hakn.pi = mdat$adhoc.hakn.pi,
                      level.predict = mdat$level.predict,
-                     ##
+                     #
                      method.tau = mdat$method.tau,
                      method.tau.ci = mdat$method.tau.ci,
                      level.hetstat = mdat$level.hetstat,
                      tau.common = mdat$tau.common,
                      detail.tau = mdat$detail.tau,
-                     ##
+                     #
                      null.effect = 0,
-                     ##
+                     #
                      method.bias = mdat$method.bias,
-                     ##
+                     #
                      text.common = mdat$text.common,
                      text.random = mdat$text.random,
                      text.predict = mdat$text.predict,
                      text.w.common = mdat$text.w.common,
                      text.w.random = mdat$text.w.random,
-                     ##
+                     #
                      title = mdat$title, complab = mdat$complab,
                      outclab = mdat$outclab,
                      #
@@ -228,39 +227,39 @@ or2smd <- function(lnOR, selnOR, studlab,
                      data = mdat,
                      subset = mdat$subset, exclude = mdat$exclude,
                      cluster = mdat$cluster,
-                     ##
+                     #
                      sm = "SMD",
-                     ##
+                     #
                      level = mdat$level, level.ma = mdat$level.ma,
                      common = mdat$common,
                      random = mdat$random,
                      overall = mdat$overall,
                      overall.hetstat = mdat$overall.hetstat,
-                     ##
+                     #
                      method.random.ci = mdat$method.random.ci,
                      adhoc.hakn.ci = mdat$adhoc.hakn.ci,
-                     ##
+                     #
                      prediction = mdat$prediction,
                      method.predict = mdat$method.predict,
                      adhoc.hakn.pi = mdat$adhoc.hakn.pi,
                      level.predict = mdat$level.predict,
-                     ##
+                     #
                      method.tau = mdat$method.tau,
                      method.tau.ci = mdat$method.tau.ci,
                      level.hetstat = mdat$level.hetstat,
                      tau.common = mdat$tau.common,
                      detail.tau = mdat$detail.tau,
-                     ##
+                     #
                      null.effect = 0,
-                     ##
+                     #
                      method.bias = mdat$method.bias,
-                     ##
+                     #
                      text.common = mdat$text.common,
                      text.random = mdat$text.random,
                      text.predict = mdat$text.predict,
                      text.w.common = mdat$text.w.common,
                      text.w.random = mdat$text.w.random,
-                     ##
+                     #
                      title = mdat$title, complab = mdat$complab,
                      outclab = mdat$outclab,
                      #
@@ -276,19 +275,19 @@ or2smd <- function(lnOR, selnOR, studlab,
                      sep.subgroup = mdat$sep.subgroup,
                      test.subgroup = mdat$test.subgroup,
                      prediction.subgroup = mdat$prediction.subgroup,
-                     ##
+                     #
                      control = mdat$control)
   }
   else {
     dat <- data.frame(lnOR, selnOR, OR = exp(lnOR), smd, se.smd, studlab)
     dat$subset <- subset
     dat$exclude <- exclude
-    ##
+    #
     res <- metagen(smd, se.smd, studlab = studlab,
                    data = dat, subset = subset, exclude = exclude,
                    sm = "SMD", ...)
   }
-  ##
+  #
   res$method.or2smd <- method
   
   

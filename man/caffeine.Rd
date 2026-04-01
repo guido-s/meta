@@ -35,17 +35,17 @@ oldset <- settings.meta("RevMan5")
 data(caffeine)
 head(caffeine)
 
-m1 <- metabin(h.caf, n.caf, h.decaf, n.decaf, sm = "OR",
+ma1 <- metabin(h.caf, n.caf, h.decaf, n.decaf, sm = "OR",
   data = caffeine, studlab = paste(study, year))
 
 # Add risk of bias assessment to meta-analysis
-m1 <- rob(D1, D2, D3, D4, D5, overall = rob, data = m1, tool = "rob2")
+ma2 <- rob(D1, D2, D3, D4, D5, overall = rob, data = ma1, tool = "rob2")
 
 # Print risk of bias assessment
-rob(m1)
+rob(ma2)
 
 # Forest plot with risk of bias assessment
-forest(m1)
+forest(ma2)
 
 settings.meta(oldset)
 }

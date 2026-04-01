@@ -23,7 +23,7 @@ bylabel <- function(subgroup.name, subgroup.levels, print.subgroup.name,
 crtitle <- function(x) {
   tl <- options()$width - 12
   newline <- FALSE
-  ##  
+  #  
   if (!is.null(x$title)) {
     if (x$title != "") {
       newline <- TRUE
@@ -67,16 +67,16 @@ formatCI <- function(lower, upper,
                      ...
                      ) {
   
-  ## Change layout of CIs
-  ##
+  # Change layout of CIs
+  #
   chkchar(bracket.left, length = 1)
   chkchar(separator, length = 1)
   if (!missing(bracket.right))
     chkchar(bracket.right, length = 1)
-  ##
+  #
   if (missing(bracket.left)) {
     bracktype <- setchar(bracket.left, c("[", "(", "{", ""))
-    ##
+    #
     if (bracktype == "[") {
       bracketLeft <- "["
       bracketRight <- "]"
@@ -93,26 +93,26 @@ formatCI <- function(lower, upper,
       bracketLeft <- ""
       bracketRight <- ""
     }
-    ##
+    #
     bracket.left <- bracketLeft
   }
-  ##
+  #
   if (missing(bracket.right))
     bracket.right <- bracketRight
   
   format.lower <- format(lower, justify = justify.lower)
   format.upper <- format(upper, justify = justify.upper)
-  ##
+  #
   if (!lower.blank)
     format.lower <- rmSpace(format.lower)
   if (!upper.blank)
     format.upper <- rmSpace(format.upper)
-  ##
+  #
   if (separator == "-")
     format.upper <-
       paste0(ifelse(substring(format.upper, 1, 1) == "-", " ", ""),
              format.upper)
-  ##
+  #
   res <- ifelse(lower != "NA" & upper != "NA",
                 paste0(bracket.left,
                        format.lower,
@@ -120,7 +120,7 @@ formatCI <- function(lower, upper,
                        format.upper,
                        bracket.right),
                 "")
-  ##
+  #
   res
 }
 
@@ -159,9 +159,9 @@ formatN <- function(x, digits = 2, text.NA = "--", big.mark = "",
                   text.NA,
                   format(x, decimal.mark = outdec, big.mark = big.mark))
   }
-  ##
+  #
   res <- rmSpace(res, end = TRUE)
-  ##
+  #
   res
 }
 
@@ -289,14 +289,14 @@ formatPT <- function(x, lab = FALSE, labval = "p", noblanks = FALSE,
       res <- formatC(x, decimal.mark = outdec,
                      big.mark = big.mark, format = "e", digits = digits)
   }
-  ##
+  #
   if (noblanks)
     res <- gsub(" ", "", res)
   if (!zero)
     res <- gsub("0\\.", "\\.", res)
-  ##
-  ## Treat NaNs as NAs
-  ##
+  #
+  # Treat NaNs as NAs
+  #
   res[grep("NaN", res)] <- lab.NA
   
   res
@@ -314,8 +314,8 @@ p.ci <- function(lower, upper, rmspace = TRUE,
   warning("Use of function p.ci() from R package meta is deprecated; ",
           "use instead formatCI().")
   
-  ## Change layout of CIs
-  ##
+  # Change layout of CIs
+  #
   ibracktype <- charmatch(gs("CIbracket"),
                           c("[", "(", "{", ""), nomatch = NA)
   if (is.na(ibracktype) | ibracktype == 0) {
@@ -327,7 +327,7 @@ p.ci <- function(lower, upper, rmspace = TRUE,
   }
   else
     bracktype <- c("[", "(", "{", "")[ibracktype]
-  ##
+  #
   if (bracktype == "[") {
     bracketLeft <- "["
     bracketRight <- "]"
@@ -344,19 +344,19 @@ p.ci <- function(lower, upper, rmspace = TRUE,
     bracketLeft <- ""
     bracketRight <- ""
   }
-  ##
+  #
   if (missing(bracket.left))
     bracket.left <- bracketLeft
-  ##
+  #
   if (missing(bracket.right))
     bracket.right <- bracketRight
-  ##
+  #
   
   if (rmspace) {
     lower <- rmSpace(lower)
     upper <- rmSpace(upper)
   }
-  ##
+  #
   res <- ifelse(lower != "NA" & upper != "NA",
                 paste0(bracket.left,
                        format(lower, justify = justify.lower),
@@ -364,7 +364,7 @@ p.ci <- function(lower, upper, rmspace = TRUE,
                        format(upper, justify = justify.upper),
                        bracket.right),
                 "")
-  ##
+  #
   res
 }
 

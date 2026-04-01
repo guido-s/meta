@@ -140,12 +140,12 @@ Print results of a cumulative meta-analysis
 }
 \examples{
 data(Fleiss1993bin)
-m1 <- metabin(d.asp, n.asp, d.plac, n.plac,
+ma <- metabin(d.asp, n.asp, d.plac, n.plac,
   data = Fleiss1993bin, studlab = study, sm = "RR", method = "I")
-m1
-metacum(m1)
-metacum(m1, pooled = "random")
-metacum(m1, pooled = "random", prediction = TRUE)
+ma
+metacum(ma)
+metacum(ma, pooled = "random")
+metacum(ma, pooled = "random", prediction = TRUE)
 
 }
 \seealso{

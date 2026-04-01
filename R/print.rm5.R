@@ -50,40 +50,39 @@
 #' @method print rm5
 #' @export
 
-
 print.rm5 <- function(x, comp.no, outcome.no, ...) {
   
   
-  ##
-  ##
-  ## (1) Check for rm5 object
-  ##
-  ##
+  #
+  #
+  # (1) Check for rm5 object
+  #
+  #
   chkclass(x, "rm5")
   
   
   if (missing(comp.no))
     comp.no <- unique(x$comp.no)
-  ##
+  #
   res <- list()
-  ##
+  #
   n <- 1
-  ##
+  #
   for (i in comp.no) {
     if (missing(outcome.no))
       jj <- unique(x$outcome.no[x$comp.no == i])
     else
       jj <- outcome.no
     for (j in jj) {
-      ##
+      #
       res[[n]] <- metacr(x, i, j, ...)
-      ##
+      #
       n <- n + 1
     }
   }
-  ##
+  #
   n <- 1
-  ##
+  #
   for (i in seq_len(length(res))) {
     if (n > 1)
       cat("\n*****\n\n")

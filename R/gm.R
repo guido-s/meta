@@ -12,9 +12,9 @@ gm <- function(x, digits = 4, debug = FALSE) {
   }
   
   func <- if (debug) list else data.frame
-  ## Get rid of warning 'Undefined global functions or variables'
+  # Get rid of warning 'Undefined global functions or variables'
   model <- NULL
-  ##
+  #
   if (inherits(x, "metabind")) {
     res <-
       with(
@@ -41,10 +41,10 @@ gm <- function(x, digits = 4, debug = FALSE) {
               df.predict = replaceNULL(df.predict), adhoc.hakn.pi)
         )
       )
-    ##
+    #
     res$meth <- subset(res$meth, model %in% c("common", "random"))
     res$pred <- subset(res$pred, model == "predict")
-    ##
+    #
     return(res)
   }
   #
@@ -136,13 +136,13 @@ gm <- function(x, digits = 4, debug = FALSE) {
     return(res)
   }
   else {
-    ##
+    #
     n.com <- length(x$lower.common)
     n.ran <- length(x$lower.random)
     n.prd <- length(x$lower.predict)
-    ##
+    #
     x$method <- expandvar(x$method, n.com, 1)
-    ##
+    #
     x$method.common.ci <- expandvar(x$method.common.ci, n.com, 1)
     #
     x$method.random <- expandvar(x$method.random, n.ran, 1)
@@ -155,9 +155,9 @@ gm <- function(x, digits = 4, debug = FALSE) {
     x$tau <- expandvar(x$tau, n.ran, 1)
     x$adhoc.hakn.ci <- expandvar(x$adhoc.hakn.ci, n.ran, 1)
     x$rho <- expandvar(x$rho, n.ran, 1)
-    ##
+    #
     x$method.predict <- expandvar(x$method.predict, n.prd, 1)
-    ##
+    #
     res <-
       list(meth = 
              with(x,
@@ -165,10 +165,10 @@ gm <- function(x, digits = 4, debug = FALSE) {
                     model = c(rep("common", n.com), rep("random", n.ran)),
                     method = c(method, method.random),
                     three.level = c(rep(FALSE, n.com), x$three.level),
-                    ##
+                    #
                     k = k, k.all = k.all, k.MH = NA, k.study = k.study,
                     k.TE = k.TE, k0 = NA,
-                    ##
+                    #
                     method.tau = c(rep("", n.com), x$method.tau),
                     method.tau.ci = c(rep("", n.com), x$method.tau.ci),
                     tau = round(c(rep(NA, n.com), x$tau), digits),
@@ -180,17 +180,17 @@ gm <- function(x, digits = 4, debug = FALSE) {
                     method.random.ci = c(rep("", n.com), method.random.ci),
                     df.random = c(rep(NA, n.com), unlist(df.random)),
                     adhoc.hakn.ci = c(rep("", n.com), adhoc.hakn.ci),
-                    ##
+                    #
                     rho = c(rep(0, n.com), x$rho))),
            pred =
              with(x,
                   data.frame(method.predict = method.predict))
            )
   }
-  ##
+  #
   if (!is.null(x$tau.preset))
     res$meth$tau.preset <- round(c(rep(NA, n.com), x$tau.preset), digits)
-  ##
+  #
   if (inherits(x, "metabin")) {
     res$meth$k.MH <- x$k.MH
     res$meth$incr <- incr
@@ -204,7 +204,7 @@ gm <- function(x, digits = 4, debug = FALSE) {
       x$Q.Cochrane <- rep(x$Q.Cochrane, n.ran)
     res$meth$Q.Cochrane <- c(rep(FALSE, n.com), x$Q.Cochrane)
   }
-  ##
+  #
   if (inherits(x, "metacont")) {
     res$meth$pooledvar <- x$pooledvar
     res$meth$method.smd <- x$method.smd
@@ -213,10 +213,10 @@ gm <- function(x, digits = 4, debug = FALSE) {
     res$meth$method.mean <- x$method.mean
     res$meth$method.sd <- x$method.sd
   }
-  ##
+  #
   if (inherits(x, "metainc"))
     res$meth$k.MH <- x$k.MH
-  ##
+  #
   if (inherits(x, c("metainc", "metaprop", "metarate"))) {
     res$meth$incr <- incr
     res$meth$method.incr <- x$method.incr
@@ -240,11 +240,11 @@ gm <- function(x, digits = 4, debug = FALSE) {
     res$meth$k.MH <- NULL
   if (allNA(res$meth$k0))
     res$meth$k0 <- NULL
-  ##
+  #
   if (!is.null(x$df.predict))
     res$pred$df.predict <- unlist(x$df.predict)
   if (!is.null(x$adhoc.hakn.pi))
     res$pred$adhoc.hakn.pi <- x$adhoc.hakn.pi
-  ##
+  #
   res
 }

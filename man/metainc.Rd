@@ -490,17 +490,17 @@ TRUE}.
 }
 \examples{
 data(smoking)
-m1 <- metainc(d.smokers, py.smokers, d.nonsmokers, py.nonsmokers,
+ma1 <- metainc(d.smokers, py.smokers, d.nonsmokers, py.nonsmokers,
   data = smoking, studlab = study)
-print(m1, digits = 2)
+print(ma1, digits = 2)
 
-m2 <- update(m1, method = "Cochran")
-print(m2, digits = 2)
+ma2 <- update(ma1, method = "Cochran")
+print(ma2, digits = 2)
 
 data(lungcancer)
-m3 <- metainc(d.smokers, py.smokers, d.nonsmokers, py.nonsmokers,
+ma3 <- metainc(d.smokers, py.smokers, d.nonsmokers, py.nonsmokers,
   data = lungcancer, studlab = study)
-print(m3, digits = 2)
+print(ma3, digits = 2)
 
 # Redo Cochran meta-analysis with inflated standard errors
 #
@@ -526,17 +526,17 @@ metagen(TEl, seTEl, sm = "IRR", studlab = lungcancer$study)
 
 # Poisson regression model (fixed study effects)
 #
-m4 <- metainc(d.smokers, py.smokers, d.nonsmokers, py.nonsmokers,
+ma4 <- metainc(d.smokers, py.smokers, d.nonsmokers, py.nonsmokers,
   data = smoking, studlab = study, method = "GLMM")
-m4
+ma4
 
 # Mixed-effects Poisson regression model (random study effects)
 #
-update(m4, model.glmm = "UM.RS", nAGQ = 1)
+update(ma4, model.glmm = "UM.RS", nAGQ = 1)
 #
 # Generalised linear mixed model (conditional Poisson-Normal)
 #
-update(m4, model.glmm = "CM.EL")
+update(ma4, model.glmm = "CM.EL")
 }
 
 }

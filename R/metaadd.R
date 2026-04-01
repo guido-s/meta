@@ -69,21 +69,20 @@
 #' data(Fleiss1993bin)
 #' 
 #' # Common effect and random effects meta-analysis
-#' m1 <- metabin(d.asp, n.asp, d.plac, n.plac, data = Fleiss1993bin,
+#' ma1 <- metabin(d.asp, n.asp, d.plac, n.plac, data = Fleiss1993bin,
 #'   studlab = paste(study, year), sm = "OR")
 #'
 #' # Naive pooling
-#' m2 <- metabin(sum(d.asp), sum(n.asp), sum(d.plac), sum(n.plac),
+#' ma2 <- metabin(sum(d.asp), sum(n.asp), sum(d.plac), sum(n.plac),
 #'   data = Fleiss1993bin, sm = "OR", text.common = "Naive pooling")
 #'
 #' # Add results of second meta-analysis from common effect model
-#' m12 <- metaadd(m1, data = m2)
-#' m12
+#' ma12 <- metaadd(ma1, data = ma2)
+#' ma12
 #'
-#' forest(m12)
+#' forest(ma12)
 #' 
 #' @export metaadd
-
 
 metaadd <- function(x, type = NULL,
                     #
@@ -99,11 +98,11 @@ metaadd <- function(x, type = NULL,
                     #
                     transf = gs("transf")) {
   
-  ##
-  ##
-  ## (1) Check arguments
-  ##
-  ##
+  #
+  #
+  # (1) Check arguments
+  #
+  #
   
   chkclass(x, "meta")
   res <- updateversion(x)
@@ -114,7 +113,7 @@ metaadd <- function(x, type = NULL,
          call. = FALSE)
   #
   missing.type <- missing(type)
-  ##
+  #
   missing.TE <- missing(TE)
   missing.lower <- missing(lower)
   missing.upper <- missing(upper)
@@ -135,16 +134,16 @@ metaadd <- function(x, type = NULL,
   chklogical(transf)
   
   
-  ##
-  ##
-  ## (2) Read data
-  ##
-  ##
+  #
+  #
+  # (2) Read data
+  #
+  #
   
   nulldata <- is.null(data)
   sfsp <- sys.frame(sys.parent())
   mc <- match.call()
-  ##
+  #
   if (nulldata)
     data <- sfsp
   #
@@ -163,7 +162,7 @@ metaadd <- function(x, type = NULL,
         warning("Argument '", name, "' ignored as argument 'data' is a ",
                 "meta-analysis object.",
                 call. = FALSE)
-    ##
+    #
     warnmeta(missing.type, "type")
     warnmeta(missing.TE, "TE")
     warnmeta(missing.lower, "lower")
@@ -347,11 +346,11 @@ metaadd <- function(x, type = NULL,
   }
   
   
-  ##
-  ##
-  ## (3) Add results
-  ##
-  ##
+  #
+  #
+  # (3) Add results
+  #
+  #
   
   init.random <- res$random
   #
@@ -382,11 +381,11 @@ metaadd <- function(x, type = NULL,
       #
       res$text.common <-
         c(if (res$common) res$text.common, dat$text[i])
-      ##
+      #
       res$common <- TRUE
       res$overall <- TRUE
     }
-    ##
+    #
     if (dat$type[i] == "random") {
       if (!res$random)
         res$w.random[!is.na(res$w.random)] <- NA

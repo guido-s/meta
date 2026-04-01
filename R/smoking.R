@@ -51,15 +51,14 @@
 #' @examples
 #' data(smoking)
 #' 
-#' m1 <- metainc(d.smokers, py.smokers, d.nonsmokers, py.nonsmokers,
+#' ma1 <- metainc(d.smokers, py.smokers, d.nonsmokers, py.nonsmokers,
 #'   data = smoking, studlab = study)
-#' print(m1, digits = 2)
+#' print(ma1, digits = 2)
 #' 
 #' data(lungcancer)
 #' 
-#' m2 <- metainc(d.smokers, py.smokers, d.nonsmokers, py.nonsmokers,
+#' ma2 <- metainc(d.smokers, py.smokers, d.nonsmokers, py.nonsmokers,
 #'   data = lungcancer, studlab = study)
-#' print(m2, digits = 2)
-
+#' print(ma2, digits = 2)
 
 NULL

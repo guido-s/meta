@@ -231,40 +231,39 @@
 #' \bold{45}, 576--94
 #' 
 #' @examples
-#' m1 <- metacor(c(0.85, 0.7, 0.95), c(20, 40, 10))
+#' ma1 <- metacor(c(0.85, 0.7, 0.95), c(20, 40, 10))
 #' 
 #' # Print correlations (back transformed from Fisher's z
 #' # transformation)
 #' #
-#' summary(m1)
+#' summary(ma1)
 #' 
 #' # Print Fisher's z transformed correlations 
 #' #
-#' print(summary(m1), backtransf = FALSE)
+#' print(summary(ma1), backtransf = FALSE)
 #' 
 #' # Forest plot with back transformed correlations
 #' #
-#' forest(m1)
+#' forest(ma1)
 #' 
 #' # Forest plot with Fisher's z transformed correlations
 #' #
-#' forest(m1, backtransf = FALSE)
+#' forest(ma1, backtransf = FALSE)
 #' 
-#' m2 <- update(m1, sm = "cor")
-#' summary(m2)
+#' ma2 <- update(ma1, sm = "cor")
+#' summary(ma2)
 #'
 #' \dontrun{
 #' # Identical forest plots (as back transformation is the identity
 #' # transformation)
-#' forest(m2)
-#' forest(m2, backtransf = FALSE)
+#' forest(ma2)
+#' forest(ma2, backtransf = FALSE)
 #' }
 #' 
 #' @export metacor
 
-
 metacor <- function(cor, n, studlab,
-                    ##
+                    #
                     data = NULL, subset = NULL, exclude = NULL,
                     cluster = NULL, rho = 0,
                     #
@@ -273,7 +272,7 @@ metacor <- function(cor, n, studlab,
                     #
                     sm = gs("smcor"),
                     level = gs("level"),
-                    ##
+                    #
                     common = gs("common"),
                     random = gs("random") | !is.null(tau.preset),
                     overall = common | random,
@@ -283,7 +282,7 @@ metacor <- function(cor, n, studlab,
                       else
                         gs("overall.hetstat"),   
                     prediction = gs("prediction") | !missing(method.predict),
-                    ##
+                    #
                     method.tau = gs("method.tau"),
                     method.tau.ci = gs("method.tau.ci"),
                     level.hetstat = gs("level.hetstat"),
@@ -297,24 +296,24 @@ metacor <- function(cor, n, studlab,
                     method.common.ci = gs("method.common.ci"),
                     method.random.ci = gs("method.random.ci"),
                     adhoc.hakn.ci = gs("adhoc.hakn.ci"),
-                    ##
+                    #
                     level.predict = gs("level.predict"),
                     method.predict = gs("method.predict"),
                     adhoc.hakn.pi = gs("adhoc.hakn.pi"),
                     seed.predict = NULL,
-                    ##
+                    #
                     null.effect = 0,
-                    ##
+                    #
                     method.bias = gs("method.bias"),
-                    ##
+                    #
                     backtransf = gs("backtransf"),
-                    ##
+                    #
                     text.common = gs("text.common"),
                     text.random = gs("text.random"),
                     text.predict = gs("text.predict"),
                     text.w.common = gs("text.w.common"),
                     text.w.random = gs("text.w.random"),
-                    ##
+                    #
                     title = gs("title"), complab = gs("complab"),
                     outclab = "",
                     #
@@ -329,23 +328,23 @@ metacor <- function(cor, n, studlab,
                     test.subgroup = gs("test.subgroup"),
                     prediction.subgroup = gs("prediction.subgroup"),
                     seed.predict.subgroup = NULL,
-                    ##
+                    #
                     byvar, adhoc.hakn,
-                    ##
+                    #
                     keepdata = gs("keepdata"),
                     warn.deprecated = gs("warn.deprecated"),
-                    ##
+                    #
                     control = NULL,
                     ...) {
   
   
-  ##
-  ##
-  ## (1) Check arguments
-  ##
-  ##
+  #
+  #
+  # (1) Check arguments
+  #
+  #
   chknumeric(rho, min = -1, max = 1)
-  ##
+  #
   chknull(sm)
   chklevel(level)
   #
@@ -353,7 +352,7 @@ metacor <- function(cor, n, studlab,
   #
   missing.method.tau <- missing(method.tau)
   method.tau <- setchar(method.tau, gs("meth4tau"))
-  ##
+  #
   missing.tau.common <- missing(tau.common)
   tau.common <- replaceNULL(tau.common, FALSE)
   chklogical(tau.common)
@@ -362,27 +361,27 @@ metacor <- function(cor, n, studlab,
   #
   chklogical(prediction)
   chklevel(level.predict)
-  ##
+  #
   missing.method.predict <- missing(method.predict)
-  ##
+  #
   method.tau <-
     set_method_tau(method.tau, missing.method.tau,
                  method.predict, missing.method.predict)
   method.predict <-
     set_method_predict(method.predict, missing.method.predict,
                      method.tau, missing.method.tau)
-  ##
+  #
   if (any(method.predict == "NNF"))
     is_installed_package("pimeta", argument = "method.predict", value = "NNF")
-  ##
+  #
   adhoc.hakn.pi <- setchar(replaceNA(adhoc.hakn.pi, ""), gs("adhoc4hakn.pi"))
   #
   chknumeric(null.effect, length = 1)
-  ##
+  #
   method.bias <- setmethodbias(method.bias)
-  ##
+  #
   chklogical(backtransf)
-  ##
+  #
   if (!is.null(text.common))
     chkchar(text.common, length = 1)
   if (!is.null(text.random))
@@ -393,29 +392,29 @@ metacor <- function(cor, n, studlab,
     chkchar(text.w.common, length = 1)
   if (!is.null(text.w.random))
     chkchar(text.w.random, length = 1)
-  ##
+  #
   chklogical(keepdata)
-  ##
-  ## Check for deprecated arguments in '...'
-  ##
+  #
+  # Check for deprecated arguments in '...'
+  #
   args  <- list(...)
   chklogical(warn.deprecated)
-  ##
+  #
   level.ma <- deprecated(level.ma, missing(level.ma), args, "level.comb",
                          warn.deprecated)
   chklevel(level.ma)
-  ##
+  #
   missing.common <- missing(common)
   common <- deprecated(common, missing.common, args, "comb.fixed",
                       warn.deprecated)
   common <- deprecated(common, missing.common, args, "fixed",
                       warn.deprecated)
   chklogical(common)
-  ##
+  #
   random <- deprecated(random, missing(random), args, "comb.random",
                        warn.deprecated)
   chklogical(random)
-  ##
+  #
   method.random.ci <-
     deprecated(method.random.ci, missing(method.random.ci),
                args, "hakn", warn.deprecated)
@@ -425,7 +424,7 @@ metacor <- function(cor, n, studlab,
     else
       method.random.ci <- "classic"
   method.random.ci <- setchar(method.random.ci, gs("meth4random.ci"))
-  ##
+  #
   adhoc.hakn.ci <-
     deprecated2(adhoc.hakn.ci, missing(adhoc.hakn.ci),
                 adhoc.hakn, missing(adhoc.hakn), warn.deprecated)
@@ -435,76 +434,76 @@ metacor <- function(cor, n, studlab,
   subgroup.name <-
     deprecated(subgroup.name, missing.subgroup.name, args, "bylab",
                warn.deprecated)
-  ##
+  #
   print.subgroup.name <-
     deprecated(print.subgroup.name, missing(print.subgroup.name),
                args, "print.byvar", warn.deprecated)
   print.subgroup.name <-
     replaceNULL(print.subgroup.name, gs("print.subgroup.name"))
   chklogical(print.subgroup.name)
-  ##
+  #
   sep.subgroup <-
     deprecated(sep.subgroup, missing(sep.subgroup), args, "byseparator",
                warn.deprecated)
   if (!is.null(sep.subgroup))
     chkchar(sep.subgroup, length = 1)
-  ##
-  ## Some more checks
-  ##
+  #
+  # Some more checks
+  #
   chklogical(overall)
   chklogical(overall.hetstat)
-  ##
-  ## Additional arguments / checks for metacor objects
-  ##
+  #
+  # Additional arguments / checks for metacor objects
+  #
   fun <- "metacor"
   sm <- setchar(sm, gs("sm4cor"))
   
   
-  ##
-  ##
-  ## (2) Read data
-  ##
-  ##
+  #
+  #
+  # (2) Read data
+  #
+  #
   nulldata <- is.null(data)
   sfsp <- sys.frame(sys.parent())
   mc <- match.call()
-  ##
+  #
   if (nulldata)
     data <- sfsp
-  ##
-  ## Catch 'cor' and 'n' from data:
-  ##
+  #
+  # Catch 'cor' and 'n' from data:
+  #
   cor <- catch("cor", mc, data, sfsp)
   chknull(cor)
   k.All <- length(cor)
-  ##
+  #
   n <- catch("n", mc, data, sfsp)
   chknull(n)
-  ##
-  ## Catch 'studlab', 'subgroup', 'subset', 'exclude' and 'cluster'
-  ## from data:
-  ##
+  #
+  # Catch 'studlab', 'subgroup', 'subset', 'exclude' and 'cluster'
+  # from data:
+  #
   studlab <- catch("studlab", mc, data, sfsp)
   studlab <- setstudlab(studlab, k.All)
-  ##
+  #
   missing.subgroup <- missing(subgroup)
   subgroup <- catch("subgroup", mc, data, sfsp)
   missing.byvar <- missing(byvar)
   byvar <- catch("byvar", mc, data, sfsp)
   subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar)
   by <- !is.null(subgroup)
-  ##
+  #
   subset <- catch("subset", mc, data, sfsp)
   missing.subset <- is.null(subset)
-  ##
+  #
   exclude <- catch("exclude", mc, data, sfsp)
   missing.exclude <- is.null(exclude)
-  ##
+  #
   cluster <- catch("cluster", mc, data, sfsp)
   with.cluster <- !is.null(cluster)
-  ##
-  ## Additional checks
-  ##
+  #
+  # Additional checks
+  #
   if (!by & tau.common) {
     warning("Value for argument 'tau.common' set to FALSE as ",
             "argument 'subgroup' is missing.")
@@ -541,11 +540,11 @@ metacor <- function(cor, n, studlab,
     chknumeric(weights.random, min = 0)
   
   
-  ##
-  ##
-  ## (3) Check length of essential variables
-  ##
-  ##
+  #
+  #
+  # (3) Check length of essential variables
+  #
+  #
   chklength(n, k.All, fun)
   chklength(studlab, k.All, fun)
   if (with.cluster)
@@ -572,21 +571,21 @@ metacor <- function(cor, n, studlab,
   }
   
   
-  ##
-  ##
-  ## (4) Subset, exclude studies, and subgroups
-  ##
-  ##
+  #
+  #
+  # (4) Subset, exclude studies, and subgroups
+  #
+  #
   if (!missing.subset)
     if ((is.logical(subset) & (sum(subset) > k.All)) ||
         (length(subset) > k.All))
       stop("Length of subset is larger than number of studies.")
-  ##
+  #
   if (!missing.exclude) {
     if ((is.logical(exclude) & (sum(exclude) > k.All)) ||
         (length(exclude) > k.All))
       stop("Length of argument 'exclude' is larger than number of studies.")
-    ##
+    #
     exclude2 <- rep(FALSE, k.All)
     exclude2[exclude] <- TRUE
     exclude <- exclude2
@@ -595,24 +594,24 @@ metacor <- function(cor, n, studlab,
     exclude <- rep(FALSE, k.All)
   
   
-  ##
-  ##
-  ## (5) Store complete dataset in list object data
-  ##     (if argument keepdata is TRUE)
-  ##
-  ##
+  #
+  #
+  # (5) Store complete dataset in list object data
+  #     (if argument keepdata is TRUE)
+  #
+  #
   if (keepdata) {
     if (nulldata)
       data <- data.frame(.cor = cor)
     else
       data$.cor <- cor
-    ##
+    #
     data$.n <- n
     data$.studlab <- studlab
-    ##
+    #
     if (by)
       data$.subgroup <- subgroup
-    ##
+    #
     if (!missing.subset) {
       if (length(subset) == dim(data)[1])
         data$.subset <- subset
@@ -621,10 +620,10 @@ metacor <- function(cor, n, studlab,
         data$.subset[subset] <- TRUE
       }
     }
-    ##
+    #
     if (!missing.exclude)
       data$.exclude <- exclude
-    ##
+    #
     if (with.cluster)
       data$.id <- data$.cluster <- cluster
     #
@@ -636,16 +635,16 @@ metacor <- function(cor, n, studlab,
   }
   
   
-  ##
-  ##
-  ## (6) Use subset for analysis
-  ##
-  ##
+  #
+  #
+  # (6) Use subset for analysis
+  #
+  #
   if (!missing.subset) {
     cor <- cor[subset]
     n   <- n[subset]
     studlab <- studlab[subset]
-    ##
+    #
     cluster <- cluster[subset]
     exclude <- exclude[subset]
     #
@@ -655,16 +654,16 @@ metacor <- function(cor, n, studlab,
     if (by)
       subgroup <- subgroup[subset]
   }
-  ##
-  ## Determine total number of studies
-  ##
+  #
+  # Determine total number of studies
+  #
   k.all <- length(cor)
-  ##
+  #
   if (k.all == 0)
     stop("No studies to combine in meta-analysis.")
-  ##
-  ## No meta-analysis for a single study
-  ##
+  #
+  # No meta-analysis for a single study
+  #
   if (k.all == 1) {
     common <- FALSE
     random <- FALSE
@@ -672,15 +671,15 @@ metacor <- function(cor, n, studlab,
     overall <- FALSE
     overall.hetstat <- FALSE
   }
-  ##
-  ## Check variable values
-  ##
+  #
+  # Check variable values
+  #
   chknumeric(cor, -1, 1)
   chknumeric(n, 0, zero = TRUE)
-  ##
+  #
   if (by) {
     chkmiss(subgroup)
-    ##
+    #
     if (missing.subgroup.name & is.null(subgroup.name)) {
       if (!missing.subgroup)
         subgroup.name <- byvarname("subgroup", mc)
@@ -688,16 +687,16 @@ metacor <- function(cor, n, studlab,
         subgroup.name <- byvarname("byvar", mc)
     }
   }
-  ##
+  #
   if (!is.null(subgroup.name))
     chkchar(subgroup.name, length = 1)
   
   
-  ##
-  ##
-  ## (7) Calculate results for individual studies
-  ##
-  ##
+  #
+  #
+  # (7) Calculate results for individual studies
+  #
+  #
   if (sm == "ZCOR") {
     TE   <- cor2z(cor)
     seTE <- sqrt(1 / (n - 3))
@@ -710,37 +709,37 @@ metacor <- function(cor, n, studlab,
   }
   
   
-  ##
-  ##
-  ## (8) Additional checks for three-level model
-  ##
-  ##
+  #
+  #
+  # (8) Additional checks for three-level model
+  #
+  #
   three.level <- FALSE
   sel.ni <- !is.infinite(TE) & !is.infinite(seTE)
-  ##
-  ## Only conduct three-level meta-analysis if variable 'cluster'
-  ## contains duplicate values after removing inestimable study
-  ## results standard errors
-  ##
+  #
+  # Only conduct three-level meta-analysis if variable 'cluster'
+  # contains duplicate values after removing inestimable study
+  # results standard errors
+  #
   if (with.cluster &&
       length(unique(cluster[sel.ni])) != length(cluster[sel.ni]))
     three.level <- TRUE
-  ##
+  #
   if (three.level) {
     chkmlm(method.tau, missing.method.tau, method.predict)
-    ##
+    #
     common <- FALSE
-    ##
+    #
     if (!(method.tau %in% c("REML", "ML")))
       method.tau <- "REML"
   }
   
   
-  ##
-  ##
-  ## (9) Do meta-analysis
-  ##
-  ##
+  #
+  #
+  # (9) Do meta-analysis
+  #
+  #
   m <- metagen(TE, seTE, studlab,
                exclude = if (missing.exclude) NULL else exclude,
                cluster = cluster, rho = rho,
@@ -750,13 +749,13 @@ metacor <- function(cor, n, studlab,
                #
                sm = sm,
                level = level,
-               ##
+               #
                common = common,
                random = random,
                overall = overall,
                overall.hetstat = overall.hetstat,
                prediction = prediction,
-               ##
+               #
                method.tau = method.tau, method.tau.ci = method.tau.ci,
                level.hetstat = level.hetstat,
                tau.preset = tau.preset,
@@ -770,22 +769,22 @@ metacor <- function(cor, n, studlab,
                method.common.ci = method.common.ci,
                method.random.ci = method.random.ci,
                adhoc.hakn.ci = adhoc.hakn.ci,
-               ##
+               #
                level.predict = level.predict,
                method.predict = method.predict,
                adhoc.hakn.pi = adhoc.hakn.pi,
                seed.predict = seed.predict,
-               ##
+               #
                null.effect = transf.null.effect,
-               ##
+               #
                method.bias = method.bias,
-               ##
+               #
                backtransf = backtransf,
-               ##
+               #
                text.common = text.common, text.random = text.random,
                text.predict = text.predict,
                text.w.common = text.w.common, text.w.random = text.w.random,
-               ##
+               #
                title = title, complab = complab, outclab = outclab,
                #
                label.left = label.left, label.right = label.right,
@@ -794,7 +793,7 @@ metacor <- function(cor, n, studlab,
                #
                keepdata = FALSE,
                warn = FALSE,
-               ##
+               #
                control = control)
   #
   # Estimate common tau-squared across subgroups
@@ -804,16 +803,16 @@ metacor <- function(cor, n, studlab,
                    method.I2, level.hetstat, subgroup, control)
   
   
-  ##
-  ##
-  ## (9) Generate R object
-  ##
-  ##
+  #
+  #
+  # (9) Generate R object
+  #
+  #
   res <- list(cor = cor, n = n)
-  ##
-  ## Add meta-analysis results
-  ## (after removing unneeded list elements)
-  ##
+  #
+  # Add meta-analysis results
+  # (after removing unneeded list elements)
+  #
   m$n.e <- NULL
   m$n.c <- NULL
   m$pscale <- NULL
@@ -823,30 +822,30 @@ metacor <- function(cor, n, studlab,
   m$method.mean <- NULL
   m$approx.TE <- NULL
   m$approx.seTE <- NULL
-  ##
+  #
   m$label.e <- ""
   m$label.c <- ""
   m$warn <- NULL
-  ##
+  #
   res <- c(res, m)
   res$null.effect <- null.effect
-  ##
-  ## Add data
-  ##
+  #
+  # Add data
+  #
   res$pairwise <- FALSE
   #
   res$call <- match.call()
-  ##
+  #
   if (keepdata) {
     res$data <- data
     if (!missing.subset)
       res$subset <- subset
   }
-  ##
+  #
   class(res) <- c(fun, "meta")
-    ##
-  ## Add results from subgroup analysis
-  ##
+    #
+  # Add results from subgroup analysis
+  #
   if (by) {
     res$subgroup <- subgroup
     res$subgroup.name <- subgroup.name
@@ -855,7 +854,7 @@ metacor <- function(cor, n, studlab,
     res$test.subgroup <- test.subgroup
     res$prediction.subgroup <- prediction.subgroup
     res$tau.common <- tau.common
-    ##
+    #
     if (!tau.common) {
       res <- c(res, subgroup(res, seed = seed.predict.subgroup))
       if (res$three.level)
@@ -873,30 +872,30 @@ metacor <- function(cor, n, studlab,
         res <-
           c(res, subgroup(res, hcc$tau.resid, seed = seed.predict.subgroup))
     }
-    ##
+    #
     if (tau.common && is.null(tau.preset))
       res <- addHet(res, hcc)
-    ##
+    #
     res$event.w <- NULL
-    ##
+    #
     res$n.e.w <- NULL
     res$n.c.w <- NULL
     res$n.harmonic.mean.w <- NULL
-    ##
+    #
     res$event.e.w <- NULL
     res$event.c.w <- NULL
-    ##
+    #
     res$time.e.w <- NULL
     res$time.c.w <- NULL
     res$t.harmonic.mean.w <- NULL
-    ##
+    #
     res <- setNAwithin(res, res$three.level)
   }
-  ##
-  ## Backward compatibility
-  ##
+  #
+  # Backward compatibility
+  #
   res <- backward(res)
-  ##
+  #
   class(res) <- c(fun, "meta")
   
   

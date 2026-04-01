@@ -156,11 +156,10 @@
 #' @rdname read.cdir
 #' @export read.cdir
 
-
 read.cdir <- function(file, title = "Cochrane Review of Interventions",
                       exdir = tempdir(),
                       numbers.in.labels = TRUE,
-                      ##
+                      #
                       rob =
                         !missing(tool) | !missing(categories) |
                         !missing(col) | !missing(symbols),
@@ -168,43 +167,43 @@ read.cdir <- function(file, title = "Cochrane Review of Interventions",
                       categories = NULL,
                       col = NULL,
                       symbols = NULL,
-                      ##
+                      #
                       keep.orig = FALSE,
                       ...) {
   
-  ##
-  ##
-  ## (1) Check argument and extract filename and Cochrane data package
-  ##     identifier (CD)
-  ##
-  ##
+  #
+  #
+  # (1) Check argument and extract filename and Cochrane data package
+  #     identifier (CD)
+  #
+  #
   
   if (missing(file))
     stop("File name must be provided", call. = FALSE)
-  ##
+  #
   chkchar(file, length = 1)
-  ##
+  #
   if (!file.exists(file))
     stop("File '", file, "' does not exists.",
          call. = FALSE)
-  ##
+  #
   path <- file
   file <- basename(file)
   if (substring(file, 1, 2) == "CD")
     CD <- unlist(strsplit(file, "-"))[1]
   else
     CD <- NULL
-  ##
+  #
   data.package <- grepl("dataPackage.zip$", file)
-  ##
+  #
   chkchar(title, length = 1)
   chklogical(numbers.in.labels)
   chkchar(exdir, length = 1)
   chklogical(keep.orig)
   chklogical(rob)
-  ##
-  ## Get rid of warnings 'no visible binding for global variable'
-  ##
+  #
+  # Get rid of warnings 'no visible binding for global variable'
+  #
   common <- comp.no <- complab <- eligibility <-
     event.c <- event.e <- footnotes <- group.no <- label.c <- label.e <-
       label.left <- label.right <- level <- level.ma <- logscale <-
@@ -215,18 +214,18 @@ read.cdir <- function(file, title = "Cochrane Review of Interventions",
                 upper.TE <- V <- weight <- year <- NULL
   
   
-  ##
-  ##
-  ## (2) Unzip Cochrane data package with subdirectories
-  ##
-  ##
+  #
+  #
+  # (2) Unzip Cochrane data package with subdirectories
+  #
+  #
   
   dir.create(exdir, showWarnings = FALSE, recursive = TRUE)
   unzip(path, exdir = exdir, ...)
-  ##
+  #
   if (is.null(CD)) {
     lf <- list.files(exdir)
-    ##
+    #
     if (any(grepl("-files$", lf)))
       CD <- unlist(strsplit(lf[grep("-files$", lf)], "-"))[1]
     else {
@@ -237,18 +236,18 @@ read.cdir <- function(file, title = "Cochrane Review of Interventions",
       CD <- unlist(strsplit(lf[grep("-files$", lf)], "-"))[1]
     }
   }
-  ##
+  #
   if (data.package)
     wd <- exdir
   else
     wd <- paste0(exdir, "/", CD, "-files")  
-  ##
+  #
   if (!dir.exists(wd))
     stop("Data directory '", wd, "' does not exist.")
-  ##
+  #
   if (!data.package) {
     datazip <- paste0(wd, "/", CD, "-data.zip")
-    ##
+    #
     if (!file.exists(datazip))
       stop("File '", datazip, "' does not exists.",
            call. = FALSE)
@@ -257,57 +256,57 @@ read.cdir <- function(file, title = "Cochrane Review of Interventions",
   }
   
   
-  ##
-  ##
-  ## (3) Read files from directory CD-analysis-data
-  ##
-  ##
+  #
+  #
+  # (3) Read files from directory CD-analysis-data
+  #
+  #
   
   dir.analysis <- paste0(wd, "/", CD, "-analysis-data")
-  ##
+  #
   if (!dir.exists(dir.analysis))
     stop("Directory '", dir.analysis, "' does not exist.",
          call. = FALSE)
-  ##
-  ## Check for file specific to Cochrane review of DTA studies
-  ##
+  #
+  # Check for file specific to Cochrane review of DTA studies
+  #
   if (file.exists(paste0(dir.analysis, "/", CD, "-parameters.csv")))
     stop("Cochrane data package is from diagnostic test accuracy review.",
          call. = FALSE)
-  ##
+  #
   file.settings <-
     paste0(dir.analysis, "/", CD, "-overall-estimates-and-settings.csv")
   file.datarows <-
     paste0(dir.analysis, "/", CD, "-data-rows.csv")
   file.subgroup <-
     paste0(dir.analysis, "/", CD, "-subgroup-estimates.csv")
-  ##
+  #
   if (file.exists(file.settings))
     settings <- read_csv(file.settings, col_types = cols())
   else
     stop("File '", file.settings, "' does not exists.",
          call. = FALSE)
-  ##
+  #
   if (file.exists(file.datarows))
     datarows <- read_csv(file.datarows, col_types = cols())
   else
     stop("File '", file.datarows, "' does not exists.",
          call. = FALSE)
-  ##
+  #
   if (file.exists(file.subgroup))
     subgroup <- read_csv(file.subgroup, col_types = cols())
   else
     stop("File '", file.subgroup, "' does not exists.",
          call. = FALSE)
-  ##
+  #
   if (keep.orig) {
     settings.orig <- settings
     datarows.orig <- datarows
     subgroup.orig <- subgroup
   }
-  ##
-  ## Check whether meta-analyses have been conducted
-  ##
+  #
+  # Check whether meta-analyses have been conducted
+  #
   if (nrow(datarows) == 0) {
     warning("No meta-analyses have been conducted.",
             call. = FALSE)
@@ -315,11 +314,11 @@ read.cdir <- function(file, title = "Cochrane Review of Interventions",
   }
   
   
-  ##
-  ##
-  ## (4) Create study data set (with information on analyses)
-  ##
-  ##
+  #
+  #
+  # (4) Create study data set (with information on analyses)
+  #
+  #
   
   settings %<>%
     rename(
@@ -333,19 +332,19 @@ read.cdir <- function(file, title = "Cochrane Review of Interventions",
       unit = "Unit of effect measure",
       model = "Analysis model",
       logscale = "Log-scale data",
-      ##
+      #
       label.e = "Experimental group label",
       label.c = "Control group label",
-      ##
+      #
       overall = "Overall estimates",
       test.subgroup = "Test for subgroup differences",
       show.subgroup = "Subgroup estimates",
-      ##
+      #
       swap.events = "Swap event and non-event",
-      ##
+      #
       complab = "Analysis group name",
       outclab = "Analysis name",
-      ##
+      #
       data.source = "Data source",
       eligibility = "Data source eligibility"
     ) %>%
@@ -375,37 +374,37 @@ read.cdir <- function(file, title = "Cochrane Review of Interventions",
     label.e, label.c, label.left, label.right,
     overall, test.subgroup, show.subgroup, swap.events) %>%
   as.data.frame()
-  ##
+  #
   datarows %<>%
     rename(
       comp.no = "Analysis group",
       outcome.no = "Analysis number",
-      ##
+      #
       outclab2 = "Analysis name",
-      ##
+      #
       subgroup = "Subgroup",
       studlab = "Study",
       year = "Study year",
-      ##
+      #
       TE = "GIV Mean",
       seTE = "GIV SE",
       lower.TE = "CI start",
       upper.TE = "CI end",
-      ##
+      #
       event.e = "Experimental cases",
       n.e = "Experimental N",
       mean.e = "Experimental mean",
       sd.e = "Experimental SD",
-      ##
+      #
       event.c = "Control cases",
       n.c = "Control N",
       mean.c = "Control mean",
       sd.c = "Control SD",
-      ##
+      #
       O.E = "O-E",
       V = "Variance",
       weight = "Weight",
-      ##
+      #
       footnotes = "Footnotes"
     ) %>%
   mutate(
@@ -421,7 +420,7 @@ read.cdir <- function(file, title = "Cochrane Review of Interventions",
       O.E, V, TE, seTE, lower.TE, upper.TE,
       weight, footnotes) %>%
   as.data.frame()
-  ##
+  #
   subgroup %<>%
     rename(
       comp.no = "Analysis group",
@@ -437,15 +436,15 @@ read.cdir <- function(file, title = "Cochrane Review of Interventions",
       comp.no, outcome.no, group.no, subgroup
     ) %>%
     as.data.frame()
-  ##
-  ## Full Cochrane data set
-  ##
+  #
+  # Full Cochrane data set
+  #
   data <- merge(settings, datarows,
                 by = c("comp.no", "outcome.no"), all = TRUE)
-  ##
+  #
   data <- merge(data, subgroup,
                 by = c("comp.no", "outcome.no", "subgroup"), all.x = TRUE)
-  ##
+  #
   suppressWarnings(
     data %<>%
     mutate(
@@ -454,7 +453,7 @@ read.cdir <- function(file, title = "Cochrane Review of Interventions",
       order = seq_len(nrow(data))
     )
   )
-  ##
+  #
   data %<>%
     select(
       comp.no, outcome.no, group.no, studlab, year,
@@ -466,73 +465,73 @@ read.cdir <- function(file, title = "Cochrane Review of Interventions",
       label.e, label.c, label.left, label.right, unit,
       complab, outclab, footnotes
     )
-  ##
+  #
   if (numbers.in.labels) {
     data$complab <- paste(data$comp.no, data$complab)
     data$outclab <- paste0(data$comp.no, ".", data$outcome.no, " ", data$outclab)
   }
-  ##
+  #
   attr(data, "title") <- title
   
   
-  ##
-  ##
-  ## (5) Extract risk of bias (if available)
-  ##
-  ##
+  #
+  #
+  # (5) Extract risk of bias (if available)
+  #
+  #
   
   dir.study <- paste0(wd, "/", CD, "-study-data")
-  ##
+  #
   robdata <- NULL
-  ##
+  #
   if (dir.exists(dir.study)) {
-    ##
+    #
     file.robdata <- paste0(dir.study, "/", CD, "-risk-of-bias.csv")
-    ##
+    #
     rob <- rob && file.exists(file.robdata)
-    ##
+    #
     if (rob) {
       robdata <- as.data.frame(read_csv(file.robdata, col_types = cols()))
       rob <- rob && nrow(robdata) >= 1
     }
-    ##
+    #
     if (rob) {
       if (keep.orig)
         rob.orig <- robdata
-      ##
+      #
       if (nrow(robdata) > 0) {
         robdata %<>%
           rename(studlab = Study)
-        ##
+        #
         vars <- names(robdata)
         j <- 0
         k <- 0
         domains <- vector("character", 0)
-        ##
+        #
         for (i in seq_along(vars)) {
           if (substring(vars[i], 1, 18) == "Domain (judgement)") {
             j <- j + 1
             robdata[paste0("D", j)] <- robdata[vars[i]]
             domains <- c(domains, substring(vars[i], 21))
           }
-          ##
+          #
           if (substring(vars[i], 1, 16) == "Domain (support)") {
             k <- k + 1
             robdata[paste0("D", k, ".details")] <- robdata[vars[i]]
           }
         }
-        ##
+        #
         selvars <- "studlab"
-        ##
+        #
         if (j > 0)
           selvars <- c(selvars, paste0("D", seq_len(j)))
         if (k > 0)
           selvars <- c(selvars, paste0("D", seq_len(j), ".details"))
-        ##
+        #
         robdata %<>% select(all_of(selvars))
-        ##
+        #
         domains <- gsub(": All outcomes", "", domains)
-        ##
+        #
         attr(robdata, "rob") <- rob
         attr(robdata, "domains") <- domains
         attr(robdata, "tool") <- tool
@@ -546,19 +545,19 @@ read.cdir <- function(file, title = "Cochrane Review of Interventions",
     rob <- FALSE
   
   
-  ##
-  ##
-  ## (6) Extract risk of bias (if available)
-  ##
-  ##
+  #
+  #
+  # (6) Extract risk of bias (if available)
+  #
+  #
   
   res <- list(data = data, rob = robdata)
-  ##
+  #
   if (keep.orig)
     res$orig <-
       list(settings = settings.orig, datarows = datarows.orig,
            subgroup = subgroup.orig, if (rob) rob = rob.orig)
-  ##
+  #
   class(res) <- "cdir"
   res
 }
@@ -571,16 +570,15 @@ read.cdir <- function(file, title = "Cochrane Review of Interventions",
 #' @method print cdir
 #' @export
 
-
 print.cdir <- function(x, ...) {
   
   chkclass(x, "cdir")
-  ##
+  #
   tl <- options()$width - 12
   newline <- FALSE
-  ##
+  #
   title <- attr(x$data, "title")
-  ##
+  #
   if (!is.null(title)) {
     if (title != "") {
       newline <- TRUE
@@ -590,12 +588,12 @@ print.cdir <- function(x, ...) {
         cat(paste0("Review:     ", substring(title, 1, tl - 4), " ...\n"))
     }
   }
-  ##
+  #
   if (!is.null(x$data$complab)) {
     cat("Available comparisons:\n")
-    ##
+    #
     cat(paste0(unique(x$data$complab), "\n", collapse = ""))
   }
-  ##
+  #
   invisible(NULL)
 }

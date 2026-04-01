@@ -68,7 +68,6 @@
 #' @method metabias rm5
 #' @export
 
-
 metabias.rm5 <- function(x, comp.no, outcome.no,
                          method.bias = "linreg",
                          method.bias.binary = method.bias,
@@ -76,11 +75,11 @@ metabias.rm5 <- function(x, comp.no, outcome.no,
                          k.min = 10, ...) {
   
   
-  ##
-  ##
-  ## (1) Check for rm5 object
-  ##
-  ##
+  #
+  #
+  # (1) Check for rm5 object
+  #
+  #
   chkclass(x, "rm5")
   
   
@@ -89,16 +88,16 @@ metabias.rm5 <- function(x, comp.no, outcome.no,
   
   
   n <- 1
-  ##
+  #
   for (i in comp.no) {
     if (missing(outcome.no))
       jj <- unique(x$outcome.no[x$comp.no == i])
     else
       jj <- outcome.no
     for (j in jj) {
-      ##
+      #
       m1 <- metacr(x, i, j)
-      ##
+      #
       if (inherits(m1, "metabin")) {
         if (m1$sm == "OR")
           mb1 <- metabias(m1, k.min = k.min, method.bias = method.bias.or)
@@ -107,12 +106,12 @@ metabias.rm5 <- function(x, comp.no, outcome.no,
       }
       else
         mb1 <- metabias(m1, k.min = k.min, method.bias = method.bias)
-      ##
+      #
       if (!is.null(mb1$estimate)) {
         if (n > 1)
           cat("\n*****\n\n")
         print(mb1)
-        ##
+        #
         n <- n + 1
       }
     }
@@ -129,7 +128,6 @@ metabias.rm5 <- function(x, comp.no, outcome.no,
 #' @method metabias cdir
 #' @export
 
-
 metabias.cdir <- function(x, comp.no, outcome.no,
                           method.bias = "linreg",
                           method.bias.binary = method.bias,
@@ -137,11 +135,11 @@ metabias.cdir <- function(x, comp.no, outcome.no,
                           k.min = 10, ...) {
   
   
-  ##
-  ##
-  ## (1) Check for cdir object
-  ##
-  ##
+  #
+  #
+  # (1) Check for cdir object
+  #
+  #
   chkclass(x, "cdir")
   
   
@@ -150,16 +148,16 @@ metabias.cdir <- function(x, comp.no, outcome.no,
   
   
   n <- 1
-  ##
+  #
   for (i in comp.no) {
     if (missing(outcome.no))
       jj <- unique(x$data$outcome.no[x$data$comp.no == i])
     else
       jj <- outcome.no
     for (j in jj) {
-      ##
+      #
       m1 <- metacr(x, i, j)
-      ##
+      #
       if (inherits(m1, "metabin")) {
         if (m1$sm == "OR")
           mb1 <- metabias(m1, k.min = k.min, method.bias = method.bias.or)
@@ -168,12 +166,12 @@ metabias.cdir <- function(x, comp.no, outcome.no,
       }
       else
         mb1 <- metabias(m1, k.min = k.min, method.bias = method.bias)
-      ##
+      #
       if (!is.null(mb1$estimate)) {
         if (n > 1)
           cat("\n*****\n\n")
         print(mb1)
-        ##
+        #
         n <- n + 1
       }
     }

@@ -31,19 +31,19 @@
 #' 
 #' data(caffeine)
 #' 
-#' m1 <- metabin(h.caf, n.caf, h.decaf, n.decaf, sm = "OR",
+#' ma1 <- metabin(h.caf, n.caf, h.decaf, n.decaf, sm = "OR",
 #'   data = caffeine, studlab = paste(study, year))
 #'
 #' # Add risk of bias assessment to meta-analysis
-#' m2 <- rob(D1, D2, D3, D4, D5, overall = rob, data = m1, tool = "rob2")
+#' ma2 <- rob(D1, D2, D3, D4, D5, overall = rob, data = ma1, tool = "rob2")
 #' 
 #' # Print risk of bias assessment
-#' rob(m2)
+#' rob(ma2)
 #'
 #' \dontrun{
 #' # Weighted bar plot (R package 'robvis' must be available)
 #' if (requireNamespace("robvis", quietly = TRUE))
-#'  barplot(rob(m2))
+#'  barplot(rob(ma2))
 #' }
 #'
 #' # Use previous settings
@@ -52,7 +52,6 @@
 #' @method barplot rob
 #' @export
 
-
 barplot.rob <- function(height,
                         overall = FALSE, weighted = TRUE,
                         colour = "cochrane",
@@ -60,9 +59,9 @@ barplot.rob <- function(height,
   
   chkclass(height, "rob")
   rob <- height
-  ##
+  #
   tool <- attr(rob, "tool")
-  ##
+  #
   chklogical(overall)
   chklogical(weighted)
   chklogical(quiet)
@@ -89,7 +88,7 @@ barplot.rob <- function(height,
               call. = FALSE)
       return(invisible(NULL))
     }
-    ##
+    #
     if (is.null(rob$Weight)) {
       rob$Weight <- 1
       if (!missing(weighted) & weighted)
@@ -98,12 +97,12 @@ barplot.rob <- function(height,
                 call. = FALSE)
       weighted <- FALSE
     }
-    ##
+    #
     if (tool %in% c("RoB1", "user-defined")) {
       domains <- attr(rob, "domains")
-      ##
+      #
       nam <- names(rob)
-      ##
+      #
       if (tool == "RoB1") {
         nam[nam == "A"] <- "Random.sequence.generation."
         nam[nam == "B"] <- "Allocation.concealment."
@@ -112,7 +111,7 @@ barplot.rob <- function(height,
         nam[nam == "E"] <- "Incomplete.outcome.data."
         nam[nam == "F"] <- "Selective.reporting."
         nam[nam == "G"] <- "Other.bias."
-        ##
+        #
         if (length(domains) > 8)
           nam[nam == "H"] <- paste0(domains[8], ".")
         if (length(domains) > 9)
@@ -123,13 +122,13 @@ barplot.rob <- function(height,
       else if (tool == "user-defined") {
         nam[nam == "Overall"] <- "O"
         nam[nam %in% LETTERS[1:15]] <- paste0(gsub(" ", ".", domains), ".")
-        ##
+        #
         tool <- "RoB1"
       }
-      ##
+      #
       names(rob) <- nam
     }
-    ##
+    #
     return(robvis::rob_summary(rob, tool = toupper(tool),
                                overall = overall, weighted = weighted,
                                colour = colour, quiet = quiet))
