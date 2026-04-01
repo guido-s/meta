@@ -257,7 +257,8 @@
 #' dataset; see Details.
 #' 
 #' @author Gerta Rücker\email{gerta.ruecker@@uniklinik-freiburg.de}, Guido
-#'   Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
+#'   Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de},
+#'   Gert van Valkenhoef \email{gvanvalkenhoef@@cochrane.org}
 #' 
 #' @seealso \code{\link{longarm}}, \code{\link{metabin}},
 #'   \code{\link{metacont}}, \code{\link{metagen}},
@@ -334,7 +335,10 @@
 #'  all.equal(
 #'    pw1[, c("TE", "seTE", "studlab", "treat1", "treat2")],
 #'    pw2[, c("TE", "seTE", "studlab", "treat1", "treat2")])
-#' 
+#'  # Only difference:
+#'  attributes(pw1)$type
+#'  attributes(pw2)$type
+#'
 #'  # Same result as network meta-analysis based on continuous outcomes
 #'  # (object nma1)
 #'  nma2 <- netmeta(pw2)
@@ -399,6 +403,7 @@
 #'  library(gemtc)
 #'  
 #'  dat1 <- parkinson_diff$data
+#'  dat1
 #'  
 #'  pw6 <- pairwise(treatment, TE = diff, seTE = std.err, studlab = study,
 #'    data = dat1, relative.effects = TRUE, sm = "MD")

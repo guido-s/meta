@@ -6,13 +6,13 @@
   confidence and prediction intervals
   [(issue #80)](https://github.com/guido-s/meta/pull/80):
   - calculate confidence interval for *tau2* and *tau* for two or more studies
-    (was more than 2 studies)
+    (was more than two studies)
   - calculate Hartung-Knapp prediction interval
     (argument 'method.predict = "HK"') for two or more studies
-    (was more than 2 studies)
+    (was more than two studies)
   - calculate Partlett and Riley prediction interval
     (argument 'method.predict = "HK-PR"') for three or more studies
-    (was more than 3 studies)
+    (was more than three studies)
 
 * Calculate confidence for I2 and H if argument 'method.I2 = "tau2"'
   [(issue #80)](https://github.com/guido-s/meta/pull/80):
@@ -29,12 +29,12 @@
 * R function pairwise() accepts data in the common BUGS format, i.e.,
   relative treatment effects in comparison to a reference treatment
 
+* For relative effect measures show "ln" instead of "log" in printouts and
+  forest plots if 'backtransf = FALSE'
+
 * R package **metabook** added to Depends (to access meta-analysis datasets)
 
 ### User-visible changes
-
-* For relative effect measures show "ln" instead of "log" in printouts and
-  forest plots if 'backtransf = FALSE'
 
 * forest.meta():
   - new argument 'text.subgroup' to provide subgroup labels

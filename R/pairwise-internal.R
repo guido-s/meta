@@ -1,3 +1,10 @@
+# Auxiliary functions to transform relative treatment effects to
+# pairwise comparisons
+#
+# Author: Gert van Valkenhoef <gvanvalkenhoef@cochrane.org>
+# License: GPL (>= 2)
+#
+
 # For use with dplyr::group_map
 #
 pwgen_study <- function(input, studlab) {
@@ -5,7 +12,7 @@ pwgen_study <- function(input, studlab) {
   treat1 <- NULL
   #
   studlab <- studlab$studlab
-
+  
   # Get rid of warning 'Undefined global functions or variables'
   n <- NULL
   
@@ -17,7 +24,7 @@ pwgen_study <- function(input, studlab) {
     select(!n)
   stopifnot(nrow(rel) == nrow(input) - 1)
   stopifnot(nrow(rel) == length(unique(rel$treat1)))
-
+  
   # calculate other treatment effects
   if (nrow(rel) > 1) {
     # generate the missing treatment pairs
@@ -44,7 +51,7 @@ pwgen_study <- function(input, studlab) {
   }
 }
 
-# Expects one row per arm of each study.
+# Expects one row per arm of each study:
 #  - treat1 is the current study arm 
 #  - treat2 is the study reference arm (e.g. control/placebo)
 #  - if treat1 != treat2, TE is the treatment effect estimate, otherwise NA
