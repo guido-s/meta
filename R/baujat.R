@@ -130,23 +130,23 @@ baujat.meta <- function(x,
                         ...) {
   
   
-  ##
-  ##
-  ## (1) Check for meta object and upgrade older meta objects
-  ##
-  ##
+  #
+  #
+  # (1) Check for meta object and upgrade older meta objects
+  #
+  #
   chkclass(x, "meta")
   chksuitable(x, "Baujat plot",
               c("trimfill", "metacum", "metainf", "metamerge", "netpairwise"))
-  ##
+  #
   x <- updateversion(x)
   
   
-  ##
-  ##
-  ## (2) Check arguments
-  ##
-  ##
+  #
+  #
+  # (2) Check arguments
+  #
+  #
   chknumeric(yscale)
   chknumeric(cex)
   chknumeric(cex.studlab)
@@ -155,7 +155,7 @@ baujat.meta <- function(x,
     pos.studlab <- as.numeric(setchar(pos.studlab, as.character(1:4)))
     chknumeric(pos.studlab, min = 1, max = 4)
   }
-  ##
+  #
   if (!missing(pooled)) {
     pooled <- setchar(pooled, c("common", "random", "fixed"))
     pooled[pooled == "fixed"] <- "common"
@@ -178,14 +178,14 @@ baujat.meta <- function(x,
   
   TE <- x$TE
   seTE <- x$seTE
-  ##
+  #
   if (pooled == "random")
     TE.s <- x$TE.random
   else
     TE.s <- x$TE.common
-  ##
+  #
   k <- x$k
-  ##
+  #
   if (is.logical(studlab)) {
     if (studlab)
       labels.studlab <- x$studlab
@@ -201,7 +201,7 @@ baujat.meta <- function(x,
       stop("Length of argument 'studlab' must be the same as ",
            "number of studies in meta-analysis.")
   }
-  ##
+  #
   if (!missing.pos.studlab) {
     if (length(pos.studlab) > 1)
       chklength(pos.studlab, TE,
@@ -216,34 +216,34 @@ baujat.meta <- function(x,
   m.inf <- metainf(x, pooled = pooled)
   TE.inf <- m.inf$TE
   seTE.inf <- m.inf$seTE
-  ##
+  #
   ys <- (TE.inf - TE.s)^2 / seTE.inf^2
   ys <- ys * yscale
-  ##  
+  #  
   xs <- (TE - TE.s)^2 / seTE^2
-  ##
+  #
   if (!is.null(x$exclude))
     xs[x$exclude] <- NA
   
   
   if (missing(xlim))
     xlim <- c(0, max(xs, na.rm = TRUE))
-  ##
+  #
   if (missing(ylim))
     ylim <- c(0, max(ys, na.rm = TRUE))
   
   
-  ##
-  ## Do not print labels for studies with x and/or y values below
-  ## limits
-  ##
+  #
+  # Do not print labels for studies with x and/or y values below
+  # limits
+  #
   if (!missing(xmin) & !missing(ymin))
     labels.studlab[xs < xmin & ys < ymin] <- ""
   else if (!missing(xmin) & missing(ymin))
     labels.studlab[xs < xmin] <- ""
   else if (missing(xmin) & !missing(ymin))
     labels.studlab[ys < ymin] <- ""
-  ##
+  #
   if (is.numeric(studlab)) {
     if (length(studlab) == 1)
       labels.studlab[xs < studlab] <- ""
@@ -257,12 +257,12 @@ baujat.meta <- function(x,
   plot(xs, ys,
        xlim = xlim, ylim = ylim, xlab = xlab, ylab = ylab,
        type = "n")
-  ##
+  #
   if (grid)
     grid(col = col.grid, lty = lty.grid, lwd = lwd.grid)
-  ##
+  #
   points(xs, ys, pch = pch, cex = cex, col = col, bg = bg)
-  ##
+  #
   if (missing.pos.studlab)
     pos.studlab <- ifelse(xs > mean(xlim), 2, 4)
   text(xs, ys, labels = labels.studlab, cex = cex.studlab,

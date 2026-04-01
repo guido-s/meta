@@ -365,7 +365,7 @@
 #' @export metarate
 
 metarate <- function(event, time, studlab,
-                     ##
+                     #
                      data = NULL, subset = NULL, exclude = NULL,
                      cluster = NULL, rho = 0,
                      #
@@ -373,14 +373,14 @@ metarate <- function(event, time, studlab,
                      weights.common = weights, weights.random = weights,
                      #
                      n = NULL,
-                     ##
+                     #
                      method = "Inverse",
                      sm = gs("smrate"),
-                     ##
+                     #
                      incr = gs("incr"), method.incr = gs("method.incr"),
-                     ##
+                     #
                      method.ci = gs("method.ci.rate"), level = gs("level"),
-                     ##
+                     #
                      common = gs("common"),
                      random = gs("random") | !is.null(tau.preset),
                      overall = common | random,
@@ -390,7 +390,7 @@ metarate <- function(event, time, studlab,
                        else
                          gs("overall.hetstat"),   
                      prediction = gs("prediction") | !missing(method.predict),
-                     ##
+                     #
                      method.tau,
                      method.tau.ci = gs("method.tau.ci"),
                      level.hetstat = gs("level.hetstat"),
@@ -404,25 +404,25 @@ metarate <- function(event, time, studlab,
                      method.common.ci = gs("method.common.ci"),
                      method.random.ci = gs("method.random.ci"),
                      adhoc.hakn.ci = gs("adhoc.hakn.ci"),
-                     ##
+                     #
                      level.predict = gs("level.predict"),
                      method.predict = gs("method.predict"),
                      adhoc.hakn.pi = gs("adhoc.hakn.pi"),
                      seed.predict = NULL,
-                     ##
+                     #
                      null.effect = NA,
-                     ##
+                     #
                      method.bias = gs("method.bias"),
-                     ##
+                     #
                      backtransf = gs("backtransf"),
                      irscale = 1, irunit = "person-years",
-                     ##
+                     #
                      text.common = gs("text.common"),
                      text.random = gs("text.random"),
                      text.predict = gs("text.predict"),
                      text.w.common = gs("text.w.common"),
                      text.w.random = gs("text.w.random"),
-                     ##
+                     #
                      title = gs("title"), complab = gs("complab"),
                      outclab = "",
                      #
@@ -437,36 +437,36 @@ metarate <- function(event, time, studlab,
                      test.subgroup = gs("test.subgroup"),
                      prediction.subgroup = gs("prediction.subgroup"),
                      seed.predict.subgroup = NULL,
-                     ##
+                     #
                      byvar, hakn, adhoc.hakn,
-                     ##
+                     #
                      keepdata = gs("keepdata"),
                      warn = gs("warn"), warn.deprecated = gs("warn.deprecated"),
-                     ##
+                     #
                      control = NULL,
                      ...
                      ) {
   
   
-  ##
-  ##
-  ## (1) Check and set arguments
-  ##
-  ##
+  #
+  #
+  # (1) Check and set arguments
+  #
+  #
   
   chknumeric(rho, min = -1, max = 1)
-  ##
+  #
   missing.method <- missing(method)
   chknull(sm)
   sm <- setchar(sm, gs("sm4rate"))
-  ##
+  #
   chklevel(level)
-  ##
+  #
   missing.method.tau <- missing(method.tau)
   if (missing.method.tau)
     method.tau <- if (method == "GLMM") "ML" else gs("method.tau")
   method.tau <- setchar(method.tau, gs("meth4tau"))
-  ##
+  #
   if (is.null(method.tau.ci))
     method.tau.ci <- if (method.tau == "DL") "J" else "QP"
   method.tau.ci <- setchar(method.tau.ci, gs("meth4tau.ci"))
@@ -478,27 +478,27 @@ metarate <- function(event, time, studlab,
   #
   chklogical(prediction)
   chklevel(level.predict)
-  ##
+  #
   missing.method.predict <- missing(method.predict)
-  ##
+  #
   method.tau <-
     set_method_tau(method.tau, missing.method.tau,
                  method.predict, missing.method.predict)
   method.predict <-
     set_method_predict(method.predict, missing.method.predict,
                      method.tau, missing.method.tau)
-  ##
+  #
   if (any(method.predict == "NNF"))
     is_installed_package("pimeta", argument = "method.predict", value = "NNF")
-  ##
+  #
   adhoc.hakn.pi <- setchar(replaceNA(adhoc.hakn.pi, ""), gs("adhoc4hakn.pi"))
   #
   chknumeric(null.effect, length = 1)
-  ##
+  #
   method.bias <- setmethodbias(method.bias)
-  ##
+  #
   chklogical(backtransf)
-  ##
+  #
   chknumeric(irscale, length = 1)
   if (!backtransf & irscale != 1 & !is_untransformed(sm)) {
     warning("Argument 'irscale' set to 1 as argument 'backtransf' is FALSE.",
@@ -506,7 +506,7 @@ metarate <- function(event, time, studlab,
     irscale <- 1
   }
   chkchar(irunit)
-  ##
+  #
   if (!is.null(text.common))
     chkchar(text.common, length = 1)
   if (!is.null(text.random))
@@ -517,13 +517,13 @@ metarate <- function(event, time, studlab,
     chkchar(text.w.common, length = 1)
   if (!is.null(text.w.random))
     chkchar(text.w.random, length = 1)
-  ##
+  #
   chklogical(keepdata)
-  ##
-  ## Additional arguments / checks for metainc objects
-  ##
+  #
+  # Additional arguments / checks for metainc objects
+  #
   fun <- "metarate"
-  ##
+  #
   method <- setchar(method, gs("meth4rate"))
   is.glmm <- method == "GLMM"
   #
@@ -540,30 +540,30 @@ metarate <- function(event, time, studlab,
   #
   missing.method.incr <- missing(method.incr)
   method.incr <- setchar(method.incr, gs("meth4incr"))
-  ##
+  #
   method.ci <- setchar(method.ci, gs("ci4rate"))
   chklogical(warn)
-  ##
-  ## Check for deprecated arguments in '...'
-  ##
+  #
+  # Check for deprecated arguments in '...'
+  #
   args  <- list(...)
   chklogical(warn.deprecated)
-  ##
+  #
   level.ma <- deprecated(level.ma, missing(level.ma), args, "level.comb",
                          warn.deprecated)
   chklevel(level.ma)
-  ##
+  #
   missing.common <- missing(common)
   common <- deprecated(common, missing.common, args, "comb.fixed",
                        warn.deprecated)
   common <- deprecated(common, missing.common, args, "fixed",
                        warn.deprecated)
   chklogical(common)
-  ##
+  #
   random <- deprecated(random, missing(random), args, "comb.random",
                        warn.deprecated)
   chklogical(random)
-  ##
+  #
   method.random.ci <-
     deprecated2(method.random.ci, missing(method.random.ci),
                 hakn, missing(hakn),
@@ -574,7 +574,7 @@ metarate <- function(event, time, studlab,
     else
       method.random.ci <- "classic"
   method.random.ci <- setchar(method.random.ci, gs("meth4random.ci"))
-  ##
+  #
   adhoc.hakn.ci <-
     deprecated2(adhoc.hakn.ci, missing(adhoc.hakn.ci),
                 adhoc.hakn, missing(adhoc.hakn), warn.deprecated)
@@ -584,20 +584,20 @@ metarate <- function(event, time, studlab,
   subgroup.name <-
     deprecated(subgroup.name, missing.subgroup.name, args, "bylab",
                warn.deprecated)
-  ##
+  #
   print.subgroup.name <-
     deprecated(print.subgroup.name, missing(print.subgroup.name),
                args, "print.byvar", warn.deprecated)
   print.subgroup.name <-
     replaceNULL(print.subgroup.name, gs("print.subgroup.name"))
   chklogical(print.subgroup.name)
-  ##
+  #
   sep.subgroup <-
     deprecated(sep.subgroup, missing(sep.subgroup), args, "byseparator",
                warn.deprecated)
   if (!is.null(sep.subgroup))
     chkchar(sep.subgroup, length = 1)
-  ##
+  #
   addincr <-
     deprecated(method.incr, missing.method.incr, args, "addincr",
                warn.deprecated)
@@ -606,76 +606,76 @@ metarate <- function(event, time, studlab,
                warn.deprecated)
   if (missing.method.incr) {
     method.incr <- gs("method.incr")
-    ##
+    #
     if (is.logical(addincr) && addincr)
       method.incr <- "all"
     else if (is.logical(allincr) && allincr)
       method.incr <- "if0all"
   }
-  ##
+  #
   addincr <- allincr <- FALSE
   if (method.incr == "all")
     addincr <- TRUE
   else if (method.incr == "if0all")
     allincr <- TRUE
-  ##
-  ## Some more checks
-  ##
+  #
+  # Some more checks
+  #
   chklogical(overall)
   chklogical(overall.hetstat)
   
   
-  ##
-  ##
-  ## (2) Read data
-  ##
-  ##
+  #
+  #
+  # (2) Read data
+  #
+  #
   
   nulldata <- is.null(data)
   sfsp <- sys.frame(sys.parent())
   mc <- match.call()
-  ##
+  #
   if (nulldata)
     data <- sfsp
-  ##
-  ## Catch 'event', 'time' and 'n' from data:
-  ##
+  #
+  # Catch 'event', 'time' and 'n' from data:
+  #
   event <- catch("event", mc, data, sfsp)
   chknull(event)
   k.All <- length(event)
-  ##
+  #
   time <- catch("time", mc, data, sfsp)
   chknull(time)
-  ##
+  #
   n <- catch("n", mc, data, sfsp)
-  ##
-  ## Catch 'incr' from data:
-  ##
+  #
+  # Catch 'incr' from data:
+  #
   if (!missing(incr))
     incr <- catch("incr", mc, data, sfsp)
   chknumeric(incr, min = 0)
-  ##
-  ## Catch 'studlab', 'subgroup', 'subset', 'exclude' and 'cluster'
-  ## from data:
-  ##
+  #
+  # Catch 'studlab', 'subgroup', 'subset', 'exclude' and 'cluster'
+  # from data:
+  #
   studlab <- catch("studlab", mc, data, sfsp)
   studlab <- setstudlab(studlab, k.All)
-  ##
+  #
   missing.subgroup <- missing(subgroup)
   subgroup <- catch("subgroup", mc, data, sfsp)
   missing.byvar <- missing(byvar)
   byvar <- catch("byvar", mc, data, sfsp)
-  ##
+  #
   subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
                           warn.deprecated)
   by <- !is.null(subgroup)
-  ##
+  #
   subset <- catch("subset", mc, data, sfsp)
   missing.subset <- is.null(subset)
-  ##
+  #
   exclude <- catch("exclude", mc, data, sfsp)
   missing.exclude <- is.null(exclude)
-  ##
+  #
   cluster <- catch("cluster", mc, data, sfsp)
   with.cluster <- !is.null(cluster)
   #
@@ -714,11 +714,11 @@ metarate <- function(event, time, studlab,
          call. = FALSE)
   
   
-  ##
-  ##
-  ## (3) Check length of essential variables
-  ##
-  ##
+  #
+  #
+  # (3) Check length of essential variables
+  #
+  #
   
   chklength(time, k.All, fun)
   if (!is.null(n))
@@ -744,15 +744,15 @@ metarate <- function(event, time, studlab,
   #
   if (length(incr) > 1)
     chklength(incr, k.All, fun)
-  ##
+  #
   if (by) {
     chklength(subgroup, k.All, fun)
     chklogical(test.subgroup)
     chklogical(prediction.subgroup)
   }
-  ##
-  ## Additional checks
-  ##
+  #
+  # Additional checks
+  #
   if (!by & tau.common) {
     warning("Value for argument 'tau.common' set to FALSE as ",
             "argument 'subgroup' is missing.",
@@ -767,22 +767,22 @@ metarate <- function(event, time, studlab,
   }
   
   
-  ##
-  ##
-  ## (4) Subset, exclude studies, and subgroups
-  ##
-  ##
+  #
+  #
+  # (4) Subset, exclude studies, and subgroups
+  #
+  #
   
   if (!missing.subset)
     if ((is.logical(subset) & (sum(subset) > k.All)) ||
         (length(subset) > k.All))
       stop("Length of subset is larger than number of studies.")
-  ##
+  #
   if (!missing.exclude) {
     if ((is.logical(exclude) & (sum(exclude) > k.All)) ||
         (length(exclude) > k.All))
       stop("Length of argument 'exclude' is larger than number of studies.")
-    ##
+    #
     exclude2 <- rep(FALSE, k.All)
     exclude2[exclude] <- TRUE
     exclude <- exclude2
@@ -791,29 +791,29 @@ metarate <- function(event, time, studlab,
     exclude <- rep(FALSE, k.All)
   
   
-  ##
-  ##
-  ## (5) Store complete dataset in list object data
-  ##     (if argument keepdata is TRUE)
-  ##
-  ##
+  #
+  #
+  # (5) Store complete dataset in list object data
+  #     (if argument keepdata is TRUE)
+  #
+  #
   
   if (keepdata) {
     if (nulldata)
       data <- data.frame(.event = event)
     else
       data$.event <- event
-    ##
+    #
     data$.time <- time
     data$.studlab <- studlab
     if (!is.null(n))
       data$.n <- n
-    ##
+    #
     data$.incr <- NA
-    ##
+    #
     if (by)
       data$.subgroup <- subgroup
-    ##
+    #
     if (!missing.subset) {
       if (length(subset) == dim(data)[1])
         data$.subset <- subset
@@ -822,10 +822,10 @@ metarate <- function(event, time, studlab,
         data$.subset[subset] <- TRUE
       }
     }
-    ##
+    #
     if (!missing.exclude)
       data$.exclude <- exclude
-    ##
+    #
     if (with.cluster)
       data$.id <- data$.cluster <- cluster
     #
@@ -837,11 +837,11 @@ metarate <- function(event, time, studlab,
   }
   
     
-  ##
-  ##
-  ## (6) Use subset for analysis
-  ##
-  ##
+  #
+  #
+  # (6) Use subset for analysis
+  #
+  #
   
   if (!missing.subset) {
     event <- event[subset]
@@ -849,7 +849,7 @@ metarate <- function(event, time, studlab,
     studlab <- studlab[subset]
     if (!is.null(n))
       n <- n[subset]
-    ##
+    #
     cluster <- cluster[subset]
     exclude <- exclude[subset]
     #
@@ -858,20 +858,20 @@ metarate <- function(event, time, studlab,
     #
     if (length(incr) > 1)
       incr <- incr[subset]
-    ##
+    #
     if (by)
       subgroup <- subgroup[subset]
   }
-  ##
-  ## Determine total number of studies
-  ##
+  #
+  # Determine total number of studies
+  #
   k.all <- length(event)
-  ##
+  #
   if (k.all == 0)
     stop("No studies to combine in meta-analysis.")
-  ##
-  ## No meta-analysis for a single study
-  ##
+  #
+  # No meta-analysis for a single study
+  #
   if (k.all == 1) {
     common <- FALSE
     random <- FALSE
@@ -879,23 +879,23 @@ metarate <- function(event, time, studlab,
     overall <- FALSE
     overall.hetstat <- FALSE
   }
-  ##
-  ## Check variable values
-  ##
+  #
+  # Check variable values
+  #
   chknumeric(event, 0)
   chknumeric(time, 0, zero = TRUE)
   if (!is.null(n))
     chknumeric(n, 0, zero = TRUE)
-  ##
-  ## Recode integer as numeric:
-  ##
+  #
+  # Recode integer as numeric:
+  #
   event <- int2num(event)
   time  <- int2num(time)
   if (!is.null(n))
     n <- int2num(n)
-  ##
-  ## Check for whole numbers
-  ##
+  #
+  # Check for whole numbers
+  #
   if (method.ci != "NAsm") {
     if (any(!is_wholenumber(event), na.rm = TRUE)) {
       warning("Normal approximation confidence interval ",
@@ -905,10 +905,10 @@ metarate <- function(event, time, studlab,
       method.ci <- "NAsm"
     }
   }
-  ##
+  #
   if (by) {
     chkmiss(subgroup)
-    ##
+    #
     if (missing.subgroup.name & is.null(subgroup.name)) {
       if (!missing.subgroup)
         subgroup.name <- byvarname("subgroup", mc)
@@ -916,7 +916,7 @@ metarate <- function(event, time, studlab,
         subgroup.name <- byvarname("byvar", mc)
     }
   }
-  ##
+  #
   if (!is.null(subgroup.name))
     chkchar(subgroup.name, length = 1)
   
@@ -962,11 +962,11 @@ metarate <- function(event, time, studlab,
   }
   
   
-  ##
-  ##
-  ## (8) Calculate results for individual studies
-  ##
-  ##
+  #
+  #
+  # (8) Calculate results for individual studies
+  #
+  #
   
   if (sm == "IR") {
     TE <- (event + incr.event) / time
@@ -988,17 +988,17 @@ metarate <- function(event, time, studlab,
     seTE <- sqrt(1 / (4 * time))
     transf.null.effect <- sqrt(null.effect)
   }
-  ##
-  ## Calculate confidence intervals
-  ##
+  #
+  # Calculate confidence intervals
+  #
   if (method.ci == "NAsm")
     ci.study <- ci(TE, seTE, level = level)
   else
     ci.study <- ciPoisson(event, time, level, null.effect)
-  ##
+  #
   lower.study <- ci.study$lower
   upper.study <- ci.study$upper
-  ##
+  #
   if (method.ci != "NAsm") {
     if (sm == "IRLN") {
       lower.study <- log(lower.study)
@@ -1008,11 +1008,11 @@ metarate <- function(event, time, studlab,
       lower.study <- sqrt(lower.study)
       upper.study <- sqrt(upper.study)
     }
-    ##
+    #
     else if (sm == "IRFT") {
       lower.ev <- time * lower.study 
       upper.ev <- time * upper.study 
-      ##
+      #
       lower.study <-
         0.5 * (sqrt(lower.ev / time) + sqrt((lower.ev + 1) / time))
       upper.study <-
@@ -1021,60 +1021,60 @@ metarate <- function(event, time, studlab,
   }
   
   
-  ##
-  ##
-  ## (9) Additional checks for three-level model
-  ##
-  ##
+  #
+  #
+  # (9) Additional checks for three-level model
+  #
+  #
   
   three.level <- FALSE
   sel.ni <- !is.infinite(TE) & !is.infinite(seTE)
-  ##
-  ## Only conduct three-level meta-analysis if variable 'cluster'
-  ## contains duplicate values after removing inestimable study
-  ## results standard errors
-  ##
+  #
+  # Only conduct three-level meta-analysis if variable 'cluster'
+  # contains duplicate values after removing inestimable study
+  # results standard errors
+  #
   if (with.cluster &&
       length(unique(cluster[sel.ni])) != length(cluster[sel.ni]))
     three.level <- TRUE
-  ##
+  #
   if (three.level) {
     chkmlm(method.tau, missing.method.tau, method.predict,
            method, missing.method)
-    ##
+    #
     common <- FALSE
     method <- "Inverse"
     is.glmm <- FALSE
-    ##
+    #
     if (!(method.tau %in% c("REML", "ML")))
       method.tau <- "REML"
   }
   
   
-  ##
-  ##
-  ## (10) Additional checks for GLMM
-  ##
-  ##
+  #
+  #
+  # (10) Additional checks for GLMM
+  #
+  #
   
   if (is.glmm) {
     chkglmm(sm, method.tau, method.random.ci, method.predict,
             adhoc.hakn.ci, adhoc.hakn.pi,
             "IRLN")
-    ##
+    #
     if (sparse & warn &
         ((!missing(incr) & any(incr != 0)) | allincr | addincr))
         warning("Note, for method = \"GLMM\", continuity correction only ",
                 "used to calculate individual study results.",
                 call. = FALSE)
-    ##
+    #
     if (!is.null(TE.tau)) {
       if (warn)
         warning("Argument 'TE.tau' not considered for GLMM.",
                 call. = FALSE)
       TE.tau <- NULL
     }
-    ##
+    #
     if (!is.null(tau.preset)) {
       if (warn)
         warning("Argument 'tau.preset' not considered for GLMM.",
@@ -1084,18 +1084,18 @@ metarate <- function(event, time, studlab,
   }
   
   
-  ##
-  ##
-  ## (11) Do meta-analysis
-  ##
-  ##
+  #
+  #
+  # (11) Do meta-analysis
+  #
+  #
   
   k <- sum(!is.na(event[!exclude]) & !is.na(time[!exclude]))
-  ##
+  #
   for (i in seq_along(method.random.ci))
     if (k == 1 & method.random.ci[i] == "HK")
       method.random.ci[i] <- "classic"
-  ##
+  #
   m <- metagen(TE, seTE, studlab,
                exclude = if (missing.exclude) NULL else exclude,
                cluster = cluster, rho = rho,
@@ -1105,13 +1105,13 @@ metarate <- function(event, time, studlab,
                #
                sm = sm,
                level = level,
-               ##
+               #
                common = common,
                random = random,
                overall = overall,
                overall.hetstat = overall.hetstat,
                prediction = prediction,
-               ##
+               #
                method.tau = if (is.glmm) "DL" else method.tau,
                method.tau.ci = if (is.glmm) "" else method.tau.ci,
                level.hetstat = level.hetstat,
@@ -1126,22 +1126,22 @@ metarate <- function(event, time, studlab,
                method.common.ci = method.common.ci,
                method.random.ci = method.random.ci,
                adhoc.hakn.ci = adhoc.hakn.ci,
-               ##
+               #
                level.predict = level.predict,
                method.predict = method.predict,
                adhoc.hakn.pi = adhoc.hakn.pi,
                seed.predict = seed.predict,
-               ##
+               #
                null.effect = transf.null.effect,
-               ##
+               #
                method.bias = method.bias,
-               ##
+               #
                backtransf = backtransf,
-               ##
+               #
                text.common = text.common, text.random = text.random,
                text.predict = text.predict,
                text.w.common = text.w.common, text.w.random = text.w.random,
-               ##
+               #
                title = title, complab = complab, outclab = outclab,
                #
                label.left = label.left, label.right = label.right,
@@ -1150,7 +1150,7 @@ metarate <- function(event, time, studlab,
                #
                keepdata = FALSE,
                warn = warn,
-               ##
+               #
                control = control)
   #
   # Estimate common tau-squared across subgroups
@@ -1160,11 +1160,11 @@ metarate <- function(event, time, studlab,
                    method.I2, level.hetstat, subgroup, control)
   
   
-  ##
-  ##
-  ## (12) Generate R object
-  ##
-  ##
+  #
+  #
+  # (12) Generate R object
+  #
+  #
   
   res <- list(event = event, time = time,
               n = n,
@@ -1173,10 +1173,10 @@ metarate <- function(event, time, studlab,
               sparse = sparse,
               method.ci = method.ci,
               incr.event = incr.event)
-  ##
-  ## Add meta-analysis results
-  ## (after removing unneeded list elements)
-  ##
+  #
+  # Add meta-analysis results
+  # (after removing unneeded list elements)
+  #
   m$n.e <- NULL
   m$n.c <- NULL
   m$pscale <- NULL
@@ -1186,44 +1186,44 @@ metarate <- function(event, time, studlab,
   m$method.mean <- NULL
   m$approx.TE <- NULL
   m$approx.seTE <- NULL
-  ##
+  #
   m$label.e <- ""
   m$label.c <- ""
   m$label.left <- ""
   m$label.right <- ""
-  ##
+  #
   if (method.ci == "exact") {
     m$statistic <- rep(NA, length(m$statistic))
     m$pval <- ci.study$p
   }    
-  ##
+  #
   if (is.glmm) {
     m$method.tau <- method.tau
     #
     m$seTE.hakn.ci <- m$seTE.hakn.adhoc.ci <-
       m$seTE.hakn.pi <- m$seTE.hakn.adhoc.pi <-
         m$seTE.kero <- NA
-    ##
+    #
     m$text.random <- gsub("(HK)", "(T)", m$text.random, fixed = TRUE)
   }
-  ##
+  #
   res <- c(res, m)
   res$null.effect <- null.effect
-  ##
-  ## Run GLMM and add data
-  ##
+  #
+  # Run GLMM and add data
+  #
   if (is.glmm & k > 0) {
     res$method <- "GLMM"
     res$method.random <- "GLMM"
-    ##
+    #
     list.rate <-
       list(xi = event[!exclude], ti = time[!exclude], measure = "IRLN")
-    ##
+    #
     use.random <-
       sum(!exclude) > 1 &
       sum(event[!exclude], na.rm = TRUE) > 0 &
       any(event[!exclude] != time[!exclude])
-    ##
+    #
     res.glmm <-
       runGLMM(list.rate,
               method.tau = method.tau,
@@ -1231,15 +1231,15 @@ metarate <- function(event, time, studlab,
               level = level.ma,
               control = control, use.random = use.random,
               warn = warn)
-    ##
+    #
     res <- addGLMM(res, res.glmm, method.I2, transf.null.effect)
-    ##
+    #
     if (by) {
       n.subgroups <- length(unique(subgroup[!exclude]))
       if (n.subgroups > 1)
         subgroup.glmm <-
           factor(subgroup[!exclude], bylevs(subgroup[!exclude]))
-      ##
+      #
       hcc <-
         hccGLMM(
           res,
@@ -1263,10 +1263,10 @@ metarate <- function(event, time, studlab,
         )
     }
   }
-  ##
+  #
   res$lower <- lower.study
   res$upper <- upper.study
-  ##
+  #
   res$irscale <- irscale
   res$irunit  <- irunit
   #
@@ -1279,11 +1279,11 @@ metarate <- function(event, time, studlab,
     if (!missing.subset)
       res$subset <- subset
   }
-  ##
+  #
   class(res) <- c(fun, "meta")
-  ##
-  ## Add results from subgroup analysis
-  ##
+  #
+  # Add results from subgroup analysis
+  #
   if (by) {
     res$subgroup <- subgroup
     res$subgroup.name <- subgroup.name
@@ -1292,7 +1292,7 @@ metarate <- function(event, time, studlab,
     res$test.subgroup <- test.subgroup
     res$prediction.subgroup <- prediction.subgroup
     res$tau.common <- tau.common
-    ##
+    #
     if (!tau.common) {
       res <- c(res, subgroup(res, seed = seed.predict.subgroup))
       if (res$three.level)
@@ -1314,24 +1314,24 @@ metarate <- function(event, time, studlab,
         res <-
           c(res, subgroup(res, hcc$tau.resid, seed = seed.predict.subgroup))
     }
-    ##
+    #
     if (tau.common && is.null(tau.preset))
       res <- addHet(res, hcc, !is.glmm)
-    ##
+    #
     res$event.e.w <- NULL
     res$event.c.w <- NULL
     res$n.e.w <- NULL
     res$n.c.w <- NULL
     res$time.e.w <- NULL
     res$time.c.w <- NULL
-    ##
+    #
     res <- setNAwithin(res, res$three.level | is.glmm)
   }
-  ##
-  ## Backward compatibility
-  ##
+  #
+  # Backward compatibility
+  #
   res <- backward(res)
-  ##
+  #
   class(res) <- c(fun, "meta")
 
   

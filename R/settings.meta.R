@@ -372,39 +372,39 @@
 
 settings.meta <- function(..., quietly = TRUE) {
   
-  ##
-  ## Check argument
-  ##
+  #
+  # Check argument
+  #
   missing.quietly <- missing(quietly)
   chklogical(quietly)
   
   
-  ##
-  ## Save object with current settings
-  ##
+  #
+  # Save object with current settings
+  #
   oldset <- .settings
   oldset$argslist <- oldset$argslist.internal <- NULL
   
   
-  ##
-  ## Set internal variables
-  ##
+  #
+  # Set internal variables
+  #
   settings <- c("BMJ", "JAMA", "RevMan5", 
                 "IQWiG5", "IQWiG6",
                 "geneexpr", "IVhet",
                 "meta4", "meta7")
   layouts <- c(settings[1:2], "meta")
-  ##
+  #
   print.settings <- FALSE
   reset.settings <- FALSE
   specific.settings <- FALSE
-  ##
+  #
   args  <- list(...)
   
   
-  ##
-  ## Print settings if no argument is provided
-  ##
+  #
+  # Print settings if no argument is provided
+  #
   if (length(args) == 0) {
     if (missing.quietly || !quietly)
       settings.meta("print", quietly = FALSE)
@@ -412,10 +412,10 @@ settings.meta <- function(..., quietly = TRUE) {
   }
   
   
-  ##
-  ## Check whether first argument is a list. In this case only use
-  ## this list as input.
-  ##
+  #
+  # Check whether first argument is a list. In this case only use
+  # this list as input.
+  #
   warn.depr <- TRUE
   if (length(args) > 0 && is.list(args[[1]])) {
     if (!is.null(names(args))) {
@@ -428,17 +428,17 @@ settings.meta <- function(..., quietly = TRUE) {
   }
   
   
-  ##
-  ## Unnamed first (and only) argument must be character string or a
-  ## logical
-  ##
+  #
+  # Unnamed first (and only) argument must be character string or a
+  # logical
+  #
   if (length(args) == 1 & is.null(names(args))) {
     if (is.character(unlist(args)))
       action <- setchar(unlist(args), c(settings, "reset", "print"),
                         stop.at.error = FALSE)
     else
       action <- unlist(args)
-    ##
+    #
     if (is.null(action))
       stop("First argument can be one of the following character strings:",
            "\n reset, print, ", paste(settings, collapse = ", "),
@@ -449,17 +449,17 @@ settings.meta <- function(..., quietly = TRUE) {
       settings.meta(print = TRUE, quietly = FALSE)
     else
       settings.meta(setting = action, quietly = quietly)
-    ##
+    #
     return(invisible(oldset))
   }
-  ##
+  #
   else if (length(args) > 1 & names(args)[1] == "") {
     if (is.character(unlist(args[[1]])))
       action <- setchar(unlist(args[[1]]), c(settings, "reset", "print"),
                         stop.at.error = FALSE)
     else
       action <- unlist(args[[1]])
-    ##
+    #
     if (is.null(action))
       stop("First argument can be one of the following character strings:",
            "\n reset, print, ", paste(settings, collapse = ", "),
@@ -473,24 +473,24 @@ settings.meta <- function(..., quietly = TRUE) {
   }
   
   
-  ##
-  ## Check and warn about deprecated arguments
-  ##
+  #
+  # Check and warn about deprecated arguments
+  #
   names.all <- names(args)
-  ##
+  #
   if (warn.depr) {
     chkdeprecated(names.all, "level.ma", "level.comb")
     chkdeprecated(names.all, "common", "comb.fixed")
     chkdeprecated(names.all, "common", "fixed")
     chkdeprecated(names.all, "random", "comb.random")
-    ##
+    #
     chkdeprecated(names.all, "method.random.ci", "hakn")
     chkdeprecated(names.all, "adhoc.hakn.ci", "adhoc.hakn")
-    ##
+    #
     chkdeprecated(names.all, "digits.stat", "digits.zval")
     chkdeprecated(names.all, "print.subgroup.name", "print.byvar")
     chkdeprecated(names.all, "sep.subgroup", "byseparator")
-    ##
+    #
     chkdeprecated(names.all, "method.incr", "addincr")
     chkdeprecated(names.all, "method.incr", "allincr")
     #
@@ -522,16 +522,16 @@ settings.meta <- function(..., quietly = TRUE) {
   names <- names.all[!(names.all %in% .settings$argslist.internal)]
   
   
-  ##
-  ## Check argument names
-  ##
+  #
+  # Check argument names
+  #
   if (length(names) != length(unique(names)))
     stop("Arguments must be unique.")
   
   
-  ##
-  ## Determine whether to print, reset or use specific settings
-  ##
+  #
+  # Determine whether to print, reset or use specific settings
+  #
   if (any(names == "print") && args[["print"]]) {
     print.settings <- TRUE
     quietly <- FALSE
@@ -544,18 +544,18 @@ settings.meta <- function(..., quietly = TRUE) {
   }
   
   
-  ##
-  ## Reset settings
-  ##
+  #
+  # Reset settings
+  #
   if (reset.settings) {
     if (!quietly)
       cat("\n** Reset all meta-analysis settings (R package meta). **\n\n")
-    ##
-    ## General settings
-    ##
+    #
+    # General settings
+    #
     setOption("level", 0.95)
     setOption("level.ma", 0.95)
-    ##
+    #
     setOption("common", TRUE)
     setOption("fixed", TRUE)
     setOption("comb.fixed", TRUE)
@@ -624,9 +624,9 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("JAMA.pval", FALSE)
     setOption("digits.df", 4)
     setOption("digits.cid", 4)
-    ##
+    #
     setOption("details", TRUE)
-    ##
+    #
     setOption("print.tau2", TRUE)
     setOption("print.tau2.ci", TRUE)
     setOption("print.tau", TRUE)
@@ -635,16 +635,16 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("print.I2.ci", TRUE)
     setOption("print.H", TRUE)
     setOption("print.Rb", FALSE)
-    ##
+    #
     setOption("text.tau2", "tau^2")
     setOption("text.tau", "tau")
     setOption("text.I2", "I^2")
     setOption("text.Rb", "Rb")
-    ##
+    #
     setOption("print.Q", TRUE)
-    ##
-    ## R function metabin
-    ##
+    #
+    # R function metabin
+    #
     setOption("smbin", "RR")
     setOption("method", "MH")
     setOption("incr", 0.5)
@@ -657,59 +657,59 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("Q.Cochrane", TRUE)
     setOption("model.glmm", "UM.FS")
     setOption("print.CMH", FALSE)
-    ##
-    ## R function metacont
-    ##
+    #
+    # R function metacont
+    #
     setOption("smcont", "MD")
     setOption("pooledvar", FALSE)
     setOption("method.smd", "Hedges")
     setOption("sd.glass", "control")
     setOption("exact.smd", TRUE)
     setOption("method.ci.cont", "z")
-    ##
-    ## R function metaprop
-    ##
+    #
+    # R function metaprop
+    #
     setOption("smprop", "PLOGIT")
     setOption("method.ci.prop", "CP")
-    ##
-    ## R function metarate
-    ##
+    #
+    # R function metarate
+    #
     setOption("smrate", "IRLN")
     setOption("method.ci.rate", "NAsm")
-    ##
-    ## Other meta-analysis functions
-    ##
+    #
+    # Other meta-analysis functions
+    #
     setOption("smcor", "ZCOR")
     setOption("sminc", "IRR")
     setOption("smmean", "MRAW")
-    ##
-    ## R functions comparing two treatments
-    ##
+    #
+    # R functions comparing two treatments
+    #
     setOption("label.e", "Experimental")
     setOption("label.c", "Control")
     setOption("label.left", "")
     setOption("label.right", "")
-    ##
-    ## R function forest.meta
-    ##
+    #
+    # R function forest.meta
+    #
     setOption("layout", "meta")
     setOption("forest.details", FALSE)
     setOption("test.overall", FALSE)
     setOption("test.effect.subgroup", FALSE)
     setOption("digits.forest", 2)
     setOption("digits.TE.forest", 4)
-    ##
+    #
     setOption("lty.common", 2)
     setOption("lty.random", 3)
     setOption("col.common", "black")
     setOption("col.random", "black")
-    ##
+    #
     setOption("sort.subgroup", FALSE)
-    ##
+    #
     setOption("pooled.events", FALSE)
     setOption("pooled.times", FALSE)
     setOption("study.results", TRUE)
-    ##
+    #
     setOption("cid", NA)
     setOption("cid.below.null", NA)
     setOption("cid.above.null", NA)
@@ -720,31 +720,31 @@ settings.meta <- function(..., quietly = TRUE) {
     #
     setOption("fill", "transparent")
     setOption("fill.equi", "transparent")
-    ##
+    #
     setOption("leftcols", NULL)
     setOption("rightcols", NULL)
     setOption("leftlabs", NULL)
     setOption("rightlabs", NULL)
-    ##
+    #
     setOption("label.e.attach", NULL)
     setOption("label.c.attach", NULL)
-    ##
+    #
     setOption("bottom.lr", TRUE)
-    ##
+    #
     setOption("lab.NA", ".")
     setOption("lab.NA.effect", NULL)
     setOption("lab.NA.weight", ".")
-    ##
+    #
     setOption("lwd", 1)
     setOption("lwd.square", 1)
     setOption("lwd.diamond", 1)
-    ##
+    #
     setOption("arrow.type", "open")
     setOption("arrow.length", 0.05)
-    ##
+    #
     setOption("type.study", "square")
     setOption("type.common", "diamond")
-    ##
+    #
     setOption("col.study", "black")
     setOption("col.square", "gray")
     setOption("col.square.lines", "gray")
@@ -757,14 +757,14 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("col.subgroup", "black")
     setOption("col.label.right", "black")
     setOption("col.label.left", "black")
-    ##
+    #
     setOption("col.lines", "black")
     setOption("col.label", "black")
-    ##
+    #
     setOption("hetlab", "Heterogeneity: ")
     setOption("resid.hetstat", NULL)
     setOption("resid.hetlab", "Residual heterogeneity: ")
-    ##
+    #
     setOption("forest.I2", NULL)
     setOption("forest.I2.ci", FALSE)
     setOption("forest.tau2", NULL)
@@ -790,14 +790,14 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("label.cycles", "Cycles")
     #
     setOption("text.subgroup.nohet", "not applicable")
-    ##
+    #
     setOption("LRT", FALSE)
-    ##
+    #
     setOption("forest.stat", TRUE)
     setOption("forest.Q.subgroup", TRUE)
-    ##
+    #
     setOption("header.line", FALSE)
-    ##
+    #
     setOption("fontsize", 12)
     setOption("fontfamily", NULL)
     setOption("fs.common", NULL)
@@ -811,7 +811,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("fs.test.subgroup", NULL)
     setOption("fs.test.effect.subgroup", NULL)
     setOption("fs.addline", NULL)
-    ##
+    #
     setOption("ff.heading", "bold")
     setOption("ff.common", NULL)
     setOption("ff.random", NULL)
@@ -829,21 +829,21 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("ff.smlab", "bold")
     setOption("ff.xlab", "plain")
     setOption("ff.lr", "plain")
-    ##
+    #
     setOption("colgap", "2mm")
     setOption("colgap.forest", "2mm")
-    ##
+    #
     setOption("width", NULL)
-    ##
+    #
     setOption("calcwidth.predict", FALSE)
     setOption("calcwidth.hetstat", FALSE)
     setOption("calcwidth.tests", FALSE)
     setOption("calcwidth.subgroup", FALSE)
     setOption("calcwidth.addline", FALSE)
-    ##
+    #
     setOption("just.studlab", "left")
     setOption("just.addcols", "center")
-    ##
+    #
     setOption("spacing", 1)
     setOption("addrow", NULL)
     setOption("addrow.overall", NULL)
@@ -852,9 +852,9 @@ settings.meta <- function(..., quietly = TRUE) {
   }
   
   
-  ##
-  ## Specific settings
-  ##
+  #
+  # Specific settings
+  #
   if (specific.settings) {
     #
     if (setting == "BMJ") {
@@ -1030,7 +1030,7 @@ settings.meta <- function(..., quietly = TRUE) {
         setting = "RevMan 5 settings",
         quietly = quietly)
     }
-    ##
+    #
     else if (setting == "IQWiG5") {
       specificSettings(args = c("method.random.ci", "prediction"),
                        new = list(replaceNULL(args[["method.random.ci"]],
@@ -1039,7 +1039,7 @@ settings.meta <- function(..., quietly = TRUE) {
                        setting = "IQWiG 5 settings",
                        quietly = quietly)
     }
-    ##
+    #
     else if (setting == "IQWiG6") {
       specificSettings(args = c("method.random.ci", "adhoc.hakn.ci",
                                 "method.tau", "prediction"),
@@ -1052,7 +1052,7 @@ settings.meta <- function(..., quietly = TRUE) {
                        setting = "IQWiG 6 settings",
                        quietly = quietly)
     }
-    ##
+    #
     else if (setting == "meta4") {
       specificSettings(args = c("method.tau", "method.I2", "method.predict",
                                 "exact.smd",
@@ -1072,7 +1072,7 @@ settings.meta <- function(..., quietly = TRUE) {
                          "settings from meta, version 4 or below",
                        quietly = quietly)
     }
-    ##
+    #
     else if (setting == "meta7") {
       specificSettings(args = c("method.tau", "method.I2", "method.predict",
                                 "exact.smd",
@@ -1092,7 +1092,7 @@ settings.meta <- function(..., quietly = TRUE) {
                          "settings from meta, version 7.0-0 or below",
                        quietly = quietly)
     }
-    ##
+    #
     else if (setting == "geneexpr") {
       specificSettings(args = c("scientific.pval", "method.tau.ci"),
                        new = list(replaceNULL(args[["scientific.pval"]], TRUE),
@@ -1114,14 +1114,14 @@ settings.meta <- function(..., quietly = TRUE) {
   }
   
   
-  ##
-  ## Print settings
-  ##
+  #
+  # Print settings
+  #
   if (print.settings & !quietly) {
     cat(paste0("\n** Settings for meta-analysis method (R package meta, ",
                "version ", utils::packageDescription("meta")$Version,
                ") **\n\n"))
-    ##
+    #
     cat(paste0("* General settings *\n"))
     catarg("level              ")
     catarg("level.ma           ")
@@ -1199,7 +1199,7 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("text.I2            ")
     catarg("text.Rb            ")
     catarg("print.Q            ")
-    ##
+    #
     cat(paste("\n* Default summary measure (argument 'sm' in",
                "corresponding function) *\n"))
     cat("- metabin():  ")
@@ -1216,14 +1216,14 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("smprop", newline = FALSE)
     cat("- metarate(): ")
     catarg("smrate", newline = FALSE)
-    ##
+    #
     cat(paste("\n* Additional settings for metabin(), metainc(),",
               "metaprop(), and metarate() *\n"))
     catarg("incr       ")
     catarg("method.incr")
     #catarg("allincr")
     #catarg("addincr")
-    ##
+    #
     cat("\n* Additional settings for metabin() *\n")
     catarg("method     ")
     catarg("allstudies ")
@@ -1232,29 +1232,29 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("Q.Cochrane ")
     catarg("model.glmm ")
     catarg("print.CMH  ")
-    ##
+    #
     cat("\n* Additional settings for metacont() *\n")
     catarg("pooledvar ")
     catarg("method.smd")
     catarg("sd.glass  ")
     catarg("exact.smd ")
     catarg("method.ci.cont")
-    ##
+    #
     cat("\n* Additional settings for metagen() *\n")
     catarg("transf ")
-    ##
+    #
     cat("\n* Additional setting for metaprop() *\n")
     catarg("method.ci.prop")
-    ##
+    #
     cat("\n* Additional setting for metarate() *\n")
     catarg("method.ci.rate")
-    ##
+    #
     cat("\n* Settings for R functions comparing two treatments *\n")
     catarg("label.e    ")
     catarg("label.c    ")
     catarg("label.left ")
     catarg("label.right")
-    ##
+    #
     cat("\n* Settings for forest.meta() *\n")
     catarg("layout                 ")
     catarg("forest.details         ")
@@ -1264,24 +1264,24 @@ settings.meta <- function(..., quietly = TRUE) {
            end = "\n  (argument 'digits' in forest.meta())")
     catarg("digits.TE.forest          ",
            end = "\n  (argument 'digits.TE' in forest.meta())")
-    ##
+    #
     catarg("lty.common             ")
     catarg("lty.random             ")
     catarg("col.common             ")
     catarg("col.random             ")
-    ##
+    #
     catarg("sort.subgroup          ")
-    ##
+    #
     catarg("pooled.events          ")
     catarg("pooled.times           ")
     catarg("study.results          ")
-    ##
+    #
     catarg("lty.cid                ")
     catarg("col.cid                ")
     catarg("fill.cid               ")
     catarg("cid.pooled.only        ")
     catarg("fill.equi              ")
-    ##
+    #
     catarg("fill                   ")
     #
     catarg("print.tau2.ci.subgroup ")
@@ -1291,26 +1291,26 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("rightcols              ")
     catarg("leftlabs               ")
     catarg("rightlabs              ")
-    ##
+    #
     catarg("label.e.attach         ")
     catarg("label.c.attach         ")
-    ##
+    #
     catarg("bottom.lr              ")
-    ##
+    #
     catarg("lab.NA                 ")
     catarg("lab.NA.effect          ")
     catarg("lab.NA.weight          ")
-    ##
+    #
     catarg("lwd                    ")
     catarg("lwd.square             ")
     catarg("lwd.diamond            ")
-    ##
+    #
     catarg("arrow.type             ")
     catarg("arrow.length           ")
-    ##
+    #
     catarg("type.study             ")
     catarg("type.common            ")
-    ##
+    #
     catarg("col.study              ")
     catarg("col.square             ")
     catarg("col.square.lines       ")
@@ -1323,14 +1323,14 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("col.subgroup           ")
     catarg("col.label.right        ")
     catarg("col.label.left         ")
-    ##
+    #
     catarg("col.lines              ")
     catarg("col.label              ")
-    ##
+    #
     catarg("hetlab                 ")
     catarg("resid.hetstat          ")
     catarg("resid.hetlab           ")
-    ##
+    #
     catarg("forest.I2              ")
     catarg("forest.I2.ci           ")
     catarg("forest.tau2            ")
@@ -1356,14 +1356,14 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("label.cycles           ")
     #
     catarg("text.subgroup.nohet    ")
-    ##
+    #
     catarg("LRT                    ")
-    ##
+    #
     catarg("forest.stat            ")
     catarg("forest.Q.subgroup      ")
-    ##
+    #
     catarg("header.line            ")
-    ##
+    #
     catarg("fontsize               ")
     catarg("fontfamily             ")
     catarg("fs.common              ")
@@ -1377,7 +1377,7 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("fs.test.subgroup       ")
     catarg("fs.test.effect.subgroup")
     catarg("fs.addline             ")
-    ##
+    #
     catarg("ff.heading             ")
     catarg("ff.common              ")
     catarg("ff.random              ")
@@ -1395,21 +1395,21 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("ff.smlab               ")
     catarg("ff.xlab                ")
     catarg("ff.lr                  ")
-    ##
+    #
     catarg("colgap                 ")
     catarg("colgap.forest          ")
-    ##
+    #
     catarg("width                  ")
-    ##
+    #
     catarg("calcwidth.predict      ")
     catarg("calcwidth.hetstat      ")
     catarg("calcwidth.tests        ")
     catarg("calcwidth.subgroup     ")
     catarg("calcwidth.addline      ")
-    ##
+    #
     catarg("just.studlab           ")
     catarg("just.addcols           ")
-    ##
+    #
     catarg("spacing                ")
     catarg("addrow                 ")
     catarg("addrow.overall         ")
@@ -1418,13 +1418,13 @@ settings.meta <- function(..., quietly = TRUE) {
   }
   
   
-  ##
-  ## Set individual settings
-  ##
+  #
+  # Set individual settings
+  #
   if (any(!(names %in% c("reset", "print", "setting")))) {
-    ##
-    ## General settings
-    ##
+    #
+    # General settings
+    #
     setlevel("level", args)
     #
     setOptionDepr(args, "level.ma", "level.comb", setlevel)
@@ -1503,7 +1503,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setlogical("JAMA.pval", args)
     setnumeric("digits.df", args)
     setnumeric("digits.cid", args)
-    ##
+    #
     setlogical("details", args)
     setlogical("print.tau2", args)
     setlogical("print.tau2.ci", args)
@@ -1513,12 +1513,12 @@ settings.meta <- function(..., quietly = TRUE) {
     setlogical("print.I2.ci", args)
     setlogical("print.H", args)
     setlogical("print.Rb", args)
-    ##
+    #
     setcharacter("text.tau2", args)
     setcharacter("text.tau", args)
     setcharacter("text.I2", args)
     setcharacter("text.Rb", args)
-    ##
+    #
     setlogical("print.Q", args)
     #
     setnumeric("cid", args)
@@ -1529,9 +1529,9 @@ settings.meta <- function(..., quietly = TRUE) {
     setcolor("fill.cid", args)
     setcolor("fill.equi", args)
     setlogical("cid.pooled.only", args)
-    ##
-    ## R function metabin
-    ##
+    #
+    # R function metabin
+    #
     setcharacter("smbin", args, gs("sm4bin"))
     setcharacter("method", args, gs("meth4bin"))
     setcharacter("model.glmm", args, c("UM.FS", "UM.RS", "CM.EL", "CM.AL"))
@@ -1543,7 +1543,7 @@ settings.meta <- function(..., quietly = TRUE) {
                         "should be numeric or the character string \"TACC\"")
       setOption("incr", incr)
     }
-    ##
+    #
     na <- is.na(setcharacter("method.incr", args, gs("meth4incr")))
     depr1 <- setlogical("allincr", args)
     depr2 <- setlogical("addincr", args)
@@ -1551,51 +1551,51 @@ settings.meta <- function(..., quietly = TRUE) {
       setOption("method.incr", "if0all")
     if (na & !is.na(depr2) & gs("addincr"))
       setOption("method.incr", "all")
-    ##
+    #
     setlogical("allstudies", args)
     setlogical("MH.exact", args)
     setlogical("RR.Cochrane", args)
     setlogical("Q.Cochrane", args)
     setlogical("print.CMH", args)
-    ##
-    ## R function metacont
-    ##
+    #
+    # R function metacont
+    #
     setcharacter("smcont", args, gs("sm4cont"))
     setlogical("pooledvar", args)
     setcharacter("method.smd", args, c("Hedges", "Cohen", "Glass"))
     setcharacter("sd.glass", args, c("control", "experimental"))
     setlogical("exact.smd", args)
     setcharacter("method.ci.cont", args, gs("ci4cont"))
-    ##
-    ## R function metagen
-    ##
+    #
+    # R function metagen
+    #
     setlogical("transf", args)
-    ##
-    ## R function metaprop
-    ##
+    #
+    # R function metaprop
+    #
     setcharacter("smprop", args, gs("sm4prop"))
     setcharacter("method.ci.prop", args, gs("ci4prop"))
-    ##
-    ## R function metarate
-    ##
+    #
+    # R function metarate
+    #
     setcharacter("smrate", args, gs("sm4rate"))
     setcharacter("method.ci.rate", args, gs("ci4rate"))
-    ##
-    ## Other meta-analysis functions
-    ##
+    #
+    # Other meta-analysis functions
+    #
     setcharacter("smcor" , args, gs("sm4cor"))
     setcharacter("sminc" , args, gs("sm4inc"))
     setcharacter("smmean", args, gs("sm4mean"))
-    ##
-    ## R functions comparing two treatments
-    ##
+    #
+    # R functions comparing two treatments
+    #
     setcharacter("label.e", args)
     setcharacter("label.c", args)
     setcharacter("label.left", args)
     setcharacter("label.right", args)
-    ##
-    ## R function forest.meta
-    ##
+    #
+    # R function forest.meta
+    #
     setcharacter("layout", args, layouts)
     setlogical("forest.details", args)
     setlogical("test.overall", args)
@@ -1606,46 +1606,46 @@ settings.meta <- function(..., quietly = TRUE) {
     setlogical("test.effect.subgroup", args)
     setnumeric("digits.forest", args)
     setnumeric("digits.TE.forest", args)
-    ##
+    #
     setnumeric("lty.common", args)
     setnumeric("lty.random", args)
     setcolor("col.common", args)
     setcolor("col.random", args)
-    ##
+    #
     setlogical("sort.subgroup", args)
-    ##
+    #
     setlogical("pooled.events", args)
     setlogical("pooled.times", args)
     setlogical("study.results", args)
-    ##
+    #
     setcolor("fill", args)
-    ##
+    #
     setcharacter("leftcols", args, length = 0,
                  NULL.ok = TRUE, logical.ok = TRUE)
     setcharacter("rightcols", args, length = 0,
                  NULL.ok = TRUE, logical.ok = TRUE)
     setcharacter("leftlabs", args, length = 0, NULL.ok = TRUE)
     setcharacter("rightlabs", args, length = 0, NULL.ok = TRUE)
-    ##
+    #
     setcharacter("label.e.attach", args, NULL.ok = TRUE)
     setcharacter("label.c.attach", args, NULL.ok = TRUE)
-    ##
+    #
     setlogical("bottom.lr", args)
-    ##
+    #
     setcharacter("lab.NA", args)
     setcharacter("lab.NA.effect", args, NULL.ok = TRUE)
     setcharacter("lab.NA.weight", args)
-    ##
+    #
     setnumeric("lwd", args)
     setnumeric("lwd.square", args)
     setnumeric("lwd.diamond", args)
-    ##
+    #
     setcharacter("arrow.type", args)
     setnumeric("arrow.length", args)
-    ##
+    #
     setcharacter("type.study", args, c("square", "diamond", "predict"))
     setcharacter("type.common", args, c("square", "diamond", "predict"))
-    ##
+    #
     setcolor("col.study", args)
     setcolor("col.square", args)
     setcolor("col.square.lines", args)
@@ -1658,14 +1658,14 @@ settings.meta <- function(..., quietly = TRUE) {
     setcolor("col.subgroup", args)
     setcolor("col.label.right", args)
     setcolor("col.label.left", args)
-    ##
+    #
     setcolor("col.lines", args)
     setcolor("col.label", args)
-    ##
+    #
     setcharacter("hetlab", args)
     setlogical("resid.hetstat", args, TRUE)
     setcharacter("resid.hetlab", args)
-    ##
+    #
     setlogical("forest.I2", args, TRUE)
     setlogical("forest.I2.ci", args)
     setlogical("forest.tau2", args, TRUE)
@@ -1691,16 +1691,16 @@ settings.meta <- function(..., quietly = TRUE) {
     setcharacter("label.cycles", args)
     #
     setcharacter("text.subgroup.nohet", args)
-    ##
+    #
     setlogical("LRT", args)
-    ##
+    #
     setlogical("forest.stat", args)
     setlogical("forest.Q.subgroup", args)
-    ##
+    #
     setlogical("header.line", args, ignore.other = TRUE)
     setcharacter("header.line", args, c("both", "below", ""),
                  ignore.other = TRUE)
-    ##
+    #
     setnumeric("fontsize", args)
     setcharacter("fontfamily", args, NULL.ok = TRUE)
     setnumeric("fs.common", args, TRUE)
@@ -1714,7 +1714,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setnumeric("fs.test.subgroup", args, TRUE)
     setnumeric("fs.test.effect.subgroup", args, TRUE)
     setnumeric("fs.addline", args, TRUE)
-    ##
+    #
     setcharacter("ff.heading", args)
     setcharacter("ff.common", args, NULL.ok = TRUE)
     setcharacter("ff.random", args, NULL.ok = TRUE)
@@ -1732,21 +1732,21 @@ settings.meta <- function(..., quietly = TRUE) {
     setcharacter("ff.smlab", args)
     setcharacter("ff.xlab", args)
     setcharacter("ff.lr", args)
-    ##
+    #
     setcharacter("colgap", args)
     setcharacter("colgap.forest", args)
-    ##
+    #
     setnumeric("width", args, TRUE)
-    ##
+    #
     setlogical("calcwidth.predict", args)
     setlogical("calcwidth.hetstat", args)
     setlogical("calcwidth.tests", args)
     setlogical("calcwidth.subgroup", args)
     setlogical("calcwidth.addline", args)
-    ##
+    #
     setcharacter("just.studlab", args, c("right", "center", "left"))
     setcharacter("just.addcols", args, c("right", "center", "left"))
-    ##
+    #
     setnumeric("spacing", args)
     setlogical("addrow", args, TRUE)
     setlogical("addrow.overall", args, TRUE)

@@ -54,31 +54,31 @@
 trimfill.rm5 <- function(x, comp.no, outcome.no, ...) {
   
   chkclass(x, "rm5")
-  ##
+  #
   if (missing(comp.no))
     comp.no <- unique(x$comp.no)
-  ##
+  #
   res <- list()
-  ##
+  #
   n <- 1
-  ##
+  #
   for (i in comp.no) {
     if (missing(outcome.no))
       jj <- unique(x$outcome.no[x$comp.no == i])
     else
       jj <- outcome.no
     for (j in jj) {
-      ##
+      #
       ma.j <- metacr(x, i, j, ...)
-      ##
+      #
       if (!is.na(ma.j$TE.common) & is.null(ma.j$subgroup)) {
         tf1 <- res[[n]] <- trimfill(ma.j)
-        ##
+        #
         n <- n + 1
       }
     }
   }
-  ##
+  #
   class(res) <- "trimfill.rm5"
   
   res
@@ -95,31 +95,31 @@ trimfill.rm5 <- function(x, comp.no, outcome.no, ...) {
 trimfill.cdir <- function(x, comp.no, outcome.no, ...) {
   
   chkclass(x, "cdir")
-  ##
+  #
   if (missing(comp.no))
     comp.no <- unique(x$data$comp.no)
-  ##
+  #
   res <- list()
-  ##
+  #
   n <- 1
-  ##
+  #
   for (i in comp.no) {
     if (missing(outcome.no))
       jj <- unique(x$data$outcome.no[x$data$comp.no == i])
     else
       jj <- outcome.no
     for (j in jj) {
-      ##
+      #
       ma.j <- metacr(x, i, j, ...)
-      ##
+      #
       if (!is.na(ma.j$TE.common) & is.null(ma.j$subgroup)) {
         tf1 <- res[[n]] <- trimfill(ma.j)
-        ##
+        #
         n <- n + 1
       }
     }
   }
-  ##
+  #
   class(res) <- "trimfill.rm5"
   
   res
@@ -136,18 +136,18 @@ trimfill.cdir <- function(x, comp.no, outcome.no, ...) {
 print.trimfill.rm5 <- function(x, ...) {
   
   chkclass(x, "trimfill.rm5")
-  ##
+  #
   n <- 1
-  ##
+  #
   for (i in 1:length(x)) {
     if (n > 1)
       cat("\n*****\n\n")
-    ##
+    #
     print(x[[i]])
-    ##
+    #
     n <- n + 1
   }
-  ##
+  #
   invisible(NULL)
 }
 
@@ -162,17 +162,17 @@ print.trimfill.rm5 <- function(x, ...) {
 print.trimfill.cdir <- function(x, ...) {
   
   chkclass(x, "trimfill.cdir")
-  ##
+  #
   n <- 1
-  ##
+  #
   for (i in 1:length(x)) {
     if (n > 1)
       cat("\n*****\n\n")
-    ##
+    #
     print(x[[i]])
-    ##
+    #
     n <- n + 1
   }
-  ##
+  #
   invisible(NULL)
 }

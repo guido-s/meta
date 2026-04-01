@@ -192,9 +192,9 @@ funnel.meta <- function(x,
                         type = "standard",
                         #
                         xlim = NULL, ylim = NULL, xlab = NULL, ylab = NULL,
-                        ##
+                        #
                         common = x$common, random = x$random,
-                        ##
+                        #
                         axes = TRUE,
                         pch = if (!inherits(x, "trimfill"))
                                 21 else ifelse(x$trimfill, 1, 21),
@@ -203,7 +203,7 @@ funnel.meta <- function(x,
                         lwd = 1, lwd.common = lwd, lwd.random = lwd,
                         col = "black", bg = "darkgray",
                         col.common = "black", col.random = "black",
-                        ##
+                        #
                         log, yaxis,
                         contour.levels =
                           if (type == "contour")
@@ -211,51 +211,51 @@ funnel.meta <- function(x,
                         col.contour =
                           if (type == "contour")
                             c("gray80", "gray70", "gray60") else NULL,
-                        ##
+                        #
                         ref = ifelse(is_relative_effect(x$sm), 1, 0),
-                        ##
+                        #
                         level = if (common | random) x$level else NULL,
                         studlab = FALSE, cex.studlab = 0.8, pos.studlab = 2,
-                        ##
+                        #
                         ref.triangle = FALSE,
                         lty.ref = 1,
                         lwd.ref = lwd,
                         col.ref = "black",
                         lty.ref.triangle = 5,
-                        ##
+                        #
                         backtransf = x$backtransf,
                         warn.deprecated = gs("warn.deprecated"),
                         ...) {
   
   
-  ##
-  ##
-  ## (1) Check for meta object and upgrade older meta object
-  ##
-  ##
+  #
+  #
+  # (1) Check for meta object and upgrade older meta object
+  #
+  #
   chkclass(x, "meta")
   chksuitable(x, "Funnel plot", "metamerge", check.mlm = FALSE)
-  ##
+  #
   x.name <- deparse(substitute(x))
   x <- updateversion(x)
   
   
-  ##
-  ##
-  ## (2) Check other arguments
-  ##
-  ##
+  #
+  #
+  # (2) Check other arguments
+  #
+  #
   type <- setchar(type, c("standard", "contour"))
   #
   args  <- list(...)
   chklogical(warn.deprecated)
-  ##
+  #
   common <- deprecated(common, missing(common), args, "fixed",
                        warn.deprecated)
   chklogical(common)
   chklogical(random)
   chklogical(axes)
-  ##
+  #
   sfsp <- sys.frame(sys.parent())
   mc <- match.call()
   #
@@ -299,7 +299,7 @@ funnel.meta <- function(x,
                            warn.deprecated)
   chknumeric(lwd.common, length = 1)
   chknumeric(lwd.random, length = 1)
-  ##
+  #
   if (!missing(col)) {
     error <- try(col <- catch("col", mc, x, sfsp), silent = TRUE)
     if (inherits(error, "try-error")) {
@@ -329,16 +329,16 @@ funnel.meta <- function(x,
   #
   col.common <- deprecated(col.common, missing(col.common), args, "col.fixed",
                            warn.deprecated)
-  ##
+  #
   if (missing(yaxis))
     if (inherits(x, "metabin") && x$sm == "DOR")
       yaxis <- "ess"
     else
       yaxis <- "se"
-  ##
+  #
   yaxis <- setchar(yaxis, c("se", "invse", "invvar",
                             "size", "invsqrtsize", "ess"))
-  ##
+  #
   if (!is.null(contour.levels))
     chklevel(contour.levels, length = 0, ci = FALSE)
   chknumeric(ref)
@@ -366,16 +366,16 @@ funnel.meta <- function(x,
   chklogical(backtransf)
   
   
-  ##
-  ##
-  ## (3) Check length of essential variables
-  ##
-  ##
+  #
+  #
+  # (3) Check length of essential variables
+  #
+  #
   TE <- x$TE
   k.All <- length(TE)
   seTE <- x$seTE
   seTE[is.infinite(seTE)] <- NA
-  ##
+  #
   if (is.logical(studlab))
     if (studlab) {
       slab <- TRUE
@@ -385,17 +385,17 @@ funnel.meta <- function(x,
       slab <- FALSE
   else
     slab <- TRUE
-  ##
+  #
   fun <- "funnel"
   chklength(seTE, k.All, fun)
   if (slab)
     chklength(studlab, k.All, fun)
-  ##
+  #
   if (!is.null(text))
     chklength(text, k.All, fun)
-  ##
-  ## Exclude studies from funnel plot
-  ## 
+  #
+  # Exclude studies from funnel plot
+  #
   if (!is.null(x$exclude)) {
     TE <- TE[!x$exclude]
     seTE <- seTE[!x$exclude]
@@ -417,76 +417,76 @@ funnel.meta <- function(x,
   }
   
   
-  ##
-  ##
-  ## (4) Further assignments
-  ##
-  ##
+  #
+  #
+  # (4) Further assignments
+  #
+  #
   TE.common <- x$TE.common
   TE.random <- x$TE.random
   sm <- x$sm
-  ##
+  #
   if (missing(log))
     if (backtransf & is_relative_effect(sm))
       log <- "x"
     else
       log <- ""
-  ##  
+  #  
   if (yaxis == "se")
     seTE.min <- 0
   else
     seTE.min <- min(seTE, na.rm = TRUE)
-  ##
+  #
   seTE.max <- max(seTE, na.rm = TRUE)
-  ##
+  #
   if (is_relative_effect(sm))
     ref <- log(ref)
-  ##
+  #
   ref.contour <- ref
-  ##
+  #
   if (!is.null(level)) {
-    ##
+    #
     seTE.seq <- seq(seTE.min, seTE.max, length.out = 500)
-    ##
+    #
     if (random & !common)
       ciTE <- ci(TE.random, seTE.seq, level)
     else
       ciTE <- ci(TE.common, seTE.seq, level)
-    ##
+    #
     ciTE.ref <- ci(ref, seTE.seq, level)
-    ##
+    #
     if ((common | random) & ref.triangle) {
       xlim.lower <- min(c(TE, ciTE$lower, ciTE.ref$lower), na.rm = TRUE)
       xlim.upper <- max(c(TE, ciTE$upper, ciTE.ref$upper), na.rm = TRUE)
     }
-    ##
+    #
     else if (ref.triangle) {
       xlim.lower <- min(c(TE, ciTE.ref$lower), na.rm = TRUE)
       xlim.upper <- max(c(TE, ciTE.ref$upper), na.rm = TRUE)
     }
-    ##
+    #
     else {
       xlim.lower <- min(c(TE, ciTE$lower), na.rm = TRUE)
       xlim.upper <- max(c(TE, ciTE$upper), na.rm = TRUE)
     }
-    ##
+    #
     TE.xlim <- c(xlim.lower * ifelse(xlim.lower < 0, 1.025, 1 / 1.025),
                  xlim.upper * ifelse(xlim.upper > 0, 1.025, 1 / 1.025))
   }
-  ##
+  #
   if (backtransf & is_relative_effect(sm)) {
     TE <- exp(TE)
     TE.common <- exp(TE.common)
     TE.random <- exp(TE.random)
     ref <- exp(ref)
-    ##
+    #
     if (!is.null(level)) {
       ciTE$lower <- exp(ciTE$lower)
       ciTE$upper <- exp(ciTE$upper)
-      ##
+      #
       ciTE.ref$lower <- exp(ciTE.ref$lower)
       ciTE.ref$upper <- exp(ciTE.ref$upper)
-      ##
+      #
       TE.xlim <- exp(TE.xlim)
     }
   }
@@ -508,9 +508,9 @@ funnel.meta <- function(x,
       TE.xlim <- rev(-TE.xlim)
     }
   }
-  ##
-  ## y-value: weight
-  ##
+  #
+  # y-value: weight
+  #
   if (yaxis == "se")
     weight <- seTE
   else if (yaxis == "invse")
@@ -545,12 +545,12 @@ funnel.meta <- function(x,
       stop("No information on sample size available in object '",
            x.name, "'.")
   }
-  ##
+  #
   if (yaxis %in% c("invsqrtsize", "ess"))
     weight <- 1 / sqrt(weight)
-  ##
-  ## x-axis: labels / xlim
-  ##
+  #
+  # x-axis: labels / xlim
+  #
   if (is.null(xlab))
     if (is_relative_effect(sm) | sm == "VE")
       xlab <- xlab_meta(sm, backtransf)
@@ -558,7 +558,7 @@ funnel.meta <- function(x,
       xlab <- "Proportion"
     else
       xlab <- xlab_meta(sm, FALSE)
-  ##
+  #
   if (is.null(xlim) & !is.null(level) &
       (yaxis == "se" |
          yaxis == "invse" |
@@ -566,9 +566,9 @@ funnel.meta <- function(x,
     xlim <- TE.xlim
   else if (is.null(xlim))
     xlim <- range(TE, na.rm = TRUE)
-  ##
-  ## y-axis: labels / ylim
-  ##
+  #
+  # y-axis: labels / ylim
+  #
   if (yaxis == "se" & is.null(ylab))
     ylab <- "Standard Error"
   else if (yaxis == "invse" & is.null(ylab))
@@ -581,17 +581,17 @@ funnel.meta <- function(x,
     ylab <- "1 / root(Study Size)"
   else if (yaxis == "ess" & is.null(ylab))
     ylab <- "1 / root(Effective Study Size)"
-  ##
+  #
   if (is.null(ylim) & yaxis %in% c("se", "invsqrtsize", "ess"))
     ylim <- c(max(weight, na.rm = TRUE), 0)
   if (is.null(ylim)) ylim <- range(weight, na.rm = TRUE)
   
   
-  ##
-  ##
-  ## (5) Produce funnel plot
-  ##
-  ##
+  #
+  #
+  # (5) Produce funnel plot
+  #
+  #
   args$x <- TE
   args$y <- weight
   args$type <- "n"
@@ -621,32 +621,32 @@ funnel.meta <- function(x,
     axis(2)
     box()
   }
-  ##
-  ## Add contour shades (enhanced funnel plots)
-  ##
+  #
+  # Add contour shades (enhanced funnel plots)
+  #
   if (!is.null(contour.levels) &
       !(yaxis %in% c("size", "invsqrtsize", "ess"))) {
-    ##
+    #
     if (is.null(col.contour))
       if (length(contour.levels) < 2)
         col.contour <- "gray60"
       else
         col.contour <- gray(seq(0.6, 0.9, len = length(contour.levels)))
-    ##
+    #
     if (length(contour.levels) != length(col.contour))
       stop("Arguments 'contour.levels' and 'col.contour' must be of ",
            "the same length.")
-    ##
+    #
     seTE.cont <- seq(seTE.max, seTE.min, length.out = 500)
-    ##
+    #
     j <- 0
-    ##
+    #
     for (i in contour.levels) {
-      ##
+      #
       j <- j + 1
-      ##
+      #
       ciContour <- ci(ref.contour, seTE.cont, i)
-      ##
+      #
       if (backtransf & is_relative_effect(sm)) {
         ciContour$TE    <- exp(ciContour$TE)
         ciContour$lower <- exp(ciContour$lower)
@@ -654,12 +654,12 @@ funnel.meta <- function(x,
       }
       sel.l <- ciContour$lower > min(xlim) & ciContour$lower < max(xlim)
       sel.u <- ciContour$upper > min(xlim) & ciContour$upper < max(xlim)
-      ##
+      #
       min.l <- min(ciContour$lower)
       max.l <- max(ciContour$lower)
       min.u <- min(ciContour$upper)
       max.u <- max(ciContour$upper)
-      ##
+      #
       if (yaxis == "se") {
         if (max.u < min(xlim) | min.l > max(xlim)) {
           contour.u.x <- c(min(xlim), min(xlim), max(xlim), max(xlim))
@@ -673,7 +673,7 @@ funnel.meta <- function(x,
                            if (any(sel.l)) max(ciContour$lower[sel.l]) else NA)
           contour.l.y <- c(min(ylim), max(ylim), seTE.cont[sel.l],
                            min(ylim))
-          ##
+          #
           contour.u.x <- c(max(xlim), max(xlim),
                            ciContour$upper[sel.u],
                            if (any(sel.u)) min(ciContour$upper[sel.u]) else NA)
@@ -681,7 +681,7 @@ funnel.meta <- function(x,
                            min(ylim))
         }
       }
-      ##
+      #
       if (yaxis == "invvar") {
         if (max.u < min(xlim) | min.l > max(xlim)) {
           contour.u.x <- c(min(xlim), min(xlim), max(xlim), max(xlim))
@@ -695,7 +695,7 @@ funnel.meta <- function(x,
                            if (any(sel.l)) max(ciContour$lower[sel.l]) else NA)
           contour.l.y <- c(max(ylim), min(ylim), 1 / seTE.cont[sel.l]^2,
                            max(ylim))
-          ##
+          #
           contour.u.x <- c(max(xlim), max(xlim),
                            ciContour$upper[sel.u],
                            if (any(sel.u)) min(ciContour$upper[sel.u]) else NA)
@@ -703,7 +703,7 @@ funnel.meta <- function(x,
                            max(ylim))
         }
       }
-      ##
+      #
       if (yaxis == "invse") {
         if (max.u < min(xlim) | min.l > max(xlim)) {
           contour.u.x <- c(min(xlim), min(xlim), max(xlim), max(xlim))
@@ -717,7 +717,7 @@ funnel.meta <- function(x,
                            if (any(sel.l)) max(ciContour$lower[sel.l]) else NA)
           contour.l.y <- c(max(ylim), min(ylim), 1 / seTE.cont[sel.l],
                            max(ylim))
-          ##
+          #
           contour.u.x <- c(max(xlim), max(xlim),
                            ciContour$upper[sel.u],
                            if (any(sel.u)) min(ciContour$upper[sel.u]) else NA)
@@ -725,47 +725,47 @@ funnel.meta <- function(x,
                            max(ylim))
         }
       }
-      ##
+      #
       polygon(contour.l.x, contour.l.y,
               col = col.contour[j], border = FALSE)
-      ##
+      #
       polygon(contour.u.x, contour.u.y,
               col = col.contour[j], border = FALSE)
     }
   }
-  ##
-  ## Add results for individual studies
-  ##
+  #
+  # Add results for individual studies
+  #
   if (is.null(text))
     points(TE, weight, pch = pch, cex = cex, col = col, bg = bg)
   else
     text(TE, weight, labels = text, cex = cex, col = col)
-  ##
-  ## Add results for meta-analysis
-  ##
+  #
+  # Add results for meta-analysis
+  #
   if (common)
     lines(c(TE.common, TE.common), range(ylim),
           lty = lty.common, lwd = lwd.common, col = col.common)
-  ##
+  #
   if (random)
     lines(c(TE.random, TE.random), range(ylim),
           lty = lty.random, lwd = lwd.random, col = col.random)
-  ##
+  #
   if (ref.triangle)
     lines(c(ref, ref), range(ylim),
           lty = lty.ref, lwd = lwd.ref, col = col.ref)
-  ##
-  ## Add approximate confidence intervals
-  ##
+  #
+  # Add approximate confidence intervals
+  #
   if (!is.null(level)) {
     if (common | random | !ref.triangle) {
       tlow <- ciTE$lower
       tupp <- ciTE$upper
-      ##
+      #
       lty.lines <- if (random & !common) lty.random else lty.common
       lwd.lines <- if (random & !common) lwd.random else lwd.common
       col.lines <- if (random & !common) col.random else col.common
-      ##
+      #
       if (yaxis == "se") {
         points(tlow, seTE.seq, type = "l", lty = lty.lines, lwd = lwd.lines,
                col = col.lines)
@@ -789,11 +789,11 @@ funnel.meta <- function(x,
                col = col.lines)
       }
     }
-    ##
+    #
     if (ref.triangle) {
       tlow <- ciTE.ref$lower
       tupp <- ciTE.ref$upper
-      ##
+      #
       if (yaxis == "se") {
         points(tlow, seTE.seq, type = "l", lty = lty.ref.triangle,
                lwd = lwd.ref, col = col.ref)
@@ -814,18 +814,18 @@ funnel.meta <- function(x,
       }
     }
   }
-  ##
-  ## Add study labels
-  ##
+  #
+  # Add study labels
+  #
   if (!is.logical(studlab) && length(studlab) > 0)
     text(TE, weight, labels = studlab, pos = pos.studlab, cex = cex.studlab) 
   
   
-  ##
-  ##
-  ## (6) Return information on funnel plot
-  ##
-  ##
+  #
+  #
+  # (6) Return information on funnel plot
+  #
+  #
   res <- list(xvals = TE, yvals = weight,
               pch = pch, text = text, cex = cex, col = col,
               bg = bg, cex.studlab = cex.studlab)

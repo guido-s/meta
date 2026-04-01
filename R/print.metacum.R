@@ -182,7 +182,7 @@ print.metacum <- function(x,
     fbt <- deparse(substitute(x$func.backtransf))
   else
     fbt <- x$func.backtransf
-  ##
+  #
   abt <- x$args.backtransf
   
   

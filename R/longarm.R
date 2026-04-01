@@ -126,30 +126,30 @@ longarm <- function(treat1, treat2,
                     keep.duplicated = FALSE,
                     keep.internal = FALSE) {
   
-  ##
-  ##
-  ## (1) Check arguments
-  ##
-  ##
+  #
+  #
+  # (1) Check arguments
+  #
+  #
   chklogical(append)
   chklogical(keep.duplicated)
   chklogical(keep.internal)
   
   
-  ##
-  ##
-  ## (2) Read data
-  ##
-  ##
+  #
+  #
+  # (2) Read data
+  #
+  #
   nulldata <- is.null(data)
   sfsp <- sys.frame(sys.parent())
   mc <- match.call()
-  ##
+  #
   if (nulldata)
     data <- sfsp
-  ##
-  ## Catch treat1 and check for pairwise object
-  ##
+  #
+  # Catch treat1 and check for pairwise object
+  #
   missing.treat1 <- missing(treat1)
   missing.treat2 <- missing(treat2)
   #
@@ -157,17 +157,17 @@ longarm <- function(treat1, treat2,
     !(missing(agent1) | missing(agent2) |missing(dose1) | missing(dose2))
   #
   treat1 <- catch("treat1", mc, data, sfsp)
-  ##
+  #
   ignore <- function(miss, name, func)
     if (!miss)
       warning("Argument '", name,
               "' ignored for object created with ",
               func, "().",
               call. = FALSE)
-  ##
+  #
   if (inherits(treat1, c("metabin", "metacont", "metainc"))) {
     cls <- class(treat1)[1]
-    ##
+    #
     ignore(missing.treat2, "treat2", cls)
     ignore(missing(event1), "event1", cls)
     ignore(missing(event2), "event2", cls)
@@ -179,11 +179,11 @@ longarm <- function(treat1, treat2,
     ignore(missing(sd2), "sd2", cls)
     ignore(missing(time1), "time1", cls)
     ignore(missing(time2), "time2", cls)
-    ##
+    #
     event1 <- event2 <- n1 <- n2 <-
       mean1 <- mean2 <- sd1 <- sd2 <-
         time1 <- time2 <- NULL
-    ##
+    #
     if (!is.null(treat1$data)) {
       data <- treat1$data
       if (isCol(data, ".subset"))
@@ -193,16 +193,16 @@ longarm <- function(treat1, treat2,
     }
     else
       data <- as.data.frame(treat1)
-    ##
+    #
     data$.treat1 <- rep_len(treat1$label.e, nrow(data))
     data$.treat2 <- rep_len(treat1$label.c, nrow(data))
-    ##
+    #
     if (cls == "metabin") {     
       event1 <- data$.event.e
       event2 <- data$.event.c
       n1 <- data$.n.e
       n2 <- data$.n.c
-      ##
+      #
       type <- "binary"
     }
     else if (cls == "metacont") {
@@ -212,7 +212,7 @@ longarm <- function(treat1, treat2,
       mean2 <- data$.mean.c
       sd1 <- data$.sd.e
       sd2 <- data$.sd.c
-      ##
+      #
       type <- "continuous"
     }
     else if (cls == "metainc") {
@@ -222,10 +222,10 @@ longarm <- function(treat1, treat2,
       time2 <- data$.time.c
       n1 <- data$.n.e
       n2 <- data$.n.c
-      ##
+      #
       type <- "count"
     }
-    ##
+    #
     studlab <- data$.studlab
     treat2 <- data$.treat2
     treat1 <- data$.treat1
@@ -243,7 +243,7 @@ longarm <- function(treat1, treat2,
     if (!nulldata)
       warning("Argument 'data' ignored for object created with pairwise().",
               call. = FALSE)
-    ##
+    #
     ignore(missing.treat2, "treat2", "pairwise")
     ignore(missing(event1), "event1", "pairwise")
     ignore(missing(event2), "event2", "pairwise")
@@ -259,18 +259,18 @@ longarm <- function(treat1, treat2,
     ignore(missing(agent2), "agent2", cls)
     ignore(missing(dose1), "dose1", cls)
     ignore(missing(dose2), "dose2", cls)
-    ##
+    #
     event1 <- event2 <- n1 <- n2 <-
       mean1 <- mean2 <- sd1 <- sd2 <-
       time1 <- time2 <-
       agent1 <- agent2 <- dose1 <- dose2 <- NULL
-    ##
+    #
     if (attr(treat1, "type") == "binary") {
       event1 <- treat1$event1
       event2 <- treat1$event2
       n1 <- treat1$n1
       n2 <- treat1$n2
-      ##
+      #
       type <- "binary"
     }
     else if (attr(treat1, "type") == "continuous") {
@@ -280,7 +280,7 @@ longarm <- function(treat1, treat2,
       mean2 <- treat1$mean2
       sd1 <- treat1$sd1
       sd2 <- treat1$sd2
-      ##
+      #
       type <- "continuous"
     }
     else if (attr(treat1, "type") == "count") {
@@ -290,12 +290,12 @@ longarm <- function(treat1, treat2,
       time2 <- treat1$time2
       n1 <- treat1$n1
       n2 <- treat1$n2
-      ##
+      #
       type <- "count"
     }
     else
       stop("Function cannot be used with generic outcome.")
-    ##
+    #
     studlab <- treat1$studlab
     treat2 <- treat1$treat2
     #
@@ -311,7 +311,7 @@ longarm <- function(treat1, treat2,
     #
     data <- treat1
     treat1 <- treat1$treat1
-    ##
+    #
     data$.treat1 <- treat1
     data$.treat2 <- treat2
     #
@@ -335,10 +335,10 @@ longarm <- function(treat1, treat2,
     data$.studlab <- studlab
   }
   else {
-    ##
-    ## Catch studlab, treat2, event1, event2, n1, n2, mean1, mean2,
-    ## sd1, sd2, time1, time2 from data:
-    ##
+    #
+    # Catch studlab, treat2, event1, event2, n1, n2, mean1, mean2,
+    # sd1, sd2, time1, time2 from data:
+    #
     studlab <- catch("studlab", mc, data, sfsp)
     treat2 <- catch("treat2", mc, data, sfsp)
     event1 <- catch("event1", mc, data, sfsp)
@@ -361,27 +361,27 @@ longarm <- function(treat1, treat2,
       chknumeric(event1)
     if (!is.null(event2))
       chknumeric(event2)
-    ##
+    #
     if (!is.null(n1))
       chknumeric(n1)
     if (!is.null(n2))
       chknumeric(n2)
-    ##
+    #
     if (!is.null(mean1))
       chknumeric(mean1)
     if (!is.null(mean2))
       chknumeric(mean2)
-    ##
+    #
     if (!is.null(sd1))
       chknumeric(sd1)
     if (!is.null(sd2))
       chknumeric(sd2)
-    ##
+    #
     if (!is.null(time1))
       chknumeric(time1)
     if (!is.null(time2))
       chknumeric(time2)
-    ##
+    #
     if (!is.null(event1) & !is.null(time1) &
         !is.null(event2) & !is.null(time2) &
         is.null(mean1) & is.null(sd1) &
@@ -461,9 +461,9 @@ longarm <- function(treat1, treat2,
       stop("Argument 'treat2' mandatory.")
     #
     studlab <- replaceNULL(studlab, seq_along(treat1))
-    ##
-    ## Keep data set
-    ##
+    #
+    # Keep data set
+    #
     if (nulldata) {
       data <-
         data.frame(.studlab = studlab,
@@ -506,50 +506,50 @@ longarm <- function(treat1, treat2,
   }
   
   
-  ##
-  ##
-  ## (3) Check length of variables
-  ##
-  ##
+  #
+  #
+  # (3) Check length of variables
+  #
+  #
   k.all <- length(treat1)
   chklength(treat2, k.all, name = "treat1")
-  ##
+  #
   if (!is.null(event1))
     chklength(event1, k.all, name = "treat1")
   if (!is.null(event2))
     chklength(event2, k.all, name = "treat1")
-  ##
+  #
   if (!is.null(n1))
       chklength(n1, k.all, name = "treat1")
   if (!is.null(n2))
     chklength(n2, k.all, name = "treat1")
-  ##
+  #
   if (!is.null(mean1))
     chklength(mean1, k.all, name = "treat1")
   if (!is.null(mean2))
     chklength(mean2, k.all, name = "treat1")
-  ##
+  #
   if (!is.null(sd1))
     chklength(sd1, k.all, name = "treat1")
   if (!is.null(sd2))
     chklength(sd2, k.all, name = "treat1")
-  ##
+  #
   if (!is.null(time1))
     chklength(time1, k.all, name = "treat1")
   if (!is.null(time2))
     chklength(time2, k.all, name = "treat1")
-  ##
+  #
   if (is.null(studlab)) {
     studlab <- seq_len(k.all)
     data$.studlab <- studlab
   }
   
   
-  ##
-  ##
-  ## (4) Create data set in long arm-based format
-  ##
-  ##
+  #
+  #
+  # (4) Create data set in long arm-based format
+  #
+  #
   
   if (type == "binary") {
     dat.l <-
@@ -586,7 +586,7 @@ longarm <- function(treat1, treat2,
               slab = studlab,
               data = data,
               var.names = c(".id.m4", ".grp.m4", "events", "time"))
-    ##
+    #
     n.given <- FALSE
     if (!is.null(dat.l$.n1) & !is.null(dat.l$.n2)) {
       n.given <- TRUE
@@ -596,12 +596,12 @@ longarm <- function(treat1, treat2,
       n.given <- TRUE
       dat.l$n <- ifelse(dat.l$.grp.m4 == 1, dat.l$.n.e, dat.l$.n.c)
     } 
-    ##
+    #
     nam <- c("studlab", "treat",
              if (dosres) "agent", if (dosres) "dose",
              if (n.given) "n", "events", "time")
   }
-  ##
+  #
   dat.l$treat <- if_else(dat.l$.grp.m4 == 1, dat.l$.treat1, dat.l$.treat2)
   #
   if (dosres) {
@@ -611,22 +611,22 @@ longarm <- function(treat1, treat2,
   #
   if (!isCol(dat.l, "studlab") & isCol(dat.l, ".studlab"))
     dat.l$studlab <- dat.l$.studlab
-  ##
+  #
   if (!keep.duplicated)
     dat.l <- dat.l[!duplicated(dat.l[, nam]), ]
-  ##
-  ## Catch additional variables with group specific information
-  ##
+  #
+  # Catch additional variables with group specific information
+  #
   if (!is.null(id1) & !is.null(id2) & !is.null(data)) {
     chklength(id1, 1)
     chklength(id2, 1)
-    ##
+    #
     ext1 <- paste0(id1, "$")
     ext2 <- paste0(id2, "$")
-    ##
+    #
     vars1 <- gsub(ext1, "", names(data)[grepl(ext1, names(data))])
     vars2 <- gsub(ext2, "", names(data)[grepl(ext2, names(data))])
-    ##
+    #
     j <- 0
     both <- character(0)
     for (i in seq_along(vars1)) {
@@ -635,7 +635,7 @@ longarm <- function(treat1, treat2,
         both[j] <- vars1[i]
       }
     }
-    ##
+    #
     if (length(both) > 0) {
       bothlist <- list()
       for (i in seq_along(both)) {
@@ -644,14 +644,14 @@ longarm <- function(treat1, treat2,
                      var2 = data[[paste0(both[i], id2)]])
         names(bothlist)[[i]] <- both[i]
       }
-      ##
+      #
       for (var.i in both) {
         if (!(var.i %in% names(dat.l)))
           dat.l[[var.i]] <- addvars2long(bothlist[[var.i]])
       }
     }
   }
-  ##
+  #
   if (append) {
     allnames <- names(dat.l)
     other <- allnames[!(allnames %in% nam)]

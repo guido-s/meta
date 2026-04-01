@@ -98,11 +98,11 @@ metaadd <- function(x, type = NULL,
                     #
                     transf = gs("transf")) {
   
-  ##
-  ##
-  ## (1) Check arguments
-  ##
-  ##
+  #
+  #
+  # (1) Check arguments
+  #
+  #
   
   chkclass(x, "meta")
   res <- updateversion(x)
@@ -113,7 +113,7 @@ metaadd <- function(x, type = NULL,
          call. = FALSE)
   #
   missing.type <- missing(type)
-  ##
+  #
   missing.TE <- missing(TE)
   missing.lower <- missing(lower)
   missing.upper <- missing(upper)
@@ -134,16 +134,16 @@ metaadd <- function(x, type = NULL,
   chklogical(transf)
   
   
-  ##
-  ##
-  ## (2) Read data
-  ##
-  ##
+  #
+  #
+  # (2) Read data
+  #
+  #
   
   nulldata <- is.null(data)
   sfsp <- sys.frame(sys.parent())
   mc <- match.call()
-  ##
+  #
   if (nulldata)
     data <- sfsp
   #
@@ -162,7 +162,7 @@ metaadd <- function(x, type = NULL,
         warning("Argument '", name, "' ignored as argument 'data' is a ",
                 "meta-analysis object.",
                 call. = FALSE)
-    ##
+    #
     warnmeta(missing.type, "type")
     warnmeta(missing.TE, "TE")
     warnmeta(missing.lower, "lower")
@@ -346,11 +346,11 @@ metaadd <- function(x, type = NULL,
   }
   
   
-  ##
-  ##
-  ## (3) Add results
-  ##
-  ##
+  #
+  #
+  # (3) Add results
+  #
+  #
   
   init.random <- res$random
   #
@@ -381,11 +381,11 @@ metaadd <- function(x, type = NULL,
       #
       res$text.common <-
         c(if (res$common) res$text.common, dat$text[i])
-      ##
+      #
       res$common <- TRUE
       res$overall <- TRUE
     }
-    ##
+    #
     if (dat$type[i] == "random") {
       if (!res$random)
         res$w.random[!is.na(res$w.random)] <- NA

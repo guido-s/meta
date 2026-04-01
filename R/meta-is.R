@@ -1,9 +1,9 @@
-## Auxiliary functions to check inputs
-##
-## Package: meta
-## Author: Guido Schwarzer <guido.schwarzer@uniklinik-freiburg.de>
-## License: GPL (>= 2)
-##
+# Auxiliary functions to check inputs
+#
+# Package: meta
+# Author: Guido Schwarzer <guido.schwarzer@uniklinik-freiburg.de>
+# License: GPL (>= 2)
+#
 
 isCol <- function(data, varname) {
   !is.null(data) & varname %in% names(data)
@@ -23,7 +23,7 @@ is_wholenumber <- function(x, tol = .Machine$double.eps^0.5) {
     res <- abs(x - round(x)) < tol
   else
     res <- NA
-  ##
+  #
   res
 }
 

@@ -70,59 +70,59 @@
 #' @export
 
 radial.meta <- function(x,
-                        ##
+                        #
                         xlim = NULL, ylim = NULL,
                         xlab = "Inverse of standard error",
                         ylab = "Standardised treatment effect (z-score)",
-                        ##
+                        #
                         common = TRUE,
-                        ##
+                        #
                         axes = TRUE,
                         pch = 1, text = NULL, cex = 1, col = NULL,
-                        ##
+                        #
                         level = NULL,
                         warn.deprecated = gs("warn.deprecated"),
                         fixed,
                         ...) {
   
   
-  ##
-  ##
-  ## (1) Check for meta object
-  ##
-  ##
+  #
+  #
+  # (1) Check for meta object
+  #
+  #
   chkclass(x, "meta")
   chksuitable(x, "Radial plot", "metamerge", check.mlm = FALSE)
-  ##
+  #
   x <- updateversion(x)
-  ##
+  #
   TE <- x$TE
   seTE <- x$seTE
   
   
-  ##
-  ##
-  ## (2) Check arguments
-  ##
-  ##
+  #
+  #
+  # (2) Check arguments
+  #
+  #
   if (!is.null(xlim))
     chknumeric(xlim, length = 2)
   if (!is.null(ylim))
     chknumeric(ylim, length = 2)
   chkchar(xlab, length = 1)
   chkchar(ylab, length = 1)
-  ##
+  #
   chklogical(warn.deprecated)
-  ##
+  #
   common <-
     deprecated2(common, missing(common), fixed, missing(fixed),
                 warn.deprecated)
   chklogical(common)
-  ##
+  #
   chklogical(axes)
   if (!is.null(level))
     chklevel(level)
-  ##
+  #
   if (!is.null(text))
     chklength(text, length(TE),
               text = paste(
@@ -130,24 +130,24 @@ radial.meta <- function(x,
                 "studies in meta-analysis."))
   
   
-  ##
-  ##
-  ## (3) Produce radial plot
-  ##
-  ## 
+  #
+  #
+  # (3) Produce radial plot
+  #
+  #
   if (!is.null(x$exclude)) {
     TE <- TE[!x$exclude]
     seTE <- seTE[!x$exclude]
     if (!is.null(text))
       text <- text[!x$exclude]
   }
-  ##
+  #
   zscore <- TE / seTE
-  ##
+  #
   if (is.null(xlim)) xlim <- c(0, max(1 / seTE, na.rm = TRUE))
   if (is.null(ylim)) ylim <- c(min(c(-2, zscore), na.rm = TRUE),
                                max(c( 2, zscore), na.rm = TRUE))
-  ##
+  #
   plot(1 / seTE, zscore,
        xlab = xlab, ylab = ylab, xlim = xlim, ylim = ylim,
        axes = axes, type = "n", ...)
@@ -187,44 +187,44 @@ radial.meta <- function(x,
 #' @export
 
 radial.default <- function(x, y,
-                           ##
+                           #
                            xlim = NULL, ylim = NULL,
                            xlab = "Inverse of standard error",
                            ylab = "Standardised treatment effect (z-score)",
-                           ##
+                           #
                            common = TRUE,
-                           ##
+                           #
                            axes = TRUE,
-                           ##
+                           #
                            pch = 1, text = NULL, cex = 1, col = NULL,
-                           ##
+                           #
                            level = NULL, ...) {
   
   
-  ##
-  ##
-  ## (1) Check essential arguments
-  ##
-  ##
+  #
+  #
+  # (1) Check essential arguments
+  #
+  #
   chknumeric(x)
   chknumeric(y)
-  ##
+  #
   chklength(y, length(x), "x")
   
   
-  ##
-  ##
-  ## (2) Do meta-analysis
-  ##
-  ##
+  #
+  #
+  # (2) Do meta-analysis
+  #
+  #
   m <- metagen(x, y, method.tau.ci = "")
   
   
-  ##
-  ##
-  ## (3) Produce radial plot
-  ##
-  ##
+  #
+  #
+  # (3) Produce radial plot
+  #
+  #
   radial(m, xlim = xlim, ylim = ylim,
          xlab = xlab, ylab = ylab,
          common = common, axes = axes,

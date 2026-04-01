@@ -53,44 +53,44 @@
 
 summary.meta <- function(object, ...) {
   
+  #
+  #
+  # (1) Check for meta object and upgrade older meta objects
+  #
+  #
   
-  ##
-  ##
-  ## (1) Check for meta object and upgrade older meta objects
-  ##
-  ##
   chkclass(object, "meta")
-  ##
+  #
   if (inherits(object, c("metacum", "metainf")))
     return(object)
-  ##
+  #
   object <- updateversion(object)
-  ##
+  #
   metaprop <- inherits(class(object), "metaprop")
   metarate <- inherits(class(object), "metarate")
   
+  #
+  #
+  # (2) Check other arguments
+  #
+  #
   
-  ##
-  ##
-  ## (2) Check other arguments
-  ##
-  ##
   addargs <- names(list(...))
-  ##
+  #
   if (length(addargs) > 0)
     warning("Additional arguments provided in '...' are ignored.",
             call. = FALSE)
   
+  #
+  #
+  # (3) Results for individual studies
+  #
+  #
   
-  ##
-  ##
-  ## (3) Results for individual studies
-  ##
-  ##
   object$df <- replaceNULL(object$df, Inf)
   method.ci <- replaceNULL(object$method.ci, "")
   object$statistic <- replaceNULL(object$statistic, object$zval)
-  ##
+  #
   ci.study <- list(TE = object$TE,
                    seTE = object$seTE,
                    lower = object$lower,
@@ -99,18 +99,18 @@ summary.meta <- function(object, ...) {
                    p = object$pval,
                    level = object$level,
                    df = object$df)
-  ##
+  #
   if (metaprop) {
     ci.study$event <- object$event
     ci.study$n <- object$n
   }
   
+  #
+  #
+  # (4) Results for meta-analysis
+  #
+  #
   
-  ##
-  ##
-  ## (4) Results for meta-analysis
-  ##
-  ##
   ci.c <- list(TE = object$TE.common,
                seTE = object$seTE.common,
                lower = object$lower.common,
@@ -122,7 +122,7 @@ summary.meta <- function(object, ...) {
     ci.c$harmonic.mean <- 1 / mean(1 / object$n)
   else if (metarate)
     ci.c$harmonic.mean <- 1 / mean(1 / object$time)
-  ##
+  #
   ci.r <- list(TE = object$TE.random,
                seTE = object$seTE.random,
                lower = object$lower.random,
@@ -135,7 +135,7 @@ summary.meta <- function(object, ...) {
     ci.r$harmonic.mean <- 1 / mean(1 / object$n)
   else if (metarate)
     ci.r$harmonic.mean <- 1 / mean(1 / object$time)
-  ##
+  #
   ci.p <- list(TE = NA,
                seTE = object$seTE.predict,
                lower = object$lower.predict,
@@ -145,28 +145,28 @@ summary.meta <- function(object, ...) {
                level = object$level.predict,
                df = object$df.predict)
   
+  #
+  #
+  # (5) Generate R object
+  #
+  #
   
-  ##
-  ##
-  ## (5) Generate R object
-  ##
-  ##
   res <- object
-  ##
+  #
   res$common <- ci.c
   res$random <- ci.r
   res$predict <- ci.p
-  ##
-  ## Backward compatibility
-  ##
+  #
+  # Backward compatibility
+  #
   res$fixed <- ci.c
-  ##
-  ## Add results from subgroup analysis
-  ##
+  #
+  # Add results from subgroup analysis
+  #
   if (length(object$subgroup) > 0) {
-    ##
+    #
     n.subgroups <- length(object$subgroup.levels)
-    ##
+    #
     ci.common.w <- list(TE = object$TE.common.w,
                         seTE = object$seTE.common.w,
                         lower = object$lower.common.w,
@@ -175,10 +175,10 @@ summary.meta <- function(object, ...) {
                         p = object$pval.common.w,
                         level = object$level.ma,
                         harmonic.mean = object$n.harmonic.mean.w)
-    ##
+    #
     if (metarate)
       ci.common.w$harmonic.mean <- object$t.harmonic.mean.w
-    ##
+    #
     ci.random.w <- list(TE = object$TE.random.w,
                         seTE = object$seTE.random.w,
                         lower = object$lower.random.w,
@@ -188,7 +188,7 @@ summary.meta <- function(object, ...) {
                         level = object$level.ma,
                         df = object$df.random.w,
                         harmonic.mean = object$n.harmonic.mean.w)
-    ##
+    #
     ci.predict.w <- list(TE = rep(NA, n.subgroups),
                          seTE = object$seTE.predict.w,
                          lower = object$lower.predict.w,
@@ -198,24 +198,23 @@ summary.meta <- function(object, ...) {
                          level = object$level.predict,
                          df = object$df.predict.w,
                          harmonic.mean = object$n.harmonic.mean.w)
-    ##
+    #
     if (metarate)
       ci.random.w$harmonic.mean <- object$t.harmonic.mean.w
-    ## 
+    #
     res$within.common  <- ci.common.w
     res$within.random  <- ci.random.w
     res$within.predict <- ci.predict.w
-    ##
+    #
     if (is.null(res$test.subgroup))
       res$test.subgroup <- TRUE
   }
-  ##
+  #
   res$x <- object
-  ##
+  #
   class(res) <- c("summary.meta", class(object))
-  ##
+  #
   attr(res, "class.orig") <- class(object)
-  
   
   res
 }

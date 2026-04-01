@@ -38,29 +38,29 @@ subset.longarm <- function(x, subset, ...){
   attribs$names <- attribs$row.names <- NULL
   
   
-  ## Catch 'subset'
-  ##
+  # Catch 'subset'
+  #
   if (missing(subset))
     return(x)
-  ##
+  #
   sfsp <- sys.frame(sys.parent())
   mc <- match.call()
-  ##
+  #
   subset <- catch("subset", mc, x, sfsp)
   if (is.null(subset))
     subset <- catch("subset", mc, x$data, sfsp)
   
   
-  ## Select subset
-  ##
+  # Select subset
+  #
   x.df <- x
   class(x.df) <- "data.frame"
-  ##
+  #
   res <- subset(x.df, subset, ...)
   
   
-  ## Return subset
-  ## 
+  # Return subset
+  #
   for (i in names(attribs))
     attr(res, i) <- attr(x, i)
   #

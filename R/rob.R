@@ -325,10 +325,10 @@ rob <- function(item1,
                 overall = NULL,
                 weight = NULL,
                 data = NULL,
-                ##
+                #
                 tool = gs("tool.rob"),
                 domains = NULL,
-                ##
+                #
                 categories = NULL,
                 cat1 = categories,
                 cat2 = categories,
@@ -341,7 +341,7 @@ rob <- function(item1,
                 cat9 = categories,
                 cat10 = categories,
                 cat.overall = categories,
-                ##
+                #
                 col = NULL,
                 col1 = col,
                 col2 = col,
@@ -354,7 +354,7 @@ rob <- function(item1,
                 col9 = col,
                 col10 = col,
                 col.overall = col,
-                ##
+                #
                 symbols = NULL,
                 symb1 = symbols,
                 symb2 = symbols,
@@ -367,41 +367,41 @@ rob <- function(item1,
                 symb9 = symbols,
                 symb10 = symbols,
                 symb.overall = symbols,
-                ##
+                #
                 legend = TRUE,
-                ##
+                #
                 overwrite = FALSE,
                 warn = TRUE) {
   
-  ##
-  ##
-  ## (1) Read data
-  ##
-  ##
+  #
+  #
+  # (1) Read data
+  #
+  #
   
   nulldata <- is.null(data)
   sfsp <- sys.frame(sys.parent())
   mc <- match.call()
-  ##
+  #
   meta.object <- NULL
-  ##
+  #
   is.meta <- inherits(data, "meta")
-  ##
+  #
   if (nulldata)
     data <- sfsp
   else if (is.meta) {
     meta.object <- data
-    ##
+    #
     data <- data$data
     if (!is.null(meta.object$subset))
       data <- data[meta.object$subset, ]
-    ##
+    #
     if (is.null(studlab))
       studlab <- data$.studlab    
   }
-  ##
-  ## Catch 'item1', etc.
-  ##
+  #
+  # Catch 'item1', etc.
+  #
   item1 <- catch("item1", mc, data, sfsp)
   if (!is.null(item1) && inherits(item1, "meta")) {
     if (is.null(item1$rob))
@@ -409,7 +409,7 @@ rob <- function(item1,
     else
       return(item1$rob)
   }
-  ##
+  #
   item2 <- catch("item2", mc, data, sfsp)
   item3 <- catch("item3", mc, data, sfsp)
   item4 <- catch("item4", mc, data, sfsp)
@@ -419,26 +419,26 @@ rob <- function(item1,
   item8 <- catch("item8", mc, data, sfsp)
   item9 <- catch("item9", mc, data, sfsp)
   item10 <- catch("item10", mc, data, sfsp)
-  ##
+  #
   missing.overall <- missing(overall)
   overall <- catch("overall", mc, data, sfsp)
   avail.overall <- !missing.overall & !is.null(overall)
-  ##
+  #
   missing.weight <- missing(weight)
   weight <- catch("weight", mc, data, sfsp)
   avail.weight <- !missing.weight & !is.null(weight)
-  ##
+  #
   studlab <- catch("studlab", mc, data, sfsp)
   
   
-  ##
-  ##
-  ## (2) Check data
-  ##
-  ##
+  #
+  #
+  # (2) Check data
+  #
+  #
   
   fun <- "rob"
-  ##
+  #
   avail1 <- !is.null(item1)
   avail2 <- !is.null(item2)
   avail3 <- !is.null(item3)
@@ -449,7 +449,7 @@ rob <- function(item1,
   avail8 <- !is.null(item8)
   avail9 <- !is.null(item9)
   avail10 <- !is.null(item10)
-  ##
+  #
   if (avail1)
     k.All <- length(item1)
   else if (avail2)
@@ -472,40 +472,40 @@ rob <- function(item1,
     k.All <- length(item10)
   else
     stop("No information on risk of bias domains provided.", call. = FALSE)
-  ##
+  #
   if (avail2)
     chklength(item2, k.All, fun)
-  ##
+  #
   if (avail3)
     chklength(item3, k.All, fun)
-  ##
+  #
   if (avail4)
     chklength(item4, k.All, fun)
-  ##
+  #
   if (avail5)
     chklength(item5, k.All, fun)
-  ##
+  #
   if (avail6)
     chklength(item6, k.All, fun)
-  ##
+  #
   if (avail7)
     chklength(item7, k.All, fun)
-  ##
+  #
   if (avail8)
     chklength(item8, k.All, fun)
-  ##
+  #
   if (avail9)
     chklength(item9, k.All, fun)
-  ##
+  #
   if (avail10)
     chklength(item10, k.All, fun)
-  ##
+  #
   if (avail.overall)
     chklength(overall, k.All, fun)
-  ##
+  #
   if (avail.weight & length(weight) > 1)
     chklength(weight, k.All, fun)
-  ##
+  #
   if (is.null(studlab)) {
     if (is.meta)
       studlab <- data$.studlab
@@ -514,23 +514,23 @@ rob <- function(item1,
   }
   else
     chklength(studlab, k.All, fun)
-  ##
+  #
   chklogical(legend)
   chklogical(overwrite)
   chklogical(warn)
-  ##
+  #
   if (!is.null(tool))
     tool <- setchar(tool, gs("tool4rob"))
   else
     tool <- "user-defined"
-  ##
+  #
   
   
-  ##
-  ##
-  ## (3) Risk of bias categories
-  ##
-  ##
+  #
+  #
+  # (3) Risk of bias categories
+  #
+  #
   cat1 <- definecat(avail1, cat1, item1, tool, warn)
   cat2 <- definecat(avail2, cat2, item2, tool, warn)
   cat3 <- definecat(avail3, cat3, item3, tool, warn)
@@ -541,62 +541,62 @@ rob <- function(item1,
   cat8 <- definecat(avail8, cat8, item8, tool, warn)
   cat9 <- definecat(avail9, cat9, item9, tool, warn)
   cat10 <- definecat(avail10, cat10, item10, tool, warn)
-  ##
+  #
   cat.overall <- definecat(avail.overall, cat.overall, overall, tool, warn)
   
   
-  ##
-  ##
-  ## (4) Create risk of bias table
-  ##
-  ##
+  #
+  #
+  # (4) Create risk of bias table
+  #
+  #
   
   rob <- data.frame(Study = studlab)
-  ##
+  #
   if (avail1)
     rob$A <- setcat(item1, cat1)
-  ##
+  #
   if (avail2)
     rob$B <- setcat(item2, cat2)
-  ##
+  #
   if (avail3)
     rob$C <- setcat(item3, cat3)
-  ##
+  #
   if (avail4)
     rob$D <- setcat(item4, cat4)
-  ##
+  #
   if (avail5)
     rob$E <- setcat(item5, cat5)
-  ##
+  #
   if (avail6)
     rob$F <- setcat(item6, cat6)
-  ##
+  #
   if (avail7)
     rob$G <- setcat(item7, cat7)
-  ##
+  #
   if (avail8)
     rob$H <- setcat(item8, cat8)
-  ##
+  #
   if (avail9)
     rob$I <- setcat(item9, cat9)
-  ##
+  #
   if (avail10)
     rob$J <- setcat(item10, cat10)
-  ##
+  #
   domain.available <- c(avail1, avail2, avail3, avail4, avail5, avail6, avail7,
                         avail8, avail9, avail10)
   names(domain.available) <- paste0("D", 1:10)
-  ##
+  #
   if (avail.overall)
     rob$Overall <- setcat(overall, cat.overall)
-  ##
+  #
   if (avail.weight && length(weight) == 1 && is.character(weight)) {
     if (is.meta)
       weight <- setchar(weight, c("common", "random"))
     else
       weight <- NULL
   }
-  ##
+  #
   if (!avail.weight && is.meta && meta.object$overall)
     weight <-
       if (meta.object$random)
@@ -605,7 +605,7 @@ rob <- function(item1,
         "common"
       else
         NULL
-  ##
+  #
   if (!is.null(weight)) {
     if (length(weight) == 1 && is.character(weight)) {
       sel.w <-
@@ -613,7 +613,7 @@ rob <- function(item1,
           seq_along(meta.object$TE)
         else
           meta.object$subset
-      ##
+      #
       if (weight == "random")
         rob$Weight <- meta.object$w.random[sel.w]
       else if (weight == "common")
@@ -621,18 +621,18 @@ rob <- function(item1,
     }
     else
       rob$Weight <- weight
-    ##
+    #
     avail.weight <- TRUE
   }
   else
     avail.weight <- FALSE
   
   
-  ##
-  ##
-  ## (4) Names for risk of bias domains
-  ##
-  ##
+  #
+  #
+  # (4) Names for risk of bias domains
+  #
+  #
   
   if (tool == "user-defined")
     dm <- paste("Item", 1:10)
@@ -696,50 +696,50 @@ rob <- function(item1,
         rep("", 10 - 7))
   else
     dm <- rep("", 10)
-  ##
+  #
   if (tool %in% c("RoB1", "ROBINS-I", "ROBINS-E")) {
     if (avail8)
       dm[8] <- "Additional item 1"
-    ##
+    #
     if (avail9)
       dm[9] <- "Additional item 2"
-    ##
+    #
     if (avail10)
       dm[10] <- "Additional item 3"
   }
   else if (tool %in% c("RoB2-cluster", "RoB2-crossover")) {
     if (avail7)
       dm[7] <- "Additional item 1"
-    ##
+    #
     if (avail8)
       dm[8] <- "Additional item 2"
-    ##
+    #
     if (avail9)
       dm[9] <- "Additional item 3"
-    ##
+    #
     if (avail10)
       dm[10] <- "Additional item 4"
   }
   else if (tool == "RoB2") {
     if (avail6)
       dm[6] <- "Additional item 1"
-    ##
+    #
     if (avail7)
       dm[7] <- "Additional item 2"
-    ##
+    #
     if (avail8)
       dm[8] <- "Additional item 3"
-    ##
+    #
     if (avail9)
       dm[9] <- "Additional item 4"
-    ##
+    #
     if (avail10)
       dm[10] <- "Additional item 5"
   }
-  ##
+  #
   if (is.null(domains))
     domains <- dm[domain.available]
-  ##
+  #
   else if (tool == "user-defined") {
     if (length(domains) != sum(domain.available))
       stop("Number of domain names does not match number of domains.",
@@ -747,16 +747,16 @@ rob <- function(item1,
   }
   else
     domains <- setdom(dm, tool, domains, domain.available)
-  ##
+  #
   if (avail.overall)
     domains <- c(domains, "Overall risk of bias")
   
   
-  ##
-  ##
-  ## (6) Risk of bias symbols
-  ##
-  ##
+  #
+  #
+  # (6) Risk of bias symbols
+  #
+  #
   
   symb1 <- definesymb(avail1, symb1, cat1, tool, warn)
   symb2 <- definesymb(avail2, symb2, cat2, tool, warn)
@@ -768,16 +768,16 @@ rob <- function(item1,
   symb8 <- definesymb(avail8, symb8, cat8, tool, warn)
   symb9 <- definesymb(avail9, symb9, cat9, tool, warn)
   symb10 <- definesymb(avail10, symb10, cat10, tool, warn)
-  ##
+  #
   symb.overall <-
     definesymb(avail.overall, symb.overall, cat.overall, tool, warn)
   
   
-  ##
-  ##
-  ## (7) Risk of bias colours
-  ##
-  ##
+  #
+  #
+  # (7) Risk of bias colours
+  #
+  #
   
   col1 <- definecol(avail1, col1, cat1, tool, warn)
   col2 <- definecol(avail2, col2, cat2, tool, warn)
@@ -789,22 +789,22 @@ rob <- function(item1,
   col8 <- definecol(avail8, col8, cat8, tool, warn)
   col9 <- definecol(avail9, col9, cat9, tool, warn)
   col10 <- definecol(avail10, col10, cat10, tool, warn)
-  ##
+  #
   col.overall <- definecol(avail.overall, col.overall, cat.overall, tool, warn)
   
   
-  ##
-  ##
-  ## (8) Return risk of bias table
-  ##
-  ##
+  #
+  #
+  # (8) Return risk of bias table
+  #
+  #
   
   attr(rob, "tool") <- tool
   attr(rob, "domains") <- domains
-  ##
+  #
   attr(rob, "overall") <- avail.overall
   attr(rob, "weight") <- avail.weight
-  ##
+  #
   attr(rob, "categories") <-
     compact(list(cat1 = cat1, cat2 = cat2, cat3 = cat3, cat4 = cat4,
                  cat5 = cat5, cat6 = cat6, cat7 = cat7, cat8 = cat8,
@@ -817,11 +817,11 @@ rob <- function(item1,
     compact(list(col1 = col1, col2 = col2, col3 = col3, col4 = col4,
                  col5 = col5, col6 = col6, col7 = col7, col8 = col8,
                  col9 = col9, col10 = col10, col.overall = col.overall))
-  ##
+  #
   attr(rob, "legend") <- legend
-  ##
+  #
   class(rob) <- c("rob", class(rob))
-  ##
+  #
   if (is.null(meta.object))
     res <- rob
   else {
@@ -848,7 +848,7 @@ rob <- function(item1,
 print.rob <- function(x, legend = attr(x, "legend"), details = TRUE, ...) {
 
   chkclass(x, "rob")
-  ##
+  #
   chklogical(legend)
   chklogical(details)
   
@@ -863,20 +863,20 @@ print.rob <- function(x, legend = attr(x, "legend"), details = TRUE, ...) {
              paste0("\n", catleg(x), collapse = ""),
              "\n")
     )
-    ##
+    #
     if (details) {
       cat(
         paste0("\nCategories:",
                paste0("\n", catcat(x), collapse = ""),
                "\n")
       )
-      ##
+      #
       cat(
         paste0("\nColours:",
                paste0("\n", catcol(x), collapse = ""),
                "\n")
       )
-      ##
+      #
       symbols <- unique(unlist(attr(x, "symbols")))
       if (!(length(symbols) == 1 && is.logical(symbols) && !symbols))
       cat(

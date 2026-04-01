@@ -53,50 +53,50 @@
 as.data.frame.meta <- function(x, row.names = NULL, optional = FALSE, ...) {
   
   
-  ##
-  ##
-  ## (1) Check for meta object and upgrade older meta objects
-  ##
-  ##
+  #
+  #
+  # (1) Check for meta object and upgrade older meta objects
+  #
+  #
   chkclass(x, "meta")
   
   
-  ## Remove element 'call' from object of class meta to get rid
-  ## of an error message in meta-analyses with six studies:
-  ## 'Error: evaluation nested too deeply: infinite recursion ...'
-  ##
-  ## NB: Element 'call' which is of length six contains information
-  ##     on the function call.
-  ##
+  # Remove element 'call' from object of class meta to get rid
+  # of an error message in meta-analyses with six studies:
+  # 'Error: evaluation nested too deeply: infinite recursion ...'
+  #
+  # NB: Element 'call' which is of length six contains information
+  #     on the function call.
+  #
   x$call <- NULL
   x$call.object <- NULL
   
-  ## Remove data set from output
-  ##
+  # Remove data set from output
+  #
   x$data <- NULL
   
-  ## Remove risk of bias table from output
-  ##
+  # Remove risk of bias table from output
+  #
   x$rob <- NULL
   
-  ## Remove list information from metabind()
-  ##
+  # Remove list information from metabind()
+  #
   x$list <- NULL
   
-  ## Remove debug information
-  ##
+  # Remove debug information
+  #
   x$debug <- x$tau2.calc <- x$rma.three.level <- NULL
   
   if (!is.null(x$approx.TE) && all(x$approx.TE == ""))
     x$approx.TE <- NULL
-  ##
+  #
   if (!is.null(x$approx.seTE) && all(x$approx.seTE == ""))
     x$approx.seTE <- NULL
   
   sel <- as.vector(lapply(x, length) == length(x$TE))
   
   res <- as.data.frame(x[names(x)[sel]], ...)
-  ##
+  #
   if (!is.null(row.names)) {
     if (length(row.names) != nrow(res))
       stop("Argument 'row.names' must be of length ", nrow(res))

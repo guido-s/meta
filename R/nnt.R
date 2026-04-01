@@ -190,21 +190,21 @@ nnt.meta <- function(x, p.c,
                      ...) {
   
   
-  ##
-  ## (1) Check for meta object and summary measure
-  ##
+  #
+  # (1) Check for meta object and summary measure
+  #
   chkclass(x, "meta")
   x <- updateversion(x)
-  ##
+  #
   if (!(x$sm %in% c("RD", "RR", "OR", "HR")))
     stop("Calculation of NNTs only possible for risk difference, ",
          "risk ratio, odds ratio, or hazard ratio as summary measure ",
          "(argument 'sm').")
   
   
-  ##
-  ## (2) Check / set baseline risks
-  ##
+  #
+  # (2) Check / set baseline risks
+  #
   if (missing(p.c)) {
     if (x$sm == "RD")
       p.c <- NA
@@ -224,24 +224,24 @@ nnt.meta <- function(x, p.c,
       }
     }
   }
-  ##
+  #
   chknumeric(p.c, 0, 1)
   
   
-  ##
-  ## (3) Check other arguments
-  ##
+  #
+  # (3) Check other arguments
+  #
   small.values <- setsv(small.values)
-  ##
+  #
   args  <- list(...)
   missing.common <- missing(common)
   common <- deprecated(common, missing.common, args, "fixed", FALSE)
   chklogical(common)
   chklogical(random)
-  ##
+  #
   if (missing.common & !common & !random & x$k == 1)
     common <- TRUE
-  ##
+  #
   if (missing.common & x$k == 0 & x$k.all == 1 &
       all(is.na(x$TE.common)) & any(!is.na(x$TE))) {
     common <- TRUE
@@ -249,87 +249,87 @@ nnt.meta <- function(x, p.c,
   }
   
   
-  ##
-  ## (4) Calculate NNTs
-  ##
+  #
+  # (4) Calculate NNTs
+  #
   res <- list()
-  ##
+  #
   if (common) {
     res$nnt.common <- data.frame(p.c = p.c, NNT = NA,
                                  lower.NNT = NA, upper.NNT = NA)
-    ##
+    #
     res$TE.common    <- x$TE.common
     res$lower.common <- x$lower.common
     res$upper.common <- x$upper.common
   }
-  ##
+  #
   if (random) {
     res$nnt.random <- data.frame(p.c = p.c, NNT = NA,
                                  lower.NNT = NA, upper.NNT = NA)
-    ##
+    #
     res$TE.random    <- x$TE.random
     res$lower.random <- x$lower.random
     res$upper.random <- x$upper.random
   }
-  ##
+  #
   if (x$sm == "RD") {
     if (common) {
       res$nnt.common$NNT <- -1 / res$TE.common
       res$nnt.common$lower.NNT <- -1 / res$lower.common
       res$nnt.common$upper.NNT <- -1 / res$upper.common
     }
-    ##
+    #
     if (random) {
       res$nnt.random$NNT <- -1 / res$TE.random
       res$nnt.random$lower.NNT <- -1 / res$lower.random
       res$nnt.random$upper.NNT <- -1 / res$upper.random
     }
   }
-  ##
+  #
   else if (x$sm == "RR") {
     if (common) {
       res$nnt.common$NNT <- logRR2nnt(res$TE.common, p.c)
       res$nnt.common$lower.NNT <- logRR2nnt(res$lower.common, p.c)
       res$nnt.common$upper.NNT <- logRR2nnt(res$upper.common, p.c)
     }
-    ##
+    #
     if (random) {
       res$nnt.random$NNT <- logRR2nnt(res$TE.random, p.c)
       res$nnt.random$lower.NNT <- logRR2nnt(res$lower.random, p.c)
       res$nnt.random$upper.NNT <- logRR2nnt(res$upper.random, p.c)
     }
   }
-  ##
+  #
   else if (x$sm == "OR") {
     if (common) {
       res$nnt.common$NNT <- logOR2nnt(res$TE.common, p.c)
       res$nnt.common$lower.NNT <- logOR2nnt(res$lower.common, p.c)
       res$nnt.common$upper.NNT <- logOR2nnt(res$upper.common, p.c)
     }
-    ##
+    #
     if (random) {
       res$nnt.random$NNT <- logOR2nnt(res$TE.random, p.c)
       res$nnt.random$lower.NNT <- logOR2nnt(res$lower.random, p.c)
       res$nnt.random$upper.NNT <- logOR2nnt(res$upper.random, p.c)
     }
   }
-  ##
+  #
   else if (x$sm == "HR") {
     if (common) {
       res$nnt.common$NNT <- logHR2nnt(res$TE.common, p.c)
       res$nnt.common$lower.NNT <- logHR2nnt(res$lower.common, p.c)
       res$nnt.common$upper.NNT <- logHR2nnt(res$upper.common, p.c)
     }
-    ##
+    #
     if (random) {
       res$nnt.random$NNT <- logHR2nnt(res$TE.random, p.c)
       res$nnt.random$lower.NNT <- logHR2nnt(res$lower.random, p.c)
       res$nnt.random$upper.NNT <- logHR2nnt(res$upper.random, p.c)
     }
   }
-  ##
-  ## Switch direction and lower and upper limits
-  ##
+  #
+  # Switch direction and lower and upper limits
+  #
   if (small.values == "undesirable") {
     if (common) {
       res$nnt.common$NNT <- -res$nnt.common$NNT
@@ -337,7 +337,7 @@ nnt.meta <- function(x, p.c,
       res$nnt.common$lower.NNT <- -res$nnt.common$upper.NNT
       res$nnt.common$upper.NNT <- -tmp.lower
     }
-    ##
+    #
     if (random) {
       res$nnt.random$NNT <- -res$nnt.random$NNT
       tmp.lower <- res$nnt.random$lower.NNT
@@ -346,18 +346,18 @@ nnt.meta <- function(x, p.c,
     }
   }
   
-  ##
+  #
   res$sm <- x$sm
   res$common <- common
   res$random <- random
-  ##
+  #
   res$level.ma <- x$level.ma
-  ##
+  #
   res$call <- match.call()
   res$version <- packageDescription("meta")$Version
-  ##
+  #
   res$fixed <- common
-  ##
+  #
   class(res) <- "nnt.meta"
   
   
@@ -377,42 +377,42 @@ nnt.default <- function(x, p.c, sm, lower, upper,
                         transf = FALSE,
                         ...) {
   
-  ##
-  ## (1) Check arguments
-  ##
+  #
+  # (1) Check arguments
+  #
   if (missing(x))
     stop("Argument 'x' is mandatory.")
-  ##
+  #
   if (missing(sm))
     stop("Argument 'sm' is mandatory.")
-  ##
+  #
   sm <- setchar(sm, c("RD", "RR", "OR", "HR"))
-  ##
+  #
   if (missing(p.c)) {
     if (sm == "RD")
       p.c <- NA
     else
       stop("Argument 'p.c' is mandatory.")
   }
-  ##
+  #
   chknumeric(p.c, 0, 1)
-  ##
+  #
   missing.lower <- missing(lower)
   if (!missing.lower)
     chklength(lower, length(x), "nnt.default")
-  ##
+  #
   missing.upper <- missing(upper)
   if (!missing.upper)
     chklength(upper, length(x), "nnt.default")
-  ##
-  ## Check length of arguments 'x' and 'p.c'
-  ##
+  #
+  # Check length of arguments 'x' and 'p.c'
+  #
   if (length(x) != length(p.c)) {
     if (length(x) > length(p.c))
       bad <- length(x) %% length(p.c) != 0
     else
       bad <- length(p.c) %% length(x) != 0
-    ##
+    #
     if (bad)
       stop("Lengths of arguments 'x' and 'p.c' do not match.",
            call. = FALSE)
@@ -423,22 +423,22 @@ nnt.default <- function(x, p.c, sm, lower, upper,
   chklogical(transf)
   
   
-  ##
-  ## (2) Calculate NNTs
-  ##
+  #
+  # (2) Calculate NNTs
+  #
   res <- data.frame(x = x, p.c = p.c,
                     NNT = NA, lower.NNT = NA, upper.NNT = NA)
-  ##
+  #
   if (missing.lower)
     res$lower.NNT <- NULL
   if (missing.upper)
     res$upper.NNT <- NULL
-  ##
+  #
   if (!missing.lower)
     res$lower.x <- lower
   if (!missing.upper)
     res$upper.x <- upper
-  ##
+  #
   if (sm == "RD") {
     res$NNT <- -1 / res$x
     if (!missing.lower)
@@ -476,23 +476,23 @@ nnt.default <- function(x, p.c, sm, lower, upper,
       res$upper.NNT <-
         logHR2nnt(if (!transf) log(res$upper.x) else res$upper.x, res$p.c)
   }
-  ##
+  #
   names(res)[names(res) == "x"] <- sm
   names(res)[names(res) == "lower.x"] <- paste0("lower.", sm)
   names(res)[names(res) == "upper.x"] <- paste0("upper.", sm)
-  ##
-  ## Remove baseline probability for risk difference
-  ##
+  #
+  # Remove baseline probability for risk difference
+  #
   if (sm == "RD")
     res[["p.c"]] <- NULL
   else if (sm == "HR")
     names(res)[names(res) == "p.c"] <- "Surv.c"
-  ##
-  ## Switch direction and lower and upper limits
-  ##
+  #
+  # Switch direction and lower and upper limits
+  #
   if (small.values == "undesirable") {
     res$NNT <- -res$NNT
-    ##
+    #
     tmp.lower <- res$lower.NNT
     if (!is.null(res$upper.NNT))
       res$lower.NNT <- -res$upper.NNT
@@ -524,22 +524,22 @@ print.nnt.meta <- function(x,
                            ...) {
   
   
-  ##
-  ## (1) Check for nnt.meta object
-  ##
+  #
+  # (1) Check for nnt.meta object
+  #
   chkclass(x, "nnt.meta")
   
   
-  ##
-  ## (2) Check arguments
-  ##
+  #
+  # (2) Check arguments
+  #
   args  <- list(...)
   common <- deprecated(common, missing(common), args, "fixed", FALSE)
   if (is.null(common) & !is.null(x$fixed))
     common <- x$fixed
   chklogical(common)
   chklogical(random)
-  ##
+  #
   chknumeric(digits, min = 0, length = 1)
   chknumeric(digits.prop, min = 0, length = 1)
   
@@ -551,25 +551,25 @@ print.nnt.meta <- function(x,
   if (common) {
     cat(paste0("Number needed to treat (",
                tolower(gs("text.common")), "): \n\n"))
-    ##
+    #
     nnt.common <- cbind(TE = x$TE.common, x$nnt.common)
     if (x$sm != "RD")
       nnt.common$TE <- exp(nnt.common$TE)
-    ##
+    #
     ci.nnt <-
       sum(!is.na(x$lower.common)) > 0 & sum(!is.na(x$upper.common)) > 0
-    ##
+    #
     sign <-
       all(x$lower.common[!is.na(x$lower.common)] > 0) |
       all(x$upper.common[!is.na(x$upper.common)] < 0)
-    ##
+    #
     nnt.common$p.c <- formatN(round(nnt.common$p.c, digits.prop),
                               digits.prop, big.mark = big.mark)
-    ##
+    #
     if (all(nnt.common$NNT < 0)) {
       lab.nnt <- "NNTH"
       lab.nnt2 <- "NNTB"
-      ##
+      #
       nnt.common$NNT <- -nnt.common$NNT
       tmp.u <- -nnt.common$upper.NNT
       nnt.common$upper.NNT <- -nnt.common$lower.NNT
@@ -583,14 +583,14 @@ print.nnt.meta <- function(x,
       lab.nnt <- "NNT"
       lab.nnt2 <- "NNT2"
     }
-    ##
+    #
     nnt.common$TE <-
       formatN(round(nnt.common$TE, digits),
               digits, big.mark = big.mark)
-    ##
+    #
     nnt.common$NNT <- formatN(round(nnt.common$NNT, digits),
                               digits, big.mark = big.mark)
-    ##
+    #
     if (sign) {
       nnt.common$lower.NNT <-
         formatCI(formatN(round(nnt.common$lower.NNT, digits),
@@ -598,12 +598,12 @@ print.nnt.meta <- function(x,
                  formatN(round(nnt.common$upper.NNT, digits),
                          digits, big.mark = big.mark))
       nnt.common$upper.NNT <- NULL
-      ##
+      #
       colnames(nnt.common) <- c(x$sm, p.lab, lab.nnt, ci.lab)
-      ##
+      #
       if (!ci.nnt)
         nnt.common <- nnt.common[, -4]
-      ##
+      #
       prmatrix(nnt.common, quote = FALSE, right = TRUE,
                rowlab = rep("", nrow(nnt.common)))
     }
@@ -625,7 +625,7 @@ print.nnt.meta <- function(x,
         bracketLeft <- paste0("", lab.nnt, " ")
         bracketRight <- ""
       }
-      ##
+      #
       nnt.common$lower.NNT <-
         formatCI(formatN(round(nnt.common$lower.NNT, digits),
                          digits, big.mark = big.mark),
@@ -635,42 +635,42 @@ print.nnt.meta <- function(x,
                  bracket.right = bracketRight,
                  separator = paste0(" to Inf to ", lab.nnt2, " "))
       nnt.common$upper.NNT <- NULL
-      ##
+      #
       colnames(nnt.common) <- c(x$sm, p.lab, lab.nnt, ci.lab)
-      ##
+      #
       if (!ci.nnt)
         nnt.common <- nnt.common[, -4]
-      ##
+      #
       prmatrix(nnt.common, quote = FALSE, right = TRUE,
                rowlab = rep("", nrow(nnt.common)))
     }
-    ##
+    #
     if (random)
       cat("\n")
   }
-  ##
+  #
   if (random) {
     cat(paste0("Number needed to treat (",
                tolower(gs("text.random")), "): \n\n"))
-    ##
+    #
     nnt.random <- cbind(TE = x$TE.random, x$nnt.random)
     if (x$sm != "RD")
       nnt.random$TE <- exp(nnt.random$TE)
-    ##
+    #
     ci.nnt <-
       sum(!is.na(x$lower.random)) > 0 & sum(!is.na(x$upper.random)) > 0
-    ##
+    #
     sign <-
       all(x$lower.random[!is.na(x$lower.random)] > 0) |
       all(x$upper.random[!is.na(x$upper.random)] < 0)
-    ##
+    #
     nnt.random$p.c <- formatN(round(nnt.random$p.c, digits.prop),
                               digits.prop, big.mark = big.mark)
-    ##
+    #
     if (all(nnt.random$NNT < 0)) {
       lab.nnt <- "NNTH"
       lab.nnt2 <- "NNTB"
-      ##
+      #
       nnt.random$NNT <- -nnt.random$NNT
       tmp.u <- -nnt.random$upper.NNT
       nnt.random$upper.NNT <- -nnt.random$lower.NNT
@@ -684,14 +684,14 @@ print.nnt.meta <- function(x,
       lab.nnt <- "NNT"
       lab.nnt2 <- "NNT2"
     }
-    ##
+    #
     nnt.random$TE <-
       formatN(round(nnt.random$TE, digits),
               digits, big.mark = big.mark)
-    ##
+    #
     nnt.random$NNT <- formatN(round(nnt.random$NNT, digits),
                               digits, big.mark = big.mark)
-    ##
+    #
     if (sign) {
       nnt.random$lower.NNT <-
         formatCI(formatN(round(nnt.random$lower.NNT, digits),
@@ -699,12 +699,12 @@ print.nnt.meta <- function(x,
                  formatN(round(nnt.random$upper.NNT, digits),
                          digits, big.mark = big.mark))
       nnt.random$upper.NNT <- NULL
-      ##
+      #
       colnames(nnt.random) <- c(x$sm, p.lab, lab.nnt, ci.lab)
-      ##
+      #
       if (!ci.nnt)
         nnt.random <- nnt.random[, -4]
-      ##
+      #
       prmatrix(nnt.random, quote = FALSE, right = TRUE,
                rowlab = rep("", nrow(nnt.random)))
     }
@@ -726,7 +726,7 @@ print.nnt.meta <- function(x,
         bracketLeft <- paste0("", lab.nnt, " ")
         bracketRight <- ""
       }
-      ##
+      #
       nnt.random$lower.NNT <-
         formatCI(formatN(round(nnt.random$lower.NNT, digits),
                          digits, big.mark = big.mark),
@@ -736,12 +736,12 @@ print.nnt.meta <- function(x,
                  bracket.right = bracketRight,
                  separator = paste0(" to Inf to ", lab.nnt2, " "))
       nnt.random$upper.NNT <- NULL
-      ##
+      #
       colnames(nnt.random) <- c(x$sm, p.lab, lab.nnt, ci.lab)
-      ##
+      #
       if (!ci.nnt)
         nnt.random <- nnt.random[, -4]
-      ##
+      #
       prmatrix(nnt.random, quote = FALSE, right = TRUE,
                rowlab = rep("", nrow(nnt.random)))
     }
@@ -805,14 +805,14 @@ print.nnt.default <- function(x,
 
 
 
-##
-## Auxiliary R functions
-##
+#
+# Auxiliary R functions
+#
 logRR2nnt <- function(x, p.c)
     1 / (p.c - exp(x) * p.c)
-##
+#
 logOR2nnt <- function(x, p.c)
   1 / (p.c - exp(x) * p.c / (1 - p.c + exp(x) * p.c))
-##
+#
 logHR2nnt <- function(x, Surv.c)
   1 / (Surv.c^exp(x) - Surv.c)

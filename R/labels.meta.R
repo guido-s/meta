@@ -52,33 +52,33 @@ labels.meta <- function(object,
   
   sfsp <- sys.frame(sys.parent())
   mc <- match.call()
-  ##
-  ## Catch 'author', 'year', and 'citation' from data:
-  ##
+  #
+  # Catch 'author', 'year', and 'citation' from data:
+  #
   if (!missing(author))
     author <- catch("author", mc, data, sfsp)
-  ##
+  #
   if (!missing(year))
     year <- catch("year", mc, data, sfsp)
   else
     year <- rep_len("", length(author))
-  ##
+  #
   if (!missing(citation))
     citation <- catch("citation", mc, data, sfsp)
   else
     citation <- seq_along(author)
-  ##
+  #
   if (length(author) != length(year))
     stop("Arguments 'author' and 'year' must be of same length.",
          call. = FALSE)
-  ##
+  #
   if (length(author) != length(citation))
     stop("Arguments 'author' and 'citation' must be of same length.",
          call. = FALSE)
   
   
   res <- rep_len(NA, length(author))
-  ##
+  #
   if (layout == "JAMA") {
     for (i in seq(along = author)) {
       res[i] <-
@@ -109,6 +109,6 @@ labels.meta <- function(object,
                                         year = year[i])))
     }
   }
-  ##
+  #
   res
 }

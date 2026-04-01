@@ -100,7 +100,7 @@ smd2or <- function(smd, se.smd, studlab,
   
   
   is.meta <- inherits(smd, "meta")
-  ##
+  #
   if (is.meta) {
     smd <- updateversion(smd)
     if (smd$sm != "SMD")
@@ -112,50 +112,50 @@ smd2or <- function(smd, se.smd, studlab,
     }
   }
   else {
-    ##
-    ## Read data
-    ##
+    #
+    # Read data
+    #
     nulldata <- is.null(data)
     sfsp <- sys.frame(sys.parent())
     mc <- match.call()
-    ##
+    #
     if (nulldata)
       data <- sfsp
-    ##
-    ## Catch 'smd' and 'se.smd' from data:
-    ##
+    #
+    # Catch 'smd' and 'se.smd' from data:
+    #
     smd <- catch("smd", mc, data, sfsp)
-    ##
+    #
     se.smd <- catch("se.smd", mc, data, sfsp)
-    ##
+    #
     k.All <- length(smd)
     chknull(smd)
-    ##
-    ## Catch 'studlab', 'subset', and 'exclude' from data:
-    ##
+    #
+    # Catch 'studlab', 'subset', and 'exclude' from data:
+    #
     studlab <- catch("studlab", mc, data, sfsp)
     studlab <- setstudlab(studlab, k.All)
-    ##
+    #
     missing.subset <- missing(subset)
     subset <- catch("subset", mc, data, sfsp)
-    ##
+    #
     missing.exclude <- missing(exclude)
     exclude <- catch("exclude", mc, data, sfsp)
-    ##
-    ## Check length of essential variables
-    ##
+    #
+    # Check length of essential variables
+    #
     arg <- "smd"
-    ##
+    #
     chklength(se.smd, k.All, arg)
     chklength(studlab, k.All, arg)
-    ##
-    ## Subset and exclude studies
-    ##
+    #
+    # Subset and exclude studies
+    #
     if (!missing.subset)
       if ((is.logical(subset) & (sum(subset) > k.All)) ||
           (length(subset) > k.All))
         stop("Length of argument 'subset' is larger than number of studies.")
-    ##
+    #
     if (!missing.exclude)
       if ((is.logical(exclude) & (sum(exclude) > k.All)) ||
           (length(exclude) > k.All))
@@ -164,7 +164,7 @@ smd2or <- function(smd, se.smd, studlab,
   
   
   method <- setchar(method, c("HH", "CS"))
-  ##
+  #
   if (method == "HH") {
     lnOR <- smd * pi / sqrt(3)
     selnOR <- se.smd * pi / sqrt(3)
@@ -173,7 +173,7 @@ smd2or <- function(smd, se.smd, studlab,
     lnOR <- smd * 1.65
     selnOR <- se.smd * 1.65
   }
-  ##
+  #
   chklogical(backtransf)
   
   
@@ -183,41 +183,41 @@ smd2or <- function(smd, se.smd, studlab,
                      data = mdat,
                      subset = mdat$subset, exclude = mdat$exclude,
                      cluster = mdat$cluster,
-                     ##
+                     #
                      sm = "OR",
-                     ##
+                     #
                      level = mdat$level, level.ma = mdat$level.ma,
                      common = mdat$common,
                      random = mdat$random,
                      overall = mdat$overall,
                      overall.hetstat = mdat$overall.hetstat,
-                     ##
+                     #
                      method.random.ci = mdat$method.random.ci,
                      adhoc.hakn.ci = mdat$adhoc.hakn.ci,
-                     ##
+                     #
                      prediction = mdat$prediction,
                      method.predict = mdat$method.predict,
                      adhoc.hakn.pi = mdat$adhoc.hakn.pi,
                      level.predict = mdat$level.predict,
-                     ##
+                     #
                      method.tau = mdat$method.tau,
                      method.tau.ci = mdat$method.tau.ci,
                      level.hetstat = mdat$level.hetstat,
                      tau.common = mdat$tau.common,
                      detail.tau = mdat$detail.tau,
-                     ##
+                     #
                      null.effect = 0,
-                     ##
+                     #
                      method.bias = mdat$method.bias,
-                     ##
+                     #
                      backtransf = backtransf,
-                     ##
+                     #
                      text.common = mdat$text.common,
                      text.random = mdat$text.random,
                      text.predict = mdat$text.predict,
                      text.w.common = mdat$text.w.common,
                      text.w.random = mdat$text.w.random,
-                     ##
+                     #
                      title = mdat$title, complab = mdat$complab,
                      outclab = mdat$outclab,
                      #
@@ -233,41 +233,41 @@ smd2or <- function(smd, se.smd, studlab,
                      data = mdat,
                      subset = mdat$subset, exclude = mdat$exclude,
                      cluster = mdat$cluster,
-                     ##
+                     #
                      sm = "OR",
-                     ##
+                     #
                      level = mdat$level, level.ma = mdat$level.ma,
                      common = mdat$common,
                      random = mdat$random,
                      overall = mdat$overall,
                      overall.hetstat = mdat$overall.hetstat,
-                     ##
+                     #
                      method.random.ci = mdat$method.random.ci,
                      adhoc.hakn.ci = mdat$adhoc.hakn.ci,
-                     ##
+                     #
                      prediction = mdat$prediction,
                      method.predict = mdat$method.predict,
                      adhoc.hakn.pi = mdat$adhoc.hakn.pi,
                      level.predict = mdat$level.predict,
-                     ##
+                     #
                      method.tau = mdat$method.tau,
                      method.tau.ci = mdat$method.tau.ci,
                      level.hetstat = mdat$level.hetstat,
                      tau.common = mdat$tau.common,
                      detail.tau = mdat$detail.tau,
-                     ##
+                     #
                      null.effect = 0,
-                     ##
+                     #
                      method.bias = mdat$method.bias,
-                     ##
+                     #
                      backtransf = backtransf,
-                     ##
+                     #
                      text.common = mdat$text.common,
                      text.random = mdat$text.random,
                      text.predict = mdat$text.predict,
                      text.w.common = mdat$text.w.common,
                      text.w.random = mdat$text.w.random,
-                     ##
+                     #
                      title = mdat$title, complab = mdat$complab,
                      outclab = mdat$outclab,
                      #
@@ -283,19 +283,19 @@ smd2or <- function(smd, se.smd, studlab,
                      sep.subgroup = mdat$sep.subgroup,
                      test.subgroup = mdat$test.subgroup,
                      prediction.subgroup = mdat$prediction.subgroup,
-                     ##
+                     #
                      control = mdat$control)
   }
   else {
     dat <- data.frame(smd, se.smd, lnOR, selnOR, OR = exp(lnOR), studlab)
     dat$subset <- subset
     dat$exclude <- exclude
-    ##
+    #
     res <- metagen(lnOR, selnOR, studlab = studlab,
                    data = dat, subset = subset, exclude = exclude,
                    sm = "OR", backtransf = backtransf, ...)
   }
-  ##
+  #
   res$method.smd2or <- method
   
   res

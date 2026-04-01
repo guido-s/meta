@@ -51,7 +51,7 @@
     reference.group <- trts[1]
   
   # Return results
-  # 
+  #
   for (i in names(attribs))
     attr(res, i) <- attr(x, i)
   #

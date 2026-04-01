@@ -586,7 +586,7 @@
 #' @export metaprop
 
 metaprop <- function(event, n, studlab,
-                     ##
+                     #
                      data = NULL, subset = NULL, exclude = NULL,
                      cluster = NULL, rho = 0,
                      #
@@ -594,13 +594,13 @@ metaprop <- function(event, n, studlab,
                      weights.common = weights, weights.random = weights,
                      #
                      method,
-                     ##
+                     #
                      sm = gs("smprop"),
-                     ##
+                     #
                      incr = gs("incr"), method.incr = gs("method.incr"),
-                     ##
+                     #
                      method.ci = gs("method.ci.prop"), level = gs("level"),
-                     ##
+                     #
                      common = gs("common"),
                      random = gs("random") | !is.null(tau.preset),
                      overall = common | random,
@@ -610,7 +610,7 @@ metaprop <- function(event, n, studlab,
                        else
                          gs("overall.hetstat"),   
                      prediction = gs("prediction") | !missing(method.predict),
-                     ##
+                     #
                      method.tau =
                        ifelse(!is.na(charmatch(tolower(method), "glmm",
                                                nomatch = NA)),
@@ -627,25 +627,25 @@ metaprop <- function(event, n, studlab,
                      method.common.ci = gs("method.common.ci"),
                      method.random.ci = gs("method.random.ci"),
                      adhoc.hakn.ci = gs("adhoc.hakn.ci"),
-                     ##
+                     #
                      level.predict = gs("level.predict"),
                      method.predict = gs("method.predict"),
                      adhoc.hakn.pi = gs("adhoc.hakn.pi"),
                      seed.predict = NULL,
-                     ##
+                     #
                      null.effect = NA,
-                     ##
+                     #
                      method.bias = gs("method.bias"),
-                     ##
+                     #
                      backtransf = gs("backtransf"),
                      pscale = 1,
-                     ##
+                     #
                      text.common = gs("text.common"),
                      text.random = gs("text.random"),
                      text.predict = gs("text.predict"),
                      text.w.common = gs("text.w.common"),
                      text.w.random = gs("text.w.random"),
-                     ##
+                     #
                      title = gs("title"), complab = gs("complab"),
                      outclab = "",
                      #
@@ -660,22 +660,22 @@ metaprop <- function(event, n, studlab,
                      test.subgroup = gs("test.subgroup"),
                      prediction.subgroup = gs("prediction.subgroup"),
                      seed.predict.subgroup = NULL,
-                     ##
+                     #
                      byvar, hakn, adhoc.hakn,
-                     ##
+                     #
                      keepdata = gs("keepdata"),
                      warn = gs("warn"), warn.deprecated = gs("warn.deprecated"),
-                     ##
+                     #
                      control = NULL,
                      ...
                      ) {
   
   
-  ##
-  ##
-  ## (1) Check and set arguments
-  ##
-  ##
+  #
+  #
+  # (1) Check and set arguments
+  #
+  #
   
   chknumeric(rho, min = -1, max = 1)
   #
@@ -699,17 +699,17 @@ metaprop <- function(event, n, studlab,
               call. = FALSE)
     method.common.ci <- "classic"
   }
-  ##
+  #
   missing.method.incr <- missing(method.incr)
   method.incr <- setchar(method.incr, gs("meth4incr"))
-  ##
+  #
   chklevel(level)
-  ##
+  #
   missing.method.tau <- missing(method.tau)
   if (missing.method.tau)
     method.tau <- if (method == "GLMM") "ML" else gs("method.tau")
   method.tau <- setchar(method.tau, gs("meth4tau"))
-  ##
+  #
   missing.tau.common <- missing(tau.common)
   tau.common <- replaceNULL(tau.common, FALSE)
   chklogical(tau.common)
@@ -718,35 +718,35 @@ metaprop <- function(event, n, studlab,
   #
   chklogical(prediction)
   chklevel(level.predict)
-  ##
+  #
   missing.method.predict <- missing(method.predict)
-  ##
+  #
   method.tau <-
     set_method_tau(method.tau, missing.method.tau,
                  method.predict, missing.method.predict)
   method.predict <-
     set_method_predict(method.predict, missing.method.predict,
                      method.tau, missing.method.tau)
-  ##
+  #
   if (any(method.predict == "NNF"))
     is_installed_package("pimeta", argument = "method.predict", value = "NNF")
-  ##
+  #
   adhoc.hakn.pi <- setchar(replaceNA(adhoc.hakn.pi, ""), gs("adhoc4hakn.pi"))
   #
   if (!anyNA(null.effect) | length(null.effect) != 1)
     chknumeric(null.effect, min = 0, max = 1, length = 1)
-  ##
+  #
   method.bias <- setmethodbias(method.bias)
-  ##
+  #
   chklogical(backtransf)
-  ##
+  #
   chknumeric(pscale, length = 1)
   if (!backtransf & pscale != 1 & !is_untransformed(sm)) {
     warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.",
             call. = FALSE)
     pscale <- 1
   }
-  ##
+  #
   if (!is.null(text.common))
     chkchar(text.common, length = 1)
   if (!is.null(text.random))
@@ -757,36 +757,36 @@ metaprop <- function(event, n, studlab,
     chkchar(text.w.common, length = 1)
   if (!is.null(text.w.random))
     chkchar(text.w.random, length = 1)
-  ##
+  #
   chklogical(keepdata)
-  ##
-  ## Additional arguments / checks for metainc objects
-  ##
+  #
+  # Additional arguments / checks for metainc objects
+  #
   fun <- "metaprop"
-  ##
+  #
   method.ci <- setchar(method.ci, gs("ci4prop"))
   chklogical(warn)
-  ##
-  ## Check for deprecated arguments in '...'
-  ##
+  #
+  # Check for deprecated arguments in '...'
+  #
   args  <- list(...)
   chklogical(warn.deprecated)
-  ##
+  #
   level.ma <- deprecated(level.ma, missing(level.ma), args, "level.comb",
                          warn.deprecated)
   chklevel(level.ma)
-  ##
+  #
   missing.common <- missing(common)
   common <- deprecated(common, missing.common, args, "comb.fixed",
                        warn.deprecated)
   common <- deprecated(common, missing.common, args, "fixed",
                        warn.deprecated)
   chklogical(common)
-  ##
+  #
   random <- deprecated(random, missing(random), args, "comb.random",
                        warn.deprecated)
   chklogical(random)
-  ##
+  #
   method.random.ci <-
     deprecated2(method.random.ci, missing(method.random.ci),
                 hakn, missing(hakn),
@@ -797,7 +797,7 @@ metaprop <- function(event, n, studlab,
     else
       method.random.ci <- "classic"
   method.random.ci <- setchar(method.random.ci, gs("meth4random.ci"))
-  ##
+  #
   adhoc.hakn.ci <-
     deprecated2(adhoc.hakn.ci, missing(adhoc.hakn.ci),
                 adhoc.hakn, missing(adhoc.hakn), warn.deprecated)
@@ -807,20 +807,20 @@ metaprop <- function(event, n, studlab,
   subgroup.name <-
     deprecated(subgroup.name, missing.subgroup.name, args, "bylab",
                warn.deprecated)
-  ##
+  #
   print.subgroup.name <-
     deprecated(print.subgroup.name, missing(print.subgroup.name),
                args, "print.byvar", warn.deprecated)
   print.subgroup.name <-
     replaceNULL(print.subgroup.name, gs("print.subgroup.name"))
   chklogical(print.subgroup.name)
-  ##
+  #
   sep.subgroup <-
     deprecated(sep.subgroup, missing(sep.subgroup), args, "byseparator",
                warn.deprecated)
   if (!is.null(sep.subgroup))
     chkchar(sep.subgroup, length = 1)
-  ##
+  #
   addincr <-
     deprecated(method.incr, missing.method.incr, args, "addincr",
                warn.deprecated)
@@ -829,74 +829,74 @@ metaprop <- function(event, n, studlab,
                warn.deprecated)
   if (missing.method.incr) {
     method.incr <- gs("method.incr")
-    ##
+    #
     if (is.logical(addincr) && addincr)
       method.incr <- "all"
     else if (is.logical(allincr) && allincr)
       method.incr <- "if0all"
   }
-  ##
+  #
   addincr <- allincr <- FALSE
   if (method.incr == "all")
     addincr <- TRUE
   else if (method.incr == "if0all")
     allincr <- TRUE
-  ##
-  ## Some more checks
-  ##
+  #
+  # Some more checks
+  #
   chklogical(overall)
   chklogical(overall.hetstat)
   
   
-  ##
-  ##
-  ## (2) Read data
-  ##
-  ##
+  #
+  #
+  # (2) Read data
+  #
+  #
   
   nulldata <- is.null(data)
   sfsp <- sys.frame(sys.parent())
   mc <- match.call()
-  ##
+  #
   if (nulldata)
     data <- sfsp
-  ##
-  ## Catch 'event' and 'n' from data:
-  ##
+  #
+  # Catch 'event' and 'n' from data:
+  #
   event <- catch("event", mc, data, sfsp)
   chknull(event)
   k.All <- length(event)
-  ##
+  #
   n <- catch("n", mc, data, sfsp)
   chknull(n)
-  ##
-  ## Catch 'incr' from data:
-  ##
+  #
+  # Catch 'incr' from data:
+  #
   if (!missing(incr))
     incr <- catch("incr", mc, data, sfsp)
   chknumeric(incr, min = 0)
-  ##
-  ## Catch 'studlab', 'subgroup', 'subset', 'exclude' and 'cluster'
-  ## from data:
-  ##
+  #
+  # Catch 'studlab', 'subgroup', 'subset', 'exclude' and 'cluster'
+  # from data:
+  #
   studlab <- catch("studlab", mc, data, sfsp)
   studlab <- setstudlab(studlab, k.All)
-  ##
+  #
   missing.subgroup <- missing(subgroup)
   subgroup <- catch("subgroup", mc, data, sfsp)
   missing.byvar <- missing(byvar)
   byvar <- catch("byvar", mc, data, sfsp)
-  ##
+  #
   subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
                           warn.deprecated)
   by <- !is.null(subgroup)
-  ##
+  #
   subset <- catch("subset", mc, data, sfsp)
   missing.subset <- is.null(subset)
-  ##
+  #
   exclude <- catch("exclude", mc, data, sfsp)
   missing.exclude <- is.null(exclude)
-  ##
+  #
   cluster <- catch("cluster", mc, data, sfsp)
   with.cluster <- !is.null(cluster)
   #
@@ -935,11 +935,11 @@ metaprop <- function(event, n, studlab,
          call. = FALSE)
   
   
-  ##
-  ##
-  ## (3) Check length of essential variables
-  ##
-  ##
+  #
+  #
+  # (3) Check length of essential variables
+  #
+  #
   
   chklength(n, k.All, fun)
   chklength(studlab, k.All, fun)
@@ -963,15 +963,15 @@ metaprop <- function(event, n, studlab,
   #
   if (length(incr) > 1)
     chklength(incr, k.All, fun)
-  ##
+  #
   if (by) {
     chklength(subgroup, k.All, fun)
     chklogical(test.subgroup)
     chklogical(prediction.subgroup)
   }
-  ##
-  ## Additional checks
-  ##
+  #
+  # Additional checks
+  #
   if (!by & tau.common) {
     warning("Value for argument 'tau.common' set to FALSE as ",
             "argument 'subgroup' is missing.",
@@ -986,22 +986,22 @@ metaprop <- function(event, n, studlab,
   }
   
   
-  ##
-  ##
-  ## (4) Subset, exclude studies, and subgroups
-  ##
-  ##
+  #
+  #
+  # (4) Subset, exclude studies, and subgroups
+  #
+  #
   
   if (!missing.subset)
     if ((is.logical(subset) & (sum(subset) > k.All)) ||
         (length(subset) > k.All))
       stop("Length of subset is larger than number of studies.")
-  ##
+  #
   if (!missing.exclude) {
     if ((is.logical(exclude) & (sum(exclude) > k.All)) ||
         (length(exclude) > k.All))
       stop("Length of argument 'exclude' is larger than number of studies.")
-    ##
+    #
     exclude2 <- rep(FALSE, k.All)
     exclude2[exclude] <- TRUE
     exclude <- exclude2
@@ -1010,27 +1010,27 @@ metaprop <- function(event, n, studlab,
     exclude <- rep(FALSE, k.All)
   
   
-  ##
-  ##
-  ## (5) Store complete dataset in list object data
-  ##     (if argument keepdata is TRUE)
-  ##
-  ##
+  #
+  #
+  # (5) Store complete dataset in list object data
+  #     (if argument keepdata is TRUE)
+  #
+  #
   
   if (keepdata) {
     if (nulldata)
       data <- data.frame(.event = event)
     else
       data$.event <- event
-    ##
+    #
     data$.n <- n
     data$.studlab <- studlab
-    ##
+    #
     data$.incr <- NA
-    ##
+    #
     if (by)
       data$.subgroup <- subgroup
-    ##
+    #
     if (!missing.subset) {
       if (length(subset) == dim(data)[1])
         data$.subset <- subset
@@ -1039,10 +1039,10 @@ metaprop <- function(event, n, studlab,
         data$.subset[subset] <- TRUE
       }
     }
-    ##
+    #
     if (!missing.exclude)
       data$.exclude <- exclude
-    ##
+    #
     if (with.cluster)
       data$.id <- data$.cluster <- cluster
     #
@@ -1054,17 +1054,17 @@ metaprop <- function(event, n, studlab,
   }
   
   
-  ##
-  ##
-  ## (6) Use subset for analysis
-  ##
-  ##
+  #
+  #
+  # (6) Use subset for analysis
+  #
+  #
   
   if (!missing.subset) {
     event <- event[subset]
     n <- n[subset]
     studlab <- studlab[subset]
-    ##
+    #
     cluster <- cluster[subset]
     exclude <- exclude[subset]
     #
@@ -1077,16 +1077,16 @@ metaprop <- function(event, n, studlab,
     if (by)
       subgroup <- subgroup[subset]
   }
-  ##
-  ## Determine total number of studies
-  ##
+  #
+  # Determine total number of studies
+  #
   k.all <- length(event)
-  ##
+  #
   if (k.all == 0)
     stop("No studies to combine in meta-analysis.")
-  ##
-  ## No meta-analysis for a single study
-  ##
+  #
+  # No meta-analysis for a single study
+  #
   if (k.all == 1) {
     common <- FALSE
     random <- FALSE
@@ -1094,22 +1094,22 @@ metaprop <- function(event, n, studlab,
     overall <- FALSE
     overall.hetstat <- FALSE
   }
-  ##
-  ## Check variable values
-  ##
+  #
+  # Check variable values
+  #
   chknumeric(event, 0)
   chknumeric(n, 0, zero = TRUE)
-  ##
+  #
   if (any(event > n, na.rm = TRUE))
     stop("Number of events must not be larger than number of observations")
-  ##
-  ## Recode integer as numeric:
-  ##
+  #
+  # Recode integer as numeric:
+  #
   event <- int2num(event)
   n     <- int2num(n)
-  ##
-  ## Check for whole numbers
-  ##
+  #
+  # Check for whole numbers
+  #
   if (method.ci != "NAsm") {
     if (any(!is_wholenumber(event), na.rm = TRUE)) {
       warning("Normal approximation confidence interval ",
@@ -1126,10 +1126,10 @@ metaprop <- function(event, n, studlab,
       method.ci <- "NAsm"
     }
   }
-  ##
+  #
   if (by) {
     chkmiss(subgroup)
-    ##
+    #
     if (missing.subgroup.name & is.null(subgroup.name)) {
       if (!missing.subgroup)
         subgroup.name <- byvarname("subgroup", mc)
@@ -1137,7 +1137,7 @@ metaprop <- function(event, n, studlab,
         subgroup.name <- byvarname("byvar", mc)
     }
   }
-  ##
+  #
   if (!is.null(subgroup.name))
     chkchar(subgroup.name, length = 1)
   
@@ -1184,11 +1184,11 @@ metaprop <- function(event, n, studlab,
   }
   
   
-  ##
-  ##
-  ## (8) Calculate results for individual studies
-  ##
-  ##
+  #
+  #
+  # (8) Calculate results for individual studies
+  #
+  #
   
   if (sm == "PLOGIT") {
     TE <- log((event + incr.event) / (n - event + incr.event))
@@ -1209,7 +1209,7 @@ metaprop <- function(event, n, studlab,
   }
   else if (sm == "PLN") {
     TE <- log((event + incr.event) / (n + incr.event))
-    ## Hartung, Knapp (2001), p. 3880, formula (18):
+    # Hartung, Knapp (2001), p. 3880, formula (18):
     seTE <- ifelse(event == n,
                    sqrt(1 / event                - 1 / (n + incr.event)),
                    sqrt(1 / (event + incr.event) - 1 / (n + incr.event))
@@ -1222,9 +1222,9 @@ metaprop <- function(event, n, studlab,
                  (n + 2 * incr.event)^3)
     transf.null.effect <- null.effect
   }
-  ##
-  ## Calculate confidence intervals
-  ##
+  #
+  # Calculate confidence intervals
+  #
   if (method.ci == "CP")
     ci.study <- ciClopperPearson(event, n, level, null.effect)
   else if (method.ci == "WS")
@@ -1239,25 +1239,25 @@ metaprop <- function(event, n, studlab,
     ci.study <- ciSimpleAsymptotic(event, n, level, correct = TRUE)
   else if (method.ci == "NAsm")
     ci.study <- ci(TE, seTE, level, null.effect = null.effect)
-  ##
+  #
   lower.study <- ci.study$lower
   upper.study <- ci.study$upper
-  ##
+  #
   if (method.ci != "NAsm") {
     if (sm == "PLOGIT") {
       lower.study <- p2logit(lower.study)
       upper.study <- p2logit(upper.study)
     }
-    ##
+    #
     else if (sm == "PAS") {
       lower.study <- p2asin(lower.study)
       upper.study <- p2asin(upper.study)
     }
-    ##
+    #
     else if (sm == "PFT") {
       lower.ev <- n * lower.study 
       upper.ev <- n * upper.study 
-      ##
+      #
       lower.study <-
         0.5 * (asin(sqrt(lower.ev / (n + 1))) +
                asin(sqrt((lower.ev + 1) / (n + 1))))
@@ -1265,7 +1265,7 @@ metaprop <- function(event, n, studlab,
         0.5 * (asin(sqrt(upper.ev / (n + 1))) +
                asin(sqrt((upper.ev + 1) / (n + 1))))
     }
-    ##
+    #
     else if (sm == "PLN") {
       lower.study <- log(lower.study)
       upper.study <- log(upper.study)
@@ -1273,54 +1273,54 @@ metaprop <- function(event, n, studlab,
   }
   
   
-  ##
-  ##
-  ## (9) Additional checks for three-level model
-  ##
-  ##
+  #
+  #
+  # (9) Additional checks for three-level model
+  #
+  #
   
   three.level <- FALSE
   sel.ni <- !is.infinite(TE) & !is.infinite(seTE)
-  ##
-  ## Only conduct three-level meta-analysis if variable 'cluster'
-  ## contains duplicate values after removing inestimable study
-  ## results standard errors
-  ##
+  #
+  # Only conduct three-level meta-analysis if variable 'cluster'
+  # contains duplicate values after removing inestimable study
+  # results standard errors
+  #
   if (with.cluster &&
       length(unique(cluster[sel.ni])) != length(cluster[sel.ni]))
     three.level <- TRUE
-  ##
+  #
   if (three.level) {
     chkmlm(method.tau, missing.method.tau, method.predict,
            method, missing.method)
-    ##
+    #
     common <- FALSE
     method <- "Inverse"
     is.glmm <- FALSE
-    ##
+    #
     if (!(method.tau %in% c("REML", "ML")))
       method.tau <- "REML"
   }
   
   
-  ##
-  ##
-  ## (10) Additional checks for GLMM
-  ##
-  ##
+  #
+  #
+  # (10) Additional checks for GLMM
+  #
+  #
   
   if (is.glmm) {
     chkglmm(sm, method.tau, method.random.ci, method.predict,
             adhoc.hakn.ci, adhoc.hakn.pi,
             "PLOGIT")
-    ##
+    #
     if (!is.null(TE.tau)) {
       if (warn)
         warning("Argument 'TE.tau' not considered for GLMM.",
                 call. = FALSE)
       TE.tau <- NULL
     }
-    ##
+    #
     if (!is.null(tau.preset)) {
       if (warn)
         warning("Argument 'tau.preset' not considered for GLMM.",
@@ -1330,18 +1330,18 @@ metaprop <- function(event, n, studlab,
   }
   
   
-  ##
-  ##
-  ## (11) Do meta-analysis
-  ##
-  ##
+  #
+  #
+  # (11) Do meta-analysis
+  #
+  #
   
   k <- sum(!is.na(event[!exclude]) & !is.na(n[!exclude]))
-  ##
+  #
   for (i in seq_along(method.random.ci))
     if (k == 1 & method.random.ci[i] == "HK")
       method.random.ci[i] <- "classic"
-  ##
+  #
   m <- metagen(TE, seTE, studlab,
                exclude = if (missing.exclude) NULL else exclude,
                cluster = cluster, rho = rho,
@@ -1351,13 +1351,13 @@ metaprop <- function(event, n, studlab,
                #
                sm = sm,
                level = level,
-               ##
+               #
                common = common,
                random = random,
                overall = overall,
                overall.hetstat = overall.hetstat,
                prediction = prediction,
-               ##
+               #
                method.tau = if (is.glmm) "DL" else method.tau,
                method.tau.ci = if (is.glmm) "" else method.tau.ci,
                level.hetstat = level.hetstat,
@@ -1372,22 +1372,22 @@ metaprop <- function(event, n, studlab,
                method.common.ci = method.common.ci,
                method.random.ci = method.random.ci,
                adhoc.hakn.ci = adhoc.hakn.ci,
-               ##
+               #
                level.predict = level.predict,
                method.predict = method.predict,
                adhoc.hakn.pi = adhoc.hakn.pi,
                seed.predict = seed.predict,
-               ##
+               #
                null.effect = transf.null.effect,
-               ##
+               #
                method.bias = method.bias,
-               ##
+               #
                backtransf = backtransf,
-               ##
+               #
                text.common = text.common, text.random = text.random,
                text.predict = text.predict,
                text.w.common = text.w.common, text.w.random = text.w.random,
-               ##
+               #
                title = title, complab = complab, outclab = outclab,
                #
                label.left = label.left, label.right = label.right,
@@ -1396,7 +1396,7 @@ metaprop <- function(event, n, studlab,
                #
                keepdata = FALSE,
                warn = warn,
-               ##
+               #
                control = control)
   #
   # Estimate common tau-squared across subgroups
@@ -1406,11 +1406,11 @@ metaprop <- function(event, n, studlab,
                    method.I2, level.hetstat, subgroup, control)
   
   
-  ##
-  ##
-  ## (12) Generate R object
-  ##
-  ##
+  #
+  #
+  # (12) Generate R object
+  #
+  #
   
   res <- list(event = event, n = n,
               incr = if (length(unique(incr)) == 1) unique(incr) else incr,
@@ -1418,10 +1418,10 @@ metaprop <- function(event, n, studlab,
               sparse = sparse,
               method.ci = method.ci,
               incr.event = incr.event)
-  ##
-  ## Add meta-analysis results
-  ## (after removing unneeded list elements)
-  ##
+  #
+  # Add meta-analysis results
+  # (after removing unneeded list elements)
+  #
   m$n.e <- NULL
   m$n.c <- NULL
   m$pscale <- NULL
@@ -1431,10 +1431,10 @@ metaprop <- function(event, n, studlab,
   m$method.mean <- NULL
   m$approx.TE <- NULL
   m$approx.seTE <- NULL
-  ##
+  #
   m$label.e <- ""
   m$label.c <- ""
-  ##
+  #
   if (method.ci == "CP") {
     m$statistic <- rep(NA, length(m$statistic))
     m$pval <- ci.study$p
@@ -1443,7 +1443,7 @@ metaprop <- function(event, n, studlab,
     m$statistic <- rep(NA, length(m$statistic))
     m$pval <- rep(NA, length(m$pval))
   }
-  ##
+  #
   if (is.glmm) 
     m$method.tau <- method.tau
   #
@@ -1451,26 +1451,26 @@ metaprop <- function(event, n, studlab,
     m$seTE.hakn.ci <- m$seTE.hakn.adhoc.ci <-
       m$seTE.hakn.pi <- m$seTE.hakn.adhoc.pi <-
         m$seTE.kero <- NA
-    ##
+    #
     m$text.random <- gsub("(HK)", "(T)", m$text.random, fixed = TRUE)
   }
-  ##
+  #
   res <- c(res, m)
   res$null.effect <- null.effect
-  ##
-  ## Run GLMM and add data
-  ##
+  #
+  # Run GLMM and add data
+  #
   if (is.glmm & k > 0) {
     res$method <- "GLMM"
     res$method.random <- "GLMM"
-    ##
+    #
     list.prop <- list(xi = event[!exclude], ni = n[!exclude], measure = "PLO")
-    ##
+    #
     use.random <-
       sum(!exclude) > 1 &
       sum(event[!exclude], na.rm = TRUE) > 0 &
       any(event[!exclude] != n[!exclude])
-    ##
+    #
     res.glmm <-
       runGLMM(list.prop,
               method.tau = method.tau,
@@ -1478,15 +1478,15 @@ metaprop <- function(event, n, studlab,
               level = level.ma,
               control = control, use.random = use.random,
               warn = warn)
-    ##
+    #
     res <- addGLMM(res, res.glmm, method.I2, transf.null.effect)
-    ##
+    #
     if (by) {
       n.subgroups <- length(unique(subgroup[!exclude]))
       if (n.subgroups > 1)
         subgroup.glmm <-
           factor(subgroup[!exclude], bylevs(subgroup[!exclude]))
-      ##
+      #
       hcc <-
         hccGLMM(
           res,
@@ -1510,26 +1510,26 @@ metaprop <- function(event, n, studlab,
         )
     }
   }
-  ##
+  #
   res$lower <- lower.study
   res$upper <- upper.study
-  ##
+  #
   res$pscale <- pscale
   #
   res$pairwise <- FALSE
   #
   res$call <- match.call()
-  ##
+  #
   if (keepdata) {
     res$data <- data
     if (!missing.subset)
       res$subset <- subset
   }
-  ##
+  #
   class(res) <- c(fun, "meta")
-  ##
-  ## Add results from subgroup analysis
-  ##
+  #
+  # Add results from subgroup analysis
+  #
   if (by) {
     res$subgroup <- subgroup
     res$subgroup.name <- subgroup.name
@@ -1538,7 +1538,7 @@ metaprop <- function(event, n, studlab,
     res$test.subgroup <- test.subgroup
     res$prediction.subgroup <- prediction.subgroup
     res$tau.common <- tau.common
-    ##
+    #
     if (!tau.common) {
       res <- c(res, subgroup(res, seed = seed.predict.subgroup))
       if (res$three.level)
@@ -1560,26 +1560,26 @@ metaprop <- function(event, n, studlab,
         res <-
           c(res, subgroup(res, hcc$tau.resid, seed = seed.predict.subgroup))
     }
-    ##
+    #
     if (tau.common && is.null(tau.preset))
       res <- addHet(res, hcc, !is.glmm)
-    ##
+    #
     res$n.e.w <- NULL
     res$n.c.w <- NULL
     res$event.e.w <- NULL
     res$event.c.w <- NULL
-    ##
+    #
     res$time.e.w <- NULL
     res$time.c.w <- NULL
     res$t.harmonic.mean.w <- NULL
-    ##
+    #
     res <- setNAwithin(res, res$three.level | is.glmm)
   }
-  ##
-  ## Backward compatibility
-  ##
+  #
+  # Backward compatibility
+  #
   res <- backward(res)
-  ##
+  #
   class(res) <- c(fun, "meta")
   
   

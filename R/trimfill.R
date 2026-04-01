@@ -177,21 +177,21 @@
 
 trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
                           type = "L", n.iter.max = 50,
-                          ##
+                          #
                           common = FALSE, random = TRUE,
                           prediction = x$prediction,
-                          ##
+                          #
                           backtransf = x$backtransf, pscale = x$pscale,
                           irscale = x$irscale, irunit = x$irunit,
                           silent = TRUE,
                           warn.deprecated = gs("warn.deprecated"),
                           ...) {
   
-  ##
-  ##
-  ## (1) Check for (inadmissible) meta object
-  ##
-  ##
+  #
+  #
+  # (1) Check for (inadmissible) meta object
+  #
+  #
   chkclass(x, "meta")
   chksuitable(x, "Trim-and-fill method",
               c("metacum", "metainf", "metamerge", "netpairwise"))
@@ -201,33 +201,33 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
          call. = FALSE)
   #
   x <- updateversion(x)
-  ##
+  #
   if (x$three.level)
     stop("Trim-and-fill method not implemented for three-level model.",
          call. = FALSE)
   
   
-  ##
-  ##
-  ## (2) Check arguments
-  ##
-  ##
+  #
+  #
+  # (2) Check arguments
+  #
+  #
   args <- list(...)
-  ##
+  #
   ma.common <- deprecated(ma.common, missing(ma.common), args, "ma.fixed",
                           warn.deprecated)
   chklogical(ma.common)
-  ##
+  #
   type <- setchar(type, c("L", "R"))
   chknumeric(n.iter.max, min = 1, length = 1)
-  ##
+  #
   common <- deprecated(common, missing(common), args, "fixed",
                        warn.deprecated)
   chklogical(common)
   chklogical(random)
   chklogical(prediction)
   chklogical(backtransf)
-  ##
+  #
   sm <- x$sm
   if (!is_prop(sm))
     pscale <- 1
@@ -243,36 +243,36 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
     warning("Argument 'irscale' set to 1 as argument 'backtransf' is FALSE.")
     irscale <- 1
   }
-  ##
+  #
   chklogical(silent)
   
   
   TE <- x$TE
   seTE <- x$seTE
   studlab <- x$studlab
-  ##
+  #
   n.e <- x$n.e
   n.c <- x$n.c
   n <- x$n
-  ##
+  #
   event.e <- x$event.e
   event.c <- x$event.c
   event <- x$event
-  ##
+  #
   time.e <- x$time.e
   time.c <- x$time.c
   time <- x$time
-  ##
+  #
   cor <- x$cor
-  ##
+  #
   mean.e <- x$mean.e
   mean.c <- x$mean.c
-  ##
+  #
   sd.e <- x$sd.e
   sd.c <- x$sd.c
-  ##
+  #
   transf.null.effect <- null.effect <- x$null.effect
-  ##
+  #
   if (sm %in% c("PFT", "PAS"))
     transf.null.effect <- asin(sqrt(null.effect))
   else if (is_log_effect(sm))
@@ -285,24 +285,24 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
     transf.null.effect <- 0.5 * log((1 + null.effect) / (1 - null.effect))
   
   
-  ##
-  ## Exclude studies from meta-analysis
-  ##
+  #
+  # Exclude studies from meta-analysis
+  #
   if (!is.null(x$exclude)) {
     exclude <- x$exclude
     nomiss <- !is.na(TE) & !is.na(seTE)
     miss <- !nomiss & !exclude
-    ##
+    #
     sel <- nomiss & !exclude
   }
   else {
     exclude <- exclude.na <- NULL
     nomiss <- !is.na(TE) & !is.na(seTE)
     miss <- !nomiss
-    ##
+    #
     sel <- nomiss
   }
-  ##
+  #
   if (any(miss))
     warning(paste(sum(miss),
                   "observation(s) dropped due to missing values"))
@@ -311,43 +311,43 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
   TE <- TE[sel]
   seTE <- seTE[sel]
   studlab <- studlab[sel]
-  ##
+  #
   if (!is.null(n.e))
     n.e <- n.e[sel]
   if (!is.null(n.c))
     n.c <- n.c[sel]
   if (!is.null(n))
     n <- n[sel]
-  ##
+  #
   if (!is.null(event.e))
     event.e <- event.e[sel]
   if (!is.null(event.c))
     event.c <- event.c[sel]
   if (!is.null(event))
     event <- event[sel]
-  ##
+  #
   if (!is.null(time.e))
     time.e <- time.e[sel]
   if (!is.null(time.c))
     time.c <- time.c[sel]
   if (!is.null(time))
     time <- time[sel]
-  ##
+  #
   if (!is.null(cor))
     cor <- cor[sel]
-  ##
+  #
   if (!is.null(mean.e))
     mean.e <- mean.e[sel]
   if (!is.null(mean.c))
     mean.c <- mean.c[sel]
-  ##
+  #
   if (!is.null(sd.e))
     sd.e <- sd.e[sel]
   if (!is.null(sd.c))
     sd.c <- sd.c[sel]
-  ##
+  #
   k <- length(TE)
-  ##
+  #
   if (k <= 2) {
     warning("Minimal number of three studies for trim-and-fill method")
     return(invisible(NULL))
@@ -357,43 +357,43 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
   if (is.null(left))
     left <- as.logical(sign(metabias(TE, seTE, method = "Egger",
                                      k.min = 3)$estimate[1]) == 1)
-  ##
+  #
   if (!left) TE <- -TE
-  ##
+  #
   ord <- order(TE)
   TE <- TE[ord]
   seTE <- seTE[ord]
   studlab <- studlab[ord]
-  ##
+  #
   if (!is.null(n.e))
     n.e <- n.e[ord]
   if (!is.null(n.c))
     n.c <- n.c[ord]
   if (!is.null(n))
     n <- n[ord]
-  ##
+  #
   if (!is.null(event.e))
     event.e <- event.e[ord]
   if (!is.null(event.c))
     event.c <- event.c[ord]
   if (!is.null(event))
     event <- event[ord]
-  ##
+  #
   if (!is.null(time.e))
     time.e <- time.e[ord]
   if (!is.null(time.c))
     time.c <- time.c[ord]
   if (!is.null(time))
     time <- time[ord]
-  ##
+  #
   if (!is.null(cor))
     cor <- cor[ord]
-  ##
+  #
   if (!is.null(mean.e))
     mean.e <- mean.e[ord]
   if (!is.null(mean.c))
     mean.c <- mean.c[ord]
-  ##
+  #
   if (!is.null(sd.e))
     sd.e <- sd.e[ord]
   if (!is.null(sd.c))
@@ -416,15 +416,15 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
     n.iter  <-  0
     k0.last <- -1
     k0      <-  0
-    ##
+    #
     while (k0.last != k0 & k0 <= (k - 1) & n.iter < n.iter.max) {
-      ##
+      #
       n.iter <- n.iter + 1
-      ##
+      #
       k0.last <- k0
-      ##
+      #
       sel <- 1:(k - k0)
-      ##
+      #
       if (ma.common)
         TE.sum <- metagen(TE[sel], seTE[sel],
                           method.tau = "DL",
@@ -433,9 +433,9 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
         TE.sum <- metagen(TE[sel], seTE[sel],
                           method.tau = x$method.tau,
                           method.tau.ci = "")$TE.random
-      ##
+      #
       trim1 <- estimate.missing(TE, TE.sum, type)
-      ##
+      #
       if (!silent) {
         cat(paste0("n.iter = ", n.iter, "\n"))
         if (type == "L")
@@ -443,7 +443,7 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
         if (type == "R")
           cat(paste0("R0 = ", round(trim1$res0 + 0.5, 2), "\n\n"))
       }
-      ##
+      #
       k0 <- trim1$res0.plus
     }
   }
@@ -451,48 +451,48 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
   
   if (k0 > (k - 1))
     k0 <- k - 1
-  ##
+  #
   if (k0 > 0) {
     TE.star   <- 2 * TE.sum - TE[(k - k0 + 1):k]
     seTE.star <- seTE[(k - k0 + 1):k]
-    ##
+    #
     trimfill  <- c(rep(FALSE, length(TE)),
                    rep(TRUE, length(TE.star)))
-    ##
+    #
     TE      <- c(TE[order(ord)], TE.star)
     seTE    <- c(seTE[order(ord)], seTE.star)
     studlab <- c(studlab[order(ord)],
                  paste("Filled:", studlab[(k - k0 + 1):k]))
-    ##
+    #
     if (!is.null(n.e))
       n.e <- c(n.e[order(ord)], n.e[(k - k0 + 1):k])
     if (!is.null(n.c))
       n.c <- c(n.c[order(ord)], n.c[(k - k0 + 1):k])
     if (!is.null(n))
       n <- c(n[order(ord)], n[(k - k0 + 1):k])
-    ##
+    #
     if (!is.null(event.e))
       event.e <- c(event.e[order(ord)], event.e[(k - k0 + 1):k])
     if (!is.null(event.c))
       event.c <- c(event.c[order(ord)], event.c[(k - k0 + 1):k])
     if (!is.null(event))
       event <- c(event[order(ord)], event[(k - k0 + 1):k])
-    ##
+    #
     if (!is.null(time.e))
       time.e <- c(time.e[order(ord)], time.e[(k - k0 + 1):k])
     if (!is.null(time.c))
       time.c <- c(time.c[order(ord)], time.c[(k - k0 + 1):k])
     if (!is.null(time))
       time <- c(time[order(ord)], time[(k - k0 + 1):k])
-    ##
+    #
     if (!is.null(cor))
       cor <- c(cor[order(ord)], cor[(k - k0 + 1):k])
-    ##
+    #
     if (!is.null(mean.e))
       mean.e <- c(mean.e[order(ord)], mean.e[(k - k0 + 1):k])
     if (!is.null(mean.c))
       mean.c <- c(mean.c[order(ord)], mean.c[(k - k0 + 1):k])
-    ##
+    #
     if (!is.null(sd.e))
       sd.e <- c(sd.e[order(ord)], sd.e[(k - k0 + 1):k])
     if (!is.null(sd.c))
@@ -505,36 +505,36 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
     TE        <- TE[order(ord)]
     seTE      <- seTE[order(ord)]
     studlab   <- studlab[order(ord)]
-    ##
+    #
     if (!is.null(n.e))
       n.e <- n.e[order(ord)]
     if (!is.null(n.c))
       n.c <- n.c[order(ord)]
     if (!is.null(n))
       n <- n[order(ord)]
-    ##
+    #
     if (!is.null(event.e))
       event.e <- event.e[order(ord)]
     if (!is.null(event.c))
       event.c <- event.c[order(ord)]
     if (!is.null(event))
       event <- event[order(ord)]
-    ##
+    #
     if (!is.null(time.e))
       time.e <- time.e[order(ord)]
     if (!is.null(time.c))
       time.c <- time.c[order(ord)]
     if (!is.null(time))
       time <- time[order(ord)]
-    ##
+    #
     if (!is.null(cor))
       cor <- cor[order(ord)]
-    ##
+    #
     if (!is.null(mean.e))
       mean.e <- mean.e[order(ord)]
     if (!is.null(mean.c))
       mean.c <- mean.c[order(ord)]
-    ##
+    #
     if (!is.null(sd.e))
       sd.e <- sd.e[order(ord)]
     if (!is.null(sd.c))
@@ -544,12 +544,12 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
   
   if (!left)
     m <- metagen(-TE, seTE, studlab = studlab, level = x$level,
-                 ##
+                 #
                  level.ma = x$level.ma,
                  method.common.ci = x$method.common.ci,
                  method.random.ci = x$method.random.ci,
                  adhoc.hakn.ci = x$adhoc.hakn.ci,
-                 ##
+                 #
                  method.tau = x$method.tau, method.tau.ci = x$method.tau.ci,
                  level.hetstat = x$level.hetstat,
                  #
@@ -559,16 +559,16 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
                  prediction = prediction, level.predict = x$level.predict,
                  adhoc.hakn.pi = x$adhoc.hakn.pi,
                  seed.predict = x$seed.predict,
-                 ##
+                 #
                  null.effect = transf.null.effect)
   else
     m <- metagen(TE, seTE, studlab = studlab, level = x$level,
-                 ##
+                 #
                  level.ma = x$level.ma,
                  method.common.ci = x$method.common.ci,
                  method.random.ci = x$method.random.ci,
                  adhoc.hakn.ci = x$adhoc.hakn.ci,
-                 ##
+                 #
                  method.tau = x$method.tau, method.tau.ci = x$method.tau.ci,
                  level.hetstat = x$level.hetstat,
                  #
@@ -578,21 +578,21 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
                  prediction = prediction, level.predict = x$level.predict,
                  adhoc.hakn.pi = x$adhoc.hakn.pi,
                  seed.predict = x$seed.predict,
-                 ##
+                 #
                  null.effect = transf.null.effect)
   
   
-  ##
-  ## Calculate H, I-Squared, and Rb
-  ##
+  #
+  # Calculate H, I-Squared, and Rb
+  #
   Hres  <- list(TE = m$H, lower = m$lower.H, upper = m$upper.H)
   I2res <- list(TE = m$I2, lower = m$lower.I2, upper = m$upper.I2)
   Rbres <- list(TE = m$Rb, lower = m$lower.Rb, upper = m$upper.Rb)
   
   
-  ##
-  ## Number of filled studies
-  ##
+  #
+  # Number of filled studies
+  #
   k0 <- sum(trimfill)
   
   
@@ -600,25 +600,25 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
     exclude.na <- c(exclude, rep(NA, k0))
     exclude <- c(exclude, rep(FALSE, k0))
     TE.all <- seTE.all <- studlab.all <- rep(NA, length(exclude))
-    ##
+    #
     TE.all[exclude] <- x$TE[exclude]
     TE.all[!exclude] <- TE
-    ##
+    #
     seTE.all[exclude] <- x$seTE[exclude]
     seTE.all[!exclude] <- seTE
-    ##
+    #
     studlab.all[exclude] <- x$studlab[exclude]
     studlab.all[!exclude] <- studlab
-    ##
+    #
     if (!left)
       m <- metagen(-TE.all, seTE.all, studlab = studlab.all,
                    exclude = exclude, level = x$level,
-                   ##
+                   #
                    level.ma = x$level.ma,
                    method.common.ci = x$method.common.ci,
                    method.random.ci = x$method.random.ci,
                    adhoc.hakn.ci = x$adhoc.hakn.ci,
-                   ##
+                   #
                    method.tau = x$method.tau, method.tau.ci = x$method.tau.ci,
                    level.hetstat = x$level.hetstat,
                    #
@@ -629,17 +629,17 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
                    level.predict = x$level.predict,
                    adhoc.hakn.pi = x$adhoc.hakn.pi,
                    seed.predict = x$seed.predict,
-                   ##
+                   #
                    null.effect = transf.null.effect)
     else
       m <- metagen(TE.all, seTE.all, studlab = studlab.all,
                    exclude = exclude, level = x$level,
-                   ##
+                   #
                    level.ma = x$level.ma,
                    method.common.ci = x$method.common.ci,
                    method.random.ci = x$method.random.ci,
                    adhoc.hakn.ci = x$adhoc.hakn.ci,
-                   ##
+                   #
                    method.tau = x$method.tau, method.tau.ci = x$method.tau.ci,
                    level.hetstat = x$level.hetstat,
                    #
@@ -650,42 +650,42 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
                    level.predict = x$level.predict,
                    adhoc.hakn.pi = x$adhoc.hakn.pi,
                    seed.predict = x$seed.predict,
-                   ##
+                   #
                    null.effect = transf.null.effect)
   }
   
   
   res <- list(studlab = m$studlab,
-              ##
+              #
               sm = sm,
               null.effect = x$null.effect,
-              ##
+              #
               TE = m$TE, seTE = m$seTE,
               statistic = m$statistic, pval = m$pval,
               df = rep(NA, length(m$TE)),
               level = x$level,
               lower = m$lower, upper = m$upper,
-              ##
+              #
               three.level = FALSE,
               cluster = NULL,
-              ##
+              #
               k = m$k,
               k.study = m$k.study,
               k.all = m$k.all,
               k.TE = m$k.TE,
               k0 = k0,
-              ##
+              #
               overall = common | random,
               overall.hetstat = TRUE,
               common = common,
               random = random,
               prediction = prediction,
               backtransf = backtransf,
-              ##
+              #
               method = m$method,
               method.random = m$method.random,
               level = x$level,
-              ##
+              #
               w.common = m$w.common,
               TE.common = m$TE.common, seTE.common = m$seTE.common,
               statistic.common = m$statistic.common,
@@ -693,7 +693,7 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
               level.ma = x$level.ma,
               lower.common = m$lower.common,
               upper.common = m$upper.common,
-              ##
+              #
               w.random = m$w.random,
               TE.random = m$TE.random, seTE.random = m$seTE.random,
               statistic.random = m$statistic.random,
@@ -702,17 +702,17 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
               method.random.ci = x$method.random.ci,
               df.random = m$df.random,
               lower.random = m$lower.random, upper.random = m$upper.random,
-              ##
+              #
               seTE.classic = m$seTE.classic,
-              ##
+              #
               adhoc.hakn.ci = m$adhoc.hakn.ci,
               df.hakn = m$df.hakn,
               seTE.hakn.ci = m$seTE.hakn.ci,
               seTE.hakn.adhoc.ci = m$seTE.hakn.adhoc.ci,
-              ##
+              #
               df.kero = m$df.kero,
               seTE.kero = m$seTE.kero,
-              ##
+              #
               method.predict = m$method.predict,
               adhoc.hakn.pi = m$adhoc.hakn.pi,
               seTE.predict = m$seTE.predict,
@@ -723,9 +723,9 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
               seTE.hakn.pi = m$seTE.hakn.pi,
               seTE.hakn.adhoc.pi = m$seTE.hakn.adhoc.pi,
               seed.predict = m$seed.predict,
-              ##
+              #
               Q = m$Q, df.Q = m$df.Q, pval.Q = m$pval.Q,
-              ##
+              #
               method.tau = m$method.tau, method.tau.ci = m$method.tau.ci,
               level.hetstat = m$level.hetstat,
               tau2 = m$tau2,
@@ -740,19 +740,19 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
               method.I2 = m$method.I2,
               #
               H = Hres$TE, lower.H = Hres$lower, upper.H = Hres$upper,
-              ##
+              #
               I2 = I2res$TE, lower.I2 = I2res$lower, upper.I2 = I2res$upper,
-              ##
+              #
               Rb = Rbres$TE, lower.Rb = Rbres$lower, upper.Rb = Rbres$upper,
-              ##
+              #
               method.bias = m$method.bias,
-              ##
+              #
               text.common = x$text.common,
               text.random = x$text.random,
               text.predict = x$text.predict,
               text.w.common = x$text.w.common,
               text.w.random = x$text.w.random,
-              ##
+              #
               title = x$title,
               complab = x$complab,
               outclab = x$outclab,
@@ -760,55 +760,55 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
               label.c = x$label.c,
               label.left = x$label.left,
               label.right = x$label.right,
-              ##
+              #
               keepdata = FALSE,
               exclude = exclude.na,
-              ##
+              #
               left = left,
               ma.common = ma.common,
               type = type,
               n.iter.max = n.iter.max,
               n.iter = n.iter,
-              ##
+              #
               trimfill = trimfill,
-              ##
+              #
               class.x = class(x)[1]
               )
-  ##
+  #
   res$pscale <- pscale
   res$irscale <- irscale
   res$irunit <- irunit
-  ##
+  #
   res$n.e <- n.e
   res$n.c <- n.c
   res$n <- n
-  ##
+  #
   res$event.e <- event.e
   res$event.c <- event.c
   res$event <- event
-  ##
+  #
   res$time.e <- time.e
   res$time.c <- time.c
   res$time <- time
-  ##
+  #
   res$cor <- cor
-  ##
+  #
   res$mean.e <- mean.e
   res$mean.c <- mean.c
-  ##
+  #
   res$sd.e <- sd.e
   res$sd.c <- sd.c
-  ##
+  #
   call <- match.call()
   res$version <- packageDescription("meta")$Version
-  ##
-  ## Backward compatibility
-  ##
+  #
+  # Backward compatibility
+  #
   res <- backward(res)
-  ##
+  #
   res$ma.fixed <- res$ma.common
   res$hakn <- m$hakn
-  ##  
+  #  
   class(res) <- c("metagen", "meta", "trimfill")
   
   
@@ -828,11 +828,11 @@ trimfill.default <- function(x, seTE, left = NULL, ma.common = TRUE,
                              sm = "", studlab = NULL,
                              level = 0.95, level.ma = level,
                              common = FALSE, random = TRUE,
-                             ##
+                             #
                              method.common.ci = gs("method.common.ci"),
                              method.random.ci = gs("method.random.ci"),
                              adhoc.hakn.ci = gs("adhoc.hakn.ci"),
-                             ##
+                             #
                              method.tau = gs("method.tau"),
                              method.tau.ci =
                                if (method.tau == "DL") "J" else "QP",
@@ -842,48 +842,48 @@ trimfill.default <- function(x, seTE, left = NULL, ma.common = TRUE,
                              method.predict = gs("method.predict"),
                              adhoc.hakn.pi = gs("adhoc.hakn.pi"),
                              seed.predict = NULL,
-                             ##
+                             #
                              backtransf = TRUE, pscale = 1,
                              irscale = 1, irunit = "person-years",
                              silent = TRUE, ...) {
   
   
-  ##
-  ##
-  ## (1) Check essential arguments
-  ##
-  ##
+  #
+  #
+  # (1) Check essential arguments
+  #
+  #
   k.All <- length(x)
-  ##
+  #
   chknumeric(x)
   chknumeric(seTE)
   chknull(sm)
-  ##
+  #
   fun <- "trimfill"
   chklength(seTE, k.All, fun)
-  ##
+  #
   if (!is.null(studlab))
     chklength(studlab, k.All, fun)
   else
     studlab <- seq(along = x)
-  ##
+  #
   if (is.null(sm))
     sm <- ""
   
   
-  ##
-  ##
-  ## (2) Do meta-analysis
-  ##
-  ##
+  #
+  #
+  # (2) Do meta-analysis
+  #
+  #
   m <- metagen(x, seTE, studlab = studlab, sm = sm,
                level = level, level.ma = level.ma,
                common = common, random = random,
-               ##
+               #
                method.common.ci = method.common.ci,
                method.random.ci = method.random.ci,
                adhoc.hakn.ci = adhoc.hakn.ci,
-               ##
+               #
                method.tau = method.tau, method.tau.ci = method.tau.ci,
                level.hetstat = level.hetstat,
                #
@@ -894,17 +894,17 @@ trimfill.default <- function(x, seTE, left = NULL, ma.common = TRUE,
                adhoc.hakn.pi = adhoc.hakn.pi,
                level.predict = level.predict,
                seed.predict = seed.predict,
-               ##
+               #
                backtransf = backtransf, pscale = pscale,
                irscale = irscale, irunit = irunit,
                ...)
   
   
-  ##
-  ##
-  ## (3) Run trim-and-fill method
-  ##
-  ##
+  #
+  #
+  # (3) Run trim-and-fill method
+  #
+  #
   res <- trimfill(m, left = left, ma.common = ma.common,
                   type = type, n.iter.max = n.iter.max,
                   silent = silent, ...)

@@ -638,7 +638,7 @@
 #' @export metabin
 
 metabin <- function(event.e, n.e, event.c, n.c, studlab,
-                    ##
+                    #
                     data = NULL, subset = NULL, exclude = NULL,
                     cluster = NULL, rho = 0,
                     #
@@ -657,12 +657,12 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                     incr.c = if (length(incr) > 1) incr else NULL,
                     #
                     level = gs("level"),
-                    ##
+                    #
                     MH.exact = gs("MH.exact"), RR.Cochrane = gs("RR.Cochrane"),
                     Q.Cochrane =
                       gs("Q.Cochrane") & method == "MH" & method.tau == "DL",
                     model.glmm = gs("model.glmm"),
-                    ##
+                    #
                     common = gs("common"),
                     random = gs("random") | !is.null(tau.preset),
                     overall = common | random,
@@ -672,7 +672,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                       else
                         gs("overall.hetstat"),
                     prediction = gs("prediction") | !missing(method.predict),
-                    ##
+                    #
                     method.tau,
                     method.tau.ci = gs("method.tau.ci"),
                     level.hetstat = gs("level.hetstat"),
@@ -686,25 +686,25 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                     method.common.ci = gs("method.common.ci"),
                     method.random.ci = gs("method.random.ci"),
                     adhoc.hakn.ci = gs("adhoc.hakn.ci"),
-                    ##
+                    #
                     level.predict = gs("level.predict"),
                     method.predict = gs("method.predict"),
                     adhoc.hakn.pi = gs("adhoc.hakn.pi"),
                     seed.predict = NULL,
-                    ##
+                    #
                     method.bias = ifelse(sm == "OR", "Harbord",
                                   ifelse(sm == "DOR", "Deeks",
                                          gs("method.bias"))),
-                    ##
+                    #
                     backtransf = gs("backtransf"),
                     pscale = 1,
-                    ##
+                    #
                     text.common = gs("text.common"),
                     text.random = gs("text.random"),
                     text.predict = gs("text.predict"),
                     text.w.common = gs("text.w.common"),
                     text.w.random = gs("text.w.random"),
-                    ##
+                    #
                     title = gs("title"), complab = gs("complab"),
                     outclab = "",
                     #
@@ -720,24 +720,24 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                     test.subgroup = gs("test.subgroup"),
                     prediction.subgroup = gs("prediction.subgroup"),
                     seed.predict.subgroup = NULL,
-                    ##
+                    #
                     byvar, hakn, adhoc.hakn,
-                    ##
+                    #
                     print.CMH = gs("print.CMH"),
-                    ##
+                    #
                     keepdata = gs("keepdata"),
                     warn = gs("warn"), warn.deprecated = gs("warn.deprecated"),
-                    ##
+                    #
                     control = NULL,
                     ...
                     ) {
 
 
-  ##
-  ##
-  ## (1) Check arguments
-  ##
-  ##
+  #
+  #
+  # (1) Check arguments
+  #
+  #
   
   args <- list(...)
   nam.args <- names(args)
@@ -794,7 +794,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   missing.cluster <- missing(cluster)
   #
   chknumeric(rho, min = -1, max = 1)
-  ##
+  #
   chknull(sm)
   sm <- setchar(sm, gs("sm4bin"))
   #
@@ -825,7 +825,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   }
   #
   method.tau <- setchar(method.tau, c(gs("meth4tau"), "KD"))
-  ##
+  #
   tau.common <- replaceNULL(tau.common, FALSE)
   chklogical(tau.common)
   #
@@ -833,25 +833,25 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   #
   chklogical(prediction)
   chklevel(level.predict)
-  ##
+  #
   method.predict <- setchar(method.predict, gs("meth4pi"))
-  ##
+  #
   method.tau <-
     set_method_tau(method.tau, missing.method.tau,
                    method.predict, missing.method.predict)
   method.predict <-
     set_method_predict(method.predict, missing.method.predict,
                        method.tau, missing.method.tau)
-  ##
+  #
   if (any(method.predict == "NNF"))
     is_installed_package("pimeta", argument = "method.predict", value = "NNF")
-  ##
+  #
   adhoc.hakn.pi <- setchar(replaceNA(adhoc.hakn.pi, ""), gs("adhoc4hakn.pi"))
   #
   chklogical(backtransf)
-  ##
+  #
   chknumeric(pscale, length = 1)
-  ##
+  #
   if (!is.null(text.common))
     chkchar(text.common, length = 1)
   if (!is.null(text.random))
@@ -862,13 +862,13 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     chkchar(text.w.common, length = 1)
   if (!is.null(text.w.random))
     chkchar(text.w.random, length = 1)
-  ##
+  #
   chklogical(keepdata)
-  ##
-  ## Additional arguments / checks for metabin objects
-  ##
+  #
+  # Additional arguments / checks for metabin objects
+  #
   fun <- "metabin"
-  ##
+  #
   chklogical(warn)
   if (sm != "RD" & pscale != 1) {
     if (warn)
@@ -878,7 +878,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   }
   #
   method.incr <- setchar(method.incr, gs("meth4incr"))
-  ##
+  #
   chklogical(allstudies)
   #
   chklogical(MH.exact)
@@ -890,13 +890,13 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
             call. = FALSE)
     Q.Cochrane <- FALSE
   }
-  ##
+  #
   if (length(model.glmm) == 0)
     model.glmm <- gs("model.glmm")
   model.glmm <- setchar(model.glmm, c("UM.FS", "UM.RS", "CM.EL", "CM.AL", ""))
   #
   chklogical(print.CMH)
-  ##
+  #
   if (sm == "ASD") {
     method <- "Inverse"
     if (!missing.Q.Cochrane && Q.Cochrane)
@@ -906,25 +906,25 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
               call. = FALSE)
     Q.Cochrane <- FALSE
   }
-  ##
-  ## Check for deprecated arguments in '...'
-  ##
+  #
+  # Check for deprecated arguments in '...'
+  #
   chklogical(warn.deprecated)
-  ##
+  #
   level.ma <- deprecated(level.ma, missing.level.ma, args, "level.comb",
                          warn.deprecated)
   chklevel(level.ma)
-  ##
+  #
   common <- deprecated(common, missing.common, args, "comb.fixed",
                        warn.deprecated)
   common <- deprecated(common, missing.common, args, "fixed",
                        warn.deprecated)
   chklogical(common)
-  ##
+  #
   random <- deprecated(random, missing.random, args, "comb.random",
                        warn.deprecated)
   chklogical(random)
-  ##
+  #
   method.random.ci <-
     deprecated2(method.random.ci, missing.method.random.ci,
                 hakn, missing.hakn,
@@ -935,7 +935,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     else
       method.random.ci <- "classic"
   method.random.ci <- setchar(method.random.ci, gs("meth4random.ci"))
-  ##
+  #
   adhoc.hakn.ci <-
     deprecated2(adhoc.hakn.ci, missing.adhoc.hakn.ci,
                 adhoc.hakn, missing.adhoc.hakn, warn.deprecated)
@@ -945,27 +945,27 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   subgroup.name <-
     deprecated(subgroup.name, missing.subgroup.name, args, "bylab",
                warn.deprecated)
-  ##
+  #
   print.subgroup.name <-
     deprecated(print.subgroup.name, missing.print.subgroup.name,
                args, "print.byvar", warn.deprecated)
   print.subgroup.name <-
     replaceNULL(print.subgroup.name, gs("print.subgroup.name"))
   chklogical(print.subgroup.name)
-  ##
+  #
   sep.subgroup <-
     deprecated(sep.subgroup, missing.sep.subgroup, args, "byseparator",
                warn.deprecated)
   if (!is.null(sep.subgroup))
     chkchar(sep.subgroup, length = 1)
-  ##
+  #
   RR.Cochrane <-
     deprecated(RR.Cochrane, missing.RR.Cochrane, args, "RR.cochrane",
                warn.deprecated)
   chklogical(RR.Cochrane)
-  ##
-  ## Some more checks
-  ##
+  #
+  # Some more checks
+  #
   chklogical(overall)
   chklogical(overall.hetstat)
   #
@@ -979,11 +979,11 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     warn_ignore_input(allincr, TRUE, txt.ignore)
   
   
-  ##
-  ##
-  ## (2) Read data
-  ##
-  ##
+  #
+  #
+  # (2) Read data
+  #
+  #
   
   nulldata <- is.null(data)
   sfsp <- sys.frame(sys.parent())
@@ -1213,10 +1213,10 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   #
   subset <- catch("subset", mc, data, sfsp)
   missing.subset <- is.null(subset)
-  ##
+  #
   exclude <- catch("exclude", mc, data, sfsp)
   missing.exclude <- is.null(exclude)
-  ##
+  #
   cluster <- catch("cluster", mc, data, sfsp)
   with.cluster <- !is.null(cluster)
   #
@@ -1269,11 +1269,11 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   n.c     <- int2num(n.c)
   
   
-  ##
-  ##
-  ## (3) Check length of essential variables
-  ##
-  ##
+  #
+  #
+  # (3) Check length of essential variables
+  #
+  #
   
   chklength(n.e, k.All, fun)
   chklength(event.c, k.All, fun)
@@ -1319,9 +1319,9 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     chklogical(test.subgroup)
     chklogical(prediction.subgroup)
   }
-  ##
-  ## Additional checks
-  ##
+  #
+  # Additional checks
+  #
   if (!by & tau.common) {
     if (warn)
       warning("Value for argument 'tau.common' set to FALSE as ",
@@ -1350,22 +1350,22 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   }
   
   
-  ##
-  ##
-  ## (4) Subset, exclude studies, and subgroups
-  ##
-  ##
+  #
+  #
+  # (4) Subset, exclude studies, and subgroups
+  #
+  #
   
   if (!missing.subset)
     if ((is.logical(subset) & (sum(subset) > k.All)) ||
         (length(subset) > k.All))
       stop("Length of subset is larger than number of studies.")
-  ##
+  #
   if (!missing.exclude) {
     if ((is.logical(exclude) & (sum(exclude) > k.All)) ||
         (length(exclude) > k.All))
       stop("Length of argument 'exclude' is larger than number of studies.")
-    ##
+    #
     exclude2 <- rep(FALSE, k.All)
     exclude2[exclude] <- TRUE
     exclude <- exclude2
@@ -1374,19 +1374,19 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     exclude <- rep(FALSE, k.All)
   
   
-  ##
-  ##
-  ## (5) Store complete dataset in list object data
-  ##     (if argument keepdata is TRUE)
-  ##
-  ##
+  #
+  #
+  # (5) Store complete dataset in list object data
+  #     (if argument keepdata is TRUE)
+  #
+  #
   
   if (keepdata) {
     if (nulldata)
       data <- data.frame(.studlab = studlab)
     else
       data$.studlab <- studlab
-    ##
+    #
     data$.event.e <- event.e
     data$.n.e <- n.e
     data$.event.c <- event.c
@@ -1394,10 +1394,10 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     #
     data$.incr.e <- NA
     data$.incr.c <- NA
-    ##
+    #
     if (by)
       data$.subgroup <- subgroup
-    ##
+    #
     if (!missing.subset) {
       if (length(subset) == dim(data)[1])
         data$.subset <- subset
@@ -1406,10 +1406,10 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
         data$.subset[subset] <- TRUE
       }
     }
-    ##
+    #
     if (!missing.exclude)
       data$.exclude <- exclude
-    ##
+    #
     if (with.cluster)
       data$.id <- data$.cluster <- cluster
     #
@@ -1421,11 +1421,11 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   }
   
   
-  ##
-  ##
-  ## (6) Use subset for analysis
-  ##
-  ##
+  #
+  #
+  # (6) Use subset for analysis
+  #
+  #
   
   if (!missing.subset) {
     event.e <- event.e[subset]
@@ -1433,7 +1433,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     event.c <- event.c[subset]
     n.c <- n.c[subset]
     studlab <- studlab[subset]
-    ##
+    #
     cluster <- cluster[subset]
     exclude <- exclude[subset]
     #
@@ -1468,16 +1468,16 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
         overall.hetstat <- TRUE
     }
   }
-  ##
-  ## Determine total number of studies
-  ##
+  #
+  # Determine total number of studies
+  #
   k.all <- length(event.e)
-  ##
+  #
   if (k.all == 0)
     stop("No studies to combine in meta-analysis.")
-  ##
-  ## No meta-analysis for a single study
-  ##
+  #
+  # No meta-analysis for a single study
+  #
   if (k.all == 1) {
     common <- FALSE
     random <- FALSE
@@ -1485,10 +1485,10 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     overall <- FALSE
     overall.hetstat <- FALSE
   }
-  ##
+  #
   if (by) {
     chkmiss(subgroup)
-    ##
+    #
     if (missing.subgroup.name & is.null(subgroup.name)) {
       if (!missing.subgroup)
         subgroup.name <- byvarname("subgroup", mc)
@@ -1496,7 +1496,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
         subgroup.name <- byvarname("byvar", mc)
     }
   }
-  ##
+  #
   if (!is.null(subgroup.name))
     chkchar(subgroup.name, length = 1)
   
@@ -1682,63 +1682,63 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   }
   
   
-  ##
-  ##
-  ## (8) Calculate results for individual studies
-  ##
-  ##
+  #
+  #
+  # (8) Calculate results for individual studies
+  #
+  #
   
   n11 <- event.e * incl
   n21 <- event.c * incl
   n1. <- n.e * incl
   n2. <- n.c * incl
-  ##
+  #
   n.. <- n1. + n2.
   n12 <- n1. - n11
   n22 <- n2. - n21
   n.1 <- n11 + n21
   n.2 <- n12 + n22
-  ##
+  #
   Q.CMH <- (sum((n11 - n1. * n.1 / n..)[!exclude], na.rm = TRUE)^2 /
             sum((n1. * n2. * n.1 * n.2 / n..^3)[!exclude], na.rm = TRUE))
-  ##
+  #
   p.e <- (n11 + incr.e) / (n1. + 2 * incr.e)
   p.c <- (n21 + incr.c) / (n2. + 2 * incr.c)
-  ##
-  ## Estimation of treatment effects in individual studies
-  ##
+  #
+  # Estimation of treatment effects in individual studies
+  #
   if (sm %in% c("OR", "DOR")) {
     if (method != "Peto") {
-      ##
-      ## Cooper & Hedges (1994), p. 251-2
-      ##
+      #
+      # Cooper & Hedges (1994), p. 251-2
+      #
       TE <- log(((n11 + incr.e) * (n22 + incr.c)) /
                 ((n12 + incr.e) * (n21 + incr.c)))
       seTE <- sqrt((1 / (n11 + incr.e) + 1 / (n12 + incr.e) +
                     1 / (n21 + incr.c) + 1 / (n22 + incr.c)))
     }
     else {
-      ##
-      ## Cooper & Hedges (1994), p. 252
-      ##
+      #
+      # Cooper & Hedges (1994), p. 252
+      #
       O <- n11
       E <- n1. * n.1 / n..
       V <- n1. * n2. * n.1 * n.2 / ((n.. - 1) * n..^2)
-      ##
+      #
       TE <- (O - E) / V
       seTE <- sqrt(1 / V)
     }
   }
   else if (sm %in% c("RR", "VE")) {
-    ##
-    ## Cooper & Hedges (1994), p. 247-8
-    ##
+    #
+    # Cooper & Hedges (1994), p. 247-8
+    #
     if (!RR.Cochrane) {
       TE <- log(((n11 + incr.e) / (n1. + incr.e)) /
                 ((n21 + incr.c) / (n2. + incr.c)))
-      ##
-      ## Hartung & Knapp (2001), Stat Med, equation (18)
-      ##
+      #
+      # Hartung & Knapp (2001), Stat Med, equation (18)
+      #
       seTE <- sqrt((1 / (n11 + incr.e * (!allevents)) - 1 / (n1. + incr.e) +
                     1 / (n21 + incr.c * (!allevents)) - 1 / (n2. + incr.c)))
     }
@@ -1750,17 +1750,17 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     }
   }
   else if (sm == "RD") {
-    ##
-    ## Cooper & Hedges (1994), p. 246-7
-    ##
+    #
+    # Cooper & Hedges (1994), p. 246-7
+    #
     TE <- n11 / n1. - n21 / n2.
     seTE <- sqrt((n11 + incr.e) * (n12 + incr.e) / (n1. + 2 * incr.e)^3 +
                  (n21 + incr.c) * (n22 + incr.c) / (n2. + 2 * incr.c)^3)
   }
   else if (sm == "ASD") {
-    ##
-    ## Ruecker et al. (2009)
-    ##
+    #
+    # Ruecker et al. (2009)
+    #
     TE <- asin(sqrt(n11 / n1.)) - asin(sqrt(n21 / n2.))
     seTE <- sqrt(0.25 * (1 / n1. + 1 / n2.))
   }
@@ -1770,32 +1770,32 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   TE[is.nan(TE)] <- NA
   
   
-  ##
-  ##
-  ## (9) Additional checks for three-level model
-  ##
-  ##
+  #
+  #
+  # (9) Additional checks for three-level model
+  #
+  #
   
   three.level <- FALSE
   sel.ni <- !is.infinite(TE) & !is.infinite(seTE)
-  ##
-  ## Only conduct three-level meta-analysis if variable 'cluster'
-  ## contains duplicate values after removing inestimable study
-  ## results standard errors
-  ##
+  #
+  # Only conduct three-level meta-analysis if variable 'cluster'
+  # contains duplicate values after removing inestimable study
+  # results standard errors
+  #
   if (with.cluster &&
       length(unique(cluster[sel.ni])) != length(cluster[sel.ni]))
     three.level <- TRUE
-  ##
+  #
   if (three.level) {
     chkmlm(method.tau, missing.method.tau, method.predict,
            method, missing.method)
-    ##
+    #
     common <- FALSE
     method <- "Inverse"
     is.glmm <- FALSE
     is.lrp <- FALSE
-    ##
+    #
     if (!(method.tau %in% c("REML", "ML")))
       method.tau <- "REML"
   }
@@ -1813,12 +1813,12 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   }
   
   
-  ##
-  ##
-  ## (10) Additional checks for GLMM, penalised logistic regression,
-  ##      Peto method or SSW
-  ##
-  ##
+  #
+  #
+  # (10) Additional checks for GLMM, penalised logistic regression,
+  #      Peto method or SSW
+  #
+  #
   
   if (sm != "OR") {
     if (method == "Peto")
@@ -1832,19 +1832,19 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
       stop("Logistic regression with penalised likelihood only possible with ",
            "argument 'sm = \"OR\"'.")
   }
-  ##
+  #
   if (is.glmm) {
     chkglmm(sm, method.tau, method.random.ci, method.predict,
             adhoc.hakn.ci, adhoc.hakn.pi,
             "OR")
-    ##
+    #
     if (!is.null(TE.tau)) {
       if (warn)
         warning("Argument 'TE.tau' not considered for GLMM.",
                 call. = FALSE)
       TE.tau <- NULL
     }
-    ##
+    #
     if (!is.null(tau.preset)) {
       if (warn)
         warning("Argument 'tau.preset' not considered for GLMM.",
@@ -1876,11 +1876,11 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     tau.preset <- NULL
     method.I2 <- "Q"
   }
-  ##
-  ## No need to add anything to cell counts for
-  ##  (i)  arcsine difference as summary measure
-  ##  (ii) Peto method, GLMM, or penalised logistic regression
-  ##
+  #
+  # No need to add anything to cell counts for
+  #  (i)  arcsine difference as summary measure
+  #  (ii) Peto method, GLMM, or penalised logistic regression
+  #
   if (!avail.incr.both) {
     if (sm == "ASD" | method %in% c("Peto", "GLMM", "LRP")) {
       if ((!missing.incr & any(incr != 0)) |
@@ -1904,15 +1904,15 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   }
   
   
-  ##
-  ##
-  ## (11) Do meta-analysis
-  ##
-  ##
+  #
+  #
+  # (11) Do meta-analysis
+  #
+  #
   
   k <- sum(!is.na(event.e[!exclude]) & !is.na(event.c[!exclude]) &
            !is.na(n.e[!exclude]) & !is.na(n.c[!exclude]))
-  ##
+  #
   for (i in seq_along(method.random.ci))
     if (k == 1 & method.random.ci[i] == "HK")
       method.random.ci[i] <- "classic"
@@ -1920,23 +1920,23 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   if (method == "MH") {
     incr.e <- incr.e * (!MH.exact)
     incr.c <- incr.c * (!MH.exact)
-    ##
+    #
     if (sm %in% c("OR", "DOR")) {
-      ##
-      ## Cooper & Hedges (1994), p. 253-5 (MH.exact == TRUE)
-      ##
-      ## Bradburn, Deeks, Altman, Stata-procedure "metan"
-      ## und RevMan 3.1 (MH.exact == FALSE)
-      ##
+      #
+      # Cooper & Hedges (1994), p. 253-5 (MH.exact == TRUE)
+      #
+      # Bradburn, Deeks, Altman, Stata-procedure "metan"
+      # und RevMan 3.1 (MH.exact == FALSE)
+      #
       A <- (n11 + incr.e) * (n22 + incr.c) / (n.. + 2 * incr.e + 2 * incr.c)
       B <- (n11 + incr.e + n22 + incr.c) / (n.. + 2 * incr.e + 2 * incr.c)
       C <- (n12 + incr.e) * (n21 + incr.c) / (n.. + 2 * incr.e + 2 * incr.c)
       D <- (n12 + incr.e + n21 + incr.c) / (n.. + 2 * incr.e + 2 * incr.c)
-      ##
+      #
       A[exclude] <- B[exclude] <- C[exclude] <- D[exclude] <- 0
-      ##
-      ## Cooper & Hedges (1994), p. 265-6
-      ##
+      #
+      # Cooper & Hedges (1994), p. 265-6
+      #
       w.common <- C
       TE.common <- log(sum(A, na.rm = TRUE) / sum(C, na.rm = TRUE))
       seTE.common <- sqrt((1 / (2 * sum(A, na.rm = TRUE)^2)  *
@@ -1946,45 +1946,45 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                             exp(TE.common)^2 * sum(C * D, na.rm = TRUE))))
     }
     else if (sm %in% c("RR", "VE")) {
-      ##
-      ## Greenland, Robins (1985) (MH.exact == TRUE)
-      ##
-      ## Bradburn, Deeks, Altman, Stata-procedure "metan"
-      ## (MH.exact == FALSE)
-      ##
+      #
+      # Greenland, Robins (1985) (MH.exact == TRUE)
+      #
+      # Bradburn, Deeks, Altman, Stata-procedure "metan"
+      # (MH.exact == FALSE)
+      #
       D <- ((n1. + 2 * incr.e) * (n2. + 2 * incr.c) * (n.1 + incr.e + incr.c) -
             (n11 + incr.e) * (n21 + incr.c) * (n.. + 2 * incr.e + 2 * incr.c)) /
         (n.. + 2 * incr.e + 2 * incr.c)^2
       R <- (n11 + incr.e) * (n2. + 2 * incr.c) / (n.. + 2 * incr.e + 2 * incr.c)
       S <- (n21 + incr.c) * (n1. + 2 * incr.e) / (n.. + 2 * incr.e + 2 * incr.c)
-      ##
+      #
       D[exclude] <- R[exclude] <- S[exclude] <- 0
-      ##
+      #
       w.common <- S
       TE.common <- log(sum(R, na.rm = TRUE) / sum(S, na.rm = TRUE))
       seTE.common <- sqrt(sum(D, na.rm = TRUE) / (sum(R, na.rm = TRUE) *
                                                   sum(S, na.rm = TRUE)))
     }
     else if (sm == "RD") {
-      ##
-      ## Jon Deeks (1999) (MH.exact == TRUE)
-      ##
-      ## Bradburn, Deeks, Altman, Stata-procedure "metan"
-      ## und RevMan 3.1 (MH.exact == FALSE)
-      ##
+      #
+      # Jon Deeks (1999) (MH.exact == TRUE)
+      #
+      # Bradburn, Deeks, Altman, Stata-procedure "metan"
+      # und RevMan 3.1 (MH.exact == FALSE)
+      #
       R <- ((n11 + incr.e) * (n12 + incr.e) * (n2. + 2 * incr.c)^3 +
             (n21 + incr.c) * (n22 + incr.c) * (n1. + 2 * incr.e)^3) /
         ((n1. + 2 * incr.e) * (n2. + 2 * incr.c) * (n.. + 2 * incr.e + 2 * incr.c)^2)
       S <- (n1. + 2 * incr.e) * (n2. + 2 * incr.c) /
         (n.. + 2 * incr.e + 2 * incr.c)
-      ##
+      #
       R[exclude] <- S[exclude] <- 0
-      ##
+      #
       w.common <- S
       TE.common <- weighted.mean(TE, w.common, na.rm = TRUE)
       seTE.common <- sqrt(sum(R, na.rm = TRUE) / sum(S, na.rm = TRUE)^2)
     }
-    ##
+    #
     w.common[is.na(w.common)] <- 0
   }
   else if (method == "Peto") {
@@ -1992,21 +1992,21 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     w.common[exclude] <- 0
     TE.common   <- weighted.mean(TE, w.common, na.rm = TRUE)
     seTE.common <- sqrt(1 / sum(w.common, na.rm = TRUE))
-    ##
+    #
     w.common[is.na(w.common)] <- 0
   }
   else if (is.glmm) {
     list.bin <- list(ai = event.e[!exclude], n1i = n.e[!exclude],
                      ci = event.c[!exclude], n2i = n.c[!exclude],
                      measure = "OR", model = model.glmm)
-    ##
+    #
     use.random <-
       sum(!exclude) > 1 &
       !((sum(event.e[!exclude], na.rm = TRUE) == 0 &
          sum(event.c[!exclude], na.rm = TRUE) == 0) |
         (!any(event.e[!exclude] != n.e[!exclude]) |
          !any(event.c[!exclude] != n.c[!exclude])))
-    ##
+    #
     res.glmm <-
       runGLMM(list.bin,
               method.tau = method.tau,
@@ -2015,10 +2015,10 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
               control = list(control),
               use.random = use.random,
               warn = warn)
-    ##
+    #
     TE.common   <- as.numeric(res.glmm$glmm.common$b)
     seTE.common <- as.numeric(res.glmm$glmm.common$se)
-    ##
+    #
     w.common <- rep(NA, length(event.e))
   }
   else if (is.lrp) {
@@ -2037,10 +2037,10 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     TE.common <- weighted.mean(TE, w.common, na.rm = TRUE)
     seTE.common <- sqrt(sum(w.common^2 * seTE^2, na.rm = TRUE) /
                         sum(w.common, na.rm = TRUE)^2)
-    ##
+    #
     w.common[is.na(w.common)] <- 0
   }
-  ##
+  #
   m <- metagen(TE, seTE, studlab,
                exclude = if (missing.exclude) NULL else exclude,
                cluster = cluster, rho = rho,
@@ -2050,13 +2050,13 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                #
                sm = sm,
                level = level,
-               ##
+               #
                common = common,
                random = random,
                overall = overall,
                overall.hetstat = overall.hetstat,
                prediction = prediction,
-               ##
+               #
                method.tau = if (is.glmm | is.lrp) "DL" else method.tau,
                method.tau.ci = if (is.glmm | is.lrp) "" else method.tau.ci,
                level.hetstat = level.hetstat,
@@ -2071,20 +2071,20 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                method.common.ci = method.common.ci,
                method.random.ci = method.random.ci,
                adhoc.hakn.ci = adhoc.hakn.ci,
-               ##
+               #
                level.predict = level.predict,
                method.predict = method.predict,
                adhoc.hakn.pi = adhoc.hakn.pi,
                seed.predict = seed.predict,
-               ##
+               #
                method.bias = method.bias,
-               ##
+               #
                backtransf = backtransf,
-               ##
+               #
                text.common = text.common, text.random = text.random,
                text.predict = text.predict,
                text.w.common = text.w.common, text.w.random = text.w.random,
-               ##
+               #
                title = title, complab = complab, outclab = outclab,
                #
                label.e = label.e, label.c = label.c,
@@ -2094,16 +2094,16 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                #
                keepdata = FALSE,
                warn = warn,
-               ##
+               #
                control = control)
-  ##
+  #
   if (method == "SSW") {
     w.random <- n.e * n.c / (n.e + n.c)
     w.random[exclude] <- 0
     TE.random <- weighted.mean(TE, w.random, na.rm = TRUE)
     seTE.random <- sqrt(sum(w.random^2 * (seTE^2 + m$tau^2), na.rm = TRUE) /
                           sum(w.random, na.rm = TRUE)^2)
-    ##
+    #
     w.random[is.na(w.random)] <- 0
   }
   #
@@ -2115,11 +2115,11 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                    method.I2, level.hetstat, subgroup, control)
   
   
-  ##
-  ##
-  ## (12) Generate R object
-  ##
-  ##
+  #
+  #
+  # (12) Generate R object
+  #
+  #
   
   res <- list(event.e = event.e, n.e = n.e,
               event.c = event.c, n.c = n.c,
@@ -2135,10 +2135,10 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
               print.CMH = print.CMH,
               incr.e = incr.e, incr.c = incr.c,
               k.MH = if (method == "MH") sum(w.common > 0) else NA)
-  ##
-  ## Add meta-analysis results
-  ## (after removing unneeded list elements)
-  ##
+  #
+  # Add meta-analysis results
+  # (after removing unneeded list elements)
+  #
   m$method <- NULL
   m$method.random <- NULL
   m$n.e <- NULL
@@ -2150,13 +2150,13 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   m$method.mean <- NULL
   m$approx.TE <- NULL
   m$approx.seTE <- NULL
-  ##
+  #
   res <- c(res, m)
-  ##
-  ## Add data
-  ##
+  #
+  # Add data
+  #
   res$TE.tau <- TE.tau
-  ##
+  #
   res$pscale <- pscale
   #
   if (is.pairwise | data.pairwise) {
@@ -2165,7 +2165,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   }
   #
   res$call <- match.call()
-  ##
+  #
   if (method %in% c("MH", "Peto", "GLMM", "LRP", "SSW")) {
     res <- ci2meta(res, ci.c = ci(TE.common, seTE.common, level = level.ma))
     res$w.common <- w.common
@@ -2175,13 +2175,13 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     res$method.tau <- method.tau
     res <- addGLMM(res, res.glmm, method.I2)
     res$model.glmm <- model.glmm
-    ##
+    #
     if (by) {
       n.subgroups <- length(unique(subgroup[!exclude]))
       if (n.subgroups > 1)
         subgroup.glmm <-
           factor(subgroup[!exclude], bylevs(subgroup[!exclude]))
-      ##
+      #
       hcc <-
         hccGLMM(
           res,
@@ -2221,17 +2221,17 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
                                          m$k - 1, Inf)))
     res$w.random <- w.random
   }
-  ##
+  #
   if (keepdata) {
     res$data <- data
     if (!missing.subset)
       res$subset <- subset
   }
-  ##
+  #
   class(res) <- c(fun, "meta")
-  ##
-  ## Add results from subgroup analysis
-  ##
+  #
+  # Add results from subgroup analysis
+  #
   if (by) {
     res$subgroup <- subgroup
     res$subgroup.name <- subgroup.name
@@ -2240,7 +2240,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     res$test.subgroup <- test.subgroup
     res$prediction.subgroup <- prediction.subgroup
     res$tau.common <- tau.common
-    ##
+    #
     if (!tau.common) {
       res <- c(res, subgroup(res, seed = seed.predict.subgroup))
       if (res$three.level)
@@ -2262,19 +2262,19 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
         res <-
           c(res, subgroup(res, hcc$tau.resid, seed = seed.predict.subgroup))
     }
-    ##
+    #
     if (tau.common && is.null(tau.preset))
       res <- addHet(res, hcc, !(is.glmm | is.lrp))
-    ##
+    #
     res$n.w <- NULL
     res$event.w <- NULL
-    ##
+    #
     res$n.harmonic.mean.w <- NULL
-    ##
+    #
     res$time.e.w <- NULL
     res$time.c.w <- NULL
     res$t.harmonic.mean.w <- NULL
-    ##
+    #
     res <- setNAwithin(res, res$three.level | is.glmm)
   }
   #
@@ -2296,11 +2296,11 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     #
     res$version.brglm2 <- packageDescription("brglm2")$Version
   }
-  ##
-  ## Backward compatibility
-  ##
+  #
+  # Backward compatibility
+  #
   res <- backward(res)
-  ##
+  #
   class(res) <- c(fun, "meta")
   
   

@@ -149,34 +149,34 @@ metareg.meta <- function(x, formula, method.tau = x$method.tau,
   }
 
 
-  ##
-  ##
-  ## (1) Check for meta object
-  ##
-  ##
+  #
+  #
+  # (1) Check for meta object
+  #
+  #
   chkclass(x, "meta")
   chksuitable(x, "Meta-regression", c("metamerge", "netpairwise"),
                check.mlm = FALSE)
-  ##
+  #
   x <- updateversion(x)
   
   
-  ##
-  ## Assignments
-  ##
+  #
+  # Assignments
+  #
   TE <- x$TE
   seTE <- x$seTE
   method <- x$method
-  ##
+  #
   model.glmm <- x$model.glmm
-  ##
+  #
   three.level <- !is.null(x$k.study) && x$k != x$k.study
-  ##
+  #
   metabin <- inherits(x, "metabin")
   metainc <- inherits(x, "metainc")
   metaprop <- inherits(x, "metaprop")
   metarate <- inherits(x, "metarate")
-  ##
+  #
   if (metabin) {
     if (x$method == "LRP")
       stop("Meta-regression not implemented for penalised logistic regression.",
@@ -221,7 +221,7 @@ metareg.meta <- function(x, formula, method.tau = x$method.tau,
     as.char <-
       try(is.character(formula) || is.numeric(formula) ||
           is.function(formula), silent = TRUE)
-    ##
+    #
     if (inherits(as.char, "try-error"))
       formula.text <- deparse(substitute(formula))
     else {
@@ -231,13 +231,13 @@ metareg.meta <- function(x, formula, method.tau = x$method.tau,
       else
         formula.text <- deparse(formula)
     }
-    ##
+    #
     formula.text <- gsub("~", "", formula.text)
     formula.text <- gsub("\\\"", "", formula.text)
     formula.text <- gsub("\\\'", "", formula.text)
-    ##
+    #
     nulldata <- is.null(x$data)
-    ##
+    #
     for (i in as.vector(sapply(strsplit(formula.text, "+", fixed = TRUE),
                                trimws, which = "both"))) {
       if (".GlobalEnv" %in% find(i)) {
@@ -258,21 +258,21 @@ metareg.meta <- function(x, formula, method.tau = x$method.tau,
         }
       }
     }
-    ##
+    #
     if (!intercept)
       formula.text <- paste0(formula.text, " - 1")
-    ##
+    #
     formula <- as.formula(paste("~", formula.text))
   }
   
   
   if (is.null(method.tau))
     method.tau <- "DL"
-  ##
+  #
   method.tau <- setchar(method.tau, c(gs("meth4tau"), "FE"))
-  ##
+  #
   chklogical(hakn)
-  ##
+  #
   chklevel(level.ma)
   chklogical(intercept)
 
@@ -283,18 +283,18 @@ metareg.meta <- function(x, formula, method.tau = x$method.tau,
   }
 
 
-  ##
-  ## Use subset of studies in meta-regression
-  ##
+  #
+  # Use subset of studies in meta-regression
+  #
   if (!is.null(x$subset))
     dataset <- x$data[x$subset, ]
   else
     dataset <- x$data
 
 
-  ##
-  ## Exclude studies from meta-regression
-  ##
+  #
+  # Exclude studies from meta-regression
+  #
   if (!is.null(x$exclude)) {
     exclude <- dataset$.exclude
     dataset <- dataset[!dataset$.exclude, ]
@@ -303,29 +303,29 @@ metareg.meta <- function(x, formula, method.tau = x$method.tau,
     exclude <- rep(FALSE, nrow(dataset))
 
 
-  ##
-  ## Argument test in rma.uni(), rma.glmm() and rma.mv()
-  ##
+  #
+  # Argument test in rma.uni(), rma.glmm() and rma.mv()
+  #
   test <- ifelse(!hakn, "z",
                  ifelse(method == "GLMM" | three.level, "t", "knha"))
 
-  ##
-  ## Covariate 'x' makes problems without removing meta-analysis object x
-  ##
+  #
+  # Covariate 'x' makes problems without removing meta-analysis object x
+  #
   ..x <- x
   rm(x)
-  ##
+  #
   warn.FE <- paste("Fallback to common effect model (argument",
                    "method.tau = \"FE\") due to small number of studies.")
-  ##
+  #
   if (method != "GLMM") {
-    ##
-    ## Three-level model
-    ##
+    #
+    # Three-level model
+    #
     if (three.level) {
-      ##
+      #
       dataset$.idx <- seq_len(nrow(dataset))
-      ##
+      #
       res <-
         runNN(rma.mv,
               list(yi = TE[!exclude], V = seTE[!exclude]^2,

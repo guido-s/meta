@@ -67,19 +67,19 @@ weights.meta <- function(object,
                          warn.deprecated = gs("warn.deprecated"),
                          ...) {
   
-  ##
-  ##
-  ## (1) Check for meta object
-  ##
-  ##
+  #
+  #
+  # (1) Check for meta object
+  #
+  #
   chkclass(object, "meta")
   object <- update(object)
-  ##
-  ## Check for deprecated arguments in '...'
-  ##
+  #
+  # Check for deprecated arguments in '...'
+  #
   args  <- list(...)
   chklogical(warn.deprecated)
-  ##
+  #
   missing.common <- missing(common)
   common <-
     deprecated(common, missing.common, args, "comb.fixed",
@@ -87,7 +87,7 @@ weights.meta <- function(object,
   common <-
     deprecated(common, missing.common, args, "fixed",
                warn.deprecated)
-  ##
+  #
   random <-
     deprecated(random, missing(random), args, "comb.random",
                warn.deprecated)
@@ -101,19 +101,19 @@ weights.meta <- function(object,
 
   w.common  <- object$w.common
   w.random <- object$w.random
-  ##
+  #
   p.common <- 100 * w.common / sum(w.common, na.rm = TRUE)
   p.random <- 100 * w.random / sum(w.random, na.rm = TRUE)
 
   res <- data.frame(w.common, p.common, w.random, p.random)
-  ##
+  #
   rownames(res) <- object$studlab
-  ##
+  #
   if (!common) {
     res$w.common <- NULL
     res$p.common <- NULL
   }
-  ##
+  #
   if (!random) {
     res$w.random <- NULL
     res$p.random <- NULL
