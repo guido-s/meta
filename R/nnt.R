@@ -1,7 +1,7 @@
 #' Calculate the number needed to treat (NNT)
 #' 
 #' @description
-#' Calculate the number needed to treat (NNT) from estimated risk
+#' Calculate the number needed to treat (NNT) from the estimated risk
 #' difference, risk ratio, odds ratio, or hazard ratio, and a baseline
 #' probability, i.e., control group event probability for binary outcomes or
 #' survival probability for hazard ratios.
@@ -811,7 +811,7 @@ print.nnt.default <- function(x,
 
 
 ##
-## Auxillary R functions
+## Auxiliary R functions
 ##
 logRR2nnt <- function(x, p.c)
     1 / (p.c - exp(x) * p.c)

@@ -80,7 +80,7 @@ proportions, see \code{print.default}.}
 \item{big.mark}{A character used as thousands separator.}
 }
 \description{
-Calculate the number needed to treat (NNT) from estimated risk
+Calculate the number needed to treat (NNT) from the estimated risk
 difference, risk ratio, odds ratio, or hazard ratio, and a baseline
 probability, i.e., control group event probability for binary outcomes or
 survival probability for hazard ratios.

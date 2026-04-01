@@ -20,6 +20,10 @@
 * More flexible definition of column labels in forest plots
   [(issue #87)](https://github.com/guido-s/meta/pull/87)
 
+* New function rd() to calculate risk difference(s) from meta-analysis results;
+  results are expressed as absolute risk reduction / increase or absolute
+  benefit increase / reduction
+
 * R function cidprop() uses null effect as threshold, if defined
 
 * R function pairwise() accepts data in the common BUGS format, i.e.,

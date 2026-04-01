@@ -682,6 +682,8 @@
 #' @import metabook
 #'
 #' @import metadat
+#' 
+#' @importFrom rlang :=
 #'
 #' @importFrom dplyr %>% across mutate all_of select rename rename_with mutate
 #'   if_else tibble filter bind_rows group_by group_map relocate
