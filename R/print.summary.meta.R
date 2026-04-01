@@ -145,16 +145,16 @@
 #' 
 #' @examples
 #' data(Fleiss1993cont)
-#' m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
+#' ma1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
 #'   data = Fleiss1993cont, sm = "SMD", studlab = paste(study, year))
-#' sm1 <- summary(m1)
-#' sm1
+#' sma1 <- summary(ma1)
+#' sma1
 #' 
-#' print(sm1, digits = 2)
+#' print(sma1, digits = 2)
 #' 
 #' \dontrun{
 #' # Use unicode characters to print tau^2, tau, and I^2 
-#' print(sm1,
+#' print(sma1,
 #'   text.tau2 = "\u03c4\u00b2",
 #'   text.tau = "\u03c4", text.I2 = "I\u00b2")
 #' }
@@ -162,14 +162,13 @@
 #' @method print summary.meta
 #' @export
 
-
 print.summary.meta <- function(x,
                                sortvar,
                                common = x$x$common,
                                random = x$x$random,
                                details = FALSE, ma = TRUE,
                                overall = x$overall & ma,
-                               ##
+                               #
                                backtransf = x$backtransf,
                                pscale = x$pscale,
                                irscale = x$irscale,
@@ -217,34 +216,34 @@ print.summary.meta <- function(x,
                                #
                                truncate,
                                text.truncate = "*** Output truncated ***",
-                               ##
+                               #
                                details.methods = TRUE,
-                               ##
+                               #
                                warn.backtransf = FALSE,
                                ...
                                ) {
   
   
-  ##
-  ##
-  ## (1) Check for summary.meta object
-  ##
-  ##
+  #
+  #
+  # (1) Check for summary.meta object
+  #
+  #
   chkclass(x, "summary.meta")
-  ##
+  #
   k.all <- length(x$TE)
-  ##
+  #
   x.meta <- updateversion(x$x)
-  ##
+  #
   fbt <- x$x$func.backtransf
   abt <- x$x$args.backtransf
   
   
-  ##
-  ##
-  ## (2) Check other arguments
-  ##
-  ##
+  #
+  #
+  # (2) Check other arguments
+  #
+  #
   sfsp <- sys.frame(sys.parent())
   mc <- match.call()
   error <-
@@ -262,18 +261,18 @@ print.summary.meta <- function(x,
          "argument 'sortvar' have different length.")
   if (!sort)
     sortvar <- 1:k.all
-  ##
+  #
   chklogical(details)
   chklogical(ma)
   overall <- replaceNULL(overall, TRUE)
   chklogical(overall)
-  ##
+  #
   if (is_untransformed(x$sm))
     backtransf <- TRUE
   chklogical(backtransf)
-  ##
+  #
   chklogical(details.methods)
-  ##
+  #
   if (!is.null(pscale))
     chknumeric(pscale, length = 1)
   else
@@ -282,7 +281,7 @@ print.summary.meta <- function(x,
     warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
     pscale <- 1
   }
-  ##
+  #
   if (!is.null(irscale))
     chknumeric(irscale, length = 1)
   else
@@ -291,7 +290,7 @@ print.summary.meta <- function(x,
     warning("Argument 'irscale' set to 1 as argument 'backtransf' is FALSE.")
     irscale <- 1
   }
-  ##
+  #
   scale <- 1
   if (pscale != 1 || irscale != 1) {
     if (pscale != 1 && irscale != 1)
@@ -303,10 +302,10 @@ print.summary.meta <- function(x,
     else
       scale <- irscale
   }
-  ##
+  #
   if (!is.null(irunit) && !is.na(irunit))
     chkchar(irunit)
-  ##
+  #
   chknumeric(digits, min = 0, length = 1)
   chknumeric(digits.se, min = 0, length = 1)
   chknumeric(digits.stat, min = 0, length = 1)
@@ -316,13 +315,13 @@ print.summary.meta <- function(x,
   chknumeric(digits.I2, min = 0, length = 1)
   chknumeric(digits.prop, min = 0, length = 1)
   chknumeric(digits.weight, min = 0, length = 1)
-  ##
+  #
   chklogical(scientific.pval)
   chklogical(zero.pval)
   chklogical(JAMA.pval)
-  ##
+  #
   metainf.metacum <- inherits(x, "metainf") | inherits(x, "metacum")
-  ##
+  #
   chklogical(print.tau2)
   chklogical(print.tau2.ci)
   chklogical(print.tau)
@@ -332,21 +331,21 @@ print.summary.meta <- function(x,
   chklogical(print.H)
   chklogical(print.Rb)
   chklogical(print.Q)
-  ##
+  #
   chkchar(text.tau2, length = 1)
   chkchar(text.tau, length = 1)
   chkchar(text.I2, length = 1)
   chkchar(text.Rb, length = 1)
-  ##
-  ## Catch 'truncate' from meta-analysis object:
-  ##
+  #
+  # Catch 'truncate' from meta-analysis object:
+  #
   missing.truncate <- missing(truncate)
   if (!missing.truncate) {
     truncate <- catch("truncate", mc, x.meta, sfsp)
-    ##
+    #
     if (is.null(truncate))
       truncate <- catch("truncate", mc, x$data, sfsp)
-    ##
+    #
     if (length(truncate) > k.all)
       stop("Length of argument 'truncate' is too long.",
            call. = FALSE)
@@ -375,38 +374,38 @@ print.summary.meta <- function(x,
              call. = FALSE)
     }
   }
-  ##
-  ## Check for deprecated arguments in '...'
-  ##
+  #
+  # Check for deprecated arguments in '...'
+  #
   args  <- list(...)
-  ##
+  #
   missing.common <- missing(common)
   common <- replaceNULL(common, x$comb.common)
   common <- deprecated(common, missing.common, args, "comb.fixed", FALSE)
   common <- deprecated(common, missing.common, args, "fixed", FALSE)
   chklogical(common)
-  ##
+  #
   random <- replaceNULL(random, x$comb.random)
   random <- deprecated(random, missing(random), args, "comb.random", FALSE)
   chklogical(random)
-  ##
-  ## More checks ...
-  ##
+  #
+  # More checks ...
+  #
   cl <- paste0("update.meta() or ", class(x)[1], "()")
   addargs <- names(list(...))
-  ##
+  #
   level <- x$level
   level.ma <- replaceNULL(x$level.ma, x$level.comb)
   level.predict <- x$level.predict
   
   
-  ##
-  ##
-  ## (3) Some additional settings
-  ##
-  ##
+  #
+  #
+  # (3) Some additional settings
+  #
+  #
   ci.lab <- paste0(round(100 * level, 1), "%-CI")
-  ##
+  #
   sm <- x$sm
   #
   sm.lab <- smlab(sm, backtransf, pscale, irscale)
@@ -415,35 +414,35 @@ print.summary.meta <- function(x,
     text.w.common <- paste0("%W(", gs("text.w.common"), ")")
   else
     text.w.common <- paste0("%W(", x$text.w.common, ")")
-  ##
+  #
   if (is.null(x$text.w.random))
     text.w.random <- paste0("%W(", gs("text.w.random"), ")")
   else
     text.w.random <- paste0("%W(", x$text.w.random, ")")
-  ##
+  #
   subgroup <- replaceNULL(x$subgroup, x$byvar)
   subgroup.name <- replaceNULL(x$subgroup.name, x$bylab)
-  ##
+  #
   by <- !is.null(subgroup)
   three.level <- !is.null(x$three.level) && any(x$three.level)
   n_of_1 <- !is.null(x$cycles)
   
   
-  ##
-  ##
-  ## (4) Print title and details
-  ##
-  ##
+  #
+  #
+  # (4) Print title and details
+  #
+  #
   is.metamiss <- inherits(x, "metamiss")
   show.imor <- is.metamiss &
     !is.null(x$IMOR.e) & !is.null(x$IMOR.c) &&
     (length(unique(x$IMOR.e)) != 1 | length(unique(x$IMOR.c)) != 1)
-  ##
+  #
   if (is.metamiss)
     cat("Sensitivity analysis for missing binary data\n\n")
-  ##
+  #
   crtitle(x)
-  ##
+  #
   if (details) {
     if (is.metamiss) {
       res <- cbind(event.e = formatN(x$event.e, digits = 0,
@@ -470,7 +469,7 @@ print.summary.meta <- function(x,
                                      "NA", big.mark = big.mark),
                    n.c = formatN(x$n.c, digits = 0,
                                  "NA", big.mark = big.mark))
-      ##
+      #
       if (pscale == 1) {
         res <- cbind(res,
                      p.e = formatN(round(x$event.e / x$n.e, digits.prop),
@@ -524,7 +523,7 @@ print.summary.meta <- function(x,
                                      "NA", big.mark = big.mark),
                    time.c = formatN(round(x$time.c, digits), digits,
                                     "NA", big.mark = big.mark))
-      ##
+      #
       if (irscale == 1) {
         res <- cbind(res,
                      rate.e = formatN(round(x$event.e / x$time.e,
@@ -585,13 +584,13 @@ print.summary.meta <- function(x,
                    seTE = formatN(round(x$seTE, digits), digits,
                                   "NA", big.mark = big.mark))
     }
-    ##
+    #
     if (three.level)
       res <- cbind(res, cluster = as.character(x$cluster))
-    ##
+    #
     if (n_of_1)
       res <- cbind(res, cycles = x$cycles)
-    ##
+    #
     if (by)
       res <- cbind(res, subgroup = as.character(subgroup))
     #
@@ -616,12 +615,12 @@ print.summary.meta <- function(x,
     }
     #
     dimnames(res)[[1]] <- x$studlab
-    ##
+    #
     if (!missing.truncate) {
       sortvar <- sortvar[truncate]
       res <- res[truncate, , drop = FALSE]
     }
-    ##
+    #
     prmatrix(res[order(sortvar), , drop = FALSE],
              quote = FALSE, right = TRUE)
     if (!missing.truncate)
@@ -630,11 +629,11 @@ print.summary.meta <- function(x,
   }
   
   
-  ##
-  ##
-  ## (5) Print results for individual studies
-  ##
-  ##
+  #
+  #
+  # (5) Print results for individual studies
+  #
+  #
   if (k.all == 1 &&
       !(inherits(x, c("metaprop", "metarate")) |
         (inherits(x, "metabin") && x$sm == "RR" && !x$RR.Cochrane &&
@@ -659,14 +658,14 @@ print.summary.meta <- function(x,
     seTE <- x$seTE
     lowTE <- x$lower
     uppTE <- x$upper
-    ##
+    #
     if (k.all == 1 &&
         inherits(x, "metabin") && x$sm == "RR" && !x$RR.Cochrane &&
         !is_zero(x$TE - x$TE.common))
       x$method.ci <- "!RR.Cochrane"
-    ##
+    #
     if (backtransf) {
-      ## Freeman-Tukey Arcsin transformation
+      # Freeman-Tukey Arcsin transformation
       if (metainf.metacum | inherits(x, "metabind")) {
         if (sm == "IRFT")
           harmonic.mean <- x$t.harmonic.mean
@@ -679,43 +678,43 @@ print.summary.meta <- function(x,
         else
           harmonic.mean <- x$n
       }
-      ##
+      #
       if (inherits(x, "metaprop"))
         TE <- x$event / x$n
-      ##
+      #
       else if (inherits(x, "metarate"))
         TE <- x$event / x$time
       else
         TE <- backtransf(TE, sm, harmonic.mean, harmonic.mean, fbt, abt)
-      ##
+      #
       lowTE <- backtransf(lowTE, sm, harmonic.mean, harmonic.mean, fbt, abt)
       uppTE <- backtransf(uppTE, sm, harmonic.mean, harmonic.mean, fbt, abt)
-      ##
+      #
       TE <- scale * TE
       lowTE <- scale * lowTE
       uppTE <- scale * uppTE
-      ##
+      #
       if (sm == "VE") {
         tmp.l <- lowTE
         lowTE <- uppTE
         uppTE <- tmp.l
       }
     }
-    ##
+    #
     TE <- round(TE, digits)
     lowTE <- round(lowTE, digits)
     uppTE <- round(uppTE, digits)
-    ##
+    #
     if (!metainf.metacum) {
       if (common) {
         w.common <- x$w.common
-        ##
+        #
         if (is.matrix(w.common)) {
           keep <- !apply(w.common, 2, allNA)
           w.common <- w.common[, keep]
           text.w.common <- text.w.common[keep]
         }
-        ##
+        #
         if (!is.null(w.common) & !all(is.na(w.common)) &&
             sum(w.common) > 0) {
           if (is.matrix(w.common))
@@ -727,20 +726,20 @@ print.summary.meta <- function(x,
         }
         else
           w.common.p <- w.common
-        ##
+        #
         if (!allNA(w.common.p) && all(w.common.p == 0, na.rm = TRUE))
           w.common.p[!is.na(w.common.p)] <- NA
       }
-      ##
+      #
       if (random) {
         w.random <- x$w.random
-        ##
+        #
         if (is.matrix(w.random)) {
           keep <- !apply(w.random, 2, allNA)
           w.random <- w.random[, keep]
           text.w.random <- text.w.random[keep]
         }
-        ##
+        #
         if (!is.null(w.random) && !all(is.na(w.random)) &&
             sum(w.random) > 0) {
           if (is.matrix(w.random))
@@ -752,48 +751,48 @@ print.summary.meta <- function(x,
         }
         else
           w.random.p <- w.random
-        ##
+        #
         if (!allNA(w.random.p) && all(w.random.p == 0, na.rm = TRUE))
           w.random.p[!is.na(w.random.p)] <- NA
       }
     }
-    ##
+    #
     if (metainf.metacum) {
       if (is.null(x$text.common))
         text.common <- gs("text.common")
       else
         text.common <- x$text.common
-      ##
+      #
       if (is.null(x$text.random))
         text.random <- gs("text.random")
       else
         text.random <- x$text.random
-      ##
+      #
       if (any(substring(text.common, 1, 5) %in% c("Fixed", "Commo"))) {
         text.common <- gsub("Fixed", "fixed", text.common)
         text.common <- gsub("Common", "common", text.common)
         text.common <- gsub("Effect", "effect", text.common)
       }
-      ##
+      #
       if (any(substring(text.random, 1, 5) %in% c("Rando"))) {
         text.random <- gsub("Random", "random", text.random)
         text.random <- gsub("Effect", "effect", text.random)
       }
-      ##
+      #
       is.random <- x$pooled == "random"
-      ##
+      #
       I2 <- formatN(round(100 * x$I2, digits.I2), digits.I2, "")
-      ##
+      #
       pval <- formatPT(x$pval, digits = digits.pval,
                        scientific = scientific.pval,
                        zero = zero.pval, JAMA = JAMA.pval,
                        lab.NA = "")
-      ##
+      #
       tau2 <- formatN(round(x$tau2, digits.tau2), digits.tau2, "",
                       big.mark = big.mark)
       tau <- formatN(round(x$tau, digits.tau), digits.tau, "",
                      big.mark = big.mark)
-      ##
+      #
       res <- cbind(formatN(round(TE, digits), digits, "",
                            big.mark = big.mark),
                    formatCI(formatN(round(lowTE, digits), digits, "NA",
@@ -809,7 +808,7 @@ print.summary.meta <- function(x,
                               if (print.tau2) text.tau2,
                               if (print.tau) text.tau,
                               if (print.I2) text.I2))
-      ##
+      #
       if (inherits(x, "metainf")) {
         if (!is.random)
           cat(paste0("Influential analysis (", text.common, ")\n"))
@@ -848,7 +847,7 @@ print.summary.meta <- function(x,
       show.w.random <-
         (overall | by) &
         (random && !all(is.na(w.random.p)))
-      ##
+      #
       res <- cbind(formatN(round(TE, digits), digits, "NA",
                            big.mark = big.mark),
                    formatCI(formatN(round(lowTE, digits), digits, "NA",
@@ -869,36 +868,36 @@ print.summary.meta <- function(x,
                    if (!is.null(x$exclude))
                      ifelse(is.na(x$exclude), "",
                      ifelse(x$exclude, "*", "")))
-      ## Printout for a single proportion, mean difference or mean:
+      # Printout for a single proportion, mean difference or mean:
       if (k.all == 1) {
-        ##
+        #
         print.stat <- FALSE
         print.pval <- FALSE
-        ##
+        #
         if (!is.null(x$method.ci)) {
           if (x$method.ci == "t") {
             details.ci <-
               "Confidence interval based on t-distribution:\n\n"
-            ##
-            ## Add test statistic and p-value
-            ##
+            #
+            # Add test statistic and p-value
+            #
             if (inherits(x, c("metacont", "metamean"))) {
               if (any(!is.na(x$statistic))) {
                 res <- cbind(res,
                              formatN(x$statistic,
                                      digits = digits.stat,
                                      big.mark = big.mark))
-                ##
+                #
                 print.stat <- TRUE
               }
-              ##
+              #
               if (any(!is.na(x$pval))) {
                 res <- cbind(res,
                              formatPT(x$pval, digits = digits.pval,
                                       scientific = scientific.pval,
                                       zero = zero.pval, JAMA = JAMA.pval,
                                       lab.NA = ""))
-                ##
+                #
                 print.pval <- TRUE
               }
             }
@@ -906,16 +905,16 @@ print.summary.meta <- function(x,
           else if (x$method.ci == "CP") {
             details.ci <-
               "Clopper-Pearson confidence interval:\n\n"
-            ##
-            ## Add p-value of binomial test
-            ##
+            #
+            # Add p-value of binomial test
+            #
             if (any(!is.na(x$pval))) {
               res <- cbind(res,
                            formatPT(x$pval, digits = digits.pval,
                                     scientific = scientific.pval,
                                     zero = zero.pval, JAMA = JAMA.pval,
                                     lab.NA = ""))
-              ##
+              #
               print.pval <- TRUE
             }
           }
@@ -942,7 +941,7 @@ print.summary.meta <- function(x,
             details.ci <-
               paste0("Continuity correction of 1*incr for sample sizes\n",
                      "(Hartung & Knapp, 2001, Stat Med, equation (18)):\n\n")
-          ##
+          #
           if (x$method.ci != "NAsm") {
             if (inherits(x, "metacont")) {
               catobsev(x$n.e + x$n.c, type = "n", addrow = TRUE)
@@ -963,7 +962,7 @@ print.summary.meta <- function(x,
               catobsev(x$event, type = "e", addrow = TRUE)
               x.meta$n <- x.meta$event <- NA
             }
-            ##
+            #
             dimnames(res) <-
               list(x$studlab,
                    c(sm.lab, ci.lab,
@@ -992,7 +991,7 @@ print.summary.meta <- function(x,
               sm.details <- paste0("\n- Events per ", pscale, " observations")
             else
               sm.details <- ""
-            ##
+            #
             if (x$method.ci == "CP" & any(!is.na(x$pval))) {
               if (pscale != 1)
                 sm.details <-
@@ -1011,7 +1010,7 @@ print.summary.meta <- function(x,
                          format(x$null.effect, scientific = FALSE,
                                 big.mark = big.mark))
             }
-            ##
+            #
             if (sm.details != "")
               cat(paste0("Details:", sm.details, "\n"))
           }
@@ -1029,12 +1028,12 @@ print.summary.meta <- function(x,
                  if (show.imor) "IMOR.e",
                  if (show.imor) "IMOR.c",
                  if (!is.null(x$exclude)) "exclude"))
-        ##
+        #
         if (!missing.truncate) {
           sortvar <- sortvar[truncate]
           res <- res[truncate, , drop = FALSE]
         }
-        ##
+        #
         prmatrix(res[order(sortvar), , drop = FALSE],
                  quote = FALSE, right = TRUE)
         if (!missing.truncate)
@@ -1043,15 +1042,15 @@ print.summary.meta <- function(x,
     }
     
     
-    ##
-    ##
-    ## (6) Print result for meta-analysis
-    ##
-    ##
+    #
+    #
+    # (6) Print result for meta-analysis
+    #
+    #
     if (ma & !metainf.metacum) {
       if (!all(is.na(x$k)))
         cat("\n")
-      ##
+      #
       attr(x.meta, ".print.study.results.") <- max(k.all, na.rm = TRUE) > 1
       print.meta(x.meta,
                  header = FALSE,

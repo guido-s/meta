@@ -13,7 +13,7 @@ compsplit <- function(x, split) {
     withspace <- any(grepl("^\\s+|\\s+$", "", res))
     res <- gsub("^\\s+|\\s+$", "", res)
   }
-  ##
+  #
   attr(res, "withspace") <- withspace
   
   res

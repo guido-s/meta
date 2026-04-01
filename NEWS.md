@@ -1,3 +1,87 @@
+## meta, version 8.3-0 (2026-04-01)
+
+### Major changes
+
+* Relax the minimum number of studies in a meta-analysis required to calculate
+  confidence and prediction intervals
+  [(issue #80)](https://github.com/guido-s/meta/pull/80):
+  - calculate confidence interval for *tau2* and *tau* for two or more studies
+    (was more than two studies)
+  - calculate Hartung-Knapp prediction interval
+    (argument 'method.predict = "HK"') for two or more studies
+    (was more than two studies)
+  - calculate Partlett and Riley prediction interval
+    (argument 'method.predict = "HK-PR"') for three or more studies
+    (was more than three studies)
+
+* Calculate confidence for I2 and H if argument 'method.I2 = "tau2"'
+  [(issue #80)](https://github.com/guido-s/meta/pull/80):
+
+* More flexible definition of column labels in forest plots
+  [(issue #87)](https://github.com/guido-s/meta/pull/87)
+
+* New function rd() to calculate risk difference(s) from meta-analysis results;
+  results are expressed as absolute risk reduction / increase or absolute
+  benefit increase / reduction
+
+* R function cidprop() uses null effect as threshold, if defined
+
+* R function pairwise() accepts data in the common BUGS format, i.e.,
+  relative treatment effects in comparison to a reference treatment
+
+* For relative effect measures show "ln" instead of "log" in printouts and
+  forest plots if 'backtransf = FALSE'
+
+* R package **metabook** added to Depends (to access meta-analysis datasets)
+
+### User-visible changes
+
+* forest.meta():
+  - new argument 'text.subgroup' to provide subgroup labels
+    [(issue #82)](https://github.com/guido-s/meta/pull/82)
+  - new arguments to define column labels more flexibly
+    [(issue #87)](https://github.com/guido-s/meta/pull/87)
+  - new arguments 'print.tau2.ci.subgroup' and 'print.tau.ci.subgroup'
+    to specify which confidence intervals for *tau2* or *tau* should be printed
+    for subgroups
+
+* pairwise():
+  - new argument 'relative.effects' to indicate that the input to arguments
+    'TE' and 'seTE' are relative treatment effects in comparison to a
+    study specific reference treatment
+
+* settings.meta():
+  - new arguments to define default column labels in forest plots
+    [(issue #87)](https://github.com/guido-s/meta/pull/87):
+    'label.n', 'label.events', 'label.mean', 'label.sd',
+    'label.cor', 'label.time',
+    'label.pval', 'label.tau2', 'label.tau', 'label.I2',
+    'label.cluster', 'label.cycles'
+  - new arguments 'print.tau2.ci.subgroup' and 'print.tau.ci.subgroup'
+
+* [Siemens et al. (2025)](https://doi.org/10.1186/s12874-025-02733-9) added as
+  reference for the expected proportion of comparable studies with
+  clinically important benefit or harm implemented in cidprop()
+
+### Bug fixes
+
+* forest.meta():
+  - reference line and CID lines had wrong length in forest plots with
+    risk of bias information and without overall heterogeneity statistics
+    [(issue #84)](https://github.com/guido-s/meta/pull/84)
+  - remove extraneous "^2" from method details for confidence of *tau2*
+    [(issue #87)](https://github.com/guido-s/meta/pull/87)
+  
+* forest.metainf():
+  - input to arguments 'prediction', 'overall', and 'backtransf' was
+    ignored
+    [(issue #83)](https://github.com/guido-s/meta/pull/83)
+
+* forest.metabind():
+  - input to argument 'col.square' was ignored for square colour
+    [(issue #81)](https://github.com/guido-s/meta/pull/81)
+
+
 ## meta, version 8.2-1 (2025-09-01)
 
 ### Major changes
@@ -513,7 +597,7 @@ Revise web links
   - new argument 'width' to specify width of graphics device
   - new arguments 'print.tau2', 'print.tau2.ci', 'print.tau' and
     'print.tau.ci' to specify whether to show (confidence intervals
-    for) tau^2 or tau in printouts
+    for) *tau2* or *tau* in printouts
   - new arguments 'leftcols', 'rightcols', 'leftlabs', 'rightlabs',
     'label.e.attach' and 'label.c.attach' to changes defaults for
     corresponding arguments in forest.meta()
@@ -1860,10 +1944,10 @@ Revise web links
     are now considered from meta-analysis objects)
 
 * print.summary.meta():
-  - for meta-analysis with subgroups, print information on Q and I^2
-    with fixed effect results and information on tau and tau^2 with
-    random effects results (previously, information on Q, I^2, tau,
-    and tau^2 was reported twice)
+  - for meta-analysis with subgroups, print information on Q and I2
+    with fixed effect results and information on *tau2* and *tau* with
+    random effects results (previously, information on Q, I2, *tau2*,
+    and *tau* was reported twice)
 
 ### Internal changes
 
@@ -2186,7 +2270,7 @@ Revise web links
 * New argument 'control' in meta-analysis functions which is passed on
   to R function rma.uni() or rma.glmm() from R package **metafor** to
   control the iterative process to estimate the between-study variance
-  tau^2
+  *tau2*
 
 ### User-visible changes
 
@@ -2644,7 +2728,7 @@ Revise web links
   the null effect is defined on the log scale)
 
 * User can choose whether to print the following heterogeneity
-  quantities: I^2, H, Rb (by default, heterogeneity measure Rb is not
+  quantities: I2, H, Rb (by default, heterogeneity measure Rb is not
   printed and thus revoking a change in **meta**, 4.7-0)
 
 * In forest plots with subgroups, study weights are summed up to 100
@@ -2707,7 +2791,7 @@ Revise web links
 
 * Forest plots:
   - forest plots with RevMan 5 and JAMA layout
-  - use of mathematical symbols for I^2, tau^2, etc.
+  - use of mathematical symbols for I2, *tau2*, etc.
   - individual study results can be omitted from forest plot
     (especially useful to only print subgroup results)
   - labels can be printed at top of forest plot
@@ -4007,7 +4091,7 @@ This functionality is now provided by update.meta().
 * forest.meta():
   - bug fix for metacum() or metainf() object with Freeman-Tukey
     double arcsine transformation (error message: 'Error in if
-    (col$range[1] <= TE.fixed & TE.fixed <= col$range[2]) ...')
+    (col$range[1] <= TE.fixed and TE.fixed <= col$range[2]) ...')
 
 
 ## meta, version 2.1-2 (2012-10-25)

@@ -100,18 +100,18 @@ meta-analysis results of another meta-analysis object (see
 data(Fleiss1993bin)
 
 # Common effect and random effects meta-analysis
-m1 <- metabin(d.asp, n.asp, d.plac, n.plac, data = Fleiss1993bin,
+ma1 <- metabin(d.asp, n.asp, d.plac, n.plac, data = Fleiss1993bin,
   studlab = paste(study, year), sm = "OR")
 
 # Naive pooling
-m2 <- metabin(sum(d.asp), sum(n.asp), sum(d.plac), sum(n.plac),
+ma2 <- metabin(sum(d.asp), sum(n.asp), sum(d.plac), sum(n.plac),
   data = Fleiss1993bin, sm = "OR", text.common = "Naive pooling")
 
 # Add results of second meta-analysis from common effect model
-m12 <- metaadd(m1, data = m2)
-m12
+ma12 <- metaadd(ma1, data = ma2)
+ma12
 
-forest(m12)
+forest(ma12)
 
 }
 \seealso{

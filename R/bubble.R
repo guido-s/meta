@@ -104,16 +104,16 @@
 #' Fleiss1993cont$age <- c(55, 65, 52, 65, 58)
 #' Fleiss1993cont$region <- c("Europe", "Europe", "Asia", "Asia", "Europe")
 #' 
-#' m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
+#' ma <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
 #'   data = Fleiss1993cont, sm = "SMD")
 #' 
-#' mr1 <- metareg(m1, region)
+#' mr1 <- metareg(ma, region)
 #' mr1
 #' 
 #' bubble(mr1)
 #' bubble(mr1, lwd = 2, col.line = "blue")
 #' 
-#' mr2 <- metareg(m1, age)
+#' mr2 <- metareg(ma, age)
 #' mr2
 #' 
 #' bubble(mr2, lwd = 2, col.line = "blue", xlim = c(50, 70))
@@ -126,7 +126,6 @@
 #' @rdname bubble.metareg
 #' @method bubble metareg
 #' @export
-
 
 bubble.metareg <- function(x,
                            xlim, ylim,
@@ -563,7 +562,6 @@ bubble.metareg <- function(x,
 
 #' @rdname bubble.metareg
 #' @export bubble
-
 
 bubble <- function(x, ...) 
   UseMethod("bubble")

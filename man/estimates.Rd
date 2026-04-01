@@ -181,14 +181,13 @@ transformed correlations (\code{sm = "ZCOR"}). See
 back transformations.
 }
 \examples{
-
-m1 <- metacor(c(0.85, 0.7, 0.95), c(20, 40, 10))
-summary(m1)
-estimates(m1)
-estimates(m1, backtransf = FALSE)
-estimates(update(m1, common = FALSE, random = FALSE))
-estimates(update(m1, prediction = TRUE))
-estimates(update(m1, prediction = TRUE,
+ma <- metacor(c(0.85, 0.7, 0.95), c(20, 40, 10))
+summary(ma)
+estimates(ma)
+estimates(ma, backtransf = FALSE)
+estimates(update(ma, common = FALSE, random = FALSE))
+estimates(update(ma, prediction = TRUE))
+estimates(update(ma, prediction = TRUE,
   level.ma = 0.99, level.predict = 0.9))
 
 \dontrun{
@@ -196,19 +195,19 @@ estimates(update(m1, prediction = TRUE,
 # (R package 'writexl' must be available)
 if (requireNamespace("writexl", quietly = TRUE)) {
  fname1 <- tempfile(fileext = ".xlsx")
- estimates(m1, path = fname1)
+ estimates(ma, path = fname1)
  # An existing Excel file is not overwritten but a warning is printed
- estimates(m1, path = fname1)
+ estimates(ma, path = fname1)
  # Overwrite an existing Excel file
- estimates(m1, path = fname1, overwrite = TRUE)
+ estimates(ma, path = fname1, overwrite = TRUE)
  # Suppress message on file creation and overwrite existing file
- suppressMessages(estimates(m1, path = fname1, overwrite = TRUE))
+ suppressMessages(estimates(ma, path = fname1, overwrite = TRUE))
 }
 
 # Save the extracted results in a text file
 fname2 <- tempfile(fileext = ".csv")
 fname2
-write.csv(estimates(m1), file = fname2, row.names = FALSE)
+write.csv(estimates(ma), file = fname2, row.names = FALSE)
 }
 
 }

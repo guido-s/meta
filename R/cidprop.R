@@ -39,7 +39,7 @@
 #' @details
 #' Expected proportions of comparable studies with clinically important
 #' benefit or harm are derived from the prediction interval in
-#' the meta-analysis.
+#' the meta-analysis (Siemens et al., 2025).
 #' 
 #' Clinically important benefit or harm can be defined using either argument
 #' \code{cid} or \code{cid.below.null} and \code{cid.above.null}.
@@ -50,6 +50,9 @@
 #' \item \code{cid} and \code{1 / cid} for ratio measures,
 #' \item \code{cid} and \code{-cid} for difference measures.
 #' }
+#' 
+#' By default, i.e., if no input is provided for argument \code{cid}, the
+#' null effect is used as threshold.
 #' 
 #' Thresholds based on argument \code{cid} will always be symmetric. Asymmetric
 #' thresholds can be defined using arguments \code{cid.below.null} and
@@ -71,7 +74,14 @@
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #'
 #' @seealso \code{\link{plot.cidprop}}
-#'
+#' 
+#' @references
+#' Siemens W, Borenstein M, Evrenoglou T, Meerpohl JJ, Schwarzer G (2025):
+#' Beyond prediction intervals in meta-analysis: reporting the expected
+#' proportion of comparable studies with clinically relevant benefit or harm.
+#' \emph{BMC Medical Research Methodology},
+#' \bold{25}, 275
+#' 
 #' @examples
 #' oldset <- settings.meta(digits.cid = 0)
 #' 
@@ -100,15 +110,15 @@
 #' @export
 
 cidprop.meta <- function(x,
-                          cid = NULL,
-                          cid.below.null = NULL, cid.above.null = NULL,
-                          #
-                          label.cid = "",
-                          label.cid.below.null = NULL,
-                          label.cid.above.null = NULL,
-                          #
-                          small.values = "desirable",
-                          ...) {
+                         cid = NULL,
+                         cid.below.null = NULL, cid.above.null = NULL,
+                         #
+                         label.cid = "",
+                         label.cid.below.null = NULL,
+                         label.cid.above.null = NULL,
+                         #
+                         small.values = "desirable",
+                         ...) {
   
   #
   #
@@ -155,10 +165,18 @@ cidprop.meta <- function(x,
     !missing(cid.above.null) & !is.null(cid.above.null) &
     !all(is.na(cid.above.null))
   #
-  if (!avail.cid & !avail.cid.below.null & !avail.cid.above.null)
-    stop("At least one decision threshold (argument 'cid', ",
-         "'cid.below.null', or 'cid.above.null') must be specified.",
-         call. = FALSE)
+  if (!avail.cid & !avail.cid.below.null & !avail.cid.above.null) {
+    cid <- x$null.effect
+    #
+    if (is.na(cid))
+      stop("At least one decision threshold (argument 'cid', ",
+           "'cid.below.null', or 'cid.above.null') must be specified.",
+           call. = FALSE)
+    else if (!(is_prop(x$sm) | is_rate(x$sm) | is_mean(x$sm)))
+      cid <- backtransf(cid, x$sm)
+    #
+    avail.cid <- TRUE
+  }
   #
   if (avail.cid) {
     if (any(is.na(cid)))
@@ -187,21 +205,31 @@ cidprop.meta <- function(x,
            "smaller or larger than reference value of ", ref, ".",
            call. = FALSE)
     #
-    if (all(cid < ref)) {
-      cid.below.null <- cid
-      #
-      if (is_relative)
-        cid.above.null <- rev(1 / cid)
-      else
-        cid.above.null <- rev(-cid)
+    if (is_prop(x$sm) | is_rate(x$sm) | is_mean(x$sm)) {
+        cid.below.null <- cid
+        cid.above.null <- cid
     }
     else {
-      cid.above.null <- cid
-      #
-      if (is_relative)
-        cid.below.null <- rev(1 / cid)
-      else
-        cid.below.null <- rev(-cid)
+      if (all(cid == ref)) {
+        cid.below.null <- cid
+        cid.above.null <- cid
+      }
+      else if (all(cid < ref)) {
+        cid.below.null <- cid
+        #
+        if (is_relative)
+          cid.above.null <- rev(1 / cid)
+        else
+          cid.above.null <- rev(-cid)
+      }
+      else {
+        cid.above.null <- cid
+        #
+        if (is_relative)
+          cid.below.null <- rev(1 / cid)
+        else
+          cid.below.null <- rev(-cid)
+      }
     }
     #
     avail.cid.below.null <- TRUE
@@ -416,7 +444,17 @@ print.cidprop <- function(x,
       cid.above.null <- transf(cid.above.null, x$x$sm)
     }
     #
-    smlab <- smlab(x$x$sm, x$x$backtransf, x$x$pscale, x$x$irscale)
+    if (x$x$sm == "")
+      smlab <- ""
+    else if (is_prop(x$x$sm))
+      smlab <- "P "
+    else if (is_rate(x$x$sm))
+      smlab <- "R "
+    else if (is_mean(x$x$sm))
+      smlab <- "Mean "
+    else
+      smlab <-
+        paste0(smlab(x$x$sm, x$x$backtransf), " ")
     #
     crtitle(x$x)
   }
@@ -453,6 +491,11 @@ print.cidprop <- function(x,
                  sign = "\u2265 ")
     #
     min.cid.above.null <- min(cid.above.null, na.rm = TRUE)
+    #
+    if (avail.cid.below.null & prop.within.cid ==  0) {
+      dat.u %<>%
+        mutate(sign = if_else(Threshold == min.cid.above.null, "> ", sign))
+    }
   }
   #
   if (prop.within.cid > 0) {
@@ -467,7 +510,7 @@ print.cidprop <- function(x,
         formatN(c(max.cid.below.null, min.cid.above.null),
                 digits = digits.cid, big.mark = big.mark)
       #
-      within.cid <- paste(">", within.cid[1], "to", "<", within.cid[2])
+      within.cid <- paste(within.cid[1], "to", within.cid[2])
     }
     else if (avail.cid.below.null) {
       within.cid <-
@@ -482,20 +525,36 @@ print.cidprop <- function(x,
       within.cid <- paste("<", within.cid)
     }
   }
-  #
-  dat.cid <- rbind(dat.l, dat.w, dat.u)
+  else
+    within.cid <- ""
   #
   Threshold <- prop <- label <- category <- sign <- NULL
   #
+  three.categories <- !is.null(dat.l) + !is.null(dat.w) + !is.null(dat.u)
+  dat.cid <- rbind(dat.l, dat.w, dat.u)
+  #
   dat.cid %<>%
     mutate(Threshold = formatN(Threshold, digits = digits.cid,
-                               big.mark = big.mark, text.NA = ""),
-           Threshold = if_else(category != "Not important effect",
-                               paste0(sign, Threshold), within.cid),
-           prop = paste0(formatPT(100 * prop, digits = digits.percent), "%"),
-           category =
-             if_else(label == "", category, paste(category, label)),
-           category = paste0(category, " ")) %>%
+                               big.mark = big.mark, text.NA = ""))
+  #
+  if (three.categories) {
+    dat.cid %<>%
+      mutate(Threshold = if_else(category != "Not important effect",
+                                 paste0(smlab, sign, Threshold), within.cid))
+  }
+  else {
+    dat.cid %<>%
+      mutate(Threshold = if_else(category != "Not important effect",
+                                 paste0(smlab, sign, Threshold),
+                                 paste0(smlab, within.cid)))
+  }
+  #
+  dat.cid %<>%
+    mutate(
+      prop = paste0(formatPT(100 * prop, digits = digits.percent), "%"),
+      category =
+        if_else(label == "", category, paste(category, label)),
+      category = paste0(category, " ")) %>%
     column_to_rownames("category") %>%
     rename(Percent = prop) %>%
     select(-label, -sign)
@@ -506,8 +565,8 @@ print.cidprop <- function(x,
     catmeth(x$x,
             FALSE, FALSE, TRUE, FALSE, TRUE,
             #
-            func.transf = x$x$func.transf,
-            backtransf = FALSE, func.backtransf = x$x$func.backtransf,
+            func.transf = x$x$func.transf, backtransf = FALSE,
+            func.backtransf = x$x$func.backtransf,
             #
             big.mark = "", digits = 2,
             digits.tau = gs("digits.tau"),

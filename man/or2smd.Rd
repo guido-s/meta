@@ -77,17 +77,17 @@ is a vector.
 \examples{
 # Example from Borenstein et al. (2009), Chapter 7
 #
-mb <- or2smd(0.9069, sqrt(0.0676))
+ma0 <- or2smd(0.9069, sqrt(0.0676))
 # TE = standardised mean difference (SMD); seTE = standard error of SMD
-data.frame(SMD = round(mb$TE, 4), varSMD = round(mb$seTE^2, 4))
+data.frame(SMD = round(ma0$TE, 4), varSMD = round(ma0$seTE^2, 4))
 
 # Use dataset from Fleiss (1993)
 #
 data(Fleiss1993bin)
-m1 <- metabin(d.asp, n.asp, d.plac, n.plac,
+ma1 <- metabin(d.asp, n.asp, d.plac, n.plac,
   data = Fleiss1993bin, studlab = paste(study, year),
   sm = "OR", random = FALSE)
-or2smd(m1)
+or2smd(ma1)
 
 }
 \references{

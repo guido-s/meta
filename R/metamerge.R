@@ -240,19 +240,19 @@
 #' data(Fleiss1993bin)
 #' 
 #' # Mantel-Haenszel method
-#' m1 <- metabin(d.asp, n.asp, d.plac, n.plac, data = Fleiss1993bin,
+#' ma1 <- metabin(d.asp, n.asp, d.plac, n.plac, data = Fleiss1993bin,
 #'   studlab = paste(study, year), sm = "OR")
 #' # Peto method
-#' m2 <- update(m1, method = "Peto")
+#' ma2 <- update(ma1, method = "Peto")
 #' # Inverse variance method (only common effect model)
-#' m3 <- update(m2, method = "Inverse", random = FALSE)
+#' ma3 <- update(ma2, method = "Inverse", random = FALSE)
 #' 
 #' # Merge results from MH and Peto method
 #' # - show individual results for MH method
 #' #   (as this is the first meta-analysis)
 #' # - keep all additional information from Peto meta-analysis (i.e.,
 #' #   weights, Q statistic and I2 statistic)
-#' m12 <- metamerge(m1, m2,
+#' ma12 <- metamerge(ma1, ma2,
 #'   label1 = "REML", label2 = "REML-Peto",
 #'   label1.common = "MH", label2.common = "Peto", 
 #'   text.common1 = "Mantel-Haenszel method",
@@ -266,16 +266,16 @@
 #' # - Q and I2 statistic are identical for sm = "MH" and sm = "Inverse"
 #' #   as inverse variance method is used for sm = "MH" under random
 #' #   effects model
-#' m123 <- metamerge(m12, m3,
+#' ma123 <- metamerge(ma12, ma3,
 #'   label2 = "IV",
 #'   text.common2 = "Inverse variance method",
 #'   keep.w = TRUE)
-#' summary(m123)
+#' summary(ma123)
 #' \dontrun{
-#' forest(m123, digits = 6)
+#' forest(ma123, digits = 6)
 #' 
 #' # Merge results (show individual results for Peto method)
-#' m21 <- metamerge(m2, m1,
+#' ma21 <- metamerge(ma2, ma1,
 #'   label1 = "REML-Peto", label2 = "REML",
 #'   label1.common = "Peto", label2.common = "MH", 
 #'   hetlabel1 = "Peto", hetlabel2 = "MH/IV",
@@ -288,65 +288,65 @@
 #' # - Q and I2 statistic are identical for sm = "MH" and sm = "Inverse"
 #' #   as inverse variance method is used for sm = "MH" under random
 #' #   effects model
-#' m213 <- metamerge(m21, m3,
+#' ma213 <- metamerge(ma21, ma3,
 #'   label2 = "IV",
 #'   text.common2 = "Inverse variance method",
 #'   keep.w = TRUE)
-#' summary(m213)
+#' summary(ma213)
 #' 
 #' # Random effects method using ML estimator for between-study variance tau2
-#' m4 <- update(m1, common = FALSE, method.tau = "ML")
+#' ma4 <- update(ma1, common = FALSE, method.tau = "ML")
 #' 
 #' # Use DerSimonian-Laird estimator for tau2
-#' m5 <- update(m4, method.tau = "DL")
+#' ma5 <- update(ma4, method.tau = "DL")
 #' 
 #' # Use Paule-Mandel estimator for tau2
-#' m6 <- update(m4, method.tau = "PM")
+#' ma6 <- update(ma4, method.tau = "PM")
 #' 
 #' # Merge random effects results for ML and DL estimators
 #' # - keep weights for DL estimator (which are different from ML)
-#' m45 <- metamerge(m4, m5, label1 = "ML", label2 = "DL",
+#' ma45 <- metamerge(ma4, ma5, label1 = "ML", label2 = "DL",
 #'   text.w.random1 = "RE-ML", text.w.random2 = "RE-DL", keep.w = TRUE)
-#' summary(m45)
+#' summary(ma45)
 #' 
 #' # Add results for PM estimator
 #' # - keep weights
-#' m456 <- metamerge(m45, m6, label2 = "PM",
+#' ma456 <- metamerge(ma45, ma6, label2 = "PM",
 #'   text.w.random2 = "RE-PM", keep.w = TRUE)
-#' summary(m456)
+#' summary(ma456)
 #' 
-#' m123456 <- metamerge(m123, m456)
-#' m123456
+#' ma123456 <- metamerge(ma123, ma456)
+#' ma123456
 #' 
 #' # Use Hartung-Knapp confidence intervals
 #' # - do not keep information on Q, I2 and weights
-#' m7 <- update(m4, method.random.ci = "HK",
+#' ma7 <- update(ma4, method.random.ci = "HK",
 #'   text.random = "Hartung-Knapp method")
-#' m8 <- update(m5, method.random.ci = "HK",
+#' ma8 <- update(ma5, method.random.ci = "HK",
 #'   text.random = "Hartung-Knapp method")
-#' m9 <- update(m6, method.random.ci = "HK",
+#' ma9 <- update(ma6, method.random.ci = "HK",
 #'   text.random = "Hartung-Knapp method")
 #' 
 #' # Merge results for Hartung-Knapp method (with REML and DL estimator)
 #' # - RE weights for REML estimator are shown
-#' m78 <- metamerge(m7, m8, label1 = "ML", label2 = "DL")
-#' summary(m78)
+#' ma78 <- metamerge(ma7, ma8, label1 = "ML", label2 = "DL")
+#' summary(ma78)
 #' 
-#' m789 <- metamerge(m78, m9, label2 = "PM")
-#' summary(m789)
+#' ma789 <- metamerge(ma78, ma9, label2 = "PM")
+#' summary(ma789)
 #' 
 #' # Merge everything
-#' m1to9 <- metamerge(metamerge(m123, m456, keep.w = TRUE), m789)
-#' summary(m1to9)
+#' ma1to9 <- metamerge(metamerge(ma123, ma456, keep.w = TRUE), ma789)
+#' summary(ma1to9)
 #' 
-#' m10 <- update(m1, method = "GLMM")
+#' ma10 <- update(ma1, method = "GLMM")
 #' 
-#' m.all <- metamerge(m1to9, m10, keep.Q = TRUE,
+#' ma.all <- metamerge(ma1to9, ma10, keep.Q = TRUE,
 #'   label2 = "GLMM", taulabel2 = "ML-GLMM")
-#' summary(m.all)
+#' summary(ma.all)
 #' 
-#' forest(m.all, layout = "JAMA")
-#' forest(m.all, details = TRUE)
+#' forest(ma.all, layout = "JAMA")
+#' forest(ma.all, details = TRUE)
 #' }
 #' 
 #' settings.meta(oldset)
@@ -354,80 +354,79 @@
 #' 
 #' @export metamerge
 
-
 metamerge <- function(meta1, meta2,
-                      ##
+                      #
                       common1 = meta1$common,
                       random1 = meta1$random,
                       prediction1 = meta1$prediction,
                       common2 = meta2$common,
                       random2 = meta2$random,
                       prediction2 = meta2$prediction,
-                      ##
+                      #
                       label1 = NULL, label2 = NULL,
                       label1.common = label1, label2.common = label2,
                       label1.random = label1, label2.random = label2,
                       label1.predict = label1, label2.predict = label2,
                       label1.subgroup = label1, label2.subgroup = label2,
-                      ##
+                      #
                       hetlabel1 = label1.random,
                       hetlabel2 = label2.random,
                       taulabel1 = label1.random,
                       taulabel2 = label2.random,
-                      ##
+                      #
                       text.pooled1 = NULL, text.pooled2 = NULL,
                       text.w.pooled1 = NULL, text.w.pooled2 = NULL,
-                      ##
+                      #
                       text.common1 = text.pooled1,
                       text.common2 = text.pooled2,
                       text.random1 = text.pooled1,
                       text.random2 = text.pooled2,
                       text.predict1 = text.pooled1,
                       text.predict2 = text.pooled2,
-                      ##
+                      #
                       text.w.common1 = text.w.pooled1,
                       text.w.common2 = text.w.pooled2,
                       text.w.random1 = text.w.pooled1,
                       text.w.random2 = text.w.pooled2,
-                      ##
+                      #
                       keep = FALSE,
                       keep.Q = keep, keep.I2 = keep.Q,
                       keep.w = keep,
-                      ##
+                      #
                       common = common1 | common2,
                       random = random1 | random2,
                       overall = common | random,
                       overall.hetstat = common | random,
                       prediction = prediction1 | prediction2,
-                      ##
+                      #
                       backtransf,
-                      ##
+                      #
                       warn.deprecated = gs("warn.deprecated"),
                       pooled1, pooled2) {
   
-  ##
-  ##
-  ## (1) Check arguments
-  ##
-  ##
+  #
+  #
+  # (1) Check arguments
+  #
+  #
   
   if (missing(meta1))
     stop("Argument 'meta1' must be provided.",
          call. = FALSE)
-  ##
+  #
   if (missing(meta2)) {
     if (!inherits(meta1, "metamerge") & inherits(meta1, "copas"))
       return(metamerge(update(meta1$x), meta1,
                        label2 = if (is.null(label2)) "copas" else label2))
-    ##
+    #
     else if (!inherits(meta1, "metamerge") & inherits(meta1, "limitmeta"))
       return(metamerge(update(meta1$x), meta1,
                        label2 = if (is.null(label2)) "limit" else label2))
-    ##
+    #
     else if (!inherits(meta1, "metamerge") & inherits(meta1, "robu"))
       stop("Argument 'meta1' cannot be of class 'robu'.",
            call. = FALSE)
-    ##
+    #
     else
       return(meta1)
   }
@@ -445,7 +444,7 @@ metamerge <- function(meta1, meta2,
            "(use argument 'meta2').",
            call. = FALSE)
   }
-  ##
+  #
   chkclass(meta1, "meta")
   chksuitable(meta1, "R function metamerge()", classes = "metaprop",
               check.mlm = FALSE)
@@ -458,129 +457,129 @@ metamerge <- function(meta1, meta2,
   if (inherits(meta1, "netpairwise") | inherits(meta2, "netpairwise"))
     stop("R objects of class 'netpairwise' cannot be merged.",
          call. = FALSE)
-  ##
+  #
   if (inherits(meta2, "meta"))
     meta2 <- updateversion(meta2)
-  ##
+  #
   is.copas <- !inherits(meta2, "metamerge") & inherits(meta2, "copas")
   is.limit <- !inherits(meta2, "metamerge") & inherits(meta2, "limitmeta")
   is.robu  <- !inherits(meta2, "metamerge") & inherits(meta2, "robu")
-  ##
+  #
   if (is.copas | is.limit | is.robu) {
     common2 <- FALSE
     random2 <- TRUE
     prediction2 <- FALSE
     meta2$three.level <- FALSE
     meta2$rho <- NA
-    ##
+    #
     if (is.copas)
       meta2$k <- length(meta2$TE)
-    ##
+    #
     if (is.limit)
       meta2$tau2 <- meta2$tau^2
-    ##
+    #
     keep <- FALSE
     keep.Q <- FALSE
     keep.I2 <- FALSE
     keep.w <- FALSE
   }
-  ##
+  #
   chklogical(warn.deprecated)
-  ##
+  #
   missing.pooled1 <- missing(pooled1)
   missing.pooled2 <- missing(pooled2)
-  ##
+  #
   missing.common1 <- missing(common1)
   missing.random1 <- missing(random1)
-  ##
+  #
   missing.common2 <- missing(common2)
   missing.random2 <- missing(random2)
-  ##
+  #
   deprecated2(common1, missing(common1),
               pooled1, missing.pooled1, warn.deprecated)
   deprecated2(random1, missing(random1),
               pooled1, missing.pooled1, warn.deprecated)
-  ##
+  #
   if (missing.common1 & !missing(pooled1)) {
     pooled1 <- setchar(pooled1, c("both", "common", "random", "fixed"))
     pooled1[pooled1 == "fixed"] <- "common"
     common1 <- pooled1 == "common"
   }
-  ##
+  #
   if (missing.random1 & !missing(pooled1)) {
     pooled1 <- setchar(pooled1, c("both", "common", "random", "fixed"))
     random1 <- pooled1 %in% c("common", "both")
   }
-  ##
+  #
   chklogical(common1)
   chklogical(random1)
-  ##
+  #
   deprecated2(common2, missing(common2),
               pooled2, missing.pooled2, warn.deprecated)
   deprecated2(random2, missing(random2),
               pooled2, missing.pooled2, warn.deprecated)
-  ##
+  #
   if (missing.common2 & !missing(pooled2)) {
     pooled2 <- setchar(pooled2, c("both", "common", "random", "fixed"))
     pooled2[pooled2 == "fixed"] <- "common"
     common2 <- pooled2 == "common"
   }
-  ##
+  #
   if (missing.random2 & !missing(pooled2)) {
     pooled2 <- setchar(pooled2, c("both", "common", "random", "fixed"))
     random2 <- pooled2 %in% c("common", "both")
   }
-  ##
+  #
   chklogical(common2)
   chklogical(random2)
-  ##
+  #
   chklogical(keep)
   chklogical(keep.Q)
   chklogical(keep.I2)
   chklogical(keep.w)
-  ##
+  #
   chkchar(label1, length = 1, NULL.ok = TRUE)
   chkchar(label2, length = 1, NULL.ok = TRUE)
-  ##
+  #
   chkchar(label1.common, length = 1, NULL.ok = TRUE)
   chkchar(label2.common, length = 1, NULL.ok = TRUE)
-  ##
+  #
   chkchar(label1.random, length = 1, NULL.ok = TRUE)
   chkchar(label2.random, length = 1, NULL.ok = TRUE)
-  ##
+  #
   chkchar(label1.predict, length = 1, NULL.ok = TRUE)
   chkchar(label2.predict, length = 1, NULL.ok = TRUE)
-  ##
+  #
   chkchar(hetlabel1, length = 1, NULL.ok = TRUE)
   chkchar(taulabel1, length = 1, NULL.ok = TRUE)
-  ##
+  #
   chkchar(hetlabel2, length = 1, NULL.ok = TRUE)
   chkchar(taulabel2, length = 1, NULL.ok = TRUE)
-  ##
+  #
   chkchar(text.pooled1, length = 1, NULL.ok = TRUE)
   chkchar(text.common1, length = 1, NULL.ok = TRUE)
   chkchar(text.random1, length = 1, NULL.ok = TRUE)
   chkchar(text.predict1, length = 1, NULL.ok = TRUE)
-  ##
+  #
   chkchar(text.common2, length = 1, NULL.ok = TRUE)
   chkchar(text.pooled2, length = 1, NULL.ok = TRUE)
   chkchar(text.random2, length = 1, NULL.ok = TRUE)
   chkchar(text.predict2, length = 1, NULL.ok = TRUE)
-  ##
+  #
   chkchar(text.w.pooled1, length = 1, NULL.ok = TRUE)
   chkchar(text.w.common1, length = 1, NULL.ok = TRUE)
   chkchar(text.w.random1, length = 1, NULL.ok = TRUE)
-  ##
+  #
   chkchar(text.w.pooled2, length = 1, NULL.ok = TRUE)
   chkchar(text.w.common2, length = 1, NULL.ok = TRUE)
   chkchar(text.w.random2, length = 1, NULL.ok = TRUE)
-  ##
+  #
   chklogical(common)
   chklogical(random)
   chklogical(overall)
   chklogical(overall.hetstat)
   chklogical(prediction)
-  ##
+  #
   if (!missing(backtransf))
     chklogical(backtransf)
   else {
@@ -593,26 +592,26 @@ metamerge <- function(meta1, meta2,
     else
       backtransf <- FALSE
   }
-  ##
-  ## Check summary measures
-  ##
+  #
+  # Check summary measures
+  #
   if (!is.robu)
     samesm(meta1, meta2)
-  ##
-  ## Check original data (if available)
-  ##
+  #
+  # Check original data (if available)
+  #
   if (!is.robu)
     samedata(meta1, meta2)
-  ##
-  ## Check subgroup levels
-  ##
+  #
+  # Check subgroup levels
+  #
   samesubgroups(meta1, meta2)
-  ##
-  ## Check levels of confidence intervals
-  ##
+  #
+  # Check levels of confidence intervals
+  #
   lvls <- sort(unique(c(meta1$level, meta2$level)))
   lvls.ma <- sort(unique(c(meta1$level.ma, meta2$level.ma)))
-  ##
+  #
   if (length(lvls) != 1)
     stop("Different level for confidence intervals of individual studies: ",
          paste0(lvls, collapse = ", "),
@@ -623,113 +622,113 @@ metamerge <- function(meta1, meta2,
          call. = FALSE)
   
   
-  ##
-  ##
-  ## (2) Some assignments for trim-and-fill method (meta1 / meta2),
-  ##     Copas selection model, limit meta-analysis and robust
-  ##     variance meta-analysis (meta2)
-  ##
+  #
+  #
+  # (2) Some assignments for trim-and-fill method (meta1 / meta2),
+  #     Copas selection model, limit meta-analysis and robust
+  #     variance meta-analysis (meta2)
+  #
   
   meta1 <- updateobj(meta1,
                      label1.common, label1.random, label1.predict,
                      hetlabel1, taulabel1, label1.subgroup,
                      text.common1, text.random1, text.predict1,
                      text.w.common1, text.w.random1)
-  ##
+  #
   hetlabel1 <- meta1$hetlabel
   taulabel1 <- meta1$taulabel
-  ##
+  #
   meta2 <- updateobj(meta2,
                      label2.common, label2.random, label2.predict,
                      hetlabel2, taulabel2, label2.subgroup,
                      text.common2, text.random2, text.predict2,
                      text.w.common2, text.w.random2)
-  ##
+  #
   hetlabel2 <- meta2$hetlabel
   taulabel2 <- meta2$taulabel
   
   
-  ##
-  ##
-  ## (3) Some more assignments
-  ##
-  ##
+  #
+  #
+  # (3) Some more assignments
+  #
+  #
   
   meta1$detail.tau <- replaceNULL(meta1$detail.tau, "")
   meta2$detail.tau <- replaceNULL(meta2$detail.tau, "")
-  ##
+  #
   meta1$method.tau <- replaceNULL(meta1$method.tau, "")
   meta2$method.tau <- replaceNULL(meta2$method.tau, "")
-  ##
+  #
   meta1$method.tau.ci <- replaceNULL(meta1$method.tau.ci, "")
   meta2$method.tau.ci <- replaceNULL(meta2$method.tau.ci, "")
-  ##
+  #
   #meta1$method.random.ci <- replaceNULL(meta1$method.random.ci, "")
   #meta2$method.random.ci <- replaceNULL(meta2$method.random.ci, "")
-  ##
+  #
   meta1$df.random <- replaceNULL(meta1$df.random, NA)
   meta2$df.random <- replaceNULL(meta2$df.random, NA)
   
   
-  ##
-  ##
-  ## (4) Remove results from first meta-analysis (if necessary)
-  ##
-  ##
+  #
+  #
+  # (4) Remove results from first meta-analysis (if necessary)
+  #
+  #
   
   if (!common1 & common2)
     meta1 <- dropcommon(meta1)
-  ##
+  #
   if (!random1 & random2)
     meta1 <- droprandom(meta1)
-  ##
+  #
   if (!prediction1 & prediction2)
     meta1 <- droppredict(meta1)
   
   
-  ##
-  ##
-  ## (5) Remove results from second meta-analysis (if necessary)
-  ##
-  ##
+  #
+  #
+  # (5) Remove results from second meta-analysis (if necessary)
+  #
+  #
   
   if (!common2)
     meta2 <- dropcommon(meta2)
-  ##
+  #
   if (!random2)
     meta2 <- droprandom(meta2)
-  ##
+  #
   if (!prediction2)
     meta2 <- droppredict(meta2)
   
   
-  ##
-  ##
-  ## (6) Merge results
-  ##
-  ##
+  #
+  #
+  # (6) Merge results
+  #
+  #
   
   res <- meta1
-  ##
+  #
   ncom1 <- length(meta1$TE.common)
   nran1 <- length(meta1$TE.random)
   ncom2 <- length(meta2$TE.common)
   nran2 <- length(meta2$TE.random)
-  ##
-  ## Individual study weights
-  ##
+  #
+  # Individual study weights
+  #
   if (!common1 & common2) {
     res$w.common <- meta2$w.common
     res$text.w.common <- meta2$text.w.common
   }
   else if (!is.null(meta1$w.common) & !is.null(meta2$w.common) & keep.w) {
     res$text.w.common <- c(meta1$text.w.common, meta2$text.w.common)
-    ##
+    #
     res$w.common <- cbind(meta1$w.common, meta2$w.common)
     colnames(res$w.common) <- res$text.w.common
     rownames(res$w.common) <- meta1$studlab
   }
-  ##
+  #
   if (is.null(res$w.random) & !is.null(meta2$w.random)) {
     res$w.random <- meta2$w.random
     res$text.w.random <- meta2$text.w.random
@@ -743,24 +742,24 @@ metamerge <- function(meta1, meta2,
     }
     else {
       res$text.w.random <- c(meta1$text.w.random, meta2$text.w.random)
-      ##
+      #
       res$w.random <- cbind(meta1$w.random, meta2$w.random)
       colnames(res$w.random) <- c(meta1$text.w.random, meta2$text.w.random)
       rownames(res$w.random) <- meta1$studlab
     }
   }
-  ##
+  #
   res$hetlabel <- c(meta1$hetlabel, meta2$hetlabel)
-  ##
+  #
   res$method <-
     expandmerge(meta1$method, meta2$method,
                 nc1 = ncom1, nc2 = ncom2)
   res$method.random <-
     expandmerge(meta1$method.random, meta2$method.random,
                 nr1 = nran1, nr2 = nran2)
-  ##
-  ## Number of studies
-  ##
+  #
+  # Number of studies
+  #
   if (!inherits(meta1, "metamerge") & (is.limit | is.copas | is.robu)) {
     res$k <- meta1$k
     res$k.all <- meta1$k.all
@@ -788,9 +787,9 @@ metamerge <- function(meta1, meta2,
       expandmerge(meta1$k0, meta2$k0,
                   nc1 = ncom1, nc2 = ncom2, nr1 = nran1, nr2 = nran2)
   }
-  ##
-  ## Common effect model
-  ##
+  #
+  # Common effect model
+  #
   res$TE.common <- c(meta1$TE.common, meta2$TE.common)
   res$seTE.common <- c(meta1$seTE.common, meta2$seTE.common)
   res$statistic.common <- c(meta1$statistic.common, meta2$statistic.common)
@@ -799,9 +798,9 @@ metamerge <- function(meta1, meta2,
   res$upper.common <- c(meta1$upper.common, meta2$upper.common)
   res$zval.common <- c(meta1$zval.common, meta2$zval.common)
   res$text.common <- c(meta1$text.common, meta2$text.common)
-  ##
-  ## Random effects model
-  ##
+  #
+  # Random effects model
+  #
   res$TE.random <- c(meta1$TE.random, meta2$TE.random)
   res$seTE.random <- c(meta1$seTE.random, meta2$seTE.random)
   res$statistic.random <- c(meta1$statistic.random, meta2$statistic.random)
@@ -821,9 +820,9 @@ metamerge <- function(meta1, meta2,
   res$df.kero <- c(meta1$df.kero, meta2$df.kero)
   res$seTE.kero <- c(meta1$seTE.kero, meta2$seTE.kero)
   res$text.random <- c(meta1$text.random, meta2$text.random)
-  ##
-  ## Prediction interval
-  ##
+  #
+  # Prediction interval
+  #
   res$method.predict <- c(meta1$method.predict, meta2$method.predict)
   res$seTE.predict <- c(meta1$seTE.predict, meta2$seTE.predict)
   res$df.predict <- c(meta1$df.predict, meta2$df.predict)
@@ -834,34 +833,34 @@ metamerge <- function(meta1, meta2,
   res$seTE.hakn.adhoc.pi <-
     c(meta1$seTE.hakn.adhoc.pi, meta2$seTE.hakn.adhoc.pi)
   res$text.predict <- c(meta1$text.predict, meta2$text.predict)
-  ##
+  #
   res$prediction.subgroup <-
     any(c(meta1$prediction.subgroup, meta2$prediction.subgroup))
-  ##
-  ## Heterogeneity statistics
-  ##
+  #
+  # Heterogeneity statistics
+  #
   if (keep.Q) {
     res$Q <- c(meta1$Q, meta2$Q)
     res$df.Q <- c(meta1$df.Q, meta2$df.Q)
     res$pval.Q <- c(meta1$pval.Q, meta2$pval.Q)
   }
-  ##
+  #
   if (keep.I2) {
     res$I2 <- c(meta1$I2, meta2$I2)
     res$lower.I2 <- c(meta1$lower.I2, meta2$upper.I2)
     res$upper.I2 <- c(meta1$upper.I2, meta2$upper.I2)
-    ##
+    #
     res$H <- c(meta1$H, meta2$H)
     res$lower.H <- c(meta1$lower.H, meta2$upper.H)
     res$upper.H <- c(meta1$upper.H, meta2$upper.H)
-    ##
+    #
     res$Rb <- c(meta1$Rb, meta2$Rb)
     res$lower.Rb <- c(meta1$lower.Rb, meta2$upper.Rb)
     res$upper.Rb <- c(meta1$upper.Rb, meta2$upper.Rb)
   }
-  ##
-  ## Trim-and-fill method
-  ##
+  #
+  # Trim-and-fill method
+  #
   res$left <-
     expandmerge(meta1$left, meta2$left,
                 nc1 = ncom1, nc2 = ncom2, nr1 = nran1, nr2 = nran2)
@@ -877,12 +876,12 @@ metamerge <- function(meta1, meta2,
   res$n.iter <-
     expandmerge(meta1$n.iter, meta2$n.iter,
                 nc1 = ncom1, nc2 = ncom2, nr1 = nran1, nr2 = nran2)
-  ##
-  ## Subgroup analyses
-  ##
+  #
+  # Subgroup analyses
+  #
   replaceNULL(label1.subgroup, "")
   replaceNULL(label2.subgroup, "")
-  ##
+  #
   res$TE.common.w <- c(meta1$TE.common.w, meta2$TE.common.w)
   res$seTE.common.w <- c(meta1$seTE.common.w, meta2$seTE.common.w)
   res$statistic.common.w <-
@@ -890,18 +889,18 @@ metamerge <- function(meta1, meta2,
   res$pval.common.w <- c(meta1$pval.common.w, meta2$pval.common.w)
   res$lower.common.w <- c(meta1$lower.common.w, meta2$lower.common.w)
   res$upper.common.w <- c(meta1$upper.common.w, meta2$upper.common.w)
-  ##
+  #
   res$w.common.w <- c(meta1$w.common.w, meta2$w.common.w)
-  ##
+  #
   res$tau.w <- c(meta1$tau.w, meta2$tau.w)
-  ##
+  #
   res$Q.w.common <- c(meta1$Q.w.common, meta2$Q.w.common)
   res$pval.Q.w.common <- c(meta1$pval.Q.w.common, meta2$pval.Q.w.common)
-  ##
+  #
   res$Q.b.common <- c(meta1$Q.b.common, meta2$Q.b.common)
   res$df.Q.b.common <- c(meta1$df.Q.b.common, meta2$df.Q.b.common)
   res$pval.Q.b.common <- c(meta1$pval.Q.b.common, meta2$pval.Q.b.common)
-  ##
+  #
   res$TE.random.w <- c(meta1$TE.random.w, meta2$TE.random.w)
   res$seTE.random.w <- c(meta1$seTE.random.w, meta2$seTE.random.w)
   res$statistic.random.w <-
@@ -912,54 +911,54 @@ metamerge <- function(meta1, meta2,
   res$upper.random.w <- c(meta1$upper.random.w, meta2$upper.random.w)
   res$df.hakn.w <- c(meta1$df.hakn.w, meta2$df.hakn.w)
   res$df.kero.w <- c(meta1$df.kero.w, meta2$df.kero.w)
-  ##
+  #
   res$w.random.w <- c(meta1$w.random.w, meta2$w.random.w)
-  ##
+  #
   res$Q.w.random <- c(meta1$Q.w.random, meta2$Q.w.random)
   res$pval.Q.w.random <- c(meta1$pval.Q.w.random, meta2$pval.Q.w.random)
-  ##
+  #
   res$Q.b.random <- c(meta1$Q.b.random, meta2$Q.b.random)
   res$df.Q.b.random <- c(meta1$df.Q.b.random, meta2$df.Q.b.random)
   res$pval.Q.b.random <- c(meta1$pval.Q.b.random, meta2$pval.Q.b.random)
-  ##
+  #
   res$seTE.predict.w <- c(meta1$seTE.predict.w, meta2$seTE.predict.w)
   res$df.predict.w <- c(meta1$df.predict.w, meta2$df.predict.w)
   res$lower.predict.w <- c(meta1$lower.predict.w, meta2$lower.predict.w)
   res$upper.predict.w <- c(meta1$upper.predict.w, meta2$upper.predict.w)
   
   
-  ##
-  ##
-  ## (7) More settings
-  ##
-  ##
+  #
+  #
+  # (7) More settings
+  #
+  #
   if (is.null(taulabel1))
     taulabel1 <- names(meta1$tau)
   if (is.null(taulabel2))
     taulabel2 <- names(meta2$tau)
-  ##
+  #
   names(meta1$tau) <- names(meta1$tau2) <- taulabel1
   names(meta2$tau) <- names(meta2$tau2) <- taulabel2
-  ##
+  #
   if (!random1 & random2) {
     res$method.tau <- meta2$method.tau
     res$method.tau.ci <- meta2$method.tau.ci
     res$detail.tau <- meta2$detail.tau
-    ##
+    #
     res$tau <- meta2$tau
     names(res$tau) <- taulabel2
     res$lower.tau <- meta2$lower.tau
     res$upper.tau <- meta2$upper.tau
-    ##
+    #
     res$tau2 <- meta2$tau2
     names(res$tau2) <- taulabel2
     res$lower.tau2 <- meta2$lower.tau2
     res$upper.tau2 <- meta2$upper.tau2
-    ##
+    #
     res$se.tau <- meta2$se.tau
-    ##
+    #
     res$tau.preset <- meta2$tau.preset
-    ##
+    #
     res$Q.Cochrane <- meta2$Q.Cochrane
   }
   else if (random1 & random2) {
@@ -970,7 +969,7 @@ metamerge <- function(meta1, meta2,
           meta1$lower.tau2 <- meta1$upper.tau2 <- NA
         meta1$sign.lower.tau <- meta1$sign.upper.tau <- ""
     }
-    ##
+    #
     if (!inherits(meta2, "metamerge") && meta2$three.level) {
         meta2$tau2 <- sum(meta2$tau2)
         meta2$tau <- sqrt(meta2$tau2)
@@ -978,67 +977,67 @@ metamerge <- function(meta1, meta2,
           meta2$lower.tau2 <- meta2$upper.tau2 <- NA
         meta2$sign.lower.tau <- meta2$sign.upper.tau <- ""
     }
-    ##
+    #
     res$method.tau <-
       expandmerge(meta1$method.tau, meta2$method.tau,
                   nr1 = nran1, nr2 = nran2)
     res$method.tau.ci <-
       expandmerge(meta1$method.tau.ci, meta2$method.tau.ci,
                   nr1 = nran1, nr2 = nran2)
-    ##
+    #
     res$tau <- expandmerge(meta1$tau, meta2$tau, nr1 = nran1, nr2 = nran2)
     res$lower.tau <-
       expandmerge(meta1$lower.tau, meta2$lower.tau, nr1 = nran1, nr2 = nran2)
     res$upper.tau <-
       expandmerge(meta1$upper.tau, meta2$upper.tau, nr1 = nran1, nr2 = nran2)
-    ##
+    #
     res$tau2 <- expandmerge(meta1$tau2, meta2$tau2, nr1 = nran1, nr2 = nran2)
     res$lower.tau2 <- expandmerge(meta1$lower.tau2, meta2$lower.tau2,
                                   nr1 = nran1, nr2 = nran2)
     res$upper.tau2 <- expandmerge(meta1$upper.tau2, meta2$upper.tau2,
                                   nr1 = nran1, nr2 = nran2)
-    ##
+    #
     res$se.tau <-
       expandmerge(meta1$se.tau, meta2$se.tau, nr1 = nran1, nr2 = nran2)
-    ##
+    #
     res$detail.tau <-
       expandmerge(meta1$detail.tau, meta2$detail.tau,
                   nr1 = nran1, nr2 = nran2)
-    ##
+    #
     res$tau.preset <-
       expandmerge(meta1$tau.preset, meta2$tau.preset, nr1 = nran1, nr2 = nran2)
-    ##
+    #
     res$Q.Cochrane <-
       expandmerge(meta1$Q.Cochrane, meta2$Q.Cochrane, nr1 = nran1, nr2 = nran2)
   }
-  ##
+  #
   res$sm <- if (meta1$sm != meta2$sm) "" else meta1$sm
-  ##
+  #
   res$common <- any(common)
   res$random <- any(random)
   res$overall <- any(overall)
   res$overall.hetstat <- overall.hetstat
   res$prediction <- prediction
-  ##
+  #
   res$backtransf <- backtransf
-  ##
-  ## Three-level model
-  ##
+  #
+  # Three-level model
+  #
   if (!inherits(meta1, "metamerge") & is.limit)
     res$three.level <- unique(res$three.level)
   else
     res$three.level <-
       expandmerge(meta1$three.level, meta2$three.level,
                   nr1 = nran1, nr2 = nran2)
-  ##
+  #
   res$rho <-
     expandmerge(meta1$rho, meta2$rho, nr1 = nran1, nr2 = nran2)
-  ##
+  #
   if (!random1 & random2)
     res$cluster <- meta2$cluster
-  ##
-  ## Additional arguments from metabin(), metainc(), metaprop()
-  ##
+  #
+  # Additional arguments from metabin(), metainc(), metaprop()
+  #
   res$incr <- expandmerge(meta1$incr, meta2$incr,
                           ncom1, nran1, ncom2, nran2)
   res$method.incr <-
@@ -1047,9 +1046,9 @@ metamerge <- function(meta1, meta2,
   res$sparse <-
     expandmerge(meta1$sparse, meta2$sparse,
                 ncom1, nran1, ncom2, nran2)
-  ##
-  ## Additional arguments from metabin()
-  ##
+  #
+  # Additional arguments from metabin()
+  #
   res$allstudies <-
     expandmerge(meta1$allstudies, meta2$allstudies,
                 ncom1, nran1, ncom2, nran2)
@@ -1068,9 +1067,9 @@ metamerge <- function(meta1, meta2,
   res$phi <-
     expandmerge(meta1$phi, meta2$phi,
                 ncom1, nran1, ncom2, nran2)
-  ##
-  ## Additional arguments from metacont()
-  ##
+  #
+  # Additional arguments from metacont()
+  #
   res$pooledvar <- expandmerge(meta1$pooledvar, meta2$pooledvar,
                                ncom1, nran1, ncom2, nran2)
   res$method.smd <- expandmerge(meta1$method.smd, meta2$method.smd,
@@ -1085,27 +1084,27 @@ metamerge <- function(meta1, meta2,
                                ncom1, nran1, ncom2, nran2)
   
   
-  ##
-  ##
-  ## (8) Backward compatibility
-  ##
-  ##
+  #
+  #
+  # (8) Backward compatibility
+  #
+  #
   res <- backward(res)
   
   
-  ##
-  ##
-  ## (9) Set class
-  ##
-  ##
-  ##  
+  #
+  #
+  # (9) Set class
+  #
+  #
+  #  
   class(res) <- c(class(res), "metamerge")
-  ##
+  #
   if (inherits(meta2, "trimfill"))
     class(res) <- c(class(res), "trimfill")
-  ##
+  #
   res$call <- match.call()
-  ##
+  #
   class(res) <- unique(class(res))
   
   

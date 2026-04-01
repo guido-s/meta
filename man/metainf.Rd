@@ -115,25 +115,33 @@ Information from object \code{x} is utilised if argument
 }
 \examples{
 data(Fleiss1993bin)
-m1 <- metabin(d.asp, n.asp, d.plac, n.plac,
+ma1 <- metabin(d.asp, n.asp, d.plac, n.plac,
   data = Fleiss1993bin, studlab = study, sm = "RR", method = "I")
-m1
-metainf(m1)
-metainf(m1, pooled = "random")
+ma1
+metainf(ma1)
+metainf(ma1, pooled = "random")
 
-forest(metainf(m1))
-forest(metainf(m1, pooled = "random"))
+forest(metainf(ma1))
+forest(metainf(ma1, pooled = "random"))
 
-metainf(m1, sortvar = study)
-metainf(m1, sortvar = 7:1)
+\dontrun{
+# Create a PDF file with a forest plot containing UTF-8 characters
+# for tau^2, tau, and I^2
+forest(metainf(ma1, pooled = "random"),
+  label.tau2 = "\u03c4\u00b2", label.tau = "\u03c4", label.I2 = "I\u00b2",
+  file = "forest_with_unicode.pdf", width = 8.5, func.gr = "cairo_pdf")
+}
 
-m2 <- update(m1, title = "Fleiss1993bin meta-analysis", backtransf = FALSE)
-metainf(m2)
+metainf(ma1, sortvar = study)
+metainf(ma1, sortvar = 7:1)
+
+ma2 <- update(ma1, title = "Fleiss1993bin meta-analysis", backtransf = FALSE)
+metainf(ma2)
 
 data(Fleiss1993cont)
-m3 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
+ma3 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
   data = Fleiss1993cont, sm = "SMD")
-metainf(m3)
+metainf(ma3)
 
 }
 \references{

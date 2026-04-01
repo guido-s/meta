@@ -197,25 +197,24 @@
 #' @rdname read.rm5
 #' @export read.rm5
 
-
 read.rm5 <- function(file, sep = ",", quote = "\"",
                      title, numbers.in.labels = TRUE,
                      debug = 0) {
-  ##
+  #
   if (missing(file))
     stop("File name must be provided", call. = FALSE)
-  ##
+  #
   chkchar(file, length = 1)
-  ##
+  #
   chkchar(sep, length = 1)
   chkchar(quote, length = 1)
-  ##
+  #
   missing.title <- missing(title)
   if (!missing.title)
     chkchar(title, length = 1)
-  ##
+  #
   chklogical(numbers.in.labels)
-  ##
+  #
   if (!is.logical(debug))
     chknumeric(debug)
   if (!(debug %in% 0:3))
@@ -223,7 +222,7 @@ read.rm5 <- function(file, sep = ",", quote = "\"",
   
   
   nc <- nchar(file)
-  ##
+  #
   if (tolower(substring(file, nc - 2, nc)) == "csv") {
     if (missing.title)
       res <- read.rm5.csv(file, sep = sep, quote = quote,
@@ -244,9 +243,9 @@ read.rm5 <- function(file, sep = ",", quote = "\"",
   }
   else
     stop("Argument 'file' must refer to a RM5- or CSV-file.", call. = FALSE)
-  ##
+  #
   if (!is.null(res))
     attr(res, "filename") <- file
-  ##
+  #
   res
 }

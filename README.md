@@ -3,7 +3,7 @@ Official Git repository of R package **meta**
 
 [![License: GPL (>=2)](https://img.shields.io/badge/license-GPL-blue)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
 [![CRAN Version](https://www.r-pkg.org/badges/version/meta)](https://cran.r-project.org/package=meta)
-[![GitHub develop](https://img.shields.io/badge/develop-8.2--1-purple)](https://img.shields.io/badge/develop-8.2--1-purple)
+[![GitHub develop](https://img.shields.io/badge/develop-8.3--1-purple)](https://img.shields.io/badge/develop-8.3--1-purple)
 [![Monthly Downloads](https://cranlogs.r-pkg.org/badges/meta)](https://cranlogs.r-pkg.org/badges/meta)
 [![Total Downloads](https://cranlogs.r-pkg.org/badges/grand-total/meta)](https://cranlogs.r-pkg.org/badges/grand-total/meta)
 
@@ -14,12 +14,14 @@ User-friendly general package providing standard methods for meta-analysis and s
  - common effect and random effects meta-analysis;
  - several plots (forest, funnel, Galbraith / radial, L'Abbe, Baujat, bubble);
  - statistical tests and trim-and-fill method to evaluate bias in meta-analysis;
- - import data from 'RevMan Web' and 'RevMan 5';
- - prediction interval, Hartung-Knapp method for random effects model;
+ - Hartung-Knapp method for random effects model;
+ - prediction interval and density of the prediction distribution;
+ - expected proportion of comparable studies with clinically important benefit or harm;
  - cumulative meta-analysis and leave-one-out meta-analysis;
  - meta-regression;
  - generalised linear mixed models;
  - logistic regression with penalised likelihood for rare events;
+ - import data from 'RevMan Web' and 'RevMan 5';
  - produce forest plot summarising several (subgroup) meta-analyses.
  
 ### References
@@ -34,7 +36,7 @@ User-friendly general package providing standard methods for meta-analysis and s
 install.packages("meta")
 ```
 
-### Current [![GitHub develop](https://img.shields.io/badge/develop-8.2--1-purple)](https://img.shields.io/badge/develop-8.2--1-purple) release on GitHub:
+### Current [![GitHub develop](https://img.shields.io/badge/develop-8.3--1-purple)](https://img.shields.io/badge/develop-8.3--1-purple) release on GitHub:
 
 Installation using R package
 [**remotes**](https://cran.r-project.org/package=remotes):

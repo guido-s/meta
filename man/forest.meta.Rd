@@ -31,6 +31,7 @@
   subgroup.name = x$subgroup.name,
   print.subgroup.name = x$print.subgroup.name,
   sep.subgroup = x$sep.subgroup,
+  text.subgroup = NULL,
   text.common.w = text.common,
   text.random.w = text.random,
   text.predict.w = text.predict,
@@ -132,6 +133,18 @@
   print.pval.Q = gs("forest.pval.Q"),
   print.Rb = gs("forest.Rb"),
   print.Rb.ci = gs("forest.Rb.ci"),
+  label.n = gs("label.n"),
+  label.events = gs("label.events"),
+  label.mean = gs("label.mean"),
+  label.sd = gs("label.sd"),
+  label.cor = gs("label.cor"),
+  label.time = gs("label.time"),
+  label.pval = gs("label.pval"),
+  label.tau2 = gs("label.tau2"),
+  label.tau = gs("label.tau"),
+  label.I2 = gs("label.I2"),
+  label.cluster = gs("label.cluster"),
+  label.cycles = gs("label.cycles"),
   text.subgroup.nohet = gs("text.subgroup.nohet"),
   LRT = gs("LRT"),
   test.overall = gs("test.overall"),
@@ -146,6 +159,8 @@
   common.subgroup = common,
   random.subgroup = random,
   prediction.subgroup = x$prediction.subgroup,
+  print.tau2.ci.subgroup = gs("print.tau2.ci.subgroup"),
+  print.tau.ci.subgroup = gs("print.tau.ci.subgroup"),
   print.Q.subgroup = gs("forest.Q.subgroup"),
   label.test.subgroup.common,
   label.test.subgroup.random,
@@ -351,6 +366,10 @@ labels.}
 
 \item{sep.subgroup}{A character string defining the separator
 between label and levels of grouping variable.}
+
+\item{text.subgroup}{A character vector or expression to label the subgroups.
+The vector must be of the same length as the number of subgroups. Labels
+are printed from top to bottom in the forest plot.}
 
 \item{text.common.w}{A character string to label the pooled common
 effect estimate within subgroups, or a character vector of same
@@ -687,6 +706,42 @@ value of the I-squared statistic.}
 \item{print.Rb.ci}{A logical value indicating whether to print the
 confidence interval of the I-squared statistic.}
 
+\item{label.n}{A character string specifying the column label for
+the sample size.}
+
+\item{label.events}{A character string specifying the column label for
+the number of events.}
+
+\item{label.mean}{A character string specifying the column label for
+means.}
+
+\item{label.sd}{A character string specifying the column label for
+standard deviations.}
+
+\item{label.cor}{A character string specifying the column label for
+correlations.}
+
+\item{label.time}{A character string specifying the column label for
+times.}
+
+\item{label.pval}{A character string specifying the column label for
+p-values.}
+
+\item{label.tau2}{A character string specifying the column label for
+the between-study variance.}
+
+\item{label.tau}{A character string specifying the column label for
+the between-study standard deviation.}
+
+\item{label.I2}{A character string specifying the column label for
+the heterogeneity statistic I2.}
+
+\item{label.cluster}{A character string specifying the column label for
+the cluster variable.}
+
+\item{label.cycles}{A character string specifying the column label for
+the number of cycles.}
+
 \item{text.subgroup.nohet}{A logical value or character string
 which is printed to indicate subgroups with less than two studies
 contributing to meta-analysis (and thus without
@@ -737,6 +792,14 @@ printed for subgroups.}
 \item{prediction.subgroup}{A single logical or logical vector
 indicating whether / which prediction intervals should be printed
 for subgroups.}
+
+\item{print.tau2.ci.subgroup}{A single logical or logical vector
+indicating whether / which confidence intervals for between-study
+variances should be printed for subgroups.}
+
+\item{print.tau.ci.subgroup}{A single logical or logical vector
+indicating whether / which confidence intervals for between-study
+standard deviations should be printed for subgroups.}
 
 \item{print.Q.subgroup}{A logical value indicating whether to print
 the value of the heterogeneity statistic Q (test for subgroup
@@ -1319,31 +1382,35 @@ specify column headings which are printed on the left or right side of
 the forest plot. For certain columns predefined labels exist which
 are used by default, i.e., if arguments \code{leftlabs} and
 \code{rightlabs} are \code{NULL}:
-\tabular{rcccccc}{
-Column: \tab \code{studlab} \tab \code{TE} \tab \code{seTE} \tab
-  \code{cluster} \tab \code{n.e} \tab \code{n.c} \cr 
-Label: \tab "Study" \tab "TE" \tab "seTE" \tab "Cluster" \tab
-  "Total" \tab "Total" \cr
+\tabular{rccc}{
+Column: \tab \code{n.e}, \code{n.c}, \code{n} \tab
+  \code{mean.e}, \code{mean.c}, \code{mean} \tab
+  \code{sd.e}, \code{sd.c}, \code{sd} \cr 
+Label: \tab \code{gs("label.n")} \tab
+  \code{gs("label.mean")} \tab \code{gs("label.sd")} \cr
 \cr
-Column: \tab \code{n} \tab \code{event.e} \tab \code{event.c} \tab
-  \code{event} \tab \code{mean.e} \tab \code{mean.c} \cr
-Label: \tab "Total" \tab "Events" \tab "Events" \tab "Events" \tab
-  "Mean" \tab "Mean" \cr
+Column: \tab \code{event.e}, \code{event.c}, \code{event} \tab
+  \code{time.e}, \code{time.c}, \code{time} \tab \code{cor} \cr
+Label: \tab \code{gs("label.events")} \tab \code{gs("label.time")} \tab
+  \code{gs("label.cor")} \cr
 \cr
-Column: \tab \code{sd.e} \tab \code{sd.c} \tab \code{time.e}
-  \tab \code{time.c} \tab \code{effect} \tab \cr
-Label: \tab "SD" \tab "SD" \tab "Time" \tab "Time" \tab
-  \code{x$sm} \tab \cr
+Column: \tab \code{effect} \tab \code{ci} \tab \code{effect.ci} \cr
+Label: \tab \code{x$sm} \tab \code{x$level}"\%-CI" \tab \emph{effect+ci} \cr
 \cr
-Column: \tab \code{ci} \tab \code{effect.ci} \tab
-  \code{w.common} \tab \code{w.random} \tab \code{cycles} \tab \cr
-Label: \tab \code{x$level}"\%-CI" \tab \emph{effect+ci} \tab
-  "W(common)" \tab "W(random)" \tab "Cycles" \tab \cr
+Column: \tab \code{cluster} \tab \code{cycles} \tab \code{pval} \cr
+Label: \tab \code{gs("label.cluster")} \tab \code{gs("label.cycles")} \tab
+  \code{gs("label.pval")} \cr
 \cr
-Column: \tab \code{pval} \tab \code{tau2} \tab
-  \code{tau} \tab \tab \tab \cr
-Label: \tab "P-value" \tab "Tau2" \tab "Tau" \tab \tab \tab
+Column: \tab \code{tau2} \tab \code{tau} \tab \code{I2} \cr
+Label: \tab \code{gs("label.tau2")} \tab \code{gs("label.tau")} \tab
+  \code{gs("label.I2")}
 }
+
+For the columns \code{studlab} (study labels), \code{TE}
+(treatment estimates), \code{seTE} (standard errors of treatment estimates),
+\code{w.common} (weights under the common effect model), and \code{w.random}
+(weights under the random effects model), context-specific column labels
+are used.
 
 For other columns, the column name will be used as a label if no
 column label is defined. It is possible to only provide labels for
@@ -1595,7 +1662,7 @@ arguments of \code{forest.meta}.
 }
 \examples{
 data(Olkin1995)
-m1 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
+ma1 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
   data = Olkin1995, subset = c(41, 47, 51, 59),
   sm = "RR", method = "I",
   studlab = paste(author, year))
@@ -1604,7 +1671,7 @@ m1 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
 \dontrun{
 # Do standard (symmetric) forest plot
 #
-forest(m1)
+forest(ma1)
 }
 
 # Layout of forest plot similar to Review Manager 5
@@ -1612,7 +1679,7 @@ forest(m1)
 # Furthermore, add labels on both sides of forest plot and
 # prediction interval
 #
-forest(m1, layout = "RevMan5", common = FALSE,
+forest(ma1, layout = "RevMan5", common = FALSE,
   label.left = "Favours experimental", col.label.left = "green",
   label.right = "Favours control", col.label.right = "red",
   prediction = TRUE)
@@ -1624,7 +1691,7 @@ forest(m1, layout = "RevMan5", common = FALSE,
 # - specify filename (R function pdf() is used due to extension .pdf)
 # - height of the figure is automatically determined
 # - width is set to 10 inches
-forest(m1, file = "forest-m1-1.pdf", width = 10)
+forest(ma1, file = "forest-ma1-1.pdf", width = 10)
 #
 # - specify graphics device function
 #   (filename "Rplots.pdf" used, see help page of R function pdf())
@@ -1632,23 +1699,23 @@ forest(m1, file = "forest-m1-1.pdf", width = 10)
 # - width is set to 10 inches
 # - set title for PDF file
 # - set background of forest plot
-forest(m1, func.gr = pdf, width = 10,
+forest(ma1, func.gr = pdf, width = 10,
   args.gr = list(title = "My Forest Plot", bg = "green"))
 #
 # - manually specify the height of the figure
-pdf("forest-m1-2.pdf", width = 10, height = 3)
-forest(m1)
+pdf("forest-ma1-2.pdf", width = 10, height = 3)
+forest(ma1)
 dev.off()
 
 # Define equivalence limits: 0.75 and 1 / 0.75
 #
-forest(m1, layout = "RevMan5", common = FALSE, cid = 0.75,
+forest(ma1, layout = "RevMan5", common = FALSE, cid = 0.75,
   fill = "lightgray",
   fill.cid = "white")
 
 # Fill regions with beneficial and detrimental effects
 #
-forest(m1, layout = "RevMan5", common = FALSE, cid = 0.75,
+forest(ma1, layout = "RevMan5", common = FALSE, cid = 0.75,
   fill = "lightgray",
   fill.cid.below.null = "green",
   fill.cid.above.null = "red")
@@ -1658,7 +1725,7 @@ forest(m1, layout = "RevMan5", common = FALSE, cid = 0.75,
 #
 thresholds <- c(0.25, 0.5, 0.75)
 n.cols <- length(thresholds)
-forest(m1, layout = "RevMan5", common = FALSE,
+forest(ma1, layout = "RevMan5", common = FALSE,
   label.left = "Desirable effect", 
   label.right = "Undesirable effect", 
   lty.cid = 3, col.cid = "darkgray",
@@ -1670,83 +1737,83 @@ forest(m1, layout = "RevMan5", common = FALSE,
 
 # Conduct subgroup meta-analysis
 #
-m2 <- update(m1,
+ma2 <- update(ma1,
   subgroup = ifelse(year < 1987, "Before 1987", "1987 and later"),
   print.subgroup.name = FALSE)
 
 # Show summary results for subgroups with at least two studies
 #
-forest(m2, sortvar = -TE, random = FALSE)
+forest(ma2, sortvar = -TE, random = FALSE)
 
 # Show results for all subgroups
 #
-forest(m2, sortvar = -TE, random = FALSE, subgroup = k.w >= 1)
+forest(ma2, sortvar = -TE, random = FALSE, subgroup = k.w >= 1)
 
 # Forest plot specifying argument xlim
 #
-forest(m1, xlim = c(0.01, 10))
+forest(ma1, xlim = c(0.01, 10))
 
 # Print results of test for overall effect
 #
-forest(m1, test.overall.common = TRUE, test.overall.random = TRUE)
+forest(ma1, test.overall.common = TRUE, test.overall.random = TRUE)
 
 # Forest plot with 'classic' layout used in R package meta,
 # version < 1.6-0
 #
-forest(m1, col.square = "black", hetstat = FALSE)
+forest(ma1, col.square = "black", hetstat = FALSE)
 
 # Change set of columns printed on left side of forest plot
 # (resulting in overlapping text)
 #
-forest(m1, random = FALSE, leftcols = "studlab")
+forest(ma1, random = FALSE, leftcols = "studlab")
 
 # Use argument 'calcwidth.hetstat' to consider text for heterogeneity
 # measures in width of column with study labels
 #
-forest(m1, random = FALSE, leftcols = "studlab",
+forest(ma1, random = FALSE, leftcols = "studlab",
   calcwidth.hetstat = TRUE)
 
 # Use argument 'addrows.below.overall' to manually add two empty
 # rows
 #
-forest(m1, random = FALSE, leftcols = "studlab", addrows = 2)
+forest(ma1, random = FALSE, leftcols = "studlab", addrows = 2)
 
 # Do not print columns on right side of forest plot
 #
-forest(m1, rightcols = FALSE)
+forest(ma1, rightcols = FALSE)
 
 # Change study label to "Author"
 #
-forest(m1, random = FALSE, leftlabs = c("Author", NA, NA, NA, NA))
+forest(ma1, random = FALSE, leftlabs = c("Author", NA, NA, NA, NA))
 
 # Just give effect estimate and 95\% confidence interval on right
 # side of forest plot (in one column)
 #
-forest(m1, rightcols = "effect.ci")
+forest(ma1, rightcols = "effect.ci")
 
 # Just give effect estimate and 95\% confidence interval on right
 # side of forest plot
 #
-forest(m1, rightcols = c("effect", "ci"))
+forest(ma1, rightcols = c("effect", "ci"))
 
 # 1. Change order of columns on left side
 # 2. Attach labels to columns 'event.e' and 'event.c' instead of
 #    columns 'n.e' and 'n.c'
 #
-forest(m1,
+forest(ma1,
   leftcols = c("studlab", "n.e", "event.e", "n.c", "event.c"),
   label.e.attach = "event.e", label.c.attach = "event.c")
 
 # Specify column labels only for variables 'year' and 'author'
 # (and define digits for additional variables)
 #
-forest(m1,
+forest(ma1,
   leftcols = c("studlab", "event.e", "n.e", "event.c", "n.c", "author", "year"),
   leftlabs = c("Author", "Year of Publ"))
 
 # Center text in all columns
 #
-forest(m1,
+forest(ma1,
   leftcols = c("studlab", "event.e", "n.e", "event.c", "n.c",
                "author", "year"),
   leftlabs = c("Author", "Year of Publ"), hetstat = FALSE,
@@ -1754,7 +1821,7 @@ forest(m1,
 
 # Same result
 #
-forest(m1,
+forest(ma1,
   leftcols = c("studlab", "event.e", "n.e", "event.c", "n.c",
              "author", "year"),
   leftlabs = c("Author", "Year of Publ"), hetstat = FALSE,
@@ -1762,7 +1829,7 @@ forest(m1,
 
 # Change some fontsizes and fontfaces
 #
-forest(m1,
+forest(ma1,
   fs.study = 10, ff.study = "italic",
   fs.study.label = 11, ff.study.label = "bold",
   fs.axis = 5, ff.axis = "italic",
@@ -1771,49 +1838,49 @@ forest(m1,
 
 # Change some colours
 #
-forest(m1,
+forest(ma1,
   col.diamond = "green", col.diamond.lines = "red",
   col.study = c("green", "blue", "red", "orange"),
   col.square = "pink", col.square.lines = "black")
 
 # Sort by weight in common effect model
 #
-forest(m1, sortvar = w.common, random = FALSE)
+forest(ma1, sortvar = w.common, random = FALSE)
 
 # Sort by decreasing weight in common effect model
 #
-forest(m1, sortvar = -w.common, random = FALSE)
+forest(ma1, sortvar = -w.common, random = FALSE)
 
 # Sort by size of treatment effect
 #
-forest(m1, sortvar = TE, random = FALSE)
+forest(ma1, sortvar = TE, random = FALSE)
 
 # Sort by size of treatment effect
 #
-forest(m1, sortvar = -TE, random = FALSE)
+forest(ma1, sortvar = -TE, random = FALSE)
 
 # Sort by decreasing year of publication
 #
-forest(m1, sortvar = -year, random = FALSE)
+forest(ma1, sortvar = -year, random = FALSE)
 
 # Print results of test for subgroup differences (random effects
 # model)
 #
-forest(m2, sortvar = -TE, common = FALSE)
+forest(ma2, sortvar = -TE, common = FALSE)
 
 # Print only subgroup results
 #
-forest(m2, layout = "subgroup")
+forest(ma2, layout = "subgroup")
 
 # Print only subgroup results (and consider text for tests of
 # subgroup differences in width of subgroup column)
 #
-forest(m2, layout = "subgroup", calcwidth.tests = TRUE)
+forest(ma2, layout = "subgroup", calcwidth.tests = TRUE)
 
 # Print only subgroup results (and consider text for heterogeneity
 # in width of subgroup column)
 #
-forest(m2, layout = "subgroup", calcwidth.hetstat = TRUE)
+forest(ma2, layout = "subgroup", calcwidth.hetstat = TRUE)
 }
 
 }

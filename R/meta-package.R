@@ -59,6 +59,9 @@
 #'  (Veroniki et al., 2019; Higgins et al., 2009; Partlett and Riley, 2017;
 #'  Nagashima et al., 2019), see description of argument \code{method.predict}
 #'  below
+#' \item Expected proportion of comparable studies with clinically important
+#'  benefit or harm derived from the prediction distribution
+#'  (Siemens et al., 2025)
 #' \item Statistical tests for funnel plot asymmetry
 #'  (\code{\link{metabias.meta}}, \code{\link{metabias.rm5}}) and
 #'  trim-and-fill method (\code{\link{trimfill.meta}},
@@ -459,8 +462,8 @@
 #' \code{\link{woodyplants}} \tab Elevated CO$_2$ and total biomass of woody plants
 #' }
 #' 
-#' \bold{R} package \bold{metadat} has a large collection of meta-analysis data
-#' sets.
+#' \bold{R} packages \bold{metabook} and \bold{metadat} have a large collection
+#'  of meta-analysis data sets.
 #' }
 #'
 #' @note
@@ -611,6 +614,12 @@
 #' \emph{Meta-Analysis with R (Use-R!)}.
 #' Springer International Publishing, Switzerland
 #'
+#' Siemens W, Borenstein M, Evrenoglou T, Meerpohl JJ, Schwarzer G (2025):
+#' Beyond prediction intervals in meta-analysis: reporting the expected
+#' proportion of comparable studies with clinically relevant benefit or harm.
+#' \emph{BMC Medical Research Methodology},
+#' \bold{25}, 275
+#' 
 #' Skipka G (2006):
 #' The inclusion of the estimated inter-study variation into forest
 #' plots for random effects meta-analysis - a suggestion for a
@@ -670,10 +679,14 @@
 #' 
 #' @seealso \code{\link{meta-object}}, \code{\link{meta-sm}}
 #'
+#' @import metabook
+#'
 #' @import metadat
+#' 
+#' @importFrom rlang :=
 #'
 #' @importFrom dplyr %>% across mutate all_of select rename rename_with mutate
-#'   if_else tibble filter
+#'   if_else tibble filter bind_rows group_by group_map relocate
 #'
 #' @importFrom tibble column_to_rownames
 #'
@@ -708,7 +721,7 @@
 #'
 #' @importFrom utils count.fields read.table assignInNamespace
 #'   getFromNamespace packageDescription packageVersion head tail find
-#'   unzip
+#'   unzip combn
 #'
 #' @importFrom metafor forest funnel funnel.default baujat labbe
 #'   radial trimfill rma.uni rma.glmm rma.mv predict.rma

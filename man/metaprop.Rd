@@ -515,25 +515,25 @@ metaprop(4:1, 10 * 1:4)
 # Apply various classic meta-analysis methods to estimate
 # proportions
 #
-m1 <- metaprop(4:1, 10 * 1:4, method = "Inverse")
-m2 <- update(m1, sm = "PAS")
-m3 <- update(m1, sm = "PRAW")
-m4 <- update(m1, sm = "PLN")
-m5 <- update(m1, sm = "PFT")
+ma1 <- metaprop(4:1, 10 * 1:4, method = "Inverse")
+ma2 <- update(ma1, sm = "PAS")
+ma3 <- update(ma1, sm = "PRAW")
+ma4 <- update(ma1, sm = "PLN")
+ma5 <- update(ma1, sm = "PFT")
 #
-m1
-m2
-m3
-m4
-m5
+ma1
+ma2
+ma3
+ma4
+ma5
 #
-forest(m1)
+forest(ma1)
 \dontrun{
-forest(m2)
-forest(m3)
-forest(m3, pscale = 100)
-forest(m4)
-forest(m5)
+forest(ma2)
+forest(ma3)
+forest(ma3, pscale = 100)
+forest(ma4)
+forest(ma5)
 }
 
 # Do not back transform results, e.g. print logit transformed
@@ -541,19 +541,19 @@ forest(m5)
 #
 oldset <- settings.meta(backtransf = FALSE)
 #
-m6  <- metaprop(4:1, c(10, 20, 30, 40), method = "Inverse")
-m7  <- update(m6, sm = "PAS")
-m8  <- update(m6, sm = "PRAW")
-m9  <- update(m6, sm = "PLN")
-m10 <- update(m6, sm = "PFT")
+ma6  <- metaprop(4:1, c(10, 20, 30, 40), method = "Inverse")
+ma7  <- update(ma6, sm = "PAS")
+ma8  <- update(ma6, sm = "PRAW")
+ma9  <- update(ma6, sm = "PLN")
+ma10 <- update(ma6, sm = "PFT")
 #
-forest(m6)
+forest(ma6)
 \dontrun{
-forest(m7)
-forest(m8)
-forest(m8, pscale = 100)
-forest(m9)
-forest(m10)
+forest(ma7)
+forest(ma8)
+forest(ma8, pscale = 100)
+forest(ma9)
+forest(ma10)
 }
 
 # Use old settings
@@ -562,15 +562,15 @@ settings.meta(oldset)
 
 # Examples with zero events
 #
-m1 <- metaprop(c(0, 0, 10, 10), rep(100, 4), method = "Inverse")
-m2 <- metaprop(c(0, 0, 10, 10), rep(100, 4), incr = 0.1, method = "Inverse")
+ma11 <- metaprop(c(0, 0, 10, 10), rep(100, 4), method = "Inverse")
+ma12 <- metaprop(c(0, 0, 10, 10), rep(100, 4), incr = 0.1, method = "Inverse")
 #
-m1
-m2
+ma11
+ma12
 #
 \dontrun{
-forest(m1)
-forest(m2)
+forest(ma11)
+forest(ma12)
 }
 
 # Example from Miller (1978):
@@ -578,8 +578,8 @@ forest(m2)
 death <- c(3, 6, 10, 1)
 animals <- c(11, 17, 21, 6)
 #
-m3 <- metaprop(death, animals, sm = "PFT")
-forest(m3)
+ma13 <- metaprop(death, animals, sm = "PFT")
+forest(ma13)
 
 # Data examples from Newcombe (1998)
 # - apply various methods to estimate confidence intervals for
@@ -588,16 +588,16 @@ forest(m3)
 event <- c(81, 15, 0, 1)
 n <- c(263, 148, 20, 29)
 #
-m1 <- metaprop(event, n, method.ci = "SA", method = "Inverse")
-m2 <- update(m1, method.ci = "SACC")
-m3 <- update(m1, method.ci = "WS")
-m4 <- update(m1, method.ci = "WSCC")
-m5 <- update(m1, method.ci = "CP")
+ma14 <- metaprop(event, n, method.ci = "SA", method = "Inverse")
+ma15 <- update(ma14, method.ci = "SACC")
+ma16 <- update(ma14, method.ci = "WS")
+ma17 <- update(ma14, method.ci = "WSCC")
+ma18 <- update(ma14, method.ci = "CP")
 #
-lower <- round(logit2p(rbind(NA, m1$lower, m2$lower, NA, m3$lower,
-  m4$lower, NA, m5$lower)), 4)
-upper <- round(logit2p(rbind(NA, m1$upper, m2$upper, NA, m3$upper,
-  m4$upper, NA, m5$upper)), 4)
+lower <- round(logit2p(rbind(NA, ma14$lower, ma15$lower, NA, ma16$lower,
+  ma17$lower, NA, ma18$lower)), 4)
+upper <- round(logit2p(rbind(NA, ma14$upper, ma15$upper, NA, ma16$upper,
+  ma17$upper, NA, ma18$upper)), 4)
 #
 tab1 <- data.frame(
   scen1 = meta:::formatCI(lower[, 1], upper[, 1]),

@@ -16,7 +16,7 @@
 #' pw1 <- pairwise(list(Treatment1, Treatment2, Treatment3),
 #'   n = list(n1, n2, n3),
 #'   mean = list(y1, y2, y3), sd = list(sd1, sd2, sd3),
-#'   data = dat.franchini2012, studlab = Study)
+#'   data = Franchini2012, studlab = Study)
 #' 
 #' # Transform data from contrast-based to long arm-based format
 #' # and only keep the main variables
@@ -29,7 +29,6 @@
 #' @method subset longarm
 #' @export
 
-
 subset.longarm <- function(x, subset, ...){
   
   chkclass(x, "longarm")
@@ -39,29 +38,29 @@ subset.longarm <- function(x, subset, ...){
   attribs$names <- attribs$row.names <- NULL
   
   
-  ## Catch 'subset'
-  ##
+  # Catch 'subset'
+  #
   if (missing(subset))
     return(x)
-  ##
+  #
   sfsp <- sys.frame(sys.parent())
   mc <- match.call()
-  ##
+  #
   subset <- catch("subset", mc, x, sfsp)
   if (is.null(subset))
     subset <- catch("subset", mc, x$data, sfsp)
   
   
-  ## Select subset
-  ##
+  # Select subset
+  #
   x.df <- x
   class(x.df) <- "data.frame"
-  ##
+  #
   res <- subset(x.df, subset, ...)
   
   
-  ## Return subset
-  ## 
+  # Return subset
+  #
   for (i in names(attribs))
     attr(res, i) <- attr(x, i)
   #

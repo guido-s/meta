@@ -408,29 +408,28 @@
 #' \bold{14}, 135
 #' 
 #' @examples
-#' m1 <- metamean(rep(100, 3), 1:3, rep(1, 3))
-#' m1
+#' ma1 <- metamean(rep(100, 3), 1:3, rep(1, 3))
+#' ma1
 #' 
-#' m2 <- update(m1, sm = "MLN")
-#' m2
+#' ma2 <- update(ma1, sm = "MLN")
+#' ma2
 #' 
 #' # With test for overall mean equal to 2
 #' #
-#' update(m1, null.effect = 2)
-#' update(m2, null.effect = 2)
+#' update(ma1, null.effect = 2)
+#' update(ma2, null.effect = 2)
 #' 
 #' # Print results without back-transformation
 #' #
-#' update(m1, backtransf = FALSE)
-#' update(m2, backtransf = FALSE)
-#' update(m1, null.effect = 2, backtransf = FALSE)
-#' update(m2, null.effect = 2, backtransf = FALSE)
+#' update(ma1, backtransf = FALSE)
+#' update(ma2, backtransf = FALSE)
+#' update(ma1, null.effect = 2, backtransf = FALSE)
+#' update(ma2, null.effect = 2, backtransf = FALSE)
 #' 
 #' @export metamean
 
-
 metamean <- function(n, mean, sd, studlab,
-                     ##
+                     #
                      data = NULL, subset = NULL, exclude = NULL,
                      cluster = NULL, rho = 0,
                      #
@@ -440,11 +439,11 @@ metamean <- function(n, mean, sd, studlab,
                      median, q1, q3, min, max,
                      method.mean = "Luo", method.sd = "Shi",
                      approx.mean, approx.sd,
-                     ##
+                     #
                      sm = gs("smmean"),
                      method.ci = gs("method.ci.cont"),
                      level = gs("level"),
-                     ##
+                     #
                      common = gs("common"),
                      random = gs("random") | !is.null(tau.preset),
                      overall = common | random,
@@ -454,7 +453,7 @@ metamean <- function(n, mean, sd, studlab,
                        else
                          gs("overall.hetstat"),   
                      prediction = gs("prediction") | !missing(method.predict),
-                     ##
+                     #
                      method.tau = gs("method.tau"),
                      method.tau.ci = gs("method.tau.ci"),
                      level.hetstat = gs("level.hetstat"),
@@ -468,24 +467,24 @@ metamean <- function(n, mean, sd, studlab,
                      method.common.ci = gs("method.common.ci"),
                      method.random.ci = gs("method.random.ci"),
                      adhoc.hakn.ci = gs("adhoc.hakn.ci"),
-                     ##
+                     #
                      level.predict = gs("level.predict"),
                      method.predict = gs("method.predict"),
                      adhoc.hakn.pi = gs("adhoc.hakn.pi"),
                      seed.predict = NULL,
-                     ##
+                     #
                      null.effect = NA,
-                     ##
+                     #
                      method.bias = gs("method.bias"),
-                     ##
+                     #
                      backtransf = gs("backtransf"),
-                     ##
+                     #
                      text.common = gs("text.common"),
                      text.random = gs("text.random"),
                      text.predict = gs("text.predict"),
                      text.w.common = gs("text.w.common"),
                      text.w.random = gs("text.w.random"),
-                     ##
+                     #
                      title = gs("title"), complab = gs("complab"), outclab = "",
                      #
                      label.left = gs("label.left"),
@@ -499,24 +498,24 @@ metamean <- function(n, mean, sd, studlab,
                      test.subgroup = gs("test.subgroup"),
                      prediction.subgroup = gs("prediction.subgroup"),
                      seed.predict.subgroup = NULL,
-                     ##
+                     #
                      byvar, adhoc.hakn,
-                     ##
+                     #
                      keepdata = gs("keepdata"),
                      warn = gs("warn"), warn.deprecated = gs("warn.deprecated"),
-                     ##
+                     #
                      control = NULL,
                      ...) {
   
   
-  ##
-  ##
-  ## (1) Check arguments
-  ##
-  ##
+  #
+  #
+  # (1) Check arguments
+  #
+  #
   
   chknumeric(rho, min = -1, max = 1)
-  ##
+  #
   chknull(sm)
   chklevel(level)
   #
@@ -524,32 +523,32 @@ metamean <- function(n, mean, sd, studlab,
   #
   missing.method.tau <- missing(method.tau)
   method.tau <- setchar(method.tau, gs("meth4tau"))
-  ##
+  #
   missing.tau.common <- missing(tau.common)
   tau.common <- replaceNULL(tau.common, FALSE)
   chklogical(tau.common)
-  ##
+  #
   chklogical(prediction)
   chklevel(level.predict)
-  ##
+  #
   missing.method.predict <- missing(method.predict)
-  ##
+  #
   method.tau <-
     set_method_tau(method.tau, missing.method.tau,
                  method.predict, missing.method.predict)
   method.predict <-
     set_method_predict(method.predict, missing.method.predict,
                      method.tau, missing.method.tau)
-  ##
+  #
   if (any(method.predict == "NNF"))
     is_installed_package("pimeta", argument = "method.predict", value = "NNF")
-  ##
+  #
   adhoc.hakn.pi <- setchar(adhoc.hakn.pi, gs("adhoc4hakn.pi"))
-  ##
+  #
   chknumeric(null.effect, length = 1)
-  ##
+  #
   method.bias <- setmethodbias(method.bias)
-  ##
+  #
   if (!is.null(text.common))
     chkchar(text.common, length = 1)
   if (!is.null(text.random))
@@ -560,36 +559,36 @@ metamean <- function(n, mean, sd, studlab,
     chkchar(text.w.common, length = 1)
   if (!is.null(text.w.random))
     chkchar(text.w.random, length = 1)
-  ##
+  #
   chklogical(keepdata)
-  ##
-  ## Additional arguments / checks for metamean objects
-  ##
+  #
+  # Additional arguments / checks for metamean objects
+  #
   fun <- "metamean"
   sm <- setchar(sm, gs("sm4mean"))
   if (sm != "MRAW")
     method.ci <- "z"
   method.ci <- setchar(method.ci, gs("ci4cont"))
-  ##
+  #
   method.mean <-
     setchar(method.mean, c("Luo", "Wan", "Cai", "QE-McGrath", "BC-McGrath"))
   method.sd <-
     setchar(method.sd, c("Shi", "Wan", "Cai", "QE-McGrath", "BC-McGrath"))
-  ##
+  #
   if (method.mean %in% c("Cai", "QE-McGrath", "BC-McGrath"))
     is_installed_package("estmeansd", argument = "method.mean",
                          value = method.mean)
   if (method.sd %in% c("Cai", "QE-McGrath", "BC-McGrath"))
     is_installed_package("estmeansd", argument = "method.sd",
                          value = method.sd)
-  ##
+  #
   chklogical(warn)
-  ##
-  ## Check for deprecated arguments in '...'
-  ##
+  #
+  # Check for deprecated arguments in '...'
+  #
   args  <- list(...)
   chklogical(warn.deprecated)
-  ##
+  #
   level.ma <- deprecated(level.ma, missing(level.ma), args, "level.comb",
                          warn.deprecated)
   chklevel(level.ma)
@@ -602,11 +601,11 @@ metamean <- function(n, mean, sd, studlab,
   common <- deprecated(common, missing.common, args, "fixed",
                       warn.deprecated)
   chklogical(common)
-  ##
+  #
   random <- deprecated(random, missing(random), args, "comb.random",
                        warn.deprecated)
   chklogical(random)
-  ##
+  #
   method.random.ci <-
     deprecated(method.random.ci, missing(method.random.ci),
                args, "hakn", warn.deprecated)
@@ -616,51 +615,51 @@ metamean <- function(n, mean, sd, studlab,
     else
       method.random.ci <- "classic"
   method.random.ci <- setchar(method.random.ci, gs("meth4random.ci"))
-  ##
+  #
   adhoc.hakn.ci <-
     deprecated2(adhoc.hakn.ci, missing(adhoc.hakn.ci),
                 adhoc.hakn, missing(adhoc.hakn), warn.deprecated)
   adhoc.hakn.ci <- setchar(replaceNA(adhoc.hakn.ci, ""), gs("adhoc4hakn.ci"))
-  ##
+  #
   missing.subgroup.name <- missing(subgroup.name)
   subgroup.name <-
     deprecated(subgroup.name, missing.subgroup.name, args, "bylab",
                warn.deprecated)
-  ##
+  #
   print.subgroup.name <-
     deprecated(print.subgroup.name, missing(print.subgroup.name),
                args, "print.byvar", warn.deprecated)
   print.subgroup.name <-
     replaceNULL(print.subgroup.name, gs("print.subgroup.name"))
   chklogical(print.subgroup.name)
-  ##
+  #
   sep.subgroup <-
     deprecated(sep.subgroup, missing(sep.subgroup), args, "byseparator",
                warn.deprecated)
   if (!is.null(sep.subgroup))
     chkchar(sep.subgroup, length = 1)
-  ##
-  ## Some more checks
-  ##
+  #
+  # Some more checks
+  #
   chklogical(overall)
   chklogical(overall.hetstat)
   
   
-  ##
-  ##
-  ## (2) Read data
-  ##
-  ##
+  #
+  #
+  # (2) Read data
+  #
+  #
   
   nulldata <- is.null(data)
   sfsp <- sys.frame(sys.parent())
   mc <- match.call()
-  ##
+  #
   if (nulldata)
     data <- sfsp
-  ##
-  ## Catch 'n', 'mean', and 'sd' from data:
-  ##
+  #
+  # Catch 'n', 'mean', and 'sd' from data:
+  #
   missing.mean <- missing(mean)
   missing.sd <- missing(sd)
   missing.median <- missing(median)
@@ -668,55 +667,55 @@ metamean <- function(n, mean, sd, studlab,
   missing.q3 <- missing(q3)
   missing.min <- missing(min)
   missing.max <- missing(max)
-  ##
+  #
   if (missing.mean & missing.median)
     stop("Provide either argument 'mean' or 'median'.",
          call. = FALSE)
-  ##
+  #
   if (missing.sd &
       !((!missing.q1 & !missing.q3) |
         (!missing.min & !missing.max)))
     stop("Provide either argument 'sd' and ",
          "arguments 'q1' & 'q3' or 'min & 'max'.",
          call. = FALSE)
-  ##
+  #
   n <- catch("n", mc, data, sfsp)
   chknull(n)
   k.All <- length(n)
-  ##
+  #
   mean <- catch("mean", mc, data, sfsp)
   if (!missing.mean)
     chknull(mean)
   else
     mean <- rep(NA, k.All)
-  ##
+  #
   sd <- catch("sd", mc, data, sfsp)
   if (!missing.sd)
     chknull(sd)
   else
     sd <- rep(NA, k.All)
-  ##
-  ## Catch 'studlab', 'subgroup', 'subset', 'exclude' and 'cluster'
-  ## from data:
-  ##
+  #
+  # Catch 'studlab', 'subgroup', 'subset', 'exclude' and 'cluster'
+  # from data:
+  #
   studlab <- catch("studlab", mc, data, sfsp)
   studlab <- setstudlab(studlab, k.All)
-  ##
+  #
   missing.subgroup <- missing(subgroup)
   subgroup <- catch("subgroup", mc, data, sfsp)
   missing.byvar <- missing(byvar)
   byvar <- catch("byvar", mc, data, sfsp)
-  ##
+  #
   subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
                           warn.deprecated)
   by <- !is.null(subgroup)
-  ##
+  #
   subset <- catch("subset", mc, data, sfsp)
   missing.subset <- is.null(subset)
-  ##
+  #
   exclude <- catch("exclude", mc, data, sfsp)
   missing.exclude <- is.null(exclude)
-  ##
+  #
   cluster <- catch("cluster", mc, data, sfsp)
   with.cluster <- !is.null(cluster)
   #
@@ -743,26 +742,26 @@ metamean <- function(n, mean, sd, studlab,
   #
   if (usw.random)
     chknumeric(weights.random, min = 0)
-  ##
-  ## Catch 'median', 'q1', 'q3', 'min', 'max', 'approx.mean', and
-  ## 'approx.sd', from data:
-  ##
+  #
+  # Catch 'median', 'q1', 'q3', 'min', 'max', 'approx.mean', and
+  # 'approx.sd', from data:
+  #
   median <- catch("median", mc, data, sfsp)
-  ##
+  #
   q1 <- catch("q1", mc, data, sfsp)
-  ##
+  #
   q3 <- catch("q3", mc, data, sfsp)
-  ##
+  #
   min <- catch("min", mc, data, sfsp)
-  ##
+  #
   max <- catch("max", mc, data, sfsp)
-  ##
+  #
   avail.median <- !(missing.median || is.null(median))
   avail.q1 <- !(missing.q1 || is.null(q1))
   avail.q3 <- !(missing.q3 || is.null(q3))
   avail.min <- !(missing.min || is.null(min))
   avail.max <- !(missing.max || is.null(max))
-  ##
+  #
   missing.approx.mean <- missing(approx.mean)
   approx.mean <- catch("approx.mean", mc, data, sfsp)
   avail.approx.mean <-
@@ -774,11 +773,11 @@ metamean <- function(n, mean, sd, studlab,
     !(missing.approx.sd || is.null(approx.sd)) && any(approx.sd != "")
   
   
-  ##
-  ##
-  ## (3) Check length of essential variables
-  ##
-  ##
+  #
+  #
+  # (3) Check length of essential variables
+  #
+  #
   
   chklength(mean, k.All, fun)
   chklength(sd, k.All, fun)
@@ -811,13 +810,13 @@ metamean <- function(n, mean, sd, studlab,
     chklength(min, k.All, fun)
   if (avail.max)
     chklength(max, k.All, fun)
-  ##
+  #
   if (avail.approx.mean) {
     if (length(approx.mean) == 1)
       rep_len(approx.mean, k.All)
     else
       chklength(approx.mean, k.All, fun)
-    ##
+    #
     approx.mean <- setchar(approx.mean, c("", "iqr.range", "iqr", "range"))
   }
   else
@@ -828,7 +827,7 @@ metamean <- function(n, mean, sd, studlab,
       rep_len(approx.sd, k.All)
     else
       chklength(approx.sd, k.All, fun)
-    ##
+    #
     approx.sd <- setchar(approx.sd, c("", "iqr.range", "iqr", "range"))
   }
   else
@@ -839,9 +838,9 @@ metamean <- function(n, mean, sd, studlab,
     chklogical(test.subgroup)
     chklogical(prediction.subgroup)
   }
-  ##
-  ## Additional checks
-  ##
+  #
+  # Additional checks
+  #
   if (!by & tau.common) {
     warning("Value for argument 'tau.common' set to FALSE as ",
             "argument 'subgroup' is missing.")
@@ -854,22 +853,22 @@ metamean <- function(n, mean, sd, studlab,
   }
   
   
-  ##
-  ##
-  ## (4) Subset, exclude studies, and subgroups
-  ##
-  ##
+  #
+  #
+  # (4) Subset, exclude studies, and subgroups
+  #
+  #
   
   if (!missing.subset)
     if ((is.logical(subset) & (sum(subset) > k.All)) ||
         (length(subset) > k.All))
       stop("Length of subset is larger than number of studies.")
-  ##
+  #
   if (!missing.exclude) {
     if ((is.logical(exclude) & (sum(exclude) > k.All)) ||
         (length(exclude) > k.All))
       stop("Length of argument 'exclude' is larger than number of studies.")
-    ##
+    #
     exclude2 <- rep(FALSE, k.All)
     exclude2[exclude] <- TRUE
     exclude <- exclude2
@@ -878,23 +877,23 @@ metamean <- function(n, mean, sd, studlab,
     exclude <- rep(FALSE, k.All)
   
   
-  ##
-  ##
-  ## (5) Store complete dataset in list object data
-  ##     (if argument keepdata is TRUE)
-  ##
-  ##
+  #
+  #
+  # (5) Store complete dataset in list object data
+  #     (if argument keepdata is TRUE)
+  #
+  #
   
   if (keepdata) {
     if (nulldata)
       data <- data.frame(.n = n)
     else
       data$.n <- n
-    ##
+    #
     data$.mean <- mean
     data$.sd <- sd
     data$.studlab <- studlab
-    ##
+    #
     if (avail.median)
       data$.median <- median
     if (avail.q1)
@@ -908,10 +907,10 @@ metamean <- function(n, mean, sd, studlab,
     #
     data$.approx.mean <- approx.mean
     data$.approx.sd <- approx.sd
-    ##
+    #
     if (by)
       data$.subgroup <- subgroup
-    ##
+    #
     if (!missing.subset) {
       if (length(subset) == dim(data)[1])
         data$.subset <- subset
@@ -920,10 +919,10 @@ metamean <- function(n, mean, sd, studlab,
         data$.subset[subset] <- TRUE
       }
     }
-    ##
+    #
     if (!missing.exclude)
       data$.exclude <- exclude
-    ##
+    #
     if (with.cluster)
       data$.id <- data$.cluster <- cluster
     #
@@ -935,18 +934,18 @@ metamean <- function(n, mean, sd, studlab,
   }
   
   
-  ##
-  ##
-  ## (6) Use subset for analysis
-  ##
-  ##
+  #
+  #
+  # (6) Use subset for analysis
+  #
+  #
   
   if (!missing.subset) {
     n <- n[subset]
     mean <- mean[subset]
     sd <- sd[subset]
     studlab <- studlab[subset]
-    ##
+    #
     cluster <- cluster[subset]
     exclude <- exclude[subset]
     #
@@ -966,20 +965,20 @@ metamean <- function(n, mean, sd, studlab,
     #
     approx.mean <- approx.mean[subset]
     approx.sd <- approx.sd[subset]
-    ##
+    #
     if (by)
       subgroup <- subgroup[subset]
   }
-  ##
-  ## Determine total number of studies
-  ##
+  #
+  # Determine total number of studies
+  #
   k.all <- length(n)
-  ##
+  #
   if (k.all == 0)
     stop("No studies to combine in meta-analysis.")
-  ##
-  ## No meta-analysis for a single study
-  ##
+  #
+  # No meta-analysis for a single study
+  #
   if (k.all == 1) {
     common <- FALSE
     random <- FALSE
@@ -987,13 +986,13 @@ metamean <- function(n, mean, sd, studlab,
     overall <- FALSE
     overall.hetstat <- FALSE
   }
-  ##
-  ## Check variable values
-  ##
+  #
+  # Check variable values
+  #
   chknumeric(n)
   chknumeric(mean)
   chknumeric(sd)
-  ##
+  #
   if (avail.median)
     chknumeric(median)
   if (avail.q1)
@@ -1004,13 +1003,13 @@ metamean <- function(n, mean, sd, studlab,
     chknumeric(min)
   if (avail.max)
     chknumeric(max)
-  ##
-  ## Recode integer as numeric:
-  ##
+  #
+  # Recode integer as numeric:
+  #
   n    <- int2num(n)
   mean <- int2num(mean)
   sd   <- int2num(sd)
-  ##
+  #
   if (avail.median)
     median <- int2num(median)
   if (avail.q1)
@@ -1021,10 +1020,10 @@ metamean <- function(n, mean, sd, studlab,
     min <- int2num(min)
   if (avail.max)
     max <- int2num(max)
-  ##
+  #
   if (by) {
     chkmiss(subgroup)
-    ##
+    #
     if (missing.subgroup.name & is.null(subgroup.name)) {
       if (!missing.subgroup)
         subgroup.name <- byvarname("subgroup", mc)
@@ -1032,20 +1031,20 @@ metamean <- function(n, mean, sd, studlab,
         subgroup.name <- byvarname("byvar", mc)
     }
   }
-  ##
+  #
   if (!is.null(subgroup.name))
     chkchar(subgroup.name, length = 1)
   
-  ##
-  ##
-  ## (7) Calculate means from other information
-  ##
-  ##
+  #
+  #
+  # (7) Calculate means from other information
+  #
+  #
   
   if (!avail.approx.mean) {
-    ##
-    ## (a) Use IQR and range
-    ##
+    #
+    # (a) Use IQR and range
+    #
     sel.NA <- is.na(mean)
     if (any(sel.NA) & avail.median &
         avail.q1 & avail.q3 &
@@ -1053,13 +1052,13 @@ metamean <- function(n, mean, sd, studlab,
       j <- sel.NA & !is.na(median) & !is.na(q1) & !is.na(q3) &
         !is.na(min) & !is.na(max)
       approx.mean[j] <- "iqr.range"
-      ##
+      #
       mean[j] <- mean_sd_iqr_range(n[j], median[j], q1[j], q3[j],
                                    min[j], max[j], method.mean)$mean
     }
-    ##
-    ## (b) Use IQR
-    ##
+    #
+    # (b) Use IQR
+    #
     sel.NA <- is.na(mean)
     if (any(sel.NA) & avail.median & avail.q1 & avail.q3) {
       j <- sel.NA & !is.na(median) & !is.na(q1) & !is.na(q3)
@@ -1067,9 +1066,9 @@ metamean <- function(n, mean, sd, studlab,
       mean[j] <- mean_sd_iqr(n[j], median[j], q1[j], q3[j],
                              method.mean)$mean
     }
-    ##
-    ## (c) Use range
-    ##
+    #
+    # (c) Use range
+    #
     sel.NA <- is.na(mean)
     if (any(sel.NA) & avail.median & avail.min & avail.max) {
       j <- sel.NA & !is.na(median) & !is.na(min) & !is.na(max)
@@ -1082,7 +1081,7 @@ metamean <- function(n, mean, sd, studlab,
     j <- 0
     for (i in approx.mean) {
       j <- j + 1
-      ##
+      #
       if (i == "iqr.range")
         mean[j] <- mean_sd_iqr_range(n[j], median[j], q1[j], q3[j],
                                      min[j], max[j], method.mean)$mean
@@ -1096,11 +1095,11 @@ metamean <- function(n, mean, sd, studlab,
   }
   
   
-  ##
-  ##
-  ## (8) Calculate standard deviation from other information
-  ##
-  ##
+  #
+  #
+  # (8) Calculate standard deviation from other information
+  #
+  #
   
   if (!avail.median) {
     median.sd <- mean
@@ -1112,11 +1111,11 @@ metamean <- function(n, mean, sd, studlab,
     median.sd[is.na(median.sd)] <- mean[is.na(median.sd)]
     export.median <- TRUE
   }
-  ##
+  #
   if (!avail.approx.sd) {
-    ##
-    ## (a) Use IQR and range
-    ##
+    #
+    # (a) Use IQR and range
+    #
     sel.NA <- is.na(sd)
     if (any(sel.NA) &
         avail.q1 & avail.q3 &
@@ -1124,23 +1123,23 @@ metamean <- function(n, mean, sd, studlab,
       j <- sel.NA & !is.na(median.sd) & !is.na(q1) & !is.na(q3) &
         !is.na(min) & !is.na(max)
       approx.sd[j] <- "iqr.range"
-      ##
+      #
       sd[j] <- mean_sd_iqr_range(n[j], median.sd[j], q1[j], q3[j],
                                  min[j], max[j],
                                  method.sd = method.sd)$sd
     }
-    ##
-    ## (b) Use IQR
-    ##
+    #
+    # (b) Use IQR
+    #
     sel.NA <- is.na(sd)
     if (any(sel.NA) & avail.q1 & avail.q3) {
       j <- sel.NA & !is.na(median.sd) & !is.na(q1) & !is.na(q3)
       approx.sd[j] <- "iqr"
       sd[j] <- mean_sd_iqr(n[j], median.sd[j], q1[j], q3[j])$sd
     }
-    ##
-    ## (c) Use range
-    ##
+    #
+    # (c) Use range
+    #
     sel.NA <- is.na(sd)
     if (any(sel.NA) & avail.min & avail.max) {
       j <- sel.NA & !is.na(median.sd) & !is.na(min) & !is.na(max)
@@ -1152,7 +1151,7 @@ metamean <- function(n, mean, sd, studlab,
     j <- 0
     for (i in approx.sd) {
       j <- j + 1
-      ##
+      #
       if (i == "iqr.range")
         sd[j] <- mean_sd_iqr_range(n[j], median.sd[j], q1[j], q3[j],
                                    min[j], max[j],
@@ -1163,7 +1162,7 @@ metamean <- function(n, mean, sd, studlab,
         sd[j] <- mean_sd_range(n[j], median.sd[j], min[j], max[j])$sd
     }
   }
-  ##
+  #
   if (keepdata) {
     if (!isCol(data, ".subset")) {
       data$.sd <- sd
@@ -1184,91 +1183,91 @@ metamean <- function(n, mean, sd, studlab,
   }
   
   
-  ##
-  ##
-  ## (9) Calculate results for individual studies
-  ##
-  ##
+  #
+  #
+  # (9) Calculate results for individual studies
+  #
+  #
   
   npn.n <- npn(n)
-  ##
+  #
   if (any(npn.n) & warn)
     warning("Studies with non-positive sample size get no weight in ",
             "meta-analysis.")
-  ##
+  #
   if (sm == "MRAW") {
     TE <- ifelse(npn.n, NA, mean)
-    ##
+    #
     seTE <- ifelse(npn.n, NA, sqrt(sd^2 / n))
-    ##
+    #
     seTE[is.na(TE)] <- NA
-    ##
+    #
     if (method.ci == "t")
       ci.study <-
         ci(TE, seTE, level = level, df = n - 1, null.effect = null.effect)
-    ##
+    #
     transf.null.effect <- null.effect
   }
-  ##
+  #
   else if (sm == "MLN") {
     npn.mean <- npn(mean)
-    ##
+    #
     if (any(npn.mean) & warn)
       warning("Studies with negative or zero mean get no weight ",
               "in meta-analysis.")
-    ##
+    #
     TE <- ifelse(npn.n | npn.mean, NA, log(mean))
-    ##
+    #
     seTE <- ifelse(npn.n | npn.mean, NA, sqrt(sd^2 / (n * mean^2)))
-    ##
+    #
     seTE[is.na(TE)] <- NA
-    ##
+    #
     transf.null.effect <- log(null.effect)
   }
-  ##
-  ## Studies with non-positive variance get zero weight in meta-analysis
-  ##
+  #
+  # Studies with non-positive variance get zero weight in meta-analysis
+  #
   sel <- sd <= 0
-  ##
+  #
   if (any(sel, na.rm = TRUE) & warn)
     warning("Studies with non-positive standard deviation get ",
             "no weight in meta-analysis.")
-  ##
+  #
   seTE[sel] <- NA
   
   
-  ##
-  ##
-  ## (10) Additional checks for three-level model
-  ##
-  ##
+  #
+  #
+  # (10) Additional checks for three-level model
+  #
+  #
   
   three.level <- FALSE
   sel.ni <- !is.infinite(TE) & !is.infinite(seTE)
-  ##
-  ## Only conduct three-level meta-analysis if variable 'cluster'
-  ## contains duplicate values after removing inestimable study
-  ## results standard errors
-  ##
+  #
+  # Only conduct three-level meta-analysis if variable 'cluster'
+  # contains duplicate values after removing inestimable study
+  # results standard errors
+  #
   if (with.cluster &&
       length(unique(cluster[sel.ni])) != length(cluster[sel.ni]))
     three.level <- TRUE
-  ##
+  #
   if (three.level) {
     chkmlm(method.tau, missing.method.tau, method.predict)
-    ##
+    #
     common <- FALSE
-    ##
+    #
     if (!(method.tau %in% c("REML", "ML")))
       method.tau <- "REML"
   }
   
   
-  ##
-  ##
-  ## (11) Do meta-analysis
-  ##
-  ##
+  #
+  #
+  # (11) Do meta-analysis
+  #
+  #
   
   m <- metagen(TE, seTE, studlab,
                exclude = if (missing.exclude) NULL else exclude,
@@ -1279,13 +1278,13 @@ metamean <- function(n, mean, sd, studlab,
                #
                sm = sm,
                level = level,
-               ##
+               #
                common = common,
                random = random,
                overall = overall,
                overall.hetstat = overall.hetstat,
                prediction = prediction,
-               ##
+               #
                method.tau = method.tau, method.tau.ci = method.tau.ci,
                level.hetstat = level.hetstat,
                tau.preset = tau.preset,
@@ -1299,22 +1298,22 @@ metamean <- function(n, mean, sd, studlab,
                method.common.ci = method.common.ci,
                method.random.ci = method.random.ci,
                adhoc.hakn.ci = adhoc.hakn.ci,
-               ##
+               #
                level.predict = level.predict,
                method.predict = method.predict,
                adhoc.hakn.pi = adhoc.hakn.pi,
                seed.predict = seed.predict,
-               ##
+               #
                null.effect = transf.null.effect,
-               ##
+               #
                method.bias = method.bias,
-               ##
+               #
                backtransf = backtransf,
-               ##
+               #
                text.common = text.common, text.random = text.random,
                text.predict = text.predict,
                text.w.common = text.w.common, text.w.random = text.w.random,
-               ##
+               #
                title = title, complab = complab, outclab = outclab,
                #
                label.left = label.left, label.right = label.right,
@@ -1323,7 +1322,7 @@ metamean <- function(n, mean, sd, studlab,
                #
                keepdata = FALSE,
                warn = warn,
-               ##
+               #
                control = control)
   #
   # Estimate common tau-squared across subgroups
@@ -1333,16 +1332,16 @@ metamean <- function(n, mean, sd, studlab,
                    method.I2, level.hetstat, subgroup, control)
   
   
-  ##
-  ##
-  ## (12) Generate R object
-  ##
-  ##
+  #
+  #
+  # (12) Generate R object
+  #
+  #
   
   res <- list(n = n, mean = mean, sd = sd,
               method.ci = method.ci,
               method.mean = method.mean, method.sd = method.sd)
-  ##
+  #
   if (export.median)
     res$median <- median
   if (avail.q1)
@@ -1353,13 +1352,13 @@ metamean <- function(n, mean, sd, studlab,
     res$min <- min
   if (avail.max)
     res$max <- max
-  ##
+  #
   res$approx.sd <- approx.sd
   res$approx.mean <- approx.mean
-  ##
-  ## Add meta-analysis results
-  ## (after removing unneeded list elements)
-  ##
+  #
+  # Add meta-analysis results
+  # (after removing unneeded list elements)
+  #
   m$n.e <- NULL
   m$n.c <- NULL
   m$pscale <- NULL
@@ -1369,25 +1368,25 @@ metamean <- function(n, mean, sd, studlab,
   m$method.mean <- NULL
   m$approx.TE <- NULL
   m$approx.seTE <- NULL
-  ##
+  #
   m$label.e <- ""
   m$label.c <- ""
-  ##
+  #
   res <- c(res, m)
   res$null.effect <- null.effect
-  ##
-  ## Add data
-  ##
+  #
+  # Add data
+  #
   res$pairwise <- FALSE
   #
   res$call <- match.call()
-  ##
+  #
   if (keepdata) {
     res$data <- data
     if (!missing.subset)
       res$subset <- subset
   }
-  ##
+  #
   if (method.ci == "t") {
     res$lower <- ci.study$lower
     res$upper <- ci.study$upper
@@ -1397,7 +1396,7 @@ metamean <- function(n, mean, sd, studlab,
   }
   else if (!is.null(res$df) && all(is.na(res$df)))
     res$df <- NULL
-  ##
+  #
   if (all(res$approx.mean == "")) {
     res$approx.mean <- NULL
     res$data$.approx.mean <- NULL
@@ -1406,18 +1405,18 @@ metamean <- function(n, mean, sd, studlab,
     res$approx.sd <- NULL
     res$data$.approx.sd <- NULL
   }
-  ##
-  ## Remove test statistic and p-value if null effect is missing
-  ##
+  #
+  # Remove test statistic and p-value if null effect is missing
+  #
   if (is.na(null.effect)) {
     res$statistic <- NA
     res$pval <- NA
   }
-  ##
+  #
   class(res) <- c(fun, "meta")
-  ##
-  ## Add results from subgroup analysis
-  ##
+  #
+  # Add results from subgroup analysis
+  #
   if (by) {
     res$subgroup <- subgroup
     res$subgroup.name <- subgroup.name
@@ -1426,7 +1425,7 @@ metamean <- function(n, mean, sd, studlab,
     res$test.subgroup <- test.subgroup
     res$prediction.subgroup <- prediction.subgroup
     res$tau.common <- tau.common
-    ##
+    #
     if (!tau.common) {
       res <- c(res, subgroup(res, seed = seed.predict.subgroup))
       if (res$three.level)
@@ -1444,23 +1443,23 @@ metamean <- function(n, mean, sd, studlab,
         res <-
           c(res, subgroup(res, hcc$tau.resid, seed = seed.predict.subgroup))
     }
-    ##
+    #
     if (tau.common && is.null(tau.preset))
       res <- addHet(res, hcc)
-    ##
+    #
     res$event.w <- NULL
-    ##
+    #
     res$n.e.w <- NULL
     res$n.c.w <- NULL
     res$n.harmonic.mean.w <- NULL
-    ##
+    #
     res$event.e.w <- NULL
     res$event.c.w <- NULL
-    ##
+    #
     res$time.e.w <- NULL
     res$time.c.w <- NULL
     res$t.harmonic.mean.w <- NULL
-    ##
+    #
     res <- setNAwithin(res, res$three.level)
   }
   #
@@ -1469,11 +1468,11 @@ metamean <- function(n, mean, sd, studlab,
   #
   if (is.null(res$approx.sd))
     res$method.sd <- ""
-  ##
-  ## Backward compatibility
-  ##
+  #
+  # Backward compatibility
+  #
   res <- backward(res)
-  ##
+  #
   class(res) <- c(fun, "meta")
   
   res

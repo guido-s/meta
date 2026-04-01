@@ -23,16 +23,16 @@ Summary method for objects of class \code{meta}.
 }
 \examples{
 data(Fleiss1993cont)
-m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
+ma <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
   data = Fleiss1993cont, studlab = paste(study, year), sm = "SMD")
-summary(m1)
+summary(ma)
 
-summary(update(m1, subgroup = c(1, 2, 1, 1, 2), subgroup.name = "group"))
-forest(update(m1, subgroup = c(1, 2, 1, 1, 2), subgroup.name = "group"))
+summary(update(ma, subgroup = c(1, 2, 1, 1, 2), subgroup.name = "group"))
+forest(update(ma, subgroup = c(1, 2, 1, 1, 2), subgroup.name = "group"))
 
 \dontrun{
 # Use unicode characters to print tau^2, tau, and I^2
-print(summary(m1),
+print(summary(ma),
   text.tau2 = "\u03c4\u00b2", text.tau = "\u03c4", text.I2 = "I\u00b2")
 }
 

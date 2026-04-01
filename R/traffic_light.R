@@ -28,26 +28,25 @@
 #' 
 #' data(caffeine)
 #' 
-#' m1 <- metabin(h.caf, n.caf, h.decaf, n.decaf, sm = "OR",
+#' ma1 <- metabin(h.caf, n.caf, h.decaf, n.decaf, sm = "OR",
 #'   data = caffeine, studlab = paste(study, year))
 #'
 #' # Add risk of bias assessment to meta-analysis
-#' m2 <- rob(D1, D2, D3, D4, D5, overall = rob, data = m1, tool = "rob2")
+#' ma2 <- rob(D1, D2, D3, D4, D5, overall = rob, data = ma1, tool = "rob2")
 #' 
 #' # Print risk of bias assessment
-#' rob(m2)
+#' rob(ma2)
 #'
 #' \dontrun{
 #' # Traffic light plot (R package 'robvis' must be available)
 #' if (requireNamespace("robvis", quietly = TRUE))
-#'  traffic_light(rob(m2))
+#'  traffic_light(rob(ma2))
 #' }
 #' 
 #' # Use previous settings
 #' settings.meta(oldset)
 #' 
 #' @export traffic_light
-
 
 traffic_light <- function(object,
                           colour = "cochrane",
@@ -56,9 +55,9 @@ traffic_light <- function(object,
   
   chkclass(object, "rob")
   rob <- object
-  ##
+  #
   tool <- attr(object, "tool")
-  ##
+  #
   chklogical(quiet)
   
   
@@ -83,15 +82,15 @@ traffic_light <- function(object,
               call. = FALSE)
       return(invisible(NULL))
     }
-    ##
+    #
     if (is.null(rob$Weight))
       rob$Weight <- 1
-    ##
+    #
     if (tool %in% c("RoB1", "user-defined")) {
       domains <- attr(rob, "domains")
-      ##
+      #
       nam <- names(rob)
-      ##
+      #
       if (tool == "RoB1") {
         nam[nam == "A"] <- "Random.sequence.generation."
         nam[nam == "B"] <- "Allocation.concealment."
@@ -100,7 +99,7 @@ traffic_light <- function(object,
         nam[nam == "E"] <- "Incomplete.outcome.data."
         nam[nam == "F"] <- "Selective.reporting."
         nam[nam == "G"] <- "Other.bias."
-        ##
+        #
         if (length(domains) > 8)
           nam[nam == "H"] <- paste0(domains[8], ".")
         if (length(domains) > 9)
@@ -110,16 +109,16 @@ traffic_light <- function(object,
       }
       else if (tool == "user-defined") {
         domains[domains == "Overall risk of bias"] <- "Overall"
-        ##
+        #
         nam[nam == "Overall"] <- "O"
         nam[nam %in% LETTERS[1:15]] <- paste0(gsub(" ", ".", domains), ".")
-        ##
+        #
         tool <- "RoB1"
       }
-      ##
+      #
       names(rob) <- nam
     }
-    ##
+    #
     return(robvis::rob_traffic_light(rob, tool = toupper(tool),
                                      colour = colour, psize = psize,
                                      quiet = quiet))

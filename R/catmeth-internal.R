@@ -1,5 +1,5 @@
 text_meth <- function(x, i, random, method) {
-  ##
+  #
   if (x$method[i] == "MH" & x$model[i] == "common")
     txt <- text_MH(x, i, random)
   else if (x$method[i] == "Peto")
@@ -19,47 +19,47 @@ text_meth <- function(x, i, random, method) {
     txt <- paste("\n-", x$method[i])
   else
     txt <- ""
-  ##
+  #
   txt
 }
 
 
 text_MH <- function(x, i, random) {
   meth.i <- x[i, , drop = FALSE]
-  ##
+  #
   txt <- paste0("\n- ",
                 if (!is.null(meth.i$MH.exact) && meth.i$MH.exact)
                   "Exact ",
                 "Mantel-Haenszel method")
-  ##
+  #
   if (random)
     txt <- paste0(txt, " (", gs("text.w.common"), " effect model)")
-  ##
+  #
   txt
 }
 
 
 text_Peto <- function(x, i, random) {
   meth.i <- x[i, , drop = FALSE]
-  ##
+  #
   txt <- "\n- Peto method"
-  ##
+  #
   if (meth.i$model == "common" &
       !any(x$method[x$model == "random"] == "Peto"))
     txt <- paste0(txt, " (", gs("text.w.common"), " effect model)")
   else if (meth.i$model == "random" &
       !any(x$method[x$model == "common"] == "Peto"))
     txt <- paste0(txt, " (", gs("text.w.random"), " effects model)")
-  ##
+  #
   txt
 }
 
 
 text_Inverse <- function(x, i, random, method) {
   meth.i <- x[i, , drop = FALSE]
-  ##
+  #
   txt <- "\n- Inverse variance method"
-  ##
+  #
   if (meth.i$three.level)
     txt <-
       paste0(txt,
@@ -76,7 +76,7 @@ text_Inverse <- function(x, i, random, method) {
              !any(x$method[x$model == "common"] == "Inverse"))
       txt <- paste0(txt, " (", gs("text.w.random"), " effects model)")
   }
-  ##
+  #
   txt <-
     paste0(txt,
            if (method == "metacont" &&
@@ -85,14 +85,14 @@ text_Inverse <- function(x, i, random, method) {
              " (with pooled variance for individual studies)"
            else
              "")
-  ##
+  #
   txt
 }
 
 
 text_GLMM <- function(x, i, random, method) {
   meth.i <- x[i, , drop = FALSE]
-  ##
+  #
   if ("metabin" %in% method) {
     txt <-
       if (meth.i$model.glmm == "UM.FS")
@@ -127,14 +127,14 @@ text_GLMM <- function(x, i, random, method) {
   else if ("metarate" %in% method)
     txt <-
       "\n- Random intercept Poisson regression model"
-  ##
+  #
   if (meth.i$model == "common" && any(x$model == "random") &&
       !any(x$method[x$model == "random"] == "GLMM"))
     txt <- paste0(txt, " (", gs("text.w.common"), " effect model)")
   else  if (meth.i$model == "random" && any(x$model == "common") &&
             !any(x$method[x$model == "common"] == "GLMM"))
     txt <- paste0(txt, " (", gs("text.w.random"), " effects model)")
-  ##
+  #
   txt
 }
 
@@ -155,25 +155,25 @@ text_Cochran <- function(x, i, random) {
   meth.i <- x[i, , drop = FALSE]
   #
   txt <- "\n- Cochran method"
-  ##
+  #
   if (random)
     txt <- paste0(txt, " (", gs("text.w.common"), " effect model)")
-  ##
+  #
   txt
 }
 
 
 text_SSW <- function(x, i, random) {
   meth.i <- x[i, , drop = FALSE]
-  ##
+  #
   txt <- "\n- Sample size method"
-  ##
+  #
   if (meth.i$model == "common" &
       !any(x$method[x$model == "random"] == "SSW"))
     txt <- paste0(txt, " (", gs("text.w.common"), " effect model)")
   else if (meth.i$model == "random" &
       !any(x$method[x$model == "common"] != "SSW"))
     txt <- paste0(txt, " (", gs("text.w.random"), " effects model)")
-  ##
+  #
   txt
 }

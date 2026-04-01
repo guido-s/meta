@@ -1,12 +1,12 @@
 Package: meta
 Title: General Package for Meta-Analysis
-Version: 8.2-1
-Date: 2025-09-01
-Depends: R (>= 4.0.0), metadat
+Version: 8.3-0
+Date: 2026-04-01
+Depends: R (>= 4.0.0), metabook (>= 0.2-0), metadat
 Imports: metafor (>= 3.0-0), grid, ggplot2, lme4, CompQuadForm, xml2,
-  methods, readr, dplyr, magrittr, purrr, stringr, tibble, scales
+  methods, readr, dplyr, magrittr, purrr, stringr, rlang, tibble, scales
 Suggests: netmeta, BiasedUrn, pimeta, estmeansd, robvis, brglm2, writexl,
-  rmarkdown, knitr, ggpubr, gridExtra
+  rmarkdown, knitr, ggpubr, gridExtra, gemtc
 Authors@R: person("Guido", "Schwarzer",
                   role = c("cre", "aut"),
                   email = "guido.schwarzer@uniklinik-freiburg.de",
@@ -22,7 +22,8 @@ Description: User-friendly general package providing standard methods for meta-a
  - logistic regression with penalised likelihood for rare events;
  - Hartung-Knapp method for random effects model;
  - Kenward-Roger method for random effects model;
- - prediction interval;
+ - prediction interval and density of the prediction distribution;
+ - expected proportion of comparable studies with clinically important benefit or harm;
  - statistical tests  for funnel plot asymmetry;
  - trim-and-fill method to evaluate bias in meta-analysis;
  - meta-regression;
@@ -32,4 +33,4 @@ Description: User-friendly general package providing standard methods for meta-a
 License: GPL (>= 2)
 Encoding: UTF-8
 VignetteBuilder: knitr
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3

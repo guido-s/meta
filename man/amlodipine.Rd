@@ -33,11 +33,11 @@ This meta-analysis is used as a data example in Hartung and Knapp (2001).
 \examples{
 data(amlodipine)
 
-m <- metacont(n.amlo, mean.amlo, sqrt(var.amlo),
+ma <- metacont(n.amlo, mean.amlo, sqrt(var.amlo),
   n.plac, mean.plac, sqrt(var.plac),
   data = amlodipine, studlab = study,
   method.tau = "DL")
-m.hk <- update(m, method.random.ci = "HK")
+ma.hk <- update(ma, method.random.ci = "HK")
 
 # Same results for mean difference as in Table III in Hartung and
 # Knapp (2001)
@@ -45,12 +45,12 @@ m.hk <- update(m, method.random.ci = "HK")
 vars.common <- c("TE.common", "lower.common", "upper.common")
 vars.random <- c("TE.random", "lower.random", "upper.random")
 #
-res.common <- as.data.frame(m[vars.common])
+res.common <- as.data.frame(ma[vars.common])
 names(res.common) <- vars.random
 #
 res.md <- rbind(res.common,
-  as.data.frame(m[vars.random]),
-  as.data.frame(m.hk[vars.random]))
+  as.data.frame(ma[vars.random]),
+  as.data.frame(ma.hk[vars.random]))
 #
 res.md <- round(res.md, 5)
 #

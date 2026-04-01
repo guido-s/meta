@@ -1,7 +1,7 @@
 setcat <- function(x, labels) {
   if (is.null(labels))
     return(x)
-  ##
+  #
   x <- setchar(x, labels, stop.at.error = FALSE, setNA = TRUE)
   factor(x, levels = labels)
 }
@@ -10,10 +10,10 @@ setcat <- function(x, labels) {
 setdom <- function(dm, tool, domains, domain.available) {
 
   n <- length(dm)
-  ##
+  #
   n.names <- length(domains)
   n.domains <- sum(domain.available)
-  ##
+  #
   n.tool <-
     if (tool %in% c("RoB1", "ROBINS-I", "ROBINS-E"))
       7
@@ -49,30 +49,30 @@ setdom <- function(dm, tool, domains, domain.available) {
 
 catleg <- function(x) {
   domains <- attr(x, "domains")
-  ##
+  #
   vars <- names(x)
   vars <- vars[!(vars %in% c("Study", "Weight"))]
   vars[vars == "Overall"] <- "O"
-  ##
+  #
   paste0("(", vars, ") ", domains)
 }
 
 
 catcat <- function(x) {
   cat <- attr(x, "categories")
-  ##
+  #
   vars <- names(x)
   vars <- vars[!(vars %in% c("Study", "Weight"))]
   vars[vars == "Overall"] <- "O"
-  ##
+  #
   unique.list <- function(x) {
     if (length(unique(sapply(x, length))) != 1)
       return(FALSE)
-    ##
+    #
     for (i in seq_len(length(x[[1]])))
       if (length(unique(sapply(x, "[[", i))) != 1)
         return(FALSE)
-    ##
+    #
     return(TRUE)
   }
   if (unique.list(cat)) {
@@ -88,19 +88,19 @@ catcat <- function(x) {
 
 catcol <- function(x) {
   col <- attr(x, "col")
-  ##
+  #
   vars <- names(x)
   vars <- vars[!(vars %in% c("Study", "Weight"))]
   vars[vars == "Overall"] <- "O"
-  ##
+  #
   unique.list <- function(x) {
     if (length(unique(sapply(x, length))) != 1)
       return(FALSE)
-    ##
+    #
     for (i in seq_len(length(x[[1]])))
       if (length(unique(sapply(x, "[[", i))) != 1)
         return(FALSE)
-    ##
+    #
     return(TRUE)
   }
   if (unique.list(col)) {
@@ -117,19 +117,19 @@ catcol <- function(x) {
 
 catsymb <- function(x) {
   symb <- attr(x, "symbols")
-  ##
+  #
   vars <- names(x)
   vars <- vars[!(vars %in% c("Study", "Weight"))]
   vars[vars == "Overall"] <- "O"
-  ##
+  #
   unique.list <- function(x) {
     if (length(unique(sapply(x, length))) != 1)
       return(FALSE)
-    ##
+    #
     for (i in seq_len(length(x[[1]])))
       if (length(unique(sapply(x, "[[", i))) != 1)
         return(FALSE)
-    ##
+    #
     return(TRUE)
   }
   if (unique.list(symb)) {
@@ -150,7 +150,7 @@ definecat <- function(avail, x, var, tool, warn) {
     return(NULL)
   
   varname <- deparse(substitute(x))
-  ##
+  #
   robins <- tolower(substring(tool, 1, 6)) == "robins"
   rob <- tolower(substring(tool, 1, 3)) == "rob" & !robins
   
@@ -172,7 +172,7 @@ definecat <- function(avail, x, var, tool, warn) {
       x <- unique(sort(var))
     }
   }
-  ##
+  #
   x
 }
 
@@ -183,7 +183,7 @@ definesymb <- function(avail, x, cat, tool, warn) {
     return(NULL)
   
   varname <- deparse(substitute(x))
-  ##
+  #
   robins <- tolower(substring(tool, 1, 6)) == "robins"
   rob <- tolower(substring(tool, 1, 3)) == "rob" & !robins
   
@@ -199,7 +199,7 @@ definesymb <- function(avail, x, cat, tool, warn) {
   }
   else {
     chkchar(x, nchar = 1)
-    ##
+    #
     if (length(x) == 1 && is.logical(x)) {
       if (x) {
         if (tool == "user-defined")
@@ -216,7 +216,7 @@ definesymb <- function(avail, x, cat, tool, warn) {
                   paste0("Wrong number of RoB symbols ",
                          "(argument '", varname, "')."))
   }
-  ##
+  #
   x
 }
 
@@ -227,7 +227,7 @@ definecol <- function(avail, x, cat, tool, warn) {
     return(NULL)
   
   varname <- deparse(substitute(x))
-  ##
+  #
   robins <- tolower(substring(tool, 1, 6)) == "robins"
   rob <- tolower(substring(tool, 1, 3)) == "rob" & !robins
   
@@ -246,6 +246,6 @@ definecol <- function(avail, x, cat, tool, warn) {
               text =
                 paste0("Wrong number of RoB colours ",
                        "(argument '", varname, "')."))
-  ##
+  #
   x
 }
