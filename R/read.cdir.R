@@ -156,7 +156,6 @@
 #' @rdname read.cdir
 #' @export read.cdir
 
-
 read.cdir <- function(file, title = "Cochrane Review of Interventions",
                       exdir = tempdir(),
                       numbers.in.labels = TRUE,
@@ -570,7 +569,6 @@ read.cdir <- function(file, title = "Cochrane Review of Interventions",
 #' @rdname read.cdir
 #' @method print cdir
 #' @export
-
 
 print.cdir <- function(x, ...) {
   

@@ -272,41 +272,40 @@
 #' 
 #' @examples
 #' data(Olkin1995)
-#' m1 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
+#' ma1 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
 #'   data = Olkin1995, subset = 1:10, sm = "RR", method = "I")
 #' 
-#' metabias(m1)
-#' metabias(m1, plotit = TRUE)
+#' metabias(ma1)
+#' metabias(ma1, plotit = TRUE)
 #' 
-#' metabias(m1, method.bias = "Begg")
-#' metabias(m1, method.bias = "Begg", correct = TRUE)
+#' metabias(ma1, method.bias = "Begg")
+#' metabias(ma1, method.bias = "Begg", correct = TRUE)
 #' 
-#' metabias(m1, method.bias = "Schwarzer")
-#' metabias(m1, method.bias = "Egger")$pval
+#' metabias(ma1, method.bias = "Schwarzer")
+#' metabias(ma1, method.bias = "Egger")$pval
 #' 
 #' # Arcsine test (based on linear regression)
 #' #
-#' m1.as <- update(m1, sm = "ASD")
-#' metabias(m1.as)
+#' ma1.as <- update(ma1, sm = "ASD")
+#' metabias(ma1.as)
 #' # Same result (using function metabias.default)
-#' metabias(m1.as$TE, m1.as$seTE)
+#' metabias(ma1.as$TE, ma1.as$seTE)
 #' 
 #' # No test for funnel plot asymmetry calculated
 #' #
-#' m2 <- update(m1, subset = 1:5)
-#' metabias(m2)
+#' ma2 <- update(ma1, subset = 1:5)
+#' metabias(ma2)
 #' 
-#' m3 <- update(m1, subset = 1:2)
-#' metabias(m3)
+#' ma3 <- update(ma1, subset = 1:2)
+#' metabias(ma3)
 #' 
 #' # Test for funnel plot asymmetry calculated (use of argument k.min)
 #' #
-#' metabias(m2, k.min = 5)
+#' metabias(ma2, k.min = 5)
 #' 
 #' @rdname metabias
 #' @method metabias meta
 #' @export
-
 
 metabias.meta <- function(x, method.bias = x$method.bias,
                           plotit = FALSE, correct = FALSE,
@@ -692,7 +691,6 @@ metabias.meta <- function(x, method.bias = x$method.bias,
 #' @method print metabias
 #' @export
 
-
 print.metabias <- function(x,
                            digits = gs("digits"),
                            digits.stat = gs("digits.stat"),
@@ -942,7 +940,6 @@ print.metabias <- function(x,
 #' @rdname metabias
 #' @export metabias
 
-
 metabias <- function(x, ...) 
   UseMethod("metabias")
 
@@ -953,7 +950,6 @@ metabias <- function(x, ...)
 #' @rdname metabias
 #' @method metabias default
 #' @export
-
 
 metabias.default <- function(x, seTE,
                              method.bias = "Egger",

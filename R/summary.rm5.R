@@ -50,7 +50,6 @@
 #' @method summary rm5
 #' @export
 
-
 summary.rm5 <- function(object, comp.no, outcome.no, ...) {
   
   chkclass(object, "rm5")
@@ -87,7 +86,6 @@ summary.rm5 <- function(object, comp.no, outcome.no, ...) {
 #' @rdname summary.rm5
 #' @method summary cdir
 #' @export
-
 
 summary.cdir <- function(object, comp.no, outcome.no, ...) {
   
@@ -126,7 +124,6 @@ summary.cdir <- function(object, comp.no, outcome.no, ...) {
 #' @method print summary.rm5
 #' @export
 
-
 print.summary.rm5 <- function(x, ...) {
   
   chkclass(x, "summary.rm5")
@@ -152,7 +149,6 @@ print.summary.rm5 <- function(x, ...) {
 #' @rdname summary.rm5
 #' @method print summary.cdir
 #' @export
-
 
 print.summary.cdir <- function(x, ...) {
   

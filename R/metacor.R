@@ -231,37 +231,36 @@
 #' \bold{45}, 576--94
 #' 
 #' @examples
-#' m1 <- metacor(c(0.85, 0.7, 0.95), c(20, 40, 10))
+#' ma1 <- metacor(c(0.85, 0.7, 0.95), c(20, 40, 10))
 #' 
 #' # Print correlations (back transformed from Fisher's z
 #' # transformation)
 #' #
-#' summary(m1)
+#' summary(ma1)
 #' 
 #' # Print Fisher's z transformed correlations 
 #' #
-#' print(summary(m1), backtransf = FALSE)
+#' print(summary(ma1), backtransf = FALSE)
 #' 
 #' # Forest plot with back transformed correlations
 #' #
-#' forest(m1)
+#' forest(ma1)
 #' 
 #' # Forest plot with Fisher's z transformed correlations
 #' #
-#' forest(m1, backtransf = FALSE)
+#' forest(ma1, backtransf = FALSE)
 #' 
-#' m2 <- update(m1, sm = "cor")
-#' summary(m2)
+#' ma2 <- update(ma1, sm = "cor")
+#' summary(ma2)
 #'
 #' \dontrun{
 #' # Identical forest plots (as back transformation is the identity
 #' # transformation)
-#' forest(m2)
-#' forest(m2, backtransf = FALSE)
+#' forest(ma2)
+#' forest(ma2, backtransf = FALSE)
 #' }
 #' 
 #' @export metacor
-
 
 metacor <- function(cor, n, studlab,
                     ##

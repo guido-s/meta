@@ -124,47 +124,46 @@
 #' 
 #' @examples
 #' data(Olkin1995)
-#' m1 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
+#' ma <- metabin(ev.exp, n.exp, ev.cont, n.cont,
 #'   data = Olkin1995, studlab = paste(author, year),
 #'   sm = "RR", method = "I")
 #' 
 #' # L'Abbe plot for risk ratio
 #' #
-#' labbe(m1)
+#' labbe(ma)
 #' 
 #' # L'Abbe plot for odds ratio
 #' #
-#' labbe(m1, sm = "OR")
+#' labbe(ma, sm = "OR")
 #' # same plot
-#' labbe(update(m1, sm = "OR"))
+#' labbe(update(ma, sm = "OR"))
 #' 
 #' # L'Abbe plot for risk difference
 #' #
-#' labbe(m1, sm = "RD")
+#' labbe(ma, sm = "RD")
 #' 
 #' # L'Abbe plot on log odds scale
 #' #
-#' labbe(m1, sm = "OR", backtransf = FALSE)
+#' labbe(ma, sm = "OR", backtransf = FALSE)
 #' 
 #' # L'Abbe plot for odds ratio with coloured lines for various
 #' # treatment effects (defined as log odds ratios)
 #' #
 #' mycols <- c("blue", "yellow", "green", "red", "green", "yellow", "blue")
-#' labbe(m1, sm = "OR", random = FALSE,
+#' labbe(ma, sm = "OR", random = FALSE,
 #'   TE.common = log(c(1 / 10, 1 / 5, 1 / 2, 1, 2, 5, 10)),
 #'   col.common = mycols, lwd.common = 2)
 #' 
 #' # L'Abbe plot on log odds scale with coloured lines for various
 #' # treatment effects (defined as log odds ratios)
 #' #
-#' labbe(m1, sm = "OR", random = FALSE, backtransf = FALSE,
+#' labbe(ma, sm = "OR", random = FALSE, backtransf = FALSE,
 #'   TE.common = log(c(1 / 10, 1 / 5, 1 / 2, 1, 2, 5, 10)),
 #'   col.common = mycols, lwd.common = 2)
 #' 
 #' @rdname labbe
 #' @method labbe metabin
 #' @export
-
 
 labbe.metabin <- function(x,
                           xlim, ylim,
@@ -554,7 +553,6 @@ labbe.metabin <- function(x,
 #' @rdname labbe
 #' @method labbe default
 #' @export
-
 
 labbe.default <- function(x, y,
                           xlim, ylim,

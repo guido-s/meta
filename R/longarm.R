@@ -112,7 +112,6 @@
 #' 
 #' @export longarm
 
-
 longarm <- function(treat1, treat2,
                     event1, n1, event2, n2,
                     mean1, sd1, mean2, sd2,
@@ -125,7 +124,7 @@ longarm <- function(treat1, treat2,
                     id2 = NULL,
                     append = TRUE,
                     keep.duplicated = FALSE,
-                    keep.internal = FALSE) {  
+                    keep.internal = FALSE) {
   
   ##
   ##

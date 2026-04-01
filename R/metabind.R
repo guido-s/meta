@@ -58,31 +58,31 @@
 #' Fleiss1993cont$age <- c(55, 65, 55, 65, 55)
 #' Fleiss1993cont$region <- c("Europe", "Europe", "Asia", "Asia", "Europe")
 #' 
-#' m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
+#' ma <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
 #'   data = Fleiss1993cont, sm = "SMD")
 #'
 #' # Conduct two subgroup analyses
 #' #
-#' mu1 <- update(m1, subgroup = age, subgroup.name = "Age group")
-#' mu2 <- update(m1, subgroup = region, subgroup.name = "Region")
+#' ma1 <- update(ma, subgroup = age, subgroup.name = "Age group")
+#' ma2 <- update(ma, subgroup = region, subgroup.name = "Region")
 #'
 #' # Combine random effects subgroup meta-analyses and show forest
 #' # plot with subgroup results
 #' #
-#' mb1 <- metabind(mu1, mu2, common = FALSE)
-#' mb1
-#' forest(mb1)
+#' mb <- metabind(ma1, ma2, common = FALSE)
+#' mb
+#' forest(mb)
 #'
 #' # Use various estimation methods for between-study heterogeneity
 #' # variance
 #' #
-#' m1.pm <- update(m1, method.tau = "PM")
-#' m1.dl <- update(m1, method.tau = "DL")
-#' m1.ml <- update(m1, method.tau = "ML")
-#' m1.hs <- update(m1, method.tau = "HS")
-#' m1.sj <- update(m1, method.tau = "SJ")
-#' m1.he <- update(m1, method.tau = "HE")
-#' m1.eb <- update(m1, method.tau = "EB")
+#' ma.pm <- update(ma, method.tau = "PM")
+#' ma.dl <- update(ma, method.tau = "DL")
+#' ma.ml <- update(ma, method.tau = "ML")
+#' ma.hs <- update(ma, method.tau = "HS")
+#' ma.sj <- update(ma, method.tau = "SJ")
+#' ma.he <- update(ma, method.tau = "HE")
+#' ma.eb <- update(ma, method.tau = "EB")
 #'
 #' # Combine meta-analyses and show results
 #' #
@@ -95,13 +95,12 @@
 #'   "Hedges estimator",
 #'   "Empirical Bayes estimator")
 #' #
-#' m1.taus <- metabind(m1, m1.pm, m1.dl, m1.ml, m1.hs, m1.sj, m1.he, m1.eb,
+#' ma.taus <- metabind(ma, ma.pm, ma.dl, ma.ml, ma.hs, ma.sj, ma.he, ma.eb,
 #'   name = taus, common = FALSE)
-#' m1.taus
-#' forest(m1.taus)
+#' ma.taus
+#' forest(ma.taus)
 #' 
 #' @export metabind
-
 
 metabind <- function(..., subgroup = NULL,
                      name = NULL,

@@ -61,7 +61,6 @@
 #' @method weights meta
 #' @export
 
-
 weights.meta <- function(object,
                          common = object$common,
                          random = object$random,

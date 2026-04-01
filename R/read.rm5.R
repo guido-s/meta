@@ -197,7 +197,6 @@
 #' @rdname read.rm5
 #' @export read.rm5
 
-
 read.rm5 <- function(file, sep = ",", quote = "\"",
                      title, numbers.in.labels = TRUE,
                      debug = 0) {

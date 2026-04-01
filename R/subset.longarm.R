@@ -29,7 +29,6 @@
 #' @method subset longarm
 #' @export
 
-
 subset.longarm <- function(x, subset, ...){
   
   chkclass(x, "longarm")

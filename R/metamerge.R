@@ -240,19 +240,19 @@
 #' data(Fleiss1993bin)
 #' 
 #' # Mantel-Haenszel method
-#' m1 <- metabin(d.asp, n.asp, d.plac, n.plac, data = Fleiss1993bin,
+#' ma1 <- metabin(d.asp, n.asp, d.plac, n.plac, data = Fleiss1993bin,
 #'   studlab = paste(study, year), sm = "OR")
 #' # Peto method
-#' m2 <- update(m1, method = "Peto")
+#' ma2 <- update(ma1, method = "Peto")
 #' # Inverse variance method (only common effect model)
-#' m3 <- update(m2, method = "Inverse", random = FALSE)
+#' ma3 <- update(ma2, method = "Inverse", random = FALSE)
 #' 
 #' # Merge results from MH and Peto method
 #' # - show individual results for MH method
 #' #   (as this is the first meta-analysis)
 #' # - keep all additional information from Peto meta-analysis (i.e.,
 #' #   weights, Q statistic and I2 statistic)
-#' m12 <- metamerge(m1, m2,
+#' ma12 <- metamerge(ma1, ma2,
 #'   label1 = "REML", label2 = "REML-Peto",
 #'   label1.common = "MH", label2.common = "Peto", 
 #'   text.common1 = "Mantel-Haenszel method",
@@ -266,16 +266,16 @@
 #' # - Q and I2 statistic are identical for sm = "MH" and sm = "Inverse"
 #' #   as inverse variance method is used for sm = "MH" under random
 #' #   effects model
-#' m123 <- metamerge(m12, m3,
+#' ma123 <- metamerge(ma12, ma3,
 #'   label2 = "IV",
 #'   text.common2 = "Inverse variance method",
 #'   keep.w = TRUE)
-#' summary(m123)
+#' summary(ma123)
 #' \dontrun{
-#' forest(m123, digits = 6)
+#' forest(ma123, digits = 6)
 #' 
 #' # Merge results (show individual results for Peto method)
-#' m21 <- metamerge(m2, m1,
+#' ma21 <- metamerge(ma2, ma1,
 #'   label1 = "REML-Peto", label2 = "REML",
 #'   label1.common = "Peto", label2.common = "MH", 
 #'   hetlabel1 = "Peto", hetlabel2 = "MH/IV",
@@ -288,72 +288,71 @@
 #' # - Q and I2 statistic are identical for sm = "MH" and sm = "Inverse"
 #' #   as inverse variance method is used for sm = "MH" under random
 #' #   effects model
-#' m213 <- metamerge(m21, m3,
+#' ma213 <- metamerge(ma21, ma3,
 #'   label2 = "IV",
 #'   text.common2 = "Inverse variance method",
 #'   keep.w = TRUE)
-#' summary(m213)
+#' summary(ma213)
 #' 
 #' # Random effects method using ML estimator for between-study variance tau2
-#' m4 <- update(m1, common = FALSE, method.tau = "ML")
+#' ma4 <- update(ma1, common = FALSE, method.tau = "ML")
 #' 
 #' # Use DerSimonian-Laird estimator for tau2
-#' m5 <- update(m4, method.tau = "DL")
+#' ma5 <- update(ma4, method.tau = "DL")
 #' 
 #' # Use Paule-Mandel estimator for tau2
-#' m6 <- update(m4, method.tau = "PM")
+#' ma6 <- update(ma4, method.tau = "PM")
 #' 
 #' # Merge random effects results for ML and DL estimators
 #' # - keep weights for DL estimator (which are different from ML)
-#' m45 <- metamerge(m4, m5, label1 = "ML", label2 = "DL",
+#' ma45 <- metamerge(ma4, ma5, label1 = "ML", label2 = "DL",
 #'   text.w.random1 = "RE-ML", text.w.random2 = "RE-DL", keep.w = TRUE)
-#' summary(m45)
+#' summary(ma45)
 #' 
 #' # Add results for PM estimator
 #' # - keep weights
-#' m456 <- metamerge(m45, m6, label2 = "PM",
+#' ma456 <- metamerge(ma45, ma6, label2 = "PM",
 #'   text.w.random2 = "RE-PM", keep.w = TRUE)
-#' summary(m456)
+#' summary(ma456)
 #' 
-#' m123456 <- metamerge(m123, m456)
-#' m123456
+#' ma123456 <- metamerge(ma123, ma456)
+#' ma123456
 #' 
 #' # Use Hartung-Knapp confidence intervals
 #' # - do not keep information on Q, I2 and weights
-#' m7 <- update(m4, method.random.ci = "HK",
+#' ma7 <- update(ma4, method.random.ci = "HK",
 #'   text.random = "Hartung-Knapp method")
-#' m8 <- update(m5, method.random.ci = "HK",
+#' ma8 <- update(ma5, method.random.ci = "HK",
 #'   text.random = "Hartung-Knapp method")
-#' m9 <- update(m6, method.random.ci = "HK",
+#' ma9 <- update(ma6, method.random.ci = "HK",
 #'   text.random = "Hartung-Knapp method")
 #' 
 #' # Merge results for Hartung-Knapp method (with REML and DL estimator)
 #' # - RE weights for REML estimator are shown
-#' m78 <- metamerge(m7, m8, label1 = "ML", label2 = "DL")
-#' summary(m78)
+#' ma78 <- metamerge(ma7, ma8, label1 = "ML", label2 = "DL")
+#' summary(ma78)
 #' 
-#' m789 <- metamerge(m78, m9, label2 = "PM")
-#' summary(m789)
+#' ma789 <- metamerge(ma78, ma9, label2 = "PM")
+#' summary(ma789)
 #' 
 #' # Merge everything
-#' m1to9 <- metamerge(metamerge(m123, m456, keep.w = TRUE), m789)
-#' summary(m1to9)
+#' ma1to9 <- metamerge(metamerge(ma123, ma456, keep.w = TRUE), ma789)
+#' summary(ma1to9)
 #' 
-#' m10 <- update(m1, method = "GLMM")
+#' ma10 <- update(ma1, method = "GLMM")
 #' 
-#' m.all <- metamerge(m1to9, m10, keep.Q = TRUE,
+#' ma.all <- metamerge(ma1to9, ma10, keep.Q = TRUE,
 #'   label2 = "GLMM", taulabel2 = "ML-GLMM")
-#' summary(m.all)
+#' summary(ma.all)
 #' 
-#' forest(m.all, layout = "JAMA")
-#' forest(m.all, details = TRUE)
+#' forest(ma.all, layout = "JAMA")
+#' forest(ma.all, details = TRUE)
 #' }
 #' 
 #' settings.meta(oldset)
 #' options(oldopts)
 #' 
 #' @export metamerge
-
 
 metamerge <- function(meta1, meta2,
                       ##

@@ -9,7 +9,7 @@
 #' and sample size method are available for pooling. For GLMMs,
 #' the \code{\link[metafor]{rma.glmm}} function from R package \bold{metafor}
 #' (Viechtbauer, 2010) is called internally. For penalised logistic regression,
-#' R package \bold{brglm2} must be available.
+#' R package \bold{brglma2} must be available.
 #' 
 #' @param event.e Number of events in experimental group, or true
 #'   positives in diagnostic study, or an R object
@@ -278,7 +278,7 @@
 #' be utilised in a meta-analysis of binary outcomes (Stijnen et al.,
 #' 2010; Simmonds et al., 2016).
 #' 
-#' R package \bold{brglm2} must be available to fit a one-stage logistic
+#' R package \bold{brglma2} must be available to fit a one-stage logistic
 #' regression model with penalised likelihood (Evrenoglou et al., 2022).
 #' The estimation of the summary odds ratio relies on the maximisation of the 
 #' likelihood function, penalised using a Firth-type correction. This
@@ -547,96 +547,95 @@
 #' # inverse variance method (with risk ratio as summary measure)
 #' #
 #' data(Olkin1995)
-#' m1 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
+#' ma1 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
 #'   data = Olkin1995, subset = c(41, 47, 51, 59),
 #'   studlab = paste(author, year),
 #'   method = "Inverse")
-#' m1
+#' ma1
 #' # Show results for individual studies
-#' summary(m1)
+#' summary(ma1)
 #' 
 #' # Use different subset of Olkin (1995)
 #' #
-#' m2 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
+#' ma2 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
 #'   data = Olkin1995, subset = year < 1970,
 #'   studlab = paste(author, year),
 #'   method = "Inverse")
-#' m2
-#' forest(m2)
+#' ma2
+#' forest(ma2)
 #' 
 #' # Meta-analysis with odds ratio as summary measure
 #' #
-#' m3 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
+#' ma3 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
 #'   data = Olkin1995, subset = year < 1970,
 #'   studlab = paste(author, year),
 #'   sm = "OR", method = "Inverse")
 #' # Same meta-analysis result using 'update.meta' function
-#' m3 <- update(m2, sm = "OR")
-#' m3
+#' ma3 <- update(ma2, sm = "OR")
+#' ma3
 #' 
 #' # Meta-analysis based on Mantel-Haenszel method (with odds ratio as
 #' # summary measure)
 #' #
-#' m4 <- update(m3, method = "MH")
-#' m4
+#' ma4 <- update(ma3, method = "MH")
+#' ma4
 #' 
 #' # Meta-analysis based on Peto method (only available for odds ratio
 #' # as summary measure)
 #' #
-#' m5 <- update(m3, method = "Peto")
-#' m5
+#' ma5 <- update(ma3, method = "Peto")
+#' ma5
 #' 
 #' \dontrun{
 #' # Meta-analyses using generalised linear mixed models (GLMM)
 #' 
 #' # Logistic regression model with (k = 4) fixed study effects
 #' # (default: model.glmm = "UM.FS")
-#' m6 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
+#' ma6 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
 #'   studlab = paste(author, year),
 #'   data = Olkin1995, subset = year < 1970, method = "GLMM")
 #' # Same results:
-#' m6 <- update(m2, method = "GLMM")
-#' m6
+#' ma6 <- update(ma2, method = "GLMM")
+#' ma6
 #' 
 #' # Mixed-effects logistic regression model with random study effects
-#' m7 <- update(m6, model.glmm = "UM.RS")
+#' ma7 <- update(ma6, model.glmm = "UM.RS")
 #' #
 #' # Use additional argument 'nAGQ' for internal call of 'rma.glmm'
 #' # function
 #' #
-#' m7 <- update(m6, model.glmm = "UM.RS", nAGQ = 1)
-#' m7
+#' ma7 <- update(ma6, model.glmm = "UM.RS", nAGQ = 1)
+#' ma7
 #' 
 #' # Generalised linear mixed model (conditional Hypergeometric-Normal)
 #' # (R package 'BiasedUrn' must be available)
 #' if (requireNamespace("BiasedUrn", quietly = TRUE)) {
-#'  m8 <- update(m6, model.glmm = "CM.EL")
-#'  m8
+#'  ma8 <- update(ma6, model.glmm = "CM.EL")
+#'  ma8
 #' }
 #' 
 #' # Generalised linear mixed model (conditional Binomial-Normal)
-#' m9 <- update(m6, model.glmm = "CM.AL")
-#' m9
+#' ma9 <- update(ma6, model.glmm = "CM.AL")
+#' ma9
 #' 
 #' # Logistic regression model with (k = 70) fixed study effects
-#' m10 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
-#'    studlab = paste(author, year),
-#'    data = Olkin1995, method = "GLMM")
-#' m10
+#' ma10 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
+#'   studlab = paste(author, year),
+#'   data = Olkin1995, method = "GLMM")
+#' ma10
 #' 
 #' # Mixed-effects logistic regression model with random study effects
-#' update(m10, model.glmm = "UM.RS")
+#' update(ma10, model.glmm = "UM.RS")
 #' 
 #' # Conditional Hypergeometric-Normal GLMM (with long computation time)
-#' system.time(m11 <- update(m10, model.glmm = "CM.EL"))
-#' m11
+#' system.time(ma11 <- update(ma10, model.glmm = "CM.EL"))
+#' ma11
 #' 
 #' # Generalised linear mixed model (conditional Binomial-Normal)
-#' update(m10, model.glmm = "CM.AL")
+#' update(ma10, model.glmm = "CM.AL")
 #' }
 #' 
 #' @export metabin
-
 
 metabin <- function(event.e, n.e, event.c, n.c, studlab,
                     ##

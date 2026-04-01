@@ -408,26 +408,25 @@
 #' \bold{14}, 135
 #' 
 #' @examples
-#' m1 <- metamean(rep(100, 3), 1:3, rep(1, 3))
-#' m1
+#' ma1 <- metamean(rep(100, 3), 1:3, rep(1, 3))
+#' ma1
 #' 
-#' m2 <- update(m1, sm = "MLN")
-#' m2
+#' ma2 <- update(ma1, sm = "MLN")
+#' ma2
 #' 
 #' # With test for overall mean equal to 2
 #' #
-#' update(m1, null.effect = 2)
-#' update(m2, null.effect = 2)
+#' update(ma1, null.effect = 2)
+#' update(ma2, null.effect = 2)
 #' 
 #' # Print results without back-transformation
 #' #
-#' update(m1, backtransf = FALSE)
-#' update(m2, backtransf = FALSE)
-#' update(m1, null.effect = 2, backtransf = FALSE)
-#' update(m2, null.effect = 2, backtransf = FALSE)
+#' update(ma1, backtransf = FALSE)
+#' update(ma2, backtransf = FALSE)
+#' update(ma1, null.effect = 2, backtransf = FALSE)
+#' update(ma2, null.effect = 2, backtransf = FALSE)
 #' 
 #' @export metamean
-
 
 metamean <- function(n, mean, sd, studlab,
                      ##

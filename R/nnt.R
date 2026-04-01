@@ -160,9 +160,9 @@
 #'
 #' # Calculate NNTs for Mantel-Haenszel odds ratio
 #' data(Olkin1995)
-#' m1 <-
+#' ma <-
 #'   metabin(ev.exp, n.exp, ev.cont, n.cont, data = Olkin1995, random = FALSE)
-#' nnt(m1)
+#' nnt(ma)
 #'
 #' # Calculate NNTs from hazard ratio at two and four years (example from
 #' # Altman & Andersen, 1999). Note, argument 'p.c' must provide survival
@@ -171,7 +171,6 @@
 #' 
 #' @rdname nnt
 #' @export nnt
-
 
 nnt <- function(x, ...) 
   UseMethod("nnt")
@@ -183,7 +182,6 @@ nnt <- function(x, ...)
 #' @rdname nnt
 #' @method nnt meta
 #' @export
-
 
 nnt.meta <- function(x, p.c,
                      common = x$common,
@@ -374,7 +372,6 @@ nnt.meta <- function(x, p.c,
 #' @method nnt default
 #' @export
 
-
 nnt.default <- function(x, p.c, sm, lower, upper,
                         small.values = "desirable",
                         transf = FALSE,
@@ -517,7 +514,6 @@ nnt.default <- function(x, p.c, sm, lower, upper,
 #' @rdname nnt
 #' @method print nnt.meta
 #' @export
-
 
 print.nnt.meta <- function(x,
                            common = x$common,
@@ -762,7 +758,6 @@ print.nnt.meta <- function(x,
 #' @rdname nnt
 #' @method print nnt.default
 #' @export
-
 
 print.nnt.default <- function(x,
                               digits = gs("digits"),

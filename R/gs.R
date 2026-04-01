@@ -32,7 +32,6 @@
 #' 
 #' @export gs
 
-
 gs <- function(x = NULL, unname = NULL) {
   
   if (is.null(x))

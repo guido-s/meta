@@ -71,7 +71,6 @@
 #' 
 #' @export read.mtv
 
-
 read.mtv <- function(file) {
   ##
   line <- scan(file,

@@ -80,20 +80,19 @@
 #' @examples
 #' # Example from Borenstein et al. (2009), Chapter 7
 #' #
-#' mb <- smd2or(0.5, sqrt(0.0205), backtransf = FALSE)
+#' ma0 <- smd2or(0.5, sqrt(0.0205), backtransf = FALSE)
 #' # TE = log odds ratio; seTE = standard error of log odds ratio
-#' data.frame(lnOR = round(mb$TE, 4), varlnOR = round(mb$seTE^2, 4))
+#' data.frame(lnOR = round(ma0$TE, 4), varlnOR = round(ma0$seTE^2, 4))
 #'
 #' # Use dataset from Fleiss (1993)
 #' #
 #' data(Fleiss1993cont)
-#' m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
+#' ma1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
 #'   data = Fleiss1993cont, sm = "SMD",
-#'                studlab = paste(study, year))
-#' smd2or(m1)
+#'   studlab = paste(study, year))
+#' smd2or(ma1)
 #' 
 #' @export smd2or
-
 
 smd2or <- function(smd, se.smd, studlab,
                    data = NULL, subset = NULL, exclude = NULL,

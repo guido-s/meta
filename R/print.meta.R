@@ -167,7 +167,6 @@
 #' @method print meta
 #' @export
 
-
 print.meta <- function(x,
                        common = x$common,
                        random = x$random,
@@ -1697,7 +1696,6 @@ print.meta <- function(x,
 
 #' @rdname print.meta
 #' @export cilayout
-
 
 cilayout <- function(bracket = gs("CIbracket"),
                      separator = gs("CIseparator"),

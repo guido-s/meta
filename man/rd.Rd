@@ -162,9 +162,9 @@ rd(0.73, p.c = 0.3, sm = "OR")
 
 # Calculate ARRs for Mantel-Haenszel odds ratio
 data(Olkin1995)
-m1 <-
+ma <-
   metabin(ev.exp, n.exp, ev.cont, n.cont, data = Olkin1995, random = FALSE)
-rd(m1)
+rd(ma)
 
 # Calculate ARRs from hazard ratio at two and four years (example from
 # Altman & Andersen, 1999). Note, argument 'p.c' must provide survival

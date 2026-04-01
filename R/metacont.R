@@ -533,47 +533,46 @@
 #'
 #' # Meta-analysis with Hedges' g as effect measure
 #' #
-#' m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
+#' ma1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
 #'   data = Fleiss1993cont, sm = "SMD")
-#' m1
-#' forest(m1)
+#' ma1
+#' forest(ma1)
 #' 
 #' # Use Cohen's d instead of Hedges' g as effect measure
 #' #
-#' update(m1, method.smd = "Cohen")
+#' update(ma1, method.smd = "Cohen")
 #' 
 #' # Use Glass' delta instead of Hedges' g as effect measure
 #' #
-#' update(m1, method.smd = "Glass")
+#' update(ma1, method.smd = "Glass")
 #' 
 #' # Use Glass' delta based on the standard deviation in the experimental group
 #' #
-#' update(m1, method.smd = "Glass", sd.glass = "experimental")
+#' update(ma1, method.smd = "Glass", sd.glass = "experimental")
 #' 
 #' # Calculate Hedges' g based on exact formulae
 #' #
-#' update(m1, exact.smd = TRUE)
+#' update(ma1, exact.smd = TRUE)
 #' 
 #' data(amlodipine)
-#' m2 <- metacont(n.amlo, mean.amlo, sqrt(var.amlo),
+#' ma2 <- metacont(n.amlo, mean.amlo, sqrt(var.amlo),
 #'   n.plac, mean.plac, sqrt(var.plac),
 #'   data = amlodipine, studlab = study)
-#' m2
+#' ma2
 #' 
 #' # Use pooled variance
 #' #
-#' update(m2, pooledvar = TRUE)
+#' update(ma2, pooledvar = TRUE)
 #' 
 #' # Meta-analysis of response ratios (Hedges et al., 1999)
 #' #
 #' data(woodyplants)
-#' m3 <- metacont(n.elev, mean.elev, sd.elev, n.amb, mean.amb, sd.amb,
+#' ma3 <- metacont(n.elev, mean.elev, sd.elev, n.amb, mean.amb, sd.amb,
 #'   data = woodyplants, sm = "ROM")
-#' m3
-#' print(m3, backtransf = FALSE)
+#' ma3
+#' print(ma3, backtransf = FALSE)
 #' 
 #' @export metacont
-
 
 metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                      ##

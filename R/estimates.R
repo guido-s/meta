@@ -114,14 +114,13 @@
 #'   \code{\link{as.data.frame.meta}}
 #' 
 #' @examples
-#' 
-#' m1 <- metacor(c(0.85, 0.7, 0.95), c(20, 40, 10))
-#' summary(m1)
-#' estimates(m1)
-#' estimates(m1, backtransf = FALSE)
-#' estimates(update(m1, common = FALSE, random = FALSE))
-#' estimates(update(m1, prediction = TRUE))
-#' estimates(update(m1, prediction = TRUE,
+#' ma <- metacor(c(0.85, 0.7, 0.95), c(20, 40, 10))
+#' summary(ma)
+#' estimates(ma)
+#' estimates(ma, backtransf = FALSE)
+#' estimates(update(ma, common = FALSE, random = FALSE))
+#' estimates(update(ma, prediction = TRUE))
+#' estimates(update(ma, prediction = TRUE,
 #'   level.ma = 0.99, level.predict = 0.9))
 #'
 #' \dontrun{
@@ -129,55 +128,54 @@
 #' # (R package 'writexl' must be available)
 #' if (requireNamespace("writexl", quietly = TRUE)) {
 #'  fname1 <- tempfile(fileext = ".xlsx")
-#'  estimates(m1, path = fname1)
+#'  estimates(ma, path = fname1)
 #'  # An existing Excel file is not overwritten but a warning is printed
-#'  estimates(m1, path = fname1)
+#'  estimates(ma, path = fname1)
 #'  # Overwrite an existing Excel file
-#'  estimates(m1, path = fname1, overwrite = TRUE)
+#'  estimates(ma, path = fname1, overwrite = TRUE)
 #'  # Suppress message on file creation and overwrite existing file
-#'  suppressMessages(estimates(m1, path = fname1, overwrite = TRUE))
+#'  suppressMessages(estimates(ma, path = fname1, overwrite = TRUE))
 #' }
 #'
 #' # Save the extracted results in a text file
 #' fname2 <- tempfile(fileext = ".csv")
 #' fname2
-#' write.csv(estimates(m1), file = fname2, row.names = FALSE)
+#' write.csv(estimates(ma), file = fname2, row.names = FALSE)
 #' }
 #'
 #' @rdname estimates
 #' @method estimates meta
 #' @export
 
-
 estimates.meta <- function(x,
-                         sortvar,
-                         ##
-                         study.results = TRUE,
-                         common = x$common,
-                         random = x$random,
-                         prediction = x$prediction,
-                         overall = x$overall,
-                         subgroup,
-                         prediction.subgroup = x$prediction.subgroup,
-                         ##
-                         se = FALSE,
-                         ci = TRUE,
-                         statistic = FALSE,
-                         pval = FALSE,
-                         n = TRUE,
-                         ##
-                         backtransf = x$backtransf,
-                         ##
-                         digits = gs("digits"),
-                         digits.se = gs("digits.se"),
-                         digits.stat = gs("digits.stat"),
-                         digits.pval = gs("digits.pval"),
-                         ##
-                         writexl = !missing(path),
-                         path = "estimates.xlsx",
-                         overwrite = FALSE,
-                         ##
-                         ...) {
+                           sortvar,
+                           ##
+                           study.results = TRUE,
+                           common = x$common,
+                           random = x$random,
+                           prediction = x$prediction,
+                           overall = x$overall,
+                           subgroup,
+                           prediction.subgroup = x$prediction.subgroup,
+                           ##
+                           se = FALSE,
+                           ci = TRUE,
+                           statistic = FALSE,
+                           pval = FALSE,
+                           n = TRUE,
+                           ##
+                           backtransf = x$backtransf,
+                           ##
+                           digits = gs("digits"),
+                           digits.se = gs("digits.se"),
+                           digits.stat = gs("digits.stat"),
+                           digits.pval = gs("digits.pval"),
+                           ##
+                           writexl = !missing(path),
+                           path = "estimates.xlsx",
+                           overwrite = FALSE,
+                           ##
+                           ...) {
   
   chkclass(x, "meta")
   x <- updateversion(x)
@@ -665,7 +663,6 @@ estimates.meta <- function(x,
 
 #' @rdname estimates
 #' @export estimates
-
 
 estimates <- function(x, ...) 
   UseMethod("estimates")

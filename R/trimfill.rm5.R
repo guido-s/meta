@@ -51,7 +51,6 @@
 #' @method trimfill rm5
 #' @export
 
-
 trimfill.rm5 <- function(x, comp.no, outcome.no, ...) {
   
   chkclass(x, "rm5")
@@ -70,10 +69,10 @@ trimfill.rm5 <- function(x, comp.no, outcome.no, ...) {
       jj <- outcome.no
     for (j in jj) {
       ##
-      m1 <- metacr(x, i, j, ...)
+      ma.j <- metacr(x, i, j, ...)
       ##
-      if (!is.na(m1$TE.common) & is.null(m1$subgroup)) {
-        tf1 <- res[[n]] <- trimfill(m1)
+      if (!is.na(ma.j$TE.common) & is.null(ma.j$subgroup)) {
+        tf1 <- res[[n]] <- trimfill(ma.j)
         ##
         n <- n + 1
       }
@@ -93,7 +92,6 @@ trimfill.rm5 <- function(x, comp.no, outcome.no, ...) {
 #' @method trimfill cdir
 #' @export
 
-
 trimfill.cdir <- function(x, comp.no, outcome.no, ...) {
   
   chkclass(x, "cdir")
@@ -112,10 +110,10 @@ trimfill.cdir <- function(x, comp.no, outcome.no, ...) {
       jj <- outcome.no
     for (j in jj) {
       ##
-      m1 <- metacr(x, i, j, ...)
+      ma.j <- metacr(x, i, j, ...)
       ##
-      if (!is.na(m1$TE.common) & is.null(m1$subgroup)) {
-        tf1 <- res[[n]] <- trimfill(m1)
+      if (!is.na(ma.j$TE.common) & is.null(ma.j$subgroup)) {
+        tf1 <- res[[n]] <- trimfill(ma.j)
         ##
         n <- n + 1
       }
@@ -134,7 +132,6 @@ trimfill.cdir <- function(x, comp.no, outcome.no, ...) {
 #' @rdname trimfill.rm5
 #' @method print trimfill.rm5
 #' @export
-
 
 print.trimfill.rm5 <- function(x, ...) {
   
@@ -161,7 +158,6 @@ print.trimfill.rm5 <- function(x, ...) {
 #' @rdname trimfill.rm5
 #' @method print trimfill.cdir
 #' @export
-
 
 print.trimfill.cdir <- function(x, ...) {
   

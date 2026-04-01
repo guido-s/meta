@@ -157,24 +157,23 @@
 #' 
 #' @examples
 #' data(Fleiss1993bin)
-#' m1 <- metabin(d.asp, n.asp, d.plac, n.plac, data = Fleiss1993bin, sm = "OR")
-#' tf1 <- trimfill(m1)
-#' tf1
-#' funnel(tf1)
-#' funnel(tf1, pch = ifelse(tf1$trimfill, 1, 16), level = 0.9, random = FALSE)
+#' ma <- metabin(d.asp, n.asp, d.plac, n.plac, data = Fleiss1993bin, sm = "OR")
+#' tf <- trimfill(ma)
+#' tf
+#' funnel(tf)
+#' funnel(tf, pch = ifelse(tf$trimfill, 1, 16), level = 0.9, random = FALSE)
 #' #
 #' # Use log odds ratios on x-axis
 #' #
-#' funnel(tf1, backtransf = FALSE)
-#' funnel(tf1, pch = ifelse(tf1$trimfill, 1, 16), level = 0.9, random = FALSE,
+#' funnel(tf, backtransf = FALSE)
+#' funnel(tf, pch = ifelse(tf$trimfill, 1, 16), level = 0.9, random = FALSE,
 #'   backtransf = FALSE)
 #' 
-#' trimfill(m1$TE, m1$seTE, sm = m1$sm)
+#' trimfill(ma$TE, ma$seTE, sm = ma$sm)
 #' 
 #' @rdname trimfill
 #' @method trimfill meta
 #' @export
-
 
 trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
                           type = "L", n.iter.max = 50,
@@ -823,7 +822,6 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
 #' @rdname trimfill
 #' @method trimfill default
 #' @export
-
 
 trimfill.default <- function(x, seTE, left = NULL, ma.common = TRUE,
                              type = "L", n.iter.max = 50,

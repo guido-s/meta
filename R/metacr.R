@@ -181,15 +181,14 @@
 #' 
 #' # Change summary measure to RR
 #' #
-#' m1 <- metacr(Fleiss1993_CR)
-#' update(m1, sm="RR")
+#' ma <- metacr(Fleiss1993_CR)
+#' update(ma, sm = "RR")
 #' 
 #' # Use old settings
 #' #
 #' settings.meta(oldset)
 #' 
 #' @export metacr
-
 
 metacr <- function(x, comp.no = 1, outcome.no = 1,
                    ##

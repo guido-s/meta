@@ -93,7 +93,6 @@
 #' @rdname meta-transf
 #' @export transf
 
-
 transf <- function(x, sm, func = NULL, args = NULL) {
   
   ##
@@ -136,7 +135,6 @@ transf <- function(x, sm, func = NULL, args = NULL) {
 #' @rdname meta-transf
 #' @export cor2z
 
-
 cor2z <- function(x)
   0.5 * log((1 + x) / (1 - x))
 
@@ -146,7 +144,6 @@ cor2z <- function(x)
 
 #' @rdname meta-transf
 #' @export p2asin
-
 
 p2asin <- function(x)
   asin(sqrt(x))
@@ -158,7 +155,6 @@ p2asin <- function(x)
 #' @rdname meta-transf
 #' @export p2logit
 
-
 p2logit <- function(x)
   qlogis(x)
 
@@ -169,7 +165,6 @@ p2logit <- function(x)
 #' @rdname meta-transf
 #' @export VE2logVR
 
-
 VE2logVR <- function(x)
   log(1 - x / 100)
 
@@ -179,7 +174,6 @@ VE2logVR <- function(x)
 
 #' @rdname meta-transf
 #' @export backtransf
-
 
 backtransf <- function(x, sm, n, time, func = NULL, args = NULL) {
   
@@ -266,7 +260,6 @@ backtransf <- function(x, sm, n, time, func = NULL, args = NULL) {
 #' @rdname meta-transf
 #' @export asin2ir
 
-
 asin2ir <- function(x, time = NULL) {
   
   ##
@@ -308,7 +301,6 @@ asin2ir <- function(x, time = NULL) {
 
 #' @rdname meta-transf
 #' @export asin2p
-
 
 asin2p <- function(x, n = NULL) {
   
@@ -369,7 +361,6 @@ asin2p <- function(x, n = NULL) {
 #' @rdname meta-transf
 #' @export logit2p
 
-
 logit2p <- function(x)
   1 / (1 + exp(-x))
 
@@ -380,7 +371,6 @@ logit2p <- function(x)
 #' @rdname meta-transf
 #' @export logVR2VE
 
-
 logVR2VE <- function(x)
   100 * (1 - exp(x))
 
@@ -390,7 +380,6 @@ logVR2VE <- function(x)
 
 #' @rdname meta-transf
 #' @export z2cor
-
 
 z2cor <- function(x)
   tanh(x)

@@ -38,7 +38,6 @@
 #' 
 #' @export ci
 
-
 ci <- function(TE, seTE, level = 0.95, df = NULL, null.effect = 0) {
   
   chklevel(level)

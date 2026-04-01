@@ -552,22 +552,22 @@
 #' 
 #' @examples
 #' data(Fleiss1993bin)
-#' m1 <- metabin(d.asp, n.asp, d.plac, n.plac, study,
+#' ma <- metabin(d.asp, n.asp, d.plac, n.plac, study,
 #'   data = Fleiss1993bin, sm = "RR", method = "I")
-#' m1
+#' ma
 #' 
 #' # Identical results using the generic inverse variance method with
 #' # log risk ratio and its standard error:
 #' # Note, argument 'n.e' in metagen() is used to provide the total
 #' # sample size which is calculated from the group sample sizes n.e
-#' # and n.c in meta-analysis m1.
-#' m1.gen <- metagen(TE, seTE, studlab, n.e = n.e + n.c, data = m1, sm = "RR")
-#' m1.gen
-#' forest(m1.gen, leftcols = c("studlab", "n.e", "TE", "seTE"))
+#' # and n.c in meta-analysis ma.
+#' ma.gen <- metagen(TE, seTE, studlab, n.e = n.e + n.c, data = ma, sm = "RR")
+#' ma.gen
+#' forest(ma.gen, leftcols = c("studlab", "n.e", "TE", "seTE"))
 #' 
 #' # Meta-analysis with prespecified between-study variance
 #' #
-#' metagen(m1$TE, m1$seTE, sm = "RR", tau.preset = sqrt(0.1))
+#' metagen(ma$TE, ma$seTE, sm = "RR", tau.preset = sqrt(0.1))
 #' 
 #' # Meta-analysis of survival data:
 #' #
@@ -649,16 +649,18 @@
 #'   subset = (n.asp + n.plac) > 1500,
 #'   exclude = grep("MRC", study))
 #'
-#' \donttest{
+#' \dontrun{
+#' if (requireNamespace("metadat", quietly = TRUE)) {
 #' # Three-level model: effects of modified school calendars on
 #' # student achievement
+#' data(dat.konstantopoulos2011, package = "metadat")
 #' metagen(yi, sqrt(vi), studlab = study, data = dat.konstantopoulos2011,
 #'   sm = "SMD",
 #'   cluster = district, detail.tau = c("district", "district/school"))
 #' }
+#' }
 #' 
 #' @export metagen
-
 
 metagen <- function(TE, seTE, studlab,
                     ##

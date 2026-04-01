@@ -145,23 +145,22 @@
 #' 
 #' @examples
 #' data(Fleiss1993cont)
-#' m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
+#' ma1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
 #'   data = Fleiss1993cont, sm = "SMD", studlab = paste(study, year))
-#' sm1 <- summary(m1)
-#' sm1
+#' sma1 <- summary(ma1)
+#' sma1
 #' 
-#' print(sm1, digits = 2)
+#' print(sma1, digits = 2)
 #' 
 #' \dontrun{
 #' # Use unicode characters to print tau^2, tau, and I^2 
-#' print(sm1,
+#' print(sma1,
 #'   text.tau2 = "\u03c4\u00b2",
 #'   text.tau = "\u03c4", text.I2 = "I\u00b2")
 #' }
 #' 
 #' @method print summary.meta
 #' @export
-
 
 print.summary.meta <- function(x,
                                sortvar,

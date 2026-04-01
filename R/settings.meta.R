@@ -370,7 +370,6 @@
 #' 
 #' @export settings.meta
 
-
 settings.meta <- function(..., quietly = TRUE) {
   
   ##

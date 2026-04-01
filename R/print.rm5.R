@@ -50,7 +50,6 @@
 #' @method print rm5
 #' @export
 
-
 print.rm5 <- function(x, comp.no, outcome.no, ...) {
   
   

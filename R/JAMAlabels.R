@@ -36,7 +36,6 @@
 #' 
 #' @export JAMAlabels
 
-
 JAMAlabels <- function(author, year, citation, data = NULL) {
   
   nulldata <- is.null(data)

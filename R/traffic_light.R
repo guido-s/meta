@@ -28,26 +28,25 @@
 #' 
 #' data(caffeine)
 #' 
-#' m1 <- metabin(h.caf, n.caf, h.decaf, n.decaf, sm = "OR",
+#' ma1 <- metabin(h.caf, n.caf, h.decaf, n.decaf, sm = "OR",
 #'   data = caffeine, studlab = paste(study, year))
 #'
 #' # Add risk of bias assessment to meta-analysis
-#' m2 <- rob(D1, D2, D3, D4, D5, overall = rob, data = m1, tool = "rob2")
+#' ma2 <- rob(D1, D2, D3, D4, D5, overall = rob, data = ma1, tool = "rob2")
 #' 
 #' # Print risk of bias assessment
-#' rob(m2)
+#' rob(ma2)
 #'
 #' \dontrun{
 #' # Traffic light plot (R package 'robvis' must be available)
 #' if (requireNamespace("robvis", quietly = TRUE))
-#'  traffic_light(rob(m2))
+#'  traffic_light(rob(ma2))
 #' }
 #' 
 #' # Use previous settings
 #' settings.meta(oldset)
 #' 
 #' @export traffic_light
-
 
 traffic_light <- function(object,
                           colour = "cochrane",

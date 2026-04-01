@@ -68,7 +68,6 @@
 #' @method metabias rm5
 #' @export
 
-
 metabias.rm5 <- function(x, comp.no, outcome.no,
                          method.bias = "linreg",
                          method.bias.binary = method.bias,
@@ -128,7 +127,6 @@ metabias.rm5 <- function(x, comp.no, outcome.no,
 #' @rdname metabias.rm5
 #' @method metabias cdir
 #' @export
-
 
 metabias.cdir <- function(x, comp.no, outcome.no,
                           method.bias = "linreg",

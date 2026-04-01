@@ -161,20 +161,20 @@
 #' Fleiss1993cont$age <- c(55, 65, 55, 65, 55)
 #' Fleiss1993cont$region <- c("Europe", "Europe", "Asia", "Asia", "Europe")
 #' 
-#' m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
+#' ma <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
 #'   data = Fleiss1993cont, sm = "SMD")
 #'
 #' # Conduct two subgroup analyses
 #' #
-#' mu1 <- update(m1, subgroup = age, subgroup.name = "Age group")
-#' mu2 <- update(m1, subgroup = region, subgroup.name = "Region")
+#' ma1 <- update(ma, subgroup = age, subgroup.name = "Age group")
+#' ma2 <- update(ma, subgroup = region, subgroup.name = "Region")
 #'
 #' # Combine subgroup meta-analyses and show forest plot with subgroup
 #' # results
 #' #
-#' mb1 <- metabind(mu1, mu2)
-#' mb1
-#' forest(mb1)
+#' mb <- metabind(ma1, ma2)
+#' mb
+#' forest(mb)
 #'
 #' @method forest metabind
 #' @export

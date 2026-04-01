@@ -1112,7 +1112,7 @@
 #' 
 #' @examples
 #' data(Olkin1995)
-#' m1 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
+#' ma1 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
 #'   data = Olkin1995, subset = c(41, 47, 51, 59),
 #'   sm = "RR", method = "I",
 #'   studlab = paste(author, year))
@@ -1121,7 +1121,7 @@
 #' \dontrun{
 #' # Do standard (symmetric) forest plot
 #' #
-#' forest(m1)
+#' forest(ma1)
 #' }
 #' 
 #' # Layout of forest plot similar to Review Manager 5
@@ -1129,7 +1129,7 @@
 #' # Furthermore, add labels on both sides of forest plot and
 #' # prediction interval
 #' #
-#' forest(m1, layout = "RevMan5", common = FALSE,
+#' forest(ma1, layout = "RevMan5", common = FALSE,
 #'   label.left = "Favours experimental", col.label.left = "green",
 #'   label.right = "Favours control", col.label.right = "red",
 #'   prediction = TRUE)
@@ -1141,7 +1141,7 @@
 #' # - specify filename (R function pdf() is used due to extension .pdf)
 #' # - height of the figure is automatically determined
 #' # - width is set to 10 inches
-#' forest(m1, file = "forest-m1-1.pdf", width = 10)
+#' forest(ma1, file = "forest-ma1-1.pdf", width = 10)
 #' #
 #' # - specify graphics device function
 #' #   (filename "Rplots.pdf" used, see help page of R function pdf())
@@ -1149,23 +1149,23 @@
 #' # - width is set to 10 inches
 #' # - set title for PDF file
 #' # - set background of forest plot
-#' forest(m1, func.gr = pdf, width = 10,
+#' forest(ma1, func.gr = pdf, width = 10,
 #'   args.gr = list(title = "My Forest Plot", bg = "green"))
 #' #
 #' # - manually specify the height of the figure
-#' pdf("forest-m1-2.pdf", width = 10, height = 3)
-#' forest(m1)
+#' pdf("forest-ma1-2.pdf", width = 10, height = 3)
+#' forest(ma1)
 #' dev.off()
 #' 
 #' # Define equivalence limits: 0.75 and 1 / 0.75
 #' #
-#' forest(m1, layout = "RevMan5", common = FALSE, cid = 0.75,
+#' forest(ma1, layout = "RevMan5", common = FALSE, cid = 0.75,
 #'   fill = "lightgray",
 #'   fill.cid = "white")
 #' 
 #' # Fill regions with beneficial and detrimental effects
 #' #
-#' forest(m1, layout = "RevMan5", common = FALSE, cid = 0.75,
+#' forest(ma1, layout = "RevMan5", common = FALSE, cid = 0.75,
 #'   fill = "lightgray",
 #'   fill.cid.below.null = "green",
 #'   fill.cid.above.null = "red")
@@ -1175,7 +1175,7 @@
 #' #
 #' thresholds <- c(0.25, 0.5, 0.75)
 #' n.cols <- length(thresholds)
-#' forest(m1, layout = "RevMan5", common = FALSE,
+#' forest(ma1, layout = "RevMan5", common = FALSE,
 #'   label.left = "Desirable effect", 
 #'   label.right = "Undesirable effect", 
 #'   lty.cid = 3, col.cid = "darkgray",
@@ -1187,83 +1187,83 @@
 #' 
 #' # Conduct subgroup meta-analysis
 #' #
-#' m2 <- update(m1,
+#' ma2 <- update(ma1,
 #'   subgroup = ifelse(year < 1987, "Before 1987", "1987 and later"),
 #'   print.subgroup.name = FALSE)
 #' 
 #' # Show summary results for subgroups with at least two studies
 #' #
-#' forest(m2, sortvar = -TE, random = FALSE)
+#' forest(ma2, sortvar = -TE, random = FALSE)
 #' 
 #' # Show results for all subgroups
 #' #
-#' forest(m2, sortvar = -TE, random = FALSE, subgroup = k.w >= 1)
+#' forest(ma2, sortvar = -TE, random = FALSE, subgroup = k.w >= 1)
 #' 
 #' # Forest plot specifying argument xlim
 #' #
-#' forest(m1, xlim = c(0.01, 10))
+#' forest(ma1, xlim = c(0.01, 10))
 #' 
 #' # Print results of test for overall effect
 #' #
-#' forest(m1, test.overall.common = TRUE, test.overall.random = TRUE)
+#' forest(ma1, test.overall.common = TRUE, test.overall.random = TRUE)
 #' 
 #' # Forest plot with 'classic' layout used in R package meta,
 #' # version < 1.6-0
 #' #
-#' forest(m1, col.square = "black", hetstat = FALSE)
+#' forest(ma1, col.square = "black", hetstat = FALSE)
 #' 
 #' # Change set of columns printed on left side of forest plot
 #' # (resulting in overlapping text)
 #' #
-#' forest(m1, random = FALSE, leftcols = "studlab")
+#' forest(ma1, random = FALSE, leftcols = "studlab")
 #' 
 #' # Use argument 'calcwidth.hetstat' to consider text for heterogeneity
 #' # measures in width of column with study labels
 #' #
-#' forest(m1, random = FALSE, leftcols = "studlab",
+#' forest(ma1, random = FALSE, leftcols = "studlab",
 #'   calcwidth.hetstat = TRUE)
 #' 
 #' # Use argument 'addrows.below.overall' to manually add two empty
 #' # rows
 #' #
-#' forest(m1, random = FALSE, leftcols = "studlab", addrows = 2)
+#' forest(ma1, random = FALSE, leftcols = "studlab", addrows = 2)
 #' 
 #' # Do not print columns on right side of forest plot
 #' #
-#' forest(m1, rightcols = FALSE)
+#' forest(ma1, rightcols = FALSE)
 #' 
 #' # Change study label to "Author"
 #' #
-#' forest(m1, random = FALSE, leftlabs = c("Author", NA, NA, NA, NA))
+#' forest(ma1, random = FALSE, leftlabs = c("Author", NA, NA, NA, NA))
 #' 
 #' # Just give effect estimate and 95% confidence interval on right
 #' # side of forest plot (in one column)
 #' #
-#' forest(m1, rightcols = "effect.ci")
+#' forest(ma1, rightcols = "effect.ci")
 #' 
 #' # Just give effect estimate and 95% confidence interval on right
 #' # side of forest plot
 #' #
-#' forest(m1, rightcols = c("effect", "ci"))
+#' forest(ma1, rightcols = c("effect", "ci"))
 #' 
 #' # 1. Change order of columns on left side
 #' # 2. Attach labels to columns 'event.e' and 'event.c' instead of
 #' #    columns 'n.e' and 'n.c'
 #' #
-#' forest(m1,
+#' forest(ma1,
 #'   leftcols = c("studlab", "n.e", "event.e", "n.c", "event.c"),
 #'   label.e.attach = "event.e", label.c.attach = "event.c")
 #' 
 #' # Specify column labels only for variables 'year' and 'author'
 #' # (and define digits for additional variables)
 #' #
-#' forest(m1,
+#' forest(ma1,
 #'   leftcols = c("studlab", "event.e", "n.e", "event.c", "n.c", "author", "year"),
 #'   leftlabs = c("Author", "Year of Publ"))
 #' 
 #' # Center text in all columns
 #' #
-#' forest(m1,
+#' forest(ma1,
 #'   leftcols = c("studlab", "event.e", "n.e", "event.c", "n.c",
 #'                "author", "year"),
 #'   leftlabs = c("Author", "Year of Publ"), hetstat = FALSE,
@@ -1271,7 +1271,7 @@
 #' 
 #' # Same result
 #' #
-#' forest(m1,
+#' forest(ma1,
 #'   leftcols = c("studlab", "event.e", "n.e", "event.c", "n.c",
 #'              "author", "year"),
 #'   leftlabs = c("Author", "Year of Publ"), hetstat = FALSE,
@@ -1279,7 +1279,7 @@
 #' 
 #' # Change some fontsizes and fontfaces
 #' #
-#' forest(m1,
+#' forest(ma1,
 #'   fs.study = 10, ff.study = "italic",
 #'   fs.study.label = 11, ff.study.label = "bold",
 #'   fs.axis = 5, ff.axis = "italic",
@@ -1288,54 +1288,53 @@
 #' 
 #' # Change some colours
 #' #
-#' forest(m1,
+#' forest(ma1,
 #'   col.diamond = "green", col.diamond.lines = "red",
 #'   col.study = c("green", "blue", "red", "orange"),
 #'   col.square = "pink", col.square.lines = "black")
 #' 
 #' # Sort by weight in common effect model
 #' #
-#' forest(m1, sortvar = w.common, random = FALSE)
+#' forest(ma1, sortvar = w.common, random = FALSE)
 #' 
 #' # Sort by decreasing weight in common effect model
 #' #
-#' forest(m1, sortvar = -w.common, random = FALSE)
+#' forest(ma1, sortvar = -w.common, random = FALSE)
 #' 
 #' # Sort by size of treatment effect
 #' #
-#' forest(m1, sortvar = TE, random = FALSE)
+#' forest(ma1, sortvar = TE, random = FALSE)
 #' 
 #' # Sort by size of treatment effect
 #' #
-#' forest(m1, sortvar = -TE, random = FALSE)
+#' forest(ma1, sortvar = -TE, random = FALSE)
 #' 
 #' # Sort by decreasing year of publication
 #' #
-#' forest(m1, sortvar = -year, random = FALSE)
+#' forest(ma1, sortvar = -year, random = FALSE)
 #' 
 #' # Print results of test for subgroup differences (random effects
 #' # model)
 #' #
-#' forest(m2, sortvar = -TE, common = FALSE)
+#' forest(ma2, sortvar = -TE, common = FALSE)
 #' 
 #' # Print only subgroup results
 #' #
-#' forest(m2, layout = "subgroup")
+#' forest(ma2, layout = "subgroup")
 #' 
 #' # Print only subgroup results (and consider text for tests of
 #' # subgroup differences in width of subgroup column)
 #' #
-#' forest(m2, layout = "subgroup", calcwidth.tests = TRUE)
+#' forest(ma2, layout = "subgroup", calcwidth.tests = TRUE)
 #' 
 #' # Print only subgroup results (and consider text for heterogeneity
 #' # in width of subgroup column)
 #' #
-#' forest(m2, layout = "subgroup", calcwidth.hetstat = TRUE)
+#' forest(ma2, layout = "subgroup", calcwidth.hetstat = TRUE)
 #' }
 #'
 #' @method forest meta
 #' @export
-
 
 forest.meta <- function(x,
                         sortvar,

@@ -38,19 +38,19 @@ data(woodyplants)
 
 # Meta-analysis of response ratios (Hedges et al., 1999)
 #
-m1 <- metacont(n.elev, mean.elev, sd.elev, n.amb, mean.amb, sd.amb,
+ma1 <- metacont(n.elev, mean.elev, sd.elev, n.amb, mean.amb, sd.amb,
   data = woodyplants, sm = "ROM", studlab = paste(obsno, papno, sep = " / "))
-print(m1, prediction = TRUE)
+print(ma1, prediction = TRUE)
 
 # Meta-analysis for plants grown with low soil fertility treatment
 #
-m2 <- update(m1, subset = (treat == "fert" & level == "low"))
-print(m2, prediction = TRUE)
+ma2 <- update(ma1, subset = (treat == "fert" & level == "low"))
+print(ma2, prediction = TRUE)
 
 # Meta-analysis for plants grown under low light conditions
 #
-m3 <- update(m1, subset = (treat == "light" & level == "low"))
-print(m3, prediction = TRUE)
+ma3 <- update(ma1, subset = (treat == "light" & level == "low"))
+print(ma3, prediction = TRUE)
 }
 \references{
 Hedges LV, Gurevitch J, Curtis PS (1999):

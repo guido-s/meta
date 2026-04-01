@@ -40,7 +40,6 @@
 #' @method labels meta
 #' @export
 
-
 labels.meta <- function(object,
                         author = object$studlab, year = "", citation = NULL,
                         layout = "JAMA",

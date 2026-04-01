@@ -28,28 +28,27 @@
 #' #
 #' # Do meta-analysis without grouping information
 #' #
-#' m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
+#' ma1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
 #'   data = Fleiss1993cont, sm = "SMD", studlab = paste(study, year))
 #' #
 #' # Update meta-analysis object and do subgroup analyses
 #' #
-#' update(m1, subgroup = group)
+#' update(ma1, subgroup = group)
 #' 
 #' # Same result using metacont function directly
 #' #
-#' m2 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
+#' ma2 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
 #'   data = Fleiss1993cont, sm = "SMD", studlab = paste(study, year),
 #'   subgroup = group)
-#' m2
+#' ma2
 #' 
 #' # Compare printout of the following two commands
 #' #
-#' as.data.frame(m1)
-#' m1$data
+#' as.data.frame(ma1)
+#' ma1$data
 #'
 #' @method as.data.frame meta
 #' @export
-
 
 as.data.frame.meta <- function(x, row.names = NULL, optional = FALSE, ...) {
   

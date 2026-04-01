@@ -105,9 +105,9 @@
 #'
 #' # Calculate ARRs for Mantel-Haenszel odds ratio
 #' data(Olkin1995)
-#' m1 <-
+#' ma <-
 #'   metabin(ev.exp, n.exp, ev.cont, n.cont, data = Olkin1995, random = FALSE)
-#' rd(m1)
+#' rd(ma)
 #'
 #' # Calculate ARRs from hazard ratio at two and four years (example from
 #' # Altman & Andersen, 1999). Note, argument 'p.c' must provide survival
@@ -116,7 +116,6 @@
 #' 
 #' @rdname rd
 #' @export rd
-
 
 rd <- function(x, ...) 
   UseMethod("rd")
@@ -128,7 +127,6 @@ rd <- function(x, ...)
 #' @rdname rd
 #' @method rd meta
 #' @export
-
 
 rd.meta <- function(x, p.c,
                     common = x$common,
@@ -290,7 +288,6 @@ rd.meta <- function(x, p.c,
 #' @method rd default
 #' @export
 
-
 rd.default <- function(x, p.c, sm, lower, upper,
                        level = gs("level.ma"),
                        small.values = "desirable",
@@ -428,7 +425,6 @@ rd.default <- function(x, p.c, sm, lower, upper,
 #' @rdname rd
 #' @method print rd.meta
 #' @export
-
 
 print.rd.meta <- function(x,
                           common = !is.null(x$common),
@@ -745,7 +741,6 @@ print.rd.meta <- function(x,
 #' @rdname rd
 #' @method print rd.default
 #' @export
-
 
 print.rd.default <- function(x,
                              pscale = attributes(x)$pscale,

@@ -74,34 +74,28 @@
 #' Fleiss1993cont$age <- c(55, 65, 55, 65, 55)
 #' Fleiss1993cont$region <- c("Europe", "Europe", "Asia", "Asia", "Europe")
 #' 
-#' m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
+#' ma1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
 #'   data = Fleiss1993cont, sm = "SMD")
 #' \dontrun{
-#' # Error due to wrong ordering of arguments (order has changed in
-#' # R package meta, version 3.0-0)
-#' #
-#' try(metareg(~ region, m1))
-#' try(metareg(~ region, data = m1))
-#' 
 #' # Warning as no information on covariate is available
 #' #
-#' metareg(m1)
+#' metareg(ma1)
 #' }
 #' 
 #' # Do meta-regression for covariate region
 #' #
-#' mu2 <- update(m1, subgroup = region, tau.common = TRUE, common = FALSE)
-#' metareg(mu2)
+#' ma2 <- update(ma1, subgroup = region, tau.common = TRUE, common = FALSE)
+#' metareg(ma2)
 #' 
 #' # Same result for
 #' # - tau-squared
 #' # - test of heterogeneity
 #' # - test for subgroup differences
-#' # (as argument 'tau.common' was used to create mu2)
+#' # (as argument 'tau.common' was used to create ma2)
 #' #
-#' mu2
-#' metareg(mu2, intercept = FALSE)
-#' metareg(m1, region)
+#' ma2
+#' metareg(ma2, intercept = FALSE)
+#' metareg(ma1, region)
 #' 
 #' # Different result for
 #' # - tau-squared
@@ -109,39 +103,30 @@
 #' # - test for subgroup differences
 #' # (as argument 'tau.common' is - by default - FALSE)
 #' #
-#' mu1 <- update(m1, subgroup = region)
-#' mu1
+#' ma3 <- update(ma1, subgroup = region)
+#' ma3
 #' 
 #' # Generate bubble plot
 #' #
-#' bubble(metareg(mu2))
+#' bubble(metareg(ma2))
 #' 
 #' # Do meta-regression with two covariates
 #' #
-#' metareg(mu1, region + age)
+#' metareg(ma3, region + age)
 #' 
 #' # Do same meta-regressions using formula notation
 #' #
-#' metareg(m1, ~ region)
-#' metareg(mu1, ~ region + age)
+#' metareg(ma1, ~ region)
+#' metareg(ma3, ~ region + age)
 #' 
-#' # Do meta-regression using REML method and print intermediate
-#' # results for iterative estimation algorithm; furthermore print
-#' # results with three digits.
+#' # Print intermediate results for iterative estimation algorithm;
+#' # furthermore print results with three digits.
 #' #
-#' metareg(mu1, region, method.tau = "REML",
-#'   control = list(verbose = TRUE), digits = 3)
-#' 
-#' # Use Hartung-Knapp method
-#' #
-#' mu3 <- update(mu2, method.random.ci = "HK")
-#' mu3
-#' metareg(mu3, intercept = FALSE)
+#' metareg(ma3, region, control = list(verbose = TRUE), digits = 3)
 #' 
 #' @rdname metareg
 #' @method metareg meta
 #' @export
-
 
 metareg.meta <- function(x, formula, method.tau = x$method.tau,
                          hakn = x$method.random.ci == "HK",
@@ -483,7 +468,6 @@ metareg.meta <- function(x, formula, method.tau = x$method.tau,
 #' @rdname metareg
 #' @export metareg
 
-
 metareg <- function(x, ...) 
   UseMethod("metareg")
 
@@ -494,7 +478,6 @@ metareg <- function(x, ...)
 #' @rdname metareg
 #' @method metareg default
 #' @export
-
 
 metareg.default <- function(x, ...)
   stop("Meta-regression not available for an object of class '",

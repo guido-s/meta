@@ -339,31 +339,30 @@
 #' @examples
 #' # Apply various meta-analysis methods to estimate incidence rates
 #' #
-#' m1 <- metarate(4:1, c(10, 20, 30, 40))
-#' m2 <- update(m1, sm = "IR")
-#' m3 <- update(m1, sm = "IRS")
-#' m4 <- update(m1, sm = "IRFT")
+#' ma1 <- metarate(4:1, c(10, 20, 30, 40))
+#' ma2 <- update(ma1, sm = "IR")
+#' ma3 <- update(ma1, sm = "IRS")
+#' ma4 <- update(ma1, sm = "IRFT")
 #' #
-#' m1
-#' m2
-#' m3
-#' m4
+#' ma1
+#' ma2
+#' ma3
+#' ma4
 #' #
-#' forest(m1)
-#' forest(m1, irscale = 100)
-#' forest(m1, irscale = 100, irunit = "person-days")
-#' forest(m1, backtransf = FALSE)
+#' forest(ma1)
+#' forest(ma1, irscale = 100)
+#' forest(ma1, irscale = 100, irunit = "person-days")
+#' forest(ma1, backtransf = FALSE)
 #' \dontrun{
-#' forest(m2)
-#' forest(m3)
-#' forest(m4)
+#' forest(ma2)
+#' forest(ma3)
+#' forest(ma4)
 #' }
 #' 
-#' m5 <- metarate(40:37, c(100, 200, 300, 400), sm = "IRFT")
-#' m5
+#' ma5 <- metarate(40:37, c(100, 200, 300, 400), sm = "IRFT")
+#' ma5
 #' 
 #' @export metarate
-
 
 metarate <- function(event, time, studlab,
                      ##

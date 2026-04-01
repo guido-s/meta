@@ -176,9 +176,9 @@ nnt(0.73, p.c = 0.3, sm = "OR")
 
 # Calculate NNTs for Mantel-Haenszel odds ratio
 data(Olkin1995)
-m1 <-
+ma <-
   metabin(ev.exp, n.exp, ev.cont, n.cont, data = Olkin1995, random = FALSE)
-nnt(m1)
+nnt(ma)
 
 # Calculate NNTs from hazard ratio at two and four years (example from
 # Altman & Andersen, 1999). Note, argument 'p.c' must provide survival

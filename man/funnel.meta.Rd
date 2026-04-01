@@ -203,24 +203,24 @@ and \code{cex.studlab}.
 }
 \examples{
 data(Olkin1995)
-m1 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
+ma <- metabin(ev.exp, n.exp, ev.cont, n.cont,
   data = Olkin1995, subset = c(41, 47, 51, 59),
   studlab = paste(author, year),
   sm = "RR", method = "I")
 
 # Standard funnel plot
 #
-funnel(m1)
+funnel(ma)
 
 # Funnel plot with confidence intervals, common effect estimate and
 # contours
 #
-fun <- funnel(m1, common = TRUE, level = 0.95, type = "contour")
+fun <- funnel(ma, common = TRUE, level = 0.95, type = "contour")
 legend("topleft", fun$text.contour, fill = fun$col.contour, bg = "white")
 
 # Contour-enhanced funnel plot with user-chosen colours
 #
-funnel(m1, common = TRUE,
+funnel(ma, common = TRUE,
   level = 0.95, contour = c(0.9, 0.95, 0.99),
   col.contour = c("darkgreen", "green", "lightgreen"),
   lwd = 2, cex = 2, pch = 16, studlab = TRUE, cex.studlab = 1.25)
@@ -228,7 +228,7 @@ legend(0.05, 0.05,
   c("0.1 > p > 0.05", "0.05 > p > 0.01", "< 0.01"),
   fill = c("darkgreen", "green", "lightgreen"))
 
-fun <- funnel(m1, common = TRUE,
+fun <- funnel(ma, common = TRUE,
   level = 0.95, contour = c(0.9, 0.95, 0.99),
   col.contour = c("darkgreen", "green", "lightgreen"),
   lwd = 2, cex = 2, pch = 16, studlab = TRUE, cex.studlab = 1.25)
@@ -236,7 +236,7 @@ legend(0.05, 0.05, fun$text.contour, fill = fun$col.contour)
 
 # Use different colours for log risk ratios below and above 0
 #
-funnel(m1, bg = setvals(TE < 0, c("green", "red")))
+funnel(ma, bg = setvals(TE < 0, c("green", "red")))
 
 }
 \references{

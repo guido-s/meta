@@ -157,15 +157,15 @@ to specify columns which should use default labels.
 }
 \examples{
 data(Fleiss1993bin)
-m1 <- metabin(d.asp, n.asp, d.plac, n.plac,
+ma <- metabin(d.asp, n.asp, d.plac, n.plac,
   data = Fleiss1993bin, studlab = study, sm = "RR", method = "I")
-m1
-metacum(m1)
-metacum(m1, pooled = "random")
+ma
+metacum(ma)
+metacum(ma, pooled = "random")
 
-forest(metacum(m1))
-forest(metacum(m1, pooled = "random"))
-forest(metacum(m1, pooled = "random", prediction = TRUE))
+forest(metacum(ma))
+forest(metacum(ma, pooled = "random"))
+forest(metacum(ma, pooled = "random", prediction = TRUE))
 
 }
 \seealso{

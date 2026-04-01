@@ -283,23 +283,23 @@
 #' 
 #' @examples
 #' data(Fleiss1993cont)
-#' m1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
+#' ma1 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
 #'   data = Fleiss1993cont, studlab = paste(study, year), sm = "SMD")
-#' m1
+#' ma1
 #' 
 #' # Change summary measure (from 'SMD' to 'MD')
 #' #
-#' update(m1, sm = "MD")
+#' update(ma1, sm = "MD")
 #' 
 #' # Restrict analysis to subset of studies
 #' #
-#' update(m1, subset = 1:2)
+#' update(ma1, subset = 1:2)
 #' 
 #' # Use different levels for confidence intervals
 #' #
-#' m2 <- update(m1, level = 0.66, level.ma = 0.99)
-#' print(m2, digits = 2)
-#' forest(m2)
+#' ma2 <- update(ma1, level = 0.66, level.ma = 0.99)
+#' print(ma2, digits = 2)
+#' forest(ma2)
 #' 
 #' @method update meta
 #' @export
