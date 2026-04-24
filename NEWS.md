@@ -1,3 +1,16 @@
+## meta, version 8.4-0 (2026-mm-dd)
+
+### Major changes
+
+* The width of the file used to store a forest plot can be specified in the R
+  function forest().
+
+### User-visible changes
+
+* forest.meta():
+  - new argument 'height' to specify height of forest plot
+
+
 ## meta, version 8.3-0 (2026-04-01)
 
 ### Major changes

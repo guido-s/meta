@@ -135,7 +135,7 @@
 #' (RevMan 5) and R package \bold{meta}, version 4 and below. However,
 #' its role has been challenged and especially the REML and
 #' Paule-Mandel estimators have been recommended (Veroniki et al.,
-#' 2016; Langan et al., 2019). Accordingly, the currenct default in R
+#' 2016; Langan et al., 2019). Accordingly, the current default in R
 #' package \bold{meta} is the REML estimator.
 #' 
 #' The following R command could be used to employ the Paule-Mandel
@@ -680,8 +680,6 @@
 #' @seealso \code{\link{meta-object}}, \code{\link{meta-sm}}
 #'
 #' @import metabook
-#'
-#' @import metadat
 #' 
 #' @importFrom rlang :=
 #'

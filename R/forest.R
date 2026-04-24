@@ -120,14 +120,14 @@
 #' @param irunit A character specifying the time unit used to
 #'   calculate rates, e.g., person-years.
 #' @param file File name.
+#' @param height Height of graphics file.
 #' @param width Width of graphics file.
 #' @param rows.gr Additional rows in forest plot to change height of
 #'   graphics file (e.g., in order to add a title at the top of the
 #'   forest plot).
 #' @param func.gr Name of graphics function, e.g., \code{\link{pdf}}.
 #' @param args.gr List with additional graphical parameters passed on
-#'   to graphics function (argument 'height' cannot be provided as the
-#'   height is calculated internally; use instead argument 'rows.gr').
+#'   to graphics function.
 #' @param dev.off A logical to specify whether current graphics device
 #'   should be shut down, i.e., whether file should be stored.
 #' @param ref A numerical giving the reference value to be plotted as
@@ -667,14 +667,14 @@
 #' \code{.tif} / \code{.tiff} \tab \code{\link{tiff}}
 #' }
 #'
-#' The height of the graphics device is automatically determined if
-#' the forest plot is saved to a file. Argument \code{rows.gr} can be
-#' used to increase or decrease the number of rows shown in the forest
-#' plot (either to show missing information or to remove
-#' whitespace). The width of the graphics device can be specified with
-#' argument \code{width}, see, for example, \code{\link{pdf}} or
-#' \code{\link{jpeg}}. Other arguments of graphics device functions
-#' can be provided as a list in argument \code{args.gr}.
+#' The height and width of the graphics device can be specified with
+#' arguments \code{height} and \code{width}, see, for example,
+#' \code{\link{pdf}} or \code{\link{jpeg}}. Other arguments of graphics device
+#' functions can be provided as a list in argument \code{args.gr}. The height of
+#' the graphics device is automatically determined if argument \code{height} is
+#' \code{NULL}. Argument \code{rows.gr} can be used to increase or decrease the
+#' number of rows shown in the forest plot (either to show missing information
+#' or to remove whitespace).
 #'
 #' Alternatively, the (resized) graphics window can be stored to a
 #' file using either \code{\link{dev.copy2eps}} or
@@ -1391,8 +1391,8 @@ forest.meta <- function(x,
                         pscale = x$pscale,
                         irscale = x$irscale, irunit = x$irunit,
                         #
-                        file = NULL, width = gs("width"), rows.gr = NULL,
-                        func.gr = NULL, args.gr = NULL,
+                        file = NULL, height = gs("height"), width = gs("width"),
+                        rows.gr = NULL, func.gr = NULL, args.gr = NULL,
                         dev.off = NULL,
                         #
                         ref,
@@ -11555,45 +11555,47 @@ forest.meta <- function(x,
     else
       type.gr <- deparse(substitute(func.gr))
     #
-    figheight <- gh(type.gr, rows.gr,
-                    #
-                    if (metabind) length(x$TE) else n.stud,
-                    lowTE.common, lowTE.random, lowTE.predict,
-                    x$subgroup, subgroup.levels,
-                    lower.common.w, lower.random.w, lower.predict.w,
-                    #
-                    if (metabind) FALSE else common,
-                    if (metabind) FALSE else random,
-                    if (metabind) FALSE else overall,
-                    if (metabind) FALSE else prediction,
-                    if (metabind) FALSE else overall.hetstat,
-                    study.results,
-                    #
-                    spacing,
-                    #
-                    xlab, xlab.add, label.right, label.left, bottom.lr,
-                    #
-                    prediction.subgroup, subgroup.hetstat,
-                    if (metabind) FALSE else test.overall.common,
-                    if (metabind) FALSE else test.overall.random,
-                    if (metabind) FALSE else test.subgroup.common,
-                    if (metabind) FALSE else test.subgroup.random,
-                    #
-                    text.addline1, text.addline2,
-                    text.details, text.rob,
-                    #
-                    addrow, addrow.overall,
-                    addrow.subgroups,
-                    if (metabind) 0 else addrows.below.overall,
-                    #
-                    c(leftcols, rightcols), labs,
-                    text.w.common, text.w.random)
+    if (is.null(height)) {
+      figheight <- gh(type.gr, rows.gr,
+                      #
+                      if (metabind) length(x$TE) else n.stud,
+                      lowTE.common, lowTE.random, lowTE.predict,
+                      x$subgroup, subgroup.levels,
+                      lower.common.w, lower.random.w, lower.predict.w,
+                      #
+                      if (metabind) FALSE else common,
+                      if (metabind) FALSE else random,
+                      if (metabind) FALSE else overall,
+                      if (metabind) FALSE else prediction,
+                      if (metabind) FALSE else overall.hetstat,
+                      study.results,
+                      #
+                      spacing,
+                      #
+                      xlab, xlab.add, label.right, label.left, bottom.lr,
+                      #
+                      prediction.subgroup, subgroup.hetstat,
+                      if (metabind) FALSE else test.overall.common,
+                      if (metabind) FALSE else test.overall.random,
+                      if (metabind) FALSE else test.subgroup.common,
+                      if (metabind) FALSE else test.subgroup.random,
+                      #
+                      text.addline1, text.addline2,
+                      text.details, text.rob,
+                      #
+                      addrow, addrow.overall,
+                      addrow.subgroups,
+                      if (metabind) 0 else addrows.below.overall,
+                      #
+                      c(leftcols, rightcols), labs,
+                      text.w.common, text.w.random)
+      #
+      height <- figheight$total_height
+    }
+    else
+      figheight <- height
     #
-    args.gr.all <-
-      c(list(file = file,
-             height = figheight$total_height,
-             width = width),
-        args.gr)
+    args.gr.all <- c(list(file = file, height = height, width = width), args.gr)
     runNN(func.gr, args.gr.all)
   }
   else

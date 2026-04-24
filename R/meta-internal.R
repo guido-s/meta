@@ -716,7 +716,7 @@ argslist <-
     "ff.test.effect.subgroup", "ff.addline",
     "ff.axis", "ff.smlab", "ff.xlab", "ff.lr",
     "colgap", "colgap.forest",
-    "width",
+    "height", "width",
     "calcwidth.predict", "calcwidth.hetstat",
     "calcwidth.tests", "calcwidth.subgroup", "calcwidth.addline",
     "just.studlab", "just.addcols",
@@ -1026,6 +1026,7 @@ setOption("ff.lr", "plain")
 setOption("colgap", "2mm")
 setOption("colgap.forest", "2mm")
 #
+setOption("height", NULL)
 setOption("width", NULL)
 #
 setOption("calcwidth.predict", FALSE)

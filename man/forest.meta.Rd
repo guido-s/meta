@@ -56,6 +56,7 @@
   irscale = x$irscale,
   irunit = x$irunit,
   file = NULL,
+  height = gs("height"),
   width = gs("width"),
   rows.gr = NULL,
   func.gr = NULL,
@@ -456,6 +457,8 @@ calculate rates, e.g., person-years.}
 
 \item{file}{File name.}
 
+\item{height}{Height of graphics file.}
+
 \item{width}{Width of graphics file.}
 
 \item{rows.gr}{Additional rows in forest plot to change height of
@@ -465,8 +468,7 @@ forest plot).}
 \item{func.gr}{Name of graphics function, e.g., \code{\link{pdf}}.}
 
 \item{args.gr}{List with additional graphical parameters passed on
-to graphics function (argument 'height' cannot be provided as the
-height is calculated internally; use instead argument 'rows.gr').}
+to graphics function.}
 
 \item{dev.off}{A logical to specify whether current graphics device
 should be shut down, i.e., whether file should be stored.}
@@ -1237,14 +1239,14 @@ against the most common graphics device drivers.
 \code{.tif} / \code{.tiff} \tab \code{\link{tiff}}
 }
 
-The height of the graphics device is automatically determined if
-the forest plot is saved to a file. Argument \code{rows.gr} can be
-used to increase or decrease the number of rows shown in the forest
-plot (either to show missing information or to remove
-whitespace). The width of the graphics device can be specified with
-argument \code{width}, see, for example, \code{\link{pdf}} or
-\code{\link{jpeg}}. Other arguments of graphics device functions
-can be provided as a list in argument \code{args.gr}.
+The height and width of the graphics device can be specified with
+arguments \code{height} and \code{width}, see, for example,
+\code{\link{pdf}} or \code{\link{jpeg}}. Other arguments of graphics device
+functions can be provided as a list in argument \code{args.gr}. The height of
+the graphics device is automatically determined if argument \code{height} is
+\code{NULL}. Argument \code{rows.gr} can be used to increase or decrease the
+number of rows shown in the forest plot (either to show missing information
+or to remove whitespace).
 
 Alternatively, the (resized) graphics window can be stored to a
 file using either \code{\link{dev.copy2eps}} or
