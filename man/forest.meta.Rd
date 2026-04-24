@@ -1440,10 +1440,15 @@ input or providing a suitable object created with
 suppress the print of the risk of bias information.
 
 RoB assessments are shown as the only information on the right side
-of the forest plot. Thus, arguments \code{rightcols} and
-\code{rightlabs} should not be used. Predefined columns shown by
-default on the right side of a forest plot will be moved to the
-left side.
+of the forest plot if argument \code{rob.only = TRUE}. In this case,
+arguments \code{rightcols} and \code{rightlabs} are ignored.
+Predefined columns shown by default on the right side of a forest plot will
+be moved to the left side.
+
+Note, the column names for risk of bias domains cannot be changed with
+argument \code{rightlabs}. You have to manually change the column names in
+the risk of bias data set, i.e., list element 'rob' in the meta-analysis
+object.
 }
 
 \subsection{Information on heterogeneity and statistical tests}{

@@ -868,10 +868,15 @@
 #' suppress the print of the risk of bias information.
 #'
 #' RoB assessments are shown as the only information on the right side
-#' of the forest plot. Thus, arguments \code{rightcols} and
-#' \code{rightlabs} should not be used. Predefined columns shown by
-#' default on the right side of a forest plot will be moved to the
-#' left side.
+#' of the forest plot if argument \code{rob.only = TRUE}. In this case,
+#' arguments \code{rightcols} and \code{rightlabs} are ignored.
+#' Predefined columns shown by default on the right side of a forest plot will
+#' be moved to the left side.
+#' 
+#' Note, the column names for risk of bias domains cannot be changed with
+#' argument \code{rightlabs}. You have to manually change the column names in
+#' the risk of bias data set, i.e., list element 'rob' in the meta-analysis
+#' object.
 #' }
 #' 
 #' \subsection{Information on heterogeneity and statistical tests}{
@@ -1952,10 +1957,21 @@ forest.meta <- function(x,
   chknumeric(rob.xpos, length = 1)
   chklogical(rob.legend)
   chklogical(rob.only)
+  if (rob.only && !missing.rightlabs && !is.null(rightlabs)) {
+    warning("Argument 'rightlabs' ignored as argument 'rob.only = TRUE'.",
+            call. = FALSE)
+    missing.rightlabs <- TRUE
+    rightlabs <- NULL
+  }
   #
   text.rob <- ""
   RoB.available <- !is.null(rob) && !(is.logical(rob) && !rob)
   RoB.legend <- RoB.available & rob.legend
+  if (!RoB.available & rob.only) {
+    warning("Argument 'rob.only' ignored for forest plot without ",
+            "risk of bias assessment.", call. = FALSE)
+    rob.only <- FALSE
+  }
   #
   if (RoB.available) {
     if (!inherits(rob, "rob"))
@@ -4030,81 +4046,87 @@ forest.meta <- function(x,
   if (newcols) {
     #
     if (length(rightcols.new) > 0) {
-      if (missing.rightlabs ||
-          any(is.na(rightlabs[rightcols.new %in% rightcols]))) {
+      if (all(rightcols.new %in% colnames(rob))) {
         rightlabs.new <- rightcols.new
-        #
-        if (RoB.available)
-          rightlabs.new[rightlabs.new %in% colnames(rob)] <- rob.labels
-        #
-        if ((metacor | metaprop | metamean | metarate) &&
-            any(rightcols.new == "n") &&
-            (is.null(rightlabs) || is.na(rightlabs[rightcols == "n"])))
-          rightlabs.new[rightlabs.new == "n"] <- label.n
-        #
-        if (metamean && any(rightcols.new == "mean") &&
-            (is.null(rightlabs) || is.na(rightlabs[rightcols == "mean"])))
-          rightlabs.new[rightlabs.new == "mean"] <- label.mean
-        #
-        if (metamean && any(rightcols.new == "sd") &&
-            (is.null(rightlabs) || is.na(rightlabs[rightcols == "sd"])))
-          rightlabs.new[rightlabs.new == "sd"] <- label.sd
-        #
-        if (metarate && any(rightcols.new == "time") &&
-            (is.null(rightlabs) || is.na(rightlabs[rightcols == "time"])))
-          rightlabs.new[rightlabs.new == "time"] <- label.time
-        #
-        if (any(rightcols.new == "pval") &&
-            (is.null(rightlabs) || is.na(rightlabs[rightcols == "pval"])))
-          rightlabs.new[rightlabs.new == "pval"] <- label.pval
-        #
-        if (any(rightcols.new == "tau2") &&
-            (is.null(rightlabs) || is.na(rightlabs[rightcols == "tau2"])))
-          rightlabs.new[rightlabs.new == "tau2"] <- label.tau2
-        #
-        if (any(rightcols.new == "tau") &&
-            (is.null(rightlabs) || is.na(rightlabs[rightcols == "tau"])))
-          rightlabs.new[rightlabs.new == "tau"] <- label.tau
-        #
-        if (any(rightcols.new == "I2") &&
-            (is.null(rightlabs) || is.na(rightlabs[rightcols == "I2"])))
-          rightlabs.new[rightlabs.new == "I2"] <- label.I2
-        #
-        if (three.level && any(rightcols.new == "cluster") &&
-            (is.null(rightlabs) || is.na(rightlabs[rightcols == "cluster"])))
-          rightlabs.new[rightlabs.new == "cluster"] <- label.cluster
-        #
-        if (n_of_1 && any(rightcols.new == "cycles") &&
-            (is.null(rightlabs) || is.na(rightlabs[rightcols == "cycles"])))
-          rightlabs.new[rightlabs.new == "cycles"] <- label.cycles
+        rightlabs.new[rightlabs.new %in% colnames(rob)] <- rob.labels
       }
       else {
-        if (length(rightcols.new) == length(rightlabs))
-          rightlabs.new <- rightlabs
-        else if (length(rightcols.new) > length(rightlabs))
-          stop("Too few labels defined in argument 'rightlabs'.")
-        else {
+        if (missing.rightlabs ||
+            any(is.na(rightlabs[rightcols.new %in% rightcols]))) {
           rightlabs.new <- rightcols.new
           #
-          for (i in seq_along(rightcols.new)) {
-            match1.i <- match(rightcols.new[i], rightcols)
-            if (!is.na(rightlabs[match1.i]))
-              rightlabs.new[i] <- rightlabs[match1.i]
-            else {
-              match2.i <- match(rightcols.new[i], colnames)
-              if (!is.na(match2.i))
-                rightlabs.new[i] <- labnames[match2.i]
-              else if (rightcols.new[i] == "pval")
-                rightlabs.new[i] <- label.pval
-              else if (rightcols.new[i] == "tau2")
-                rightlabs.new[i] <- label.tau2
-              else if (rightcols.new[i] == "tau")
-                rightlabs.new[i] <- label.tau
-              else if (rightcols.new[i] == "I2")
-                rightlabs.new[i] <- label.I2
+          if ((metacor | metaprop | metamean | metarate) &&
+              any(rightcols.new == "n") &&
+              (is.null(rightlabs) || is.na(rightlabs[rightcols == "n"])))
+            rightlabs.new[rightlabs.new == "n"] <- label.n
+          #
+          if (metamean && any(rightcols.new == "mean") &&
+              (is.null(rightlabs) || is.na(rightlabs[rightcols == "mean"])))
+            rightlabs.new[rightlabs.new == "mean"] <- label.mean
+          #
+          if (metamean && any(rightcols.new == "sd") &&
+              (is.null(rightlabs) || is.na(rightlabs[rightcols == "sd"])))
+            rightlabs.new[rightlabs.new == "sd"] <- label.sd
+          #
+          if (metarate && any(rightcols.new == "time") &&
+              (is.null(rightlabs) || is.na(rightlabs[rightcols == "time"])))
+            rightlabs.new[rightlabs.new == "time"] <- label.time
+          #
+          if (any(rightcols.new == "pval") &&
+              (is.null(rightlabs) || is.na(rightlabs[rightcols == "pval"])))
+            rightlabs.new[rightlabs.new == "pval"] <- label.pval
+          #
+          if (any(rightcols.new == "tau2") &&
+              (is.null(rightlabs) || is.na(rightlabs[rightcols == "tau2"])))
+            rightlabs.new[rightlabs.new == "tau2"] <- label.tau2
+          #
+          if (any(rightcols.new == "tau") &&
+              (is.null(rightlabs) || is.na(rightlabs[rightcols == "tau"])))
+            rightlabs.new[rightlabs.new == "tau"] <- label.tau
+          #
+          if (any(rightcols.new == "I2") &&
+              (is.null(rightlabs) || is.na(rightlabs[rightcols == "I2"])))
+            rightlabs.new[rightlabs.new == "I2"] <- label.I2
+          #
+          if (three.level && any(rightcols.new == "cluster") &&
+              (is.null(rightlabs) || is.na(rightlabs[rightcols == "cluster"])))
+            rightlabs.new[rightlabs.new == "cluster"] <- label.cluster
+          #
+          if (n_of_1 && any(rightcols.new == "cycles") &&
+              (is.null(rightlabs) || is.na(rightlabs[rightcols == "cycles"])))
+            rightlabs.new[rightlabs.new == "cycles"] <- label.cycles
+        }
+        else {
+          if (length(rightcols.new) == length(rightlabs))
+            rightlabs.new <- rightlabs
+          else if (length(rightcols.new) > length(rightlabs))
+            stop("Too few labels defined in argument 'rightlabs'.")
+          else {
+            rightlabs.new <- rightcols.new
+            #
+            for (i in seq_along(rightcols.new)) {
+              match1.i <- match(rightcols.new[i], rightcols)
+              if (!is.na(rightlabs[match1.i]))
+                rightlabs.new[i] <- rightlabs[match1.i]
+              else {
+                match2.i <- match(rightcols.new[i], colnames)
+                if (!is.na(match2.i))
+                  rightlabs.new[i] <- labnames[match2.i]
+                else if (rightcols.new[i] == "pval")
+                  rightlabs.new[i] <- label.pval
+                else if (rightcols.new[i] == "tau2")
+                  rightlabs.new[i] <- label.tau2
+                else if (rightcols.new[i] == "tau")
+                  rightlabs.new[i] <- label.tau
+                else if (rightcols.new[i] == "I2")
+                  rightlabs.new[i] <- label.I2
+              }
             }
           }
         }
+        #
+        if (RoB.available)
+          rightlabs.new[rightlabs.new %in% colnames(rob)] <- rob.labels
       }
     }
     #
@@ -4193,21 +4215,19 @@ forest.meta <- function(x,
     leftcols <- "studlab"
     #
     if (three.level)
-      leftcols <- c(leftcols, "cluster")
+      leftcols <- add.columns(leftcols, "cluster")
     #
     if (n_of_1)
-      leftcols <- c(leftcols, "cycles")
+      leftcols <- add.columns(leftcols, "cycles")
     #
     if (jama) {
-      leftcols <- c(leftcols, "effect.ci")
+      leftcols <- add.columns(leftcols, "effect.ci")
     }
     else {
       if (metabin) {
         if (study.results) {
           if (bmj) {
-            leftcols <- c(leftcols,
-                          "event.n.e",
-                          "event.n.c")
+            leftcols <- add.columns(leftcols, c("event.n.e", "event.n.c"))
             label.e.attach <- "event.n.e"
             #
             if (is.null(bmj.text))
@@ -4216,16 +4236,16 @@ forest.meta <- function(x,
               label.e <- bmj.text
           }
           else
-            leftcols <- c(leftcols,
-                          "event.e", "n.e",
-                          "event.c", "n.c")
+            leftcols <-
+              add.columns(leftcols, c("event.e", "n.e", "event.c", "n.c"))
         }
         else {
-          leftcols <- c(leftcols,
-                        if (pooled.events) "event.e",
-                        if (pooled.totals) "n.e",
-                        if (pooled.events) "event.c",
-                        if (pooled.totals) "n.c")
+          leftcols <- add.columns(leftcols,
+                                  c(if (pooled.events) "event.e",
+                                    if (pooled.totals) "n.e",
+                                    if (pooled.events) "event.c",
+                                    if (pooled.totals) "n.c"))
+          #
           if (pooled.events & !pooled.totals) {
             if (is.null(label.e.attach))
               label.e.attach <- "event.e"
@@ -4238,9 +4258,8 @@ forest.meta <- function(x,
       if (metacont) {
         if (study.results) {
           if (bmj) {
-            leftcols <- c(leftcols,
-                          "mean.sd.n.e",
-                          "mean.sd.n.c")
+            leftcols <-
+              add.columns(leftcols, c("mean.sd.n.e", "mean.sd.n.c"))
             label.e.attach <- "mean.sd.n.e"
             #
             if (is.null(bmj.text))
@@ -4249,16 +4268,16 @@ forest.meta <- function(x,
               label.e <- bmj.text
           }         
           else if (revman5)
-            leftcols <- c(leftcols,
-                          "mean.e", "sd.e", "n.e",
-                          "mean.c", "sd.c", "n.c")
+            leftcols <-
+              add.columns(leftcols,
+                          c("mean.e", "sd.e", "n.e", "mean.c", "sd.c", "n.c"))
           else
-            leftcols <- c(leftcols,
-                          "n.e", "mean.e", "sd.e",
-                          "n.c", "mean.c", "sd.c")
+            leftcols <-
+              add.columns(leftcols,
+                          c("n.e", "mean.e", "sd.e", "n.c", "mean.c", "sd.c"))
         }
         else if (pooled.totals) {
-          leftcols <- c(leftcols, "n.e", "n.c")
+          leftcols <- add.columns(leftcols, c("n.e", "n.c"))
           if (is.null(label.e.attach))
             label.e.attach <- "n.e"
           if (is.null(label.c.attach))
@@ -4267,15 +4286,14 @@ forest.meta <- function(x,
       }
       #
       if (metagen & study.results) {
-        leftcols <- c(leftcols,
-                      "TE", "seTE")
+        leftcols <- add.columns(leftcols, c("TE", "seTE"))
         if (!is.null(x$n.e)) {
-          leftcols <- c(leftcols, "n.e")
+          leftcols <- add.columns(leftcols, "n.e")
           if (is.null(label.e.attach))
             label.e.attach <- "n.e"
         }
         if (!is.null(x$n.c)) {
-          leftcols <- c(leftcols, "n.c")
+          leftcols <- add.columns(leftcols, "n.c")
           if (is.null(label.c.attach))
             label.c.attach <- "n.c"
         }
@@ -4284,14 +4302,12 @@ forest.meta <- function(x,
       if (metamean) {
         if (study.results) {
           if (revman5)
-            leftcols <- c(leftcols,
-                          "mean.e", "sd.e", "n.e")
+            leftcols <- add.columns(leftcols, c("mean.e", "sd.e", "n.e"))
           else
-            leftcols <- c(leftcols,
-                          "n.e", "mean.e", "sd.e")
+            leftcols <- add.columns(leftcols, c("n.e", "mean.e", "sd.e"))
         }
         else if (pooled.totals) {
-          leftcols <- c(leftcols, "n.e")
+          leftcols <- add.columns(leftcols, "n.e")
           if (is.null(label.e.attach))
             label.e.attach <- "n.e"
         }
@@ -4300,8 +4316,7 @@ forest.meta <- function(x,
       if (metaprop) {
         if (study.results) {
           if (bmj) {
-            leftcols <- c(leftcols,
-                          "event.n.e")
+            leftcols <- add.columns(leftcols, "event.n.e")
             label.e.attach <- "event.n.e"
             #
             if (is.null(bmj.text))
@@ -4311,12 +4326,12 @@ forest.meta <- function(x,
           
           }
           else
-            leftcols <- c(leftcols, "event.e", "n.e")
+            leftcols <- add.columns(leftcols, c("event.e", "n.e"))
         }
         else {
-          leftcols <- c(leftcols,
-                        if (pooled.events) "event.e",
-                        if (pooled.totals) "n.e")
+          leftcols <- add.columns(leftcols,
+                                  c(if (pooled.events) "event.e",
+                                    if (pooled.totals) "n.e"))
           if (pooled.events & !pooled.totals) {
             if (is.null(label.e.attach))
               label.e.attach <- "event.e"
@@ -4326,13 +4341,14 @@ forest.meta <- function(x,
       #
       if (metarate) {
         if (study.results)
-          leftcols <- c(leftcols,
-                        "event.e", "time.e",
-                        if (!is.null(x$n)) "n.e")
+          leftcols <-
+            add.columns(leftcols,
+                        c("event.e", "time.e", if (!is.null(x$n)) "n.e"))
         else {
-          leftcols <- c(leftcols,
-                        if (pooled.events) "event.e",
-                        if (pooled.times) "time.e")
+          leftcols <-
+            add.columns(leftcols,
+                        c(if (pooled.events) "event.e",
+                          if (pooled.times) "time.e"))
           if (pooled.events & !pooled.times) {
             if (is.null(label.e.attach))
               label.e.attach <- "event.e"
@@ -4342,21 +4358,20 @@ forest.meta <- function(x,
       #
       if (metacor) {
         if (study.results | pooled.totals)
-          leftcols <- c(leftcols,
-                        "n.e")
+          leftcols <- add.columns(leftcols, "n.e")
       }
       #
       if (metainc) {
         if (study.results)
-          leftcols <- c(leftcols,
-                        "event.e", "time.e",
-                        "event.c", "time.c")
+          leftcols <-
+            add.columns(leftcols, c("event.e", "time.e","event.c", "time.c"))
         else {
-          leftcols <- c(leftcols,
-                        if (pooled.events) "event.e",
-                        if (pooled.times) "time.e",
-                        if (pooled.events) "event.c",
-                        if (pooled.times) "time.c")
+          leftcols <-
+            add.columns(leftcols,
+                        c(if (pooled.events) "event.e",
+                          if (pooled.times) "time.e",
+                          if (pooled.events) "event.c",
+                          if (pooled.times) "time.c"))
           if (pooled.events & !pooled.times) {
             if (is.null(label.e.attach))
               label.e.attach <- "event.e"
@@ -4373,30 +4388,30 @@ forest.meta <- function(x,
       #
       if (overall & study.results & !any(x$method == "GLMM") & !metamerge) {
         if (common && !all(is.na(x$w.common)))
-          leftcols <- c(leftcols, "w.common")
+          leftcols <- add.columns(leftcols, "w.common")
         if (random && !all(is.na(x$w.random)))
-          leftcols <- c(leftcols, "w.random")
+          leftcols <- add.columns(leftcols, "w.random")
       }
       #
-      leftcols <- c(leftcols, "effect.ci")
+      leftcols <- add.columns(leftcols, "effect.ci")
     }
     #
     # Add columns if risk of bias assessment is only information on
     # right side of the forest plot
     #
     if (!revman5.jama & rob.only) {
+      if (bmj)
+        leftcols <- add.columns(leftcols, "effect.ci")
+      else
+        leftcols <- add.columns(leftcols, c("effect", "ci"))
       #
       if (overall & study.results & !any(x$method == "GLMM") & !metamerge) {
         if (common)
-          leftcols <- c(leftcols, "w.common")
+          leftcols <- add.columns(leftcols, "w.common")
+        #
         if (random)
-          leftcols <- c(leftcols, "w.random")
+          leftcols <- add.columns(leftcols, "w.random")
       }
-      #
-      if (bmj)
-        leftcols <- c(leftcols, "effect.ci")
-      else
-        leftcols <- c(leftcols, "effect", "ci")
     }
   }
   #
@@ -4414,25 +4429,25 @@ forest.meta <- function(x,
                  if (random && !all(is.na(x$w.random))) "w.random")
       #
       if (bmj)
-        rightcols <- c(wcols, rightcols)
+        rightcols <- add.columns(wcols, rightcols)
       else
-        rightcols <- c(rightcols, wcols)
+        rightcols <- add.columns(rightcols, wcols)
     }
   }
   #
   if (RoB.available & rob.only &
       missing.leftcols & !revman5.jama) {
+    if (bmj)
+      leftcols <- add.columns(leftcols, "effect.ci")
+    else
+      leftcols <- add.columns(leftcols, c("effect", "ci"))
+    #
     if (overall & study.results & !any(x$method == "GLMM" & !metamerge)) {
       if (common)
-        leftcols <- c(leftcols, "w.common")
+        leftcols <- add.columns(leftcols, "w.common")
       if (random)
-        leftcols <- c(leftcols, "w.random")
+        leftcols <- add.columns(leftcols, "w.random")
     }
-    #
-    if (bmj)
-      leftcols <- c(leftcols, "effect.ci")
-    else
-      leftcols <- c(leftcols, "effect", "ci")
   } 
   #
   rightcols[rightcols == "w.fixed"] <- "w.common"
@@ -4444,9 +4459,15 @@ forest.meta <- function(x,
          " for ", length(rightcols), " column",
          if (length(rightcols) > 1) "s",
          ".",
+         if (RoB.available)
+           paste("\n  Note, columns names for risk of bias domains cannot be",
+                 "changed with argument 'rightlabs'."),
          call. = FALSE)
   #
-  rightcols <- c(rightcols, rightcols.rob)
+  if (rob.only)
+    rightcols <- rightcols.rob
+  else
+    rightcols <- add.columns(rightcols, rightcols.rob)
   #
   if (any(leftcols == "w.common") & any(rightcols == "w.common"))
     leftcols <- leftcols[!leftcols == "w.common"]
@@ -8411,7 +8432,18 @@ forest.meta <- function(x,
     }
   }
   #
-  if (missing.rightlabs || length(rightcols) != length(rightlabs)) {
+  if (!missing.rightlabs && RoB.available &&
+      length(rightcols[!(rightcols %in% rightcols.rob)]) == length(rightlabs)) {
+    for (i in seq_along(rightcols)) {
+      j <- match(rightcols[i], colnames)
+      if (!is.na(rightlabs[i]))
+        labs[[paste0("lab.", rightcols[i])]] <- rightlabs[i]
+      else
+        if (!is.na(j))
+          labs[[paste0("lab.", rightcols[i])]] <- labnames[j]
+    }
+  }
+  else if (missing.rightlabs || length(rightcols) != length(rightlabs)) {
     for (i in seq_along(rightcols)) {
       j <- match(rightcols[i], colnames)
       if (!is.na(j))

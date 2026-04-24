@@ -155,6 +155,17 @@ add.rob <- function(x, column, size, fs, ff, fontfamily,
 }
 
 
+add.columns <- function(x, new = NULL) {
+  res <- x
+  #
+  for (i in seq_along(new))
+    if (!new[i] %in% res)
+      res <- c(res, new[i])
+  #
+  res
+}
+
+
 draw.axis <- function(x, column, yS, log.xaxis, at, label,
                       fs.axis, ff.axis, fontfamily, lwd,
                       xlim, notmiss.xlim,

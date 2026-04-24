@@ -10,6 +10,15 @@
 * forest.meta():
   - new argument 'height' to specify height of forest plot
 
+### Bug fixes
+
+* forest.meta():
+  - remove duplicate columns from forest plots with risk of bias assessment if
+    argument 'rob.only = TRUE'
+  - argument 'rightlabs' can be used in forest plots with risk of bias
+    assessment (note, column names for risk of bias domains cannot be changed
+    with this argument) [(issue #88)](https://github.com/guido-s/meta/pull/88)
+
 
 ## meta, version 8.3-0 (2026-04-01)
 
