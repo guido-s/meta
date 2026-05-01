@@ -18,6 +18,8 @@
   - new argument 'units' to specify the unit of the width and height
   - new argument 'dpi' to specify the plot resolution
   - new argument 'height' to specify height of forest plot
+  
+* New function forest_dims() to get the width and height of a forest plot
 
 ### Bug fixes
 
