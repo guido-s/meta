@@ -55,12 +55,16 @@
   pscale = x$pscale,
   irscale = x$irscale,
   irunit = x$irunit,
-  file = NULL,
-  height = gs("height"),
-  width = gs("width"),
+  filename = NULL,
+  path = NULL,
+  device = NULL,
+  device.args = NULL,
+  autosize = NULL,
+  units = "in",
+  height = NULL,
+  width = NULL,
+  dpi = 300,
   rows.gr = NULL,
-  func.gr = NULL,
-  args.gr = NULL,
   dev.off = NULL,
   ref,
   cid = gs("cid"),
@@ -455,23 +459,42 @@ argument \code{sm} is equal to \code{"IR"}, \code{"IRLN"},
 \item{irunit}{A character specifying the time unit used to
 calculate rates, e.g., person-years.}
 
-\item{file}{File name.}
+\item{filename}{File name.}
 
-\item{height}{Height of graphics file.}
+\item{path}{Path of the directory to save plot to: `path` and `filename` are
+combined to create the fully qualified file name. Defaults to the working
+directory.}
 
-\item{width}{Width of graphics file.}
+\item{device}{Device to use. Can either be a device function (e.g. [png]), or
+one of `"eps"`, `"ps"`, `"tex"` (pictex), `"pdf"`, `"jpeg"`, `"tiff"`,
+`"png"`, `"bmp"`, `"svg"` or `"wmf"` (Windows only). If `NULL` (default),
+the device is guessed based on the `filename` extension.}
+
+\item{device.args}{List with additional graphical parameters passed on
+to graphics function.}
+
+\item{autosize}{Automatically determine the height and width of the file
+containing the forest plot. One of \code{"none"} (if argument
+\code{filename} is missing), \code{"height"} (if argument \code{width} or
+\code{rows.gr} is provided), or \code{"both"}, otherwise.}
+
+\item{units}{Units of the `width` and `height` of the file containing the
+forest plot. One of \code{"in"} (for inches, default), \code{"cm"},
+\code{"mm"}, or \code{"px"} (for pixels), can be abbreviated.}
+
+\item{height}{Height of the graphics file.}
+
+\item{width}{Width of the graphics file.}
+
+\item{dpi}{Plot resolution.}
 
 \item{rows.gr}{Additional rows in forest plot to change height of
 graphics file (e.g., in order to add a title at the top of the
-forest plot).}
-
-\item{func.gr}{Name of graphics function, e.g., \code{\link{pdf}}.}
-
-\item{args.gr}{List with additional graphical parameters passed on
-to graphics function.}
+forest plot); only considered if \code{autosize = "height"}.}
 
 \item{dev.off}{A logical to specify whether current graphics device
-should be shut down, i.e., whether file should be stored.}
+should be shut down, i.e., whether file should be stored;
+only considered if \code{autosize = "height"}.}
 
 \item{ref}{A numerical giving the reference value to be plotted as
 a line in the forest plot. No reference line is plotted if
@@ -1223,8 +1246,8 @@ the graphics window. Alternatively, save the forest plot in a file.
 \subsection{Saving forest plots}{
 
 A forest plot can be directly stored in a file using argument
-\code{file} or specifying the R function for the graphics device
-driver using argument \code{func.gr}, e.g., \code{\link{pdf}}. If
+\code{filename} or specifying the R function for the graphics device
+driver using argument \code{device}, e.g., \code{\link{pdf}}. If
 only the filename is provided, the extension is checked and matched
 against the most common graphics device drivers.
 
@@ -1242,7 +1265,7 @@ against the most common graphics device drivers.
 The height and width of the graphics device can be specified with
 arguments \code{height} and \code{width}, see, for example,
 \code{\link{pdf}} or \code{\link{jpeg}}. Other arguments of graphics device
-functions can be provided as a list in argument \code{args.gr}. The height of
+functions can be provided as a list in argument \code{device.args}. The height of
 the graphics device is automatically determined if argument \code{height} is
 \code{NULL}. Argument \code{rows.gr} can be used to increase or decrease the
 number of rows shown in the forest plot (either to show missing information
@@ -1698,7 +1721,7 @@ forest(ma1, layout = "RevMan5", common = FALSE,
 # - specify filename (R function pdf() is used due to extension .pdf)
 # - height of the figure is automatically determined
 # - width is set to 10 inches
-forest(ma1, file = "forest-ma1-1.pdf", width = 10)
+forest(ma1, filename = "forest-ma1-1.pdf", width = 10)
 #
 # - specify graphics device function
 #   (filename "Rplots.pdf" used, see help page of R function pdf())
@@ -1706,8 +1729,8 @@ forest(ma1, file = "forest-ma1-1.pdf", width = 10)
 # - width is set to 10 inches
 # - set title for PDF file
 # - set background of forest plot
-forest(ma1, func.gr = pdf, width = 10,
-  args.gr = list(title = "My Forest Plot", bg = "green"))
+forest(ma1, device = pdf, width = 10,
+  device.args = list(title = "My Forest Plot", bg = "green"))
 #
 # - manually specify the height of the figure
 pdf("forest-ma1-2.pdf", width = 10, height = 3)

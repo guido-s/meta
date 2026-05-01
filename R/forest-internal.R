@@ -1187,7 +1187,7 @@ gh <- function(type.gr, rows.gr,
   #
   total_height <- height_per_row * spacing * total_rows
   
-  res <- data.frame(total_height, total_rows, height_per_row, spacing)
+  res <- data.frame(height = total_height, total_rows, height_per_row, spacing)
   #
   res
 }

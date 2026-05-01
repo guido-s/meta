@@ -681,7 +681,14 @@
 #'
 #' @import metabook
 #' 
-#' @importFrom rlang :=
+#' @importFrom cli cli_warn cli_alert_success cli_abort cli_inform cli_abort
+#' 
+#' @importFrom checkmate test_string assert_list
+#' 
+#' @importFrom rlang := arg_match0 is_bare_list caller_env inject
+#'   check_installed expr enexprs
+#' 
+#' @importFrom tools file_ext
 #'
 #' @importFrom dplyr %>% across mutate all_of select rename rename_with mutate
 #'   if_else tibble filter bind_rows group_by group_map relocate
@@ -703,15 +710,19 @@
 #'   grid.xaxis textGrob popViewport pushViewport viewport unit unit.c
 #'   convertX grobTree rectGrob
 #'   grid.get grid.gget
+#'   grid.grabExpr convertWidth convertHeight
 #'
-#' @importFrom grDevices gray gray.colors cairo_pdf cairo_ps pdf
-#'   postscript svg bmp jpeg png tiff hcl.colors
+#' @importFrom grDevices gray gray.colors hcl.colors
+#'   cairo_pdf cairo_ps pdf postscript svg bmp jpeg png tiff pictex
+#'   dev.cur dev.list dev.off dev.set dev.size
 #'
 #' @importFrom graphics abline axis barplot box mtext lines par plot
 #'   points polygon text
 #'   
 #' @importFrom ggplot2 aes annotate geom_area geom_line geom_point
 #'   geom_polygon ggplot scale_x_continuous xlab ylab
+#'
+#' @importFrom svglite svglite
 #' 
 #' @importFrom stats as.formula binom.test coef cor lm pchisq pf pnorm
 #'   poisson.test pt qlogis qnorm qt runif update var weighted.mean
@@ -719,7 +730,7 @@
 #'
 #' @importFrom utils count.fields read.table assignInNamespace
 #'   getFromNamespace packageDescription packageVersion head tail find
-#'   unzip combn
+#'   unzip combn capture.output modifyList globalVariables
 #'
 #' @importFrom metafor forest funnel funnel.default baujat labbe
 #'   radial trimfill rma.uni rma.glmm rma.mv predict.rma

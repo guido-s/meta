@@ -2,12 +2,21 @@
 
 ### Major changes
 
-* The width of the file used to store a forest plot can be specified in the R
-  function forest().
+* By default, the width and height of a file to store a forest plot is
+  automatically determined. Furthermore, the user can specify the height
+  of the file with the forest plot.
 
 ### User-visible changes
 
 * forest.meta():
+  - argument 'file' renamed to 'filename'
+  - argument 'func.gr' renamed to 'device'
+  - argument 'args.gr' renamed to 'device.args'
+  - new argument 'path' to specify the directory to store the file
+  - new argument 'autosize' to specify whether to automatically determine the
+    height and width
+  - new argument 'units' to specify the unit of the width and height
+  - new argument 'dpi' to specify the plot resolution
   - new argument 'height' to specify height of forest plot
 
 ### Bug fixes

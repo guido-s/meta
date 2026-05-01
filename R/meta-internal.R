@@ -716,7 +716,6 @@ argslist <-
     "ff.test.effect.subgroup", "ff.addline",
     "ff.axis", "ff.smlab", "ff.xlab", "ff.lr",
     "colgap", "colgap.forest",
-    "height", "width",
     "calcwidth.predict", "calcwidth.hetstat",
     "calcwidth.tests", "calcwidth.subgroup", "calcwidth.addline",
     "just.studlab", "just.addcols",
@@ -1026,9 +1025,6 @@ setOption("ff.lr", "plain")
 setOption("colgap", "2mm")
 setOption("colgap.forest", "2mm")
 #
-setOption("height", NULL)
-setOption("width", NULL)
-#
 setOption("calcwidth.predict", FALSE)
 setOption("calcwidth.hetstat", FALSE)
 setOption("calcwidth.tests", FALSE)
@@ -1068,3 +1064,8 @@ setOption("Wan2014.Table2",
             1.336, 1.336, 1.337, 1.337, 1.337,
             1.338, 1.338, 1.338, 1.338, 1.339,
             1.339, 1.339, 1.339, 1.339, 1.340))
+
+
+# Register global variables for R CMD check
+#
+globalVariables(c(".width", ".height"))
