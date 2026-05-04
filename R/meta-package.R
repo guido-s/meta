@@ -685,13 +685,11 @@
 #' 
 #' @importFrom checkmate test_string assert_list
 #' 
-#' @importFrom rlang := arg_match0 is_bare_list caller_env inject
-#'   check_installed expr enexprs
+#' @importFrom rlang := arg_match0 is_bare_list caller_env inject check_installed expr enexprs
 #' 
 #' @importFrom tools file_ext
 #'
-#' @importFrom dplyr %>% across mutate all_of select rename rename_with mutate
-#'   if_else tibble filter bind_rows group_by group_map relocate
+#' @importFrom dplyr %>% across mutate all_of select rename rename_with mutate if_else tibble filter bind_rows group_by group_map relocate
 #'
 #' @importFrom tibble column_to_rownames
 #'
@@ -705,36 +703,21 @@
 #'
 #' @importFrom readr read_csv cols
 #'
-#' @importFrom grid arrow gpar grid.circle grid.draw grid.layout
-#'   grid.lines grid.newpage grid.polygon grid.rect grid.text
-#'   grid.xaxis textGrob popViewport pushViewport viewport unit unit.c
-#'   convertX grobTree rectGrob
-#'   grid.get grid.gget
-#'   grid.grabExpr convertWidth convertHeight
+#' @importFrom grid arrow gpar grid.circle grid.draw grid.layout grid.lines grid.newpage grid.polygon grid.rect grid.text grid.xaxis textGrob popViewport pushViewport viewport unit unit.c convertX grobTree rectGrob grid.get grid.gget grid.grabExpr convertWidth convertHeight
 #'
-#' @importFrom grDevices gray gray.colors hcl.colors
-#'   cairo_pdf cairo_ps pdf postscript svg bmp jpeg png tiff pictex
-#'   dev.cur dev.list dev.off dev.set dev.size
+#' @importFrom grDevices gray gray.colors hcl.colors cairo_pdf cairo_ps pdf postscript svg bmp jpeg png tiff pictex dev.cur dev.list dev.off dev.set dev.size
 #'
-#' @importFrom graphics abline axis barplot box mtext lines par plot
-#'   points polygon text
+#' @importFrom graphics abline axis barplot box mtext lines par plot points polygon text
 #'   
-#' @importFrom ggplot2 aes annotate geom_area geom_line geom_point
-#'   geom_polygon ggplot scale_x_continuous xlab ylab
+#' @importFrom ggplot2 aes annotate geom_area geom_line geom_point geom_polygon ggplot scale_x_continuous xlab ylab
 #'
 #' @importFrom svglite svglite
 #' 
-#' @importFrom stats as.formula binom.test coef cor lm pchisq pf pnorm
-#'   poisson.test pt qlogis qnorm qt runif update var weighted.mean
-#'   weights glm binomial vcov fitted residuals dt
+#' @importFrom stats as.formula binom.test coef cor lm pchisq pf pnorm poisson.test pt qlogis qnorm qt runif update var weighted.mean weights glm binomial vcov fitted residuals dt
 #'
-#' @importFrom utils count.fields read.table assignInNamespace
-#'   getFromNamespace packageDescription packageVersion head tail find
-#'   unzip combn capture.output modifyList globalVariables
+#' @importFrom utils count.fields read.table assignInNamespace getFromNamespace packageDescription packageVersion head tail find unzip combn capture.output modifyList globalVariables
 #'
-#' @importFrom metafor forest funnel funnel.default baujat labbe
-#'   radial trimfill rma.uni rma.glmm rma.mv predict.rma
-#'   confint.rma.uni confint.rma.mv escalc regtest to.long vcalc blup
+#' @importFrom metafor forest funnel funnel.default baujat labbe radial trimfill rma.uni rma.glmm rma.mv predict.rma confint.rma.uni confint.rma.mv escalc regtest to.long vcalc blup
 #'
 #' @importFrom lme4 glmer
 #'

@@ -34,4 +34,4 @@ Description: User-friendly general package providing standard methods for meta-a
 License: GPL (>= 2)
 Encoding: UTF-8
 VignetteBuilder: knitr
-RoxygenNote: 7.3.3
+Config/roxygen2/version: 8.0.0
