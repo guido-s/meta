@@ -698,7 +698,7 @@ print.estimates.meta <- function(x,
   backtransf <- attr(x, "backtransf")
   sm.lab <- smlab(meta$sm, backtransf, meta$pscale, meta$irscale)
   #
-  ci.lab <- paste0(round(100 * meta$level, 1), "%-CI")
+  ci.lab <- paste0(round(100 * meta$level, 1), "% CI")
   #
   se <- attr(x, "se")
   ci <- attr(x, "ci")
@@ -767,11 +767,11 @@ print.estimates.meta <- function(x,
     #
     if ((common | random) && meta$level != meta$level.ma)
       cat(paste0("- ", round(100 * meta$level.ma, 1),
-                 "%-CI calculated for meta-analysis results\n"))
+                 "% CI calculated for meta-analysis results\n"))
     if (prediction && meta$level != meta$level.predict)
       if (meta$level != meta$level.ma)
         cat(paste0("- ", round(100 * meta$level.predict, 1),
-                   "%-PI calculated\n"))
+                   "% PI calculated\n"))
   }
   
   invisible(NULL)

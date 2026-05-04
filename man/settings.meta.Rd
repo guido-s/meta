@@ -294,7 +294,7 @@ metaprop(4, 20)
 settings.meta(oldset)
 
 # Change level used to calculate confidence intervals
-# (99\%-CI for studies, 99.9\%-CI for pooled effects)
+# (99\% CI for studies, 99.9\% CI for pooled effects)
 #
 metagen(1:3, 2:4 / 10, sm = "MD")
 settings.meta(level = 0.99, level.ma = 0.999)

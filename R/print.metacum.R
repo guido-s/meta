@@ -375,11 +375,11 @@ print.metacum <- function(x,
   names(dat)[names(dat) == "TE"] <- smlab(sm, backtransf, x$pscale, x$irscale)
   #
   names(dat)[names(dat) == "lower"] <-
-    paste0(round(100 * x$level.ma, 1), "%-CI")
+    paste0(round(100 * x$level.ma, 1), "% CI")
   #
   if (prediction)
     names(dat)[names(dat) == "lower.predict"] <-
-    paste0(round(100 * x$level.predict, 1), "%-PI")
+    paste0(round(100 * x$level.predict, 1), "% PI")
   else
     dat$lower.predict <- NULL
   #
@@ -406,7 +406,7 @@ print.metacum <- function(x,
   #
   if (print.tau2.ci)
     names(dat)[names(dat) == "lower.tau2"] <-
-    paste0(round(100 * x$level.hetstat, 1), "%-CI")
+    paste0(round(100 * x$level.hetstat, 1), "% CI")
   else
     dat$lower.tau2 <- NULL
   #
@@ -417,7 +417,7 @@ print.metacum <- function(x,
   #
   if (print.tau.ci)
     names(dat)[names(dat) == "lower.tau"] <-
-    paste0(round(100 * x$level.hetstat, 1), "%-CI")
+    paste0(round(100 * x$level.hetstat, 1), "% CI")
   else
     dat$lower.tau <- NULL
   #
@@ -428,7 +428,7 @@ print.metacum <- function(x,
   #
   if (print.I2.ci)
     names(dat)[names(dat) == "lower.I2"] <-
-    paste0(round(100 * x$level.hetstat, 1), "%-CI")
+    paste0(round(100 * x$level.hetstat, 1), "% CI")
   else
     dat$lower.I2 <- NULL
   #

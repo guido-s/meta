@@ -825,7 +825,7 @@
 #'   \code{gs("label.cor")} \cr
 #' \cr
 #' Column: \tab \code{effect} \tab \code{ci} \tab \code{effect.ci} \cr
-#' Label: \tab \code{x$sm} \tab \code{x$level}"\%-CI" \tab \emph{effect+ci} \cr
+#' Label: \tab \code{x$sm} \tab \code{x$level}"\% CI" \tab \emph{effect+ci} \cr
 #' \cr
 #' Column: \tab \code{cluster} \tab \code{cycles} \tab \code{pval} \cr
 #' Label: \tab \code{gs("label.cluster")} \tab \code{gs("label.cycles")} \tab
@@ -1008,7 +1008,7 @@
 #' meta-analysis, and prediction interval (arguments \code{level},
 #' \code{level.ma}, \code{level.predict} in meta-analysis functions,
 #' e.g., \code{\link{metabin}}), additional information is printed,
-#' e.g., " (99\%-CI)" for a 99\% confidence interval in the
+#' e.g., " (99\% CI)" for a 99\% confidence interval in the
 #' meta-analysis.
 #' 
 #' Argument \code{pscale} can be used to rescale single proportions or
@@ -3493,10 +3493,10 @@ forest.meta <- function(x,
                                 )
         else if (!is.null(text.common))
           text.common <- paste0(text.common, " (",
-                                round(x$level.ma * 100), "%-CI)")
+                                round(x$level.ma * 100), "% CI)")
         else
           text.common <- paste0(gs("text.common"), " (",
-                                round(x$level.ma * 100), "%-CI)")
+                                round(x$level.ma * 100), "% CI)")
       }
       else {
         if (bmj.revman5.jama) {
@@ -3542,10 +3542,10 @@ forest.meta <- function(x,
         }
         else if (!is.null(text.random))
           text.random <- paste0(text.random, " (",
-                                round(x$level.ma * 100), "%-CI)")
+                                round(x$level.ma * 100), "% CI)")
         else
           text.random <- paste0(gs("text.random"), " (",
-                                round(x$level.ma * 100), "%-CI)")
+                                round(x$level.ma * 100), "% CI)")
       }
       else {
         if (bmj.revman5.jama) {
@@ -3596,7 +3596,7 @@ forest.meta <- function(x,
         (study.results & (x$level != x$level.predict |
                           x$level.ma != x$level.predict)))
       text.predict <- paste0(text.predict, " (",
-                             round(x$level.predict * 100), "%-PI)")
+                             round(x$level.predict * 100), "% PI)")
   }
   #
   if (is.null(x$null.effect) || is.na(x$null.effect)) {
@@ -3887,15 +3887,10 @@ forest.meta <- function(x,
   if (revman5 & by)
     lab.studlab <- c("Study or\nSubgroup")
   #
-  if (bmj.revman5.jama)
-    cisep <- " "
-  else
-    cisep <- "-"
-  #
   if (study.results)
-    ci.lab <- paste0(100 * level, "%", cisep, "CI")
+    ci.lab <- paste0(100 * level, "% CI")
   else
-    ci.lab <- paste0(100 * level.ma, "%", cisep, "CI")
+    ci.lab <- paste0(100 * level.ma, "% CI")
   #
   if (!missing.col.diamond.fixed) {
     col.diamond.common <-

@@ -7,6 +7,9 @@
 
 ### User-visible changes
 
+* Use "95% CI" or "95% PI" instead of "95%-CI" or "95%-PI" in printouts and
+  figures
+
 * forest.meta():
   - new argument 'height' to specify height of forest plot
 

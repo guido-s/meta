@@ -348,7 +348,7 @@ print.blup.meta <- function(x, backtransf = attr(x, "x")$backtransf,
       )
     #
     colnames(res.i) <- c(sm.lab, if (print.se) se.lab,
-                         paste0(100 * meta$level, "%-PI"))
+                         paste0(100 * meta$level, "% PI"))
     #
     if (by)
       res.i <- cbind(res.i, subgroup = x$subgroup[sel.i])
@@ -554,7 +554,7 @@ print.estimates.blup.meta <- function(x,
   
   sm.lab <- smlab(meta$sm, backtransf, meta$pscale, meta$irscale)
   #
-  ci.lab <- paste0(round(100 * meta$level, 1), "%-PI")
+  ci.lab <- paste0(round(100 * meta$level, 1), "% PI")
   #
   x$blup <- round(x$blup, digits = digits)
   x$lower <- round(x$lower, digits = digits)

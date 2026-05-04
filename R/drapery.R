@@ -710,7 +710,7 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
     if (type != "surprisal")
       for (i in seq(along = y.alpha))
         text(mx, y.alpha[i] + (ylim[2] - ylim[1]) / 200,
-             paste0(100 * (1 - alpha[i]), "%-CI"),
+             paste0(100 * (1 - alpha[i]), "% CI"),
              cex = cex.alpha, col = col.alpha, adj = c(1, 0))
     #
     # Add legend

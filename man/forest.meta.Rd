@@ -1397,7 +1397,7 @@ Label: \tab \code{gs("label.events")} \tab \code{gs("label.time")} \tab
   \code{gs("label.cor")} \cr
 \cr
 Column: \tab \code{effect} \tab \code{ci} \tab \code{effect.ci} \cr
-Label: \tab \code{x$sm} \tab \code{x$level}"\%-CI" \tab \emph{effect+ci} \cr
+Label: \tab \code{x$sm} \tab \code{x$level}"\% CI" \tab \emph{effect+ci} \cr
 \cr
 Column: \tab \code{cluster} \tab \code{cycles} \tab \code{pval} \cr
 Label: \tab \code{gs("label.cluster")} \tab \code{gs("label.cycles")} \tab
@@ -1580,7 +1580,7 @@ If confidence interval levels are different for individual studies,
 meta-analysis, and prediction interval (arguments \code{level},
 \code{level.ma}, \code{level.predict} in meta-analysis functions,
 e.g., \code{\link{metabin}}), additional information is printed,
-e.g., " (99\%-CI)" for a 99\% confidence interval in the
+e.g., " (99\% CI)" for a 99\% confidence interval in the
 meta-analysis.
 
 Argument \code{pscale} can be used to rescale single proportions or
