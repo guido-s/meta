@@ -14,10 +14,10 @@
 #' highly robust. It works seamlessly with any forest plot configuration.
 #'
 #' @param x An object of class \code{meta} (e.g., from \code{\link{metacont}},
-#'   \code{\link{metabin}}, or \code{\link{metagen}}.
+#'   \code{\link{metabin}}, or \code{\link{metagen}}).
 #' @param \dots Additional arguments passed on to the underlying forest plot
 #'   method (e.g., \code{\link{forest.meta}}, \code{\link{forest.metabind}},
-#'    \code{\link{forest.metacum}}, or \code{\link{forest.metainf}}.
+#'    \code{\link{forest.metacum}}, or \code{\link{forest.metainf}}).
 #' @param units Units of the returned `width` and `height`. One of
 #'   \code{"in"} (for inches, default), \code{"cm"}, or \code{"mm"}, can be
 #'   abbreviated. In \code{inches2units} and \code{units2inches}, \code{"px"}

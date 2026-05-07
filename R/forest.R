@@ -119,7 +119,7 @@
 #'   \code{"IRS"}, \code{"IRFT"}, or \code{"IRD"}.
 #' @param irunit A character specifying the time unit used to
 #'   calculate rates, e.g., person-years.
-#' @param filename File name.
+#' @param filename File name to store forest plot.
 #' @param path Path of the directory to save plot to: `path` and `filename` are
 #'   combined to create the fully qualified file name. Defaults to the working
 #'   directory.
@@ -130,9 +130,10 @@
 #' @param device.args List with additional graphical parameters passed on
 #'   to graphics function.
 #' @param autosize Automatically determine the height and width of the file
-#'   containing the forest plot. One of \code{"none"} (if argument
-#'   \code{filename} is missing), \code{"height"} (if argument \code{width} or
-#'   \code{rows.gr} is provided), or \code{"both"}, otherwise.
+#'   containing the forest plot. One of \code{"none"} (if arguments
+#'   \code{filename} and \code{filename} are missing), \code{"height"}
+#'   (if argument \code{width} or \code{rows.gr} is provided), or
+#'   \code{"both"}, otherwise.
 #' @param units Units of the `width` and `height` of the file containing the
 #'   forest plot. One of \code{"in"} (for inches, default), \code{"cm"},
 #'   \code{"mm"}, or \code{"px"} (for pixels), can be abbreviated.
@@ -144,7 +145,7 @@
 #'   forest plot); only considered if \code{autosize = "height"}.
 #' @param dev.off A logical to specify whether current graphics device
 #'   should be shut down, i.e., whether file should be stored;
-#'   only considered if \code{autosize = "height"}.
+#'   not considered if \code{autosize = "both"}.
 #' @param ref A numerical giving the reference value to be plotted as
 #'   a line in the forest plot. No reference line is plotted if
 #'   argument \code{ref} is equal to \code{NA}.
@@ -666,37 +667,45 @@
 #' \subsection{Saving forest plots}{
 #' 
 #' A forest plot can be directly stored in a file using argument
-#' \code{filename} or specifying the R function for the graphics device
-#' driver using argument \code{device}, e.g., \code{\link{pdf}}. If
-#' only the filename is provided, the extension is checked and matched
-#' against the most common graphics device drivers.
+#' \code{filename}. The R function for the graphics device driver
+#' can be specified using argument \code{device}, e.g., \code{device = "pdf"}
+#' or \code{device = pdf}. If only the filename is provided, the extension of
+#' the filename is checked and matched against the most common graphics device
+#' drivers:
 #' 
 #' \tabular{ll}{
 #' \bold{Extension} \tab \bold{Graphics device} \cr
 #' \code{.pdf} \tab \code{\link{pdf}} \cr
 #' \code{.ps} \tab \code{\link{postscript}} \cr
-#' \code{.svg} \tab \code{\link{svg}} \cr
+#' \code{.svg} \tab \code{\link{svg}} or \code{\link[svglite]{svglite}} if the
+#'   R package \bold{svglite} is available \cr
 #' \code{.bmp} \tab \code{\link{bmp}} \cr
 #' \code{.jpg} / \code{.jpeg} \tab \code{\link{jpeg}} \cr
 #' \code{.png} \tab \code{\link{png}} \cr
 #' \code{.tif} / \code{.tiff} \tab \code{\link{tiff}}
 #' }
-#'
-#' The height and width of the graphics device can be specified with
-#' arguments \code{height} and \code{width}, see, for example,
-#' \code{\link{pdf}} or \code{\link{jpeg}}. Other arguments of graphics device
-#' functions can be provided as a list in argument \code{device.args}. The height of
-#' the graphics device is automatically determined if argument \code{height} is
-#' \code{NULL}. Argument \code{rows.gr} can be used to increase or decrease the
-#' number of rows shown in the forest plot (either to show missing information
-#' or to remove whitespace).
-#'
-#' Alternatively, the (resized) graphics window can be stored to a
-#' file using either \code{\link{dev.copy2eps}} or
-#' \code{\link{dev.copy2pdf}}. It is also possible to manually create
-#' a file using, for example, \code{\link{pdf}}, \code{\link{png}}, or
-#' \code{\link{svg}} and to specify the width and height of the
-#' graphic (see Examples).
+#' 
+#' If only argument \code{device} is provided, the filename will be equal to
+#' "Rplots.\code{device}".
+#' 
+#' By default, the height and width of the file containing the forest plot is
+#' determined automatically (argument \code{autosize = "both"}). This is
+#' typically the recommended approach to store a single forest plot in a file.
+#' 
+#' The user can specify the height and width of the file using the
+#' arguments \code{height} and \code{width}. For backward compatibility, it is
+#' also possible to only specify the width of the file. In this case, the height
+#' of the file is determined using a different approach (argument
+#' \code{autosize = "height"}) and argument \code{rows.gr} can be used to
+#' increase or decrease the number of rows shown in the forest plot
+#' (either to show missing information or to remove white space).
+#' 
+#' Argument \code{dev.off} can be used to keep the current graphics device
+#' open in order to store additional forest plots in the file. Use the R
+#' function \code{\link{dev.off}} to close the graphics device / store the file.
+#' 
+#' Other arguments of graphics device functions can be provided as a list in
+#' the argument \code{device.args}.
 #' }
 #' 
 #' \subsection{Default layout for studies and pooled effects}{
@@ -1156,32 +1165,42 @@
 #' 
 #' 
 #' \dontrun{
+#' #
 #' # Create PDF files with the forest plot
 #' #
-#' # - specify filename (R function pdf() is used due to extension .pdf)
-#' # - height of the figure is automatically determined
-#' # - width is set to 10 inches
-#' forest(ma1, filename = "forest-ma1-1.pdf", width = 10)
+#' 
+#' # 1) Specify filename, here, pdf() is used due to the file extension ".pdf";
+#' #    height and width of the figure are automatically determined
 #' #
-#' # - specify graphics device function
-#' #   (filename "Rplots.pdf" used, see help page of R function pdf())
-#' # - height of the figure is automatically determined
-#' # - width is set to 10 inches
-#' # - set title for PDF file
-#' # - set background of forest plot
-#' forest(ma1, device = pdf, width = 10,
+#' forest(ma1, filename = "forest-ma1-1.pdf")
+#' 
+#' # 2) Specify the device; results in the creation of a file "Rplots.pdf"
+#' #
+#' forest(ma1, device = pdf)
+#' 
+#' # 3) Manually set width to 10 inches; a different method is used to
+#' #    determine the height of the forest plot
+#' #
+#' forest(ma1, filename = "forest-ma1-2.pdf", width = 10)
+#' 
+#' # 4) Set title for PDF file and set background colour of forest plot
+#' forest(ma1, filename = "forest-ma1-3.pdf",
 #'   device.args = list(title = "My Forest Plot", bg = "green"))
+#' 
+#' # 5) Manually specify the height of the figure
 #' #
-#' # - manually specify the height of the figure
-#' pdf("forest-ma1-2.pdf", width = 10, height = 3)
-#' forest(ma1)
-#' dev.off()
+#' forest(ma1, filename = "forest-ma1-4.pdf", width = 10, height = 3)
+#' }
+#' 
+#' \dontrun{
+#' #
+#' # More forest plots
+#' #
 #' 
 #' # Define equivalence limits: 0.75 and 1 / 0.75
 #' #
 #' forest(ma1, layout = "RevMan5", common = FALSE, cid = 0.75,
-#'   fill = "lightgray",
-#'   fill.cid = "white")
+#'   fill = "lightgray", fill.cid = "white")
 #' 
 #' # Fill regions with beneficial and detrimental effects
 #' #
@@ -1712,9 +1731,33 @@ forest.meta <- function(x,
   # (1) Check for meta object and upgrade older meta objects
   #
   #
+  
   chkclass(x, "meta")
   x.name <- deparse(substitute(x))
   x <- updateversion(x)
+  
+  
+  #
+  #
+  # (2) Determine whether forest plot should be stored to file and how to
+  #     calculate the height and width of the plot
+  #
+  #
+  
+  args <- list(...)
+  # Check whether first argument is a list. In this case only use
+  # this list as input.
+  if (length(args) > 0 && is.list(args[[1]]))
+    args <- args[[1]]
+  nam.args <- names(args)
+  #
+  chklogical(warn.deprecated)
+  #
+  device <-
+    deprecated(device, missing(device), args, "func.gr", warn.deprecated)
+  #
+  if (is.null(filename) & !is.null(device))
+    filename <- paste0("Rplots.", substitute(device))
   #
   if (is.null(autosize)) {
     if (is.null(filename))
@@ -1730,7 +1773,14 @@ forest.meta <- function(x,
     autosize <- setchar(autosize, c("none", "height", "both"))
     chklength(autosize, 1, text = "Argument 'autosize' must be of length 1.")
   }
+  
+  
   #
+  #
+  # (3) Some assignments
+  #
+  #
+  
   K.all <- length(x$TE)
   #
   sm <- x$sm
@@ -1760,13 +1810,6 @@ forest.meta <- function(x,
   #
   avail.rows.gr <- !missing(rows.gr) && !is.null(rows.gr)
   avail.dev.off <- !missing(dev.off) && !is.null(dev.off)
-  #
-  args <- list(...)
-  # Check whether first argument is a list. In this case only use
-  # this list as input.
-  if (length(args) > 0 && is.list(args[[1]]))
-    args <- args[[1]]
-  nam.args <- names(args)
   #
   # Logical variables for missing arguments
   #
@@ -1913,9 +1956,10 @@ forest.meta <- function(x,
   
   #
   #
-  # (2) Extract data on subgroup analysis
+  # (4) Extract data on subgroup analysis
   #
   #
+  
   by <- !is.null(x$subgroup)
   #
   if (by) {
@@ -1952,9 +1996,10 @@ forest.meta <- function(x,
   
   #
   #
-  # (3) Determine columns on left and right side of forest plot
+  # (5) Determine columns on left and right side of forest plot
   #
   #
+  
   layout <- setchar(layout, c("meta", "BMJ", "RevMan5", "JAMA", "subgroup"))
   if (layout == "subgroup" & is.null(x$subgroup)) {
     warning("Argument 'layout' set to \"meta\" (default) as ",
@@ -2179,9 +2224,10 @@ forest.meta <- function(x,
   
   #
   #
-  # (3) Check other arguments
+  # (6) Check other arguments
   #
   #
+  
   sfsp <- sys.frame(sys.parent())
   mc <- match.call()
   #
@@ -2270,9 +2316,6 @@ forest.meta <- function(x,
   sort.subgroup <- deprecated(sort.subgroup, missing.sort.subgroup,
                               args, "bysort", warn.deprecated)
   chklogical(sort.subgroup)
-  #
-  device <-
-    deprecated(device, missing(device), args, "func.gr", warn.deprecated)
   #
   device.args <-
     deprecated(device.args, missing(device.args),
@@ -3265,9 +3308,10 @@ forest.meta <- function(x,
   
   #
   #
-  # (4) Check length of variables
+  # (7) Check length of variables
   #
   #
+  
   fun <- "forest.meta"
   #
   if (length(col.study) == 1)
@@ -3303,9 +3347,10 @@ forest.meta <- function(x,
   
   #
   #
-  # (5) Some assignments and additional checks
+  # (8) Some assignments and additional checks
   #
   #
+  
   n.com <- max(length(x$TE.common), 1)
   n.ran <- max(length(x$lower.random), 1)
   n.prd <- max(length(x$lower.predict), 1)
@@ -3911,9 +3956,10 @@ forest.meta <- function(x,
   
   #
   #
-  # (6) Labels for columns on left and right side of forest plot
+  # (9) Labels for columns on left and right side of forest plot
   #
   #
+  
   sm.lab <- sm
   #
   if (backtransf) {
@@ -4544,9 +4590,10 @@ forest.meta <- function(x,
   
   #
   #
-  # (6) Select data for forest plot
+  # (10) Select data for forest plot
   #
   #
+  
   if (metacor) {
     x$n.e <- x$n
   }
@@ -6706,9 +6753,10 @@ forest.meta <- function(x,
   
   #
   #
-  # (7) Prepare data for subgroup analysis
+  # (11) Prepare data for subgroup analysis
   #
   #
+  
   NAs <- rep(NA, n.com + n.ran + n.prd)
   NAs.com <- rep(NA, n.com)
   NAs.ran <- rep(NA, n.ran)
@@ -8257,9 +8305,10 @@ forest.meta <- function(x,
   
   #
   #
-  # (8) Backtransform data
+  # (12) Backtransform data
   #
   #
+  
   TE.orig <- TE
   #
   if (backtransf) {
@@ -8468,9 +8517,10 @@ forest.meta <- function(x,
   
   #
   #
-  # (9) Determine column labels
+  # (13) Determine column labels
   #
   #
+  
   labs <- list()
   #
   if (lsel) {
@@ -9086,9 +9136,10 @@ forest.meta <- function(x,
   
   #
   #
-  # (10) Define columns in forest plot as well as x- and y-limits
+  # (14) Define columns in forest plot as well as x- and y-limits
   #
   #
+  
   type.common <-
     deprecated(type.common, missing.type.common,
                args, "type.common",
@@ -10492,9 +10543,10 @@ forest.meta <- function(x,
   
   #
   #
-  # (11) Format columns in forest plot
+  # (15) Format columns in forest plot
   #
   #
+  
   col.studlab <- list(labels =
                         lapply(as.list(c(labs[["lab.studlab"]], modlabs)),
                                tg,
@@ -11350,9 +11402,10 @@ forest.meta <- function(x,
   
   #
   #
-  # (12) Calculate width of columns in forest plot
+  # (16) Calculate width of columns in forest plot
   #
   #
+  
   # Exclude lines with summary measures from calculation of column
   # width for study labels
   #
@@ -11501,9 +11554,10 @@ forest.meta <- function(x,
   
   #
   #
-  # (13) Process arguments smlab, label.left and label.right
+  # (17) Process arguments smlab, label.left and label.right
   #
   #
+  
   if (by) {
     addline <- addrow * (!any(c(overall.hetstat,
                                 test.overall.common, test.overall.random,
@@ -11625,7 +11679,7 @@ forest.meta <- function(x,
   
   #
   #
-  # (14) Calculate height and width of forest plot
+  # (18) Calculate height and width of forest plot
   #
   #
   
@@ -11777,15 +11831,14 @@ forest.meta <- function(x,
     res <- do.call(forest_meta_internal, forest.args)
     invisible(dev.off())
     #
-    dims <- inject(save_plot(
-      plot = function() do.call(forest_meta_internal, forest.args),
-      filename = filename,
-      device = device,
-      path = path,
-      width = dims$width,
-      height = dims$height,
-      units = dims$units,
-      dpi = dpi))
+    save.args <- 
+      c(list(plot = function() do.call(forest_meta_internal, forest.args),
+             filename = filename, path = path, device = device,
+             width = dims$width, height = dims$height, units = dims$units,
+             dpi = dpi),
+        device.args)
+    #
+    dims <- inject(runNN(save_plot, save.args))
     #
     dims$file <- NULL
     #
@@ -11910,9 +11963,10 @@ forest.meta <- function(x,
   
   #
   #
-  # (15) Generate forest plot
+  # (19) Generate forest plot
   #
   #
+  
   res <- do.call(forest_meta_internal, forest.args)
   #
   res$height <- height

@@ -459,7 +459,7 @@ argument \code{sm} is equal to \code{"IR"}, \code{"IRLN"},
 \item{irunit}{A character specifying the time unit used to
 calculate rates, e.g., person-years.}
 
-\item{filename}{File name.}
+\item{filename}{File name to store forest plot.}
 
 \item{path}{Path of the directory to save plot to: `path` and `filename` are
 combined to create the fully qualified file name. Defaults to the working
@@ -474,9 +474,10 @@ the device is guessed based on the `filename` extension.}
 to graphics function.}
 
 \item{autosize}{Automatically determine the height and width of the file
-containing the forest plot. One of \code{"none"} (if argument
-\code{filename} is missing), \code{"height"} (if argument \code{width} or
-\code{rows.gr} is provided), or \code{"both"}, otherwise.}
+containing the forest plot. One of \code{"none"} (if arguments
+\code{filename} and \code{filename} are missing), \code{"height"}
+(if argument \code{width} or \code{rows.gr} is provided), or
+\code{"both"}, otherwise.}
 
 \item{units}{Units of the `width` and `height` of the file containing the
 forest plot. One of \code{"in"} (for inches, default), \code{"cm"},
@@ -494,7 +495,7 @@ forest plot); only considered if \code{autosize = "height"}.}
 
 \item{dev.off}{A logical to specify whether current graphics device
 should be shut down, i.e., whether file should be stored;
-only considered if \code{autosize = "height"}.}
+not considered if \code{autosize = "both"}.}
 
 \item{ref}{A numerical giving the reference value to be plotted as
 a line in the forest plot. No reference line is plotted if
@@ -1246,37 +1247,45 @@ the graphics window. Alternatively, save the forest plot in a file.
 \subsection{Saving forest plots}{
 
 A forest plot can be directly stored in a file using argument
-\code{filename} or specifying the R function for the graphics device
-driver using argument \code{device}, e.g., \code{\link{pdf}}. If
-only the filename is provided, the extension is checked and matched
-against the most common graphics device drivers.
+\code{filename}. The R function for the graphics device driver
+can be specified using argument \code{device}, e.g., \code{device = "pdf"}
+or \code{device = pdf}. If only the filename is provided, the extension of
+the filename is checked and matched against the most common graphics device
+drivers:
 
 \tabular{ll}{
 \bold{Extension} \tab \bold{Graphics device} \cr
 \code{.pdf} \tab \code{\link{pdf}} \cr
 \code{.ps} \tab \code{\link{postscript}} \cr
-\code{.svg} \tab \code{\link{svg}} \cr
+\code{.svg} \tab \code{\link{svg}} or \code{\link[svglite]{svglite}} if the
+  R package \bold{svglite} is available \cr
 \code{.bmp} \tab \code{\link{bmp}} \cr
 \code{.jpg} / \code{.jpeg} \tab \code{\link{jpeg}} \cr
 \code{.png} \tab \code{\link{png}} \cr
 \code{.tif} / \code{.tiff} \tab \code{\link{tiff}}
 }
 
-The height and width of the graphics device can be specified with
-arguments \code{height} and \code{width}, see, for example,
-\code{\link{pdf}} or \code{\link{jpeg}}. Other arguments of graphics device
-functions can be provided as a list in argument \code{device.args}. The height of
-the graphics device is automatically determined if argument \code{height} is
-\code{NULL}. Argument \code{rows.gr} can be used to increase or decrease the
-number of rows shown in the forest plot (either to show missing information
-or to remove whitespace).
+If only argument \code{device} is provided, the filename will be equal to
+"Rplots.\code{device}".
 
-Alternatively, the (resized) graphics window can be stored to a
-file using either \code{\link{dev.copy2eps}} or
-\code{\link{dev.copy2pdf}}. It is also possible to manually create
-a file using, for example, \code{\link{pdf}}, \code{\link{png}}, or
-\code{\link{svg}} and to specify the width and height of the
-graphic (see Examples).
+By default, the height and width of the file containing the forest plot is
+determined automatically (argument \code{autosize = "both"}). This is
+typically the recommended approach to store a single forest plot in a file.
+
+The user can specify the height and width of the file using the
+arguments \code{height} and \code{width}. For backward compatibility, it is
+also possible to only specify the width of the file. In this case, the height
+of the file is determined using a different approach (argument
+\code{autosize = "height"}) and argument \code{rows.gr} can be used to
+increase or decrease the number of rows shown in the forest plot
+(either to show missing information or to remove white space).
+
+Argument \code{dev.off} can be used to keep the current graphics device
+open in order to store additional forest plots in the file. Use the R
+function \code{\link{dev.off}} to close the graphics device / store the file.
+
+Other arguments of graphics device functions can be provided as a list in
+the argument \code{device.args}.
 }
 
 \subsection{Default layout for studies and pooled effects}{
@@ -1716,32 +1725,42 @@ forest(ma1, layout = "RevMan5", common = FALSE,
 
 
 \dontrun{
+#
 # Create PDF files with the forest plot
 #
-# - specify filename (R function pdf() is used due to extension .pdf)
-# - height of the figure is automatically determined
-# - width is set to 10 inches
-forest(ma1, filename = "forest-ma1-1.pdf", width = 10)
+
+# 1) Specify filename, here, pdf() is used due to the file extension ".pdf";
+#    height and width of the figure are automatically determined
 #
-# - specify graphics device function
-#   (filename "Rplots.pdf" used, see help page of R function pdf())
-# - height of the figure is automatically determined
-# - width is set to 10 inches
-# - set title for PDF file
-# - set background of forest plot
-forest(ma1, device = pdf, width = 10,
+forest(ma1, filename = "forest-ma1-1.pdf")
+
+# 2) Specify the device; results in the creation of a file "Rplots.pdf"
+#
+forest(ma1, device = pdf)
+
+# 3) Manually set width to 10 inches; a different method is used to
+#    determine the height of the forest plot
+#
+forest(ma1, filename = "forest-ma1-2.pdf", width = 10)
+
+# 4) Set title for PDF file and set background colour of forest plot
+forest(ma1, filename = "forest-ma1-3.pdf",
   device.args = list(title = "My Forest Plot", bg = "green"))
+
+# 5) Manually specify the height of the figure
 #
-# - manually specify the height of the figure
-pdf("forest-ma1-2.pdf", width = 10, height = 3)
-forest(ma1)
-dev.off()
+forest(ma1, filename = "forest-ma1-4.pdf", width = 10, height = 3)
+}
+
+\dontrun{
+#
+# More forest plots
+#
 
 # Define equivalence limits: 0.75 and 1 / 0.75
 #
 forest(ma1, layout = "RevMan5", common = FALSE, cid = 0.75,
-  fill = "lightgray",
-  fill.cid = "white")
+  fill = "lightgray", fill.cid = "white")
 
 # Fill regions with beneficial and detrimental effects
 #

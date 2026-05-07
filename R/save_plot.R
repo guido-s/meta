@@ -91,19 +91,14 @@ validate_path <- function(path, filename, call = caller_env()) {
     filename <- filename[1]
   }
   #
-  if (!test_string(filename, min.chars = 1)) {
+  chkchar(filename)
+  if (nchar(filename) < 1)
     cli_abort(
       paste0("{.arg filename} must be a string, ",
              "not {.obj_type_friendly {filename}}."),
       call = call)
-  }
   #
-  if (!test_string(path, null.ok = TRUE)) {
-    cli_abort(
-      paste0("{.arg path} must be a string or {.code NULL}, ",
-             "not {.obj_type_friendly {path}}."),
-      call = call)
-  }
+  chkchar(path, NULL.ok = TRUE)
   #
   if (!is.null(path))
     filename <- file.path(path, filename)
@@ -215,7 +210,12 @@ validate_device <- function(device, filename = NULL, dpi = 300,
     pdf = function(filename, ..., version = "1.4") {
       pdf(file = filename, ..., version = version)
     },
-    svg = function(filename, ...) svglite(file = filename, ...),
+    svg = function(filename, ...) {
+      if (is_installed_package("svglite", stop = FALSE))
+        return(svglite::svglite(file = filename, ...))
+      else
+        return(svg(filename = filename, ...))
+    },
     #
     # win.metafile() is only available under Windows and doesn't have the
     # `bg` argument

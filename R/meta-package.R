@@ -683,8 +683,6 @@
 #' 
 #' @importFrom cli cli_warn cli_alert_success cli_abort cli_inform cli_abort
 #' 
-#' @importFrom checkmate test_string assert_list
-#' 
 #' @importFrom rlang := arg_match0 is_bare_list caller_env inject check_installed expr enexprs
 #' 
 #' @importFrom tools file_ext
@@ -710,8 +708,6 @@
 #' @importFrom graphics abline axis barplot box mtext lines par plot points polygon text
 #'   
 #' @importFrom ggplot2 aes annotate geom_area geom_line geom_point geom_polygon ggplot scale_x_continuous xlab ylab
-#'
-#' @importFrom svglite svglite
 #' 
 #' @importFrom stats as.formula binom.test coef cor lm pchisq pf pnorm poisson.test pt qlogis qnorm qt runif update var weighted.mean weights glm binomial vcov fitted residuals dt
 #'

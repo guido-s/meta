@@ -6,6 +6,10 @@
   automatically determined. Furthermore, the user can specify the height
   of the file with the forest plot.
 
+* R package **cli** added to Depends
+
+* R package **svglite** added to Suggests
+
 ### User-visible changes
 
 * forest.meta():
