@@ -1759,12 +1759,23 @@ forest.meta <- function(x,
   if (is.null(filename) & !is.null(device))
     filename <- paste0("Rplots.", substitute(device))
   #
+  # Capture width and height expressions to safely evaluate them later
+  width_expr <- substitute(width)
+  height_expr <- substitute(height)
+  
+  width_vars <- all.vars(width_expr)
+  height_vars <- all.vars(height_expr)
+  uses_auto_vars <- any(c(width_vars, height_vars) %in% c(".width", ".height"))
+  
+  width_provided <- !missing(width) && !is.null(width_expr)
+  height_provided <- !missing(height) && !is.null(height_expr)
+
   if (is.null(autosize)) {
     if (is.null(filename))
       autosize <- "none"
-    else if (is.null(height) & is.null(width) & is.null(rows.gr))
+    else if (uses_auto_vars || (!height_provided && !width_provided && is.null(rows.gr)))
       autosize <- "both"
-    else if (!is.null(width) | !is.null(rows.gr))
+    else if (width_provided || !is.null(rows.gr))
       autosize <- "height"
     else
       autosize <- "both"
@@ -2356,7 +2367,7 @@ forest.meta <- function(x,
   else
     units.px <- FALSE
   #
-  if (!is.null(width))
+  if (width_provided && autosize != "both")
     chknumeric(width, min = 0, zero = TRUE, length = 1)
   #
   chknumeric(dpi, min = 0, zero = TRUE, length = 1)
@@ -11830,6 +11841,14 @@ forest.meta <- function(x,
     pdf(file = NULL)
     res <- do.call(forest_meta_internal, forest.args)
     invisible(dev.off())
+    #
+    # Evaluate width and height using calculated dimensions
+    eval_list <- list(.width = dims$width, .height = dims$height)
+    
+    if (width_provided)
+      dims$width <- eval(width_expr, envir = eval_list, enclos = parent.frame())
+    if (height_provided)
+      dims$height <- eval(height_expr, envir = eval_list, enclos = parent.frame())
     #
     save.args <- 
       c(list(plot = function() do.call(forest_meta_internal, forest.args),
