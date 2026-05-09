@@ -11838,9 +11838,15 @@ forest.meta <- function(x,
       dims$units <- "px"
     }
     #
-    pdf(file = NULL)
-    res <- do.call(forest_meta_internal, forest.args)
-    invisible(dev.off())
+    res <- local({
+      old_dev <- dev.cur()
+      pdf(file = NULL)
+      on.exit({
+        dev.off()
+        if (old_dev > 1) dev.set(old_dev)
+      }, add = TRUE)
+      do.call(forest_meta_internal, forest.args)
+    })
     #
     # Evaluate width and height using calculated dimensions
     eval_list <- list(.width = dims$width, .height = dims$height)

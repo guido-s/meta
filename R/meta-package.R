@@ -711,7 +711,7 @@
 #' 
 #' @importFrom stats as.formula binom.test coef cor lm pchisq pf pnorm poisson.test pt qlogis qnorm qt runif update var weighted.mean weights glm binomial vcov fitted residuals dt
 #'
-#' @importFrom utils count.fields read.table assignInNamespace getFromNamespace packageDescription packageVersion head tail find unzip combn capture.output modifyList globalVariables
+#' @importFrom utils count.fields read.table assignInNamespace getFromNamespace packageDescription packageVersion head tail find unzip combn modifyList globalVariables
 #'
 #' @importFrom metafor forest funnel funnel.default baujat labbe radial trimfill rma.uni rma.glmm rma.mv predict.rma confint.rma.uni confint.rma.mv escalc regtest to.long vcalc blup
 #'

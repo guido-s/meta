@@ -50,17 +50,13 @@ save_plot <- function(plot, filename, device = NULL, path = NULL,
   old_dev <- dev.cur()
   dev(filename = filename, width = dim[1], height = dim[2], ...)
   #
-  on.exit(
-    capture.output(
-      {
-        dev.off()
-        # restore old device unless null device
-        #
-        if (old_dev > 1)
-          dev.set(old_dev)
-      }
-    )
-  )
+  on.exit({
+    dev.off()
+    # restore old device unless null device
+    #
+    if (old_dev > 1)
+      dev.set(old_dev)
+  }, add = TRUE)
   
   if (is.function(plot))
     plot()
