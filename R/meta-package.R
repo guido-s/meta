@@ -683,7 +683,7 @@
 #' 
 #' @importFrom cli cli_warn cli_alert_success cli_abort cli_inform cli_abort
 #' 
-#' @importFrom rlang := arg_match0 is_bare_list caller_env inject check_installed expr enexprs
+#' @importFrom rlang := is_bare_list expr enexprs
 #' 
 #' @importFrom tools file_ext
 #'

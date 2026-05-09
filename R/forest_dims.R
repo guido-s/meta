@@ -57,7 +57,7 @@ forest_dims <- function(x, ..., units = "in") {
   # them via match.call() + catch().
   #
   dots_exprs <- enexprs(...)
-  user_env <- caller_env()
+  user_env <- parent.frame()
   call_expr <- expr(forest(!!x, !!!dots_exprs))
   
   # convertWidth()/convertHeight() below require an open graphics device to

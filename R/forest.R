@@ -11857,7 +11857,7 @@ forest.meta <- function(x,
              dpi = dpi),
         device.args)
     #
-    dims <- inject(runNN(save_plot, save.args))
+    dims <- runNN(save_plot, save.args)
     #
     dims$file <- NULL
     #
