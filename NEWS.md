@@ -34,6 +34,11 @@
     assessment (note, column names for risk of bias domains cannot be changed
     with this argument) [(issue #88)](https://github.com/guido-s/meta/pull/88)
 
+* read.cdir():
+  - add missing information on subgroups
+    (no subgroup meta-analysis was conducted)
+  - fix errors due to changes in Cochrane review data format
+
 
 ## meta, version 8.3-0 (2026-04-01)
 

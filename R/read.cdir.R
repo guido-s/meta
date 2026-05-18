@@ -1,7 +1,7 @@
 #' Import data of Cochrane intervention review
 #' 
 #' @description
-#' Reads Cochrane data package (version 1) of a Cochrane intervention
+#' Reads Cochrane data package of a Cochrane intervention
 #' review and creates a data frame from it.
 #' 
 #' @aliases read.cdir
@@ -56,9 +56,8 @@
 #' \emph{Default view} website. After a couple of seconds, the data package will
 #' be shown at the bottom of the \emph{Default view} website under "Downloads".
 #'
-#' In the Cochrane Library, press on "Download statistical data" in the
-#' Contents menu to download an rm5-file. This file can be converted to a data
-#' package in RevMan Web using \emph{Help} - \emph{Convert a RevMan 5 file}.
+#' In the Cochrane Library, press on "Download data" in the
+#' Contents menu under "Supplementary materials".
 #' }
 #' 
 #' @return
@@ -109,6 +108,8 @@
 #' \item{random}{A logical indicating whether random effects
 #'   meta-analysis has been used in respective meta-analysis (see
 #'   details).}
+#' \item{prediction}{A logical indicating whether prediction interval should
+#'   been shown.}
 #' \item{title}{Title of Cochrane review.}
 #' \item{complab}{Comparison label.}
 #' \item{outclab}{Outcome label.}
@@ -206,12 +207,14 @@ read.cdir <- function(file, title = "Cochrane Review of Interventions",
   #
   common <- comp.no <- complab <- eligibility <-
     event.c <- event.e <- footnotes <- group.no <- label.c <- label.e <-
-      label.left <- label.right <- level <- level.ma <- logscale <-
-        lower.TE <- mean.c <- mean.e <- method <- model <- n.c <- n.e <-
-          O.E <- outclab <- outclab2 <- outcome.no <- overall <- random <-
-            sd.c <- sd.e <- seTE <- show.subgroup <- sm <- studlab <-
-              Study <- swap.events <- TE <- test.subgroup <- type <-
-                upper.TE <- V <- weight <- year <- NULL
+    label.left <- label.right <- level <- level.ma <- logscale <-
+    lower.TE <- mean.c <- mean.e <- method <- model <- n.c <- n.e <-
+    O.E <- outclab <- outclab2 <- outcome.no <- overall <- random <-
+    sd.c <- sd.e <- seTE <- show.subgroup <- sm <- studlab <-
+    Study <- swap.events <- TE <- test.subgroup <- type <-
+    upper.TE <- V <- weight <- year <-
+    data.source <- method.ci <- method.tau <-
+    prediction <- print.tau2.ci <- show.rob <- NULL
   
   
   #
@@ -319,61 +322,134 @@ read.cdir <- function(file, title = "Cochrane Review of Interventions",
   # (4) Create study data set (with information on analyses)
   #
   #
-  
-  settings %<>%
-    rename(
-      comp.no = "Analysis group",
-      outcome.no = "Analysis number",
-      type = "Data type",
-      method = "Statistical method",
-      sm = "Effect measure",
-      level = "Study CI",
-      level.ma = "Estimate CI",
-      unit = "Unit of effect measure",
-      model = "Analysis model",
-      logscale = "Log-scale data",
-      #
-      label.e = "Experimental group label",
-      label.c = "Control group label",
-      #
-      overall = "Overall estimates",
-      test.subgroup = "Test for subgroup differences",
-      show.subgroup = "Subgroup estimates",
-      #
-      swap.events = "Swap event and non-event",
-      #
-      complab = "Analysis group name",
-      outclab = "Analysis name",
-      #
-      data.source = "Data source",
-      eligibility = "Data source eligibility"
-    ) %>%
-  mutate(
-    comp.no = as.numeric(comp.no),
-    outcome.no = as.numeric(outcome.no),
-    type = if_else(type == "Contrast level", "I",
-                   if_else(type == "O-E and variance", "P",
-                           substring(type, 1, 1))),
-    common = model == "Fixed effect",
-    random = model == "Random effect",
-    method = sm2meth(method),
-    sm = em2sm(sm, type),
-    eligibility = if_else(eligibility == "#N/A", NA, eligibility),
-    model = rmSpace(substring(model, 1, 6), end = TRUE),
-    level = as.numeric(gsub("%", "", level)) / 100,
-    level.ma = as.numeric(gsub("%", "", level.ma)) / 100,
-    label.e = if_else(is.na(label.e), "Experimental", label.e),
-    label.c = if_else(is.na(label.c), "Control", label.c),
-    label.left = "",
-    label.right = ""
-  ) %>%
-  select(
-    comp.no, outcome.no, complab, outclab,
-    type, method, sm, model, common, random, swap.events, logscale, unit,
-    level, level.ma,
-    label.e, label.c, label.left, label.right,
-    overall, test.subgroup, show.subgroup, swap.events) %>%
-  as.data.frame()
+  if (any(names(settings) == "Study CI")) {
+    settings %<>%
+      rename(
+        comp.no = "Analysis group",
+        outcome.no = "Analysis number",
+        type = "Data type",
+        method = "Statistical method",
+        sm = "Effect measure",
+        level = "Study CI",
+        level.ma = "Estimate CI",
+        unit = "Unit of effect measure",
+        model = "Analysis model",
+        logscale = "Log-scale data",
+        #
+        label.e = "Experimental group label",
+        label.c = "Control group label",
+        #
+        overall = "Overall estimates",
+        test.subgroup = "Test for subgroup differences",
+        show.subgroup = "Subgroup estimates",
+        #
+        swap.events = "Swap event and non-event",
+        #
+        complab = "Analysis group name",
+        outclab = "Analysis name",
+        #
+        data.source = "Data source",
+        eligibility = "Data source eligibility"
+      ) %>%
+      mutate(
+        comp.no = as.numeric(comp.no),
+        outcome.no = as.numeric(outcome.no),
+        type = if_else(type == "Contrast level", "I",
+                       if_else(type == "O-E and variance", "P",
+                               substring(type, 1, 1))),
+        common = model == "Fixed effect",
+        random = model == "Random effect",
+        method = sm2meth(method),
+        sm = em2sm(sm, type),
+        eligibility = if_else(eligibility == "#N/A", NA, eligibility),
+        model = rmSpace(substring(model, 1, 6), end = TRUE),
+        level = as.numeric(gsub("%", "", level)) / 100,
+        level.ma = as.numeric(gsub("%", "", level.ma)) / 100,
+        label.e = if_else(is.na(label.e), "Experimental", label.e),
+        label.c = if_else(is.na(label.c), "Control", label.c),
+        label.left = "",
+        label.right = ""
+      ) %>%
+      select(
+        comp.no, outcome.no, complab, outclab,
+        type, method, sm, model, common, random, swap.events, logscale, unit,
+        level, level.ma,
+        label.e, label.c, label.left, label.right,
+        overall, test.subgroup, show.subgroup, swap.events) %>%
+      as.data.frame()
+  }
+  else {
+    nams <- names(settings)
+    nams[grepl("^Tau", nams) & grepl("CI$", nams)] <- "print.tau2.ci"
+    names(settings) <- nams
+    #
+    settings %<>%
+      rename(
+        comp.no = "Analysis group",
+        outcome.no = "Analysis number",
+        outclab = "Analysis name",
+        complab = "Analysis group name",
+        #
+        data.source = "Data source",
+        eligibility = "Data source eligibility",
+        type = "Data type",
+        logscale = "Log-scale data",
+        #
+        label.e = "Experimental group label",
+        label.c = "Control group label",
+        #
+        method = "Statistical method",
+        sm = "Effect measure",
+        unit = "Unit of effect measure",
+        #
+        model = "Analysis model",
+        method.tau = "Heterogeneity estimator",
+        #
+        show.subgroup = "Subgroup estimates",
+        overall = "Overall estimates",
+        test.subgroup = "Test for subgroup differences",
+        prediction = "Prediction interval",
+        #
+        swap.events = "Swap event and non-event",
+        #
+        method.ci = "CI method",
+        level = "CI/PI level",
+        #
+        label.left = "Graph label (left)",
+        label.right = "Graph label (right)",
+        scale = "Graph scale",
+        #
+        show.rob = "Show risk of bias"
+      ) %>%
+      mutate(
+        comp.no = as.numeric(comp.no),
+        outcome.no = as.numeric(outcome.no),
+        type = if_else(type == "Contrast level", "I",
+                       if_else(type == "O-E and variance", "P",
+                               substring(type, 1, 1))),
+        common = model == "Fixed effect",
+        random = model == "Random effect",
+        method = sm2meth(method),
+        sm = em2sm(sm, type),
+        eligibility = if_else(eligibility == "#N/A", NA, eligibility),
+        model = rmSpace(substring(model, 1, 6), end = TRUE),
+        level = as.numeric(gsub("%", "", level)) / 100,
+        level.ma = level,
+        label.e = if_else(is.na(label.e), "Experimental", label.e),
+        label.c = if_else(is.na(label.c), "Control", label.c)
+      ) %>%
+      select(
+        comp.no, outcome.no, complab, outclab,
+        data.source, eligibility, type, logscale,
+        label.e, label.c, label.left, label.right,
+        method, sm, unit, model, method.tau, print.tau2.ci,
+        common, random, prediction, swap.events,
+        overall, test.subgroup, show.subgroup,
+        method.ci, level, level.ma,
+        label.e, label.c, label.left, label.right,
+        scale, show.rob) %>%
+      as.data.frame()
+  }
   #
   datarows %<>%
     rename(
@@ -382,7 +458,7 @@ read.cdir <- function(file, title = "Cochrane Review of Interventions",
       #
       outclab2 = "Analysis name",
       #
-      subgroup = "Subgroup",
+      grplab = "Subgroup",
       studlab = "Study",
       year = "Study year",
       #
@@ -414,7 +490,7 @@ read.cdir <- function(file, title = "Cochrane Review of Interventions",
     upper.TE = if_else(is.na(TE), NA, upper.TE)
     ) %>%
     select(
-      comp.no, outcome.no, outclab2, subgroup,
+      comp.no, outcome.no, outclab2, grplab,
       studlab, year,
       event.e, n.e, event.c, n.c, mean.e, sd.e, mean.c, sd.c,
       O.E, V, TE, seTE, lower.TE, upper.TE,
@@ -426,31 +502,30 @@ read.cdir <- function(file, title = "Cochrane Review of Interventions",
       comp.no = "Analysis group",
       outcome.no = "Analysis number",
       group.no = "Subgroup number",
-      subgroup = "Subgroup"
+      grplab = "Subgroup"
     ) %>%
     mutate(
       comp.no = as.numeric(comp.no),
       outcome.no = as.numeric(outcome.no)
     ) %>%
-    select(
-      comp.no, outcome.no, group.no, subgroup
-    ) %>%
+    select(comp.no, outcome.no, group.no, grplab) %>%
     as.data.frame()
   #
   # Full Cochrane data set
+  #
+  datarows$order <- seq_len(nrow(datarows))
   #
   data <- merge(settings, datarows,
                 by = c("comp.no", "outcome.no"), all = TRUE)
   #
   data <- merge(data, subgroup,
-                by = c("comp.no", "outcome.no", "subgroup"), all.x = TRUE)
+                by = c("comp.no", "outcome.no", "grplab"), all.x = TRUE)
   #
   suppressWarnings(
     data %<>%
     mutate(
       lower.TE = if_else(logscale & !is.na(lower.TE), log(lower.TE), lower.TE),
-      upper.TE = if_else(logscale & !is.na(upper.TE), log(upper.TE), upper.TE),
-      order = seq_len(nrow(data))
+      upper.TE = if_else(logscale & !is.na(upper.TE), log(upper.TE), upper.TE)
     )
   )
   #
@@ -463,7 +538,8 @@ read.cdir <- function(file, title = "Cochrane Review of Interventions",
       type, method, sm, model, common, random, swap.events, logscale,
       level, level.ma,
       label.e, label.c, label.left, label.right, unit,
-      complab, outclab, footnotes
+      test.subgroup,
+      complab, outclab, grplab, footnotes
     )
   #
   if (numbers.in.labels) {
@@ -525,8 +601,14 @@ read.cdir <- function(file, title = "Cochrane Review of Interventions",
         #
         if (j > 0)
           selvars <- c(selvars, paste0("D", seq_len(j)))
-        if (k > 0)
-          selvars <- c(selvars, paste0("D", seq_len(j), ".details"))
+        #
+        if (k > 0) {
+          vars.details <- paste0("D", seq_len(j), ".details")
+          selvars <- c(selvars, vars.details)
+          #
+          for (i in vars.details)
+            robdata[[i]] <- remove_html(robdata[[i]])
+        }
         #
         robdata %<>% select(all_of(selvars))
         #
@@ -547,7 +629,7 @@ read.cdir <- function(file, title = "Cochrane Review of Interventions",
   
   #
   #
-  # (6) Extract risk of bias (if available)
+  # (6) Return 'cdir' object
   #
   #
   
