@@ -173,7 +173,7 @@ baujat.meta <- function(x,
   
   
   oldpar <- par(pty = pty)
-  on.exit(par(oldpar))
+  on.exit(par(oldpar), add = TRUE)
   
   
   TE <- x$TE

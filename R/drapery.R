@@ -242,7 +242,7 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
   
   if (plot) {
     oldpar <- par(mar = mar)
-    on.exit(par(oldpar))
+    on.exit(par(oldpar), add = TRUE)
   }
   
   
