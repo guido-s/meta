@@ -59,7 +59,6 @@
   path = NULL,
   device = NULL,
   device.args = NULL,
-  autosize = NULL,
   units = "in",
   height = NULL,
   width = NULL,
@@ -473,12 +472,6 @@ the device is guessed based on the `filename` extension.}
 \item{device.args}{List with additional graphical parameters passed on
 to graphics function.}
 
-\item{autosize}{Automatically determine the height and width of the file
-containing the forest plot. One of \code{"none"} (if arguments
-\code{filename} and \code{filename} are missing), \code{"height"}
-(if argument \code{width} or \code{rows.gr} is provided), or
-\code{"both"}, otherwise.}
-
 \item{units}{Units of the `width` and `height` of the file containing the
 forest plot. One of \code{"in"} (for inches, default), \code{"cm"},
 \code{"mm"}, or \code{"px"} (for pixels), can be abbreviated.}
@@ -489,13 +482,11 @@ forest plot. One of \code{"in"} (for inches, default), \code{"cm"},
 
 \item{dpi}{Plot resolution.}
 
-\item{rows.gr}{Additional rows in forest plot to change height of
-graphics file (e.g., in order to add a title at the top of the
-forest plot); only considered if \code{autosize = "height"}.}
+\item{rows.gr}{Deprecated argument to add rows to the forest plot to change
+the height of the graphics file; only provided for backward compatibility.}
 
 \item{dev.off}{A logical to specify whether current graphics device
-should be shut down, i.e., whether file should be stored;
-not considered if \code{autosize = "both"}.}
+should be shut down.}
 
 \item{ref}{A numerical giving the reference value to be plotted as
 a line in the forest plot. No reference line is plotted if
@@ -1248,10 +1239,10 @@ the graphics window. Alternatively, save the forest plot in a file.
 
 A forest plot can be directly stored in a file using argument
 \code{filename}. The R function for the graphics device driver
-can be specified using argument \code{device}, e.g., \code{device = "pdf"}
-or \code{device = pdf}. If only the filename is provided, the extension of
-the filename is checked and matched against the most common graphics device
-drivers:
+can be specified using argument \code{device}, e.g.,
+\code{device = "cairo_pdf"} or \code{device = cairo_pdf}. If only the
+filename is provided, the extension of the filename is checked and matched
+against the most common graphics device drivers:
 
 \tabular{ll}{
 \bold{Extension} \tab \bold{Graphics device} \cr
@@ -1269,14 +1260,17 @@ If only argument \code{device} is provided, the filename will be equal to
 "Rplots.\code{device}".
 
 By default, the height and width of the file containing the forest plot is
-determined automatically (argument \code{autosize = "both"}). This is
-typically the recommended approach to store a single forest plot in a file.
+determined automatically (values \code{.height} and \code{.width}).
 
-The user can specify the height and width of the file using the
-arguments \code{height} and \code{width}. For backward compatibility, it is
-also possible to only specify the width of the file. In this case, the height
-of the file is determined using a different approach (argument
-\code{autosize = "height"}) and argument \code{rows.gr} can be used to
+The user can specify the height and width of the
+file using the arguments \code{height} and \code{width}. The input to these
+arguments can be either absolute values, e.g., \code{width = 10} for a
+graphics file with the width of 10 inches, or values relative to the
+automatically determined height and width, e.g., \code{width = .width * 1.05}
+will add 5 percent to the automatically determined width.
+ 
+For backward compatibility, the height of the file is determined using a
+different approach if argument \code{rows.gr} is provided to
 increase or decrease the number of rows shown in the forest plot
 (either to show missing information or to remove white space).
 

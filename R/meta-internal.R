@@ -1065,7 +1065,3 @@ setOption("Wan2014.Table2",
             1.338, 1.338, 1.338, 1.338, 1.339,
             1.339, 1.339, 1.339, 1.339, 1.340))
 
-
-# Register global variables for R CMD check
-#
-globalVariables(c(".width", ".height"))

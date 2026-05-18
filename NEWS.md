@@ -17,8 +17,6 @@
   - argument 'func.gr' renamed to 'device'
   - argument 'args.gr' renamed to 'device.args'
   - new argument 'path' to specify the directory to store the file
-  - new argument 'autosize' to specify whether to automatically determine the
-    height and width
   - new argument 'units' to specify the unit of the width and height
   - new argument 'dpi' to specify the plot resolution
   - new argument 'height' to specify height of forest plot

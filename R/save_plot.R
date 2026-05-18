@@ -38,6 +38,7 @@
 
 save_plot <- function(plot, filename, device = NULL, path = NULL,
                       width = NA, height = NA, units = "in", dpi = 300,
+                      dev.off = TRUE,
                       ...) {
   filename <- validate_path(path, filename)
   #
@@ -50,13 +51,15 @@ save_plot <- function(plot, filename, device = NULL, path = NULL,
   old_dev <- dev.cur()
   dev(filename = filename, width = dim[1], height = dim[2], ...)
   #
-  on.exit({
-    dev.off()
-    # restore old device unless null device
-    #
-    if (old_dev > 1)
-      dev.set(old_dev)
-  }, add = TRUE)
+  if (dev.off) {
+    on.exit({
+      dev.off()
+      # restore old device unless null device
+      #
+      if (old_dev > 1)
+        dev.set(old_dev)
+    }, add = TRUE)
+  }
   
   if (is.function(plot))
     plot()

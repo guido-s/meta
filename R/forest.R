@@ -129,23 +129,16 @@
 #'   the device is guessed based on the `filename` extension.
 #' @param device.args List with additional graphical parameters passed on
 #'   to graphics function.
-#' @param autosize Automatically determine the height and width of the file
-#'   containing the forest plot. One of \code{"none"} (if arguments
-#'   \code{filename} and \code{filename} are missing), \code{"height"}
-#'   (if argument \code{width} or \code{rows.gr} is provided), or
-#'   \code{"both"}, otherwise.
 #' @param units Units of the `width` and `height` of the file containing the
 #'   forest plot. One of \code{"in"} (for inches, default), \code{"cm"},
 #'   \code{"mm"}, or \code{"px"} (for pixels), can be abbreviated.
 #' @param height Height of the graphics file.
 #' @param width Width of the graphics file.
 #' @param dpi Plot resolution.
-#' @param rows.gr Additional rows in forest plot to change height of
-#'   graphics file (e.g., in order to add a title at the top of the
-#'   forest plot); only considered if \code{autosize = "height"}.
+#' @param rows.gr Deprecated argument to add rows to the forest plot to change
+#'   the height of the graphics file; only provided for backward compatibility.
 #' @param dev.off A logical to specify whether current graphics device
-#'   should be shut down, i.e., whether file should be stored;
-#'   not considered if \code{autosize = "both"}.
+#'   should be shut down.
 #' @param ref A numerical giving the reference value to be plotted as
 #'   a line in the forest plot. No reference line is plotted if
 #'   argument \code{ref} is equal to \code{NA}.
@@ -668,10 +661,10 @@
 #' 
 #' A forest plot can be directly stored in a file using argument
 #' \code{filename}. The R function for the graphics device driver
-#' can be specified using argument \code{device}, e.g., \code{device = "pdf"}
-#' or \code{device = pdf}. If only the filename is provided, the extension of
-#' the filename is checked and matched against the most common graphics device
-#' drivers:
+#' can be specified using argument \code{device}, e.g.,
+#' \code{device = "cairo_pdf"} or \code{device = cairo_pdf}. If only the
+#' filename is provided, the extension of the filename is checked and matched
+#' against the most common graphics device drivers:
 #' 
 #' \tabular{ll}{
 #' \bold{Extension} \tab \bold{Graphics device} \cr
@@ -689,14 +682,17 @@
 #' "Rplots.\code{device}".
 #' 
 #' By default, the height and width of the file containing the forest plot is
-#' determined automatically (argument \code{autosize = "both"}). This is
-#' typically the recommended approach to store a single forest plot in a file.
+#' determined automatically (values \code{.height} and \code{.width}).
 #' 
-#' The user can specify the height and width of the file using the
-#' arguments \code{height} and \code{width}. For backward compatibility, it is
-#' also possible to only specify the width of the file. In this case, the height
-#' of the file is determined using a different approach (argument
-#' \code{autosize = "height"}) and argument \code{rows.gr} can be used to
+#' The user can specify the height and width of the
+#' file using the arguments \code{height} and \code{width}. The input to these
+#' arguments can be either absolute values, e.g., \code{width = 10} for a
+#' graphics file with the width of 10 inches, or values relative to the
+#' automatically determined height and width, e.g., \code{width = .width * 1.05}
+#' will add 5 percent to the automatically determined width.
+#'  
+#' For backward compatibility, the height of the file is determined using a
+#' different approach if argument \code{rows.gr} is provided to
 #' increase or decrease the number of rows shown in the forest plot
 #' (either to show missing information or to remove white space).
 #' 
@@ -1433,7 +1429,6 @@ forest.meta <- function(x,
                         filename = NULL,
                         path = NULL,
                         device = NULL, device.args = NULL,
-                        autosize = NULL,
                         units = "in",
                         height = NULL, width = NULL,
                         dpi = 300,
@@ -1760,30 +1755,25 @@ forest.meta <- function(x,
     filename <- paste0("Rplots.", substitute(device))
   #
   # Capture width and height expressions to safely evaluate them later
+  #
   width_expr <- substitute(width)
   height_expr <- substitute(height)
-  
+  #
   width_vars <- all.vars(width_expr)
   height_vars <- all.vars(height_expr)
   uses_auto_vars <- any(c(width_vars, height_vars) %in% c(".width", ".height"))
-  
+  #
   width_provided <- !missing(width) && !is.null(width_expr)
   height_provided <- !missing(height) && !is.null(height_expr)
-
-  if (is.null(autosize)) {
-    if (is.null(filename))
-      autosize <- "none"
-    else if (uses_auto_vars || (!height_provided && !width_provided && is.null(rows.gr)))
-      autosize <- "both"
-    else if (width_provided || !is.null(rows.gr))
-      autosize <- "height"
-    else
-      autosize <- "both"
-  }
-  else {
-    autosize <- setchar(autosize, c("none", "height", "both"))
-    chklength(autosize, 1, text = "Argument 'autosize' must be of length 1.")
-  }
+  #
+  if (is.null(filename))
+    autosize <- "none"
+  else if (uses_auto_vars)
+    autosize <- "new"
+  else if (!is.null(rows.gr))
+    autosize <- "old"
+  else
+    autosize <- "new"
   
   
   #
@@ -2367,7 +2357,7 @@ forest.meta <- function(x,
   else
     units.px <- FALSE
   #
-  if (width_provided && autosize != "both")
+  if (width_provided && autosize != "new")
     chknumeric(width, min = 0, zero = TRUE, length = 1)
   #
   chknumeric(dpi, min = 0, zero = TRUE, length = 1)
@@ -2827,7 +2817,7 @@ forest.meta <- function(x,
   }
   #
   if (is.character(header.line)) {
-    header.line.pos <- setchar(header.line, c("below", "both", ""))
+    header.line.pos <- setchar(header.line, c("below", "new", ""))
     header.line <- header.line.pos != ""
   }
   else {
@@ -11813,23 +11803,7 @@ forest.meta <- function(x,
   #
   figheight <- NULL
   #
-  if (is.null(filename) & autosize != "none") {
-    warning("Argument 'autosize' set to \"none\" as ",
-            "`filename` is not provided.",
-            call. = FALSE)
-    #
-    autosize <- "none"
-  }
-  #
-  if (autosize == "both") {
-    if (avail.rows.gr)
-      warning("Argument 'rows.gr' ignored as height and width of forest plot ",
-              "are auto-sized.", call. = FALSE)
-    #
-    if (avail.dev.off)
-      warning("Argument 'dev.off' ignored as 'autosize = \"both\".",
-              call. = FALSE)
-    #
+  if (autosize == "new") {
     dims <- forest_dims_internal(forest.args, units = units)
     #
     if (units.px) {
@@ -11860,7 +11834,7 @@ forest.meta <- function(x,
       c(list(plot = function() do.call(forest_meta_internal, forest.args),
              filename = filename, path = path, device = device,
              width = dims$width, height = dims$height, units = dims$units,
-             dpi = dpi),
+             dpi = dpi, dev.off = dev.off),
         device.args)
     #
     dims <- runNN(save_plot, save.args)
@@ -11874,7 +11848,7 @@ forest.meta <- function(x,
     return(invisible(res))
   }
   #
-  if (autosize == "height") {
+  if (autosize == "old") {
     #
     if (!is.null(filename) | !is.null(device)) {
       if (is.null(device)) {
@@ -11948,42 +11922,9 @@ forest.meta <- function(x,
     runNN(device, device.args.all)
   }
   else if (autosize == "none") {
-    if (is.null(height)) {
-      figheight <- gh("no_device_defined", rows.gr,
-                      #
-                      n.stud,
-                      lowTE.common, lowTE.random, lowTE.predict,
-                      x$subgroup, subgroup.levels,
-                      lower.common.w, lower.random.w, lower.predict.w,
-                      #
-                      common, random, overall,
-                      prediction, overall.hetstat,
-                      study.results,
-                      #
-                      spacing,
-                      #
-                      xlab, xlab.add, label.right, label.left, bottom.lr,
-                      #
-                      prediction.subgroup, subgroup.hetstat,
-                      test.overall.common, test.overall.random,
-                      test.subgroup.common, test.subgroup.random,
-                      #
-                      text.addline1, text.addline2,
-                      text.details, text.rob,
-                      #
-                      addrow, addrow.overall,
-                      addrow.subgroups, addrows.below.overall,
-                      #
-                      c(leftcols, rightcols), labs,
-                      text.w.common, text.w.random)
-      #
-      height <- figheight$height
-      figheight$height <- NULL
-    }
-  }
-  #
-  if (autosize != "height")
+    figheight <- NULL
     rows.gr <- NULL
+  }
   
   
   #

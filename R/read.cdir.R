@@ -214,7 +214,7 @@ read.cdir <- function(file, title = "Cochrane Review of Interventions",
     Study <- swap.events <- TE <- test.subgroup <- type <-
     upper.TE <- V <- weight <- year <-
     data.source <- method.ci <- method.tau <-
-    prediction <- print.tau2.ci <- show.rob <- NULL
+    prediction <- print.tau2.ci <- show.rob <- grplab <- NULL
   
   
   #
