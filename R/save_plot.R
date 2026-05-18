@@ -50,17 +50,13 @@ save_plot <- function(plot, filename, device = NULL, path = NULL,
   old_dev <- dev.cur()
   dev(filename = filename, width = dim[1], height = dim[2], ...)
   #
-  on.exit(
-    capture.output(
-      {
-        dev.off()
-        # restore old device unless null device
-        #
-        if (old_dev > 1)
-          dev.set(old_dev)
-      }
-    )
-  )
+  on.exit({
+    dev.off()
+    # restore old device unless null device
+    #
+    if (old_dev > 1)
+      dev.set(old_dev)
+  }, add = TRUE)
   
   if (is.function(plot))
     plot()
@@ -81,7 +77,7 @@ save_plot <- function(plot, filename, device = NULL, path = NULL,
   invisible(res)
 }
 
-validate_path <- function(path, filename, call = caller_env()) {
+validate_path <- function(path, filename, call = parent.frame()) {
   if (length(filename) > 1 && is.character(filename)) {
     cli_warn(
       c("{.arg filename} must have length 1, not {length(filename)}.",
@@ -128,7 +124,7 @@ validate_path <- function(path, filename, call = caller_env()) {
 }
 
 plot_dim <- function(dim = c(NA, NA), units = "in", dpi = 300,
-                     call = caller_env()) {
+                     call = parent.frame()) {
   chklength(dim, 2, text = "Argument 'dim' must be of length 2.")
   #
   chklength(units, 1, text = "Argument 'units' must be of length 1.")
@@ -156,7 +152,7 @@ plot_dim <- function(dim = c(NA, NA), units = "in", dpi = 300,
 }
 
 validate_device <- function(device, filename = NULL, dpi = 300,
-                            call = caller_env()) {
+                            call = parent.frame()) {
   
   force(filename)
   force(dpi)
@@ -178,7 +174,7 @@ validate_device <- function(device, filename = NULL, dpi = 300,
     }
     dev <- function(...) {
       args <- modifyList(list(...), call_args)
-      inject(device(!!!args))
+      do.call(device, args)
     }
     return(dev)
   }

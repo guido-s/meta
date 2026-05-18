@@ -353,7 +353,7 @@ labbe.metabin <- function(x,
   
   
   oldpar <- par(pty = "s")
-  on.exit(par(oldpar))
+  on.exit(par(oldpar), add = TRUE)
   
   
   if (is.null(xlab)) {
@@ -664,7 +664,7 @@ labbe.default <- function(x, y,
   
   
   oldpar <- par(pty = "s")
-  on.exit(par(oldpar))
+  on.exit(par(oldpar), add = TRUE)
   
   
   if (is.null(xlab)) {
