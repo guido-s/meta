@@ -28,6 +28,8 @@
 #' \item{width}{Forest plot width.}
 #' \item{height}{Forest plot height.}
 #' \item{units}{Units of `width` and `height`.}
+#' 
+#' @author Nour Edin Darwish \email{nouredindarwish@gmail.com}
 #'
 #' @examples
 #' # Create a simple meta-analysis object

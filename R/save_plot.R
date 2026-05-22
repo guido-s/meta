@@ -31,6 +31,8 @@
 #' * `height`: Plot height.
 #' * `units`: Units of `width` and `height`.
 #' * `dpi`: Plot resolution.
+#' 
+#' @author Nour Edin Darwish \email{nouredindarwish@gmail.com}
 #'
 #' @seealso [ggplot2::ggsave()]
 #'
@@ -147,8 +149,6 @@ plot_dim <- function(dim = c(NA, NA), units = "in", dpi = 300,
     #
     dim[is.na(dim)] <- default_dim[is.na(dim)]
     dim_f <- prettyNum(inches2units(dim, units, dpi = dpi), digits = 3) # nolint
-    
-    cli_inform("Saving {dim_f[1]} x {dim_f[2]} {units} image")
   }
   #
   dim

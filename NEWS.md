@@ -3,8 +3,12 @@
 ### Major changes
 
 * By default, the width and height of a file to store a forest plot is
-  automatically determined. Furthermore, the user can specify the height
-  of the file with the forest plot.
+  automatically determined
+  [(issue #86)](https://github.com/guido-s/meta/pull/86). Furthermore, the user
+  can specify the height of the file with the forest plot.
+
+* Nour Edin Darwish <nouredindarwish@gmail.com> added as co-author or R
+  functions forest.meta() and author of forest_dims().
 
 * R package **cli** added to Depends
 

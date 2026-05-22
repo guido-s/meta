@@ -1,3 +1,10 @@
+# Core function to create forest plot
+#
+# Package: meta
+# Author: Guido Schwarzer <guido.schwarzer@uniklinik-freiburg.de>
+# License: GPL (>= 2)
+#
+
 forest_meta_internal <- function(
     new, nrow, x1, spacing, 
     yHeadadd,

@@ -1,3 +1,10 @@
+# Auxiliary function for forest_dims()
+#
+# Package: meta
+# Author:  Nour Edin Darwish <nouredindarwish@gmail.com>
+# License: GPL (>= 2)
+#
+
 forest_dims_internal <- function(x, units = "in") {
   
   chklength(units, 1, text = "Argument 'units' must be of length 1.")

@@ -1,9 +1,9 @@
+# Auxiliary functions for forest.meta()
 #
+# Package: meta
+# Author: Guido Schwarzer <guido.schwarzer@uniklinik-freiburg.de>
+# License: GPL (>= 2)
 #
-# Definition of auxiliary functions for forest plots
-#
-#
-
 
 add.label <- function(x, column,
                       xpos, ypos, just, fs.lr, ff.lr, col,
@@ -20,7 +20,6 @@ add.label <- function(x, column,
   #
   invisible(NULL)
 }
-
 
 add.text <- function(x, column, ...) {
   #
@@ -39,7 +38,6 @@ add.text <- function(x, column, ...) {
   #
   invisible(NULL)
 }
-
 
 add.xlab <- function(x, column, xlab, xlab.add, newline.xlab,
                      xpos, ypos, fs.xlab, ff.xlab,
@@ -68,7 +66,6 @@ add.xlab <- function(x, column, xlab, xlab.add, newline.xlab,
   #
   invisible(NULL)
 }
-
 
 add.rob <- function(x, column, size, fs, ff, fontfamily,
                     rob, rob.levels, rob.symbols, rob.colour, ...) {
@@ -154,7 +151,6 @@ add.rob <- function(x, column, size, fs, ff, fontfamily,
   invisible(NULL)
 }
 
-
 add.columns <- function(x, new = NULL) {
   res <- x
   #
@@ -164,7 +160,6 @@ add.columns <- function(x, new = NULL) {
   #
   res
 }
-
 
 draw.axis <- function(x, column, yS, log.xaxis, at, label,
                       fs.axis, ff.axis, fontfamily, lwd,
@@ -298,7 +293,6 @@ draw.axis <- function(x, column, yS, log.xaxis, at, label,
   invisible(NULL)
 }
 
-
 draw.ci.diamond <- function(TE, lower, upper,
                             size, min, max,
                             col.diamond, col.diamond.lines,
@@ -356,7 +350,6 @@ draw.ci.diamond <- function(TE, lower, upper,
   invisible(NULL)
 }
 
-
 draw.ci.predict <- function(lower.predict, upper.predict,
                             size, min, max,
                             col.predict, col.predict.lines) {
@@ -405,7 +398,6 @@ draw.ci.predict <- function(lower.predict, upper.predict,
   #
   invisible(NULL)
 }
-
 
 draw.ci <- function(TE, lower, upper,
                     size, min, max,
@@ -540,7 +532,6 @@ draw.ci <- function(TE, lower, upper,
   invisible(NULL)
 }
 
-
 draw.forest <- function(x, column) {
   #
   # Function to plot results for individual studies and summaries
@@ -582,7 +573,6 @@ draw.forest <- function(x, column) {
   #
   invisible(NULL)
 }
-
 
 draw.lines <- function(x, column,
                        ref, TE.common, TE.random,
@@ -743,7 +733,6 @@ draw.lines <- function(x, column,
   invisible(NULL)
 }
 
-
 formatcol <- function(x, y, rows, just = "right", settings,
                       fontfamily,
                       n.com, n.ran, n.prd,
@@ -877,7 +866,6 @@ formatcol <- function(x, y, rows, just = "right", settings,
   res
 }
 
-
 removeNULL <- function(x, names, varname) {
   if (is.null(x[[varname]]))
     res <- names[names != varname]
@@ -886,7 +874,6 @@ removeNULL <- function(x, names, varname) {
   #
   res
 }
-
 
 tg <- function(x, xpos, just, fs, ff, fontfamily, col) {
   if (missing(col))
@@ -904,7 +891,6 @@ tg <- function(x, xpos, just, fs, ff, fontfamily, col) {
   res
 }
 
-
 tgl <- function(x, xpos, just, fs, ff, fontfamily, rows = 1, col) {
   #
   if (missing(col))
@@ -916,7 +902,6 @@ tgl <- function(x, xpos, just, fs, ff, fontfamily, rows = 1, col) {
   #
   res
 }
-
 
 twolines <- function(x, xname = deparse(substitute(x)), arg = FALSE) {
   newline <- FALSE
@@ -960,10 +945,8 @@ twolines <- function(x, xname = deparse(substitute(x)), arg = FALSE) {
   list(newline = newline, bottom = bottom, top = top, longer = longer)
 }
 
-
 wcalc <- function(x)
   max(unit(rep(1, length(x)), "grobwidth", x))
-
 
 collapsemat <- function(x) {
   if (is.list(x)) {
@@ -986,26 +969,21 @@ collapsemat <- function(x) {
   res
 }
 
-
 ordermat <- function(x, levs) {
   o <- order(factor(names(x), levels = levs))
   x[o]
 }
-
 
 selmat <- function(x, levs) {
   o <- order(factor(names(x), levels = levs))
   x[o]
 }
 
-
 notallNA <- function(x)
   any(!is.na(x))
 
-
 repl <- function(x, n1, n2)
   rep(x, rep(n1, n2))
-
 
 gh <- function(type.gr, rows.gr,
                #
@@ -1035,10 +1013,10 @@ gh <- function(type.gr, rows.gr,
                cols, labs,
                text.w.common, text.w.random) {
   
-  
   #
   # (1) Determine height per row
   #
+  
   if (grepl("bmp$", tolower(type.gr)) ||
       grepl("jpg$", tolower(type.gr)) ||
       grepl("jpeg$", tolower(type.gr)) ||
@@ -1048,9 +1026,11 @@ gh <- function(type.gr, rows.gr,
     height_per_row <- 480 / 33
   else
     height_per_row <-  7 / 35
+  
   #
   # (2) Column labels
   #
+  
   labs <- unlist(labs)
   if (any(grepl("col.w.common", cols)))
     labs <- c(labs, text.w.common)
@@ -1058,9 +1038,11 @@ gh <- function(type.gr, rows.gr,
     labs <- c(labs, text.w.random)
   #
   rows_column_labels <- 1 + 1L * any(grepl("\n", unlist(labs))) + 1L * addrow
+  
   #
-  # (2) Study results
+  # (3) Study results
   #
+  
   rows_studies <-
     if (!study.results)
       0
@@ -1078,9 +1060,11 @@ gh <- function(type.gr, rows.gr,
       1L * ((any(common) + any(random) + any(prediction)) == 1)
   else
     rows_overall <- 1L * addrow.overall
+  
   #
   # (4) Text below meta-analysis results
   #
+  
   n.details <- sum(text.details != "")
   n.rob <- sum(text.rob != "")
   rows_below_overall_labels <- addrows.below.overall + overall.hetstat +
@@ -1093,9 +1077,11 @@ gh <- function(type.gr, rows.gr,
     1L * (n.details > 0 | n.rob > 0) +
     2L * (n.details == 0 & n.rob == 0)
   # + 0.25
+  
   #
   # (5) Information below confidence interval plot
   #
+  
   rows_xlab <-
     if (xlab == "")
       0
@@ -1135,9 +1121,11 @@ gh <- function(type.gr, rows.gr,
   rows_label <- max(c(rows_label.left, rows_label.right))
   #
   rows_below_forest <- 2 + rows_xlab + rows_label
+  
   #
   # (6) Subgroup results
   #
+  
   if (is.null(subgroup))
     rows_subgroups <- 0
   else {
@@ -1173,9 +1161,11 @@ gh <- function(type.gr, rows.gr,
       rows_subgroups_common + rows_subgroups_random + 
       rows_subgroups_predict + rows_subgroups_hetstat
   }
+  
   #
   # (7) Determine total height of graphics device
   #
+  
   total_rows <-
     rows_column_labels +
     rows_studies +
@@ -1191,7 +1181,6 @@ gh <- function(type.gr, rows.gr,
   #
   res
 }
-
 
 show_subgroup_results <- function(x, n, lower, upper) {
   if (length(x) == 1) {

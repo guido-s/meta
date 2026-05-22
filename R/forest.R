@@ -123,10 +123,11 @@
 #' @param path Path of the directory to save plot to: `path` and `filename` are
 #'   combined to create the fully qualified file name. Defaults to the working
 #'   directory.
-#' @param device Device to use. Can either be a device function (e.g. [png]), or
-#'   one of `"eps"`, `"ps"`, `"tex"` (pictex), `"pdf"`, `"jpeg"`, `"tiff"`,
-#'   `"png"`, `"bmp"`, `"svg"` or `"wmf"` (Windows only). If `NULL` (default),
-#'   the device is guessed based on the `filename` extension.
+#' @param device Device to use. Can either be a device function (e.g.,
+#'   \code{\link{png}}), or one of \code{"eps"}, \code{"ps"},
+#'   \code{"tex"} (pictex), \code{"pdf"}, \code{"jpeg"}, \code{"tiff"},
+#'   \code{"png"}, \code{"bmp"}, \code{"svg"} or \code{"wmf"} (Windows only).
+#'   By default, the device is guessed based on the `filename` extension.
 #' @param device.args List with additional graphical parameters passed on
 #'   to graphics function.
 #' @param units Units of the `width` and `height` of the file containing the
@@ -135,10 +136,10 @@
 #' @param height Height of the graphics file.
 #' @param width Width of the graphics file.
 #' @param dpi Plot resolution.
-#' @param rows.gr Deprecated argument to add rows to the forest plot to change
-#'   the height of the graphics file; only provided for backward compatibility.
 #' @param dev.off A logical to specify whether current graphics device
 #'   should be shut down.
+#' @param rows.gr Deprecated argument to add rows to the forest plot to change
+#'   the height of the graphics file; only provided for backward compatibility.
 #' @param ref A numerical giving the reference value to be plotted as
 #'   a line in the forest plot. No reference line is plotted if
 #'   argument \code{ref} is equal to \code{NA}.
@@ -690,11 +691,17 @@
 #' graphics file with the width of 10 inches, or values relative to the
 #' automatically determined height and width, e.g., \code{width = .width * 1.05}
 #' will add 5 percent to the automatically determined width.
-#'  
+#' 
+#' It is also possible to provide \code{NA} as input to arguments \code{height}
+#' and \code{weight}. In this case, the default dimensions of the graphics
+#' device are utilised, for example, seven inches for \code{\link{pdf}}.
+#' 
 #' For backward compatibility, the height of the file is determined using a
 #' different approach if argument \code{rows.gr} is provided to
 #' increase or decrease the number of rows shown in the forest plot
-#' (either to show missing information or to remove white space).
+#' (either to show missing information or to remove white space). It is
+#' recommended to not use argument \code{rows.gr}, but, to use
+#' argument \code{height = .height * 1.10} or similar.
 #' 
 #' Argument \code{dev.off} can be used to keep the current graphics device
 #' open in order to store additional forest plots in the file. Use the R
@@ -1115,7 +1122,8 @@
 #' R function \code{.forestArgs} generates a character vector with all
 #' arguments of \code{forest.meta}.
 #' 
-#' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
+#' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de},
+#'   Nour Edin Darwish \email{nouredindarwish@gmail.com}
 #' 
 #' @seealso \code{\link{metabin}}, \code{\link{metacont}},
 #'   \code{\link{metagen}}, \code{\link{forest.metabind}},
@@ -1433,7 +1441,7 @@ forest.meta <- function(x,
                         height = NULL, width = NULL,
                         dpi = 300,
                         #
-                        rows.gr = NULL, dev.off = NULL,
+                        dev.off = NULL, rows.gr = NULL,
                         #
                         ref,
                         #
@@ -1766,11 +1774,13 @@ forest.meta <- function(x,
   width_provided <- !missing(width) && !is.null(width_expr)
   height_provided <- !missing(height) && !is.null(height_expr)
   #
+  avail.rows.gr <- !missing(rows.gr) && !is.null(rows.gr)
+  #
   if (is.null(filename))
     autosize <- "none"
   else if (uses_auto_vars)
     autosize <- "new"
-  else if (!is.null(rows.gr))
+  else if (avail.rows.gr)
     autosize <- "old"
   else
     autosize <- "new"
@@ -1809,7 +1819,6 @@ forest.meta <- function(x,
   fbt <- x$func.backtransf
   abt <- x$args.backtransf
   #
-  avail.rows.gr <- !missing(rows.gr) && !is.null(rows.gr)
   avail.dev.off <- !missing(dev.off) && !is.null(dev.off)
   #
   # Logical variables for missing arguments
@@ -2357,12 +2366,21 @@ forest.meta <- function(x,
   else
     units.px <- FALSE
   #
-  if (width_provided && autosize != "new")
-    chknumeric(width, min = 0, zero = TRUE, length = 1)
+  if (width_provided && autosize == "old")
+    chknumeric(width, min = 0, zero = TRUE, length = 1, NA.ok = FALSE)
+  else if (width_provided && autosize == "none")
+    warning("Input to argument 'width' ignored as forest plot is not ",
+            "stored to file.",
+            call. = FALSE)
+  #
+  if (height_provided && autosize == "none")
+    warning("Input to argument 'height' ignored as forest plot is not ",
+            "stored to file.",
+            call. = FALSE)
   #
   chknumeric(dpi, min = 0, zero = TRUE, length = 1)
   #
-  if (!is.null(rows.gr))
+  if (avail.rows.gr)
     chknumeric(rows.gr, length = 1)
   else
     rows.gr <- 0
@@ -11919,7 +11937,15 @@ forest.meta <- function(x,
     #
     device.args.all <-
       c(list(file = filename, height = height, width = width), device.args)
-    runNN(device, device.args.all)
+    #
+    local({
+      old_dev <- dev.cur()
+      on.exit({
+        dev.off()
+        if (old_dev > 1) dev.set(old_dev)
+      }, add = TRUE)
+      runNN(device, device.args.all)
+    })
   }
   else if (autosize == "none") {
     figheight <- NULL

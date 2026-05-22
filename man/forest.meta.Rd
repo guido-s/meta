@@ -63,8 +63,8 @@
   height = NULL,
   width = NULL,
   dpi = 300,
-  rows.gr = NULL,
   dev.off = NULL,
+  rows.gr = NULL,
   ref,
   cid = gs("cid"),
   cid.below.null = gs("cid.below.null"),
@@ -464,10 +464,11 @@ calculate rates, e.g., person-years.}
 combined to create the fully qualified file name. Defaults to the working
 directory.}
 
-\item{device}{Device to use. Can either be a device function (e.g. [png]), or
-one of `"eps"`, `"ps"`, `"tex"` (pictex), `"pdf"`, `"jpeg"`, `"tiff"`,
-`"png"`, `"bmp"`, `"svg"` or `"wmf"` (Windows only). If `NULL` (default),
-the device is guessed based on the `filename` extension.}
+\item{device}{Device to use. Can either be a device function (e.g.,
+\code{\link{png}}), or one of \code{"eps"}, \code{"ps"},
+\code{"tex"} (pictex), \code{"pdf"}, \code{"jpeg"}, \code{"tiff"},
+\code{"png"}, \code{"bmp"}, \code{"svg"} or \code{"wmf"} (Windows only).
+By default, the device is guessed based on the `filename` extension.}
 
 \item{device.args}{List with additional graphical parameters passed on
 to graphics function.}
@@ -482,11 +483,11 @@ forest plot. One of \code{"in"} (for inches, default), \code{"cm"},
 
 \item{dpi}{Plot resolution.}
 
-\item{rows.gr}{Deprecated argument to add rows to the forest plot to change
-the height of the graphics file; only provided for backward compatibility.}
-
 \item{dev.off}{A logical to specify whether current graphics device
 should be shut down.}
+
+\item{rows.gr}{Deprecated argument to add rows to the forest plot to change
+the height of the graphics file; only provided for backward compatibility.}
 
 \item{ref}{A numerical giving the reference value to be plotted as
 a line in the forest plot. No reference line is plotted if
@@ -1268,11 +1269,17 @@ arguments can be either absolute values, e.g., \code{width = 10} for a
 graphics file with the width of 10 inches, or values relative to the
 automatically determined height and width, e.g., \code{width = .width * 1.05}
 will add 5 percent to the automatically determined width.
- 
+
+It is also possible to provide \code{NA} as input to arguments \code{height}
+and \code{weight}. In this case, the default dimensions of the graphics
+device are utilised, for example, seven inches for \code{\link{pdf}}.
+
 For backward compatibility, the height of the file is determined using a
 different approach if argument \code{rows.gr} is provided to
 increase or decrease the number of rows shown in the forest plot
-(either to show missing information or to remove white space).
+(either to show missing information or to remove white space). It is
+recommended to not use argument \code{rows.gr}, but, to use
+argument \code{height = .height * 1.10} or similar.
 
 Argument \code{dev.off} can be used to keep the current graphics device
 open in order to store additional forest plots in the file. Use the R
@@ -1945,6 +1952,7 @@ A re-evaluation of random-effects meta-analysis.
   \code{\link{settings.meta}}, \code{\link{labels.meta}}
 }
 \author{
-Guido Schwarzer \email{guido.schwarzer@uniklinik-freiburg.de}
+Guido Schwarzer \email{guido.schwarzer@uniklinik-freiburg.de},
+  Nour Edin Darwish \email{nouredindarwish@gmail.com}
 }
 \keyword{hplot}

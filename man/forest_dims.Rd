@@ -61,3 +61,6 @@ forest_dims(ma, units = "cm")
 forest_dims(ma, details = TRUE, units = "cm")
 
 }
+\author{
+Nour Edin Darwish \email{nouredindarwish@gmail.com}
+}

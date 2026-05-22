@@ -4,6 +4,7 @@
 # Author: Guido Schwarzer <guido.schwarzer@@uniklinik-freiburg.de>
 # License: GPL (>= 2)
 #
+
 Rb <- function(seTE, seTE.random, tau2, Q, df.Q, level) {
   #
   # Calculate Rb
@@ -50,6 +51,7 @@ Rb <- function(seTE, seTE.random, tau2, Q, df.Q, level) {
   #
   res
 }
+
 calcH <- function(Q, df, level) {
   #
   # Calculate H
@@ -85,6 +87,7 @@ calcH <- function(Q, df, level) {
   
   res
 }
+
 isquared <- function(Q, df, level) {
   #
   # Calculate I-Squared
@@ -100,6 +103,7 @@ isquared <- function(Q, df, level) {
   
   res
 }
+
 pvalQ <- function(Q, df, lower.tail = FALSE) {
   #
   if (length(df) == 1 & length(Q) > 1)
