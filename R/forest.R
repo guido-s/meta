@@ -693,8 +693,8 @@
 #' will add 5 percent to the automatically determined width.
 #' 
 #' It is also possible to provide \code{NA} as input to arguments \code{height}
-#' and \code{weight}. In this case, the default dimensions of the graphics
-#' device are utilised, for example, seven inches for \code{\link{pdf}}.
+#' and \code{width}. In this case, the size of the current graphics
+#' device is used.
 #' 
 #' For backward compatibility, the height of the file is determined using a
 #' different approach if argument \code{rows.gr} is provided to
@@ -11938,18 +11938,23 @@ forest.meta <- function(x,
     device.args.all <-
       c(list(file = filename, height = height, width = width), device.args)
     #
-    local({
-      old_dev <- dev.cur()
+    old_dev <- dev.cur()
+    runNN(device, device.args.all)
+    #
+    if (dev.off) {
       on.exit({
         dev.off()
         if (old_dev > 1) dev.set(old_dev)
       }, add = TRUE)
-      runNN(device, device.args.all)
-    })
+    }
   }
   else if (autosize == "none") {
     figheight <- NULL
     rows.gr <- NULL
+    #
+    if (dev.off) {
+      on.exit(dev.off(), add = TRUE)
+    }
   }
   
   
@@ -11969,9 +11974,6 @@ forest.meta <- function(x,
   res$autosize <- autosize
   #
   class(res) <- "forest.meta"
-  #
-  if (dev.off)
-    invisible(dev.off())
   #
   invisible(res)
 }
