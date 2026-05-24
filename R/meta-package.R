@@ -425,7 +425,7 @@
 #' The next two commands implement the recommendations of the
 #' Institute for Quality and Efficiency in Health Care (IQWiG),
 #' Germany accordinging to General Methods 5 and 6, respectively
-#' (\url{https://www.iqwig.de/en/about-us/methods/methods-paper/}).
+#' (\url{https://www.iqwig.de/en/methods/methods-paper/}).
 #'
 #' The last setting can be used to print p-values in scientific
 #' notation and to suppress the calculation of confidence intervals
@@ -577,7 +577,7 @@
 #' 
 #' IQWiG (2022):
 #' General Methods: Version 6.1.
-#' \url{https://www.iqwig.de/en/about-us/methods/methods-paper/}
+#' \url{https://www.iqwig.de/en/methods/methods-paper/}
 #'
 #' Jackson D (2013):
 #' Confidence intervals for the between-study variance in random
