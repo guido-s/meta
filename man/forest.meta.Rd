@@ -1271,8 +1271,8 @@ automatically determined height and width, e.g., \code{width = .width * 1.05}
 will add 5 percent to the automatically determined width.
 
 It is also possible to provide \code{NA} as input to arguments \code{height}
-and \code{weight}. In this case, the default dimensions of the graphics
-device are utilised, for example, seven inches for \code{\link{pdf}}.
+and \code{width}. In this case, the size of the current graphics
+device is used.
 
 For backward compatibility, the height of the file is determined using a
 different approach if argument \code{rows.gr} is provided to
