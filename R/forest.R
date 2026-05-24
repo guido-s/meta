@@ -119,17 +119,27 @@
 #'   \code{"IRS"}, \code{"IRFT"}, or \code{"IRD"}.
 #' @param irunit A character specifying the time unit used to
 #'   calculate rates, e.g., person-years.
-#' @param file File name.
-#' @param width Width of graphics file.
-#' @param rows.gr Additional rows in forest plot to change height of
-#'   graphics file (e.g., in order to add a title at the top of the
-#'   forest plot).
-#' @param func.gr Name of graphics function, e.g., \code{\link{pdf}}.
-#' @param args.gr List with additional graphical parameters passed on
-#'   to graphics function (argument 'height' cannot be provided as the
-#'   height is calculated internally; use instead argument 'rows.gr').
+#' @param filename File name to store forest plot.
+#' @param path Path of the directory to save plot to: `path` and `filename` are
+#'   combined to create the fully qualified file name. Defaults to the working
+#'   directory.
+#' @param device Device to use. Can either be a device function (e.g.,
+#'   \code{\link{png}}), or one of \code{"eps"}, \code{"ps"},
+#'   \code{"tex"} (pictex), \code{"pdf"}, \code{"jpeg"}, \code{"tiff"},
+#'   \code{"png"}, \code{"bmp"}, \code{"svg"} or \code{"wmf"} (Windows only).
+#'   By default, the device is guessed based on the `filename` extension.
+#' @param device.args List with additional graphical parameters passed on
+#'   to graphics function.
+#' @param units Units of the `width` and `height` of the file containing the
+#'   forest plot. One of \code{"in"} (for inches, default), \code{"cm"},
+#'   \code{"mm"}, or \code{"px"} (for pixels), can be abbreviated.
+#' @param height Height of the graphics file.
+#' @param width Width of the graphics file.
+#' @param dpi Plot resolution.
 #' @param dev.off A logical to specify whether current graphics device
-#'   should be shut down, i.e., whether file should be stored.
+#'   should be shut down.
+#' @param rows.gr Deprecated argument to add rows to the forest plot to change
+#'   the height of the graphics file; only provided for backward compatibility.
 #' @param ref A numerical giving the reference value to be plotted as
 #'   a line in the forest plot. No reference line is plotted if
 #'   argument \code{ref} is equal to \code{NA}.
@@ -651,37 +661,54 @@
 #' \subsection{Saving forest plots}{
 #' 
 #' A forest plot can be directly stored in a file using argument
-#' \code{file} or specifying the R function for the graphics device
-#' driver using argument \code{func.gr}, e.g., \code{\link{pdf}}. If
-#' only the filename is provided, the extension is checked and matched
-#' against the most common graphics device drivers.
+#' \code{filename}. The R function for the graphics device driver
+#' can be specified using argument \code{device}, e.g.,
+#' \code{device = "cairo_pdf"} or \code{device = cairo_pdf}. If only the
+#' filename is provided, the extension of the filename is checked and matched
+#' against the most common graphics device drivers:
 #' 
 #' \tabular{ll}{
 #' \bold{Extension} \tab \bold{Graphics device} \cr
 #' \code{.pdf} \tab \code{\link{pdf}} \cr
 #' \code{.ps} \tab \code{\link{postscript}} \cr
-#' \code{.svg} \tab \code{\link{svg}} \cr
+#' \code{.svg} \tab \code{\link{svg}} or \code{\link[svglite]{svglite}} if the
+#'   R package \bold{svglite} is available \cr
 #' \code{.bmp} \tab \code{\link{bmp}} \cr
 #' \code{.jpg} / \code{.jpeg} \tab \code{\link{jpeg}} \cr
 #' \code{.png} \tab \code{\link{png}} \cr
 #' \code{.tif} / \code{.tiff} \tab \code{\link{tiff}}
 #' }
-#'
-#' The height of the graphics device is automatically determined if
-#' the forest plot is saved to a file. Argument \code{rows.gr} can be
-#' used to increase or decrease the number of rows shown in the forest
-#' plot (either to show missing information or to remove
-#' whitespace). The width of the graphics device can be specified with
-#' argument \code{width}, see, for example, \code{\link{pdf}} or
-#' \code{\link{jpeg}}. Other arguments of graphics device functions
-#' can be provided as a list in argument \code{args.gr}.
-#'
-#' Alternatively, the (resized) graphics window can be stored to a
-#' file using either \code{\link{dev.copy2eps}} or
-#' \code{\link{dev.copy2pdf}}. It is also possible to manually create
-#' a file using, for example, \code{\link{pdf}}, \code{\link{png}}, or
-#' \code{\link{svg}} and to specify the width and height of the
-#' graphic (see Examples).
+#' 
+#' If only argument \code{device} is provided, the filename will be equal to
+#' "Rplots.\code{device}".
+#' 
+#' By default, the height and width of the file containing the forest plot is
+#' determined automatically (values \code{.height} and \code{.width}).
+#' 
+#' The user can specify the height and width of the
+#' file using the arguments \code{height} and \code{width}. The input to these
+#' arguments can be either absolute values, e.g., \code{width = 10} for a
+#' graphics file with the width of 10 inches, or values relative to the
+#' automatically determined height and width, e.g., \code{width = .width * 1.05}
+#' will add 5 percent to the automatically determined width.
+#' 
+#' It is also possible to provide \code{NA} as input to arguments \code{height}
+#' and \code{width}. In this case, the size of the current graphics
+#' device is used.
+#' 
+#' For backward compatibility, the height of the file is determined using a
+#' different approach if argument \code{rows.gr} is provided to
+#' increase or decrease the number of rows shown in the forest plot
+#' (either to show missing information or to remove white space). It is
+#' recommended to not use argument \code{rows.gr}, but, to use
+#' argument \code{height = .height * 1.10} or similar.
+#' 
+#' Argument \code{dev.off} can be used to keep the current graphics device
+#' open in order to store additional forest plots in the file. Use the R
+#' function \code{\link{dev.off}} to close the graphics device / store the file.
+#' 
+#' Other arguments of graphics device functions can be provided as a list in
+#' the argument \code{device.args}.
 #' }
 #' 
 #' \subsection{Default layout for studies and pooled effects}{
@@ -825,7 +852,7 @@
 #'   \code{gs("label.cor")} \cr
 #' \cr
 #' Column: \tab \code{effect} \tab \code{ci} \tab \code{effect.ci} \cr
-#' Label: \tab \code{x$sm} \tab \code{x$level}"\%-CI" \tab \emph{effect+ci} \cr
+#' Label: \tab \code{x$sm} \tab \code{x$level}"\% CI" \tab \emph{effect+ci} \cr
 #' \cr
 #' Column: \tab \code{cluster} \tab \code{cycles} \tab \code{pval} \cr
 #' Label: \tab \code{gs("label.cluster")} \tab \code{gs("label.cycles")} \tab
@@ -868,10 +895,15 @@
 #' suppress the print of the risk of bias information.
 #'
 #' RoB assessments are shown as the only information on the right side
-#' of the forest plot. Thus, arguments \code{rightcols} and
-#' \code{rightlabs} should not be used. Predefined columns shown by
-#' default on the right side of a forest plot will be moved to the
-#' left side.
+#' of the forest plot if argument \code{rob.only = TRUE}. In this case,
+#' arguments \code{rightcols} and \code{rightlabs} are ignored.
+#' Predefined columns shown by default on the right side of a forest plot will
+#' be moved to the left side.
+#' 
+#' Note, the column names for risk of bias domains cannot be changed with
+#' argument \code{rightlabs}. You have to manually change the column names in
+#' the risk of bias data set, i.e., list element 'rob' in the meta-analysis
+#' object.
 #' }
 #' 
 #' \subsection{Information on heterogeneity and statistical tests}{
@@ -1003,7 +1035,7 @@
 #' meta-analysis, and prediction interval (arguments \code{level},
 #' \code{level.ma}, \code{level.predict} in meta-analysis functions,
 #' e.g., \code{\link{metabin}}), additional information is printed,
-#' e.g., " (99\%-CI)" for a 99\% confidence interval in the
+#' e.g., " (99\% CI)" for a 99\% confidence interval in the
 #' meta-analysis.
 #' 
 #' Argument \code{pscale} can be used to rescale single proportions or
@@ -1090,7 +1122,8 @@
 #' R function \code{.forestArgs} generates a character vector with all
 #' arguments of \code{forest.meta}.
 #' 
-#' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
+#' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de},
+#'   Nour Edin Darwish \email{nouredindarwish@gmail.com}
 #' 
 #' @seealso \code{\link{metabin}}, \code{\link{metacont}},
 #'   \code{\link{metagen}}, \code{\link{forest.metabind}},
@@ -1136,32 +1169,42 @@
 #' 
 #' 
 #' \dontrun{
+#' #
 #' # Create PDF files with the forest plot
 #' #
-#' # - specify filename (R function pdf() is used due to extension .pdf)
-#' # - height of the figure is automatically determined
-#' # - width is set to 10 inches
-#' forest(ma1, file = "forest-ma1-1.pdf", width = 10)
+#' 
+#' # 1) Specify filename, here, pdf() is used due to the file extension ".pdf";
+#' #    height and width of the figure are automatically determined
 #' #
-#' # - specify graphics device function
-#' #   (filename "Rplots.pdf" used, see help page of R function pdf())
-#' # - height of the figure is automatically determined
-#' # - width is set to 10 inches
-#' # - set title for PDF file
-#' # - set background of forest plot
-#' forest(ma1, func.gr = pdf, width = 10,
-#'   args.gr = list(title = "My Forest Plot", bg = "green"))
+#' forest(ma1, filename = "forest-ma1-1.pdf")
+#' 
+#' # 2) Specify the device; results in the creation of a file "Rplots.pdf"
 #' #
-#' # - manually specify the height of the figure
-#' pdf("forest-ma1-2.pdf", width = 10, height = 3)
-#' forest(ma1)
-#' dev.off()
+#' forest(ma1, device = pdf)
+#' 
+#' # 3) Manually set width to 10 inches; a different method is used to
+#' #    determine the height of the forest plot
+#' #
+#' forest(ma1, filename = "forest-ma1-2.pdf", width = 10)
+#' 
+#' # 4) Set title for PDF file and set background colour of forest plot
+#' forest(ma1, filename = "forest-ma1-3.pdf",
+#'   device.args = list(title = "My Forest Plot", bg = "green"))
+#' 
+#' # 5) Manually specify the height of the figure
+#' #
+#' forest(ma1, filename = "forest-ma1-4.pdf", width = 10, height = 3)
+#' }
+#' 
+#' \dontrun{
+#' #
+#' # More forest plots
+#' #
 #' 
 #' # Define equivalence limits: 0.75 and 1 / 0.75
 #' #
 #' forest(ma1, layout = "RevMan5", common = FALSE, cid = 0.75,
-#'   fill = "lightgray",
-#'   fill.cid = "white")
+#'   fill = "lightgray", fill.cid = "white")
 #' 
 #' # Fill regions with beneficial and detrimental effects
 #' #
@@ -1391,9 +1434,14 @@ forest.meta <- function(x,
                         pscale = x$pscale,
                         irscale = x$irscale, irunit = x$irunit,
                         #
-                        file = NULL, width = gs("width"), rows.gr = NULL,
-                        func.gr = NULL, args.gr = NULL,
-                        dev.off = NULL,
+                        filename = NULL,
+                        path = NULL,
+                        device = NULL, device.args = NULL,
+                        units = "in",
+                        height = NULL, width = NULL,
+                        dpi = 300,
+                        #
+                        dev.off = NULL, rows.gr = NULL,
                         #
                         ref,
                         #
@@ -1686,10 +1734,64 @@ forest.meta <- function(x,
   # (1) Check for meta object and upgrade older meta objects
   #
   #
+  
   chkclass(x, "meta")
   x.name <- deparse(substitute(x))
   x <- updateversion(x)
+  
+  
   #
+  #
+  # (2) Determine whether forest plot should be stored to file and how to
+  #     calculate the height and width of the plot
+  #
+  #
+  
+  args <- list(...)
+  # Check whether first argument is a list. In this case only use
+  # this list as input.
+  if (length(args) > 0 && is.list(args[[1]]))
+    args <- args[[1]]
+  nam.args <- names(args)
+  #
+  chklogical(warn.deprecated)
+  #
+  device <-
+    deprecated(device, missing(device), args, "func.gr", warn.deprecated)
+  #
+  if (is.null(filename) & !is.null(device))
+    filename <- paste0("Rplots.", substitute(device))
+  #
+  # Capture width and height expressions to safely evaluate them later
+  #
+  width_expr <- substitute(width)
+  height_expr <- substitute(height)
+  #
+  width_vars <- all.vars(width_expr)
+  height_vars <- all.vars(height_expr)
+  uses_auto_vars <- any(c(width_vars, height_vars) %in% c(".width", ".height"))
+  #
+  width_provided <- !missing(width) && !is.null(width_expr)
+  height_provided <- !missing(height) && !is.null(height_expr)
+  #
+  avail.rows.gr <- !missing(rows.gr) && !is.null(rows.gr)
+  #
+  if (is.null(filename))
+    autosize <- "none"
+  else if (uses_auto_vars)
+    autosize <- "new"
+  else if (avail.rows.gr)
+    autosize <- "old"
+  else
+    autosize <- "new"
+  
+  
+  #
+  #
+  # (3) Some assignments
+  #
+  #
+  
   K.all <- length(x$TE)
   #
   sm <- x$sm
@@ -1717,12 +1819,7 @@ forest.meta <- function(x,
   fbt <- x$func.backtransf
   abt <- x$args.backtransf
   #
-  args <- list(...)
-  # Check whether first argument is a list. In this case only use
-  # this list as input.
-  if (length(args) > 0 && is.list(args[[1]]))
-    args <- args[[1]]
-  nam.args <- names(args)
+  avail.dev.off <- !missing(dev.off) && !is.null(dev.off)
   #
   # Logical variables for missing arguments
   #
@@ -1869,9 +1966,10 @@ forest.meta <- function(x,
   
   #
   #
-  # (2) Extract data on subgroup analysis
+  # (4) Extract data on subgroup analysis
   #
   #
+  
   by <- !is.null(x$subgroup)
   #
   if (by) {
@@ -1908,9 +2006,10 @@ forest.meta <- function(x,
   
   #
   #
-  # (3) Determine columns on left and right side of forest plot
+  # (5) Determine columns on left and right side of forest plot
   #
   #
+  
   layout <- setchar(layout, c("meta", "BMJ", "RevMan5", "JAMA", "subgroup"))
   if (layout == "subgroup" & is.null(x$subgroup)) {
     warning("Argument 'layout' set to \"meta\" (default) as ",
@@ -1952,10 +2051,21 @@ forest.meta <- function(x,
   chknumeric(rob.xpos, length = 1)
   chklogical(rob.legend)
   chklogical(rob.only)
+  if (rob.only && !missing.rightlabs && !is.null(rightlabs)) {
+    warning("Argument 'rightlabs' ignored as argument 'rob.only = TRUE'.",
+            call. = FALSE)
+    missing.rightlabs <- TRUE
+    rightlabs <- NULL
+  }
   #
   text.rob <- ""
   RoB.available <- !is.null(rob) && !(is.logical(rob) && !rob)
   RoB.legend <- RoB.available & rob.legend
+  if (!RoB.available & rob.only) {
+    warning("Argument 'rob.only' ignored for forest plot without ",
+            "risk of bias assessment.", call. = FALSE)
+    rob.only <- FALSE
+  }
   #
   if (RoB.available) {
     if (!inherits(rob, "rob"))
@@ -1980,8 +2090,10 @@ forest.meta <- function(x,
     #
     text.rob <- text.rob[text.rob != ""]
   }
-  else
-    rightcols.rob <- NULL
+  else {
+    rightcols.rob <- rob.labels <- rob.categories <- rob.symbols <-
+      rob.col <- text.rob <- rob <- NULL
+  }
   #
   if (!rsel)
     rightcols <- NULL
@@ -2106,6 +2218,9 @@ forest.meta <- function(x,
     }
   }
   #
+  rightcols.new <- rightlabs.new <- 
+    leftcols.new <- leftlabs.new <- NULL
+  #
   if (newcols) {
     #
     # Determine labels for new columns
@@ -2119,9 +2234,10 @@ forest.meta <- function(x,
   
   #
   #
-  # (3) Check other arguments
+  # (6) Check other arguments
   #
   #
+  
   sfsp <- sys.frame(sys.parent())
   mc <- match.call()
   #
@@ -2181,8 +2297,7 @@ forest.meta <- function(x,
   #
   # Additional arguments in '...'
   #
-  common <- deprecated(common, missing.common, args, "fixed",
-                       warn.deprecated)
+  common <- deprecated(common, missing.common, args, "fixed", warn.deprecated)
   chklogical(common)
   chklogical(random)
   overall <- replaceNULL(overall, common | random)
@@ -2212,6 +2327,10 @@ forest.meta <- function(x,
                               args, "bysort", warn.deprecated)
   chklogical(sort.subgroup)
   #
+  device.args <-
+    deprecated(device.args, missing(device.args),
+               args, "args.gr", warn.deprecated)
+  #
   chklogical(pooled.totals)
   chklogical(pooled.events)
   chklogical(pooled.times)
@@ -2235,23 +2354,43 @@ forest.meta <- function(x,
   if (!is.null(irunit) && !is.na(irunit))
     chkchar(irunit)
   #
-  if (!is.null(file))
-    chkchar(file, length = 1)
+  if (!is.null(filename))
+    chkchar(filename, length = 1)
   #
-  if (!is.null(width))
-    chknumeric(width, min = 0, zero = TRUE, length = 1)
+  chklength(units, 1, text = "Argument 'units' must be of length 1.")
+  units <- setchar(units, c("in", "cm", "mm", "px"), pre = "either ")
+  if (units == "px") {
+    units <- "in"
+    units.px <- TRUE
+  }
+  else
+    units.px <- FALSE
   #
-  if (!is.null(rows.gr))
+  if (width_provided && autosize == "old")
+    chknumeric(width, min = 0, zero = TRUE, length = 1, NA.ok = FALSE)
+  else if (width_provided && autosize == "none")
+    warning("Input to argument 'width' ignored as forest plot is not ",
+            "stored to file.",
+            call. = FALSE)
+  #
+  if (height_provided && autosize == "none")
+    warning("Input to argument 'height' ignored as forest plot is not ",
+            "stored to file.",
+            call. = FALSE)
+  #
+  chknumeric(dpi, min = 0, zero = TRUE, length = 1)
+  #
+  if (avail.rows.gr)
     chknumeric(rows.gr, length = 1)
   else
     rows.gr <- 0
   #
-  if (!is.null(args.gr))
-    chklist(args.gr)
+  if (!is.null(device.args))
+    chklist(device.args)
   #
   if (!is.null(dev.off))
     chklogical(dev.off)
-  else if (!is.null(file) | !is.null(func.gr))
+  else if (!is.null(filename) | !is.null(device))
     dev.off <- TRUE
   else
     dev.off <- FALSE
@@ -2490,7 +2629,7 @@ forest.meta <- function(x,
   #
   chkchar(lab.NA)
   if (is.null(lab.NA.effect))
-      lab.NA.effect <- ""
+    lab.NA.effect <- ""
   #
   chkchar(lab.NA.effect)
   chkchar(lab.NA.weight)
@@ -2696,7 +2835,7 @@ forest.meta <- function(x,
   }
   #
   if (is.character(header.line)) {
-    header.line.pos <- setchar(header.line, c("below", "both", ""))
+    header.line.pos <- setchar(header.line, c("below", "new", ""))
     header.line <- header.line.pos != ""
   }
   else {
@@ -3188,9 +3327,10 @@ forest.meta <- function(x,
   
   #
   #
-  # (4) Check length of variables
+  # (7) Check length of variables
   #
   #
+  
   fun <- "forest.meta"
   #
   if (length(col.study) == 1)
@@ -3226,9 +3366,10 @@ forest.meta <- function(x,
   
   #
   #
-  # (5) Some assignments and additional checks
+  # (8) Some assignments and additional checks
   #
   #
+  
   n.com <- max(length(x$TE.common), 1)
   n.ran <- max(length(x$lower.random), 1)
   n.prd <- max(length(x$lower.predict), 1)
@@ -3367,11 +3508,11 @@ forest.meta <- function(x,
     }
     else
       test.effect.subgroup.logical <-
-        rep(test.effect.subgroup, n.by) & subgroup.logical
+      rep(test.effect.subgroup, n.by) & subgroup.logical
     #
     if (missing.test.effect.subgroup.common)
       test.effect.subgroup.common.logical <-
-        common & test.effect.subgroup.logical
+      common & test.effect.subgroup.logical
     else {
       test.effect.subgroup.common <-
         catch("test.effect.subgroup.common", mc, x, sfsp)
@@ -3397,7 +3538,7 @@ forest.meta <- function(x,
     #
     if (missing.test.effect.subgroup.random)
       test.effect.subgroup.random.logical <-
-        random & test.effect.subgroup.logical
+      random & test.effect.subgroup.logical
     else {
       test.effect.subgroup.random <-
         catch("test.effect.subgroup.random", mc, x, sfsp)
@@ -3444,8 +3585,8 @@ forest.meta <- function(x,
   }
   else
     common.random <-
-      any(common | test.subgroup.common | test.effect.subgroup.common.logical) &
-      any(random | test.subgroup.random | test.effect.subgroup.random.logical)
+    any(common | test.subgroup.common | test.effect.subgroup.common.logical) &
+    any(random | test.subgroup.random | test.effect.subgroup.random.logical)
   #
   if (layout == "subgroup") {
     if (!missing.study.results & study.results)
@@ -3474,13 +3615,13 @@ forest.meta <- function(x,
                                 round(x$level.ma * 100), "% CI)",
                                 if (common.random)
                                   paste0(", ", gs("text.w.common"))
-                                )
+          )
         else if (!is.null(text.common))
           text.common <- paste0(text.common, " (",
-                                round(x$level.ma * 100), "%-CI)")
+                                round(x$level.ma * 100), "% CI)")
         else
           text.common <- paste0(gs("text.common"), " (",
-                                round(x$level.ma * 100), "%-CI)")
+                                round(x$level.ma * 100), "% CI)")
       }
       else {
         if (bmj.revman5.jama) {
@@ -3522,14 +3663,14 @@ forest.meta <- function(x,
                                   round(x$level.ma * 100), "% CI)",
                                   if (common.random)
                                     paste0(", ", gs("text.w.random"))
-                                  )
+            )
         }
         else if (!is.null(text.random))
           text.random <- paste0(text.random, " (",
-                                round(x$level.ma * 100), "%-CI)")
+                                round(x$level.ma * 100), "% CI)")
         else
           text.random <- paste0(gs("text.random"), " (",
-                                round(x$level.ma * 100), "%-CI)")
+                                round(x$level.ma * 100), "% CI)")
       }
       else {
         if (bmj.revman5.jama) {
@@ -3580,7 +3721,7 @@ forest.meta <- function(x,
         (study.results & (x$level != x$level.predict |
                           x$level.ma != x$level.predict)))
       text.predict <- paste0(text.predict, " (",
-                             round(x$level.predict * 100), "%-PI)")
+                             round(x$level.predict * 100), "% PI)")
   }
   #
   if (is.null(x$null.effect) || is.na(x$null.effect)) {
@@ -3694,7 +3835,7 @@ forest.meta <- function(x,
   #
   if (is.null(xlab))
     xlab <- xlab_meta(sm, backtransf, newline = revman5.jama, revman5 = revman5,
-                 big.mark = big.mark)
+                      big.mark = big.mark)
   #
   scale <- 1
   if (pscale != 1 || irscale != 1) {
@@ -3712,17 +3853,17 @@ forest.meta <- function(x,
   if (smlab.null) {
     if (is_rate(sm))
       smlab <- xlab_meta(sm, backtransf, irscale = irscale, irunit = irunit,
-                    newline = !bmj.revman5.jama, revman5 = revman5,
-                    big.mark = big.mark)
+                         newline = !bmj.revman5.jama, revman5 = revman5,
+                         big.mark = big.mark)
     else if (is_prop(sm))
       smlab <- xlab_meta(sm, backtransf, pscale = pscale,
-                    newline = !bmj.revman5.jama, revman5 = revman5,
-                    big.mark = big.mark)
+                         newline = !bmj.revman5.jama, revman5 = revman5,
+                         big.mark = big.mark)
     else
       smlab <- xlab_meta(sm, backtransf, pscale = pscale,
-                    irscale = irscale, irunit = irunit,
-                    newline = !bmj.revman5.jama, revman5 = revman5,
-                    big.mark = big.mark)
+                         irscale = irscale, irunit = irunit,
+                         newline = !bmj.revman5.jama, revman5 = revman5,
+                         big.mark = big.mark)
   }
   #
   print.label <- (label.left != "" | label.right != "") & !is.na(ref)
@@ -3766,16 +3907,16 @@ forest.meta <- function(x,
   }
   if (missing.label.test.overall.common)
     label.test.overall.common <-
-      paste0("Test for overall effect",
-             if (common.random)
-               paste0(" (", gs("text.w.common"), " effect)"),
-             ": ")
+    paste0("Test for overall effect",
+           if (common.random)
+             paste0(" (", gs("text.w.common"), " effect)"),
+           ": ")
   if (missing.label.test.overall.random)
     label.test.overall.random <-
-      paste0("Test for overall effect",
-             if (common.random)
-               paste0(" (", gs("text.w.random"), " effects)"),
-             ": ")
+    paste0("Test for overall effect",
+           if (common.random)
+             paste0(" (", gs("text.w.random"), " effects)"),
+           ": ")
   #
   if (!missing.label.test.subgroup.fixed) {
     label.test.subgroup.common <-
@@ -3787,16 +3928,16 @@ forest.meta <- function(x,
   }
   if (missing.label.test.subgroup.common)
     label.test.subgroup.common <-
-      paste0("Test for subgroup differences",
-             if (common.random)
-               paste0(" (", gs("text.w.common"), " effect)"),
-             ": ")
+    paste0("Test for subgroup differences",
+           if (common.random)
+             paste0(" (", gs("text.w.common"), " effect)"),
+           ": ")
   if (missing.label.test.subgroup.random)
     label.test.subgroup.random <-
-      paste0("Test for subgroup differences",
-             if (common.random)
-               paste0(" (", gs("text.w.random"), " effects)"),
-             ": ")
+    paste0("Test for subgroup differences",
+           if (common.random)
+             paste0(" (", gs("text.w.random"), " effects)"),
+           ": ")
   #
   if (!missing.label.test.effect.subgroup.fixed) {
     label.test.effect.subgroup.common <-
@@ -3808,22 +3949,22 @@ forest.meta <- function(x,
   }
   if (missing.label.test.effect.subgroup.common)
     label.test.effect.subgroup.common <-
-      paste0(if (bmj.revman5.jama)
-               "Test for overall effect"
-             else
-               "Test for effect in subgroup",
-             if (common.random)
-               paste0(" (", gs("text.w.common"), " effect)"),
-             ": ")
+    paste0(if (bmj.revman5.jama)
+      "Test for overall effect"
+      else
+        "Test for effect in subgroup",
+      if (common.random)
+        paste0(" (", gs("text.w.common"), " effect)"),
+      ": ")
   if (missing.label.test.effect.subgroup.random)
     label.test.effect.subgroup.random <-
-      paste0(if (bmj.revman5.jama)
-               "Test for overall effect"
-             else
-               "Test for effect in subgroup",
-             if (common.random)
-               paste0(" (", gs("text.w.random"), " effects)"),
-             ": ")
+    paste0(if (bmj.revman5.jama)
+      "Test for overall effect"
+      else
+        "Test for effect in subgroup",
+      if (common.random)
+        paste0(" (", gs("text.w.random"), " effects)"),
+      ": ")
   #
   fs.head <- fs.heading
   ff.head <- ff.heading
@@ -3834,9 +3975,10 @@ forest.meta <- function(x,
   
   #
   #
-  # (6) Labels for columns on left and right side of forest plot
+  # (9) Labels for columns on left and right side of forest plot
   #
   #
+  
   sm.lab <- sm
   #
   if (backtransf) {
@@ -3871,15 +4013,10 @@ forest.meta <- function(x,
   if (revman5 & by)
     lab.studlab <- c("Study or\nSubgroup")
   #
-  if (bmj.revman5.jama)
-    cisep <- " "
-  else
-    cisep <- "-"
-  #
   if (study.results)
-    ci.lab <- paste0(100 * level, "%", cisep, "CI")
+    ci.lab <- paste0(100 * level, "% CI")
   else
-    ci.lab <- paste0(100 * level.ma, "%", cisep, "CI")
+    ci.lab <- paste0(100 * level.ma, "% CI")
   #
   if (!missing.col.diamond.fixed) {
     col.diamond.common <-
@@ -4030,81 +4167,87 @@ forest.meta <- function(x,
   if (newcols) {
     #
     if (length(rightcols.new) > 0) {
-      if (missing.rightlabs ||
-          any(is.na(rightlabs[rightcols.new %in% rightcols]))) {
+      if (all(rightcols.new %in% colnames(rob))) {
         rightlabs.new <- rightcols.new
-        #
-        if (RoB.available)
-          rightlabs.new[rightlabs.new %in% colnames(rob)] <- rob.labels
-        #
-        if ((metacor | metaprop | metamean | metarate) &&
-            any(rightcols.new == "n") &&
-            (is.null(rightlabs) || is.na(rightlabs[rightcols == "n"])))
-          rightlabs.new[rightlabs.new == "n"] <- label.n
-        #
-        if (metamean && any(rightcols.new == "mean") &&
-            (is.null(rightlabs) || is.na(rightlabs[rightcols == "mean"])))
-          rightlabs.new[rightlabs.new == "mean"] <- label.mean
-        #
-        if (metamean && any(rightcols.new == "sd") &&
-            (is.null(rightlabs) || is.na(rightlabs[rightcols == "sd"])))
-          rightlabs.new[rightlabs.new == "sd"] <- label.sd
-        #
-        if (metarate && any(rightcols.new == "time") &&
-            (is.null(rightlabs) || is.na(rightlabs[rightcols == "time"])))
-          rightlabs.new[rightlabs.new == "time"] <- label.time
-        #
-        if (any(rightcols.new == "pval") &&
-            (is.null(rightlabs) || is.na(rightlabs[rightcols == "pval"])))
-          rightlabs.new[rightlabs.new == "pval"] <- label.pval
-        #
-        if (any(rightcols.new == "tau2") &&
-            (is.null(rightlabs) || is.na(rightlabs[rightcols == "tau2"])))
-          rightlabs.new[rightlabs.new == "tau2"] <- label.tau2
-        #
-        if (any(rightcols.new == "tau") &&
-            (is.null(rightlabs) || is.na(rightlabs[rightcols == "tau"])))
-          rightlabs.new[rightlabs.new == "tau"] <- label.tau
-        #
-        if (any(rightcols.new == "I2") &&
-            (is.null(rightlabs) || is.na(rightlabs[rightcols == "I2"])))
-          rightlabs.new[rightlabs.new == "I2"] <- label.I2
-        #
-        if (three.level && any(rightcols.new == "cluster") &&
-            (is.null(rightlabs) || is.na(rightlabs[rightcols == "cluster"])))
-          rightlabs.new[rightlabs.new == "cluster"] <- label.cluster
-        #
-        if (n_of_1 && any(rightcols.new == "cycles") &&
-            (is.null(rightlabs) || is.na(rightlabs[rightcols == "cycles"])))
-          rightlabs.new[rightlabs.new == "cycles"] <- label.cycles
+        rightlabs.new[rightlabs.new %in% colnames(rob)] <- rob.labels
       }
       else {
-        if (length(rightcols.new) == length(rightlabs))
-          rightlabs.new <- rightlabs
-        else if (length(rightcols.new) > length(rightlabs))
-          stop("Too few labels defined in argument 'rightlabs'.")
-        else {
+        if (missing.rightlabs ||
+            any(is.na(rightlabs[rightcols.new %in% rightcols]))) {
           rightlabs.new <- rightcols.new
           #
-          for (i in seq_along(rightcols.new)) {
-            match1.i <- match(rightcols.new[i], rightcols)
-            if (!is.na(rightlabs[match1.i]))
-              rightlabs.new[i] <- rightlabs[match1.i]
-            else {
-              match2.i <- match(rightcols.new[i], colnames)
-              if (!is.na(match2.i))
-                rightlabs.new[i] <- labnames[match2.i]
-              else if (rightcols.new[i] == "pval")
-                rightlabs.new[i] <- label.pval
-              else if (rightcols.new[i] == "tau2")
-                rightlabs.new[i] <- label.tau2
-              else if (rightcols.new[i] == "tau")
-                rightlabs.new[i] <- label.tau
-              else if (rightcols.new[i] == "I2")
-                rightlabs.new[i] <- label.I2
+          if ((metacor | metaprop | metamean | metarate) &&
+              any(rightcols.new == "n") &&
+              (is.null(rightlabs) || is.na(rightlabs[rightcols == "n"])))
+            rightlabs.new[rightlabs.new == "n"] <- label.n
+          #
+          if (metamean && any(rightcols.new == "mean") &&
+              (is.null(rightlabs) || is.na(rightlabs[rightcols == "mean"])))
+            rightlabs.new[rightlabs.new == "mean"] <- label.mean
+          #
+          if (metamean && any(rightcols.new == "sd") &&
+              (is.null(rightlabs) || is.na(rightlabs[rightcols == "sd"])))
+            rightlabs.new[rightlabs.new == "sd"] <- label.sd
+          #
+          if (metarate && any(rightcols.new == "time") &&
+              (is.null(rightlabs) || is.na(rightlabs[rightcols == "time"])))
+            rightlabs.new[rightlabs.new == "time"] <- label.time
+          #
+          if (any(rightcols.new == "pval") &&
+              (is.null(rightlabs) || is.na(rightlabs[rightcols == "pval"])))
+            rightlabs.new[rightlabs.new == "pval"] <- label.pval
+          #
+          if (any(rightcols.new == "tau2") &&
+              (is.null(rightlabs) || is.na(rightlabs[rightcols == "tau2"])))
+            rightlabs.new[rightlabs.new == "tau2"] <- label.tau2
+          #
+          if (any(rightcols.new == "tau") &&
+              (is.null(rightlabs) || is.na(rightlabs[rightcols == "tau"])))
+            rightlabs.new[rightlabs.new == "tau"] <- label.tau
+          #
+          if (any(rightcols.new == "I2") &&
+              (is.null(rightlabs) || is.na(rightlabs[rightcols == "I2"])))
+            rightlabs.new[rightlabs.new == "I2"] <- label.I2
+          #
+          if (three.level && any(rightcols.new == "cluster") &&
+              (is.null(rightlabs) || is.na(rightlabs[rightcols == "cluster"])))
+            rightlabs.new[rightlabs.new == "cluster"] <- label.cluster
+          #
+          if (n_of_1 && any(rightcols.new == "cycles") &&
+              (is.null(rightlabs) || is.na(rightlabs[rightcols == "cycles"])))
+            rightlabs.new[rightlabs.new == "cycles"] <- label.cycles
+        }
+        else {
+          if (length(rightcols.new) == length(rightlabs))
+            rightlabs.new <- rightlabs
+          else if (length(rightcols.new) > length(rightlabs))
+            stop("Too few labels defined in argument 'rightlabs'.")
+          else {
+            rightlabs.new <- rightcols.new
+            #
+            for (i in seq_along(rightcols.new)) {
+              match1.i <- match(rightcols.new[i], rightcols)
+              if (!is.na(rightlabs[match1.i]))
+                rightlabs.new[i] <- rightlabs[match1.i]
+              else {
+                match2.i <- match(rightcols.new[i], colnames)
+                if (!is.na(match2.i))
+                  rightlabs.new[i] <- labnames[match2.i]
+                else if (rightcols.new[i] == "pval")
+                  rightlabs.new[i] <- label.pval
+                else if (rightcols.new[i] == "tau2")
+                  rightlabs.new[i] <- label.tau2
+                else if (rightcols.new[i] == "tau")
+                  rightlabs.new[i] <- label.tau
+                else if (rightcols.new[i] == "I2")
+                  rightlabs.new[i] <- label.I2
+              }
             }
           }
         }
+        #
+        if (RoB.available)
+          rightlabs.new[rightlabs.new %in% colnames(rob)] <- rob.labels
       }
     }
     #
@@ -4193,21 +4336,19 @@ forest.meta <- function(x,
     leftcols <- "studlab"
     #
     if (three.level)
-      leftcols <- c(leftcols, "cluster")
+      leftcols <- add.columns(leftcols, "cluster")
     #
     if (n_of_1)
-      leftcols <- c(leftcols, "cycles")
+      leftcols <- add.columns(leftcols, "cycles")
     #
     if (jama) {
-      leftcols <- c(leftcols, "effect.ci")
+      leftcols <- add.columns(leftcols, "effect.ci")
     }
     else {
       if (metabin) {
         if (study.results) {
           if (bmj) {
-            leftcols <- c(leftcols,
-                          "event.n.e",
-                          "event.n.c")
+            leftcols <- add.columns(leftcols, c("event.n.e", "event.n.c"))
             label.e.attach <- "event.n.e"
             #
             if (is.null(bmj.text))
@@ -4216,16 +4357,16 @@ forest.meta <- function(x,
               label.e <- bmj.text
           }
           else
-            leftcols <- c(leftcols,
-                          "event.e", "n.e",
-                          "event.c", "n.c")
+            leftcols <-
+              add.columns(leftcols, c("event.e", "n.e", "event.c", "n.c"))
         }
         else {
-          leftcols <- c(leftcols,
-                        if (pooled.events) "event.e",
-                        if (pooled.totals) "n.e",
-                        if (pooled.events) "event.c",
-                        if (pooled.totals) "n.c")
+          leftcols <- add.columns(leftcols,
+                                  c(if (pooled.events) "event.e",
+                                    if (pooled.totals) "n.e",
+                                    if (pooled.events) "event.c",
+                                    if (pooled.totals) "n.c"))
+          #
           if (pooled.events & !pooled.totals) {
             if (is.null(label.e.attach))
               label.e.attach <- "event.e"
@@ -4238,9 +4379,8 @@ forest.meta <- function(x,
       if (metacont) {
         if (study.results) {
           if (bmj) {
-            leftcols <- c(leftcols,
-                          "mean.sd.n.e",
-                          "mean.sd.n.c")
+            leftcols <-
+              add.columns(leftcols, c("mean.sd.n.e", "mean.sd.n.c"))
             label.e.attach <- "mean.sd.n.e"
             #
             if (is.null(bmj.text))
@@ -4249,16 +4389,16 @@ forest.meta <- function(x,
               label.e <- bmj.text
           }         
           else if (revman5)
-            leftcols <- c(leftcols,
-                          "mean.e", "sd.e", "n.e",
-                          "mean.c", "sd.c", "n.c")
+            leftcols <-
+              add.columns(leftcols,
+                          c("mean.e", "sd.e", "n.e", "mean.c", "sd.c", "n.c"))
           else
-            leftcols <- c(leftcols,
-                          "n.e", "mean.e", "sd.e",
-                          "n.c", "mean.c", "sd.c")
+            leftcols <-
+              add.columns(leftcols,
+                          c("n.e", "mean.e", "sd.e", "n.c", "mean.c", "sd.c"))
         }
         else if (pooled.totals) {
-          leftcols <- c(leftcols, "n.e", "n.c")
+          leftcols <- add.columns(leftcols, c("n.e", "n.c"))
           if (is.null(label.e.attach))
             label.e.attach <- "n.e"
           if (is.null(label.c.attach))
@@ -4267,15 +4407,14 @@ forest.meta <- function(x,
       }
       #
       if (metagen & study.results) {
-        leftcols <- c(leftcols,
-                      "TE", "seTE")
+        leftcols <- add.columns(leftcols, c("TE", "seTE"))
         if (!is.null(x$n.e)) {
-          leftcols <- c(leftcols, "n.e")
+          leftcols <- add.columns(leftcols, "n.e")
           if (is.null(label.e.attach))
             label.e.attach <- "n.e"
         }
         if (!is.null(x$n.c)) {
-          leftcols <- c(leftcols, "n.c")
+          leftcols <- add.columns(leftcols, "n.c")
           if (is.null(label.c.attach))
             label.c.attach <- "n.c"
         }
@@ -4284,14 +4423,12 @@ forest.meta <- function(x,
       if (metamean) {
         if (study.results) {
           if (revman5)
-            leftcols <- c(leftcols,
-                          "mean.e", "sd.e", "n.e")
+            leftcols <- add.columns(leftcols, c("mean.e", "sd.e", "n.e"))
           else
-            leftcols <- c(leftcols,
-                          "n.e", "mean.e", "sd.e")
+            leftcols <- add.columns(leftcols, c("n.e", "mean.e", "sd.e"))
         }
         else if (pooled.totals) {
-          leftcols <- c(leftcols, "n.e")
+          leftcols <- add.columns(leftcols, "n.e")
           if (is.null(label.e.attach))
             label.e.attach <- "n.e"
         }
@@ -4300,23 +4437,22 @@ forest.meta <- function(x,
       if (metaprop) {
         if (study.results) {
           if (bmj) {
-            leftcols <- c(leftcols,
-                          "event.n.e")
+            leftcols <- add.columns(leftcols, "event.n.e")
             label.e.attach <- "event.n.e"
             #
             if (is.null(bmj.text))
               label.e <- "No of events / total"
             else
               label.e <- bmj.text
-          
+            
           }
           else
-            leftcols <- c(leftcols, "event.e", "n.e")
+            leftcols <- add.columns(leftcols, c("event.e", "n.e"))
         }
         else {
-          leftcols <- c(leftcols,
-                        if (pooled.events) "event.e",
-                        if (pooled.totals) "n.e")
+          leftcols <- add.columns(leftcols,
+                                  c(if (pooled.events) "event.e",
+                                    if (pooled.totals) "n.e"))
           if (pooled.events & !pooled.totals) {
             if (is.null(label.e.attach))
               label.e.attach <- "event.e"
@@ -4326,13 +4462,14 @@ forest.meta <- function(x,
       #
       if (metarate) {
         if (study.results)
-          leftcols <- c(leftcols,
-                        "event.e", "time.e",
-                        if (!is.null(x$n)) "n.e")
+          leftcols <-
+            add.columns(leftcols,
+                        c("event.e", "time.e", if (!is.null(x$n)) "n.e"))
         else {
-          leftcols <- c(leftcols,
-                        if (pooled.events) "event.e",
-                        if (pooled.times) "time.e")
+          leftcols <-
+            add.columns(leftcols,
+                        c(if (pooled.events) "event.e",
+                          if (pooled.times) "time.e"))
           if (pooled.events & !pooled.times) {
             if (is.null(label.e.attach))
               label.e.attach <- "event.e"
@@ -4342,21 +4479,20 @@ forest.meta <- function(x,
       #
       if (metacor) {
         if (study.results | pooled.totals)
-          leftcols <- c(leftcols,
-                        "n.e")
+          leftcols <- add.columns(leftcols, "n.e")
       }
       #
       if (metainc) {
         if (study.results)
-          leftcols <- c(leftcols,
-                        "event.e", "time.e",
-                        "event.c", "time.c")
+          leftcols <-
+            add.columns(leftcols, c("event.e", "time.e","event.c", "time.c"))
         else {
-          leftcols <- c(leftcols,
-                        if (pooled.events) "event.e",
-                        if (pooled.times) "time.e",
-                        if (pooled.events) "event.c",
-                        if (pooled.times) "time.c")
+          leftcols <-
+            add.columns(leftcols,
+                        c(if (pooled.events) "event.e",
+                          if (pooled.times) "time.e",
+                          if (pooled.events) "event.c",
+                          if (pooled.times) "time.c"))
           if (pooled.events & !pooled.times) {
             if (is.null(label.e.attach))
               label.e.attach <- "event.e"
@@ -4373,30 +4509,30 @@ forest.meta <- function(x,
       #
       if (overall & study.results & !any(x$method == "GLMM") & !metamerge) {
         if (common && !all(is.na(x$w.common)))
-          leftcols <- c(leftcols, "w.common")
+          leftcols <- add.columns(leftcols, "w.common")
         if (random && !all(is.na(x$w.random)))
-          leftcols <- c(leftcols, "w.random")
+          leftcols <- add.columns(leftcols, "w.random")
       }
       #
-      leftcols <- c(leftcols, "effect.ci")
+      leftcols <- add.columns(leftcols, "effect.ci")
     }
     #
     # Add columns if risk of bias assessment is only information on
     # right side of the forest plot
     #
     if (!revman5.jama & rob.only) {
+      if (bmj)
+        leftcols <- add.columns(leftcols, "effect.ci")
+      else
+        leftcols <- add.columns(leftcols, c("effect", "ci"))
       #
       if (overall & study.results & !any(x$method == "GLMM") & !metamerge) {
         if (common)
-          leftcols <- c(leftcols, "w.common")
+          leftcols <- add.columns(leftcols, "w.common")
+        #
         if (random)
-          leftcols <- c(leftcols, "w.random")
+          leftcols <- add.columns(leftcols, "w.random")
       }
-      #
-      if (bmj)
-        leftcols <- c(leftcols, "effect.ci")
-      else
-        leftcols <- c(leftcols, "effect", "ci")
     }
   }
   #
@@ -4414,25 +4550,25 @@ forest.meta <- function(x,
                  if (random && !all(is.na(x$w.random))) "w.random")
       #
       if (bmj)
-        rightcols <- c(wcols, rightcols)
+        rightcols <- add.columns(wcols, rightcols)
       else
-        rightcols <- c(rightcols, wcols)
+        rightcols <- add.columns(rightcols, wcols)
     }
   }
   #
   if (RoB.available & rob.only &
       missing.leftcols & !revman5.jama) {
+    if (bmj)
+      leftcols <- add.columns(leftcols, "effect.ci")
+    else
+      leftcols <- add.columns(leftcols, c("effect", "ci"))
+    #
     if (overall & study.results & !any(x$method == "GLMM" & !metamerge)) {
       if (common)
-        leftcols <- c(leftcols, "w.common")
+        leftcols <- add.columns(leftcols, "w.common")
       if (random)
-        leftcols <- c(leftcols, "w.random")
+        leftcols <- add.columns(leftcols, "w.random")
     }
-    #
-    if (bmj)
-      leftcols <- c(leftcols, "effect.ci")
-    else
-      leftcols <- c(leftcols, "effect", "ci")
   } 
   #
   rightcols[rightcols == "w.fixed"] <- "w.common"
@@ -4444,9 +4580,15 @@ forest.meta <- function(x,
          " for ", length(rightcols), " column",
          if (length(rightcols) > 1) "s",
          ".",
+         if (RoB.available)
+           paste("\n  Note, columns names for risk of bias domains cannot be",
+                 "changed with argument 'rightlabs'."),
          call. = FALSE)
   #
-  rightcols <- c(rightcols, rightcols.rob)
+  if (rob.only)
+    rightcols <- rightcols.rob
+  else
+    rightcols <- add.columns(rightcols, rightcols.rob)
   #
   if (any(leftcols == "w.common") & any(rightcols == "w.common"))
     leftcols <- leftcols[!leftcols == "w.common"]
@@ -4462,9 +4604,10 @@ forest.meta <- function(x,
   
   #
   #
-  # (6) Select data for forest plot
+  # (10) Select data for forest plot
   #
   #
+  
   if (metacor) {
     x$n.e <- x$n
   }
@@ -4918,13 +5061,13 @@ forest.meta <- function(x,
     #
     if (print.Rb)
       hetstat.Rb <-
-        paste0(hetseparator,
-               formatN(100 * Rb, digits.I2, "NA", big.mark = big.mark),
-               "%",
-               if (print.Rb.ci && !(is.na(lowRb) | is.na(uppRb)))
-                 pasteCI(100 * lowRb, 100 * uppRb,
-                         digits.I2, big.mark,
-                         text.NA = lab.NA, unit = "%"))
+      paste0(hetseparator,
+             formatN(100 * Rb, digits.I2, "NA", big.mark = big.mark),
+             "%",
+             if (print.Rb.ci && !(is.na(lowRb) | is.na(uppRb)))
+               pasteCI(100 * lowRb, 100 * uppRb,
+                       digits.I2, big.mark,
+                       text.NA = lab.NA, unit = "%"))
     #
     # Remove superfluous spaces
     #
@@ -4964,7 +5107,7 @@ forest.meta <- function(x,
                  hp = hetstat.pval.Q,
                  hi = hetstat.I2,
                  df = df.Q)
-            )
+          )
       else if (print.tau2)
         hetstat.overall <-
           substitute(
@@ -4979,7 +5122,7 @@ forest.meta <- function(x,
                  hp = hetstat.pval.Q,
                  hi = hetstat.I2,
                  df = df.Q)
-            )
+          )
       else
         hetstat.overall <-
           substitute(
@@ -4992,7 +5135,7 @@ forest.meta <- function(x,
                  hq = hetstat.Q,
                  hp = hetstat.pval.Q,
                  df = df.Q)
-            )
+          )
     }
     else if (jama) {
       if (!missing.print.tau2 | !missing.print.tau) {
@@ -5010,7 +5153,7 @@ forest.meta <- function(x,
                    hp = hetstat.pval.Q,
                    hi = hetstat.I2,
                    ht = hetstat.tau)
-              )
+            )
         else if (print.tau2)
           hetstat.overall <-
             substitute(
@@ -5097,9 +5240,9 @@ forest.meta <- function(x,
         if (print.tau2)
           hetstat.overall <- substitute(paste(hl, tau^2, ht),
                                         list(hl = hetlab, ht = hetstat.tau2))
-        else
-          hetstat.overall <- substitute(paste(hl, tau, ht),
-                                        list(hl = hetlab, ht = hetstat.tau))
+      else
+        hetstat.overall <- substitute(paste(hl, tau, ht),
+                                      list(hl = hetlab, ht = hetstat.tau))
       else if (!print.I2 & !print.tau2.tau & print.Q & !print.pval.Q &
                !print.Rb)
         hetstat.overall <-
@@ -5126,13 +5269,13 @@ forest.meta <- function(x,
                              tau^2, ht),
                        list(hl = hetlab,
                             hi = hetstat.I2, ht = hetstat.tau2))
-        else
-          hetstat.overall <-
-            substitute(paste(hl, italic(I)^2, hi,
-                             ", ",
-                             tau, ht),
-                       list(hl = hetlab,
-                            hi = hetstat.I2, ht = hetstat.tau))
+      else
+        hetstat.overall <-
+          substitute(paste(hl, italic(I)^2, hi,
+                           ", ",
+                           tau, ht),
+                     list(hl = hetlab,
+                          hi = hetstat.I2, ht = hetstat.tau))
       else if (print.I2 & !print.tau2.tau & print.Q & !print.pval.Q & !print.Rb)
         hetstat.overall <-
           substitute(paste(hl, italic(I)^2, hi,
@@ -5162,13 +5305,13 @@ forest.meta <- function(x,
                              chi[df]^2, hq),
                        list(hl = hetlab, df = df.Q,
                             ht = hetstat.tau2, hq = hetstat.Q))
-        else
-          hetstat.overall <-
-            substitute(paste(hl, tau, ht,
-                             ", ",
-                             chi[df]^2, hq),
-                       list(hl = hetlab, df = df.Q,
-                            ht = hetstat.tau, hq = hetstat.Q))
+      else
+        hetstat.overall <-
+          substitute(paste(hl, tau, ht,
+                           ", ",
+                           chi[df]^2, hq),
+                     list(hl = hetlab, df = df.Q,
+                          ht = hetstat.tau, hq = hetstat.Q))
       else if (!print.I2 & print.tau2.tau & !print.Q & print.pval.Q & !print.Rb)
         if (print.tau2)
           hetstat.overall <-
@@ -5177,13 +5320,13 @@ forest.meta <- function(x,
                              italic(p), hp),
                        list(hl = hetlab,
                             ht = hetstat.tau2, hp = hetstat.pval.Q))
-        else
-          hetstat.overall <-
-            substitute(paste(hl, tau, ht,
-                             ", ",
-                             italic(p), hp),
-                       list(hl = hetlab,
-                            ht = hetstat.tau, hp = hetstat.pval.Q))
+      else
+        hetstat.overall <-
+          substitute(paste(hl, tau, ht,
+                           ", ",
+                           italic(p), hp),
+                     list(hl = hetlab,
+                          ht = hetstat.tau, hp = hetstat.pval.Q))
       else if (!print.I2 & print.tau2.tau & !print.Q & !print.pval.Q & print.Rb)
         if (print.tau2)
           hetstat.overall <-
@@ -5192,13 +5335,13 @@ forest.meta <- function(x,
                              italic(R)[italic(b)], hb),
                        list(hl = hetlab,
                             ht = hetstat.tau2, hb = hetstat.Rb))
-        else
-          hetstat.overall <-
-            substitute(paste(hl, tau, ht,
-                             ", ",
-                             italic(R)[italic(b)], hb),
-                       list(hl = hetlab,
-                            ht = hetstat.tau, hb = hetstat.Rb))
+      else
+        hetstat.overall <-
+          substitute(paste(hl, tau, ht,
+                           ", ",
+                           italic(R)[italic(b)], hb),
+                     list(hl = hetlab,
+                          ht = hetstat.tau, hb = hetstat.Rb))
       else if (!print.I2 & !print.tau2.tau & print.Q & print.pval.Q & !print.Rb)
         hetstat.overall <-
           substitute(paste(hl, chi[df]^2, hq,
@@ -5233,15 +5376,15 @@ forest.meta <- function(x,
                        list(hl = hetlab, df = df.Q,
                             hi = hetstat.I2, ht = hetstat.tau2,
                             hq = hetstat.Q))
-        else
-          hetstat.overall <-
-            substitute(paste(hl,
-                             italic(I)^2, hi, ", ",
-                             tau, ht, ", ",
-                             chi[df]^2, hq),
-                       list(hl = hetlab, df = df.Q,
-                            hi = hetstat.I2, ht = hetstat.tau,
-                            hq = hetstat.Q))
+      else
+        hetstat.overall <-
+          substitute(paste(hl,
+                           italic(I)^2, hi, ", ",
+                           tau, ht, ", ",
+                           chi[df]^2, hq),
+                     list(hl = hetlab, df = df.Q,
+                          hi = hetstat.I2, ht = hetstat.tau,
+                          hq = hetstat.Q))
       else if (print.I2 & print.tau2.tau & !print.Q & print.pval.Q & !print.Rb)
         if (print.tau2)
           hetstat.overall <-
@@ -5252,16 +5395,16 @@ forest.meta <- function(x,
                        list(hl = hetlab,
                             hi = hetstat.I2, ht = hetstat.tau2,
                             hp = hetstat.pval.Q))
-        else
-          hetstat.overall <-
-            substitute(paste(hl,
-                             italic(I)^2, hi, ", ",
-                             tau, ht, ", ",
-                             italic(p), hp),
-                       list(hl = hetlab,
-                            hi = hetstat.I2, ht = hetstat.tau,
-                            hp = hetstat.pval.Q))
-
+      else
+        hetstat.overall <-
+          substitute(paste(hl,
+                           italic(I)^2, hi, ", ",
+                           tau, ht, ", ",
+                           italic(p), hp),
+                     list(hl = hetlab,
+                          hi = hetstat.I2, ht = hetstat.tau,
+                          hp = hetstat.pval.Q))
+      
       else if (print.I2 & !print.tau2.tau & print.Q & print.pval.Q & !print.Rb)
         hetstat.overall <-
           substitute(paste(hl,
@@ -5281,15 +5424,15 @@ forest.meta <- function(x,
                        list(hl = hetlab, df = df.Q,
                             ht = hetstat.tau2,
                             hq = hetstat.Q, hp = hetstat.pval.Q))
-        else
-          hetstat.overall <-
-            substitute(paste(hl,
-                             tau, ht, ", ",
-                             chi[df]^2, hq,
-                             " (", italic(p), hp, ")"),
-                       list(hl = hetlab, df = df.Q,
-                            ht = hetstat.tau,
-                            hq = hetstat.Q, hp = hetstat.pval.Q))
+      else
+        hetstat.overall <-
+          substitute(paste(hl,
+                           tau, ht, ", ",
+                           chi[df]^2, hq,
+                           " (", italic(p), hp, ")"),
+                     list(hl = hetlab, df = df.Q,
+                          ht = hetstat.tau,
+                          hq = hetstat.Q, hp = hetstat.pval.Q))
       
       else if (print.I2 & print.tau2.tau & !print.Q & !print.pval.Q & print.Rb)
         if (print.tau2)
@@ -5301,15 +5444,15 @@ forest.meta <- function(x,
                        list(hl = hetlab,
                             hi = hetstat.I2, ht = hetstat.tau2,
                             hb = hetstat.Rb))
-        else
-          hetstat.overall <-
-            substitute(paste(hl,
-                             italic(I)^2, hi, ", ",
-                             tau, ht, ", ",
-                             italic(R)[italic(b)], hb),
-                       list(hl = hetlab,
-                            hi = hetstat.I2, ht = hetstat.tau,
-                            hb = hetstat.Rb))          
+      else
+        hetstat.overall <-
+          substitute(paste(hl,
+                           italic(I)^2, hi, ", ",
+                           tau, ht, ", ",
+                           italic(R)[italic(b)], hb),
+                     list(hl = hetlab,
+                          hi = hetstat.I2, ht = hetstat.tau,
+                          hb = hetstat.Rb))          
       else if (print.I2 & !print.tau2.tau & print.Q & !print.pval.Q & print.Rb)
         hetstat.overall <-
           substitute(paste(hl,
@@ -5331,16 +5474,16 @@ forest.meta <- function(x,
                             ht = hetstat.tau2,
                             hq = hetstat.Q,
                             hb = hetstat.Rb))
-        else
-          hetstat.overall <-
-            substitute(paste(hl,
-                             tau, ht, ", ",
-                             chi[df]^2, hq, ", ",
-                             italic(R)[italic(b)], hb),
-                       list(hl = hetlab, df = df.Q,
-                            ht = hetstat.tau,
-                            hq = hetstat.Q,
-                            hb = hetstat.Rb))          
+      else
+        hetstat.overall <-
+          substitute(paste(hl,
+                           tau, ht, ", ",
+                           chi[df]^2, hq, ", ",
+                           italic(R)[italic(b)], hb),
+                     list(hl = hetlab, df = df.Q,
+                          ht = hetstat.tau,
+                          hq = hetstat.Q,
+                          hb = hetstat.Rb))          
       else if (print.I2 & !print.tau2.tau & !print.Q & print.pval.Q & print.Rb)
         hetstat.overall <-
           substitute(paste(hl,
@@ -5361,16 +5504,16 @@ forest.meta <- function(x,
                             ht = hetstat.tau2,
                             hp = hetstat.pval.Q,
                             hb = hetstat.Rb))
-        else
-          hetstat.overall <-
-            substitute(paste(hl,
-                             tau, ht, ", ",
-                             italic(p), hp, ", ",
-                             italic(R)[italic(b)], hb),
-                       list(hl = hetlab,
-                            ht = hetstat.tau,
-                            hp = hetstat.pval.Q,
-                            hb = hetstat.Rb))
+      else
+        hetstat.overall <-
+          substitute(paste(hl,
+                           tau, ht, ", ",
+                           italic(p), hp, ", ",
+                           italic(R)[italic(b)], hb),
+                     list(hl = hetlab,
+                          ht = hetstat.tau,
+                          hp = hetstat.pval.Q,
+                          hb = hetstat.Rb))
       else if (!print.I2 & !print.tau2.tau & print.Q & print.pval.Q & print.Rb)
         hetstat.overall <-
           substitute(paste(hl,
@@ -5395,16 +5538,16 @@ forest.meta <- function(x,
                        list(hl = hetlab, df = df.Q,
                             hi = hetstat.I2, ht = hetstat.tau2,
                             hq = hetstat.Q, hp = hetstat.pval.Q))
-        else
-          hetstat.overall <-
-            substitute(paste(hl,
-                             italic(I)^2, hi, ", ",
-                             tau, ht, ", ",
-                             chi[df]^2, hq,
-                             " (", italic(p), hp, ")"),
-                       list(hl = hetlab, df = df.Q,
-                            hi = hetstat.I2, ht = hetstat.tau,
-                            hq = hetstat.Q, hp = hetstat.pval.Q))          
+      else
+        hetstat.overall <-
+          substitute(paste(hl,
+                           italic(I)^2, hi, ", ",
+                           tau, ht, ", ",
+                           chi[df]^2, hq,
+                           " (", italic(p), hp, ")"),
+                     list(hl = hetlab, df = df.Q,
+                          hi = hetstat.I2, ht = hetstat.tau,
+                          hq = hetstat.Q, hp = hetstat.pval.Q))          
       else if (print.I2 & print.tau2.tau & print.Q & !print.pval.Q & print.Rb)
         if (print.tau2)
           hetstat.overall <-
@@ -5416,16 +5559,16 @@ forest.meta <- function(x,
                        list(hl = hetlab, df = df.Q,
                             hi = hetstat.I2, ht = hetstat.tau2,
                             hq = hetstat.Q, hb = hetstat.Rb))
-        else
-          hetstat.overall <-
-            substitute(paste(hl,
-                             italic(I)^2, hi, ", ",
-                             tau, ht, ", ",
-                             chi[df]^2, hq, ", ",
-                             italic(R)[italic(b)], hb),
-                       list(hl = hetlab, df = df.Q,
-                            hi = hetstat.I2, ht = hetstat.tau,
-                            hq = hetstat.Q, hb = hetstat.Rb))
+      else
+        hetstat.overall <-
+          substitute(paste(hl,
+                           italic(I)^2, hi, ", ",
+                           tau, ht, ", ",
+                           chi[df]^2, hq, ", ",
+                           italic(R)[italic(b)], hb),
+                     list(hl = hetlab, df = df.Q,
+                          hi = hetstat.I2, ht = hetstat.tau,
+                          hq = hetstat.Q, hb = hetstat.Rb))
       else if (print.I2 & print.tau2.tau & !print.Q & print.pval.Q & print.Rb)
         if (print.tau2)
           hetstat.overall <-
@@ -5437,16 +5580,16 @@ forest.meta <- function(x,
                        list(hl = hetlab,
                             hi = hetstat.I2, ht = hetstat.tau2,
                             hp = hetstat.pval.Q, hb = hetstat.Rb))
-        else
-          hetstat.overall <-
-            substitute(paste(hl,
-                             italic(I)^2, hi, ", ",
-                             tau, ht, ", ",
-                             italic(p), hp, ", ",
-                             italic(R)[italic(b)], hb),
-                       list(hl = hetlab,
-                            hi = hetstat.I2, ht = hetstat.tau,
-                            hp = hetstat.pval.Q, hb = hetstat.Rb))
+      else
+        hetstat.overall <-
+          substitute(paste(hl,
+                           italic(I)^2, hi, ", ",
+                           tau, ht, ", ",
+                           italic(p), hp, ", ",
+                           italic(R)[italic(b)], hb),
+                     list(hl = hetlab,
+                          hi = hetstat.I2, ht = hetstat.tau,
+                          hp = hetstat.pval.Q, hb = hetstat.Rb))
       else if (print.I2 & !print.tau2.tau & print.Q & print.pval.Q & print.Rb)
         hetstat.overall <-
           substitute(paste(hl,
@@ -5472,18 +5615,18 @@ forest.meta <- function(x,
                             ht = hetstat.tau2,
                             hq = hetstat.Q, hp = hetstat.pval.Q,
                             hb = hetstat.Rb))
-        else
-          hetstat.overall <-
-            substitute(paste(hl,
-                             tau, ht, ", ",
-                             chi[df]^2, hq,
-                             " (", italic(p), hp, ")",
-                             ", ",
-                             italic(R)[italic(b)], hb),
-                       list(hl = hetlab, df = df.Q,
-                            ht = hetstat.tau,
-                            hq = hetstat.Q, hp = hetstat.pval.Q,
-                            hb = hetstat.Rb))
+      else
+        hetstat.overall <-
+          substitute(paste(hl,
+                           tau, ht, ", ",
+                           chi[df]^2, hq,
+                           " (", italic(p), hp, ")",
+                           ", ",
+                           italic(R)[italic(b)], hb),
+                     list(hl = hetlab, df = df.Q,
+                          ht = hetstat.tau,
+                          hq = hetstat.Q, hp = hetstat.pval.Q,
+                          hb = hetstat.Rb))
       #
       # Five
       #
@@ -5501,19 +5644,19 @@ forest.meta <- function(x,
                             hi = hetstat.I2, ht = hetstat.tau2,
                             hq = hetstat.Q, hp = hetstat.pval.Q,
                             hb = hetstat.Rb))
-        else
-          hetstat.overall <-
-            substitute(paste(hl,
-                             italic(I)^2, hi, ", ",
-                             tau, ht, ", ",
-                             chi[df]^2, hq,
-                             " (", italic(p), hp, ")",
-                             ", ",
-                             italic(R)[italic(b)], hb),
-                       list(hl = hetlab, df = df.Q,
-                            hi = hetstat.I2, ht = hetstat.tau,
-                            hq = hetstat.Q, hp = hetstat.pval.Q,
-                            hb = hetstat.Rb))
+      else
+        hetstat.overall <-
+          substitute(paste(hl,
+                           italic(I)^2, hi, ", ",
+                           tau, ht, ", ",
+                           chi[df]^2, hq,
+                           " (", italic(p), hp, ")",
+                           ", ",
+                           italic(R)[italic(b)], hb),
+                     list(hl = hetlab, df = df.Q,
+                          hi = hetstat.I2, ht = hetstat.tau,
+                          hq = hetstat.Q, hp = hetstat.pval.Q,
+                          hb = hetstat.Rb))
     }
   }
   #
@@ -5604,7 +5747,7 @@ forest.meta <- function(x,
                  hq = hetstat.Q.resid,
                  hp = hetstat.pval.Q.resid,
                  hi = hetstat.I2.resid)
-            )
+          )
       else
         hetstat.resid <-
           substitute(
@@ -5616,11 +5759,11 @@ forest.meta <- function(x,
                   ", P"=, hp,
                   "; ",
                   I^2, hi),
-              list(hl = resid.hetlab,
-                   df = df.Q.resid,
-                   hq = hetstat.Q.resid,
-                   hp = hetstat.pval.Q.resid,
-                   hi = hetstat.I2.resid)
+            list(hl = resid.hetlab,
+                 df = df.Q.resid,
+                 hq = hetstat.Q.resid,
+                 hp = hetstat.pval.Q.resid,
+                 hi = hetstat.I2.resid)
           )
     }
     else if (jama) {
@@ -5690,7 +5833,7 @@ forest.meta <- function(x,
                  hq = hetstat.Q.resid,
                  hp = hetstat.pval.Q.resid,
                  hi = hetstat.I2.resid)
-            )
+          )
       else
         hetstat.resid <-
           substitute(
@@ -5721,10 +5864,10 @@ forest.meta <- function(x,
           hetstat.resid <-
             substitute(paste(hl, tau^2, ht),
                        list(hl = resid.hetlab, ht = hetstat.tau2.resid))
-        else
-          hetstat.resid <-
-            substitute(paste(hl, tau, ht),
-                       list(hl = resid.hetlab, ht = hetstat.tau.resid))
+      else
+        hetstat.resid <-
+          substitute(paste(hl, tau, ht),
+                     list(hl = resid.hetlab, ht = hetstat.tau.resid))
       else if (!print.I2 & !print.tau2.tau.resid & print.Q & !print.pval.Q &
                !print.Rb.resid)
         hetstat.resid <-
@@ -5753,13 +5896,13 @@ forest.meta <- function(x,
                              tau^2, ht),
                        list(hl = resid.hetlab,
                             hi = hetstat.I2.resid, ht = hetstat.tau2.resid))
-        else
-          hetstat.resid <-
-            substitute(paste(hl, italic(I)^2, hi,
-                             ", ",
-                             tau, ht),
-                       list(hl = resid.hetlab,
-                            hi = hetstat.I2.resid, ht = hetstat.tau.resid))
+      else
+        hetstat.resid <-
+          substitute(paste(hl, italic(I)^2, hi,
+                           ", ",
+                           tau, ht),
+                     list(hl = resid.hetlab,
+                          hi = hetstat.I2.resid, ht = hetstat.tau.resid))
       else if (print.I2 & !print.tau2.tau.resid & print.Q & !print.pval.Q &
                !print.Rb.resid)
         hetstat.resid <-
@@ -5793,13 +5936,13 @@ forest.meta <- function(x,
                              chi[df]^2, hq),
                        list(hl = resid.hetlab, df = df.Q.resid,
                             ht = hetstat.tau2.resid, hq = hetstat.Q.resid))
-        else
-          hetstat.resid <-
-            substitute(paste(hl, tau, ht,
-                             ", ",
-                             chi[df]^2, hq),
-                       list(hl = resid.hetlab, df = df.Q.resid,
-                            ht = hetstat.tau.resid, hq = hetstat.Q.resid))
+      else
+        hetstat.resid <-
+          substitute(paste(hl, tau, ht,
+                           ", ",
+                           chi[df]^2, hq),
+                     list(hl = resid.hetlab, df = df.Q.resid,
+                          ht = hetstat.tau.resid, hq = hetstat.Q.resid))
       else if (!print.I2 & print.tau2.tau.resid & !print.Q & print.pval.Q &
                !print.Rb.resid)
         if (print.tau2)
@@ -5809,13 +5952,13 @@ forest.meta <- function(x,
                              italic(p), hp),
                        list(hl = resid.hetlab,
                             ht = hetstat.tau2.resid, hp = hetstat.pval.Q.resid))
-        else
-          hetstat.resid <-
-            substitute(paste(hl, tau, ht,
-                             ", ",
-                             italic(p), hp),
-                       list(hl = resid.hetlab,
-                            ht = hetstat.tau.resid, hp = hetstat.pval.Q.resid))
+      else
+        hetstat.resid <-
+          substitute(paste(hl, tau, ht,
+                           ", ",
+                           italic(p), hp),
+                     list(hl = resid.hetlab,
+                          ht = hetstat.tau.resid, hp = hetstat.pval.Q.resid))
       else if (!print.I2 & print.tau2.tau.resid & !print.Q & !print.pval.Q &
                print.Rb.resid)
         if (print.tau2)
@@ -5825,13 +5968,13 @@ forest.meta <- function(x,
                              italic(R)[italic(b)], hb),
                        list(hl = resid.hetlab,
                             ht = hetstat.tau2.resid, hb = hetstat.Rb.resid))
-        else
-          hetstat.resid <-
-            substitute(paste(hl, tau, ht,
-                             ", ",
-                             italic(R)[italic(b)], hb),
-                       list(hl = resid.hetlab,
-                            ht = hetstat.tau.resid, hb = hetstat.Rb.resid))
+      else
+        hetstat.resid <-
+          substitute(paste(hl, tau, ht,
+                           ", ",
+                           italic(R)[italic(b)], hb),
+                     list(hl = resid.hetlab,
+                          ht = hetstat.tau.resid, hb = hetstat.Rb.resid))
       else if (!print.I2 & !print.tau2.tau.resid & print.Q & print.pval.Q &
                !print.Rb.resid)
         hetstat.resid <-
@@ -5870,15 +6013,15 @@ forest.meta <- function(x,
                        list(hl = resid.hetlab, df = df.Q.resid,
                             hi = hetstat.I2.resid, ht = hetstat.tau2.resid,
                             hq = hetstat.Q.resid))
-        else
-          hetstat.resid <-
-            substitute(paste(hl,
-                             italic(I)^2, hi, ", ",
-                             tau, ht, ", ",
-                             chi[df]^2, hq),
-                       list(hl = resid.hetlab, df = df.Q.resid,
-                            hi = hetstat.I2.resid, ht = hetstat.tau.resid,
-                            hq = hetstat.Q.resid))
+      else
+        hetstat.resid <-
+          substitute(paste(hl,
+                           italic(I)^2, hi, ", ",
+                           tau, ht, ", ",
+                           chi[df]^2, hq),
+                     list(hl = resid.hetlab, df = df.Q.resid,
+                          hi = hetstat.I2.resid, ht = hetstat.tau.resid,
+                          hq = hetstat.Q.resid))
       else if (print.I2 & print.tau2.tau.resid & !print.Q & print.pval.Q &
                !print.Rb.resid)
         if (print.tau2)
@@ -5890,15 +6033,15 @@ forest.meta <- function(x,
                        list(hl = resid.hetlab,
                             hi = hetstat.I2.resid, ht = hetstat.tau2.resid,
                             hp = hetstat.pval.Q.resid))
-        else
-          hetstat.resid <-
-            substitute(paste(hl,
-                             italic(I)^2, hi, ", ",
-                             tau, ht, ", ",
-                             italic(p), hp),
-                       list(hl = resid.hetlab,
-                            hi = hetstat.I2.resid, ht = hetstat.tau.resid,
-                            hp = hetstat.pval.Q.resid))
+      else
+        hetstat.resid <-
+          substitute(paste(hl,
+                           italic(I)^2, hi, ", ",
+                           tau, ht, ", ",
+                           italic(p), hp),
+                     list(hl = resid.hetlab,
+                          hi = hetstat.I2.resid, ht = hetstat.tau.resid,
+                          hp = hetstat.pval.Q.resid))
       else if (print.I2 & !print.tau2.tau.resid & print.Q & print.pval.Q &
                !print.Rb.resid)
         hetstat.resid <-
@@ -5920,15 +6063,15 @@ forest.meta <- function(x,
                        list(hl = resid.hetlab, df = df.Q.resid,
                             ht = hetstat.tau2.resid,
                             hq = hetstat.Q.resid, hp = hetstat.pval.Q.resid))
-        else
-          hetstat.resid <-
-            substitute(paste(hl,
-                             tau, ht, ", ",
-                             chi[df]^2, hq,
-                             " (", italic(p), hp, ")"),
-                       list(hl = resid.hetlab, df = df.Q.resid,
-                            ht = hetstat.tau.resid,
-                            hq = hetstat.Q.resid, hp = hetstat.pval.Q.resid))
+      else
+        hetstat.resid <-
+          substitute(paste(hl,
+                           tau, ht, ", ",
+                           chi[df]^2, hq,
+                           " (", italic(p), hp, ")"),
+                     list(hl = resid.hetlab, df = df.Q.resid,
+                          ht = hetstat.tau.resid,
+                          hq = hetstat.Q.resid, hp = hetstat.pval.Q.resid))
       else if (print.I2 & print.tau2.tau.resid & !print.Q & !print.pval.Q &
                print.Rb.resid)
         if (print.tau2)
@@ -5940,15 +6083,15 @@ forest.meta <- function(x,
                        list(hl = resid.hetlab,
                             hi = hetstat.I2.resid, ht = hetstat.tau2.resid,
                             hb = hetstat.Rb.resid))
-        else
-          hetstat.resid <-
-            substitute(paste(hl,
-                             italic(I)^2, hi, ", ",
-                             tau, ht, ", ",
-                             italic(R)[italic(b)], hb),
-                       list(hl = resid.hetlab,
-                            hi = hetstat.I2.resid, ht = hetstat.tau.resid,
-                            hb = hetstat.Rb.resid))
+      else
+        hetstat.resid <-
+          substitute(paste(hl,
+                           italic(I)^2, hi, ", ",
+                           tau, ht, ", ",
+                           italic(R)[italic(b)], hb),
+                     list(hl = resid.hetlab,
+                          hi = hetstat.I2.resid, ht = hetstat.tau.resid,
+                          hb = hetstat.Rb.resid))
       else if (print.I2 & !print.tau2.tau.resid & print.Q & !print.pval.Q &
                print.Rb.resid)
         hetstat.resid <-
@@ -5972,16 +6115,16 @@ forest.meta <- function(x,
                             ht = hetstat.tau2.resid,
                             hq = hetstat.Q.resid,
                             hb = hetstat.Rb.resid))
-        else
-          hetstat.resid <-
-            substitute(paste(hl,
-                             tau, ht, ", ",
-                             chi[df]^2, hq, ", ",
-                             italic(R)[italic(b)], hb),
-                       list(hl = resid.hetlab, df = df.Q.resid,
-                            ht = hetstat.tau.resid,
-                            hq = hetstat.Q.resid,
-                            hb = hetstat.Rb.resid))          
+      else
+        hetstat.resid <-
+          substitute(paste(hl,
+                           tau, ht, ", ",
+                           chi[df]^2, hq, ", ",
+                           italic(R)[italic(b)], hb),
+                     list(hl = resid.hetlab, df = df.Q.resid,
+                          ht = hetstat.tau.resid,
+                          hq = hetstat.Q.resid,
+                          hb = hetstat.Rb.resid))          
       else if (print.I2 & !print.tau2.tau.resid & !print.Q & print.pval.Q &
                print.Rb.resid)
         hetstat.resid <-
@@ -6004,16 +6147,16 @@ forest.meta <- function(x,
                             ht = hetstat.tau2.resid,
                             hp = hetstat.pval.Q.resid,
                             hb = hetstat.Rb.resid))
-        else
-          hetstat.resid <-
-            substitute(paste(hl,
-                             tau, ht, ", ",
-                             italic(p), hp, ", ",
-                             italic(R)[italic(b)], hb),
-                       list(hl = resid.hetlab,
-                            ht = hetstat.tau.resid,
-                            hp = hetstat.pval.Q.resid,
-                            hb = hetstat.Rb.resid))          
+      else
+        hetstat.resid <-
+          substitute(paste(hl,
+                           tau, ht, ", ",
+                           italic(p), hp, ", ",
+                           italic(R)[italic(b)], hb),
+                     list(hl = resid.hetlab,
+                          ht = hetstat.tau.resid,
+                          hp = hetstat.pval.Q.resid,
+                          hb = hetstat.Rb.resid))          
       else if (!print.I2 & !print.tau2.tau.resid & print.Q & print.pval.Q &
                print.Rb.resid)
         hetstat.resid <-
@@ -6040,16 +6183,16 @@ forest.meta <- function(x,
                        list(hl = resid.hetlab, df = df.Q.resid,
                             hi = hetstat.I2.resid, ht = hetstat.tau2.resid,
                             hq = hetstat.Q.resid, hp = hetstat.pval.Q.resid))
-        else
-          hetstat.resid <-
-            substitute(paste(hl,
-                             italic(I)^2, hi, ", ",
-                             tau, ht, ", ",
-                             chi[df]^2, hq,
-                             " (", italic(p), hp, ")"),
-                       list(hl = resid.hetlab, df = df.Q.resid,
-                            hi = hetstat.I2.resid, ht = hetstat.tau.resid,
-                            hq = hetstat.Q.resid, hp = hetstat.pval.Q.resid))          
+      else
+        hetstat.resid <-
+          substitute(paste(hl,
+                           italic(I)^2, hi, ", ",
+                           tau, ht, ", ",
+                           chi[df]^2, hq,
+                           " (", italic(p), hp, ")"),
+                     list(hl = resid.hetlab, df = df.Q.resid,
+                          hi = hetstat.I2.resid, ht = hetstat.tau.resid,
+                          hq = hetstat.Q.resid, hp = hetstat.pval.Q.resid))          
       else if (print.I2 & print.tau2.tau.resid & print.Q & !print.pval.Q &
                print.Rb.resid)
         if (print.tau2)
@@ -6062,16 +6205,16 @@ forest.meta <- function(x,
                        list(hl = resid.hetlab, df = df.Q.resid,
                             hi = hetstat.I2.resid, ht = hetstat.tau2.resid,
                             hq = hetstat.Q.resid, hb = hetstat.Rb.resid))
-        else
-          hetstat.resid <-
-            substitute(paste(hl,
-                             italic(I)^2, hi, ", ",
-                             tau, ht, ", ",
-                             chi[df]^2, hq, ", ",
-                             italic(R)[italic(b)], hb),
-                       list(hl = resid.hetlab, df = df.Q.resid,
-                            hi = hetstat.I2.resid, ht = hetstat.tau.resid,
-                            hq = hetstat.Q.resid, hb = hetstat.Rb.resid))          
+      else
+        hetstat.resid <-
+          substitute(paste(hl,
+                           italic(I)^2, hi, ", ",
+                           tau, ht, ", ",
+                           chi[df]^2, hq, ", ",
+                           italic(R)[italic(b)], hb),
+                     list(hl = resid.hetlab, df = df.Q.resid,
+                          hi = hetstat.I2.resid, ht = hetstat.tau.resid,
+                          hq = hetstat.Q.resid, hb = hetstat.Rb.resid))          
       else if (print.I2 & print.tau2.tau.resid & !print.Q & print.pval.Q &
                print.Rb.resid)
         if (print.tau2)
@@ -6084,15 +6227,15 @@ forest.meta <- function(x,
                        list(hl = resid.hetlab,
                             hi = hetstat.I2.resid, ht = hetstat.tau2.resid,
                             hp = hetstat.pval.Q.resid, hb = hetstat.Rb.resid))
-        else
-          substitute(paste(hl,
-                           italic(I)^2, hi, ", ",
-                           tau, ht, ", ",
-                           italic(p), hp, ", ",
-                           italic(R)[italic(b)], hb),
-                     list(hl = resid.hetlab,
-                          hi = hetstat.I2.resid, ht = hetstat.tau.resid,
-                          hp = hetstat.pval.Q.resid, hb = hetstat.Rb.resid))
+      else
+        substitute(paste(hl,
+                         italic(I)^2, hi, ", ",
+                         tau, ht, ", ",
+                         italic(p), hp, ", ",
+                         italic(R)[italic(b)], hb),
+                   list(hl = resid.hetlab,
+                        hi = hetstat.I2.resid, ht = hetstat.tau.resid,
+                        hp = hetstat.pval.Q.resid, hb = hetstat.Rb.resid))
       else if (print.I2 & !print.tau2.tau.resid & print.Q & !print.pval.Q &
                print.Rb.resid)
         hetstat.resid <-
@@ -6120,18 +6263,18 @@ forest.meta <- function(x,
                             ht = hetstat.tau2.resid,
                             hq = hetstat.Q.resid, hp = hetstat.pval.Q.resid,
                             hb = hetstat.Rb.resid))
-        else
-          hetstat.resid <-
-            substitute(paste(hl,
-                             tau, ht, ", ",
-                             chi[df]^2, hq,
-                             " (", italic(p), hp, ")",
-                             ", ",
-                             italic(R)[italic(b)], hb),
-                       list(hl = resid.hetlab, df = df.Q.resid,
-                            ht = hetstat.tau.resid,
-                            hq = hetstat.Q.resid, hp = hetstat.pval.Q.resid,
-                            hb = hetstat.Rb.resid))          
+      else
+        hetstat.resid <-
+          substitute(paste(hl,
+                           tau, ht, ", ",
+                           chi[df]^2, hq,
+                           " (", italic(p), hp, ")",
+                           ", ",
+                           italic(R)[italic(b)], hb),
+                     list(hl = resid.hetlab, df = df.Q.resid,
+                          ht = hetstat.tau.resid,
+                          hq = hetstat.Q.resid, hp = hetstat.pval.Q.resid,
+                          hb = hetstat.Rb.resid))          
       #
       # Five
       #
@@ -6150,19 +6293,19 @@ forest.meta <- function(x,
                             hi = hetstat.I2.resid, ht = hetstat.tau2.resid,
                             hq = hetstat.Q.resid, hp = hetstat.pval.Q.resid,
                             hb = hetstat.Rb.resid))
-        else
-          hetstat.resid <-
-            substitute(paste(hl,
-                             italic(I)^2, hi, ", ",
-                             tau, ht, ", ",
-                             chi[df]^2, hq,
-                             " (", italic(p), hp, ")",
-                             ", ",
-                             italic(R)[italic(b)], hb),
-                       list(hl = resid.hetlab, df = df.Q.resid,
-                            hi = hetstat.I2.resid, ht = hetstat.tau.resid,
-                            hq = hetstat.Q.resid, hp = hetstat.pval.Q.resid,
-                            hb = hetstat.Rb.resid))          
+      else
+        hetstat.resid <-
+          substitute(paste(hl,
+                           italic(I)^2, hi, ", ",
+                           tau, ht, ", ",
+                           chi[df]^2, hq,
+                           " (", italic(p), hp, ")",
+                           ", ",
+                           italic(R)[italic(b)], hb),
+                     list(hl = resid.hetlab, df = df.Q.resid,
+                          hi = hetstat.I2.resid, ht = hetstat.tau.resid,
+                          hq = hetstat.Q.resid, hp = hetstat.pval.Q.resid,
+                          hb = hetstat.Rb.resid))          
     }
   }
   #
@@ -6390,10 +6533,10 @@ forest.meta <- function(x,
   #
   if (by)
     hetstat.Q.b.common <- hetstat.pval.Q.b.common <-
-      hetstat.Q.b.random <- hetstat.pval.Q.b.random <- NULL
+    hetstat.Q.b.random <- hetstat.pval.Q.b.random <- NULL
   else
     hetstat.Q.b.common <- hetstat.pval.Q.b.common <-
-      hetstat.Q.b.random <- hetstat.pval.Q.b.random <- NA
+    hetstat.Q.b.random <- hetstat.pval.Q.b.random <- NA
   #
   for (i in seq_along(Q.b.common)) {
     hetstat.i <-
@@ -6624,9 +6767,10 @@ forest.meta <- function(x,
   
   #
   #
-  # (7) Prepare data for subgroup analysis
+  # (11) Prepare data for subgroup analysis
   #
   #
+  
   NAs <- rep(NA, n.com + n.ran + n.prd)
   NAs.com <- rep(NA, n.com)
   NAs.ran <- rep(NA, n.ran)
@@ -6732,8 +6876,8 @@ forest.meta <- function(x,
     n.e.w <-
       if (metacor | metaprop | metamean | metarate)
         x$n.w[o.w]
-      else
-        x$n.e.w[o.w]
+    else
+      x$n.e.w[o.w]
     e.c.w <- x$event.c.w[o.w]
     t.c.w <- if (metainc) x$time.c.w[o.w] else NAs.by
     n.c.w <- x$n.c.w[o.w]
@@ -6999,9 +7143,9 @@ forest.meta <- function(x,
       hetstat.tau2.w <-
         paste0(hetseparator,
                ifelse(is.na(tau.w), "NA",
-               ifelse(tau2.w == 0, "0",
-                      formatPT(tau2.w, digits = digits.tau2,
-                               big.mark = big.mark, lab.NA = "NA"))))
+                      ifelse(tau2.w == 0, "0",
+                             formatPT(tau2.w, digits = digits.tau2,
+                                      big.mark = big.mark, lab.NA = "NA"))))
       #
       if (print.tau2.ci)
         hetstat.tau2.w <-
@@ -7014,9 +7158,9 @@ forest.meta <- function(x,
       hetstat.tau.w <-
         paste0(hetseparator,
                ifelse(is.na(tau.w), "NA",
-               ifelse(tau.w == 0, "0",
-                      formatPT(tau.w, digits = digits.tau,
-                               big.mark = big.mark, lab.NA = "NA"))))
+                      ifelse(tau.w == 0, "0",
+                             formatPT(tau.w, digits = digits.tau,
+                                      big.mark = big.mark, lab.NA = "NA"))))
       #
       if (print.tau.ci)
         hetstat.tau.w <-
@@ -7082,7 +7226,7 @@ forest.meta <- function(x,
                      hq = hetstat.Q.w[i],
                      hp = hetstat.pval.Q.w[i],
                      hi = hetstat.I2.w[i])
-                )
+              )
           else if (print.tau2)
             hetstat.w[[i]] <-
               substitute(
@@ -7130,7 +7274,7 @@ forest.meta <- function(x,
                        hp = hetstat.pval.Q.w[i],
                        hi = hetstat.I2.w[i],
                        ht = hetstat.tau.w[i])
-                  )
+                )
             else if (print.tau2)
               hetstat.w[[i]] <-
                 substitute(
@@ -7162,7 +7306,7 @@ forest.meta <- function(x,
                        hq = hetstat.Q.w[i],
                        hp = hetstat.pval.Q.w[i],
                        hi = hetstat.I2.w[i])
-                  )
+                )
           }
           else
             hetstat.w[[i]] <-
@@ -7228,10 +7372,10 @@ forest.meta <- function(x,
               hetstat.w[[i]] <-
                 substitute(paste(hl, tau^2, ht),
                            list(hl = hetlab, ht = hetstat.tau2.w[i]))
-            else
-              hetstat.w[[i]] <-
-                substitute(paste(hl, tau, ht),
-                           list(hl = hetlab, ht = hetstat.tau.w[i]))              
+          else
+            hetstat.w[[i]] <-
+              substitute(paste(hl, tau, ht),
+                         list(hl = hetlab, ht = hetstat.tau.w[i]))              
           else if (!print.I2 & !print.tau2.tau & print.Q & !print.pval.Q &
                    !print.Rb)
             hetstat.w[[i]] <-
@@ -7260,13 +7404,13 @@ forest.meta <- function(x,
                                  tau^2, ht),
                            list(hl = hetlab,
                                 hi = hetstat.I2.w[i], ht = hetstat.tau2.w[i]))
-            else
-              hetstat.w[[i]] <-
-                substitute(paste(hl, italic(I)^2, hi,
-                                 ", ",
-                                 tau, ht),
-                           list(hl = hetlab,
-                                hi = hetstat.I2.w[i], ht = hetstat.tau.w[i]))              
+          else
+            hetstat.w[[i]] <-
+              substitute(paste(hl, italic(I)^2, hi,
+                               ", ",
+                               tau, ht),
+                         list(hl = hetlab,
+                              hi = hetstat.I2.w[i], ht = hetstat.tau.w[i]))              
           else if (print.I2 & !print.tau2.tau & print.Q & !print.pval.Q &
                    !print.Rb)
             hetstat.w[[i]] <-
@@ -7300,13 +7444,13 @@ forest.meta <- function(x,
                                  chi[df]^2, hq),
                            list(hl = hetlab, df = k.w.hetstat[i] - 1,
                                 ht = hetstat.tau2.w[i], hq = hetstat.Q.w[i]))
-            else
-              hetstat.w[[i]] <-
-                substitute(paste(hl, tau, ht,
-                                 ", ",
-                                 chi[df]^2, hq),
-                           list(hl = hetlab, df = k.w.hetstat[i] - 1,
-                                ht = hetstat.tau.w[i], hq = hetstat.Q.w[i]))              
+          else
+            hetstat.w[[i]] <-
+              substitute(paste(hl, tau, ht,
+                               ", ",
+                               chi[df]^2, hq),
+                         list(hl = hetlab, df = k.w.hetstat[i] - 1,
+                              ht = hetstat.tau.w[i], hq = hetstat.Q.w[i]))              
           else if (!print.I2 & print.tau2.tau & !print.Q & print.pval.Q &
                    !print.Rb)
             if (print.tau2)
@@ -7317,14 +7461,14 @@ forest.meta <- function(x,
                            list(hl = hetlab,
                                 ht = hetstat.tau2.w[i],
                                 hp = hetstat.pval.Q.w[i]))
-            else
-              hetstat.w[[i]] <-
-                substitute(paste(hl, tau, ht,
-                                 ", ",
-                                 italic(p), hp),
-                           list(hl = hetlab,
-                                ht = hetstat.tau.w[i],
-                                hp = hetstat.pval.Q.w[i]))             
+          else
+            hetstat.w[[i]] <-
+              substitute(paste(hl, tau, ht,
+                               ", ",
+                               italic(p), hp),
+                         list(hl = hetlab,
+                              ht = hetstat.tau.w[i],
+                              hp = hetstat.pval.Q.w[i]))             
           else if (!print.I2 & print.tau2.tau & !print.Q & !print.pval.Q &
                    print.Rb)
             if (print.tau2)
@@ -7334,13 +7478,13 @@ forest.meta <- function(x,
                                  italic(R)[italic(b)], hb),
                            list(hl = hetlab,
                                 ht = hetstat.tau2.w[i], hb = hetstat.Rb.w[i]))
-            else
-              hetstat.w[[i]] <-
-                substitute(paste(hl, tau, ht,
-                                 ", ",
-                                 italic(R)[italic(b)], hb),
-                           list(hl = hetlab,
-                                ht = hetstat.tau.w[i], hb = hetstat.Rb.w[i]))
+          else
+            hetstat.w[[i]] <-
+              substitute(paste(hl, tau, ht,
+                               ", ",
+                               italic(R)[italic(b)], hb),
+                         list(hl = hetlab,
+                              ht = hetstat.tau.w[i], hb = hetstat.Rb.w[i]))
           else if (!print.I2 & !print.tau2.tau & print.Q & print.pval.Q &
                    !print.Rb)
             hetstat.w[[i]] <-
@@ -7379,15 +7523,15 @@ forest.meta <- function(x,
                            list(hl = hetlab, df = k.w.hetstat[i] - 1,
                                 hi = hetstat.I2.w[i], ht = hetstat.tau2.w[i],
                                 hq = hetstat.Q.w[i]))
-            else
-              hetstat.w[[i]] <-
-                substitute(paste(hl,
-                                 italic(I)^2, hi, ", ",
-                                 tau, ht, ", ",
-                                 chi[df]^2, hq),
-                           list(hl = hetlab, df = k.w.hetstat[i] - 1,
-                                hi = hetstat.I2.w[i], ht = hetstat.tau.w[i],
-                                hq = hetstat.Q.w[i]))              
+          else
+            hetstat.w[[i]] <-
+              substitute(paste(hl,
+                               italic(I)^2, hi, ", ",
+                               tau, ht, ", ",
+                               chi[df]^2, hq),
+                         list(hl = hetlab, df = k.w.hetstat[i] - 1,
+                              hi = hetstat.I2.w[i], ht = hetstat.tau.w[i],
+                              hq = hetstat.Q.w[i]))              
           else if (print.I2 & print.tau2.tau & !print.Q & print.pval.Q &
                    !print.Rb)
             if (print.tau2)
@@ -7399,15 +7543,15 @@ forest.meta <- function(x,
                            list(hl = hetlab,
                                 hi = hetstat.I2.w[i], ht = hetstat.tau2.w[i],
                                 hp = hetstat.pval.Q.w[i]))
-            else   
-              hetstat.w[[i]] <-
-                substitute(paste(hl,
-                                 italic(I)^2, hi, ", ",
-                                 tau, ht, ", ",
-                                 italic(p), hp),
-                           list(hl = hetlab,
-                                hi = hetstat.I2.w[i], ht = hetstat.tau.w[i],
-                                hp = hetstat.pval.Q.w[i]))
+          else   
+            hetstat.w[[i]] <-
+              substitute(paste(hl,
+                               italic(I)^2, hi, ", ",
+                               tau, ht, ", ",
+                               italic(p), hp),
+                         list(hl = hetlab,
+                              hi = hetstat.I2.w[i], ht = hetstat.tau.w[i],
+                              hp = hetstat.pval.Q.w[i]))
           else if (print.I2 & !print.tau2.tau & print.Q & print.pval.Q &
                    !print.Rb)
             hetstat.w[[i]] <-
@@ -7429,15 +7573,15 @@ forest.meta <- function(x,
                            list(hl = hetlab, df = k.w.hetstat[i] - 1,
                                 ht = hetstat.tau2.w[i],
                                 hq = hetstat.Q.w[i], hp = hetstat.pval.Q.w[i]))
-            else
-              hetstat.w[[i]] <-
-                substitute(paste(hl,
-                                 tau, ht, ", ",
-                                 chi[df]^2, hq,
-                                 " (", italic(p), hp, ")"),
-                           list(hl = hetlab, df = k.w.hetstat[i] - 1,
-                                ht = hetstat.tau.w[i],
-                                hq = hetstat.Q.w[i], hp = hetstat.pval.Q.w[i]))
+          else
+            hetstat.w[[i]] <-
+              substitute(paste(hl,
+                               tau, ht, ", ",
+                               chi[df]^2, hq,
+                               " (", italic(p), hp, ")"),
+                         list(hl = hetlab, df = k.w.hetstat[i] - 1,
+                              ht = hetstat.tau.w[i],
+                              hq = hetstat.Q.w[i], hp = hetstat.pval.Q.w[i]))
           else if (print.I2 & print.tau2.tau & !print.Q & !print.pval.Q &
                    print.Rb)
             if (print.tau2)
@@ -7449,15 +7593,15 @@ forest.meta <- function(x,
                            list(hl = hetlab,
                                 hi = hetstat.I2.w[i], ht = hetstat.tau2.w[i],
                                 hb = hetstat.Rb.w[i]))
-            else
-              hetstat.w[[i]] <-
-                substitute(paste(hl,
-                                 italic(I)^2, hi, ", ",
-                                 tau, ht, ", ",
-                                 italic(R)[italic(b)], hb),
-                           list(hl = hetlab,
-                                hi = hetstat.I2.w[i], ht = hetstat.tau.w[i],
-                                hb = hetstat.Rb.w[i]))
+          else
+            hetstat.w[[i]] <-
+              substitute(paste(hl,
+                               italic(I)^2, hi, ", ",
+                               tau, ht, ", ",
+                               italic(R)[italic(b)], hb),
+                         list(hl = hetlab,
+                              hi = hetstat.I2.w[i], ht = hetstat.tau.w[i],
+                              hb = hetstat.Rb.w[i]))
           else if (print.I2 & !print.tau2.tau & print.Q & !print.pval.Q &
                    print.Rb)
             hetstat.w[[i]] <-
@@ -7481,16 +7625,16 @@ forest.meta <- function(x,
                                 ht = hetstat.tau2.w[i],
                                 hq = hetstat.Q.w[i],
                                 hb = hetstat.Rb.w[i]))
-            else
-              hetstat.w[[i]] <-
-                substitute(paste(hl,
-                                 tau, ht, ", ",
-                                 chi[df]^2, hq, ", ",
-                                 italic(R)[italic(b)], hb),
-                           list(hl = hetlab, df = k.w.hetstat[i] - 1,
-                                ht = hetstat.tau.w[i],
-                                hq = hetstat.Q.w[i],
-                                hb = hetstat.Rb.w[i]))
+          else
+            hetstat.w[[i]] <-
+              substitute(paste(hl,
+                               tau, ht, ", ",
+                               chi[df]^2, hq, ", ",
+                               italic(R)[italic(b)], hb),
+                         list(hl = hetlab, df = k.w.hetstat[i] - 1,
+                              ht = hetstat.tau.w[i],
+                              hq = hetstat.Q.w[i],
+                              hb = hetstat.Rb.w[i]))
           else if (print.I2 & !print.tau2.tau & !print.Q & print.pval.Q &
                    print.Rb)
             hetstat.w[[i]] <-
@@ -7513,16 +7657,16 @@ forest.meta <- function(x,
                                 ht = hetstat.tau2.w[i],
                                 hp = hetstat.pval.Q.w[i],
                                 hb = hetstat.Rb.w[i]))
-            else              
-              hetstat.w[[i]] <-
-                substitute(paste(hl,
-                                 tau, ht, ", ",
-                                 italic(p), hp, ", ",
-                                 italic(R)[italic(b)], hb),
-                           list(hl = hetlab,
-                                ht = hetstat.tau.w[i],
-                                hp = hetstat.pval.Q.w[i],
-                                hb = hetstat.Rb.w[i]))
+          else              
+            hetstat.w[[i]] <-
+              substitute(paste(hl,
+                               tau, ht, ", ",
+                               italic(p), hp, ", ",
+                               italic(R)[italic(b)], hb),
+                         list(hl = hetlab,
+                              ht = hetstat.tau.w[i],
+                              hp = hetstat.pval.Q.w[i],
+                              hb = hetstat.Rb.w[i]))
           else if (!print.I2 & !print.tau2.tau & print.Q & print.pval.Q &
                    print.Rb)
             hetstat.w[[i]] <-
@@ -7548,16 +7692,16 @@ forest.meta <- function(x,
                            list(hl = hetlab, df = k.w.hetstat[i] - 1,
                                 hi = hetstat.I2.w[i], ht = hetstat.tau2.w[i],
                                 hq = hetstat.Q.w[i], hp = hetstat.pval.Q.w[i]))
-            else
-              hetstat.w[[i]] <-
-                substitute(paste(hl,
-                                 italic(I)^2, hi, ", ",
-                                 tau, ht, ", ",
-                                 chi[df]^2, hq,
-                                 " (", italic(p), hp, ")"),
-                           list(hl = hetlab, df = k.w.hetstat[i] - 1,
-                                hi = hetstat.I2.w[i], ht = hetstat.tau.w[i],
-                                hq = hetstat.Q.w[i], hp = hetstat.pval.Q.w[i]))
+          else
+            hetstat.w[[i]] <-
+              substitute(paste(hl,
+                               italic(I)^2, hi, ", ",
+                               tau, ht, ", ",
+                               chi[df]^2, hq,
+                               " (", italic(p), hp, ")"),
+                         list(hl = hetlab, df = k.w.hetstat[i] - 1,
+                              hi = hetstat.I2.w[i], ht = hetstat.tau.w[i],
+                              hq = hetstat.Q.w[i], hp = hetstat.pval.Q.w[i]))
           else if (print.I2 & print.tau2.tau & print.Q & !print.pval.Q &
                    print.Rb)
             if (print.tau2)
@@ -7570,16 +7714,16 @@ forest.meta <- function(x,
                            list(hl = hetlab, df = k.w.hetstat[i] - 1,
                                 hi = hetstat.I2.w[i], ht = hetstat.tau2.w[i],
                                 hq = hetstat.Q.w[i], hb = hetstat.Rb.w[i]))
-            else
-              hetstat.w[[i]] <-
-                substitute(paste(hl,
-                                 italic(I)^2, hi, ", ",
-                                 tau, ht, ", ",
-                                 chi[df]^2, hq, ", ",
-                                 italic(R)[italic(b)], hb),
-                           list(hl = hetlab, df = k.w.hetstat[i] - 1,
-                                hi = hetstat.I2.w[i], ht = hetstat.tau.w[i],
-                                hq = hetstat.Q.w[i], hb = hetstat.Rb.w[i]))
+          else
+            hetstat.w[[i]] <-
+              substitute(paste(hl,
+                               italic(I)^2, hi, ", ",
+                               tau, ht, ", ",
+                               chi[df]^2, hq, ", ",
+                               italic(R)[italic(b)], hb),
+                         list(hl = hetlab, df = k.w.hetstat[i] - 1,
+                              hi = hetstat.I2.w[i], ht = hetstat.tau.w[i],
+                              hq = hetstat.Q.w[i], hb = hetstat.Rb.w[i]))
           else if (print.I2 & print.tau2.tau & !print.Q & print.pval.Q &
                    print.Rb)
             if (print.tau2)
@@ -7592,16 +7736,16 @@ forest.meta <- function(x,
                            list(hl = hetlab,
                                 hi = hetstat.I2.w[i], ht = hetstat.tau2.w[i],
                                 hp = hetstat.pval.Q.w[i], hb = hetstat.Rb.w[i]))
-            else
-              hetstat.w[[i]] <-
-                substitute(paste(hl,
-                                 italic(I)^2, hi, ", ",
-                                 tau, ht, ", ",
-                                 italic(p), hp, ", ",
-                                 italic(R)[italic(b)], hb),
-                           list(hl = hetlab,
-                                hi = hetstat.I2.w[i], ht = hetstat.tau.w[i],
-                                hp = hetstat.pval.Q.w[i], hb = hetstat.Rb.w[i]))
+          else
+            hetstat.w[[i]] <-
+              substitute(paste(hl,
+                               italic(I)^2, hi, ", ",
+                               tau, ht, ", ",
+                               italic(p), hp, ", ",
+                               italic(R)[italic(b)], hb),
+                         list(hl = hetlab,
+                              hi = hetstat.I2.w[i], ht = hetstat.tau.w[i],
+                              hp = hetstat.pval.Q.w[i], hb = hetstat.Rb.w[i]))
           else if (print.I2 & !print.tau2.tau & print.Q & print.pval.Q &
                    print.Rb)
             hetstat.w[[i]] <-
@@ -7629,18 +7773,18 @@ forest.meta <- function(x,
                                 ht = hetstat.tau2.w[i],
                                 hq = hetstat.Q.w[i], hp = hetstat.pval.Q.w[i],
                                 hb = hetstat.Rb.w[i]))
-            else
-              hetstat.w[[i]] <-
-                substitute(paste(hl,
-                                 tau, ht, ", ",
-                                 chi[df]^2, hq,
-                                 " (", italic(p), hp, ")",
-                                 ", ",
-                                 italic(R)[italic(b)], hb),
-                           list(hl = hetlab, df = k.w.hetstat[i] - 1,
-                                ht = hetstat.tau.w[i],
-                                hq = hetstat.Q.w[i], hp = hetstat.pval.Q.w[i],
-                                hb = hetstat.Rb.w[i]))
+          else
+            hetstat.w[[i]] <-
+              substitute(paste(hl,
+                               tau, ht, ", ",
+                               chi[df]^2, hq,
+                               " (", italic(p), hp, ")",
+                               ", ",
+                               italic(R)[italic(b)], hb),
+                         list(hl = hetlab, df = k.w.hetstat[i] - 1,
+                              ht = hetstat.tau.w[i],
+                              hq = hetstat.Q.w[i], hp = hetstat.pval.Q.w[i],
+                              hb = hetstat.Rb.w[i]))
           #
           # Five
           #
@@ -7659,19 +7803,19 @@ forest.meta <- function(x,
                                 hi = hetstat.I2.w[i], ht = hetstat.tau2.w[i],
                                 hq = hetstat.Q.w[i], hp = hetstat.pval.Q.w[i],
                                 hb = hetstat.Rb.w[i]))
-            else
-              hetstat.w[[i]] <-
-                substitute(paste(hl,
-                                 italic(I)^2, hi, ", ",
-                                 tau, ht, ", ",
-                                 chi[df]^2, hq,
-                                 " (", italic(p), hp, ")",
-                                 ", ",
-                                 italic(R)[italic(b)], hb),
-                           list(hl = hetlab, df = k.w.hetstat[i] - 1,
-                                hi = hetstat.I2.w[i], ht = hetstat.tau.w[i],
-                                hq = hetstat.Q.w[i], hp = hetstat.pval.Q.w[i],
-                                hb = hetstat.Rb.w[i]))
+          else
+            hetstat.w[[i]] <-
+              substitute(paste(hl,
+                               italic(I)^2, hi, ", ",
+                               tau, ht, ", ",
+                               chi[df]^2, hq,
+                               " (", italic(p), hp, ")",
+                               ", ",
+                               italic(R)[italic(b)], hb),
+                         list(hl = hetlab, df = k.w.hetstat[i] - 1,
+                              hi = hetstat.I2.w[i], ht = hetstat.tau.w[i],
+                              hq = hetstat.Q.w[i], hp = hetstat.pval.Q.w[i],
+                              hb = hetstat.Rb.w[i]))
         }
         if (hetstat.pooled != "study" &
             !is.logical(text.subgroup.nohet) & k.w.hetstat[i] < 2)
@@ -8175,9 +8319,10 @@ forest.meta <- function(x,
   
   #
   #
-  # (8) Backtransform data
+  # (12) Backtransform data
   #
   #
+  
   TE.orig <- TE
   #
   if (backtransf) {
@@ -8386,9 +8531,10 @@ forest.meta <- function(x,
   
   #
   #
-  # (9) Determine column labels
+  # (13) Determine column labels
   #
   #
+  
   labs <- list()
   #
   if (lsel) {
@@ -8411,7 +8557,18 @@ forest.meta <- function(x,
     }
   }
   #
-  if (missing.rightlabs || length(rightcols) != length(rightlabs)) {
+  if (!missing.rightlabs && RoB.available &&
+      length(rightcols[!(rightcols %in% rightcols.rob)]) == length(rightlabs)) {
+    for (i in seq_along(rightcols)) {
+      j <- match(rightcols[i], colnames)
+      if (!is.na(rightlabs[i]))
+        labs[[paste0("lab.", rightcols[i])]] <- rightlabs[i]
+      else
+        if (!is.na(j))
+          labs[[paste0("lab.", rightcols[i])]] <- labnames[j]
+    }
+  }
+  else if (missing.rightlabs || length(rightcols) != length(rightlabs)) {
     for (i in seq_along(rightcols)) {
       j <- match(rightcols[i], colnames)
       if (!is.na(j))
@@ -8993,9 +9150,10 @@ forest.meta <- function(x,
   
   #
   #
-  # (10) Define columns in forest plot as well as x- and y-limits
+  # (14) Define columns in forest plot as well as x- and y-limits
   #
   #
+  
   type.common <-
     deprecated(type.common, missing.type.common,
                args, "type.common",
@@ -9558,7 +9716,7 @@ forest.meta <- function(x,
       print(data.frame(TEs = round(TEs, 2),
                        lowTEs = round(lowTEs, 2),
                        uppTEs = round(uppTEs, 2)
-                       ))
+      ))
     if (FALSE)
       print(data.frame(row = c(paste0("C", seq_len(n.com)),
                                paste0("R", seq_len(n.ran)),
@@ -9587,13 +9745,13 @@ forest.meta <- function(x,
   #
   if (all(is_wholenumber(Te), na.rm = TRUE) & missing.digits.time)
     Te.format <-
-      formatN(Te, digits = 0, text.NA = lab.NA, big.mark = big.mark)
+    formatN(Te, digits = 0, text.NA = lab.NA, big.mark = big.mark)
   else
     Te.format <- formatN(Te, digits.time, lab.NA, big.mark = big.mark)
   #
   if (all(is_wholenumber(Tc), na.rm = TRUE) & missing.digits.time)
     Tc.format <-
-      formatN(Tc, digits = 0, text.NA = lab.NA, big.mark = big.mark)
+    formatN(Tc, digits = 0, text.NA = lab.NA, big.mark = big.mark)
   else
     Tc.format <- formatN(Tc, digits.time, lab.NA, big.mark = big.mark)
   #
@@ -9980,7 +10138,7 @@ forest.meta <- function(x,
       (!is.null(label.c.attach) & !is.null(label.c)) |
       RoB.available |
       newline.all
-      ) {
+  ) {
     yHead <- 2
     yHeadadd <- 1
   }
@@ -10399,9 +10557,10 @@ forest.meta <- function(x,
   
   #
   #
-  # (11) Format columns in forest plot
+  # (15) Format columns in forest plot
   #
   #
+  
   col.studlab <- list(labels =
                         lapply(as.list(c(labs[["lab.studlab"]], modlabs)),
                                tg,
@@ -10410,7 +10569,7 @@ forest.meta <- function(x,
                                ff = ff.study.labels,
                                fontfamily = fontfamily),
                       rows = yLab
-                      )
+  )
   # Study label:
   col.studlab$labels[[1]] <- tg(labs[["lab.studlab"]], xpos.s,
                                 just.s, fs.head, ff.head, fontfamily)
@@ -10798,7 +10957,7 @@ forest.meta <- function(x,
                      lwd.square = lwd.square, lwd.diamond = lwd.diamond,
                      #
                      arrow.type = arrow.type, arrow.length = arrow.length
-                     )
+  )
   #
   # Sizes of squares
   #
@@ -10937,8 +11096,8 @@ forest.meta <- function(x,
           stop("Length of argument 'just.addcols.left' must be one or ",
                "same as number of additional columms in argument 'leftcols'.")
       }
-      else
-        just.addcols.left <- rep(just.addcols.left, length(leftcols.new))
+    else
+      just.addcols.left <- rep(just.addcols.left, length(leftcols.new))
     #
     if (length(rightcols.new) > 0)
       if (length(just.addcols.right) != 1) {
@@ -10946,8 +11105,8 @@ forest.meta <- function(x,
           stop("Length of argument 'just.addcols.right' must be one or ",
                "same as number of additional columms in argument 'rightcols'.")
       }
-      else
-        just.addcols.right <- rep(just.addcols.right, length(rightcols.new))
+    else
+      just.addcols.right <- rep(just.addcols.right, length(rightcols.new))
     #
     # Check digits.addcols
     #
@@ -10957,8 +11116,8 @@ forest.meta <- function(x,
           stop("Length of argument 'digits.addcols.left' must be one or ",
                "same as number of additional columms in argument 'leftcols'.")
       }
-      else
-        digits.addcols.left <- rep(digits.addcols.left, length(leftcols.new))
+    else
+      digits.addcols.left <- rep(digits.addcols.left, length(leftcols.new))
     #
     if (length(rightcols.new) > 0)
       if (length(digits.addcols.right) != 1) {
@@ -10966,8 +11125,8 @@ forest.meta <- function(x,
           stop("Length of argument 'digits.addcols.right' must be one or ",
                "same as number of additional columms in argument 'rightcols'.")
       }
-      else
-        digits.addcols.right <- rep(digits.addcols.right, length(rightcols.new))
+    else
+      digits.addcols.right <- rep(digits.addcols.right, length(rightcols.new))
     #
     if (by) {
       for (i in seq_along(rightcols.new)) {
@@ -11121,6 +11280,15 @@ forest.meta <- function(x,
   #
   col.rob <- tgl(rob.text, rob.xpos, "left", fs.head, ff.head, fontfamily)
   #
+  col.add.TE <- col.add.ci <- col.add.cluster <- col.add.cor <-
+    col.add.cycles <- col.add.effect <- col.add.effect.ci <-
+    col.add.event.c <- col.add.event.e <- col.add.event.n.c <-
+    col.add.event.n.e <- col.add.mean.c <- col.add.mean.e <-
+    col.add.mean.sd.n.c <- col.add.mean.sd.n.e <- col.add.n.c <-
+    col.add.n.e <- col.add.sd.c <- col.add.sd.e <- col.add.seTE <-
+    col.add.studlab <- col.add.time.c <- col.add.time.e <-
+    col.add.w.common <- col.add.w.random <- NULL
+  #
   if (newline.studlab)
     col.add.studlab <- tgl(add.studlab, xpos.s, just.s, fs.head, ff.head,
                            fontfamily)
@@ -11155,15 +11323,15 @@ forest.meta <- function(x,
   if (m.s.n.cont) {
     if (newline.mean.sd.n.e)
       col.add.mean.sd.n.e <- tgl(add.mean.sd.n.e,
-                               if (bmj.revman5) 0.5 else xpos.c,
-                               if (bmj.revman5) "center" else just.c,
-                               fs.head, ff.head, fontfamily)
+                                 if (bmj.revman5) 0.5 else xpos.c,
+                                 if (bmj.revman5) "center" else just.c,
+                                 fs.head, ff.head, fontfamily)
     #
     if (newline.mean.sd.n.c)
       col.add.mean.sd.n.c <- tgl(add.mean.sd.n.c,
-                               if (bmj.revman5) 0.5 else xpos.c,
-                               if (bmj.revman5) "center" else just.c,
-                               fs.head, ff.head, fontfamily)
+                                 if (bmj.revman5) 0.5 else xpos.c,
+                                 if (bmj.revman5) "center" else just.c,
+                                 fs.head, ff.head, fontfamily)
   }
   #
   if (ev.n.prop) {
@@ -11191,10 +11359,10 @@ forest.meta <- function(x,
   #
   if (newline.cluster)
     col.add.cluster <-
-      tgl(add.cluster,
-          if (as.character.cluster) 0 else xpos.c,
-          if (as.character.cluster) "left" else just.c,
-          fs.head, ff.head, fontfamily)
+    tgl(add.cluster,
+        if (as.character.cluster) 0 else xpos.c,
+        if (as.character.cluster) "left" else just.c,
+        fs.head, ff.head, fontfamily)
   #
   if (newline.cycles)
     col.add.cycles <-
@@ -11248,9 +11416,10 @@ forest.meta <- function(x,
   
   #
   #
-  # (12) Calculate width of columns in forest plot
+  # (16) Calculate width of columns in forest plot
   #
   #
+  
   # Exclude lines with summary measures from calculation of column
   # width for study labels
   #
@@ -11261,33 +11430,33 @@ forest.meta <- function(x,
   #
   if (!calcwidth.random)
     del.lines <-
-      c(del.lines, 1 + n.com + seq_len(n.ran))
+    c(del.lines, 1 + n.com + seq_len(n.ran))
   #
   if (!calcwidth.predict)
     del.lines <-
-      c(del.lines, 1 + n.com + n.ran + seq_len(n.prd))
+    c(del.lines, 1 + n.com + n.ran + seq_len(n.prd))
   #
   if (!calcwidth.hetstat)
     del.lines <-
-      c(del.lines, 1 + n.com + n.ran + n.prd + seq(2))
+    c(del.lines, 1 + n.com + n.ran + n.prd + seq(2))
   #
   if (!calcwidth.tests)
     del.lines <-
-      c(del.lines, 1 + n.com + n.ran + n.prd + 2 + seq(4))
+    c(del.lines, 1 + n.com + n.ran + n.prd + 2 + seq(4))
   #
   if (!calcwidth.addline)
     del.lines <-
-      c(del.lines, 1 + n.com + n.ran + n.prd + 2 + 4 + seq(2))
+    c(del.lines, 1 + n.com + n.ran + n.prd + 2 + 4 + seq(2))
   #
   if (details)
     del.lines <-
-      c(del.lines,
-        1 + n.com + n.ran + n.prd + 2 + 4 + 2 + seq_along(text.details))
+    c(del.lines,
+      1 + n.com + n.ran + n.prd + 2 + 4 + 2 + seq_along(text.details))
   #
   if (RoB.legend)
     del.lines <-
-      c(del.lines,
-        1 + n.com + n.ran + n.prd + 2 + 4 + 2 + length(text.details) +
+    c(del.lines,
+      1 + n.com + n.ran + n.prd + 2 + 4 + 2 + length(text.details) +
         seq_along(text.rob))
   #
   nd <- 1 + n.com + n.ran + n.prd + 2 + 4 + 2 +
@@ -11319,19 +11488,19 @@ forest.meta <- function(x,
       del.lines <-
         c(del.lines,
           nd + n.by + n.by * n.com + n.by * n.ran + n.by * n.prd +
-          seq_len(n.by))
+            seq_len(n.by))
     # test for effect (CE)
     if (!calcwidth.tests)
       del.lines <-
         c(del.lines,
           nd + n.by + n.by * n.com + n.by * n.ran + n.by * n.prd +
-          n.by + seq_len(n.by))
+            n.by + seq_len(n.by))
     # test for effect (RE)
     if (!calcwidth.tests)
       del.lines <-
         c(del.lines,
           nd + n.by + n.by * n.com + n.by * n.ran + n.by * n.prd +
-          n.by + n.by + seq_len(n.by))
+            n.by + n.by + seq_len(n.by))
   }
   #
   if (lsel) {
@@ -11392,16 +11561,17 @@ forest.meta <- function(x,
                                                fontfamily = fontfamily)))
                    else
                      wcalc(cols.calc[[rightcols[i]]]$labels)
-                   )
+      )
     }
   }
   
   
   #
   #
-  # (13) Process arguments smlab, label.left and label.right
+  # (17) Process arguments smlab, label.left and label.right
   #
   #
+  
   if (by) {
     addline <- addrow * (!any(c(overall.hetstat,
                                 test.overall.common, test.overall.random,
@@ -11493,13 +11663,13 @@ forest.meta <- function(x,
   #
   if (!bottom.lr & !is.na(ref)) {
     row1.lr <- if (!newline & (newline.ll | newline.lr) & !addrow)
-                 1
-               else if (!is.na(yHeadadd) & addrow)
-                 2
-               else if (is.na(yHeadadd))
-                 1
-               else
-                 2
+      1
+    else if (!is.na(yHeadadd) & addrow)
+      2
+    else if (is.na(yHeadadd))
+      1
+    else
+      2
     #
     ll1 <- tgl(ll1, unit(ref - (xlim[2] - xlim[1]) / 30, "native"),
                "right", fs.lr, ff.lr, fontfamily, col.label.left,
@@ -11523,732 +11693,282 @@ forest.meta <- function(x,
   
   #
   #
-  # (14) Generate forest plot
+  # (18) Calculate height and width of forest plot
   #
   #
-  if (!is.null(file) | !is.null(func.gr)) {
-    if (is.null(func.gr)) {
-      if (grepl("pdf$", tolower(file)))
-        func.gr <- "pdf"
-      else if (grepl("ps$", tolower(file)))
-        func.gr <- "postscript"
-      else if (grepl("svg$", tolower(file)))
-        func.gr <- "svg"
-      else if (grepl("bmp$", tolower(file)))
-        func.gr <- "bmp"
-      else if (grepl("jpg$", tolower(file)) |
-               grepl("jpeg$", tolower(file)))
-        func.gr <- "jpeg"
-      else if (grepl("png$", tolower(file)))
-        func.gr <- "png"
-      else if (grepl("tif$", tolower(file)) |
-               grepl("tiff$", tolower(file)))
-        func.gr <- "tiff"
-      else
-        stop("Argument 'file' has unknown file extension; either provide ",
-             "admissible file extension\n  (\".pdf\", \".ps\", \".svg\", ",
-             "\".bmp\", \".jpg\", \".png\", \"tif\") or ",
-             "\n  graphics function (argument 'func.gr').")
-      #
-      type.gr <- func.gr
-    }
-    else
-      type.gr <- deparse(substitute(func.gr))
-    #
-    figheight <- gh(type.gr, rows.gr,
-                    #
-                    if (metabind) length(x$TE) else n.stud,
-                    lowTE.common, lowTE.random, lowTE.predict,
-                    x$subgroup, subgroup.levels,
-                    lower.common.w, lower.random.w, lower.predict.w,
-                    #
-                    if (metabind) FALSE else common,
-                    if (metabind) FALSE else random,
-                    if (metabind) FALSE else overall,
-                    if (metabind) FALSE else prediction,
-                    if (metabind) FALSE else overall.hetstat,
-                    study.results,
-                    #
-                    spacing,
-                    #
-                    xlab, xlab.add, label.right, label.left, bottom.lr,
-                    #
-                    prediction.subgroup, subgroup.hetstat,
-                    if (metabind) FALSE else test.overall.common,
-                    if (metabind) FALSE else test.overall.random,
-                    if (metabind) FALSE else test.subgroup.common,
-                    if (metabind) FALSE else test.subgroup.random,
-                    #
-                    text.addline1, text.addline2,
-                    text.details, text.rob,
-                    #
-                    addrow, addrow.overall,
-                    addrow.subgroups,
-                    if (metabind) 0 else addrows.below.overall,
-                    #
-                    c(leftcols, rightcols), labs,
-                    text.w.common, text.w.random)
-    #
-    args.gr.all <-
-      c(list(file = file,
-             height = figheight$total_height,
-             width = width),
-        args.gr)
-    runNN(func.gr, args.gr.all)
-  }
-  else
-    figheight <- gh("no_device_defined", rows.gr,
-                    #
-                    n.stud,
-                    lowTE.common, lowTE.random, lowTE.predict,
-                    x$subgroup, subgroup.levels,
-                    lower.common.w, lower.random.w, lower.predict.w,
-                    #
-                    common, random, overall,
-                    prediction, overall.hetstat,
-                    study.results,
-                    #
-                    spacing,
-                    #
-                    xlab, xlab.add, label.right, label.left, bottom.lr,
-                    #
-                    prediction.subgroup, subgroup.hetstat,
-                    test.overall.common, test.overall.random,
-                    test.subgroup.common, test.subgroup.random,
-                    #
-                    text.addline1, text.addline2,
-                    text.details, text.rob,
-                    #
-                    addrow, addrow.overall,
-                    addrow.subgroups, addrows.below.overall,
-                    #
-                    c(leftcols, rightcols), labs,
-                    text.w.common, text.w.random)
-  #
-  if (new)
-    grid.newpage()
-  #
-  pushViewport(
-    viewport(
-      layout =
-        grid.layout(
-          nrow, length(x1), widths = x1,
-          heights = unit(spacing, "lines"))))
-  #
-  # Left side of forest plot
-  #
-  j <- 1
-  #
-  if (lsel) {
-    #
-    # Add text for label.e and label.c (if position was specified by the user)
-    #
-    if (!is.na(yHeadadd)) {
-      if (!is.null(label.e.attach)) {
-        vars.e <- paste0("col.", label.e.attach)
-        if (all(vars.e %in% leftcols)) {
-          id.e <- seq_along(leftcols)[leftcols %in% vars.e]
-          id.e <- 2 * (range(id.e) - 1) + 1
-          id.e <- seq(min(id.e), max(id.e))
-          #
-          add.text(col.label.e, id.e)
-        }
-      }
-      #
-      if (!is.null(label.c.attach)) {
-        vars.c <- paste0("col.", label.c.attach)
-        if (all(vars.c %in% leftcols)) {
-          id.c <- seq_along(leftcols)[leftcols %in% vars.c]
-          id.c <- 2 * (range(id.c) - 1) + 1
-          id.c <- seq(min(id.c), max(id.c))
-          #
-          add.text(col.label.c, id.c)
-        }
-      }
-    }
-    #
-    for (i in seq_along(leftcols)) {
-      add.text(cols[[leftcols[i]]], j)
-      #
-      if (!is.na(yHeadadd)) {
-        if (is.null(label.e.attach)) {
-          if (metabin) {
-            if (leftcols[i] == "col.n.e" & just.label.e == "right")
-              add.text(col.label.e, j)
-            else if (leftcols[i] == "col.event.e" &
-                     just.label.e %in% c("left", "center"))
-              add.text(col.label.e, j)
-          }
-          else if (metacont) {
-            if (leftcols[i] == "col.sd.e" & just.label.e == "right")
-              add.text(col.label.e, j)
-            else if (leftcols[i] == "col.mean.e" &
-                     just.label.e %in% c("left", "center"))
-              add.text(col.label.e, j)
-          }
-          else if (metainc) {
-            if (leftcols[i] == "col.time.e" & just.label.e == "right")
-              add.text(col.label.e, j)
-            else if (leftcols[i] == "col.event.e" &
-                     just.label.e %in% c("left", "center"))
-              add.text(col.label.e, j)
-          }
-          else if (metamean) {
-            if (revman5 & leftcols[i] == "col.n.e" &
-                just.label.e == "right")
-              add.text(col.label.e, j)
-            else if (!revman5 & leftcols[i] == "col.sd.e" &
-                     just.label.e == "right")
-              add.text(col.label.e, j)
-            else if (leftcols[i] == "col.sd.e" &
-                     just.label.e %in% c("left", "center"))
-              add.text(col.label.e, j)
-          } 
-        }
-        #
-        if (is.null(label.c.attach)) {
-          if (metabin) {
-            if (leftcols[i] == "col.n.c" & just.label.c == "right")
-              add.text(col.label.c, j)
-            else if (leftcols[i] == "col.event.c" &
-                     just.label.c %in% c("left", "center"))
-              add.text(col.label.c, j)
-          }
-          else if (metacont) {
-            if (leftcols[i] == "col.sd.c" & just.label.c == "right")
-              add.text(col.label.c, j)
-            else if (leftcols[i] == "col.mean.c" &
-                     just.label.c %in% c("left", "center"))
-              add.text(col.label.c, j)
-          }
-          else if (metainc) {
-            if (leftcols[i] == "col.time.c" & just.label.c == "right")
-              add.text(col.label.c, j)
-            else if (leftcols[i] == "col.event.c" &
-                     just.label.c %in% c("left", "center"))
-              add.text(col.label.c, j)
-          }
-        }
-        #
-        if (newline.studlab & leftcols[i] == "col.studlab")
-          add.text(col.add.studlab, j)
-        if (newline.effect & leftcols[i] == "col.effect")
-          add.text(col.add.effect, j)
-        if (newline.ci & leftcols[i] == "col.ci")
-          add.text(col.add.ci, j)
-        if (newline.effect.ci & leftcols[i] == "col.effect.ci")
-          add.text(col.add.effect.ci, j)
-        if (newline.event.n.e & leftcols[i] == "col.event.n.e")
-          add.text(col.add.event.n.e, j)
-        if (newline.event.n.c & leftcols[i] == "col.event.n.c")
-          add.text(col.add.event.n.c, j)
-        if (newline.mean.sd.n.e & leftcols[i] == "col.mean.sd.n.e")
-          add.text(col.add.mean.sd.n.e, j)
-        if (newline.mean.sd.n.c & leftcols[i] == "col.mean.sd.n.c")
-          add.text(col.add.mean.sd.n.c, j)
-        if (newline.w.common & leftcols[i] == "col.w.common")
-          add.text(col.add.w.common, j)
-        if (newline.w.random & leftcols[i] == "col.w.random")
-          add.text(col.add.w.random, j)
-        if (newline.TE & leftcols[i] == "col.TE")
-          add.text(col.add.TE, j)
-        if (newline.seTE & leftcols[i] == "col.seTE")
-          add.text(col.add.seTE, j)
-        if (newline.cluster & leftcols[i] == "col.cluster")
-          add.text(col.add.cluster, j)
-        if (newline.cycles & leftcols[i] == "col.cycles")
-          add.text(col.add.cycles, j)
-        if (newline.n.e & leftcols[i] == "col.n.e")
-          add.text(col.add.n.e, j)
-        if (newline.n.c & leftcols[i] == "col.n.c")
-          add.text(col.add.n.c, j)
-        if (newline.event.e & leftcols[i] == "col.event.e")
-          add.text(col.add.event.e, j)
-        if (newline.event.c & leftcols[i] == "col.event.c")
-          add.text(col.add.event.c, j)
-        if (newline.mean.e & leftcols[i] == "col.mean.e")
-          add.text(col.add.mean.e, j)
-        if (newline.mean.c & leftcols[i] == "col.mean.c")
-          add.text(col.add.mean.c, j)
-        if (newline.sd.e & leftcols[i] == "col.sd.e")
-          add.text(col.add.sd.e, j)
-        if (newline.sd.c & leftcols[i] == "col.sd.c")
-          add.text(col.add.sd.c, j)
-        if (newline.cor & leftcols[i] == "col.cor")
-          add.text(col.add.cor, j)
-        if (newline.time.e & leftcols[i] == "col.time.e")
-          add.text(col.add.time.e, j)
-        if (newline.time.c & leftcols[i] == "col.time.c")
-          add.text(col.add.time.c, j)
-        #
-        # Add text in first line of forest plot for new columns
-        #
-        if (newcols)
-          if (length(leftcols.new) > 0 &
-              leftcols[i] %in% paste0("col.", leftcols.new)) {
-            sel <- paste0("col.", leftcols.new) == leftcols[i]
-            #
-            # Check for "\n" in label of new column
-            #
-            clines <- twolines(leftlabs.new[sel], leftcols[i])
-            #
-            just.new <- just.addcols.left[sel]
-            #
-            if (just.new == "left")
-              xpos.new <- 0
-            else if (just.new == "center")
-              xpos.new <- 0.5
-            else if (just.new == "right")
-              xpos.new <- 1
-            #
-            # Add first line
-            #
-            if (clines$newline)
-              add.text(tgl(clines$top, xpos.new, just.new, fs.head, ff.head,
-                           fontfamily), j)
-          }
-      }
-      #
-      j <- j + 2
-    }
-  }
-  #
-  # Produce forest plot
-  #
-  draw.lines(col.forest, j,
-             ref, TE.common, unique(TE.random),
-             overall, common, random, prediction,
-             ymin.common, ymin.random, ymin.ref,
-             ymax + 0.5 * header.line * addrow,
-             ymax.ref + 0.5 * header.line * addrow,
-             lwd, lty.common, lty.random, col.common, col.random,
-             xlim[1], xlim[2],
-             cid.below.null, cid.above.null, lty.cid, col.cid,
-             fill.cid.below.null, fill.cid.above.null,
-             fill,
-             col.lines)
-  #
-  draw.axis(col.forest, j, yS, log.xaxis, at, label,
-            fs.axis, ff.axis, fontfamily, lwd,
-            xlim, avail.xlim,
-            col.lines, col.label)
-  #
-  if (bottom.lr) {
-    add.text(smlab1, j, xscale = col.forest$range)
-    #
-    if (newline.smlab)
-      add.text(smlab2, j, xscale = col.forest$range)
-  }
-  #
-  if (print.label) {
-    if (!bottom.lr) {
-      if (!is.na(ref)) {
-        add.text(ll1, j, xscale = col.forest$range)
-        #
-        if (newline.ll)
-          add.text(ll2, j, xscale = col.forest$range)
-        #
-        add.text(lr1, j, xscale = col.forest$range)
-        #
-        if (newline.lr)
-          add.text(lr2, j, xscale = col.forest$range)
-      }
-    }
-    else {
-      add.label(ll1, j,
-                if (bmj)
-                  unit(xlim[1], "native")
-                else
-                  unit(ref - (xlim[2] - xlim[1]) / 30, "native"),
-                unit(y.bottom.lr, "lines"),
-                if (bmj) "left" else "right",
-                fs.lr, ff.lr, col.label.left, fontfamily,
-                xscale = col.forest$range)
-      #
-      if (newline.ll)
-        add.label(ll2, j,
-                  if (bmj)
-                    unit(xlim[1], "native")
-                  else
-                    unit(ref - (xlim[2] - xlim[1]) / 30, "native"),
-                  unit(y.bottom.lr - 1, "lines"),
-                  if (bmj) "left" else "right",
-                  fs.lr, ff.lr, col.label.left, fontfamily,
-                  xscale = col.forest$range)
-      #
-      add.label(lr1, j,
-                if (bmj)
-                  unit(xlim[2], "native")
-                else
-                  unit(ref + (xlim[2] - xlim[1]) / 30, "native"),
-                unit(y.bottom.lr, "lines"),
-                if (bmj) "right" else "left",
-                fs.lr, ff.lr, col.label.right, fontfamily,
-                xscale = col.forest$range)
-      #
-      if (newline.lr)
-        add.label(lr2, j,
-                  if (bmj)
-                    unit(xlim[2], "native")
-                  else
-                    unit(ref + (xlim[2] - xlim[1]) / 30, "native"),
-                  unit(y.bottom.lr - 1, "lines"),
-                  if (bmj) "right" else "left",
-                  fs.lr, ff.lr, col.label.right, fontfamily,
-                  xscale = col.forest$range)
-    }
-  }
-  #
-  add.xlab(col.forest, j, xlab, xlab.add, newline.xlab,
-           xlab.pos, xlab.ypos, fs.xlab, ff.xlab,
-           fontfamily)
-  #
-  draw.forest(col.forest, j)
-  #
-  j <- j + 2
-  #
-  #
-  # Right side of forest plot
-  #
-  #
-  if (rsel | RoB.available) {
-    #
-    # Add text for label.e and label.c (if position was specified by the user)
-    #
-    if (!is.na(yHeadadd)) {
-      if (!is.null(label.e.attach)) {
-        vars.e <- paste0("col.", label.e.attach)
-        if (all(vars.e %in% rightcols)) {
-          id.e <- seq_along(rightcols)[rightcols %in% vars.e]
-          id.e <- 2 * (range(id.e) - 1)
-          id.e <- seq(min(id.e), max(id.e))
-          #
-          add.text(col.label.e, j + id.e)
-        }
-      }
-      #
-      if (!is.null(label.c.attach)) {
-        vars.c <- paste0("col.", label.c.attach)
-        if (all(vars.c %in% rightcols)) {
-          id.c <- seq_along(rightcols)[rightcols %in% vars.c]
-          id.c <- 2 * (range(id.c) - 1)
-          id.c <- seq(min(id.c), max(id.c))
-          #
-          add.text(col.label.c, j + id.c)
-        }
-      }
-    }
-    #
-    i.rob <- 0
-    #
-    for (i in seq_along(rightcols)) {
-      if (substring(rightcols[i], 1, 8) == "col.RoB.") {
-        i.rob <- i.rob + 1
-        #
-        add.rob(cols[[rightcols[i]]], j, 0.85, fs.rob.symbols, ff.rob.symbols,
-                fontfamily,
-                rob[[rightcols[[i]]]],
-                rob.categories[[i.rob]], rob.symbols[[i.rob]], rob.col[[i.rob]])
-      }
-      else
-        add.text(cols[[rightcols[i]]], j)
-      #
-      if (!is.na(yHeadadd)) {
-        if (is.null(label.e.attach)) {
-          if (metabin) {
-            if (rightcols[i] == "col.n.e" & just.label.e == "right")
-              add.text(col.label.e, j)
-            else if (rightcols[i] == "col.event.e" &
-                     just.label.e %in% c("left", "center"))
-              add.text(col.label.e, j)
-          }
-          else if (metacont) {
-            if (rightcols[i] == "col.sd.e" & just.label.e == "right")
-              add.text(col.label.e, j)
-            else if (rightcols[i] == "col.mean.e" &
-                     just.label.e %in% c("left", "center"))
-              add.text(col.label.e, j)
-          }
-          else if (metainc) {
-            if (rightcols[i] == "col.time.e" & just.label.e == "right")
-              add.text(col.label.e, j)
-            else if (rightcols[i] == "col.event.e" &
-                     just.label.e %in% c("left", "center"))
-              add.text(col.label.e, j)
-          }
-          else if (metamean) {
-            if (revman5 & rightcols[i] == "col.n.e" & just.label.e == "right")
-              add.text(col.label.e, j)
-            else if (!revman5 & rightcols[i] == "col.sd.e" & just.label.e == "right")
-              add.text(col.label.e, j)
-            else if (rightcols[i] == "col.sd.e" & just.label.e %in% c("left", "center"))
-              add.text(col.label.e, j)
-          }
-        }
-        #
-        if (is.null(label.c.attach)) {
-          if (metabin) {
-            if (rightcols[i] == "col.n.c" & just.label.c == "right")
-              add.text(col.label.c, j)
-            else if (rightcols[i] == "col.event.c" &
-                     just.label.c %in% c("left", "center"))
-              add.text(col.label.c, j)
-          }
-          else if (metacont) {
-            if (rightcols[i] == "col.sd.c" & just.label.c == "right")
-              add.text(col.label.c, j)
-            else if (rightcols[i] == "col.mean.c" &
-                     just.label.c %in% c("left", "center"))
-              add.text(col.label.c, j)
-          }
-          else if (metainc) {
-            if (rightcols[i] == "col.time.c" & just.label.c == "right")
-              add.text(col.label.c, j)
-            else if (rightcols[i] == "col.event.c" &
-                     just.label.c %in% c("left", "center"))
-              add.text(col.label.c, j)
-          }
-        }
-        #
-        if (!is.null(rob.attach)) {
-          if (rightcols[i] == rob.attach)
-            add.text(col.rob, j)
-        }
-        #
-        if (newline.studlab & rightcols[i] == "col.studlab")
-          add.text(col.add.studlab, j)
-        if (newline.effect & rightcols[i] == "col.effect")
-          add.text(col.add.effect, j)
-        if (newline.ci & rightcols[i] == "col.ci")
-          add.text(col.add.ci, j)
-        if (newline.effect.ci & rightcols[i] == "col.effect.ci")
-          add.text(col.add.effect.ci, j)
-        if (newline.mean.sd.n.e & rightcols[i] == "col.mean.sd.n.e")
-          add.text(col.add.mean.sd.n.e, j)
-        if (newline.mean.sd.n.c & rightcols[i] == "col.mean.sd.n.c")
-          add.text(col.add.mean.sd.n.c, j)
-        if (newline.w.common & rightcols[i] == "col.w.common")
-          add.text(col.add.w.common, j)
-        if (newline.w.random & rightcols[i] == "col.w.random")
-          add.text(col.add.w.random, j)
-        if (newline.TE & rightcols[i] == "col.TE")
-          add.text(col.add.TE, j)
-        if (newline.seTE & rightcols[i] == "col.seTE")
-          add.text(col.add.seTE, j)
-        if (newline.cluster & rightcols[i] == "col.cluster")
-          add.text(col.add.cluster, j)
-        if (newline.cycles & rightcols[i] == "col.cycles")
-          add.text(col.add.cycles, j)
-        if (newline.n.e & rightcols[i] == "col.n.e")
-          add.text(col.add.n.e, j)
-        if (newline.n.c & rightcols[i] == "col.n.c")
-          add.text(col.add.n.c, j)
-        if (newline.event.e & rightcols[i] == "col.event.e")
-          add.text(col.add.event.e, j)
-        if (newline.event.c & rightcols[i] == "col.event.c")
-          add.text(col.add.event.c, j)
-        if (newline.mean.e & rightcols[i] == "col.mean.e")
-          add.text(col.add.mean.e, j)
-        if (newline.mean.c & rightcols[i] == "col.mean.c")
-          add.text(col.add.mean.c, j)
-        if (newline.sd.e & rightcols[i] == "col.sd.e")
-          add.text(col.add.sd.e, j)
-        if (newline.sd.c & rightcols[i] == "col.sd.c")
-          add.text(col.add.sd.c, j)
-        if (newline.cor & rightcols[i] == "col.cor")
-          add.text(col.add.cor, j)
-        if (newline.time.e & rightcols[i] == "col.time.e")
-          add.text(col.add.time.e, j)
-        if (newline.time.c & rightcols[i] == "col.time.c")
-          add.text(col.add.time.c, j)
-        #
-        # Add text in first line of forest plot for new columns
-        #
-        if (newcols)
-          if (length(rightcols.new) > 0 &
-              rightcols[i] %in% paste0("col.", rightcols.new)) {
-            sel <- paste0("col.", rightcols.new) == rightcols[i]
-            #
-            # Check for "\n" in label of new column
-            #
-            clines <- twolines(rightlabs.new[sel], rightcols[i])
-            #
-            just.new <- just.addcols.right[sel]
-            #
-            if (just.new == "left")
-              xpos.new <- 0
-            else if (just.new == "center")
-              xpos.new <- 0.5
-            else if (just.new == "right")
-              xpos.new <- 1
-            #
-            # Add first line
-            #
-            if (clines$newline)
-              add.text(tgl(clines$top, xpos.new, just.new,
-                           fs.head, ff.head, fontfamily), j)
-          }
-      }
-      #
-      j <- j + 2
-    }
-  }
-  #
-  # Add header line
-  #
-  if (jama)
-    hcols <- lsel * 2 * length(leftcols)
-  else
-    hcols <-
-      lsel * 2 * length(leftcols) + 1 + rsel * 2 * length(rightcols)
-  #
-  if (ev.n.bin) {
-    sel1 <- grep("col.event.n.e",
-                 c(leftcols, if (all(rightcols != "col.")) rightcols))
-    sel2 <- grep("col.event.n.c",
-                 c(leftcols, if (all(rightcols != "col.")) rightcols))
-    #
-    if (length(sel1) > 0 & length(sel2) > 0) {
-      if (sel1 > sel2) {
-        sel3 <- sel2
-        sel2 <- sel1
-        sel1 <- sel2
-      }
-      #
-      for (i in seq(2 * sel1 - 1, 2 * sel2 - 1)) {
-        pushViewport(
-          viewport(
-            layout.pos.col = i,
-            xscale = col.forest$range))
-        #
-        grid.lines(x = unit(0:1, "npc"),
-                   y = unit(nrow - 1.5 + 0.5 * addrow, "lines"),
-                   gp = gpar(lwd = lwd))
-        #
-        popViewport()
-      }
-    }
-  }
-  #
-  if (m.s.n.cont) {
-    sel1 <- grep("col.mean.sd.n.e",
-                 c(leftcols, if (all(rightcols != "col.")) rightcols))
-    sel2 <- grep("col.mean.sd.n.c",
-                 c(leftcols, if (all(rightcols != "col.")) rightcols))
-    #
-    if (length(sel1) > 0 & length(sel2) > 0) {
-      if (sel1 > sel2) {
-        sel3 <- sel2
-        sel2 <- sel1
-        sel1 <- sel2
-      }
-      #
-      for (i in seq(2 * sel1 - 1, 2 * sel2 - 1)) {
-        pushViewport(
-          viewport(
-            layout.pos.col = i,
-            xscale = col.forest$range))
-        #
-        grid.lines(x = unit(0:1, "npc"),
-                   y = unit(nrow - 1.5 + 0.5 * addrow, "lines"),
-                   gp = gpar(lwd = lwd))
-        #
-        popViewport()
-      }
-    }
-  }
-  #
-  if (header.line) {
-    if (header.line.pos == "both") {
-      for (i in seq_len(hcols)) {
-        pushViewport(
-          viewport(
-            layout.pos.col = i,
-            xscale = col.forest$range))
-        #
-        grid.lines(x = unit(0:1, "npc"),
-                   y = unit(nrow + 0.5 * addrow, "lines"),
-                   gp = gpar(lwd = lwd, col = col.header.line))
-        #
-        popViewport()
-      }
-    }
-    #
-    for (i in seq_len(hcols)) {
-      pushViewport(
-        viewport(
-          layout.pos.col = i,
-          xscale = col.forest$range))
-      #
-      grid.lines(x = unit(0:1, "npc"),
-                 y = unit(ymax + 0.5 * addrow, "lines"),
-                 gp = gpar(lwd = lwd, col = col.header.line))
-      #
-      popViewport()
-    }
-  }
-  #
-  # Add JAMA lines
-  #
-  if (jama & header.line & !by) {
-    for (i in seq_len(hcols)) {
-      pushViewport(
-        viewport(
-          layout.pos.col = i,
-          xscale = col.forest$range))
-      #
-      for (j in seq_len(k.all + n.com * common + n.ran * random +
-                        n.prd * prediction))
-        grid.lines(x = unit(0:1, "npc"),
-                   y = unit(ymax + 0.5 * addrow - j, "lines"),
-                   gp = gpar(lwd = 0.5 * lwd, col = col.jama.line))
-      #
-      popViewport()
-    }
-  }
-  #
-  popViewport()
-  #
-  if (dev.off)
-    invisible(dev.off())
-
   
-  res <- list(xlim = xlim, addrows.below.overall = addrows.below.overall,
-              #
-              colgap = colgap,
-              colgap.left = colgap.left,
-              colgap.right = colgap.right,
-              colgap.studlab = colgap.studlab,
-              colgap.forest = colgap.forest.left,
-              colgap.forest.left = colgap.forest,
-              colgap.forest.right = colgap.forest.right,
-              #
-              studlab = studlab,
-              TE.format = TE.format,
-              seTE.format = seTE.format,
-              cluster.format = cluster.format,
-              cycles.format = cycles.format,
-              effect.format = effect.format,
-              ci.format = ci.format,
-              effect.ci.format = effect.ci.format)
+  forest.args <- list(
+    new = new, nrow = nrow, x1 = x1, spacing = spacing, 
+    yHeadadd = yHeadadd,
+    #
+    cols = cols, cols.new = cols.new, newcols = newcols, by = by,
+    #
+    lsel = lsel, rsel = rsel,
+    leftcols = leftcols, leftcols.new = leftcols.new,
+    leftlabs = leftlabs, leftlabs.new = leftlabs.new,
+    rightcols = rightcols, rightcols.new = rightcols.new,
+    rightlabs = rightlabs, rightlabs.new = rightlabs.new,
+    #
+    label.e.attach, label.c.attach,
+    col.label.e = col.label.e, col.label.c = col.label.c,
+    just.label.e = just.label.e, just.label.c = just.label.c,
+    just.addcols.left = just.addcols.left,
+    just.addcols.right = just.addcols.right,
+    #
+    RoB.available = RoB.available, rob = rob,
+    col.rob = col.rob, rob.attach = rob.attach,
+    rob.categories = rob.categories, rob.symbols = rob.symbols,
+    rob.col = rob.col,
+    fs.rob.symbols = fs.rob.symbols, ff.rob.symbols = ff.rob.symbols,
+    #
+    clines = clines, jama = jama, col.jama.line = col.jama.line,
+    bmj = bmj, revman5 = revman5,
+    #
+    ev.n.bin = ev.n.bin, m.s.n.cont = m.s.n.cont, ev.n.prop = ev.n.prop,
+    #
+    fontfamily = fontfamily, fs.head = fs.head, ff.head = ff.head,
+    #
+    col.forest = col.forest, col.lines = col.lines, col.label = col.label,
+    col.label.left = col.label.left, col.label.right = col.label.right,
+    col.common = col.common, col.random = col.random, col.cid = col.cid,
+    #
+    col.add.TE = col.add.TE, col.add.ci = col.add.ci,
+    col.add.cluster = col.add.cluster, col.add.cor = col.add.cor,
+    col.add.cycles = col.add.cycles, col.add.effect = col.add.effect,
+    col.add.effect.ci = col.add.effect.ci,
+    col.add.event.c = col.add.event.c, col.add.event.e = col.add.event.e,
+    col.add.event.n.c = col.add.event.n.c,
+    col.add.event.n.e = col.add.event.n.e, col.add.mean.c = col.add.mean.c,
+    col.add.mean.e = col.add.mean.e,
+    col.add.mean.sd.n.c = col.add.mean.sd.n.c,
+    col.add.mean.sd.n.e = col.add.mean.sd.n.e, col.add.n.c = col.add.n.c,
+    col.add.n.e = col.add.n.e, col.add.sd.c = col.add.sd.c,
+    col.add.sd.e = col.add.sd.e, col.add.seTE = col.add.seTE,
+    col.add.studlab = col.add.studlab, col.add.time.c = col.add.time.c,
+    col.add.time.e = col.add.time.e,
+    col.add.w.common = col.add.w.common, col.add.w.random = col.add.w.random,
+    #
+    ref = ref, TE.common = TE.common, TE.random = TE.random,
+    overall = overall, common = common, random = random,
+    prediction = prediction,
+    #
+    k.all = k.all, n.com = n.com, n.ran = n.ran, n.prd = n.prd,
+    #
+    ymin.common = ymin.common, ymin.random = ymin.random,
+    ymin.ref = ymin.ref, ymax = ymax, ymax.ref = ymax.ref,
+    #
+    header.line = header.line, header.line.pos = header.line.pos,
+    col.header.line = col.header.line,
+    #
+    lwd = lwd, lty.common = lty.common, lty.random = lty.random,
+    xlim = xlim, avail.xlim = avail.xlim,
+    #
+    cid.below.null = cid.below.null, cid.above.null = cid.above.null,
+    lty.cid = lty.cid,
+    fill.cid.below.null = fill.cid.below.null,
+    fill.cid.above.null = fill.cid.above.null, fill = fill,
+    #
+    xlab = xlab, xlab.add = xlab.add, newline.xlab = newline.xlab,
+    xlab.pos = xlab.pos, xlab.ypos = xlab.ypos, fs.xlab = fs.xlab,
+    ff.xlab = ff.xlab,
+    #
+    bottom.lr = bottom.lr, smlab1 = smlab1, smlab2 = smlab2,
+    newline.smlab = newline.smlab, newline.lr = newline.lr,
+    print.label = print.label, ll1 = ll1, ll2 = ll2,
+    newline.ll = newline.ll, lr1 = lr1, lr2 = lr2,
+    y.bottom.lr = y.bottom.lr, fs.lr = fs.lr, ff.lr = ff.lr,
+    #
+    yS = yS, log.xaxis = log.xaxis, at = at, label = label,
+    fs.axis = fs.axis, ff.axis = ff.axis,
+    #
+    newline.TE = newline.TE, newline.ci = newline.ci,
+    newline.cluster = newline.cluster, newline.cor = newline.cor,
+    newline.cycles = newline.cycles, newline.effect = newline.effect,
+    newline.effect.ci = newline.effect.ci,
+    newline.event.c = newline.event.c, newline.event.e = newline.event.e,
+    newline.event.n.c = newline.event.n.c,
+    newline.event.n.e = newline.event.n.e, newline.mean.c = newline.mean.c,
+    newline.mean.e = newline.mean.e,
+    newline.mean.sd.n.c = newline.mean.sd.n.c,
+    newline.mean.sd.n.e = newline.mean.sd.n.e, newline.n.c = newline.n.c,
+    newline.n.e = newline.n.e, newline.sd.c = newline.sd.c,
+    newline.sd.e = newline.sd.e, newline.seTE = newline.seTE,
+    newline.studlab = newline.studlab, newline.time.c = newline.time.c,
+    newline.time.e = newline.time.e,
+    newline.w.common = newline.w.common, newline.w.random = newline.w.random,
+    #
+    metabin = metabin, metacont = metacont, metacor = metacor,
+    metagen = metagen, metainc = metainc, metamean = metamean,
+    metaprop = metaprop, metarate = metarate, metabind = metabind,
+    metacum = metacum, metainf = metainf, metamerge = metamerge, meta = meta,
+    #
+    addrow = addrow, addrows.below.overall = addrows.below.overall,
+    #
+    colgap = colgap, colgap.left = colgap.left, colgap.right = colgap.right,
+    colgap.studlab = colgap.studlab, colgap.forest = colgap.forest,
+    colgap.forest.left = colgap.forest.left,
+    colgap.forest.right = colgap.forest.right,
+    #
+    studlab = studlab, TE.format = TE.format, seTE.format = seTE.format,
+    cluster.format = cluster.format, cycles.format = cycles.format,
+    effect.format = effect.format, ci.format = ci.format,
+    effect.ci.format = effect.ci.format)
   #
-  if (ev.n.bin | ev.n.prop)
-    res$effect.ci.format <- effect.ci.format
+  figheight <- NULL
   #
-  if (ev.n.bin)
-    res$effect.ci.format <- effect.ci.format
-  #
-  if (length(cols.new) > 0) {
-    for (i in names(cols.new))
-      res[[i]] <- cols.new[[i]]
+  if (autosize == "new") {
+    dims <- forest_dims_internal(forest.args, units = units)
+    #
+    if (units.px) {
+      dims$width <- ceiling(inches2units(dims$width, units = "px", dpi = dpi))
+      dims$height <- ceiling(inches2units(dims$height, units = "px", dpi = dpi))
+      dims$units <- "px"
+    }
+    #
+    res <- local({
+      old_dev <- dev.cur()
+      pdf(file = NULL)
+      on.exit({
+        dev.off()
+        if (old_dev > 1) dev.set(old_dev)
+      }, add = TRUE)
+      do.call(forest_meta_internal, forest.args)
+    })
+    #
+    # Evaluate width and height using calculated dimensions
+    eval_list <- list(.width = dims$width, .height = dims$height)
+    
+    if (width_provided)
+      dims$width <- eval(width_expr, envir = eval_list, enclos = parent.frame())
+    if (height_provided)
+      dims$height <- eval(height_expr, envir = eval_list, enclos = parent.frame())
+    #
+    save.args <- 
+      c(list(plot = function() do.call(forest_meta_internal, forest.args),
+             filename = filename, path = path, device = device,
+             width = dims$width, height = dims$height, units = dims$units,
+             dpi = dpi, dev.off = dev.off),
+        device.args)
+    #
+    dims <- runNN(save_plot, save.args)
+    #
+    dims$file <- NULL
+    #
+    res <- c(res, dims, autosize = autosize)
+    #
+    class(res) <- "forest.meta"
+    #
+    return(invisible(res))
   }
   #
-  res$figheight <- figheight
+  if (autosize == "old") {
+    #
+    if (!is.null(filename) | !is.null(device)) {
+      if (is.null(device)) {
+        if (grepl("pdf$", tolower(filename)))
+          device <- "pdf"
+        else if (grepl("ps$", tolower(filename)))
+          device <- "postscript"
+        else if (grepl("svg$", tolower(filename)))
+          device <- "svg"
+        else if (grepl("bmp$", tolower(filename)))
+          device <- "bmp"
+        else if (grepl("jpg$", tolower(filename)) |
+                 grepl("jpeg$", tolower(filename)))
+          device <- "jpeg"
+        else if (grepl("png$", tolower(filename)))
+          device <- "png"
+        else if (grepl("tif$", tolower(filename)) |
+                 grepl("tiff$", tolower(filename)))
+          device <- "tiff"
+        else
+          stop("Argument 'filename' has unknown file extension; either provide ",
+               "admissible file extension\n  (\".pdf\", \".ps\", \".svg\", ",
+               "\".bmp\", \".jpg\", \".png\", \"tif\") or ",
+               "\n  graphics function (argument 'device').")
+      }
+      else
+        device <- deparse(substitute(device))
+    }
+    #
+    if (is.null(height)) {
+      figheight <- gh(device, rows.gr,
+                      #
+                      if (metabind) length(x$TE) else n.stud,
+                      lowTE.common, lowTE.random, lowTE.predict,
+                      x$subgroup, subgroup.levels,
+                      lower.common.w, lower.random.w, lower.predict.w,
+                      #
+                      if (metabind) FALSE else common,
+                      if (metabind) FALSE else random,
+                      if (metabind) FALSE else overall,
+                      if (metabind) FALSE else prediction,
+                      if (metabind) FALSE else overall.hetstat,
+                      study.results,
+                      #
+                      spacing,
+                      #
+                      xlab, xlab.add, label.right, label.left, bottom.lr,
+                      #
+                      prediction.subgroup, subgroup.hetstat,
+                      if (metabind) FALSE else test.overall.common,
+                      if (metabind) FALSE else test.overall.random,
+                      if (metabind) FALSE else test.subgroup.common,
+                      if (metabind) FALSE else test.subgroup.random,
+                      #
+                      text.addline1, text.addline2,
+                      text.details, text.rob,
+                      #
+                      addrow, addrow.overall,
+                      addrow.subgroups,
+                      if (metabind) 0 else addrows.below.overall,
+                      #
+                      c(leftcols, rightcols), labs,
+                      text.w.common, text.w.random)
+      #
+      height <- figheight$height
+      figheight$height <- NULL
+    }
+    #
+    device.args.all <-
+      c(list(file = filename, height = height, width = width), device.args)
+    #
+    old_dev <- dev.cur()
+    runNN(device, device.args.all)
+    #
+    if (dev.off) {
+      on.exit({
+        dev.off()
+        if (old_dev > 1) dev.set(old_dev)
+      }, add = TRUE)
+    }
+  }
+  else if (autosize == "none") {
+    figheight <- NULL
+    rows.gr <- NULL
+    #
+    if (dev.off) {
+      on.exit(dev.off(), add = TRUE)
+    }
+  }
+  
+  
   #
-  res$leftcols <- leftcols
-  res$leftlabs <- leftlabs
-  res$rightcols <- rightcols
-  res$rightlabs <- rightlabs
+  #
+  # (19) Generate forest plot
+  #
+  #
+  
+  res <- do.call(forest_meta_internal, forest.args)
+  #
+  res$height <- height
+  res$width <- width
+  res$figheight <- figheight
+  res$rows.gr <- rows.gr
+  #
+  res$autosize <- autosize
+  #
+  class(res) <- "forest.meta"
   #
   invisible(res)
 }

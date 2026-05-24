@@ -101,6 +101,8 @@ The data frame 'data' contains the following variables:
 \item{random}{A logical indicating whether random effects
   meta-analysis has been used in respective meta-analysis (see
   details).}
+\item{prediction}{A logical indicating whether prediction interval should
+  been shown.}
 \item{title}{Title of Cochrane review.}
 \item{complab}{Comparison label.}
 \item{outclab}{Outcome label.}
@@ -117,7 +119,7 @@ The data frame 'rob' contains the following variables:
   1, 2, \dots}
 }
 \description{
-Reads Cochrane data package (version 1) of a Cochrane intervention
+Reads Cochrane data package of a Cochrane intervention
 review and creates a data frame from it.
 }
 \details{
@@ -150,9 +152,8 @@ In RevMan Web, press the "Export" button at the bottom of the
 \emph{Default view} website. After a couple of seconds, the data package will
 be shown at the bottom of the \emph{Default view} website under "Downloads".
 
-In the Cochrane Library, press on "Download statistical data" in the
-Contents menu to download an rm5-file. This file can be converted to a data
-package in RevMan Web using \emph{Help} - \emph{Convert a RevMan 5 file}.
+In the Cochrane Library, press on "Download data" in the
+Contents menu under "Supplementary materials".
 }
 }
 \examples{

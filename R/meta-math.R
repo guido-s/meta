@@ -1,3 +1,10 @@
+# Auxiliary functions
+#
+# Package: meta
+# Author: Guido Schwarzer <guido.schwarzer@uniklinik-freiburg.de>
+# License: GPL (>= 2)
+#
+
 estimate.missing <- function(TE, TE.sum, type) {
   #
   # 1. Center around mean

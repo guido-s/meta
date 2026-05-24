@@ -10,3 +10,5 @@ roxygen2.*[.]R
 internal-functions.md
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^\.positai$
+^\.claude$

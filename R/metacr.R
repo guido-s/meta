@@ -391,7 +391,7 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
   # Additional checks
   #
   if (missing(title))
-    title   <- attributes(x)$title
+    title <- attributes(x)$title
   #
   if (missing(complab))
     complab <- unique(x$complab[sel])

@@ -1,3 +1,10 @@
+# Auxiliary function
+#
+# Package: meta
+# Author: Guido Schwarzer <guido.schwarzer@uniklinik-freiburg.de>
+# License: GPL (>= 2)
+#
+
 xlab_meta <- function(sm, backtransf,
                       pscale = 1, irscale = 1, irunit = "person-years",
                       newline = FALSE, revman5 = FALSE,

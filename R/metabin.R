@@ -2153,6 +2153,11 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   #
   res <- c(res, m)
   #
+  # For GLMMs add the number of studies used in the meta-analysis
+  #
+  if (is.glmm)
+    res$k <- res.glmm$glmm.common$k
+  #
   # Add data
   #
   res$TE.tau <- TE.tau
