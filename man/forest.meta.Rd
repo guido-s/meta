@@ -55,13 +55,16 @@
   pscale = x$pscale,
   irscale = x$irscale,
   irunit = x$irunit,
-  file = NULL,
-  height = gs("height"),
-  width = gs("width"),
-  rows.gr = NULL,
-  func.gr = NULL,
-  args.gr = NULL,
+  filename = NULL,
+  path = NULL,
+  device = NULL,
+  device.args = NULL,
+  units = "in",
+  height = NULL,
+  width = NULL,
+  dpi = 300,
   dev.off = NULL,
+  rows.gr = NULL,
   ref,
   cid = gs("cid"),
   cid.below.null = gs("cid.below.null"),
@@ -455,23 +458,36 @@ argument \code{sm} is equal to \code{"IR"}, \code{"IRLN"},
 \item{irunit}{A character specifying the time unit used to
 calculate rates, e.g., person-years.}
 
-\item{file}{File name.}
+\item{filename}{File name to store forest plot.}
 
-\item{height}{Height of graphics file.}
+\item{path}{Path of the directory to save plot to: `path` and `filename` are
+combined to create the fully qualified file name. Defaults to the working
+directory.}
 
-\item{width}{Width of graphics file.}
+\item{device}{Device to use. Can either be a device function (e.g.,
+\code{\link{png}}), or one of \code{"eps"}, \code{"ps"},
+\code{"tex"} (pictex), \code{"pdf"}, \code{"jpeg"}, \code{"tiff"},
+\code{"png"}, \code{"bmp"}, \code{"svg"} or \code{"wmf"} (Windows only).
+By default, the device is guessed based on the `filename` extension.}
 
-\item{rows.gr}{Additional rows in forest plot to change height of
-graphics file (e.g., in order to add a title at the top of the
-forest plot).}
-
-\item{func.gr}{Name of graphics function, e.g., \code{\link{pdf}}.}
-
-\item{args.gr}{List with additional graphical parameters passed on
+\item{device.args}{List with additional graphical parameters passed on
 to graphics function.}
 
+\item{units}{Units of the `width` and `height` of the file containing the
+forest plot. One of \code{"in"} (for inches, default), \code{"cm"},
+\code{"mm"}, or \code{"px"} (for pixels), can be abbreviated.}
+
+\item{height}{Height of the graphics file.}
+
+\item{width}{Width of the graphics file.}
+
+\item{dpi}{Plot resolution.}
+
 \item{dev.off}{A logical to specify whether current graphics device
-should be shut down, i.e., whether file should be stored.}
+should be shut down.}
+
+\item{rows.gr}{Deprecated argument to add rows to the forest plot to change
+the height of the graphics file; only provided for backward compatibility.}
 
 \item{ref}{A numerical giving the reference value to be plotted as
 a line in the forest plot. No reference line is plotted if
@@ -1223,37 +1239,54 @@ the graphics window. Alternatively, save the forest plot in a file.
 \subsection{Saving forest plots}{
 
 A forest plot can be directly stored in a file using argument
-\code{file} or specifying the R function for the graphics device
-driver using argument \code{func.gr}, e.g., \code{\link{pdf}}. If
-only the filename is provided, the extension is checked and matched
-against the most common graphics device drivers.
+\code{filename}. The R function for the graphics device driver
+can be specified using argument \code{device}, e.g.,
+\code{device = "cairo_pdf"} or \code{device = cairo_pdf}. If only the
+filename is provided, the extension of the filename is checked and matched
+against the most common graphics device drivers:
 
 \tabular{ll}{
 \bold{Extension} \tab \bold{Graphics device} \cr
 \code{.pdf} \tab \code{\link{pdf}} \cr
 \code{.ps} \tab \code{\link{postscript}} \cr
-\code{.svg} \tab \code{\link{svg}} \cr
+\code{.svg} \tab \code{\link{svg}} or \code{\link[svglite]{svglite}} if the
+  R package \bold{svglite} is available \cr
 \code{.bmp} \tab \code{\link{bmp}} \cr
 \code{.jpg} / \code{.jpeg} \tab \code{\link{jpeg}} \cr
 \code{.png} \tab \code{\link{png}} \cr
 \code{.tif} / \code{.tiff} \tab \code{\link{tiff}}
 }
 
-The height and width of the graphics device can be specified with
-arguments \code{height} and \code{width}, see, for example,
-\code{\link{pdf}} or \code{\link{jpeg}}. Other arguments of graphics device
-functions can be provided as a list in argument \code{args.gr}. The height of
-the graphics device is automatically determined if argument \code{height} is
-\code{NULL}. Argument \code{rows.gr} can be used to increase or decrease the
-number of rows shown in the forest plot (either to show missing information
-or to remove whitespace).
+If only argument \code{device} is provided, the filename will be equal to
+"Rplots.\code{device}".
 
-Alternatively, the (resized) graphics window can be stored to a
-file using either \code{\link{dev.copy2eps}} or
-\code{\link{dev.copy2pdf}}. It is also possible to manually create
-a file using, for example, \code{\link{pdf}}, \code{\link{png}}, or
-\code{\link{svg}} and to specify the width and height of the
-graphic (see Examples).
+By default, the height and width of the file containing the forest plot is
+determined automatically (values \code{.height} and \code{.width}).
+
+The user can specify the height and width of the
+file using the arguments \code{height} and \code{width}. The input to these
+arguments can be either absolute values, e.g., \code{width = 10} for a
+graphics file with the width of 10 inches, or values relative to the
+automatically determined height and width, e.g., \code{width = .width * 1.05}
+will add 5 percent to the automatically determined width.
+
+It is also possible to provide \code{NA} as input to arguments \code{height}
+and \code{width}. In this case, the size of the current graphics
+device is used.
+
+For backward compatibility, the height of the file is determined using a
+different approach if argument \code{rows.gr} is provided to
+increase or decrease the number of rows shown in the forest plot
+(either to show missing information or to remove white space). It is
+recommended to not use argument \code{rows.gr}, but, to use
+argument \code{height = .height * 1.10} or similar.
+
+Argument \code{dev.off} can be used to keep the current graphics device
+open in order to store additional forest plots in the file. Use the R
+function \code{\link{dev.off}} to close the graphics device / store the file.
+
+Other arguments of graphics device functions can be provided as a list in
+the argument \code{device.args}.
 }
 
 \subsection{Default layout for studies and pooled effects}{
@@ -1693,32 +1726,42 @@ forest(ma1, layout = "RevMan5", common = FALSE,
 
 
 \dontrun{
+#
 # Create PDF files with the forest plot
 #
-# - specify filename (R function pdf() is used due to extension .pdf)
-# - height of the figure is automatically determined
-# - width is set to 10 inches
-forest(ma1, file = "forest-ma1-1.pdf", width = 10)
+
+# 1) Specify filename, here, pdf() is used due to the file extension ".pdf";
+#    height and width of the figure are automatically determined
 #
-# - specify graphics device function
-#   (filename "Rplots.pdf" used, see help page of R function pdf())
-# - height of the figure is automatically determined
-# - width is set to 10 inches
-# - set title for PDF file
-# - set background of forest plot
-forest(ma1, func.gr = pdf, width = 10,
-  args.gr = list(title = "My Forest Plot", bg = "green"))
+forest(ma1, filename = "forest-ma1-1.pdf")
+
+# 2) Specify the device; results in the creation of a file "Rplots.pdf"
 #
-# - manually specify the height of the figure
-pdf("forest-ma1-2.pdf", width = 10, height = 3)
-forest(ma1)
-dev.off()
+forest(ma1, device = pdf)
+
+# 3) Manually set width to 10 inches; a different method is used to
+#    determine the height of the forest plot
+#
+forest(ma1, filename = "forest-ma1-2.pdf", width = 10)
+
+# 4) Set title for PDF file and set background colour of forest plot
+forest(ma1, filename = "forest-ma1-3.pdf",
+  device.args = list(title = "My Forest Plot", bg = "green"))
+
+# 5) Manually specify the height of the figure
+#
+forest(ma1, filename = "forest-ma1-4.pdf", width = 10, height = 3)
+}
+
+\dontrun{
+#
+# More forest plots
+#
 
 # Define equivalence limits: 0.75 and 1 / 0.75
 #
 forest(ma1, layout = "RevMan5", common = FALSE, cid = 0.75,
-  fill = "lightgray",
-  fill.cid = "white")
+  fill = "lightgray", fill.cid = "white")
 
 # Fill regions with beneficial and detrimental effects
 #
@@ -1909,6 +1952,7 @@ A re-evaluation of random-effects meta-analysis.
   \code{\link{settings.meta}}, \code{\link{labels.meta}}
 }
 \author{
-Guido Schwarzer \email{guido.schwarzer@uniklinik-freiburg.de}
+Guido Schwarzer \email{guido.schwarzer@uniklinik-freiburg.de},
+  Nour Edin Darwish \email{nouredindarwish@gmail.com}
 }
 \keyword{hplot}

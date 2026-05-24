@@ -1,9 +1,21 @@
-## meta, version 8.4-0 (2026-mm-dd)
+## meta, version 8.5-0 (2026-mm-dd)
 
 ### Major changes
 
-* The width of the file used to store a forest plot can be specified in the R
-  function forest().
+* By default, the width and height of a file to store a forest plot is
+  automatically determined
+  [(issue #86)](https://github.com/guido-s/meta/pull/86). Furthermore, the user
+  can specify the height of the file with the forest plot.
+
+* Nour Edin Darwish <nouredindarwish@gmail.com> added as co-author or R
+  functions forest.meta() and author of forest_dims().
+
+* For generalised linear mixed models, the number of studies included in the
+  meta-analysis is extracted from rma.glmm() in R package **metafor**
+
+* R package **cli** added to Depends
+
+* R package **svglite** added to Suggests
 
 ### User-visible changes
 
@@ -11,7 +23,15 @@
   figures
 
 * forest.meta():
+  - argument 'file' renamed to 'filename'
+  - argument 'func.gr' renamed to 'device'
+  - argument 'args.gr' renamed to 'device.args'
+  - new argument 'path' to specify the directory to store the file
+  - new argument 'units' to specify the unit of the width and height
+  - new argument 'dpi' to specify the plot resolution
   - new argument 'height' to specify height of forest plot
+  
+* New function forest_dims() to get the width and height of a forest plot
 
 ### Bug fixes
 
@@ -21,6 +41,17 @@
   - argument 'rightlabs' can be used in forest plots with risk of bias
     assessment (note, column names for risk of bias domains cannot be changed
     with this argument) [(issue #88)](https://github.com/guido-s/meta/pull/88)
+
+* read.cdir():
+  - add missing information on subgroups
+    (no subgroup meta-analysis was conducted)
+  - fix errors due to changes in Cochrane review data format
+
+### Internal changes
+
+* metabin(), metainc(), metaprop(), metarate():
+  - list element 'k' (number of studies in meta-analysis) is taken from
+    rma.glmm() in R package **metafor**
 
 
 ## meta, version 8.3-0 (2026-04-01)
@@ -246,7 +277,6 @@
     the user
 
 * Fix bug 'could not find function "func"' in internal function chksuitable()
-
 
 ### User-visible changes
 
