@@ -681,7 +681,7 @@
 #'
 #' @import metabook
 #' 
-#' @importFrom cli cli_warn cli_alert_success cli_abort cli_inform
+#' @importFrom cli cli_warn cli_alert_success cli_abort
 #' 
 #' @importFrom rlang := is_bare_list expr enexprs
 #' 

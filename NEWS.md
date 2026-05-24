@@ -1,4 +1,4 @@
-## meta, version 8.4-0 (2026-mm-dd)
+## meta, version 8.5-0 (2026-mm-dd)
 
 ### Major changes
 
@@ -9,6 +9,9 @@
 
 * Nour Edin Darwish <nouredindarwish@gmail.com> added as co-author or R
   functions forest.meta() and author of forest_dims().
+
+* For generalised linear mixed models, the number of studies included in the
+  meta-analysis is extracted from rma.glmm() in R package **metafor**
 
 * R package **cli** added to Depends
 
@@ -40,6 +43,12 @@
   - add missing information on subgroups
     (no subgroup meta-analysis was conducted)
   - fix errors due to changes in Cochrane review data format
+
+### Internal changes
+
+* metabin(), metainc(), metaprop(), metarate():
+  - list element 'k' (number of studies in meta-analysis) is taken from
+    rma.glmm() in R package **metafor**
 
 
 ## meta, version 8.3-0 (2026-04-01)
@@ -265,7 +274,6 @@
     the user
 
 * Fix bug 'could not find function "func"' in internal function chksuitable()
-
 
 ### User-visible changes
 
