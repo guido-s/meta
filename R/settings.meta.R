@@ -49,7 +49,7 @@
 #' The next commands implement the recommendations of the Institute
 #' for Quality and Efficiency in Health Care, Germany (IQWiG)
 #' accordinging to General Methods 5 and 6, respectively
-#' (\url{https://www.iqwig.de/en/about-us/methods/methods-paper/}).
+#' (\url{https://www.iqwig.de/en/methods/methods-paper/}).
 #'
 #' The setting \code{"geneexpr"} can be used to print p-values in
 #' scientific notation and to suppress the calculation of confidence
@@ -310,7 +310,7 @@
 #' settings.meta(oldset)
 #' 
 #' # Change level used to calculate confidence intervals
-#' # (99%-CI for studies, 99.9%-CI for pooled effects)
+#' # (99% CI for studies, 99.9% CI for pooled effects)
 #' #
 #' metagen(1:3, 2:4 / 10, sm = "MD")
 #' settings.meta(level = 0.99, level.ma = 0.999)
@@ -832,8 +832,6 @@ settings.meta <- function(..., quietly = TRUE) {
     #
     setOption("colgap", "2mm")
     setOption("colgap.forest", "2mm")
-    #
-    setOption("width", NULL)
     #
     setOption("calcwidth.predict", FALSE)
     setOption("calcwidth.hetstat", FALSE)
@@ -1399,8 +1397,6 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("colgap                 ")
     catarg("colgap.forest          ")
     #
-    catarg("width                  ")
-    #
     catarg("calcwidth.predict      ")
     catarg("calcwidth.hetstat      ")
     catarg("calcwidth.tests        ")
@@ -1735,8 +1731,6 @@ settings.meta <- function(..., quietly = TRUE) {
     #
     setcharacter("colgap", args)
     setcharacter("colgap.forest", args)
-    #
-    setnumeric("width", args, TRUE)
     #
     setlogical("calcwidth.predict", args)
     setlogical("calcwidth.hetstat", args)

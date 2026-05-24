@@ -1232,6 +1232,8 @@ metarate <- function(event, time, studlab,
               control = control, use.random = use.random,
               warn = warn)
     #
+    res$k <- res.glmm$glmm.common$k
+    #
     res <- addGLMM(res, res.glmm, method.I2, transf.null.effect)
     #
     if (by) {

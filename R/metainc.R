@@ -1565,6 +1565,11 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   #
   res <- c(res, m)
   #
+  # For GLMMs add the number of studies used in the meta-analysis
+  #
+  if (is.glmm)
+    res$k <- res.glmm$glmm.common$k
+  #
   # Add data
   #
   res$n.e <- n.e

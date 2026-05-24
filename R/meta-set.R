@@ -10,6 +10,7 @@ setchar <- function(x, val, text, list = FALSE, name = NULL,
                     return.NULL = TRUE, nchar.equal = FALSE,
                     setNA = FALSE, pre = "",
                     unique = FALSE) {
+  
   val <- unique(val)
   #
   if (is.null(name))
@@ -111,6 +112,7 @@ setstudlab <- function(x, k) {
 }
 
 setlength <- function(x, len, text) {
+  
   if (length(x) == 1)
     x <- rep(x, len)
   else
@@ -123,6 +125,7 @@ setlength <- function(x, len, text) {
 }
 
 setunit <- function(x) {
+  
   xname <- deparse(substitute(x))
   
   if (is.character(x)) {
@@ -169,6 +172,7 @@ setunit <- function(x) {
 }
 
 setmethodbias <- function(x, subset) {
+  
   oldmethod <- setchar(x, gs("meth4bias.old"),
                        stop.at.error = FALSE)
   #
@@ -191,6 +195,7 @@ setmethodbias <- function(x, subset) {
 set_method_tau <- function(method.tau, missing.tau,
                            method.predict, missing.predict,
                            warn = TRUE) {
+  
   if (method.tau != "REML" & any(method.predict == "KR")) {
     if (missing.tau & !missing.predict) {
       if (warn)
@@ -208,6 +213,7 @@ set_method_tau <- function(method.tau, missing.tau,
 set_method_predict <- function(method.predict, missing.predict,
                                method.tau, missing.tau,
                                warn = TRUE) {
+  
   any_KR <- any(method.predict %in% "KR")
   any_KR_PR <- any(method.predict %in% "KR-PR")
   #
@@ -243,6 +249,7 @@ set_df_predict <- function(method.predict, k)
                 ifelse(method.predict == "S", Inf, NA)))
 
 setVal <- function(data, varname, default = NULL) {
+  
   if (isCol(data, varname))
     return(data[[varname]])
   else
@@ -250,6 +257,7 @@ setVal <- function(data, varname, default = NULL) {
 }
 
 setsort <- function(sort, n, text) {
+  
   if (is.null(sort))
     res <- seq_len(n)
   else {
@@ -265,9 +273,11 @@ setsort <- function(sort, n, text) {
   #
   res
 }
+
 setsep <- function(x, sep, type = "treatment",
                    argname = deparse(substitute(sep)),
                    missing.sep) {
+  
   labels <- sort(unique(x))
   #
   if (compmatch(labels, sep)) {

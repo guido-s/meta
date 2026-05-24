@@ -7,7 +7,6 @@
   packageStartupMessage(msg)
 }
 
-
 updateversion <- function(x) {
   #
   # Update older meta objects, see gs("major.update") and gs("minor.update")
@@ -18,11 +17,11 @@ updateversion <- function(x) {
   x
 }
 
-
 update_needed <- function(version,
                           major = gs("major.update"),
                           minor = gs("minor.update"),
                           verbose = FALSE) {
+  
   if (is.null(version)) {
     version <- 0.1
     major.cur <- 0
@@ -45,11 +44,11 @@ update_needed <- function(version,
   res
 }
 
-
 taudat <- function(method.tau, detail.tau,
                    tau, lower.tau, upper.tau, print.tau.ci, digits.tau,
                    tau2, lower.tau2, upper.tau2, print.tau2.ci, digits.tau2,
                    sign.lower, sign.upper) {
+  
   dat <- data.frame(method.tau, names = detail.tau, tau, tau2)
   #
   # In order to use duplicated()
@@ -104,10 +103,10 @@ taudat <- function(method.tau, detail.tau,
   dat
 }
 
-
 hetdat <- function(I2, lowI2, uppI2, print.I2, print.I2.ci, digits.I2,
                    H, lowH, uppH, print.H, digits.H,
                    Rb, lowRb, uppRb, print.Rb) {
+  
   dat <- data.frame()
   #
   if (print.I2) {
@@ -157,8 +156,8 @@ hetdat <- function(I2, lowI2, uppI2, print.I2, print.I2.ci, digits.I2,
   dat
 }
 
-
 qdat <- function(Q, df.Q, pval.Q, hetlabel, text.common) {
+  
   if (length(Q) > 1) {
     if (!is.null(names(Q)))
       rownames.Q <- names(Q)
@@ -180,12 +179,12 @@ qdat <- function(Q, df.Q, pval.Q, hetlabel, text.common) {
   dat
 }
 
-
 collapse <- function(x, quote = '"', collapse = ", ", sort = FALSE)
   paste0(paste0(quote, if (sort) sort(x) else x, quote, collapse = collapse))
 
 collapse2 <- function(x, quote = "", collapse = ", ", br1 = "", br2 = "",
                       sort = FALSE, max.len = 5) {
+  
   if (sort)
     x <- sort(x)
   #
@@ -207,7 +206,6 @@ collapse2 <- function(x, quote = "", collapse = ", ", br1 = "", br2 = "",
 condense <- function(x, var)
   unlist(lapply(x, "[[" , var))
 
-
 cathet <- function(k,
                    method.tau, detail.tau,
                    tau2, lower.tau2, upper.tau2,
@@ -223,7 +221,6 @@ cathet <- function(k,
                    print.Rb, text.Rb,
                    big.mark,
                    sort.tau = NULL, sort.het = NULL) {
-  
   
   if (is.null(lower.tau2))
     lower.tau2 <- NA
@@ -430,9 +427,9 @@ cathet <- function(k,
   invisible(NULL)
 }
 
-
 catobsev <- function(var1, var2 = NULL, type = "n", addrow = FALSE,
                      big.mark = gs("big.mark")) {
+  
   if (type == "n") {
     txt <- "observations"
     idx <- "o"
@@ -480,7 +477,6 @@ catobsev <- function(var1, var2 = NULL, type = "n", addrow = FALSE,
   invisible(NULL)
 }
 
-
 # The following R code is based on the file snowfall-internal.R from
 # R package snowfall (Maintainer: Jochen Knaus <jo@imbi.uni-freiburg.de>)
 #
@@ -501,7 +497,8 @@ catobsev <- function(var1, var2 = NULL, type = "n", addrow = FALSE,
 # val - object (everything is allowed, even NULL)
 #
 setOption <- function(key = NULL, val = NULL) {
-  if(!is.null(key) && is.character(key)) {
+  
+  if (!is.null(key) && is.character(key)) {
     option <- getVar(".settings") # Get from NS
     option[[key]] <- val
     setVar(".settings", option) # Write to NS
@@ -512,13 +509,13 @@ setOption <- function(key = NULL, val = NULL) {
   stop("Argument 'key' or 'val' is NULL or 'key' is no string.")
 }
 
-
 #
 # Get a specific variable from the meta namespace.
 # var - character: object name
 #
 getVar <- function(var = NULL) {
-  if(!is.null(var) && is.character(var)) {
+  
+  if (!is.null(var) && is.character(var)) {
     tmp <- try(getFromNamespace(var, "meta"))
     #
     if(inherits(tmp, "try-error"))
@@ -530,13 +527,13 @@ getVar <- function(var = NULL) {
   stop("Argument 'var' is NULL or not a string.")
 }
 
-
 #
 # Write a specific variable to the meta namespace.
 # var - character: object name
 # arg - object (NULL allowed)
 #
 setVar <- function(var = NULL, arg = NULL) {
+  
   if(!is.null(var) && is.character(var)) {
     assignInNamespace(var, arg, "meta")
 
@@ -558,9 +555,11 @@ setOptionDepr <- function(x, new, old, func, ...) {
   invisible(NULL)
 }
 
-
-
-
+#
+#
+# Default settings in R package meta
+#
+#
 
 .settings <- list()
 #
@@ -716,7 +715,6 @@ argslist <-
     "ff.test.effect.subgroup", "ff.addline",
     "ff.axis", "ff.smlab", "ff.xlab", "ff.lr",
     "colgap", "colgap.forest",
-    "width",
     "calcwidth.predict", "calcwidth.hetstat",
     "calcwidth.tests", "calcwidth.subgroup", "calcwidth.addline",
     "just.studlab", "just.addcols",
@@ -1026,8 +1024,6 @@ setOption("ff.lr", "plain")
 setOption("colgap", "2mm")
 setOption("colgap.forest", "2mm")
 #
-setOption("width", NULL)
-#
 setOption("calcwidth.predict", FALSE)
 setOption("calcwidth.hetstat", FALSE)
 setOption("calcwidth.tests", FALSE)
@@ -1042,8 +1038,7 @@ setOption("addrow", NULL)
 setOption("addrow.overall", NULL)
 setOption("addrow.subgroups", NULL)
 setOption("addrows.below.overall", NULL)
-
-
+#
 setOption("Wan2014.Table1",
           c(0.000, 1.128, 1.693, 2.059, 2.326,
             2.534, 2.704, 2.847, 2.970, 3.078,
@@ -1067,3 +1062,4 @@ setOption("Wan2014.Table2",
             1.336, 1.336, 1.337, 1.337, 1.337,
             1.338, 1.338, 1.338, 1.338, 1.339,
             1.339, 1.339, 1.339, 1.339, 1.340))
+

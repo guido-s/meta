@@ -135,7 +135,7 @@
 #' (RevMan 5) and R package \bold{meta}, version 4 and below. However,
 #' its role has been challenged and especially the REML and
 #' Paule-Mandel estimators have been recommended (Veroniki et al.,
-#' 2016; Langan et al., 2019). Accordingly, the currenct default in R
+#' 2016; Langan et al., 2019). Accordingly, the current default in R
 #' package \bold{meta} is the REML estimator.
 #' 
 #' The following R command could be used to employ the Paule-Mandel
@@ -425,7 +425,7 @@
 #' The next two commands implement the recommendations of the
 #' Institute for Quality and Efficiency in Health Care (IQWiG),
 #' Germany accordinging to General Methods 5 and 6, respectively
-#' (\url{https://www.iqwig.de/en/about-us/methods/methods-paper/}).
+#' (\url{https://www.iqwig.de/en/methods/methods-paper/}).
 #'
 #' The last setting can be used to print p-values in scientific
 #' notation and to suppress the calculation of confidence intervals
@@ -577,7 +577,7 @@
 #' 
 #' IQWiG (2022):
 #' General Methods: Version 6.1.
-#' \url{https://www.iqwig.de/en/about-us/methods/methods-paper/}
+#' \url{https://www.iqwig.de/en/methods/methods-paper/}
 #'
 #' Jackson D (2013):
 #' Confidence intervals for the between-study variance in random
@@ -680,13 +680,14 @@
 #' @seealso \code{\link{meta-object}}, \code{\link{meta-sm}}
 #'
 #' @import metabook
-#'
-#' @import metadat
 #' 
-#' @importFrom rlang :=
+#' @importFrom cli cli_warn cli_alert_success cli_abort
+#' 
+#' @importFrom rlang := is_bare_list expr enexprs
+#' 
+#' @importFrom tools file_ext
 #'
-#' @importFrom dplyr %>% across mutate all_of select rename rename_with mutate
-#'   if_else tibble filter bind_rows group_by group_map relocate
+#' @importFrom dplyr %>% across mutate all_of select rename rename_with mutate if_else tibble filter bind_rows group_by group_map relocate
 #'
 #' @importFrom tibble column_to_rownames
 #'
@@ -700,32 +701,19 @@
 #'
 #' @importFrom readr read_csv cols
 #'
-#' @importFrom grid arrow gpar grid.circle grid.draw grid.layout
-#'   grid.lines grid.newpage grid.polygon grid.rect grid.text
-#'   grid.xaxis textGrob popViewport pushViewport viewport unit unit.c
-#'   convertX grobTree rectGrob
-#'   grid.get grid.gget
+#' @importFrom grid arrow gpar grid.circle grid.draw grid.layout grid.lines grid.newpage grid.polygon grid.rect grid.text grid.xaxis textGrob popViewport pushViewport viewport unit unit.c convertX grobTree rectGrob grid.get grid.gget grid.grabExpr convertWidth convertHeight
 #'
-#' @importFrom grDevices gray gray.colors cairo_pdf cairo_ps pdf
-#'   postscript svg bmp jpeg png tiff hcl.colors
+#' @importFrom grDevices gray gray.colors hcl.colors cairo_pdf cairo_ps pdf postscript svg bmp jpeg png tiff pictex dev.cur dev.list dev.off dev.set dev.size
 #'
-#' @importFrom graphics abline axis barplot box mtext lines par plot
-#'   points polygon text
+#' @importFrom graphics abline axis barplot box mtext lines par plot points polygon text
 #'   
-#' @importFrom ggplot2 aes annotate geom_area geom_line geom_point
-#'   geom_polygon ggplot scale_x_continuous xlab ylab
+#' @importFrom ggplot2 aes annotate geom_area geom_line geom_point geom_polygon ggplot scale_x_continuous xlab ylab
 #' 
-#' @importFrom stats as.formula binom.test coef cor lm pchisq pf pnorm
-#'   poisson.test pt qlogis qnorm qt runif update var weighted.mean
-#'   weights glm binomial vcov fitted residuals dt
+#' @importFrom stats as.formula binom.test coef cor lm pchisq pf pnorm poisson.test pt qlogis qnorm qt runif update var weighted.mean weights glm binomial vcov fitted residuals dt
 #'
-#' @importFrom utils count.fields read.table assignInNamespace
-#'   getFromNamespace packageDescription packageVersion head tail find
-#'   unzip combn
+#' @importFrom utils count.fields read.table assignInNamespace getFromNamespace packageDescription packageVersion head tail find unzip combn modifyList globalVariables
 #'
-#' @importFrom metafor forest funnel funnel.default baujat labbe
-#'   radial trimfill rma.uni rma.glmm rma.mv predict.rma
-#'   confint.rma.uni confint.rma.mv escalc regtest to.long vcalc blup
+#' @importFrom metafor forest funnel funnel.default baujat labbe radial trimfill rma.uni rma.glmm rma.mv predict.rma confint.rma.uni confint.rma.mv escalc regtest to.long vcalc blup
 #'
 #' @importFrom lme4 glmer
 #'
