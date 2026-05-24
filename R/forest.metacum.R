@@ -512,13 +512,13 @@ forest.metacum <- function(x,
     #
     if (any(prediction)) {
       if (level.ma == level.predict)
-        ci.lab <- paste0(100 * level.ma, "%-CI/PI")
+        ci.lab <- paste0(100 * level.ma, "% CI/PI")
       else
         ci.lab <-
-          paste0(100 * level.ma, "%-CI / ", 100 * level.predict, "%-PI")
+          paste0(100 * level.ma, "% CI / ", 100 * level.predict, "% PI")
     }
     else
-      ci.lab <- paste0(100 * level.ma, "%-CI")
+      ci.lab <- paste0(100 * level.ma, "% CI")
     #
     sel.left <- leftcols == "ci"
     #

@@ -5,9 +5,8 @@
 # License: GPL (>= 2)
 #
 
-isCol <- function(data, varname) {
+isCol <- function(data, varname)
   !is.null(data) & varname %in% names(data)
-}
 
 is_log_effect <- function(x)
   x %in% c("PLN", "IRLN", "MLN")

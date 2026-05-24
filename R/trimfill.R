@@ -456,8 +456,11 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
     TE.star   <- 2 * TE.sum - TE[(k - k0 + 1):k]
     seTE.star <- seTE[(k - k0 + 1):k]
     #
-    trimfill  <- c(rep(FALSE, length(TE)),
-                   rep(TRUE, length(TE.star)))
+    trimfill <- c(rep(FALSE, length(TE)), rep(TRUE, length(TE.star)))
+    #
+    mirror <- rep(TRUE, length(TE))
+    mirror[seq(k - k0 + 1, k)] <- FALSE
+    mirror <- c(mirror[order(ord)], rep(FALSE, k0))
     #
     TE      <- c(TE[order(ord)], TE.star)
     seTE    <- c(seTE[order(ord)], seTE.star)
@@ -502,6 +505,7 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
     TE.star   <- NA
     seTE.star <- NA
     trimfill  <- rep(FALSE, length(TE))
+    mirror <- !trimfill
     TE        <- TE[order(ord)]
     seTE      <- seTE[order(ord)]
     studlab   <- studlab[order(ord)]
@@ -771,6 +775,7 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
               n.iter = n.iter,
               #
               trimfill = trimfill,
+              mirror = mirror,
               #
               class.x = class(x)[1]
               )

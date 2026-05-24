@@ -544,7 +544,7 @@ print.nnt.meta <- function(x,
   chknumeric(digits.prop, min = 0, length = 1)
   
   
-  ci.lab <- paste0(round(100 * replaceNULL(x$level.ma), 1), "%-CI")
+  ci.lab <- paste0(round(100 * replaceNULL(x$level.ma), 1), "% CI")
   p.lab <- if (x$sm == "HR") "Surv.c" else "p.c"
   
   

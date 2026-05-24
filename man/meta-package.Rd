@@ -140,7 +140,7 @@ the default in some software packages including Review Manager 5
 (RevMan 5) and R package \bold{meta}, version 4 and below. However,
 its role has been challenged and especially the REML and
 Paule-Mandel estimators have been recommended (Veroniki et al.,
-2016; Langan et al., 2019). Accordingly, the currenct default in R
+2016; Langan et al., 2019). Accordingly, the current default in R
 package \bold{meta} is the REML estimator.
 
 The following R command could be used to employ the Paule-Mandel
@@ -430,7 +430,7 @@ of the \emph{British Medical Journal}.
 The next two commands implement the recommendations of the
 Institute for Quality and Efficiency in Health Care (IQWiG),
 Germany accordinging to General Methods 5 and 6, respectively
-(\url{https://www.iqwig.de/en/about-us/methods/methods-paper/}).
+(\url{https://www.iqwig.de/en/methods/methods-paper/}).
 
 The last setting can be used to print p-values in scientific
 notation and to suppress the calculation of confidence intervals
@@ -576,7 +576,7 @@ standard DerSimonian-Laird method.
 
 IQWiG (2022):
 General Methods: Version 6.1.
-\url{https://www.iqwig.de/en/about-us/methods/methods-paper/}
+\url{https://www.iqwig.de/en/methods/methods-paper/}
 
 Jackson D (2013):
 Confidence intervals for the between-study variance in random

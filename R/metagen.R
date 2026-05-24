@@ -1282,10 +1282,9 @@ metagen <- function(TE, seTE, studlab,
   if (missing.seTE)
     seTE <- rep_len(NA, k.All)
   #
-  # Catch 'studlab', 'subset', and 'exclude' from data:
-  #
-  studlab <- catch("studlab", mc, data, sfsp)
   studlab <- setstudlab(studlab, k.All)
+  #
+  # Catch subset', and 'exclude' from data:
   #
   subset <- catch("subset", mc, data, sfsp)
   missing.subset <- is.null(subset)
