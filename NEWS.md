@@ -3,9 +3,9 @@
 ### Bug fixes
 
 * forest.meta():
-  - do not automatically attach label 'label.e' to the column 'n.e' with
-    sample sizes for meta-analysis objects created with metagen(), metamean(),
-    metaprop(), or metarate()
+  - do not automatically attach 'label.e' to the column 'n.e' with
+    sample sizes for meta-analysis objects created with metagen() if
+    sample sizes in control group ('n.c') are not provided
 
 
 ## meta, version 8.5-0 (2026-05-25)
