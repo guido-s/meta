@@ -4408,13 +4408,19 @@ forest.meta <- function(x,
       #
       if (metagen & study.results) {
         leftcols <- add.columns(leftcols, c("TE", "seTE"))
-        if (!is.null(x$n.e)) {
+        #
+        if (!is.null(x$n.e))
           leftcols <- add.columns(leftcols, "n.e")
+        #
+        if (!is.null(x$n.c))
+          leftcols <- add.columns(leftcols, "n.c")
+        #
+        if (!is.null(x$n.c))
+          leftcols <- add.columns(leftcols, "n.c")
+        #
+        if (!is.null(x$n.e) & !is.null(x$n.c)) {
           if (is.null(label.e.attach))
             label.e.attach <- "n.e"
-        }
-        if (!is.null(x$n.c)) {
-          leftcols <- add.columns(leftcols, "n.c")
           if (is.null(label.c.attach))
             label.c.attach <- "n.c"
         }
@@ -4427,11 +4433,8 @@ forest.meta <- function(x,
           else
             leftcols <- add.columns(leftcols, c("n.e", "mean.e", "sd.e"))
         }
-        else if (pooled.totals) {
+        else if (pooled.totals)
           leftcols <- add.columns(leftcols, "n.e")
-          if (is.null(label.e.attach))
-            label.e.attach <- "n.e"
-        }
       }
       #
       if (metaprop) {
@@ -4453,10 +4456,6 @@ forest.meta <- function(x,
           leftcols <- add.columns(leftcols,
                                   c(if (pooled.events) "event.e",
                                     if (pooled.totals) "n.e"))
-          if (pooled.events & !pooled.totals) {
-            if (is.null(label.e.attach))
-              label.e.attach <- "event.e"
-          }
         }
       }
       #
@@ -4470,10 +4469,6 @@ forest.meta <- function(x,
             add.columns(leftcols,
                         c(if (pooled.events) "event.e",
                           if (pooled.times) "time.e"))
-          if (pooled.events & !pooled.times) {
-            if (is.null(label.e.attach))
-              label.e.attach <- "event.e"
-          }
         }
       }
       #
