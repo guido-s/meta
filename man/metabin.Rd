@@ -438,8 +438,8 @@ ratio, i.e. \code{(O-E) / V} and its standard error \code{sqrt(1 /
 V)} with \code{O-E} and \code{V} denoting "Observed minus Expected"
 and its variance, are utilised in the random effects
 model. Accordingly, results of a random effects model using
-\code{sm = "Peto"} can be different to results from a random
-effects model using \code{sm = "MH"} or \code{sm =
+\code{method = "Peto"} can be different to results from a random
+effects model using \code{method = "MH"} or \code{method =
 "Inverse"}. Note, the random effects estimate is based on the
 inverse variance method for all methods discussed so far.
 
@@ -644,8 +644,8 @@ ma3
 ma4 <- update(ma3, method = "MH")
 ma4
 
-# Meta-analysis based on Peto method (only available for odds ratio
-# as summary measure)
+# Meta-analysis based on Peto method (only available for odds ratio or
+# diagnostic odds ratio as summary measure)
 #
 ma5 <- update(ma3, method = "Peto")
 ma5

@@ -266,8 +266,8 @@
 #' V)} with \code{O-E} and \code{V} denoting "Observed minus Expected"
 #' and its variance, are utilised in the random effects
 #' model. Accordingly, results of a random effects model using
-#' \code{sm = "Peto"} can be different to results from a random
-#' effects model using \code{sm = "MH"} or \code{sm =
+#' \code{method = "Peto"} can be different to results from a random
+#' effects model using \code{method = "MH"} or \code{method =
 #' "Inverse"}. Note, the random effects estimate is based on the
 #' inverse variance method for all methods discussed so far.
 #' 
@@ -580,8 +580,8 @@
 #' ma4 <- update(ma3, method = "MH")
 #' ma4
 #' 
-#' # Meta-analysis based on Peto method (only available for odds ratio
-#' # as summary measure)
+#' # Meta-analysis based on Peto method (only available for odds ratio or
+#' # diagnostic odds ratio as summary measure)
 #' #
 #' ma5 <- update(ma3, method = "Peto")
 #' ma5
@@ -1820,12 +1820,16 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   #
   #
   
-  if (sm != "OR") {
+  if (!(sm %in% c("OR", "DOR"))) {
     if (method == "Peto")
-      stop("Peto's method only possible with argument 'sm = \"OR\"'")
+      stop("Peto's method only possible with argument 'sm = \"OR\"' or ",
+           "'sm = \"DOR\"'")
     else if (method == "SSW")
-      stop("Sample size weighting only available with argument 'sm = \"OR\"'")
-    else if (is.glmm)
+      stop("Sample size weighting only available with argument ",
+           "'sm = \"OR\"' or 'sm = \"DOR\"'")
+  }
+  if (sm != "OR") {
+    if (is.glmm)
       stop("Generalised linear mixed models only possible with ",
            "argument 'sm = \"OR\"'.")
     else if (is.lrp)
