@@ -636,7 +636,8 @@ print.summary.meta <- function(x,
   #
   if (k.all == 1 &&
       !(inherits(x, c("metaprop", "metarate")) |
-        (inherits(x, "metabin") && x$sm == "RR" && !x$RR.Cochrane &&
+        (inherits(x, "metabin") && x$sm %in% c("RR", "VE") &&
+         !x$RR.Cochrane &&
          !is_zero(x$TE - x$TE.common)) |
         (inherits(x, c("metacont", "metamean")) && x$method.ci == "t"))) {
     print.meta(x.meta,
@@ -660,7 +661,8 @@ print.summary.meta <- function(x,
     uppTE <- x$upper
     #
     if (k.all == 1 &&
-        inherits(x, "metabin") && x$sm == "RR" && !x$RR.Cochrane &&
+        inherits(x, "metabin") && x$sm %in% c("RR", "VE") &&
+        !x$RR.Cochrane &&
         !is_zero(x$TE - x$TE.common))
       x$method.ci <- "!RR.Cochrane"
     #
