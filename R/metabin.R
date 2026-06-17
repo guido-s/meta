@@ -54,7 +54,7 @@
 #' @param allstudies A logical indicating if studies with zero or all
 #'   events in both groups are to be included in the meta-analysis
 #'   (applies only if \code{sm} is equal to \code{"RR"}, \code{"OR"},
-#'   or \code{"DOR"}).
+#'   \code{"DOR"}, or \code{"VE"}).
 #' @param incr.e Continuity correction in experimental group, see Details.
 #' @param incr.c Continuity correction in control group, see Details.
 #' @param MH.exact A logical indicating if \code{incr} is not to be
@@ -63,9 +63,10 @@
 #'   method.
 #' @param RR.Cochrane A logical indicating if 2*\code{incr} instead of
 #'   1*\code{incr} is to be added to \code{n.e} and \code{n.c} in the
-#'   calculation of the risk ratio (i.e., \code{sm="RR"}) for studies
-#'   with a zero cell. This is used in RevMan 5, the program for
-#'   preparing and maintaining Cochrane reviews.
+#'   calculation of the risk ratio or vaccine efficacy / effectiveness
+#'   (i.e., \code{sm="RR"} or \code{sm="VE"}) for studies with a zero
+#'   cell. This is used in RevMan 5, the program for preparing and
+#'   maintaining Cochrane reviews.
 #' @param Q.Cochrane A logical indicating if the Mantel-Haenszel
 #'   estimate is used in the calculation of the heterogeneity
 #'   statistic Q which is implemented in RevMan 5, the program for
@@ -136,11 +137,12 @@
 #'   \code{"Harbord"}, \code{"Peters"}, or \code{"Deeks"}, can be
 #'   abbreviated. See function \code{\link{metabias}.}
 #' @param backtransf A logical indicating whether results for odds
-#'   ratio (\code{sm="OR"}), risk ratio (\code{sm="RR"}), or
-#'   diagnostic odds ratio (\code{sm="DOR"}) should be back
-#'   transformed in printouts and plots. If TRUE (default), results
-#'   will be presented as odds ratios and risk ratios; otherwise log
-#'   odds ratios and log risk ratios will be shown.
+#'   ratio (\code{sm="OR"}), risk ratio (\code{sm="RR"}),
+#'   diagnostic odds ratio (\code{sm="DOR"}), or vaccine efficacy /
+#'   effectiveness (\code{sm="VE"}) should be back transformed in
+#'   printouts and plots. If TRUE (default), results will be presented
+#'   as odds ratios and risk ratios; otherwise log odds ratios and log
+#'   risk ratios will be shown.
 #' @param pscale A numeric defining a scaling factor for printing of
 #'   risk differences.
 #' @param text.common A character string used in printouts and forest
@@ -266,8 +268,8 @@
 #' V)} with \code{O-E} and \code{V} denoting "Observed minus Expected"
 #' and its variance, are utilised in the random effects
 #' model. Accordingly, results of a random effects model using
-#' \code{sm = "Peto"} can be different to results from a random
-#' effects model using \code{sm = "MH"} or \code{sm =
+#' \code{method = "Peto"} can be different to results from a random
+#' effects model using \code{method = "MH"} or \code{method =
 #' "Inverse"}. Note, the random effects estimate is based on the
 #' inverse variance method for all methods discussed so far.
 #' 
@@ -365,11 +367,12 @@
 #' \code{incr}) is added to all cell frequencies for the odds ratio or
 #' only the number of events for the risk ratio (argument
 #' \code{RR.Cochrane = FALSE}, default). The increment is added to all
-#' cell frequencies for the risk ratio if argument \code{RR.Cochrane =
-#' TRUE}. For the risk difference, \code{incr} is only added to all
-#' cell frequencies to calculate the standard error. Finally, a
-#' treatment arm continuity correction is used if \code{incr = "TACC"}
-#' (Sweeting et al., 2004; Diamond et al., 2007).
+#' cell frequencies for the risk ratio or vaccine efficacy / effectiveness
+#' if argument \code{RR.Cochrane = TRUE}. For the risk difference,
+#' \code{incr} is only added to all cell frequencies to calculate the
+#' standard error. Finally, a treatment arm continuity correction is used
+#' if \code{incr = "TACC"} (Sweeting et al., 2004; Diamond et al.,
+#' 2007).
 #'
 #' For odds ratio and risk ratio, treatment estimates and standard
 #' errors are only calculated for studies with zero or all events in
@@ -580,8 +583,8 @@
 #' ma4 <- update(ma3, method = "MH")
 #' ma4
 #' 
-#' # Meta-analysis based on Peto method (only available for odds ratio
-#' # as summary measure)
+#' # Meta-analysis based on Peto method (only available for odds ratio or
+#' # diagnostic odds ratio as summary measure)
 #' #
 #' ma5 <- update(ma3, method = "Peto")
 #' ma5
@@ -1576,11 +1579,15 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   # Check for pairwise comparisons with zero cell frequencies in both groups
   #
   doublezeros <- FALSE
-  if (sparse & sm %in% c("RR", "OR") & !(method %in% c("Peto", "GLMM"))) {
+  if (sparse & sm %in% c("RR", "OR", "DOR", "VE") &
+      !(method %in% c("Peto", "GLMM"))) {
     sel.doublezeros <- switch(sm,
                               OR = (event.e == 0   & event.c ==   0) |
                                 (event.c == n.c & event.e == n.e),
-                              RR = (event.c == 0 & event.e == 0))
+                              DOR = (event.e == 0   & event.c ==   0) |
+                                (event.c == n.c & event.e == n.e),
+                              RR = (event.c == 0 & event.e == 0),
+                              VE = (event.c == 0 & event.e == 0))
     if (any(sel.doublezeros, na.rm = TRUE))
       doublezeros <- TRUE
   }
@@ -1820,12 +1827,16 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   #
   #
   
-  if (sm != "OR") {
+  if (!(sm %in% c("OR", "DOR"))) {
     if (method == "Peto")
-      stop("Peto's method only possible with argument 'sm = \"OR\"'")
+      stop("Peto's method only possible with argument 'sm = \"OR\"' or ",
+           "'sm = \"DOR\"'")
     else if (method == "SSW")
-      stop("Sample size weighting only available with argument 'sm = \"OR\"'")
-    else if (is.glmm)
+      stop("Sample size weighting only available with argument ",
+           "'sm = \"OR\"' or 'sm = \"DOR\"'")
+  }
+  if (sm != "OR") {
+    if (is.glmm)
       stop("Generalised linear mixed models only possible with ",
            "argument 'sm = \"OR\"'.")
     else if (is.lrp)

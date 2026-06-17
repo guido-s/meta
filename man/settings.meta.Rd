@@ -80,7 +80,8 @@ RevMan 5 settings, in detail:
 \code{tau.common} \tab FALSE \tab common between-study variance in
   subgroups \cr
 \code{MH.exact} \tab FALSE \tab exact Mantel-Haenszel method \cr
-\code{RR.Cochrane} \tab TRUE \tab calculation of risk ratios \cr
+\code{RR.Cochrane} \tab TRUE \tab calculation of risk ratios or
+  vaccine efficacy / effectiveness \cr
 \code{Q.Cochrane} \tab TRUE \tab calculation of heterogeneity
   statistic \cr
 \code{exact.smd} \tab FALSE \tab exact formulae for Hedges' g and

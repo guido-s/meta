@@ -36,7 +36,7 @@
 #' @param allstudies A logical indicating if studies with zero or all
 #'   events in both groups are to be included in the meta-analysis
 #'   (applies only to \code{\link{metabin}} object with \code{sm}
-#'   equal to \code{"RR"} or \code{"OR"}).
+#'   equal to \code{"RR"}, \code{"OR"}, \code{"DOR"}, or \code{"VE"}).
 #' @param incr.e Continuity correction in experimental group (see
 #'   \code{\link{metabin}} and \code{\link{metainc}}).
 #' @param incr.c Continuity correction in control group (see
@@ -48,8 +48,8 @@
 #'   to calculate the pooled estimate based on the Mantel-Haenszel
 #'   method (applies only to \code{\link{metabin}} object).
 #' @param RR.Cochrane A logical indicating which method to use as
-#'   continuity correction for the risk ratio (see
-#'   \code{\link{metabin}}).
+#'   continuity correction for the risk ratio or vaccine efficacy /
+#'   effectiveness (see \code{\link{metabin}}).
 #' @param Q.Cochrane A logical indicating which method to use to
 #'   calculate the heterogeneity statistic Q (see
 #'   \code{\link{metabin}}).
@@ -1273,7 +1273,7 @@ update.meta <- function(object,
     }
     #
     if (!(method == "MH" & method.tau == "DL" &
-          (sm %in% c("OR", "RR", "RD", "DOR"))))
+          (sm %in% c("OR", "RR", "RD", "DOR", "VE"))))
       Q.Cochrane <- FALSE
     #
     if (sm == "DOR" & missing.method.bias)

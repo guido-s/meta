@@ -321,7 +321,8 @@
 #' \code{allstudies} \tab Include studies with double zeros \cr
 #' \code{doublezeros} \tab Indicator for studies with double zeros \cr
 #' \code{MH.exact} \tab Exact Mantel-Haenszel method \cr
-#' \code{RR.Cochrane} \tab Cochrane method to calculate risk ratio \cr
+#' \code{RR.Cochrane} \tab Cochrane method to calculate risk ratio or
+#'   vaccine efficacy / effectiveness \cr
 #' \code{Q.Cochrane} \tab Cochrane method to calculate \eqn{\tau^2}
 #'   \cr
 #' \code{Q.CMH} \tab Cochran-Mantel-Haenszel statistic \cr

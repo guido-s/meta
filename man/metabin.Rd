@@ -150,7 +150,7 @@ correction method should be used (\code{"only0"},
 \item{allstudies}{A logical indicating if studies with zero or all
 events in both groups are to be included in the meta-analysis
 (applies only if \code{sm} is equal to \code{"RR"}, \code{"OR"},
-or \code{"DOR"}).}
+\code{"DOR"}, or \code{"VE"}).}
 
 \item{incr.e}{Continuity correction in experimental group, see Details.}
 
@@ -166,9 +166,10 @@ method.}
 
 \item{RR.Cochrane}{A logical indicating if 2*\code{incr} instead of
 1*\code{incr} is to be added to \code{n.e} and \code{n.c} in the
-calculation of the risk ratio (i.e., \code{sm="RR"}) for studies
-with a zero cell. This is used in RevMan 5, the program for
-preparing and maintaining Cochrane reviews.}
+calculation of the risk ratio or vaccine efficacy / effectiveness
+(i.e., \code{sm="RR"} or \code{sm="VE"}) for studies with a zero
+cell. This is used in RevMan 5, the program for preparing and
+maintaining Cochrane reviews.}
 
 \item{Q.Cochrane}{A logical indicating if the Mantel-Haenszel
 estimate is used in the calculation of the heterogeneity
@@ -262,11 +263,12 @@ funnel plot asymmetry is to be used. Either \code{"Begg"},
 abbreviated. See function \code{\link{metabias}.}}
 
 \item{backtransf}{A logical indicating whether results for odds
-ratio (\code{sm="OR"}), risk ratio (\code{sm="RR"}), or
-diagnostic odds ratio (\code{sm="DOR"}) should be back
-transformed in printouts and plots. If TRUE (default), results
-will be presented as odds ratios and risk ratios; otherwise log
-odds ratios and log risk ratios will be shown.}
+ratio (\code{sm="OR"}), risk ratio (\code{sm="RR"}),
+diagnostic odds ratio (\code{sm="DOR"}), or vaccine efficacy /
+effectiveness (\code{sm="VE"}) should be back transformed in
+printouts and plots. If TRUE (default), results will be presented
+as odds ratios and risk ratios; otherwise log odds ratios and log
+risk ratios will be shown.}
 
 \item{pscale}{A numeric defining a scaling factor for printing of
 risk differences.}
@@ -438,8 +440,8 @@ ratio, i.e. \code{(O-E) / V} and its standard error \code{sqrt(1 /
 V)} with \code{O-E} and \code{V} denoting "Observed minus Expected"
 and its variance, are utilised in the random effects
 model. Accordingly, results of a random effects model using
-\code{sm = "Peto"} can be different to results from a random
-effects model using \code{sm = "MH"} or \code{sm =
+\code{method = "Peto"} can be different to results from a random
+effects model using \code{method = "MH"} or \code{method =
 "Inverse"}. Note, the random effects estimate is based on the
 inverse variance method for all methods discussed so far.
 
@@ -537,11 +539,12 @@ For studies with a zero cell count, by default, 0.5 (argument
 \code{incr}) is added to all cell frequencies for the odds ratio or
 only the number of events for the risk ratio (argument
 \code{RR.Cochrane = FALSE}, default). The increment is added to all
-cell frequencies for the risk ratio if argument \code{RR.Cochrane =
-TRUE}. For the risk difference, \code{incr} is only added to all
-cell frequencies to calculate the standard error. Finally, a
-treatment arm continuity correction is used if \code{incr = "TACC"}
-(Sweeting et al., 2004; Diamond et al., 2007).
+cell frequencies for the risk ratio or vaccine efficacy / effectiveness
+if argument \code{RR.Cochrane = TRUE}. For the risk difference,
+\code{incr} is only added to all cell frequencies to calculate the
+standard error. Finally, a treatment arm continuity correction is used
+if \code{incr = "TACC"} (Sweeting et al., 2004; Diamond et al.,
+2007).
 
 For odds ratio and risk ratio, treatment estimates and standard
 errors are only calculated for studies with zero or all events in
@@ -644,8 +647,8 @@ ma3
 ma4 <- update(ma3, method = "MH")
 ma4
 
-# Meta-analysis based on Peto method (only available for odds ratio
-# as summary measure)
+# Meta-analysis based on Peto method (only available for odds ratio or
+# diagnostic odds ratio as summary measure)
 #
 ma5 <- update(ma3, method = "Peto")
 ma5
