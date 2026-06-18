@@ -13,6 +13,10 @@
     using the sample size method or a logistic regression with penalised
     likelihood [(issue #93)](https://github.com/guido-s/meta/pull/93)
 
+* pairwise():
+  - consider continuity correction in binary outcomes with effect measure "DOR"
+    or "VE" [(issue #94)](https://github.com/guido-s/meta/pull/94)
+
 
 ## meta, version 8.5-0 (2026-05-25)
 

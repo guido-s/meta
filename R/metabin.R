@@ -1560,16 +1560,16 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   #
   sel <- switch(sm,
                 OR = ((n.e - event.e) == 0 | event.e == 0 |
-                        (n.c - event.c) == 0 | event.c == 0),
-                RD = ((n.e - event.e) == 0 | event.e == 0 |
-                        (n.c - event.c) == 0 | event.c == 0),
-                RR = ((n.e - event.e) == 0 | event.e == 0 |
-                        (n.c - event.c) == 0 | event.c == 0),
-                VE = ((n.e - event.e) == 0 | event.e == 0 |
-                        (n.c - event.c) == 0 | event.c == 0),
-                ASD = rep(FALSE, length(event.e)),
+                      (n.c - event.c) == 0 | event.c == 0),
                 DOR = ((n.e - event.e) == 0 | event.e == 0 |
-                         (n.c - event.c) == 0 | event.c == 0))
+                       (n.c - event.c) == 0 | event.c == 0),
+                RR = ((n.e - event.e) == 0 | event.e == 0 |
+                      (n.c - event.c) == 0 | event.c == 0),
+                VE = ((n.e - event.e) == 0 | event.e == 0 |
+                      (n.c - event.c) == 0 | event.c == 0),
+                RD = ((n.e - event.e) == 0 | event.e == 0 |
+                      (n.c - event.c) == 0 | event.c == 0),
+                ASD = rep(FALSE, length(event.e)))
   #
   sel[is.na(incl)] <- FALSE
   incl[is.na(incl)] <- 0

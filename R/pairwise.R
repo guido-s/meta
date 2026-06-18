@@ -44,8 +44,8 @@
 #'   \code{"if0all"}, or \code{"all"}), see \code{\link{metabin}}.
 #' @param allstudies A logical indicating if studies with zero or all
 #'   events in two treatment arms are to be included in the
-#'   meta-analysis (applies only if \code{sm} is equal to \code{"RR"}
-#'   or \code{"OR"}).
+#'   meta-analysis (applies only if \code{sm} is equal to \code{"OR"},
+#'   \code{"DOR"}, \code{"RR"}, or \code{"VE"}).
 #' @param relative.effects A logical indicating whether treatment estimates
 #'   and standard errors provided in \code{TE} and \code{seTE} are relative
 #'   treatment effects.
@@ -1595,8 +1595,10 @@ pairwise <- function(treat,
         #
         sparse <- switch(sm,
                          OR = (n.zeros > 0) | (n.all > 0),
-                         RD = (n.zeros > 0) | (n.all > 0),
+                         DOR = (n.zeros > 0) | (n.all > 0),
                          RR = (n.zeros > 0) | (n.all > 0),
+                         VE = (n.zeros > 0) | (n.all > 0),
+                         RD = (n.zeros > 0) | (n.all > 0),
                          ASD = rep(FALSE, length(n.zeros)))
         #
         if (!allincr & !addincr)
