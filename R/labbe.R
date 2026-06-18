@@ -46,7 +46,8 @@
 #' @param lwd.nulleffect Width of line for null effect.
 #' @param col.nulleffect Colour of line for null effect.
 #' @param sm A character string indicating underlying summary measure,
-#'   i.e., \code{"RD"}, \code{"RR"}, \code{"OR"}, or \code{"ASD"}.
+#'   i.e., \code{"RD"}, \code{"RR"}, \code{"VE"}, \code{"OR"}, \code{"DOR"},
+#'   or \code{"ASD"}.
 #' @param weight Either a numeric vector specifying relative sizes of
 #'   plotting symbols or a character string indicating which type of
 #'   plotting symbols is to be used for individual treatment
@@ -76,7 +77,7 @@
 #' A L'Abbé plot is a scatter plot with the risk in the control group
 #' on the x-axis and the risk in the experimental group on the y-axis
 #' (L'Abbé et al., 1987). It can be used to evaluate heterogeneity in
-#' meta-analysis.  Furthermore, this plot can aid to choose a summary
+#' meta-analysis. Furthermore, this plot can aid to choose a summary
 #' measure (odds ratio, risk ratio, risk difference) that will result
 #' in more consistent results (Jiménez et al., 1997; Deeks, 2002).
 #' 
@@ -84,11 +85,11 @@
 #' probabilities will be printed on x- and y-axis. Otherwise,
 #' transformed event probabilities will be printed as defined by the
 #' summary measure, i.e., log odds of probabilities for odds ratio as
-#' summary measure (\code{sm = "OR"}), log probabilities for \code{sm
-#' = "RR"}, and arcsine-transformed probabilities for \code{sm =
-#' "ASD"}.
+#' summary measure (\code{sm = "OR"} or \code{"DOR"}), log probabilities for
+#' \code{sm = "RR"} or \code{"VE"}, and arcsine-transformed probabilities for
+#' \code{sm = "ASD"}.
 #' 
-#' If \code{common} is TRUE, the estimate of the common effct model is
+#' If \code{common} is TRUE, the estimate of the common effect model is
 #' plotted as a line. If \code{random} is TRUE, the estimate of the
 #' random effects model is plotted as a line.
 #' 
@@ -291,7 +292,7 @@ labbe.metabin <- function(x,
       xpos <- log(xpos / (1 - xpos))
       ypos <- log(ypos / (1 - ypos))
     }
-    else if (sm == "RR") {
+    else if (sm %in% c("RR", "VE")) {
       xpos <- log(xpos)
       ypos <- log(ypos)
     }
@@ -356,50 +357,29 @@ labbe.metabin <- function(x,
   on.exit(par(oldpar), add = TRUE)
   
   
+  label.c <- replaceNULL(label.c, "Control")
+  label.e <- replaceNULL(label.e, "Experimental")
+  #
   if (is.null(xlab)) {
-    if (length(label.c) > 0) {
-      xlab <- paste0("Event rate (", label.c, ")")
-      if (!backtransf)
-        if (sm %in% c("OR", "DOR"))
-          xlab <- paste0("log(odds) ", label.c)
-        else if (sm == "RR")
-          xlab <- paste0("log(event rate) ", label.c)
-        else if (sm == "ASD")
-          xlab <- paste0("Arcsin-transformed event rate (", label.c, ")")
-    }
-    else {
-      xlab <- "Event rate (Control)"
-      if (!backtransf)
-        if (sm %in% c("OR", "DOR"))
-          xlab <- "log(odds) Control"
-        else if (sm == "RR")
-          xlab <- "log(event rate) Control"
-        else if (sm == "ASD")
-          xlab <- "Arcsin-transformed event rate (Control)"
-    }
+    xlab <- paste0("Event rate (", label.c, ")")
+    if (!backtransf)
+      if (sm %in% c("OR", "DOR"))
+        xlab <- paste0("log(odds) ", label.c)
+    else if (sm %in% c("RR", "VE"))
+      xlab <- paste0("log(event rate) ", label.c)
+    else if (sm == "ASD")
+      xlab <- paste0("Arcsin-transformed event rate (", label.c, ")")
   }
   #
   if (is.null(ylab)) {
-    if (length(label.e) > 0) {
-      ylab <- paste0("Event rate (", label.e, ")")
-      if (!backtransf)
-        if (sm %in% c("OR", "DOR"))
-          ylab <- paste0("log(odds) ", label.e)
-        else if (sm == "RR")
-          ylab <- paste0("log(event rate) ", label.e)
-        else if (sm == "ASD")
-          ylab <- paste0("Arcsin-transformed event rate (", label.e, ")")
-    }
-    else {
-      ylab <- "Event rate (Experimental)"
-      if (!backtransf)
-        if (sm %in% c("OR", "DOR"))
-          ylab <- "log(odds) Experimental"
-        else if (sm == "RR")
-          ylab <- "log(event rate) Experimental"
-        else if (sm == "ASD")
-          ylab <- "Arcsin-transformed event rate (Experimental)"
-    }
+    ylab <- paste0("Event rate (", label.e, ")")
+    if (!backtransf)
+      if (sm %in% c("OR", "DOR"))
+        ylab <- paste0("log(odds) ", label.e)
+    else if (sm %in% c("RR", "VE"))
+      ylab <- paste0("log(event rate) ", label.e)
+    else if (sm == "ASD")
+      ylab <- paste0("Arcsin-transformed event rate (", label.e, ")")
   }
   
   
@@ -458,7 +438,7 @@ labbe.metabin <- function(x,
                lty = lty.common[i], lwd = lwd.common[i],
                col = col.common[i])
     else {
-      if (sm == "RR") {
+      if (sm %in% c("RR", "VE")) {
         for (i in 1:length(TE.common)) {
           y.line <- x.line * exp(TE.common[i])
           addlines(x.line, y.line, ylim,
@@ -503,7 +483,7 @@ labbe.metabin <- function(x,
                lty = lty.random[i], lwd = lwd.random[i],
                col = col.random[i])
     else {
-      if (sm == "RR") {
+      if (sm %in% c("RR", "VE")) {
         for (i in 1:length(TE.random)) {
           y.line <- x.line * exp(TE.random[i])
           addlines(x.line, y.line, ylim,
@@ -628,11 +608,11 @@ labbe.default <- function(x, y,
       xpos <- log(xpos / (1 - xpos))
       ypos <- log(ypos / (1 - ypos))
     }
-    else if (sm == "RR") {
+    else if (sm %in% c("RR", "VE")) {
       xpos <- log(xpos)
       ypos <- log(ypos)
     }
-    else if (sm == "ASD") {
+    else if (sm %in% c("RR", "VE")) {
       xpos <- asin(sqrt(xpos))
       ypos <- asin(sqrt(ypos))
     }
@@ -673,7 +653,7 @@ labbe.default <- function(x, y,
       if (!backtransf)
         if (sm %in% c("OR", "DOR"))
           xlab <- paste0("log(odds) ", label.c)
-        else if (sm == "RR")
+        else if (sm %in% c("RR", "VE"))
           xlab <- paste0("log(event rate) ", label.c)
         else if (sm == "ASD")
           xlab <- paste0("Arcsin-transformed event rate (", label.c, ")")
@@ -683,7 +663,7 @@ labbe.default <- function(x, y,
       if (!backtransf)
         if (sm %in% c("OR", "DOR"))
           xlab <- "log(odds) Control"
-        else if (sm == "RR")
+        else if (sm %in% c("RR", "VE"))
           xlab <- "log(event rate) Control"
         else if (sm == "ASD")
           xlab <- "Arcsin-transformed event rate (Control)"
@@ -696,7 +676,7 @@ labbe.default <- function(x, y,
       if (!backtransf)
         if (sm %in% c("OR", "DOR"))
           ylab <- paste0("log(odds) ", label.e)
-        else if (sm == "RR")
+        else if (sm %in% c("RR", "VE"))
           ylab <- paste0("log(event rate) ", label.e)
         else if (sm == "ASD")
           ylab <- paste0("Arcsin-transformed event rate (", label.e, ")")
@@ -706,7 +686,7 @@ labbe.default <- function(x, y,
       if (!backtransf)
         if (sm %in% c("OR", "DOR"))
           ylab <- "log(odds) Experimental"
-        else if (sm == "RR")
+        else if (sm %in% c("RR", "VE"))
           ylab <- "log(event rate) Experimental"
         else if (sm == "ASD")
           ylab <- "Arcsin-transformed event rate (Experimental)"
@@ -769,7 +749,7 @@ labbe.default <- function(x, y,
                lty = lty.common[i], lwd = lwd.common[i],
                col = col.common[i])
     else {
-      if (sm == "RR") {
+      if (sm %in% c("RR", "VE")) {
         for (i in 1:length(TE.common)) {
           y.line <- x.line * exp(TE.common[i])
           addlines(x.line, y.line, ylim,
@@ -814,7 +794,7 @@ labbe.default <- function(x, y,
                lty = lty.random[i], lwd = lwd.random[i],
                col = col.random[i])
     else {
-      if (sm == "RR") {
+      if (sm %in% c("RR", "VE")) {
         for (i in 1:length(TE.random)) {
           y.line <- x.line * exp(TE.random[i])
           addlines(x.line, y.line, ylim,

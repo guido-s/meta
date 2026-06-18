@@ -159,7 +159,8 @@ should be added to the plot..}
 \item{col.nulleffect}{Colour of line for null effect.}
 
 \item{sm}{A character string indicating underlying summary measure,
-i.e., \code{"RD"}, \code{"RR"}, \code{"OR"}, or \code{"ASD"}.}
+i.e., \code{"RD"}, \code{"RR"}, \code{"VE"}, \code{"OR"}, \code{"DOR"},
+or \code{"ASD"}.}
 
 \item{weight}{Either a numeric vector specifying relative sizes of
 plotting symbols or a character string indicating which type of
@@ -208,7 +209,7 @@ Draw a L'Abbé plot for meta-analysis with binary outcomes.
 A L'Abbé plot is a scatter plot with the risk in the control group
 on the x-axis and the risk in the experimental group on the y-axis
 (L'Abbé et al., 1987). It can be used to evaluate heterogeneity in
-meta-analysis.  Furthermore, this plot can aid to choose a summary
+meta-analysis. Furthermore, this plot can aid to choose a summary
 measure (odds ratio, risk ratio, risk difference) that will result
 in more consistent results (Jiménez et al., 1997; Deeks, 2002).
 
@@ -216,11 +217,11 @@ If argument \code{backtransf} is TRUE (default), event
 probabilities will be printed on x- and y-axis. Otherwise,
 transformed event probabilities will be printed as defined by the
 summary measure, i.e., log odds of probabilities for odds ratio as
-summary measure (\code{sm = "OR"}), log probabilities for \code{sm
-= "RR"}, and arcsine-transformed probabilities for \code{sm =
-"ASD"}.
+summary measure (\code{sm = "OR"} or \code{"DOR"}), log probabilities for
+\code{sm = "RR"} or \code{"VE"}, and arcsine-transformed probabilities for
+\code{sm = "ASD"}.
 
-If \code{common} is TRUE, the estimate of the common effct model is
+If \code{common} is TRUE, the estimate of the common effect model is
 plotted as a line. If \code{random} is TRUE, the estimate of the
 random effects model is plotted as a line.
 
