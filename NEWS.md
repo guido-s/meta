@@ -6,6 +6,12 @@
   - do not automatically attach 'label.e' to the column 'n.e' with
     sample sizes for meta-analysis objects created with metagen() if
     sample sizes in control group ('n.c') are not provided
+  - print "IV" instead of "MH" for meta-analysis with binary outcome
+    using the Mantel-Haenszel method, but only printing the results for the
+    random effects model [(issue #93)](https://github.com/guido-s/meta/pull/93)
+  - print "SSW" or "LRP" instead of "NA" for meta-analysis with binary outcome
+    using the sample size method or a logistic regression with penalised
+    likelihood [(issue #93)](https://github.com/guido-s/meta/pull/93)
 
 
 ## meta, version 8.5-0 (2026-05-25)

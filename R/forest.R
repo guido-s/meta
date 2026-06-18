@@ -4039,8 +4039,12 @@ forest.meta <- function(x,
   }
   else {
     if (revman5) {
-      sel.method <- pmatch(x$method, c("Inverse", "MH", "Peto", "GLMM"))
-      lab.method <- c("IV", "MH", "Peto", "GLMM")[sel.method]
+      if (random & !common)
+        sel.method <- pmatch(x$method.random, gs("meth4bin"))
+      else
+        sel.method <- pmatch(x$method, gs("meth4bin"))
+      #
+      lab.method <- gsub("Inverse", "IV", gs("meth4bin")[sel.method])
       #
       if (common.random)
         lab.model <- "Fixed + Random, "
@@ -4058,8 +4062,12 @@ forest.meta <- function(x,
       }
     }
     else if (bmj) {
-      sel.method <- pmatch(x$method, c("Inverse", "MH", "Peto", "GLMM"))
-      lab.method <- c("IV", "MH", "Peto", "GLMM")[sel.method]
+      if (random & !common)
+        sel.method <- pmatch(x$method.random, gs("meth4bin"))
+      else
+        sel.method <- pmatch(x$method, gs("meth4bin"))
+      #
+      lab.method <- gsub("Inverse", "IV", gs("meth4bin")[sel.method])
       #
       if (common.random)
         lab.model <- "common + random "
@@ -8122,13 +8130,22 @@ forest.meta <- function(x,
     is.tau <- grepl(" for tau", td, fixed = TRUE)
     is.tau.c <- grepl("assuming common", td, fixed = TRUE)
     is.tau <- ifelse(is.tau & is.tau.c, FALSE, is.tau)
+    is.Q.Cochrane <-
+      grepl(
+        paste("Mantel-Haenszel estimator used in",
+              "calculation of Q and tau"),
+        td,
+        fixed = TRUE
+        )
     #
     any.tau <- sum(is.tau)
     any.tau.c <- sum(is.tau.c)
+    any.Q.Cochrane <- sum(is.Q.Cochrane)
     #
-    if (any.tau | any.tau.c) {
+    if (any.tau | any.tau.c | any.Q.Cochrane) {
       id.tau <- seq_along(is.tau)[is.tau]
       id.tau.c <- seq_along(is.tau.c)[is.tau.c]
+      id.Q.Cochrane <- seq_along(is.Q.Cochrane)[is.Q.Cochrane]
       #
       if (print.tau) {
         if (any.tau.c)
@@ -8141,6 +8158,11 @@ forest.meta <- function(x,
           for (i in id.tau)
             td[[i]] <-
               gsub(" for tau", " for ", td[[i]], fixed = TRUE)
+        #
+        if (any.Q.Cochrane)
+          for (i in id.Q.Cochrane)
+            td[[i]] <-
+              gsub(" and tau (like RevMan 5)", " and ", td[[i]], fixed = TRUE)
       }
       else {
         if (any.tau.c)
@@ -8153,6 +8175,11 @@ forest.meta <- function(x,
           for (i in id.tau)
             td[[i]] <-
               gsub(" for tau^2", " for ", td[[i]], fixed = TRUE)
+        #
+        if (any.Q.Cochrane)
+          for (i in id.Q.Cochrane)
+            td[[i]] <-
+              gsub(" and tau^2 (like RevMan 5)", " and ", td[[i]], fixed = TRUE)
       }
       #
       if (print.tau) {
@@ -8170,6 +8197,14 @@ forest.meta <- function(x,
               td[[i]] <-
                 substitute(paste(txt1, txt2),
                            list(txt1 = td[[i]], txt2 = "Tau"))
+          #
+          if (any.Q.Cochrane)
+            for (i in id.Q.Cochrane)
+              td[[i]] <-
+                substitute(paste(txt1, txt2),
+                           list(txt1 = td[[i]],
+                                txt2 =
+                                  "Tau (like RevMan 5)"))
         }
         else {
           if (any.tau.c)
@@ -8184,6 +8219,13 @@ forest.meta <- function(x,
             for (i in id.tau)
               td[[i]] <-
                 substitute(paste(txt, tau), list(txt = td[[i]]))
+          #
+          if (any.Q.Cochrane)
+            for (i in id.Q.Cochrane)
+              td[[i]] <-
+                substitute(paste(txt1, tau, txt2),
+                           list(txt1 = td[[i]],
+                                txt2 = " (like RevMan 5)"))
         }
       }
       else {
@@ -8203,6 +8245,13 @@ forest.meta <- function(x,
               td[[i]] <-
                 substitute(paste(txt1, txt2^2),
                            list(txt1 = td[[i]], txt2 = "Tau"))
+          #
+          if (any.Q.Cochrane)
+            for (i in id.Q.Cochrane)
+              td[[i]] <-
+                substitute(paste(txt1, txt2^2, txt3),
+                           list(txt1 = td[[i]], txt2 = "Tau",
+                                txt3 = " (like RevMan 5)"))
         }
         else {
           if (any.tau.c)
@@ -8217,6 +8266,13 @@ forest.meta <- function(x,
             for (i in id.tau)
               td[[i]] <-
                 substitute(paste(txt, tau^2), list(txt = td[[i]]))
+          #
+          if (any.Q.Cochrane)
+            for (i in id.Q.Cochrane)
+              td[[i]] <-
+                substitute(paste(txt1, tau^2, txt2),
+                           list(txt1 = td[[i]],
+                                txt2 = " (like RevMan 5)"))
         }
       }
     }
