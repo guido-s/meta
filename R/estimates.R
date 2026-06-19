@@ -697,6 +697,7 @@ print.estimates.meta <- function(x,
   #
   backtransf <- attr(x, "backtransf")
   sm.lab <- smlab(meta$sm, backtransf, meta$pscale, meta$irscale)
+  sm.lab.se <- smlab(meta$sm, FALSE)
   #
   ci.lab <- paste0(round(100 * meta$level, 1), "% CI")
   #
@@ -748,6 +749,7 @@ print.estimates.meta <- function(x,
   #
   cn <- colnames(res)
   cn[cn == "estimate"] <- sm.lab
+  cn[cn == "se"] <- paste0("SE(", sm.lab.se, ")")
   cn[cn == "lower"] <- ci.lab
   colnames(res) <- cn
   
