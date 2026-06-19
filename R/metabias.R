@@ -601,7 +601,7 @@ metabias.meta <- function(x, method.bias = x$method.bias,
         if (inherits(x, "metabin")) {
           ESS <- 4 * n.e * n.c / (n.e + n.c)
           #
-          lreg <- linregcore(TE, sqrt(1 / ESS), 1 / sqrt(ESS), ...)
+          lreg <- linregcore(TE, 1 / sqrt(ESS), 1 / sqrt(ESS), ...)
         }
         else
           stoponly("method.bias", method.bias, "metabin()")
@@ -639,7 +639,6 @@ metabias.meta <- function(x, method.bias = x$method.bias,
         abline(lreg$slope, lreg$intercept)
       }
       else if (method.bias == "Begg") {
-        #
         if (plotit) {
           plot(TE.s, seTE^2,
                xlab = "Standardised treatment effect",
@@ -647,8 +646,11 @@ metabias.meta <- function(x, method.bias = x$method.bias,
         }
       }
       else if (method.bias == "Harbord") {
-        #
         radial(TE.score, seTE.score, common = FALSE)
+        abline(lreg$slope, lreg$intercept)
+      }
+      else if (method.bias == "Deeks") {
+        radial(TE, 1 / sqrt(ESS), common = FALSE)
         abline(lreg$slope, lreg$intercept)
       }
     }

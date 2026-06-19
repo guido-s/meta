@@ -37,7 +37,19 @@
 
 * metabias():
   - use efficient score for risk ratio instead of odds ratio in meta-analysis
-    with binary outcome and summary measure "VE"
+    with binary outcome and vaccine efficacy (sm = "VE")
+    [(issue #94)](https://github.com/guido-s/meta/pull/94)
+
+* plot.cidprop():
+  - back transform results for vaccine efficacy (sm = "VE") (#94)
+    [(issue #94)](https://github.com/guido-s/meta/pull/94)
+
+### Internal changes
+
+* cidprop():
+  - for vaccine efficacy (sm = "VE"), defaults for 'cid.below.null' and
+    'cid.above.null' calculated from 'cid' are based on relative instead of
+    absolute distances from the null effect
     [(issue #94)](https://github.com/guido-s/meta/pull/94)
 
 

@@ -207,6 +207,7 @@ plot.cidprop <- function(x,
     }
   }
   
+  
   #
   #
   # (2) Re-run cidprop() if settings changed
@@ -264,12 +265,13 @@ plot.cidprop <- function(x,
     }
   }
   
+  
   #
   #
   # (3) Extract results from cidprop-object
   #
   #
-    
+  
   x.meta <- x$x
   #
   sm <- x.meta$sm
@@ -282,6 +284,7 @@ plot.cidprop <- function(x,
     ylab <- "Density"
   #
   is_relative <- is_relative_effect(sm)
+  is_VE <- sm == "VE"
   #
   cid.below.null <- x$cid.below.null
   cid.above.null <- x$cid.above.null
@@ -289,6 +292,10 @@ plot.cidprop <- function(x,
   if (is_relative) {
     cid.below.null.transf <- log(cid.below.null)
     cid.above.null.transf <- log(cid.above.null)
+  }
+  else if (is_VE) {
+    cid.below.null.transf <- VE2logVR(cid.below.null)
+    cid.above.null.transf <- VE2logVR(cid.above.null)
   }
   else {
     cid.below.null.transf <- cid.below.null
@@ -321,6 +328,7 @@ plot.cidprop <- function(x,
   #
   avail.cid.below.null <- !all(is.na(cid.below.null))
   avail.cid.above.null <- !all(is.na(cid.above.null))
+  
   
   #
   #
@@ -376,6 +384,7 @@ plot.cidprop <- function(x,
   if (length(fill) != 1)
     stop("Argument 'fill' must be a single colour",
          call. = FALSE)
+  
   
   #
   #
@@ -460,6 +469,7 @@ plot.cidprop <- function(x,
     column_to_rownames("category") %>%
     rename(Percent = prop) %>%
     select(-label, -sign)
+    
   
   #
   #
@@ -539,6 +549,13 @@ plot.cidprop <- function(x,
     #
     seq <- exp(seq)
   }
+  else if (is_VE) {
+    dat$xval <- logVR2VE(dat$xval)
+    #
+    seq <- logVR2VE(seq)
+    #
+    fill.category <- rev(fill.category)
+  }
   #
   # Only keep values within limits of x-axis
   #
@@ -549,16 +566,26 @@ plot.cidprop <- function(x,
   #
   x.diamond <- c(TE.random, upper.random, TE.random, lower.random)
   dat.diamond <- data.frame(
-    x = if (is_relative) exp(x.diamond) else x.diamond,
+    x =
+      if (is_relative) exp(x.diamond)
+      else if (is_VE) logVR2VE(x.diamond)
+      else x.diamond,
     y = -0.03 + c(0.005, 0, -0.005, 0)
   )
   #
   # Data for prediction interval
   #
   dat.predict <- data.frame(
-    x1 = if (is_relative) exp(lower.predict) else lower.predict,
-    x2 = if (is_relative) exp(upper.predict) else upper.predict,
+    x1 = 
+      if (is_relative) exp(lower.predict)
+      else if (is_VE) logVR2VE(upper.predict)
+      else lower.predict,
+    x2 =
+      if (is_relative) exp(upper.predict)
+      else if (is_VE) logVR2VE(lower.predict)
+      else upper.predict,
     y1 = -0.045, y2 = -0.05)
+  
   
   #
   #
@@ -574,8 +601,14 @@ plot.cidprop <- function(x,
                  fill = col.diamond, color = col.diamond.lines) +
     # Add prediction interval
     annotate("rect",
-             xmin = if (is_relative) exp(lower.predict) else lower.predict,
-             xmax = if (is_relative) exp(upper.predict) else upper.predict,
+             xmin =
+               if (is_relative) exp(lower.predict)
+               else if (is_VE) logVR2VE(upper.predict)
+               else lower.predict,
+             xmax =
+               if (is_relative) exp(upper.predict)
+               else if (is_VE) logVR2VE(lower.predict)
+               else upper.predict,
              ymin = -0.05, ymax = -0.045,
              fill = col.predict, color = col.predict.lines) +
   xlab(xlab) + ylab(ylab)
@@ -594,7 +627,10 @@ plot.cidprop <- function(x,
   #
   if (studies) {
     dat.TE <-
-      data.frame(TE = if (is_relative) exp(TE) else TE,
+      data.frame(TE =
+                   if (is_relative) exp(TE)
+                   else if (is_VE) logVR2VE(TE)
+                   else TE,
                  yval = 0, size = 10 * w.random / max(w.random))
     #
     if (!missing.xlim)

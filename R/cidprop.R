@@ -117,7 +117,8 @@ cidprop.meta <- function(x,
                          label.cid.below.null = NULL,
                          label.cid.above.null = NULL,
                          #
-                         small.values = "desirable",
+                         small.values =
+                           if (x$sm != "VE") "desirable" else "undesirable",
                          ...) {
   
   #
@@ -130,6 +131,7 @@ cidprop.meta <- function(x,
   #
   sm <- x$sm
   is_relative <- is_relative_effect(sm)
+  is_VE <- sm == "VE"
   #
   missing.cid <- missing(cid)
   #
@@ -214,11 +216,13 @@ cidprop.meta <- function(x,
         cid.below.null <- cid
         cid.above.null <- cid
       }
-      else if (all(cid < ref)) {
+      else if (all(cid <= ref)) {
         cid.below.null <- cid
         #
         if (is_relative)
           cid.above.null <- rev(1 / cid)
+        else if (is_VE)
+          cid.above.null <- rev(logVR2VE(-VE2logVR(cid)))
         else
           cid.above.null <- rev(-cid)
       }
@@ -227,6 +231,8 @@ cidprop.meta <- function(x,
         #
         if (is_relative)
           cid.below.null <- rev(1 / cid)
+        else if (is_VE)
+          cid.below.null <- rev(logVR2VE(-VE2logVR(cid)))
         else
           cid.below.null <- rev(-cid)
       }
@@ -262,6 +268,11 @@ cidprop.meta <- function(x,
     cid.above.null.transf <- NA
   }
   #
+  if (is_VE) {
+    cid.below.null.transf <- VE2logVR(cid.above.null)
+    cid.above.null.transf <- VE2logVR(cid.below.null)
+  }
+  #
   # CID labels
   #
   avail.label.cid <- !missing(label.cid) & !is.null(label.cid)
@@ -295,7 +306,6 @@ cidprop.meta <- function(x,
     else if (avail.label.cid.above.null)
       warning("Argument 'label.cid.above.null' ignored as argument 'label.cid' is provided.",
               call. = FALSE)
-    #
     #
     if (all(cid < ref)) {
       label.cid.below.null <- label.cid
@@ -356,6 +366,12 @@ cidprop.meta <- function(x,
   #
   if (is_zero(prop.within.cid))
     prop.within.cid <- 0
+  #
+  if (is_VE) {
+    prop.tmp <- prop.cid.below.null
+    prop.cid.below.null <- prop.cid.above.null
+    prop.cid.above.null <- prop.tmp
+  }
   
   
   #

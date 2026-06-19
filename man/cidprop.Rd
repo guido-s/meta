@@ -15,7 +15,7 @@ benefit or harm}
   label.cid = "",
   label.cid.below.null = NULL,
   label.cid.above.null = NULL,
-  small.values = "desirable",
+  small.values = if (x$sm != "VE") "desirable" else "undesirable",
   ...
 )
 
