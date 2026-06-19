@@ -174,8 +174,8 @@ the test by Peters et al. (2006) which can also be used in a
 meta-analysis of single proportions generated with \code{metaprop}.
 
 If argument \code{method.bias} is \code{"Harbord"}, the test
-statistic is based on a weighted linear regression utilising
-efficient score and score variance (Harbord et al., 2006,
+statistic is based on a weighted linear regression utilising the
+efficient score and the score variance (Harbord et al., 2006,
 2009). The test statistic follows a t distribution with
 \code{number of studies - 2} degrees of freedom.
 

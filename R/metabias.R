@@ -85,8 +85,8 @@
 #' meta-analysis of single proportions generated with \code{metaprop}.
 #' 
 #' If argument \code{method.bias} is \code{"Harbord"}, the test
-#' statistic is based on a weighted linear regression utilising
-#' efficient score and score variance (Harbord et al., 2006,
+#' statistic is based on a weighted linear regression utilising the
+#' efficient score and the score variance (Harbord et al., 2006,
 #' 2009). The test statistic follows a t distribution with
 #' \code{number of studies - 2} degrees of freedom.
 #' 
@@ -525,7 +525,7 @@ metabias.meta <- function(x, method.bias = x$method.bias,
       }
       else if (method.bias == "Harbord") {
         if (inherits(x, "metabin")) {
-          if (x$sm == "RR") {
+          if (x$sm %in% c("RR", "VE")) {
             #
             # Harbord et al. (2009), The Stata Journal
             #
@@ -537,7 +537,7 @@ metabias.meta <- function(x, method.bias = x$method.bias,
               (event.e + event.c) / (n.e - event.e + n.c - event.c)
           }
           else {
-            if (x$sm != "OR")
+            if (!(x$sm %in% c("OR", "DOR")))
               warning("Using odds ratio as effect measure in Harbord test.",
                       call. = FALSE)
             #
@@ -837,12 +837,22 @@ print.metabias <- function(x,
           cat(paste0(lab.method.tau, "\n"))
         }
         #
+        if (x$method.bias == "Harbord")
+          text.response <-
+            paste0("efficient score (",
+                   if (x$x$sm %in% c("RR", "VE")) "risk" else "odds",
+                   " ratio)")
+        else
+          text.response <- tolower(xlab_meta(x$x$sm, FALSE))
+        #
+        cat(paste0("- response:  ", text.response, "\n"))
+        #
         if (x$method.bias == "Egger")
           detail.predictor <- "standard error"
         else if (x$method.bias == "Thompson")
           detail.predictor <- "standard error"
         else if (x$method.bias == "Harbord")
-          detail.predictor <- "standard error of score"
+          detail.predictor <- "standard error of efficient score"
         else if (x$method.bias == "Macaskill")
           detail.predictor <- "total sample size"
         else if (x$method.bias == "Peters")

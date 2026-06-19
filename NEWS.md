@@ -1,5 +1,10 @@
 ## meta, version 8.5-1 (2026-mm-dd)
 
+### User-visible changes
+
+* metabias():
+  - print information on response variable in meta-regression
+
 ### Bug fixes
 
 * forest.meta():
@@ -28,6 +33,11 @@
 
 * bubble():
   - back transform results for vaccine efficacy (sm = "VE")
+    [(issue #94)](https://github.com/guido-s/meta/pull/94)
+
+* metabias():
+  - use efficient score for risk ratio instead of odds ratio in meta-analysis
+    with binary outcome and summary measure "VE"
     [(issue #94)](https://github.com/guido-s/meta/pull/94)
 
 
