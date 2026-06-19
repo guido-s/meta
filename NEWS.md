@@ -4,6 +4,9 @@
 
 * metabias():
   - print information on response variable in meta-regression
+  - radial plot can be created for Deeks' test (arguments method = "Deeks"
+    and plotit = TRUE)
+    [(issue #92)](https://github.com/guido-s/meta/pull/92)
 
 ### Bug fixes
 
