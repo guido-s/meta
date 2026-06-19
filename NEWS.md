@@ -26,6 +26,10 @@
   - back transform results for vaccine efficacy (sm = "VE")
     [(issue #94)](https://github.com/guido-s/meta/pull/94)
 
+* bubble():
+  - back transform results for vaccine efficacy (sm = "VE")
+    [(issue #94)](https://github.com/guido-s/meta/pull/94)
+
 
 ## meta, version 8.5-0 (2026-05-25)
 

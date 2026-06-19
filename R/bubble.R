@@ -336,6 +336,8 @@ bubble.metareg <- function(x,
       func.backtransf <- function(x) x^2
     else if (sm == "ZCOR")
       func.backtransf <- z2cor
+    else if (sm == "VE")
+      func.backtransf <- logVR2VE
     else
       func.backtransf <- I
     #
