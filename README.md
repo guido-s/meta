@@ -8,6 +8,11 @@ Official Git repository of R package **meta**
 [![Total Downloads](https://cranlogs.r-pkg.org/badges/grand-total/meta)](https://cranlogs.r-pkg.org/badges/grand-total/meta)
 
 
+## Author
+
+[Guido Schwarzer](https://orcid.org/0000-0001-6214-9087)
+
+
 ## Description
 
 User-friendly general package providing standard methods for meta-analysis and supporting Schwarzer, Carpenter, and Rücker, "Meta-Analysis with R" (2015):
@@ -47,6 +52,17 @@ remotes::install_github("guido-s/meta", build_vignettes = TRUE)
 or without the vignette
 ```r
 remotes::install_github("guido-s/meta")
+```
+
+
+## How to cite netmeta?
+
+[Balduzzi S, Rücker G, Schwarzer G (2019): How to perform a meta-analysis with R: a practical tutorial. *Evidence-Based Mental Health*, **22**, 153-60](https://doi.org/10.1136/ebmental-2019-300117)
+
+A BibTeX entry for LaTeX users is provided by
+
+```
+citation(package = "meta")
 ```
 
 
