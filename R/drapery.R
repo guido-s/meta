@@ -251,6 +251,7 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
   # (1) Check and set arguments
   #
   #
+  
   chkclass(x, "meta")
   x <- updateversion(x)
   #
@@ -440,6 +441,7 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
   # (2) Set variables for plotting
   #
   #
+  
   if (missing(ylim))
     ylim <-
       if (type == "pvalue") c(0, 1)
@@ -452,21 +454,32 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
     }
   #
   x.backtransf <- is_relative_effect(x$sm) & backtransf
+  VE.backtransf <- x$sm == "VE" & backtransf
   #
   missing.xlim <- missing(xlim)
   #
   if (missing.xlim) {
-    mn <- min(x$lower, na.rm = TRUE)
-    mx <- max(x$upper, na.rm = TRUE)
+    if (!VE.backtransf) {
+      mn <- min(x$lower, na.rm = TRUE)
+      mx <- max(x$upper, na.rm = TRUE)
+    }
+    else {
+      mn <- max(x$upper, na.rm = TRUE)
+      mx <- min(x$lower, na.rm = TRUE)
+    }
     #
     xlim <- c(mn, mx)
   }
   else {
+    chknumeric(xlim, length = 2)
+    #
     if (x.backtransf)
       xlim <- log(xlim)
+    else if (VE.backtransf)
+      xlim <- VE2logVR(xlim)
     #
-    mn <- min(xlim)
-    mx <- max(xlim)
+    mn <- xlim[1]
+    mx <- xlim[2]
   }
   #
   grid <- c(seq(mn, mx, length.out = n.grid), x$TE, x$TE.common, x$TE.random)
@@ -488,6 +501,13 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
     x.grid <- exp(grid)
     xlim <- exp(xlim)
     null.effect <- exp(x$null.effect)
+  }
+  else if (VE.backtransf) {
+    mn <- logVR2VE(mn)
+    mx <- logVR2VE(mx)
+    x.grid <- logVR2VE(grid)
+    xlim <- logVR2VE(xlim)
+    null.effect <- logVR2VE(x$null.effect)
   }
   else {
     x.grid <- grid
@@ -579,6 +599,7 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
   # (3) Generate drapery plot
   #
   #
+  
   if (plot) {
     plot(x.grid, y.common,
          xlab = xlab, ylab = ylab, xlim = xlim, ylim = ylim,
@@ -591,35 +612,13 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
     # Add prediction region
     #
     if (prediction) {
-      polygon(x.grid[sel.predict], y.predict[sel.predict],
+      x.predict <- x.grid[sel.predict]
+      #
+      polygon(c(x.predict[1], x.predict, x.predict[length(x.predict)]),
+              c(if (type != "surprisal") ylim[1] else ylim[2],
+                y.predict[sel.predict],
+                if (type != "surprisal") ylim[1] else ylim[2]),
               col = col.predict, border = NA)
-      #
-      if (type != "surprisal")
-        polygon(c(min(x.grid[sel.predict]),
-                  max(x.grid[sel.predict]),
-                  max(x.grid[sel.predict])),
-                c(min(y.predict[sel.predict]),
-                  min(y.predict[sel.predict]),
-                  tail(y.predict[sel.predict], n = 1)),
-                col = col.predict, border = NA)
-      else
-        polygon(c(max(x.grid[sel.predict]),
-                  min(x.grid[sel.predict]),
-                  min(x.grid[sel.predict])),
-                c(max(y.predict[sel.predict]),
-                  max(y.predict[sel.predict]),
-                  head(y.predict[sel.predict], n = 1)),
-                col = col.predict, border = NA)
-      #
-      if (all(y.predict > min(ylim)) & type != "surprisal") {
-        x.min <- min(x.grid)
-        x.max <- max(x.grid)
-        y.min <- min(ylim)
-        y.max <- min(y.predict)
-        polygon(c(x.min, x.min, x.max, x.max),
-                c(y.min, y.max, y.max, y.min),
-                col = col.predict, border = NA)
-      }
     }
     #
     # Add studies
@@ -627,10 +626,12 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
     if (study.results) {
       for (i in k.all:1) {
         y.i <- pvf(grid, TE[i], seTE[i])
+        #
         if (type == "zvalue")
           y.i <- qnorm(y.i / 2)
         else if (type == "surprisal")
           y.i <- -log(y.i, base = 2)
+        #
         sel.i <- y.i >= min(ylim)
         lines(x.grid[sel.i], y.i[sel.i],
               lty = lty.study[i], lwd = lwd.study[i], col = col.study[i])
@@ -665,7 +666,9 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
             else
               adj.i <- if (srt.labels[i] > 0) c(1, y.adj) else c(0, y.adj)
             #
-            text(if (x.backtransf) exp(TE[i]) else TE[i],
+            text(if (x.backtransf) exp(TE[i])
+                 else if (VE.backtransf) logVR2VE(TE[i])
+                 else TE[i],
                  yval,
                  labels = if (labels == "id") seq.TE[i] else studlab[i],
                  col = col.labels[i], cex = cex.labels[i],

@@ -21,6 +21,11 @@
   - show common effect / random effects lines for summary measure "VE"
     [(issue #94)](https://github.com/guido-s/meta/pull/94)
 
+* drapery():
+  - bug fix for erratic prediction region if the x-limits are too narrow
+  - back transform results for vaccine efficacy (sm = "VE")
+    [(issue #94)](https://github.com/guido-s/meta/pull/94)
+
 
 ## meta, version 8.5-0 (2026-05-25)
 
