@@ -707,7 +707,7 @@
 #'
 #' @importFrom graphics abline axis barplot box mtext lines par plot points polygon text
 #'   
-#' @importFrom ggplot2 aes annotate geom_area geom_line geom_point geom_polygon ggplot scale_x_continuous xlab ylab
+#' @importFrom ggplot2 aes annotate geom_area geom_line geom_point geom_polygon ggplot scale_x_continuous xlab ylab coord_cartesian
 #' 
 #' @importFrom stats as.formula binom.test coef cor lm pchisq pf pnorm poisson.test pt qlogis qnorm qt runif update var weighted.mean weights glm binomial vcov fitted residuals dt
 #'

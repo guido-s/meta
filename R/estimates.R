@@ -549,12 +549,12 @@ estimates.meta <- function(x,
     #
     res$estimate <- backtransf(res$estimate, x$sm, nback, timeback,
                                x$func.backtransf, x$args.backtransf)
-    if (ci)
+    if (ci) {
       res$lower <- backtransf(res$lower, x$sm, nback, timeback,
                               x$func.backtransf, x$args.backtransf)
-    if (ci)
       res$upper <- backtransf(res$upper, x$sm, nback, timeback,
                               x$func.backtransf, x$args.backtransf)
+    }
     #
     if (inherits(x, "metaprop") && x$pscale != 1) {
       res$estimate <- x$pscale * res$estimate
@@ -580,15 +580,20 @@ estimates.meta <- function(x,
   else
     res$se <- NULL
   #
-  if (ci)
+  if (ci) {
     res$lower <- round(res$lower, digits = digits)
-  else
-    res$lower <- NULL
-  #
-  if (ci)
     res$upper <- round(res$upper, digits = digits)
-  else
+    #
+    if (x$sm == "VE" & backtransf) {
+      tlower <- res$lower
+      res$lower <- res$upper
+      res$upper <- tlower
+    }
+  }
+  else {
+    res$lower <- NULL
     res$upper <- NULL
+  }
   #
   if (statistic)
     res$statistic <- round(res$statistic, digits = digits)
@@ -709,10 +714,11 @@ print.estimates.meta <- function(x,
   res <- x[, names(x) != "studlab"]
   #
   res$estimate <- round(res$estimate, digits = digits)
-  if (ci)
+  #
+  if (ci) {
     res$lower <- round(res$lower, digits = digits)
-  if (ci)
     res$upper <- round(res$upper, digits = digits)
+  }
   #
   res$estimate <- formatN(res$estimate, digits, "", big.mark = big.mark)
   #

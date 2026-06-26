@@ -6,7 +6,7 @@
   - print information on response variable in meta-regression
   - radial plot can be created for Deeks' test (arguments method = "Deeks"
     and plotit = TRUE)
-    [(issue #92)](https://github.com/guido-s/meta/pull/92)
+    [(pull #92)](https://github.com/guido-s/meta/pull/92)
 
 ### Bug fixes
 
@@ -16,36 +16,52 @@
     sample sizes in control group ('n.c') are not provided
   - print "IV" instead of "MH" for meta-analysis with binary outcome
     using the Mantel-Haenszel method, but only printing the results for the
-    random effects model [(issue #93)](https://github.com/guido-s/meta/pull/93)
+    random effects model
+    [(issue #93)](https://github.com/guido-s/meta/issues/93)
   - print "SSW" or "LRP" instead of "NA" for meta-analysis with binary outcome
     using the sample size method or a logistic regression with penalised
-    likelihood [(issue #93)](https://github.com/guido-s/meta/pull/93)
+    likelihood
+    [(issue #93)](https://github.com/guido-s/meta/issues/93)
 
 * pairwise():
   - consider continuity correction in binary outcomes with summary measure "DOR"
-    or "VE" [(issue #94)](https://github.com/guido-s/meta/pull/94)
+    or "VE"
+    [(issue #94)](https://github.com/guido-s/meta/issues/94)
 
 * labbe():
   - show common effect / random effects lines for summary measure "VE"
-    [(issue #94)](https://github.com/guido-s/meta/pull/94)
+    [(issue #94)](https://github.com/guido-s/meta/issues/94)
 
 * drapery():
   - bug fix for erratic prediction region if the x-limits are too narrow
   - back transform results for vaccine efficacy (sm = "VE")
-    [(issue #94)](https://github.com/guido-s/meta/pull/94)
+    [(issue #94)](https://github.com/guido-s/meta/issues/94)
 
 * bubble():
   - back transform results for vaccine efficacy (sm = "VE")
-    [(issue #94)](https://github.com/guido-s/meta/pull/94)
+    [(issue #94)](https://github.com/guido-s/meta/issues/94)
 
 * metabias():
   - use efficient score for risk ratio instead of odds ratio in meta-analysis
     with binary outcome and vaccine efficacy (sm = "VE")
-    [(issue #94)](https://github.com/guido-s/meta/pull/94)
+    [(issue #94)](https://github.com/guido-s/meta/issues/94)
 
 * plot.cidprop():
   - back transform results for vaccine efficacy (sm = "VE") (#94)
-    [(issue #94)](https://github.com/guido-s/meta/pull/94)
+    [(issue #94)](https://github.com/guido-s/meta/issues/94)
+  - input to arguments 'random' and 'prediction' was ignored
+  - input to argument 'xlim' determines the limits of the x-axis
+    [(issue #94)](https://github.com/guido-s/meta/issues/94)
+
+* estimates():
+  - return correct order of lower and upper confidence limits for
+    summary measure "VE" and 'backtransf = TRUE'
+    [(issue #94)](https://github.com/guido-s/meta/issues/94)
+
+* blup.meta(), print.blup.meta():
+  - return correct order of lower and upper confidence limits for
+    summary measure "VE"
+    [(issue #94)](https://github.com/guido-s/meta/issues/94)
 
 ### Internal changes
 
@@ -53,7 +69,7 @@
   - for vaccine efficacy (sm = "VE"), defaults for 'cid.below.null' and
     'cid.above.null' calculated from 'cid' are based on relative instead of
     absolute distances from the null effect
-    [(issue #94)](https://github.com/guido-s/meta/pull/94)
+    [(issue #94)](https://github.com/guido-s/meta/issues/94)
 
 
 ## meta, version 8.5-0 (2026-05-25)
@@ -62,7 +78,7 @@
 
 * By default, the width and height of a file to store a forest plot is
   automatically determined
-  [(issue #86)](https://github.com/guido-s/meta/pull/86). Furthermore, the user
+  [(issues #86)](https://github.com/guido-s/meta/issues/86). Furthermore, the user
   can specify the height of the file with the forest plot.
 
 * Nour Edin Darwish <nouredindarwish@gmail.com> added as co-author or R
@@ -98,7 +114,8 @@
     argument 'rob.only = TRUE'
   - argument 'rightlabs' can be used in forest plots with risk of bias
     assessment (note, column names for risk of bias domains cannot be changed
-    with this argument) [(issue #88)](https://github.com/guido-s/meta/pull/88)
+    with this argument)
+    [(issue #88)](https://github.com/guido-s/meta/issues/88)
 
 * read.cdir():
   - add missing information on subgroups
@@ -118,7 +135,7 @@
 
 * Relax the minimum number of studies in a meta-analysis required to calculate
   confidence and prediction intervals
-  [(issue #80)](https://github.com/guido-s/meta/pull/80):
+  [(issue #80)](https://github.com/guido-s/meta/issues/80):
   - calculate confidence interval for *tau2* and *tau* for two or more studies
     (was more than two studies)
   - calculate Hartung-Knapp prediction interval
@@ -129,10 +146,10 @@
     (was more than three studies)
 
 * Calculate confidence for I2 and H if argument 'method.I2 = "tau2"'
-  [(issue #80)](https://github.com/guido-s/meta/pull/80):
+  [(issue #80)](https://github.com/guido-s/meta/issues/80):
 
 * More flexible definition of column labels in forest plots
-  [(issue #87)](https://github.com/guido-s/meta/pull/87)
+  [(issue #87)](https://github.com/guido-s/meta/issues/87)
 
 * New function rd() to calculate risk difference(s) from meta-analysis results;
   results are expressed as absolute risk reduction / increase or absolute
@@ -152,9 +169,9 @@
 
 * forest.meta():
   - new argument 'text.subgroup' to provide subgroup labels
-    [(issue #82)](https://github.com/guido-s/meta/pull/82)
+    [(issue #82)](https://github.com/guido-s/meta/issues/82)
   - new arguments to define column labels more flexibly
-    [(issue #87)](https://github.com/guido-s/meta/pull/87)
+    [(issue #87)](https://github.com/guido-s/meta/issues/87)
   - new arguments 'print.tau2.ci.subgroup' and 'print.tau.ci.subgroup'
     to specify which confidence intervals for *tau2* or *tau* should be printed
     for subgroups
@@ -166,7 +183,7 @@
 
 * settings.meta():
   - new arguments to define default column labels in forest plots
-    [(issue #87)](https://github.com/guido-s/meta/pull/87):
+    [(issue #87)](https://github.com/guido-s/meta/issues/87):
     'label.n', 'label.events', 'label.mean', 'label.sd',
     'label.cor', 'label.time',
     'label.pval', 'label.tau2', 'label.tau', 'label.I2',
@@ -182,18 +199,18 @@
 * forest.meta():
   - reference line and CID lines had wrong length in forest plots with
     risk of bias information and without overall heterogeneity statistics
-    [(issue #84)](https://github.com/guido-s/meta/pull/84)
+    [(issue #84)](https://github.com/guido-s/meta/issues/84)
   - remove extraneous "^2" from method details for confidence of *tau2*
-    [(issue #87)](https://github.com/guido-s/meta/pull/87)
+    [(issue #87)](https://github.com/guido-s/meta/issues/87)
   
 * forest.metainf():
   - input to arguments 'prediction', 'overall', and 'backtransf' was
     ignored
-    [(issue #83)](https://github.com/guido-s/meta/pull/83)
+    [(issue #83)](https://github.com/guido-s/meta/issues/83)
 
 * forest.metabind():
   - input to argument 'col.square' was ignored for square colour
-    [(issue #81)](https://github.com/guido-s/meta/pull/81)
+    [(issue #81)](https://github.com/guido-s/meta/issues/81)
 
 
 ## meta, version 8.2-1 (2025-09-01)
@@ -244,7 +261,7 @@
 * forest.meta():
   - calculate and print correct totals if studies have been excluded from the
     meta-analysis
-    [(issue #73)](https://github.com/guido-s/meta/pull/73)
+    [(issue #73)](https://github.com/guido-s/meta/issues/73)
   - region for clinically important difference (CID) can be restricted to
     meta-analysis results
   - bug fix for p-values below 0.0001 in R object created with
@@ -319,7 +336,7 @@
 * forest.meta():
   - consider setting for list element 'null.effect' for metamean(), metaprop()
     and metarate() objects to fix
-    [(issue #67)](https://github.com/guido-s/meta/pull/67)
+    [(issue #67)](https://github.com/guido-s/meta/issues/67)
   - remove duplicated columns from forest plots with RevMan5 layout and risk of
     bias information
   - use correct column labels for log transformed treatment estimates and
@@ -353,7 +370,7 @@
 
 * metacr():
   - new arguments 'label.left' and 'label.right' to fix
-    [(issue #66)](https://github.com/guido-s/meta/pull/66)
+    [(issue #66)](https://github.com/guido-s/meta/issues/66)
 
 * metabin(), metacont(), metacor(), metainc(), metamean(), metaprop(),
   metarate(), update.meta():
@@ -399,7 +416,8 @@
 ### Bug fixes
 
 * update.meta():
-  - [Fix bug in setting method.sd for metacont update #63](https://github.com/guido-s/meta/pull/63)
+  - Fix bug in setting method.sd for metacont update
+    [(pull #63)](https://github.com/guido-s/meta/pull/63)
 
 * pairwise():
   - fix bug if R package **netmeta** is not installed
@@ -1322,10 +1340,10 @@ Revise web links
 ### Bug fixes
 
 * Meta-analysis of continuous outcomes using Hedges' g or Cohen's d as
-  summary measure resulted in [inestimable SMDs in individual
-  studies](https://github.com/guido-s/meta/issues/42) if the total
-  sample size was larger than 343 and argument 'exact.smd' was TRUE
-  (default)
+  summary measure resulted in inestimable SMDs in individual
+  studies if the total sample size was larger than 343 and argument 'exact.smd'
+  was TRUE
+  [(issue #42)](https://github.com/guido-s/meta/issues/42)
 
 * Forest plot creation for meta-analysis of single means with
   subgroups resulted in an

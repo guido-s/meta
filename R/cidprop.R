@@ -57,6 +57,11 @@
 #' Thresholds based on argument \code{cid} will always be symmetric. Asymmetric
 #' thresholds can be defined using arguments \code{cid.below.null} and
 #' \code{cid.above.null}.
+#' 
+#' Note, the input to arguments \code{cid}, \code{cid.below.null}, and
+#' \code{cid.above.null} is always on the scale of the outcome measure.
+#' For example, risk ratios instead of log risk ratios have to be provided for
+#' the risk ratio as summary measure.
 #'
 #' @return
 #' A list with elements

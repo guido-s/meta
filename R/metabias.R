@@ -847,7 +847,11 @@ print.metabias <- function(x,
         else
           text.response <- tolower(xlab_meta(x$x$sm, FALSE))
         #
-        cat(paste0("- response:  ", text.response, "\n"))
+        cat(
+          paste0("- response:  ",
+                 replaceVal(text.response, "", "estimate"),
+                 "\n")
+        )
         #
         if (x$method.bias == "Egger")
           detail.predictor <- "standard error"

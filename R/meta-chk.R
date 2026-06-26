@@ -284,7 +284,7 @@ chknumeric <- function(x, min, max, zero = FALSE, length = 0,
            call. = FALSE)
     else if (any(x > max, na.rm = TRUE))
       stop("Argument '", name, "' must be smaller equal ",
-           min, ".", call. = FALSE)
+           max, ".", call. = FALSE)
   }
   #
   if ((!missing(min) & !missing(max)) &&

@@ -224,6 +224,12 @@ blup.meta <- function(x, level = x$level, backtransf = x$backtransf,
         res <- rbind(res, res.i)
     }
   }
+  #
+  if (x$sm == "VE" & backtransf) {
+    tlower <- res$lower
+    res$lower <- res$upper
+    res$upper <- tlower
+  }
   
   #
   # (5) Return BLUPs
@@ -296,6 +302,7 @@ print.blup.meta <- function(x, backtransf = attr(x, "x")$backtransf,
   # (2) Back-transform and round results
   #
   sm.lab <- smlab(sm, backtransf, pscale, irscale)
+  sm.lab.se <- smlab(sm, FALSE)
   #
   if (backtransf) {
     x$blup <- backtransf(x$blup, sm)
@@ -307,13 +314,19 @@ print.blup.meta <- function(x, backtransf = attr(x, "x")$backtransf,
   lower <- round(x$lower, digits)
   upper <- round(x$upper, digits)
   #
+  if (sm == "VE" & backtransf != meta$backtransf) {
+    tlower <- lower
+    lower <- upper
+    upper <- tlower
+  }
+  #
   if (print.se) {
     se.blup <- round(x$se.blup, digits.se)
     #
-    if (sm.lab != "")
-      se.lab <- paste0("SE(", sm.lab, ")")
+    if (sm.lab.se != "")
+      sm.lab.se <- paste0("SE(", sm.lab.se, ")")
     else
-      se.lab <- "SE"
+      sm.lab.se <- "SE"
   }
   #
   if (!isCol(x, "method"))
@@ -347,7 +360,7 @@ print.blup.meta <- function(x, backtransf = attr(x, "x")$backtransf,
                                   big.mark = big.mark))
       )
     #
-    colnames(res.i) <- c(sm.lab, if (print.se) se.lab,
+    colnames(res.i) <- c(sm.lab, if (print.se) sm.lab.se,
                          paste0(100 * meta$level, "% PI"))
     #
     if (by)

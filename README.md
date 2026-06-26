@@ -55,7 +55,7 @@ remotes::install_github("guido-s/meta")
 ```
 
 
-## How to cite netmeta?
+## How to cite meta?
 
 [Balduzzi S, Rücker G, Schwarzer G (2019): How to perform a meta-analysis with R: a practical tutorial. *Evidence-Based Mental Health*, **22**, 153-60](https://doi.org/10.1136/ebmental-2019-300117)
 
