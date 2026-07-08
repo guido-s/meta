@@ -584,7 +584,8 @@ funnel.meta <- function(x,
   #
   if (is.null(ylim) & yaxis %in% c("se", "invsqrtsize", "ess"))
     ylim <- c(max(weight, na.rm = TRUE), 0)
-  if (is.null(ylim)) ylim <- range(weight, na.rm = TRUE)
+  if (is.null(ylim))
+    ylim <- range(weight, na.rm = TRUE)
   
   
   #
@@ -616,8 +617,8 @@ funnel.meta <- function(x,
   do.call(plot, args)
   #
   if (sm == "VE" & backtransf && axes.orig) {
-    xs <- sort(c(0, TE))
-    axis(1, at = xs, labels = round(logVR2VE(-xs), 1))
+    xs <- pretty(xlim)
+    axis(1, at = xs, labels = round(logVR2VE(-xs)))
     axis(2)
     box()
   }

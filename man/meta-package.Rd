@@ -604,6 +604,12 @@ random-effects meta-analyses.
 \emph{Research Synthesis Methods},
 \bold{10}, 83--98
 
+Nagashima K, Noma H, Furukawa TA (2019):
+Prediction intervals for random-effects meta-analysis: A confidence
+distribution approach.
+\emph{Statistical Methods in Medical Research},
+\bold{28}, 1689--702
+
 Schwarzer G (2007):
 meta: An R package for meta-analysis.
 \emph{R News},
