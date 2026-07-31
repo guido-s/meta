@@ -607,7 +607,7 @@ setOption("meth4tau", c("DL", "PM", "REML", "ML", "HS", "SJ", "HE", "EB"))
 setOption("meth4tau.ci", c("QP", "BJ", "J", "PL", ""))
 setOption("meth4i2", c("Q", "tau2"))
 setOption("meth4common.ci", c("classic", "IVhet"))
-setOption("meth4random.ci", c("classic", "HK", "KR"))
+setOption("meth4random.ci", c("classic", "HK", "KR", "CR0", "CR1", "CR2"))
 setOption("meth4pi",
           c("V", "HTS", "HK", "HK-PR", "KR", "KR-PR", "NNF", "S", ""))
 setOption("adhoc4hakn.ci", c("", "se", "ci", "IQWiG6"))
@@ -1062,4 +1062,3 @@ setOption("Wan2014.Table2",
             1.336, 1.336, 1.337, 1.337, 1.337,
             1.338, 1.338, 1.338, 1.338, 1.339,
             1.339, 1.339, 1.339, 1.339, 1.340))
-

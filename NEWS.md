@@ -281,7 +281,7 @@
 
 ### User-visible changes
 
-* metabin(), metacont(), metacor(), metagen(); metainc(), metamean(),
+* metabin(), metacont(), metacor(), metagen(), metainc(), metamean(),
   metaprop(), metarate(), update.meta():
   - new argument 'method.common.ci' to choose IVhet method
   - new arguments 'weights', 'weights.common', and 'weights.random' to provide

@@ -2027,6 +2027,10 @@ metagen <- function(TE, seTE, studlab,
     if (!(method.tau %in% c("REML", "ML")))
       method.tau <- "REML"
   }
+  else if (any(method.random.ci %in% c("CR0", "CR1", "CR2")))
+    stop("Methods 'CR0', 'CR1', and 'CR2' are only available ",
+         "for three-level models.",
+         call. = FALSE)
   #
   if (by) {
     chkmiss(subgroup)
@@ -2127,8 +2131,8 @@ metagen <- function(TE, seTE, studlab,
     # method
     if (k == 1) {
       method.random.ci <-
-        ifelse(method.random.ci %in% c("HK", "KR"), "classic",
-               method.random.ci)
+        ifelse(method.random.ci %in% c("HK", "KR", "CR0", "CR1", "CR2"),
+               "classic", method.random.ci)
       #
       method.predict <- 
         ifelse(method.predict %in% c("HK", "KR"), "V", method.predict)
@@ -2598,12 +2602,22 @@ metagen <- function(TE, seTE, studlab,
              
       #
       m4 <- runMLM(c(list.mlm,
-                     list(data = data.frame(cluster = cluster[sel.4],
-                                            idx = idx[sel.4]))),
-                   method.tau = method.tau,
-                   method.random.ci = method.random.ci,
-                   level = level.ma,
-                   control = control)
+                      list(data = data.frame(cluster = cluster[sel.4],
+                                             idx = idx[sel.4]))),
+                    method.tau = method.tau,
+                    method.random.ci = method.random.ci,
+                    level = level.ma,
+                    control = control)
+      seTE.classic <- m4[[1]]$se
+      #
+      if (any(method.random.ci %in% c("CR0", "CR1", "CR2"))) {
+        for (i in seq_along(method.random.ci)) {
+          if (method.random.ci[i] %in% c("CR0", "CR1", "CR2"))
+            m4[[i]] <- robust(m4[[i]], cluster = cluster[sel.4],
+                              adjust = method.random.ci[i] != "CR0",
+                              clubSandwich = method.random.ci[i] == "CR2")
+        }
+      }
       #
       res.mlm <-
         extrMLM(m4, k, length(TE), sel.4,
@@ -2621,19 +2635,30 @@ metagen <- function(TE, seTE, studlab,
       upper.random <- res.mlm$upper.random
       statistic.random <- res.mlm$statistic.random
       pval.random <- res.mlm$pval.random
-      #
-      seTE.classic <- m4[[1]]$se
+      if (any(method.random.ci %in% c("CR0", "CR1", "CR2")))
+        pval.random[method.random.ci %in% c("CR0", "CR1", "CR2")] <-
+          sapply(m4[method.random.ci %in% c("CR0", "CR1", "CR2")],
+                 extrVar, "pval")
       #
       df.random <- df.hakn <- ifelse(method.random.ci == "HK", k - 1, NA)
+      if (any(method.random.ci %in% c("CR0", "CR1", "CR2")))
+        df.random[method.random.ci %in% c("CR0", "CR1", "CR2")] <-
+          sapply(m4[method.random.ci %in% c("CR0", "CR1", "CR2")],
+                 extrVar, "ddf")
       #
       if (missing(text.random) ||
           (length(text.random) == 1 & length(method.random.ci) > 1))
         text.random <-
-          ifelse(method.random.ci == "classic",
+          if (length(method.random.ci) == 1)
+            text.random
+          else
+            ifelse(method.random.ci == "classic",
                  text.random,
           ifelse(method.random.ci == "HK",
                  paste0(text.random, " (T)"),
-                 ""))
+          ifelse(method.random.ci %in% c("CR0", "CR1", "CR2"),
+                 paste0(text.random, " (", method.random.ci, ")"),
+                 "")))
       #
       # Prediction interval
       #

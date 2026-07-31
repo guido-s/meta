@@ -719,7 +719,7 @@
 #'
 #' @importFrom utils count.fields read.table assignInNamespace getFromNamespace packageDescription packageVersion head tail find unzip combn modifyList globalVariables
 #'
-#' @importFrom metafor forest funnel funnel.default baujat labbe radial trimfill rma.uni rma.glmm rma.mv predict.rma confint.rma.uni confint.rma.mv escalc regtest to.long vcalc blup
+#' @importFrom metafor forest funnel funnel.default baujat labbe radial trimfill rma.uni rma.glmm rma.mv predict.rma confint.rma.uni confint.rma.mv escalc regtest to.long vcalc blup robust
 #'
 #' @importFrom lme4 glmer
 #'

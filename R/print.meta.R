@@ -1102,8 +1102,10 @@ print.meta <- function(x,
             res[seq, 3:4] <- ""
         }
         #
-        if (any(method.random.ci %in% c("HK", "KR"))) {
-          if ((common & random) | any(method.random.ci == "classic"))
+        methci.t <- method.random.ci %in% c("HK", "KR", "CR0", "CR1", "CR2")
+        #
+        if (any(methci.t)) {
+          if ((common & random) | any(!methci.t))
             zlab <- "z|t"
           else if (common & !random)
             zlab <- "z"
