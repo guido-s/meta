@@ -1523,7 +1523,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
       incl <- rep(1, k.all)
     else {
       if (sm %in% c("OR", "DOR"))
-        incl <- ifelse((event.c == 0   & event.e == 0) |
+        incl <- ifelse((event.c == 0 & event.e == 0) |
                          (event.c == n.c & event.e == n.e), NA, 1)
       if (sm %in% c("RR", "VE"))
         incl <- ifelse((event.c == 0 & event.e == 0), NA, 1)
@@ -1582,9 +1582,9 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   if (sparse & sm %in% c("RR", "OR", "DOR", "VE") &
       !(method %in% c("Peto", "GLMM"))) {
     sel.doublezeros <- switch(sm,
-                              OR = (event.e == 0   & event.c ==   0) |
+                              OR = (event.e == 0 & event.c ==   0) |
                                 (event.c == n.c & event.e == n.e),
-                              DOR = (event.e == 0   & event.c ==   0) |
+                              DOR = (event.e == 0 & event.c ==   0) |
                                 (event.c == n.c & event.e == n.e),
                               RR = (event.c == 0 & event.e == 0),
                               VE = (event.c == 0 & event.e == 0))
