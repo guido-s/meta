@@ -404,7 +404,8 @@ catmeth <- function(x,
         details <-
           paste0(
             details,
-            "\n- Robust variance estimation (", dat.rc.cr$method.random.ci[i],
+            "\n- Cluster-robust variance estimator (",
+            dat.rc.cr$method.random.ci[i],
             if (print.df)
               paste0(
                 ", df = ",

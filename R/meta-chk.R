@@ -350,8 +350,7 @@ chkglmm <- function(sm, method.tau, method.random.ci, method.predict,
          call. = FALSE)
   #
   if (any(method.random.ci %in% c("CR0", "CR1", "CR2")))
-    stop("Robust variance estimation for random effects meta-analysis not ",
-         "available for GLMMs.",
+    stop("Cluster-robust variance estimation method not available for GLMMs.",
          call. = FALSE)
   #
   if (any(method.random.ci == "HK" & adhoc.hakn.ci != ""))
@@ -413,8 +412,8 @@ chklrp <- function(sm, method.tau, method.random.ci, method.predict,
          call. = FALSE)
   #
   if (any(method.random.ci %in% c("CR0", "CR1", "CR2")))
-    stop("Robust variance estimation for random effects meta-analysis not ",
-         "available for penalised logistic regression.",
+    stop("Cluster-robust variance estimation method not available for",
+         "penalised logistic regression.",
          call. = FALSE)
   #
   if (any(method.random.ci == "HK" & adhoc.hakn.ci != ""))
