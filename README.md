@@ -3,7 +3,7 @@ Official Git repository of R package **meta**
 
 [![License: GPL (>=2)](https://img.shields.io/badge/license-GPL-blue)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
 [![CRAN Version](https://www.r-pkg.org/badges/version/meta)](https://cran.r-project.org/package=meta)
-[![GitHub develop](https://img.shields.io/badge/develop-8.5--1-purple)](https://img.shields.io/badge/develop-8.5--1-purple)
+[![GitHub develop](https://img.shields.io/badge/develop-8.6--0-purple)](https://img.shields.io/badge/develop-8.6--0-purple)
 [![Monthly Downloads](https://cranlogs.r-pkg.org/badges/meta)](https://cranlogs.r-pkg.org/badges/meta)
 [![Total Downloads](https://cranlogs.r-pkg.org/badges/grand-total/meta)](https://cranlogs.r-pkg.org/badges/grand-total/meta)
 
@@ -18,14 +18,17 @@ Official Git repository of R package **meta**
 User-friendly general package providing standard methods for meta-analysis and supporting Schwarzer, Carpenter, and Rücker, "Meta-Analysis with R" (2015):
  - common effect and random effects meta-analysis;
  - several plots (forest, funnel, Galbraith / radial, L'Abbe, Baujat, bubble);
- - statistical tests and trim-and-fill method to evaluate bias in meta-analysis;
+ - three-level model with or without cluster-robust variance estimators;
+ - generalised linear mixed model;
+ - logistic regression with penalised likelihood for rare events;
  - Hartung-Knapp method for random effects model;
+ - Kenward-Roger method for random effects model;
  - prediction interval and density of the prediction distribution;
  - expected proportion of comparable studies with clinically important benefit or harm;
- - cumulative meta-analysis and leave-one-out meta-analysis;
+ - statistical tests for funnel plot asymmetry;
+ - trim-and-fill method to evaluate bias in meta-analysis;
  - meta-regression;
- - generalised linear mixed models;
- - logistic regression with penalised likelihood for rare events;
+ - cumulative meta-analysis and leave-one-out meta-analysis;
  - import data from 'RevMan Web' and 'RevMan 5';
  - produce forest plot summarising several (subgroup) meta-analyses.
  
@@ -41,7 +44,7 @@ User-friendly general package providing standard methods for meta-analysis and s
 install.packages("meta")
 ```
 
-### Current [![GitHub develop](https://img.shields.io/badge/develop-8.5--1-purple)](https://img.shields.io/badge/develop-8.5--1-purple) release on GitHub:
+### Current [![GitHub develop](https://img.shields.io/badge/develop-8.6--0-purple)](https://img.shields.io/badge/develop-8.6--0-purple) release on GitHub:
 
 Installation using R package
 [**remotes**](https://cran.r-project.org/package=remotes):

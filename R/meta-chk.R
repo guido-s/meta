@@ -349,6 +349,11 @@ chkglmm <- function(sm, method.tau, method.random.ci, method.predict,
          "available for GLMMs.",
          call. = FALSE)
   #
+  if (any(method.random.ci %in% c("CR0", "CR1", "CR2")))
+    stop("Robust variance estimation for random effects meta-analysis not ",
+         "available for GLMMs.",
+         call. = FALSE)
+  #
   if (any(method.random.ci == "HK" & adhoc.hakn.ci != ""))
     stop("Hartung-Knapp method with ad hoc correction not ",
          "available for GLMMs.",
@@ -404,6 +409,11 @@ chklrp <- function(sm, method.tau, method.random.ci, method.predict,
   #
   if (any(method.random.ci == "KR"))
     stop("Kenward-Roger method for random effects meta-analysis not ",
+         "available for penalised logistic regression.",
+         call. = FALSE)
+  #
+  if (any(method.random.ci %in% c("CR0", "CR1", "CR2")))
+    stop("Robust variance estimation for random effects meta-analysis not ",
          "available for penalised logistic regression.",
          call. = FALSE)
   #

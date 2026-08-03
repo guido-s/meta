@@ -407,8 +407,17 @@ runMLM <- function(x, method.tau, method.random.ci, level,
     list.r[[i]] <- c(x, list.b,
                      test = ifelse(method.random.ci[i] == "HK", "t", "z"))
   #
-  for (i in seq_len(n.methci))
+  for (i in seq_len(n.methci)) {
     res[[i]] <- runNN(rma.mv, list.r[[i]], warn = warn)
+    #
+    if (method.random.ci[i] %in% c("CR0", "CR1", "CR2")) {
+      res[[i]] <-
+        suppressPackageStartupMessages(
+          robust(res[[i]], cluster = x$data$cluster,
+                 adjust = method.random.ci[i] != "CR0",
+                 clubSandwich = method.random.ci[i] == "CR2"))
+    }
+  }
   #
   res
 }
@@ -431,27 +440,27 @@ extrMLM <- function(x, k, len, sel,
     res$tau <- sqrt(res$tau2)
   }
   #
-  res$TE.random   <- as.numeric(x[[1]]$b)
+  res$TE.random <- as.numeric(coef(x[[1]]))
   res$seTE.random <- sapply(x, extrVar, "se")
+  #
+  res$lower.random <- sapply(x, extrVar, "ci.lb")
+  res$upper.random <- sapply(x, extrVar, "ci.ub")
+  #
+  res$statistic.random <- sapply(x, extrVar, "zval")
+  res$df.random <- res$df.hakn <- sapply(x, extrVar, "ddf")
+  res$pval.random <- sapply(x, extrVar, "pval")
   #
   res$w.random <- rep_len(NA, len)
   res$w.random[sel] <- weights(x[[1]], type = "rowsum")
   res$w.random[is.na(res$w.random)] <- 0
   #
-  res$lower.random <- sapply(x, extrVar, "ci.lb")
-  res$upper.random <- sapply(x, extrVar, "ci.ub")
-  res$statistic.random <- sapply(x, extrVar, "zval")
-  res$pval.random <-
-    ci(res$TE.random, res$seTE.random,
-       level = level.ma,
-       null.effect = null.effect,
-       df = ifelse(method.random.ci == "HK", k - 1, Inf))$p
   res$zval.random <- res$statistic.random
   #
   if (length(method.random.ci) > 1)
     names(res$seTE.random) <-
       names(res$lower.random) <- names(res$upper.random) <-
       names(res$statistic.random) <- names(res$pval.random) <-
+      names(res$df.random) <- names(res$df.hakn) <-
       names(res$zval.random) <- method.random.ci
   #
   # Prediction interval

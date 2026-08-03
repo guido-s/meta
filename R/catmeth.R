@@ -339,11 +339,14 @@ catmeth <- function(x,
     #
     dat.rc.ckr <- subset(dat.rc, dat.rc$method.random.ci == "classic-KR")
     dat.rc.kr <- subset(dat.rc, dat.rc$method.random.ci == "KR")
+    dat.rc.cr <-
+      subset(dat.rc, dat.rc$method.random.ci %in% c("CR0", "CR1", "CR2"))
     #
     more.ci <- sum(1L * (nrow(dat.rc.hk) > 0) +
-                   1L * (nrow(dat.rc.hk.tdist) > 0) +
-                   1L * (nrow(dat.rc.ckr) > 0) +
-                   1L * (nrow(dat.rc.kr) > 0)) > 1
+                    1L * (nrow(dat.rc.hk.tdist) > 0) +
+                    1L * (nrow(dat.rc.ckr) > 0) +
+                    1L * (nrow(dat.rc.kr) > 0) +
+                    1L * (nrow(dat.rc.cr) > 0)) > 1
     #
     if (nrow(dat.rc.hk) > 0) {
       details <-
@@ -394,6 +397,25 @@ catmeth <- function(x,
           if (print.df)
             paste0(" (df = ", cond(dat.rc.kr$df.random), ")")
         )
+    #
+    if (nrow(dat.rc.cr) > 0) {
+      for (i in seq_len(nrow(dat.rc.cr))) {
+        df.cr <- dat.rc.cr$df.random[i]
+        details <-
+          paste0(
+            details,
+            "\n- Robust variance estimation (", dat.rc.cr$method.random.ci[i],
+            if (print.df)
+              paste0(
+                ", df = ",
+                cond(df.cr,
+                     digits = if (is.finite(df.cr) && df.cr == round(df.cr))
+                       0
+                     else
+                       2)),
+            ")")
+      }
+    }
   }
   
   

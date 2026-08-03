@@ -199,8 +199,8 @@ for meta-analysis estimates.}
 is used to calculate confidence interval and test statistic for
 common effect estimate (see \code{\link{meta-package}}).}
 
-\item{method.random.ci}{A character string indicating which method
-is used to calculate confidence interval and test statistic for
+\item{method.random.ci}{A character string or vector indicating which methods
+are used to calculate confidence intervals and test statistics for the
 random effects estimate (see \code{\link{meta-package}}).}
 
 \item{adhoc.hakn.ci}{A character string indicating whether an
@@ -787,9 +787,16 @@ if (requireNamespace("metadat", quietly = TRUE)) {
 # Three-level model: effects of modified school calendars on
 # student achievement
 data(dat.konstantopoulos2011, package = "metadat")
-metagen(yi, sqrt(vi), studlab = study, data = dat.konstantopoulos2011,
+ma3 <- metagen(yi, sqrt(vi), studlab = study, data = dat.konstantopoulos2011,
   sm = "SMD",
   cluster = district, detail.tau = c("district", "district/school"))
+# Cluster-robust variance estimators
+if (!requireNamespace("clubSandwich", quietly = TRUE)) {
+  update(ma3, method.random.ci = c("classic", "CR0", "CR1"))
+}
+if (requireNamespace("clubSandwich", quietly = TRUE)) {
+  update(ma3, method.random.ci = c("classic", "CR0", "CR1", "CR2"))
+}
 }
 }
 

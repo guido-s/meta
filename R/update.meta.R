@@ -81,8 +81,8 @@
 #' @param method.common.ci A character string indicating which method
 #'   is used to calculate confidence interval and test statistic for
 #'   common effect estimate (see \code{\link{meta-package}}).
-#' @param method.random.ci A character string indicating which method
-#'   is used to calculate confidence interval and test statistic for
+#' @param method.random.ci A character string or vector indicating which methods
+#'   are used to calculate confidence intervals and test statistics for the
 #'   random effects estimate (see \code{\link{meta-package}}).
 #' @param adhoc.hakn.ci A character string indicating whether an
 #'   \emph{ad hoc} variance correction should be applied in the case
