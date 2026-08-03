@@ -74,6 +74,10 @@
 
 ### Internal changes
 
+* Use R package testthat for unit tests
+
+* R package **testthat** added to Suggests
+
 * cidprop():
   - for vaccine efficacy (sm = "VE"), defaults for 'cid.below.null' and
     'cid.above.null' calculated from 'cid' are based on relative instead of
