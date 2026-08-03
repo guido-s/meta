@@ -42,8 +42,8 @@
 #' @param method.common.ci A character string indicating which method
 #'   is used to calculate confidence interval and test statistic for
 #'   common effect estimate (see \code{\link{meta-package}}).
-#' @param method.random.ci A character string indicating which method
-#'   is used to calculate confidence interval and test statistic for
+#' @param method.random.ci A character string or vector indicating which methods
+#'   are used to calculate confidence intervals and test statistics for the
 #'   random effects estimate (see \code{\link{meta-package}}).
 #' @param adhoc.hakn.ci A character string indicating whether an
 #'   \emph{ad hoc} variance correction should be applied in the case
@@ -365,11 +365,13 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
   method.random.ci <-
     deprecated(method.random.ci, missing(method.random.ci),
                args, "hakn", warn.deprecated)
+  #
   if (is.logical(method.random.ci))
     if (method.random.ci)
       method.random.ci <- "HK"
     else
       method.random.ci <- "classic"
+  #
   method.random.ci <- setchar(method.random.ci, gs("meth4random.ci"))
   
   

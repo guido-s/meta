@@ -78,8 +78,8 @@
 #' @param method.common.ci A character string indicating which method
 #'   is used to calculate confidence interval and test statistic for
 #'   common effect estimate (see \code{\link{meta-package}}).
-#' @param method.random.ci A character string indicating which method
-#'   is used to calculate confidence interval and test statistic for
+#' @param method.random.ci A character string or vector indicating which methods
+#'   are used to calculate confidence intervals and test statistics for the
 #'   random effects estimate (see \code{\link{meta-package}}).
 #' @param adhoc.hakn.ci A character string indicating whether an
 #'   \emph{ad hoc} variance correction should be applied in the case
@@ -654,9 +654,16 @@
 #' # Three-level model: effects of modified school calendars on
 #' # student achievement
 #' data(dat.konstantopoulos2011, package = "metadat")
-#' metagen(yi, sqrt(vi), studlab = study, data = dat.konstantopoulos2011,
+#' ma3 <- metagen(yi, sqrt(vi), studlab = study, data = dat.konstantopoulos2011,
 #'   sm = "SMD",
 #'   cluster = district, detail.tau = c("district", "district/school"))
+#' # Cluster-robust variance estimators
+#' if (!requireNamespace("clubSandwich", quietly = TRUE)) {
+#'   update(ma3, method.random.ci = c("classic", "CR0", "CR1"))
+#' }
+#' if (requireNamespace("clubSandwich", quietly = TRUE)) {
+#'   update(ma3, method.random.ci = c("classic", "CR0", "CR1", "CR2"))
+#' }
 #' }
 #' }
 #' 
@@ -980,12 +987,18 @@ metagen <- function(TE, seTE, studlab,
   method.random.ci <-
     deprecated(method.random.ci, missing(method.random.ci),
                args, "hakn", warn.deprecated)
+  #
   if (is.logical(method.random.ci))
     if (method.random.ci)
       method.random.ci <- "HK"
     else
       method.random.ci <- "classic"
+  #
   method.random.ci <- setchar(method.random.ci, gs("meth4random.ci"))
+  #
+  if (any(method.random.ci == "CR2"))
+    is_installed_package("clubSandwich", argument = "method.random.ci",
+                         value = "CR2")
   #
   missing.adhoc.hakn.ci <- missing(adhoc.hakn.ci)
   adhoc.hakn.ci <-
@@ -2019,6 +2032,8 @@ metagen <- function(TE, seTE, studlab,
   #
   chklevel(level.hetstat)
   #
+  CRs <- c("CR0", "CR1", "CR2")
+  #
   if (three.level) {
     chkmlm(method.tau, missing.method.tau, method.predict)
     #
@@ -2027,7 +2042,7 @@ metagen <- function(TE, seTE, studlab,
     if (!(method.tau %in% c("REML", "ML")))
       method.tau <- "REML"
   }
-  else if (any(method.random.ci %in% c("CR0", "CR1", "CR2")))
+  else if (any(method.random.ci %in% CRs))
     stop("Methods 'CR0', 'CR1', and 'CR2' are only available ",
          "for three-level models.",
          call. = FALSE)
@@ -2599,7 +2614,6 @@ metagen <- function(TE, seTE, studlab,
                        V = vcalc(vi = seTE[sel.4]^2,
                                  cluster = cluster[sel.4],
                                  obs = idx[sel.4], rho = rho))
-             
       #
       m4 <- runMLM(c(list.mlm,
                       list(data = data.frame(cluster = cluster[sel.4],
@@ -2609,15 +2623,6 @@ metagen <- function(TE, seTE, studlab,
                     level = level.ma,
                     control = control)
       seTE.classic <- m4[[1]]$se
-      #
-      if (any(method.random.ci %in% c("CR0", "CR1", "CR2"))) {
-        for (i in seq_along(method.random.ci)) {
-          if (method.random.ci[i] %in% c("CR0", "CR1", "CR2"))
-            m4[[i]] <- robust(m4[[i]], cluster = cluster[sel.4],
-                              adjust = method.random.ci[i] != "CR0",
-                              clubSandwich = method.random.ci[i] == "CR2")
-        }
-      }
       #
       res.mlm <-
         extrMLM(m4, k, length(TE), sel.4,
@@ -2631,20 +2636,14 @@ metagen <- function(TE, seTE, studlab,
       #
       TE.random <- res.mlm$TE.random
       seTE.random <- res.mlm$seTE.random
+      #
       lower.random <- res.mlm$lower.random
       upper.random <- res.mlm$upper.random
-      statistic.random <- res.mlm$statistic.random
-      pval.random <- res.mlm$pval.random
-      if (any(method.random.ci %in% c("CR0", "CR1", "CR2")))
-        pval.random[method.random.ci %in% c("CR0", "CR1", "CR2")] <-
-          sapply(m4[method.random.ci %in% c("CR0", "CR1", "CR2")],
-                 extrVar, "pval")
       #
-      df.random <- df.hakn <- ifelse(method.random.ci == "HK", k - 1, NA)
-      if (any(method.random.ci %in% c("CR0", "CR1", "CR2")))
-        df.random[method.random.ci %in% c("CR0", "CR1", "CR2")] <-
-          sapply(m4[method.random.ci %in% c("CR0", "CR1", "CR2")],
-                 extrVar, "ddf")
+      statistic.random <- res.mlm$statistic.random
+      df.random <- res.mlm$df.random
+      df.hakn <- res.mlm$df.hakn
+      pval.random <- res.mlm$pval.random
       #
       if (missing(text.random) ||
           (length(text.random) == 1 & length(method.random.ci) > 1))
@@ -2653,12 +2652,12 @@ metagen <- function(TE, seTE, studlab,
             text.random
           else
             ifelse(method.random.ci == "classic",
-                 text.random,
-          ifelse(method.random.ci == "HK",
-                 paste0(text.random, " (T)"),
-          ifelse(method.random.ci %in% c("CR0", "CR1", "CR2"),
-                 paste0(text.random, " (", method.random.ci, ")"),
-                 "")))
+                   text.random,
+                   ifelse(method.random.ci == "HK",
+                          paste0(text.random, " (T)"),
+                          ifelse(method.random.ci %in% CRs,
+                                 paste0(text.random,
+                                        " (", method.random.ci, ")"), "")))
       #
       # Prediction interval
       #
@@ -2680,11 +2679,10 @@ metagen <- function(TE, seTE, studlab,
       text.predict <- paste0(text.predict, " (", method.predict)
       text.predict <-
         paste0(text.predict,
-               ifelse(method.predict != "HK",
-                      ")",
-               ifelse(adhoc.hakn.pi == "",
-                      ")",
-                      paste0("-", toupper(adhoc.hakn.pi), ")"))))
+               ifelse(method.predict != "HK", ")",
+                      ifelse(adhoc.hakn.pi == "",
+                             ")",
+                             paste0("-", toupper(adhoc.hakn.pi), ")"))))
     }
   }
   

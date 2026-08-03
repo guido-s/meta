@@ -1,4 +1,8 @@
-## meta, version 8.5-1 (2026-mm-dd)
+## meta, version 8.6-0 (2026-mm-dd)
+
+### Major changes
+
+* Cluster-robust variance estimators implemented for three-level models
 
 ### User-visible changes
 
@@ -7,6 +11,11 @@
   - radial plot can be created for Deeks' test (arguments method = "Deeks"
     and plotit = TRUE)
     [(pull #92)](https://github.com/guido-s/meta/pull/92)
+
+* metabin(), metacont(), metacor(), metagen(), metainc(), metamean(),
+  metaprop(), metarate(), metareg(), update.meta():
+  - argument 'method.random.ci' can be equal to "CR0", "CR1", or "CR2" for
+    cluster-robust variance estimators in three-level models
 
 ### Bug fixes
 

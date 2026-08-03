@@ -1,7 +1,7 @@
 Package: meta
 Title: General Package for Meta-Analysis
-Version: 8.5-1
-Date: 2026-07-08
+Version: 8.6-0
+Date: 2026-08-03
 Depends: R (>= 4.0.0), metabook (>= 0.2-0)
 Imports: metafor (>= 3.0-0), grid, ggplot2, lme4, CompQuadForm, xml2,
   methods, readr, dplyr, magrittr, purrr, stringr, rlang, tibble, scales,
@@ -18,18 +18,18 @@ URL: https://github.com/guido-s/meta/ https://link.springer.com/book/10.1007/978
 Description: User-friendly general package providing standard methods for meta-analysis and supporting Schwarzer, Carpenter, and Rücker <DOI:10.1007/978-3-319-21416-0>, "Meta-Analysis with R" (2015):
  - common effect and random effects meta-analysis;
  - several plots (forest, funnel, Galbraith / radial, L'Abbe, Baujat, bubble);
- - three-level meta-analysis model;
+ - three-level model with or without cluster-robust variance estimators;
  - generalised linear mixed model;
  - logistic regression with penalised likelihood for rare events;
  - Hartung-Knapp method for random effects model;
  - Kenward-Roger method for random effects model;
  - prediction interval and density of the prediction distribution;
  - expected proportion of comparable studies with clinically important benefit or harm;
- - statistical tests  for funnel plot asymmetry;
+ - statistical tests for funnel plot asymmetry;
  - trim-and-fill method to evaluate bias in meta-analysis;
  - meta-regression;
  - cumulative meta-analysis and leave-one-out meta-analysis;
- - import data from 'RevMan 5';
+ - import data from 'RevMan Web' and 'RevMan 5';
  - produce forest plot summarising several (subgroup) meta-analyses.
 License: GPL (>= 2)
 Encoding: UTF-8

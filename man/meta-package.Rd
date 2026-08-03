@@ -39,7 +39,8 @@ provides the following statistical methods for meta-analysis.
   (\code{\link{bubble.metareg}})
 }
 \item Three-level meta-analysis model (Van den Noortgate et al.,
-  2013)
+  2013) with or without cluster-robust variance estimators
+  (Pustejovsky and Tipton, 2018),
 \item Generalised linear mixed models (GLMMs) for binary and count
   data (Stijnen et al., 2010) (\code{\link{metabin}},
   \code{\link{metainc}}, \code{\link{metaprop}}, and
@@ -213,7 +214,17 @@ to calculate a confidence interval for the random effects estimate.
 \code{method.random.ci = "HK"} \tab Method by Hartung and Knapp
   (2001a/b) \cr
 \code{method.random.ci = "KR"} \tab Kenward-Roger method (Partlett and
-  Riley, 2017)
+  Riley, 2017) \cr\cr
+\emph{Three-level models only:} \cr
+\code{method.random.ci = "CR0"} \tab Original cluster-robust (sandwich)
+  covariance \cr
+  \tab estimator (Pustejovsky and Tipton, 2018) \cr
+\code{method.random.ci = "CR1"} \tab Bias-adjusted version of CR0 \cr
+  \tab (Pustejovsky and Tipton, 2018) \cr
+\code{method.random.ci = "CR2"} \tab Cluster-robust covariance estimator
+  with \cr
+  \tab Satterthwaite degrees of freedom \cr
+  \tab (Pustejovsky and Tipton, 2018)
 }
 
 DerSimonian and Laird (1986) introduced the classic random effects
@@ -285,6 +296,21 @@ hoc} correction for the Hartung-Knapp (HK) method:
 
 For GLMMs and three-level models, the \emph{ad hoc} variance
 corrections are not available.
+
+For three-level models, the cluster-robust variance estimators are calculated
+by internally calling the \code{\link[metafor]{robust}} function from
+R package \bold{metafor}:
+\tabular{ll}{
+\bold{Argument} \tab \bold{Arguments in \code{\link[metafor]{robust}}} \cr
+\code{method.random.ci = "CR0"} \tab \code{adjust = FALSE} and
+  \code{clubSandwich = FALSE} \cr
+\code{method.random.ci = "CR1"} \tab \code{adjust = TRUE} and
+  \code{clubSandwich = FALSE} \cr
+\code{method.random.ci = "CR2"} \tab \code{clubSandwich = TRUE}
+}
+The cluster-robust variance estimator with Satterthwaite degrees of freedom
+(\code{method.random.ci = "CR2"}) is only available if R package
+\bold{clubSandwich} is installed.
 }
 
 \subsection{Prediction interval}{
@@ -609,6 +635,12 @@ Prediction intervals for random-effects meta-analysis: A confidence
 distribution approach.
 \emph{Statistical Methods in Medical Research},
 \bold{28}, 1689--702
+
+Pustejovsky JE, Tipton E (2018):
+Small-sample methods for cluster-robust variance estimation and hypothesis
+testing in fixed effects models
+\emph{Journal of Business and Economic Statistics},
+\bold{36}, 672--83
 
 Schwarzer G (2007):
 meta: An R package for meta-analysis.

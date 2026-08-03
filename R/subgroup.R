@@ -704,13 +704,16 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
       upper.random.w[sel.r] <- as.numeric(mlm[[1]]$ci.ub)
       statistic.random.w[sel.r] <- as.numeric(mlm[[1]]$zval)
       pval.random.w[sel.r] <- as.numeric(mlm[[1]]$pval)
+      df.random.w[sel.r] <- as.numeric(mlm[[1]]$ddf)
     }
     else {
       for (i in seq_len(n.methci)) {
+        seTE.random.w[sel.r, i] <- as.numeric(mlm[[i]]$se)
         lower.random.w[sel.r, i] <- as.numeric(mlm[[i]]$ci.lb)
         upper.random.w[sel.r, i] <- as.numeric(mlm[[i]]$ci.ub)
         statistic.random.w[sel.r, i] <- as.numeric(mlm[[i]]$zval)
         pval.random.w[sel.r, i] <- as.numeric(mlm[[i]]$pval)
+        df.random.w[sel.r, i] <- as.numeric(mlm[[i]]$ddf)
       }
     }
     #

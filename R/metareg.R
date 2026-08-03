@@ -2,13 +2,18 @@
 #' 
 #' @description
 #' Meta-regression for objects of class \code{meta}. This is a wrapper
-#' function for the R function \code{\link[metafor]{rma.uni}} in the R
+#' function for the R functions \code{\link[metafor]{rma.uni}},
+#' \code{\link[metafor]{rma.glmm}}, and \code{\link[metafor]{rma.mv}} in the R
 #' package \bold{metafor} (Viechtbauer 2010).
 #' 
 #' @details
-#' This R function is a wrapper function for R function
-#' \code{\link[metafor]{rma.uni}} in the R package \bold{metafor}
+#' This R function is a wrapper function for R functions
+#' \code{\link[metafor]{rma.uni}}, \code{\link[metafor]{rma.glmm}}, and
+#' \code{\link[metafor]{rma.mv}} in the R package \bold{metafor}
 #' (Viechtbauer 2010).
+#' 
+#' If argument \code{method.random.ci} is a vector, only the first element is
+#' considered as the R functions in \bold{metafor} expect a single method.
 #' 
 #' Note, results are not back-transformed in printouts of
 #' meta-analyses using summary measures with transformations, e.g.,
@@ -17,10 +22,12 @@
 #' argument \code{sm = "PLOGIT"}.
 #' 
 #' Argument '\dots{}' can be used to pass additional arguments to R
-#' function \code{\link[metafor]{rma.uni}}. For example, argument
+#' functions \code{\link[metafor]{rma.uni}}, \code{\link[metafor]{rma.glmm}},
+#' and \code{\link[metafor]{rma.mv}}. For example, argument
 #' \code{control} to provide a list of control values for the
-#' iterative estimation algorithm. See help page of R function
-#' \code{\link[metafor]{rma.uni}} for more details.
+#' iterative estimation algorithm. See help page of R functions
+#' \code{\link[metafor]{rma.uni}}, \code{\link[metafor]{rma.glmm}}, and
+#' \code{\link[metafor]{rma.mv}}, for more details.
 #' 
 #' @param x An object of class \code{meta}.
 #' @param formula Either a character string or a formula object.
@@ -29,24 +36,27 @@
 #'   \code{"FE"}, \code{"DL"}, \code{"REML"}, \code{"ML"},
 #'   \code{"HS"}, \code{"SJ"}, \code{"HE"}, or \code{"EB"}, can be
 #'   abbreviated.
-#' @param hakn A logical indicating whether the method by Hartung and
-#'   Knapp should be used to adjust test statistics and confidence
-#'   intervals.
+#' @param method.random.ci A character string indicating which method
+#'   is used to calculate the confidence interval and test statistic for
+#'   the random effects estimate (see \code{\link{meta-package}}).
 #' @param level.ma The level used to calculate confidence intervals
 #'   for parameter estimates in the meta-regression model.
 #' @param intercept A logical indicating whether an intercept should
 #'   be included in the meta-regression model.
+#' @param hakn Deprecated argument (replaced by 'method.random.ci').
 #' @param \dots Additional arguments passed to R function
-#'   \code{\link[metafor]{rma.uni}}.
+#'   \code{\link[metafor]{rma.uni}}, \code{\link[metafor]{rma.glmm}}, and
+#'   \code{\link[metafor]{rma.mv}}.
 #' 
 #' @return
-#' An object of class \code{c("metareg", "rma.uni", "rma")}. Please
-#' look at the help page of R function \code{\link[metafor]{rma.uni}}
-#' for more details on the output from this function.
+#' An object of class \code{c("metareg", "rma")}. Please
+#' look at the help pages of R functions \code{\link[metafor]{rma.uni}},
+#' \code{\link[metafor]{rma.glmm}}, and \code{\link[metafor]{rma.mv}}
+#' for more details on the output from these functions.
 #' 
 #' In addition, a list \code{.meta} is added to the output containing
 #' the following components:
-#' \item{x, formula, method.tau, hakn, level.ma, intercept}{As
+#' \item{x, formula, method.tau, method.random.ci, hakn, level.ma, intercept}{As
 #'   defined above.}
 #' \item{dots}{Information provided in argument '\dots{}'.}
 #' \item{call}{Function call.}
@@ -129,9 +139,10 @@
 #' @export
 
 metareg.meta <- function(x, formula, method.tau = x$method.tau,
-                         hakn = x$method.random.ci == "HK",
-                         level.ma = x$level.ma,
-                         intercept = TRUE, ...) {
+                         method.random.ci = x$method.random.ci,
+                         level.ma = x$level.ma, intercept = TRUE,
+                         hakn = method.random.ci == "HK",
+                         ...) {
 
   if ("data" %in% names(list(...))) {
     warning("Please note, argument 'data' has been renamed to 'x' ",
@@ -158,6 +169,8 @@ metareg.meta <- function(x, formula, method.tau = x$method.tau,
   chksuitable(x, "Meta-regression", c("metamerge", "netpairwise"),
                check.mlm = FALSE)
   #
+  missing.method.random.ci <- missing(method.random.ci)
+  #
   x <- updateversion(x)
   
   
@@ -167,6 +180,7 @@ metareg.meta <- function(x, formula, method.tau = x$method.tau,
   TE <- x$TE
   seTE <- x$seTE
   method <- x$method
+  CRs <- c("CR0", "CR1", "CR2")
   #
   model.glmm <- x$model.glmm
   #
@@ -271,7 +285,36 @@ metareg.meta <- function(x, formula, method.tau = x$method.tau,
   #
   method.tau <- setchar(method.tau, c(gs("meth4tau"), "FE"))
   #
+  method.random.ci <-
+    deprecated2(method.random.ci, missing.method.random.ci,
+                hakn, missing(hakn))
+  #
+  if (is.logical(method.random.ci))
+    if (method.random.ci)
+      method.random.ci <- "HK"
+    else
+      method.random.ci <- "classic"
+  #
+  method.random.ci <- setchar(method.random.ci, gs("meth4random.ci"))
+  #
+  if (length(method.random.ci) > 1) {
+    warning("Only first element of argument 'method.random.ci' considered ",
+            "in meta-regression.",
+            call. = FALSE)
+    method.random.ci <- method.random.ci[1]
+  }
+  #
+  if (method.random.ci == "CR2")
+    is_installed_package("clubSandwich", argument = "method.random.ci",
+                         value = "CR2")
+  hakn <- method.random.ci == "HK"
+  #
   chklogical(hakn)
+  #
+  if (!three.level && method.random.ci %in% CRs)
+    stop("Methods 'CR0', 'CR1', and 'CR2' are only available ",
+         "for three-level models.",
+         call. = FALSE)
   #
   chklevel(level.ma)
   chklogical(intercept)
@@ -334,6 +377,13 @@ metareg.meta <- function(x, formula, method.tau = x$method.tau,
                    random = as.call(~ 1 | .id / .idx),
                    test = test, level = 100 * level.ma,
                    ...))
+      #
+      if (method.random.ci %in% CRs)
+        res <-
+          suppressPackageStartupMessages(
+            robust(res, cluster = dataset$.id,
+                   adjust = method.random.ci != "CR0",
+                   clubSandwich = method.random.ci == "CR2"))
     }
     else
       res <-
@@ -447,6 +497,7 @@ metareg.meta <- function(x, formula, method.tau = x$method.tau,
   res$.meta <- list(x = ..x,
                     formula = formula,
                     method.tau = method.tau,
+                    method.random.ci = method.random.ci,
                     hakn = hakn,
                     level.ma = level.ma,
                     intercept = intercept,
