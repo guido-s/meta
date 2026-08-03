@@ -649,7 +649,7 @@
 #'   subset = (n.asp + n.plac) > 1500,
 #'   exclude = grep("MRC", study))
 #'
-#' \dontrun{
+#' \donttest{
 #' if (requireNamespace("metadat", quietly = TRUE)) {
 #' # Three-level model: effects of modified school calendars on
 #' # student achievement
@@ -658,12 +658,12 @@
 #'   sm = "SMD",
 #'   cluster = district, detail.tau = c("district", "district/school"))
 #' # Cluster-robust variance estimators
-#' if (!requireNamespace("clubSandwich", quietly = TRUE)) {
+#' clro <- suppressPackageStartupMessages(
+#'   requireNamespace("clubSandwich", quietly = TRUE))
+#' if (!clro)
 #'   update(ma3, method.random.ci = c("classic", "CR0", "CR1"))
-#' }
-#' if (requireNamespace("clubSandwich", quietly = TRUE)) {
+#' if (clro)
 #'   update(ma3, method.random.ci = c("classic", "CR0", "CR1", "CR2"))
-#' }
 #' }
 #' }
 #' 
