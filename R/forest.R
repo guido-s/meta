@@ -3817,6 +3817,15 @@ forest.meta <- function(x,
     cid.above.null <- log(cid.above.null)
   }
   #
+  if (!backtransf) {
+    if (is_prop(sm))
+      ref <- transf(ref, if (sm == "PFT") "PAS" else sm)
+    else if (is_rate(sm))
+      ref <- transf(ref, if (sm == "IRFT") "IRS" else sm)
+    else if (is_mean(sm))
+      ref <- transf(ref, sm)
+  }
+  #
   if (!backtransf & !missing.pscale & pscale != 1 & !is_untransformed(sm)) {
     warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
     pscale <- 1
@@ -3848,6 +3857,12 @@ forest.meta <- function(x,
     else
       scale <- irscale
   }
+  #
+  if (backtransf && is_prop(sm))
+    ref <- pscale * ref
+  #
+  if (backtransf & is_rate(sm))
+    ref <- irscale * ref
   #
   smlab.null <- is.null(smlab)
   if (smlab.null) {
@@ -3980,6 +3995,9 @@ forest.meta <- function(x,
   #
   
   sm.lab <- sm
+  #
+  if (sm == "MRAW")
+    sm.lab <- "Mean"
   #
   if (backtransf) {
     if (sm == "ZCOR")

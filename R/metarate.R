@@ -1195,8 +1195,6 @@ metarate <- function(event, time, studlab,
   #
   m$label.e <- ""
   m$label.c <- ""
-  m$label.left <- ""
-  m$label.right <- ""
   #
   if (method.ci == "exact") {
     m$statistic <- rep(NA, length(m$statistic))

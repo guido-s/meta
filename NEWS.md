@@ -31,6 +31,13 @@
     using the sample size method or a logistic regression with penalised
     likelihood
     [(issue #93)](https://github.com/guido-s/meta/issues/93)
+  - print labels defined in metarate() for meta-analysis of single rates
+    [(issue #97)](https://github.com/guido-s/meta/issues/97)
+  - show labels on the correct positions if argument 'backtransf = FALSE' for
+    meta-analyses conducted with metamean(), metaprop(), or metarate()
+  - show labels on the correct positions if argument 'backtransf = TRUE' and
+    argument 'pscale' or 'irscale' is used for meta-analyses conducted with
+    metaprop() or metarate()
 
 * pairwise():
   - consider continuity correction in binary outcomes with summary measure "DOR"
