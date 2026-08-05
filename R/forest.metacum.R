@@ -591,14 +591,6 @@ forest.metacum <- function(x,
     leftlabs <- c(leftlabs, rightlabs[-(1:2)], rightlabs[1:2])
     rightlabs <- NULL
   }
-  #
-  # Use default colours for JAMA and RevMan5 layouts
-  #
-  if (missing.col.bg & layout %in% c("JAMA", "RevMan5"))
-    col.bg <- NULL
-  #
-  if (missing.col.border & layout %in% c("JAMA", "RevMan5"))
-    col.border <- NULL
   
   
   data.p <-

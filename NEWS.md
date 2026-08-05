@@ -17,6 +17,10 @@
   - argument 'method.random.ci' can be equal to "CR0", "CR1", or "CR2" for
     cluster-robust variance estimators in three-level models
 
+* forest.metacum():
+  - use default colors for squares regardless of layout
+    [(issue #96)](https://github.com/guido-s/meta/issues/96)
+
 ### Bug fixes
 
 * forest.meta():
