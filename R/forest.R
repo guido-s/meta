@@ -6416,11 +6416,11 @@ forest.meta <- function(x,
   else
     text.overall.common <- ""
   #
-  hakn.kero <- x$method.random.ci[1] %in% c("HK", "KR")
+  use_t <- x$method.random.ci[1] %in% c("HK", "KR", "CR0", "CR1", "CR2")
   #
   if (test.overall.random) {
     if (print.stat) {
-      if (!hakn.kero) {
+      if (!use_t) {
         if (bmj)
           text.overall.random <-
             substitute(paste(tl,
@@ -6816,7 +6816,7 @@ forest.meta <- function(x,
     k.w.hetstat <- if (metabind) x$k.w.orig else x$k.w
     o.w <- order(factor(x$subgroup.levels, levels = subgroup.levels))
     k.w.hetstat <- k.w.hetstat[o.w]
-    if (hakn.kero)
+    if (use_t)
       df.random.w <- x$df.random.w[o.w]
     #
     TE.common.w <- ordermat(TE.common.w, subgroup.levels)
@@ -6927,7 +6927,7 @@ forest.meta <- function(x,
     else
       sel.w <- k.w > 0
     #
-    if (hakn.kero)
+    if (use_t)
       df.random.w <- df.random.w[sel.w]
     #
     TE.common.w <- TE.common.w[repl(sel.w, n.com, n.by)]
@@ -7956,7 +7956,7 @@ forest.meta <- function(x,
       text.effect.subgroup.random <- vector("list", n.by)
       for (i in seq_len(n.by)) {
         if (print.stat) {
-          if (!hakn.kero) {
+          if (!use_t) {
             if (bmj)
               text.effect.subgroup.random[[i]] <-
                 substitute(paste(tl,

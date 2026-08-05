@@ -2150,7 +2150,8 @@ metagen <- function(TE, seTE, studlab,
                "classic", method.random.ci)
       #
       method.predict <- 
-        ifelse(method.predict %in% c("HK", "KR"), "V", method.predict)
+        ifelse(method.predict %in% c("HK", "KR", "CR0", "CR1", "CR2"),
+               "V", method.predict)
       #
       adhoc.hakn.ci <- ""
       adhoc.hakn.pi <- ""

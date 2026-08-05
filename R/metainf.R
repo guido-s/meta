@@ -175,7 +175,8 @@ metainf.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
   #
   chklogical(overall)
   #
-  tdist_random <- pooled == "random" & x$method.random.ci %in% c("HK", "KR")
+  tdist_random <- pooled == "random" &
+    x$method.random.ci %in% c("HK", "KR", "CR0", "CR1", "CR2")
   tdist_predict <- !(x$method.predict %in% c("S", ""))
   #
   mc <- match.call()

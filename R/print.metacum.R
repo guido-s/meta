@@ -389,7 +389,8 @@ print.metacum <- function(x,
     names(dat)[names(dat) == "pval"] <- "p-value"
   #
   if (print.stat) {
-    if (x$pooled == "random" & x$method.random.ci %in% c("HK", "KR"))
+    if (x$pooled == "random" &
+        x$method.random.ci %in% c("HK", "KR", "CR0", "CR1", "CR2"))
       names(dat)[names(dat) == "statistic"] <- "t"
     else
       names(dat)[names(dat) == "statistic"] <- "z"
