@@ -107,11 +107,14 @@ omitting one study at a time. Studies are sorted according to
 \code{sortvar}.
 
 Information from object \code{x} is utilised if argument
-\code{pooled} is missing. A common effect model is assumed
-(\code{pooled = "common"}) if argument \code{x$common} is
-\code{TRUE}; a random effects model is assumed (\code{pooled =
-"random"}) if argument \code{x$random} is \code{TRUE} and
-\code{x$common} is \code{FALSE}.
+\code{pooled} is missing. A random effects model is assumed
+(\code{pooled = "random"}) if (i) a random effects meta-analysis was
+conducted (list element \code{x$random = TRUE}) and prediction intervals
+are requested (argument \code{prediction = TRUE} or list element
+\code{x$prediction = TRUE}) or (ii) a common effect meta-analysis was
+not conducted (\code{x$common = FALSE}), but a random effects meta-analysis
+was conducted (\code{x$random = TRUE}). Otherwise, a common effect model is
+assumed.
 }
 \examples{
 data(Fleiss1993bin)

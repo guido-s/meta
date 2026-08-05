@@ -4,6 +4,11 @@
 
 * Cluster-robust variance estimators implemented for three-level models
 
+* Cumulative meta-analysis and leave-one-out method return results for random
+  effects instead of common effect model if prediction intervals are requested
+  and both common effect and random effects meta-analysis were
+  conducted
+
 ### User-visible changes
 
 * metabias():
@@ -42,6 +47,10 @@
   - show labels on the correct positions if argument 'backtransf = TRUE' and
     argument 'pscale' or 'irscale' is used for meta-analyses conducted with
     metaprop() or metarate()
+
+* forest.metacum(), forest.metainf():
+  - show prediction intervals if argument 'layout = "BMJ"'
+    [(issue #96)](https://github.com/guido-s/meta/issues/96)
 
 * pairwise():
   - consider continuity correction in binary outcomes with summary measure "DOR"

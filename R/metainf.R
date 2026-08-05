@@ -40,11 +40,14 @@
 #' \code{sortvar}.
 #'
 #' Information from object \code{x} is utilised if argument
-#' \code{pooled} is missing. A common effect model is assumed
-#' (\code{pooled = "common"}) if argument \code{x$common} is
-#' \code{TRUE}; a random effects model is assumed (\code{pooled =
-#' "random"}) if argument \code{x$random} is \code{TRUE} and
-#' \code{x$common} is \code{FALSE}.
+#' \code{pooled} is missing. A random effects model is assumed
+#' (\code{pooled = "random"}) if (i) a random effects meta-analysis was
+#' conducted (list element \code{x$random = TRUE}) and prediction intervals
+#' are requested (argument \code{prediction = TRUE} or list element
+#' \code{x$prediction = TRUE}) or (ii) a common effect meta-analysis was
+#' not conducted (\code{x$common = FALSE}), but a random effects meta-analysis
+#' was conducted (\code{x$random = TRUE}). Otherwise, a common effect model is
+#' assumed.
 #' 
 #' @return
 #' An object of class \code{"metainf"} with dedicated print and forest
@@ -158,20 +161,31 @@ metainf.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
   #
   #
   
+  missing.prediction <- missing(prediction)
+  if (!missing.prediction)
+    chklogical(prediction)
+  #
   if (!missing(pooled)) {
     pooled <- setchar(pooled, c("common", "random", "fixed"))
     pooled[pooled == "fixed"] <- "common"
   }
-  else
-    if (!x$common & x$random)
+  else {
+    prediction.requested <-
+      if (missing.prediction)
+        x$prediction
+    else
+      prediction
+    #
+    if (x$random && prediction.requested)
+      pooled <- "random"
+    else if (!x$common && x$random)
       pooled <- "random"
     else
       pooled <- "common"
+  }
   #
-  if (missing(prediction))
+  if (missing.prediction)
     prediction <- pooled == "random" & x$prediction
-  else
-    chklogical(prediction)
   #
   chklogical(overall)
   #

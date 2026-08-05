@@ -2599,8 +2599,13 @@ forest.meta <- function(x,
   #
   chklogical(cid.pooled.only)
   #
-  if (bmj)
-    type.study <- "squarediamond"
+  if (bmj) {
+    type.study <- setchar(type.study,
+                          c("square", "diamond", "predict", "circle",
+                            "squarediamond"))
+    #
+    type.study[type.study == "square"] <- "squarediamond"
+  }
   else
     type.study <- setchar(type.study,
                           c("square", "diamond", "predict", "circle",
