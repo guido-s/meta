@@ -84,15 +84,16 @@ chkclass <- function(x, class, name = NULL) {
   invisible(NULL)
 }
 
-chkcolor <- function(x, length = 0, name = NULL, single = FALSE) {
+chkcolor <- function(x, length = 0, name = NULL, single = FALSE, one = FALSE) {
   if (!missing(single) && single)
     length <- 1
   if (is.null(name))
     name <- deparse(substitute(x))
   #
   if (length && length(x) != length)
-    stop("Argument '", name, "' must must be a character or ",
-         "numeric vector of length ", length, ".",
+    stop("Argument '", name, "' must be a character or ",
+         "numeric vector of length ",
+         if (one & length != 1) "1 or ", length, ".",
          call. = FALSE)
   else if (!(is.character(x) || is.numeric(x)))
     stop("Argument '", name, "' must be a character or numeric vector.",

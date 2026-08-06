@@ -702,8 +702,8 @@ settings.meta <- function(..., quietly = TRUE) {
     #
     setOption("lty.common", 2)
     setOption("lty.random", 3)
-    setOption("col.common", "black")
-    setOption("col.random", "black")
+    setOption("col.common", NULL)
+    setOption("col.random", NULL)
     #
     setOption("sort.subgroup", FALSE)
     #
@@ -715,7 +715,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("cid.below.null", NA)
     setOption("cid.above.null", NA)
     setOption("lty.cid", 1)
-    setOption("col.cid", "blue")
+    setOption("col.cid", NULL)
     setOption("fill.cid", "transparent")
     setOption("cid.pooled.only", FALSE)
     #
@@ -746,21 +746,21 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("type.study", "square")
     setOption("type.common", "diamond")
     #
-    setOption("col.study", "black")
-    setOption("col.square", "gray")
-    setOption("col.square.lines", "gray")
-    setOption("col.circle", "royalblue")
-    setOption("col.inside", "white")
-    setOption("col.diamond", "gray")
-    setOption("col.diamond.lines", "black")
-    setOption("col.predict", "red")
-    setOption("col.predict.lines", "black")
-    setOption("col.subgroup", "black")
-    setOption("col.label.right", "black")
-    setOption("col.label.left", "black")
+    setOption("col.study", NULL)
+    setOption("col.square", NULL)
+    setOption("col.square.lines", NULL)
+    setOption("col.circle", NULL)
+    setOption("col.inside", NULL)
+    setOption("col.diamond", NULL)
+    setOption("col.diamond.lines", NULL)
+    setOption("col.predict", NULL)
+    setOption("col.predict.lines", NULL)
+    setOption("col.subgroup", NULL)
+    setOption("col.label.right", NULL)
+    setOption("col.label.left", NULL)
     #
-    setOption("col.lines", "black")
-    setOption("col.label", "black")
+    setOption("col.lines", NULL)
+    setOption("col.label", NULL)
     #
     setOption("hetlab", "Heterogeneity: ")
     setOption("resid.hetstat", NULL)
@@ -910,17 +910,6 @@ settings.meta <- function(..., quietly = TRUE) {
                    #
                    replaceNULL(args[["colgap.forest"]], "5mm"),
                    #
-                   replaceNULL(args[["col.common"]], "#6b58a6"),
-                   replaceNULL(args[["col.random"]], "#6b58a6"),
-                   replaceNULL(args[["col.subgroup"]], "black"),
-                   replaceNULL(args[["col.study"]], "#6b58a6"),
-                   replaceNULL(args[["col.square"]], "#6b58a6"),
-                   replaceNULL(args[["col.square.lines"]], "white"),
-                   replaceNULL(args[["col.diamond"]], "#6b58a6"),
-                   replaceNULL(args[["col.diamond.lines"]], "white"),
-                   #
-                   replaceNULL(args[["col.lines"]], "#a7a9ac"),
-                   #
                    replaceNULL(args[["lwd.square"]], 0.5),
                    replaceNULL(args[["lwd.diamond"]], 0.5),
                    #
@@ -980,7 +969,6 @@ settings.meta <- function(..., quietly = TRUE) {
                  "exact.smd",
                  "layout", "prediction", "test.overall",
                  "test.subgroup", "test.effect.subgroup",
-                 "col.subgroup",
                  #
                  "forest.I2", "forest.tau2", "forest.tau",
                  "forest.Q", "forest.pval.Q", "forest.Rb",
@@ -1003,7 +991,6 @@ settings.meta <- function(..., quietly = TRUE) {
                    replaceNULL(args[["test.overall"]], TRUE),
                    replaceNULL(args[["test.subgroup"]], TRUE),
                    replaceNULL(args[["test.effect.subgroup"]], TRUE),
-                   replaceNULL(args[["col.subgroup"]], "black"),
                    #
                    replaceNULL(args[["forest.I2"]], TRUE),
                    replaceNULL(args[["forest.tau2"]], TRUE),

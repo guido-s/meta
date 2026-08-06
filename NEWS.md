@@ -23,7 +23,7 @@
     cluster-robust variance estimators in three-level models
 
 * forest.metacum():
-  - use default colors for squares regardless of layout
+  - use default colours for squares regardless of layout
     [(issue #96)](https://github.com/guido-s/meta/issues/96)
 
 ### Bug fixes
@@ -103,6 +103,9 @@
     'cid.above.null' calculated from 'cid' are based on relative instead of
     absolute distances from the null effect
     [(issue #94)](https://github.com/guido-s/meta/issues/94)
+    
+* New internal function layout_colors() to define default colours for forest
+  plots
 
 
 ## meta, version 8.5-0 (2026-05-25)

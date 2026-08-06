@@ -134,9 +134,8 @@ stoponly <- function(arg, val, func)
        func, ".",
        call. = FALSE)
 
-deprecated <- function(newvar, newmiss, args, old, warn = TRUE) {
-  #
-  new <- deparse(substitute(newvar))
+deprecated <- function(newvar, newmiss, args, old, warn = TRUE,
+                       name = deparse(substitute(newvar))) {
   #
   if (length(args) == 0)
     return(newvar)
@@ -146,21 +145,22 @@ deprecated <- function(newvar, newmiss, args, old, warn = TRUE) {
   #
   additional.arguments <- names(args)
   #
-  if (!is.na(charmatch(old, additional.arguments)))
+  if (!is.na(charmatch(old, additional.arguments))) {
     if (!newmiss) {
       if (warn)
         warning("Deprecated argument '", old, "' ignored as ",
-                "'", new, "' is also provided.",
+                "'", name, "' is also provided.",
                 call. = FALSE)
       return(newvar)
     }
     else {
       if (warn)
-        warning("Use argument '", new, "' instead of '",
+        warning("Use argument '", name, "' instead of '",
                 old, "' (deprecated).",
                 call. = FALSE)
       return(args[[charmatch(old, additional.arguments)]])
     }
+  }
   else
     return(newvar)
 }

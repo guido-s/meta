@@ -60,9 +60,6 @@
 #'   cumulative meta-analysis results.
 #' @param col.border.predict The colour for the outer lines of prediction
 #'   intervals of cumulative meta-analysis results.
-#' @param addrows.below.overall A numeric value indicating how many
-#'   empty rows are printed between meta-analysis results and
-#'   meta-analysis details.
 #' @param details A logical specifying whether details on statistical
 #'   methods should be printed.
 #' @param \dots Additional graphical arguments (passed on to
@@ -138,18 +135,12 @@ forest.metacum <- function(x,
                            digits.cid = gs("digits.cid"),
                            digits.percent = 1,
                            #
-                           col = gs("col.study"),
-                           col.bg = 
-                             ifelse(type == "diamond",
-                                  gs("col.diamond"), gs("col.square")),
-                           col.border =
-                             ifelse(type == "diamond",
-                                    gs("col.diamond.lines"),
-                                    gs("col.square.lines")),
-                           col.bg.predict = gs("col.predict"),
-                           col.border.predict = gs("col.predict.lines"),
+                           col,
+                           col.bg,
+                           col.border,
+                           col.bg.predict,
+                           col.border.predict,
                            #
-                           addrows.below.overall = 1L * details,
                            details = gs("forest.details"),
                            ...) {
   
@@ -193,6 +184,34 @@ forest.metacum <- function(x,
   #
   layout <- setchar(layout, c("meta", "BMJ", "RevMan5", "JAMA"))
   #
+  # Colour schemes for layouts:
+  # - colors[1] - vertical line for common effect or random effects model
+  # - colors[2] - diamond for meta-analysis results
+  # - colors[3] - outer lines of diamonds
+  # - colors[4] - square or circle colour
+  # - colors[5] - outer lines of squares or circles
+  # - colors[6] - line color (axes, reference line, header lines)
+  # - colors[7] - prediction interval
+  # - colors[8] - outer lines of prediction intervals
+  # - colors[9] - subgroups
+  # - colors[10] - color within squares or circles
+  #
+  colors <- layout_colors(layout)
+  #
+  if (missing(col))
+    col <- colors[1]
+  #
+  if (missing(col.bg))
+    col.bg <- ifelse(type == "diamond", colors[2], colors[4])
+  #
+  if (missing(col.border))
+    col.border <- ifelse(type == "diamond", colors[3], colors[5])
+  #
+  if (missing(col.bg.predict))
+    col.bg.predict <- colors[7]
+  if (missing(col.border.predict))
+    col.border.predict = colors[8]
+  #
   chklogical(backtransf)
   chknumeric(digits, min = 0, length = 1)
   chknumeric(digits.pval, min = 0, length = 1)
@@ -201,7 +220,6 @@ forest.metacum <- function(x,
   chknumeric(digits.I2, min = 0, length = 1)
   chknumeric(digits.cid, min = 0, length = 1)
   chknumeric(digits.percent, min = 0, length = 1)
-  chknumeric(addrows.below.overall, length = 1)
   #
   chklogical(details)
   #
@@ -652,8 +670,6 @@ forest.metacum <- function(x,
          digits.tau2 = digits.tau2,
          digits.tau = digits.tau,
          digits.I2 = digits.I2,
-         #
-         addrows.below.overall = addrows.below.overall,
          #
          col.study = col,
          col.square = col.bg, col.square.lines = col.border,

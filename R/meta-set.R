@@ -5,6 +5,29 @@
 # License: GPL (>= 2)
 #
 
+chksetVar <- function(x, missing, replace, func, n = 0,
+                      args = NULL, oldname, warn,
+                      ...) {
+  name <- deparse(substitute(x))
+  #
+  if (missing) {
+    if (!is.null(args))
+      x <- deprecated(x, TRUE, args, oldname, warn, name)
+    #
+    res <- replace
+    #
+    if (n > 1)
+      res <- rep(res, n)
+  }
+  else {
+    res <- if (length(x) == 1 && n > 1) rep(x, n) else x
+    #
+    do.call(func, list(res, name = name, length = n, ...))
+  }
+  #
+  res
+}
+
 setchar <- function(x, val, text, list = FALSE, name = NULL,
                     stop.at.error = TRUE, addtext = "",
                     return.NULL = TRUE, nchar.equal = FALSE,
