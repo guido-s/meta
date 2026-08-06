@@ -11729,13 +11729,13 @@ forest.meta <- function(x,
   maxrow <- function(x)
     if (all(is.na(x))) NA else max(x, na.rm = TRUE)
   #
-  yline.all <- c(yTE, yTE.common, yTE.random, yPredict)
-  yline.common <- c(yTE.common, yPredict)
-  yline.random <- c(yTE.random, yPredict)
+  yline.ref <- c(yTE, yTE.common, yTE.random, yPredict)
+  yline.common <- yTE.common
+  yline.random <- yTE.random
   #
-  ymin.line <- nrow - maxrow(yline.all)
   ymin.common <- spacing * (nrow - maxrow(yline.common) + 0.5)
   ymin.random <- spacing * (nrow - maxrow(yline.random) + 0.5)
+  ymin.line <- nrow - maxrow(yline.ref)
   ymin.ref <- spacing * ymin.line
   #
   ymax <- spacing * (nrow - ifelse(is.na(yHeadadd), 1, 2) - 1 * addrow)
