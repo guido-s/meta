@@ -191,6 +191,42 @@ plot.cidprop <- function(x,
   chklogical(random)
   chklogical(prediction)
   #
+  layout <- gs("layout")
+  #
+  # Colour schemes for layouts:
+  # - colors[1] - vertical line for common effect or random effects model
+  # - colors[2] - diamond for meta-analysis results
+  # - colors[3] - outer lines of diamonds
+  # - colors[4] - square or circle colour
+  # - colors[5] - outer lines of squares or circles
+  # - colors[6] - line color (axes, reference line, header lines)
+  # - colors[7] - prediction interval
+  # - colors[8] - outer lines of prediction intervals
+  # - colors[9] - subgroups
+  # - colors[10] - color within squares or circles
+  #
+  colors <- layout_colors(layout)
+  #
+  if (missing(col.diamond))
+    col.diamond <- colors[2]
+  else
+    chkcolor(col.diamond, length = 1)
+  #
+  if (missing(col.diamond.lines))
+    col.diamond.lines <- colors[3]
+  else
+    chkcolor(col.diamond.lines, length = 1)
+  #
+  if (missing(col.predict))
+    col.predict <- colors[7]
+  else
+    chkcolor(col.predict, length = 1)
+  #
+  if (missing(col.predict.lines))
+    col.predict.lines <- colors[8]
+  else
+    chkcolor(col.predict.lines, length = 1)
+  #
   chknumeric(digits.cid, min = 0, length = 1)
   chknumeric(digits.percent, min = 0, length = 1)
   chknumeric(digits.xaxis, min = 0, length = 1)

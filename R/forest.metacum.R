@@ -121,6 +121,7 @@ forest.metacum <- function(x,
                            just.addcols = "right",
                            smlab = "Cumulative Meta-Analysis",
                            type = "square",
+                           #
                            layout = gs("layout"),
                            lab.NA = ".",
                            #

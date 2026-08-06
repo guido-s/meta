@@ -89,6 +89,7 @@ forest.metainf <- function(x,
                            just.addcols = "right",
                            smlab = "Leave-One-Out Meta-Analysis",
                            type = "square",
+                           #
                            layout = gs("layout"),
                            lab.NA = ".",
                            #

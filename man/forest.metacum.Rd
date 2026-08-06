@@ -26,12 +26,11 @@
   digits.I2 = gs("digits.I2"),
   digits.cid = gs("digits.cid"),
   digits.percent = 1,
-  col = gs("col.study"),
-  col.bg = ifelse(type == "diamond", gs("col.diamond"), gs("col.square")),
-  col.border = ifelse(type == "diamond", gs("col.diamond.lines"), gs("col.square.lines")),
-  col.bg.predict = gs("col.predict"),
-  col.border.predict = gs("col.predict.lines"),
-  addrows.below.overall = 1L * details,
+  col,
+  col.bg,
+  col.border,
+  col.bg.predict,
+  col.border.predict,
   details = gs("forest.details"),
   ...
 )
@@ -116,10 +115,6 @@ cumulative meta-analysis results.}
 
 \item{col.border.predict}{The colour for the outer lines of prediction
 intervals of cumulative meta-analysis results.}
-
-\item{addrows.below.overall}{A numeric value indicating how many
-empty rows are printed between meta-analysis results and
-meta-analysis details.}
 
 \item{details}{A logical specifying whether details on statistical
 methods should be printed.}

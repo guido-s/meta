@@ -17,19 +17,20 @@
   hetstat = FALSE,
   overall.hetstat = x$overall.hetstat,
   prediction = x$prediction,
+  layout = gs("layout"),
   lab.NA = "",
-  col.square = gs("col.square"),
-  col.square.lines = col.square,
-  col.circle = gs("col.circle"),
-  col.circle.lines = col.circle,
-  col.diamond = gs("col.diamond"),
-  col.diamond.common = col.diamond,
-  col.diamond.random = col.diamond,
-  col.diamond.lines = gs("col.diamond.lines"),
-  col.diamond.lines.common = col.diamond.lines,
-  col.diamond.lines.random = col.diamond.lines,
-  col.predict = gs("col.predict"),
-  col.predict.lines = gs("col.predict.lines"),
+  col.square,
+  col.square.lines,
+  col.circle,
+  col.circle.lines,
+  col.diamond,
+  col.diamond.common,
+  col.diamond.random,
+  col.diamond.lines,
+  col.diamond.lines.common,
+  col.diamond.lines.random,
+  col.predict,
+  col.predict.lines,
   type = NULL,
   type.common = NULL,
   type.random = NULL,
@@ -100,6 +101,9 @@ level.}
 
 \item{prediction}{A logical indicating whether prediction
 interval(s) should be printed.}
+
+\item{layout}{A character string specifying the layout of the
+forest plot (see \code{\link{forest.meta}}).}
 
 \item{lab.NA}{A character string to label missing values.}
 

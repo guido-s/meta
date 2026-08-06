@@ -49,6 +49,8 @@
 #'   plot random effects estimates.
 #' @param type.predict A single character string specifying how to
 #'   plot prediction intervals.
+#' @param layout A character string specifying the layout of the
+#'   forest plot (see \code{\link{forest.meta}}).
 #' @param lab.NA A character string to label missing values.
 #' @param col.square The colour for squares reflecting study's weight
 #'   in the meta-analysis.
@@ -191,22 +193,23 @@ forest.metabind <- function(x,
                             overall.hetstat = x$overall.hetstat,
                             prediction = x$prediction,
                             #
+                            layout = gs("layout"),
                             lab.NA = "",
                             #
-                            col.square = gs("col.square"),
-                            col.square.lines = col.square,
-                            col.circle = gs("col.circle"),
-                            col.circle.lines = col.circle,
+                            col.square,
+                            col.square.lines,
+                            col.circle,
+                            col.circle.lines,
                             #
-                            col.diamond = gs("col.diamond"),
-                            col.diamond.common = col.diamond,
-                            col.diamond.random = col.diamond,
-                            col.diamond.lines = gs("col.diamond.lines"),
-                            col.diamond.lines.common = col.diamond.lines,
-                            col.diamond.lines.random = col.diamond.lines,
+                            col.diamond,
+                            col.diamond.common,
+                            col.diamond.random,
+                            col.diamond.lines,
+                            col.diamond.lines.common,
+                            col.diamond.lines.random,
                             #
-                            col.predict = gs("col.predict"),
-                            col.predict.lines = gs("col.predict.lines"),
+                            col.predict,
+                            col.predict.lines,
                             #
                             type = NULL,
                             type.common = NULL,
@@ -300,20 +303,91 @@ forest.metabind <- function(x,
       setchar(type.predict, c("square", "diamond", "predict", "circle"))
   }
   #
-  chkcolor(col.square, length = 1)
-  chkcolor(col.square.lines, length = 1)
-  chkcolor(col.circle, length = 1)
-  chkcolor(col.circle.lines, length = 1)
+  layout <- setchar(layout, c("meta", "BMJ", "RevMan5", "JAMA"))
   #
-  chkcolor(col.diamond, length = 1)
-  chkcolor(col.diamond.common, length = 1)
-  chkcolor(col.diamond.random, length = 1)
-  chkcolor(col.diamond.lines, length = 1)
-  chkcolor(col.diamond.lines.common, length = 1)
-  chkcolor(col.diamond.lines.random, length = 1)
+  # Colour schemes for layouts:
+  # - colors[1] - vertical line for common effect or random effects model
+  # - colors[2] - diamond for meta-analysis results
+  # - colors[3] - outer lines of diamonds
+  # - colors[4] - square or circle colour
+  # - colors[5] - outer lines of squares or circles
+  # - colors[6] - line color (axes, reference line, header lines)
+  # - colors[7] - prediction interval
+  # - colors[8] - outer lines of prediction intervals
+  # - colors[9] - subgroups
+  # - colors[10] - color within squares or circles
   #
-  chkcolor(col.predict, length = 1)
-  chkcolor(col.predict.lines, length = 1)
+  colors <- layout_colors(layout)
+  #
+  if (missing(col.square))
+    col.square <- colors[4]
+  else
+    chkcolor(col.square, 1)
+  #
+  if (missing(col.square.lines))
+    col.square.lines <- col.square
+  else
+    chkcolor(col.square.lines, 1)
+  #
+  if (missing(col.circle))
+    col.circle <- colors[4]
+  else
+    chkcolor(col.circle, 1)
+  #
+  if (missing(col.circle.lines))
+    col.circle.lines <- col.circle
+  else
+    chkcolor(col.circle.lines, 1)
+  #
+  if (missing(col.diamond))
+    col.diamond <- colors[2]
+  else
+    chkcolor(col.diamond, 1)
+  #
+  if (missing(col.diamond.common))
+    col.diamond.common <- col.diamond
+  else
+    chkcolor(col.diamond.common, 1)
+  #
+  if (missing(col.diamond.common))
+    col.diamond.common <- col.diamond
+  else
+    chkcolor(col.diamond.common, 1)
+  #
+  if (missing(col.diamond.random))
+    col.diamond.random <- col.diamond
+  else
+    chkcolor(col.diamond.random, 1)
+  #
+  if (missing(col.diamond.lines))
+    col.diamond.lines <- colors[3]
+  else
+    chkcolor(col.diamond.lines, 1)
+  #
+  if (missing(col.diamond.lines.common))
+    col.diamond.lines.common <- col.diamond.lines
+  else
+    chkcolor(col.diamond.lines.common, 1)
+  #
+  if (missing(col.diamond.lines.common))
+    col.diamond.lines.common <- col.diamond.lines
+  else
+    chkcolor(col.diamond.lines.common, 1)
+  #
+  if (missing(col.diamond.lines.random))
+    col.diamond.lines.random <- col.diamond.lines
+  else
+    chkcolor(col.diamond.lines.random, 1)
+  #
+  if (missing(col.predict))
+    col.predict <- colors[7]
+  else
+    chkcolor(col.predict, 1)
+  #
+  if (missing(col.predict.lines))
+    col.predict.lines <- colors[8]
+  else
+    chkcolor(col.predict.lines, 1)
   #
   chknumeric(digits, min = 0, length = 1)
   chknumeric(digits.se, min = 0, length = 1)

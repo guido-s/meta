@@ -729,7 +729,7 @@
 #' individual treatment estimates based either on the common effect
 #' (\code{weight.study = "common"}) or random effects meta-analysis
 #' (\code{weight.study = "random"}). Information from meta-analysis object
-#' \code{x} is utilised if argument \code{weight.study} is miss. Weights
+#' \code{x} is utilised if argument \code{weight.study} is missing. Weights
 #' from the common effect model are used if argument \code{x$common} is
 #' \code{TRUE}; weights from the random effects model are used if argument
 #' \code{x$random} is \code{TRUE} and \code{x$common} is \code{FALSE}.
@@ -2086,7 +2086,8 @@ forest.meta <- function(x,
   col.inside <-
     chksetVar(col.inside, miss.col.inside, colors[10], func = chkcolor,
               n = K.all,
-              args = args, old = "col.i.inside.square", warn = warn.deprecated)
+              args = args, oldname = "col.i.inside.square",
+              warn = warn.deprecated)
   #
   col.inside.common <-
     chksetVar(col.inside.common, miss.col.inside.common, col.inside[1],
@@ -2140,7 +2141,7 @@ forest.meta <- function(x,
   }
   else {
     col.circle.lines <-
-      chksetVar(col.circle.lines, miss.col.circle.lines, color1,
+      chksetVar(col.circle.lines, miss.col.circle.lines, colors[5],
                 func = chkcolor, n = K.all, one = TRUE)
   }
   #
@@ -2160,7 +2161,7 @@ forest.meta <- function(x,
   #
   col.subgroup <-
     chksetVar(col.subgroup, miss.col.subgroup, colors[9], func = chkcolor, n = 1,
-              args = args, old = "col.by", warn = warn.deprecated)
+              args = args, oldname = "col.by", warn = warn.deprecated)
   #
   col.jama.line <-
     chksetVar(col.jama.line, miss.col.jama.line, col.subgroup, func = chkcolor,
@@ -2168,15 +2169,15 @@ forest.meta <- function(x,
   #
   col.cid <-
     chksetVar(col.cid, miss.col.cid, col.jama.line, func = chkcolor, n = 1,
-              args = args, old = "col.equi", warn = warn.deprecated)
+              args = args, oldname = "col.equi", warn = warn.deprecated)
   #
   col.label <- replaceNULL(col.label, "black")
-  chkcolor(col.label, n = 1)
+  chkcolor(col.label, length = 1)
   #
   col.label.left <- replaceNULL(col.label.left, "black")
-  chkcolor(col.label.left, n = 1)
+  chkcolor(col.label.left, length = 1)
   col.label.right <- replaceNULL(col.label.right, "black")
-  chkcolor(col.label.right, n = 1)
+  chkcolor(col.label.right, length = 1)
   
   
   #
@@ -11703,53 +11704,45 @@ forest.meta <- function(x,
                             yStatsDetails), na.rm = TRUE)
   }
   #
+  addrows.below.line <- addrows.below.overall
+  if (details & layout == "meta" & (metacor | metagen) &
+      miss.leftcols &
+      (overall.hetstat | test.overall.common | test.overall.random) &
+      !(calcwidth.hetstat | calcwidth.tests) & !RoB.legend)
+    addrows.below.line <- max(addrows.below.line, 2)
+  #
+  yStatsLine <- yStats
+  yStatsLine[!is.na(yStatsLine)] <-
+    yStatsLine[!is.na(yStatsLine)] +
+    addrows.below.line - addrows.below.overall
+  #
+  if (by)
+    nrow.line <- max(addline + c(yTE, yTE.common, yTE.random, yPredict,
+                                 yStatsLine, yTE.w), na.rm = TRUE)
+  else
+    nrow.line <- max(addline + c(yTE, yTE.common, yTE.random, yPredict,
+                                 yStatsLine), na.rm = TRUE)
+  #
   # Determine minimal value on y-axis for lines of common / random
   # effect estimate or reference line
   #
-  n.lines <- sum(!is.na(yStatsDetails)) + details + RoB.legend
-  ymin.line <- max(addrow | addrow.overall,
-                   n.lines + (n.lines > 0) * addrows.below.overall)
+  maxrow <- function(x)
+    if (all(is.na(x))) NA else max(x, na.rm = TRUE)
   #
-  if (!by) {
-    if (overall & (common | random | prediction)) {
-      if (ymin.line == addrows.below.overall & !(!addrow.overall | !addrow))
-        ymin.line <- ymin.line + 1
-      #
-      if ((!miss.text.addline1 | !miss.text.addline2) &
-          (!miss.text.addline1 + !miss.text.addline2) == n.lines &
-          !(!addrow.overall | !addrow))
-        ymin.line <- ymin.line + 1
-      #
-      if (addrow.overall & !addrow & n.lines == 0)
-        ymin.line <- ymin.line - 1
-      #
-      if (!overall.hetstat & RoB.legend)
-        ymin.line <- ymin.line + 1
-    }
-    #
-    if (!overall & addrow & n.lines == 0)
-      ymin.line <- ymin.line - 1
-  }
-  else {
-    if (!overall & !overall.hetstat & addrow &
-        ((n.lines > !miss.text.addline1 + !miss.text.addline2) |
-         n.lines == 0))
-      ymin.line <- ymin.line - 1
-  }
+  yline.all <- c(yTE, yTE.common, yTE.random, yPredict)
+  yline.common <- c(yTE.common, yPredict)
+  yline.random <- c(yTE.random, yPredict)
   #
-  if (hetstat %in% c("common", "random") &
-      (!miss.text.addline1 | !miss.text.addline2))
-    ymin.line <- ymin.line + 1
-  #
-  ymin.common <- spacing * (ymin.line + prediction * n.prd + random * n.ran + 0.5)
-  ymin.random <- spacing * (ymin.line + prediction * n.prd + 0.5)
-  ymin.ref    <- spacing * (ymin.line + (!(overall | overall.hetstat) & addrow))
+  ymin.line <- nrow - maxrow(yline.all)
+  ymin.common <- spacing * (nrow - maxrow(yline.common) + 0.5)
+  ymin.random <- spacing * (nrow - maxrow(yline.random) + 0.5)
+  ymin.ref <- spacing * ymin.line
   #
   ymax <- spacing * (nrow - ifelse(is.na(yHeadadd), 1, 2) - 1 * addrow)
   #
   if (cid.pooled.only)
-    ymax.ref <- spacing * (ymin.line + prediction * n.prd + random * n.ran +
-                             common * n.com)
+    ymax.ref <- spacing *
+      (nrow - min(c(yTE.common, yTE.random, yPredict), na.rm = TRUE) + 0.5)
   else
     ymax.ref <- ymax
   #

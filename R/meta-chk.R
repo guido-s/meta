@@ -119,14 +119,14 @@ chkfunc <- function(x, name = NULL) {
   invisible(NULL)
 }
 
-chklength <- function(x, k.all, fun = "", text, name = NULL) {
+chklength <- function(x, k.all, fun = "", text, name = NULL, internal = TRUE) {
   #
   # Check length of vector
   #
   if (is.null(name))
     name <- deparse(substitute(x))
   #
-  if (length(x) != k.all) {
+  if (internal && length(x) != k.all) {
     funcs <- c("metabin", "metacont", "metacor",
                "metagen", "metainc", "metamean",
                "metaprop", "metarate",
@@ -148,6 +148,11 @@ chklength <- function(x, k.all, fun = "", text, name = NULL) {
            call. = FALSE)
     else
       stop(text, call. = FALSE)
+  }
+  #
+  if (!internal && length(x) != k.all) {
+    stop("Argument '", name, "' must be of length", k.all, ".",
+         call. = FALSE)
   }
   #
   invisible(NULL)
