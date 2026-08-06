@@ -9,6 +9,11 @@
   and both common effect and random effects meta-analysis were
   conducted
 
+* In forest plots, arguments 'calcwidth.*' consider the full space taken on the
+  left side of the forest plot to add additional space to prevent overlapping
+  text on the x-axis
+
+
 ### User-visible changes
 
 * metabias():
@@ -103,9 +108,13 @@
     'cid.above.null' calculated from 'cid' are based on relative instead of
     absolute distances from the null effect
     [(issue #94)](https://github.com/guido-s/meta/issues/94)
-    
+
 * New internal function layout_colors() to define default colours for forest
   plots
+
+* forest.meta():
+  - new default for argument 'calcwidth.hetstat' which is TRUE instead of FALSE
+  - set 'addrows.below.overall <- 1' instead of 3 for JAMA layout
 
 
 ## meta, version 8.5-0 (2026-05-25)

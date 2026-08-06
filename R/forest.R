@@ -3806,8 +3806,10 @@ forest.meta <- function(x,
   if (is.null(addrows.below.overall)) {
     addrows.below.overall <- 0
     #
-    if (jama)
-      addrows.below.overall <- 3
+    if (jama) {
+      if (!metacum & !metainf)
+        addrows.below.overall <- 1
+    }
     else if (layout == "meta" & (metacor | metagen) &
              miss.leftcols &
              (overall.hetstat | test.overall.common |
@@ -11539,29 +11541,34 @@ forest.meta <- function(x,
   # width for study labels
   #
   del.lines <- NULL
+  calcwidth.lines <- NULL
   #
+  common.lines <- 1 + seq_len(n.com)
   if (!calcwidth.common)
-    del.lines <- 1 + seq_len(n.com)
+    del.lines <- common.lines
   #
+  random.lines <- 1 + n.com + seq_len(n.ran)
   if (!calcwidth.random)
-    del.lines <-
-    c(del.lines, 1 + n.com + seq_len(n.ran))
+    del.lines <- c(del.lines, random.lines)
   #
+  predict.lines <- 1 + n.com + n.ran + seq_len(n.prd)
   if (!calcwidth.predict)
-    del.lines <-
-    c(del.lines, 1 + n.com + n.ran + seq_len(n.prd))
+    del.lines <- c(del.lines, predict.lines)
   #
-  if (!calcwidth.hetstat)
-    del.lines <-
-    c(del.lines, 1 + n.com + n.ran + n.prd + seq(2))
+  hetstat.lines <- 1 + n.com + n.ran + n.prd + seq(2)
+  del.lines <- c(del.lines, hetstat.lines)
+  if (calcwidth.hetstat)
+    calcwidth.lines <- c(calcwidth.lines, hetstat.lines)
   #
-  if (!calcwidth.tests)
-    del.lines <-
-    c(del.lines, 1 + n.com + n.ran + n.prd + 2 + seq(4))
+  tests.lines <- 1 + n.com + n.ran + n.prd + 2 + seq(4)
+  del.lines <- c(del.lines, tests.lines)
+  if (calcwidth.tests)
+    calcwidth.lines <- c(calcwidth.lines, tests.lines)
   #
-  if (!calcwidth.addline)
-    del.lines <-
-    c(del.lines, 1 + n.com + n.ran + n.prd + 2 + 4 + seq(2))
+  addline.lines <- 1 + n.com + n.ran + n.prd + 2 + 4 + seq(2)
+  del.lines <- c(del.lines, addline.lines)
+  if (calcwidth.addline)
+    calcwidth.lines <- c(calcwidth.lines, addline.lines)
   #
   if (details)
     del.lines <-
@@ -11581,44 +11588,77 @@ forest.meta <- function(x,
   #nd <- n.com + n.ran + n.prd + 2 + 4 + 2
   #
   if (by) {
-    if (!calcwidth.subgroup)
-      del.lines <-
-        c(del.lines, nd + seq_len(n.by))
+    subgroup.lines <- nd + seq_len(n.by)
+    del.lines <- c(del.lines, subgroup.lines)
+    if (calcwidth.subgroup)
+      calcwidth.lines <- c(calcwidth.lines, subgroup.lines)
     #
+    common.lines.w <- nd + n.by + seq_len(n.by * n.com)
     if (!calcwidth.common)
-      del.lines <-
-        c(del.lines, nd + n.by + seq_len(n.by * n.com))
+      del.lines <- c(del.lines, common.lines.w)
     #
+    random.lines.w <- nd + n.by + n.by * n.com + seq_len(n.by * n.ran)
     if (!calcwidth.random)
-      del.lines <-
-        c(del.lines,
-          nd + n.by + n.by * n.com + seq_len(n.by * n.ran))
+      del.lines <- c(del.lines, random.lines.w)
     #
+    predict.lines.w <-
+      nd + n.by + n.by * n.com + n.by * n.ran + seq_len(n.by * n.prd)
     if (!calcwidth.predict)
-      del.lines <-
-        c(del.lines,
-          nd + n.by + n.by * n.com + n.by * n.ran + seq_len(n.by * n.prd))
+      del.lines <- c(del.lines, predict.lines.w)
     #
-    if (!calcwidth.hetstat)
-      del.lines <-
-        c(del.lines,
-          nd + n.by + n.by * n.com + n.by * n.ran + n.by * n.prd +
-            seq_len(n.by))
+    hetstat.lines.w <-
+      nd + n.by + n.by * n.com + n.by * n.ran + n.by * n.prd +
+      seq_len(n.by)
+    hetstat.lines <- c(hetstat.lines, hetstat.lines.w)
+    del.lines <- c(del.lines, hetstat.lines.w)
+    if (calcwidth.hetstat)
+      calcwidth.lines <- c(calcwidth.lines, hetstat.lines.w)
     # test for effect (CE)
-    if (!calcwidth.tests)
-      del.lines <-
-        c(del.lines,
-          nd + n.by + n.by * n.com + n.by * n.ran + n.by * n.prd +
-            n.by + seq_len(n.by))
+    tests.lines.common.w <-
+      nd + n.by + n.by * n.com + n.by * n.ran + n.by * n.prd +
+      n.by + seq_len(n.by)
+    del.lines <- c(del.lines, tests.lines.common.w)
     # test for effect (RE)
-    if (!calcwidth.tests)
-      del.lines <-
-        c(del.lines,
-          nd + n.by + n.by * n.com + n.by * n.ran + n.by * n.prd +
-            n.by + n.by + seq_len(n.by))
+    tests.lines.random.w <-
+      nd + n.by + n.by * n.com + n.by * n.ran + n.by * n.prd +
+      n.by + n.by + seq_len(n.by)
+    del.lines <- c(del.lines, tests.lines.random.w)
+    if (calcwidth.tests)
+      calcwidth.lines <-
+        c(calcwidth.lines, tests.lines.common.w, tests.lines.random.w)
   }
   #
   if (lsel) {
+    width.left <- NULL
+    width.calcwidth <- NULL
+    extra.calcwidth <- unit(0, "mm")
+    if (!is.null(calcwidth.lines))
+      width.calcwidth <-
+        wcalc(cols.calc[["col.studlab"]]$labels[calcwidth.lines])
+    #
+    for (i in seq_along(leftcols)) {
+      width.i <-
+        if (leftcols[[i]] == "col.studlab" & !is.null(del.lines))
+          wcalc(cols.calc[[leftcols[i]]]$labels[-del.lines])
+        else
+          wcalc(cols.calc[[leftcols[i]]]$labels)
+      #
+      if (i == 1)
+        width.left <- width.i
+      else
+        width.left <-
+          unit.c(width.left,
+                 if (leftcols[[i - 1]] == "col.studlab")
+                   colgap.studlab
+                 else colgap.left,
+                 width.i)
+    }
+    #
+    if (!is.null(calcwidth.lines)) {
+      extra.calcwidth <-
+        unit.pmax(unit(0, "mm"), width.calcwidth - sum(width.left))
+    }
+    #
     for (i in seq_along(leftcols)) {
       if (i == 1) {
         if (leftcols[[i]] == "col.studlab" & !is.null(del.lines))
@@ -11630,13 +11670,13 @@ forest.meta <- function(x,
         if (leftcols[[i]] == "col.studlab" & !is.null(del.lines))
           x1 <- unit.c(x1,
                        colgap.left,
-                       wcalc(cols.calc[[leftcols[i]]]$labels[-del.lines]))
+                        wcalc(cols.calc[[leftcols[i]]]$labels[-del.lines]))
         else
           x1 <- unit.c(x1,
-                       if (leftcols[[i - 1]] == "col.studlab")
-                         colgap.studlab
-                       else colgap.left,
-                       wcalc(cols.calc[[leftcols[i]]]$labels))
+                        if (leftcols[[i - 1]] == "col.studlab")
+                          colgap.studlab + extra.calcwidth
+                        else colgap.left,
+                        wcalc(cols.calc[[leftcols[i]]]$labels))
       }
     }
     #

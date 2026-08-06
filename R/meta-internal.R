@@ -1025,7 +1025,7 @@ setOption("colgap", "2mm")
 setOption("colgap.forest", "2mm")
 #
 setOption("calcwidth.predict", FALSE)
-setOption("calcwidth.hetstat", FALSE)
+setOption("calcwidth.hetstat", TRUE)
 setOption("calcwidth.tests", FALSE)
 setOption("calcwidth.subgroup", FALSE)
 setOption("calcwidth.addline", FALSE)
