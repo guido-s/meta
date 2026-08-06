@@ -551,6 +551,9 @@
 #' @param calcwidth.addline A logical indicating whether text for
 #'   additional lines should be considered to calculate width of the
 #'   column with study labels.
+#' @param calcwidth.details A logical indicating whether the first line
+#'   of meta-analysis details should be considered to calculate width
+#'   of columns on the left side of the forest plot.
 #' @param just Justification of text in all columns but columns with
 #'   study labels and additional variables (possible values: "left",
 #'   "right", "center").
@@ -1671,6 +1674,7 @@ forest.meta <- function(x,
                         calcwidth.tests  = gs("calcwidth.tests"),
                         calcwidth.subgroup = gs("calcwidth.subgroup"),
                         calcwidth.addline = gs("calcwidth.addline"),
+                        calcwidth.details = gs("calcwidth.details"),
                         #
                         just = if (layout == "JAMA") "left" else "right",
                         just.studlab = gs("just.studlab"),
@@ -3129,6 +3133,7 @@ forest.meta <- function(x,
   chklogical(calcwidth.tests)
   chklogical(calcwidth.subgroup)
   chklogical(calcwidth.addline)
+  chklogical(calcwidth.details)
   #
   if (miss.just && bmj)
     just <- "center"
@@ -11542,6 +11547,7 @@ forest.meta <- function(x,
   #
   del.lines <- NULL
   calcwidth.lines <- NULL
+  calcwidth.details.line <- NULL
   #
   common.lines <- 1 + seq_len(n.com)
   if (!calcwidth.common)
@@ -11570,10 +11576,16 @@ forest.meta <- function(x,
   if (calcwidth.addline)
     calcwidth.lines <- c(calcwidth.lines, addline.lines)
   #
-  if (details)
+  if (details) {
+    details.lines <-
+      1 + n.com + n.ran + n.prd + 2 + 4 + 2 + seq_along(text.details)
+    #
     del.lines <-
-    c(del.lines,
-      1 + n.com + n.ran + n.prd + 2 + 4 + 2 + seq_along(text.details))
+      c(del.lines, details.lines)
+    #
+    if (calcwidth.details)
+      calcwidth.details.line <- details.lines[1]
+  }
   #
   if (RoB.legend)
     del.lines <-
@@ -11630,11 +11642,16 @@ forest.meta <- function(x,
   #
   if (lsel) {
     width.left <- NULL
-    width.calcwidth <- NULL
+    width.calcwidth <- unit(0, "mm")
     extra.calcwidth <- unit(0, "mm")
     if (!is.null(calcwidth.lines))
       width.calcwidth <-
         wcalc(cols.calc[["col.studlab"]]$labels[calcwidth.lines])
+    if (!is.null(calcwidth.details.line))
+      width.calcwidth <-
+        unit.pmax(
+          width.calcwidth,
+          wcalc(cols.calc[["col.studlab"]]$labels[calcwidth.details.line]))
     #
     for (i in seq_along(leftcols)) {
       width.i <-
@@ -11654,7 +11671,7 @@ forest.meta <- function(x,
                  width.i)
     }
     #
-    if (!is.null(calcwidth.lines)) {
+    if (!is.null(calcwidth.lines) | !is.null(calcwidth.details.line)) {
       extra.calcwidth <-
         unit.pmax(unit(0, "mm"), width.calcwidth - sum(width.left))
     }
@@ -11680,7 +11697,13 @@ forest.meta <- function(x,
       }
     }
     #
-    x1 <- unit.c(x1, colgap.forest.left, col.forestwidth)
+    x1 <-
+      unit.c(x1,
+             if (leftcols[[length(leftcols)]] == "col.studlab")
+               colgap.forest.left + extra.calcwidth
+             else
+               colgap.forest.left,
+             col.forestwidth)
   }
   else
     x1 <- unit.c(col.forestwidth)

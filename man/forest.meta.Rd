@@ -248,6 +248,7 @@
   calcwidth.tests = gs("calcwidth.tests"),
   calcwidth.subgroup = gs("calcwidth.subgroup"),
   calcwidth.addline = gs("calcwidth.addline"),
+  calcwidth.details = gs("calcwidth.details"),
   just = if (layout == "JAMA") "left" else "right",
   just.studlab = gs("just.studlab"),
   just.addcols = gs("just.addcols"),
@@ -1082,6 +1083,10 @@ column with study labels.}
 \item{calcwidth.addline}{A logical indicating whether text for
 additional lines should be considered to calculate width of the
 column with study labels.}
+
+\item{calcwidth.details}{A logical indicating whether the first line
+of meta-analysis details should be considered to calculate width
+of columns on the left side of the forest plot.}
 
 \item{just}{Justification of text in all columns but columns with
 study labels and additional variables (possible values: "left",

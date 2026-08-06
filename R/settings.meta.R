@@ -839,6 +839,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("calcwidth.tests", FALSE)
     setOption("calcwidth.subgroup", FALSE)
     setOption("calcwidth.addline", FALSE)
+    setOption("calcwidth.details", FALSE)
     #
     setOption("just.studlab", "left")
     setOption("just.addcols", "center")
@@ -1390,6 +1391,7 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("calcwidth.tests        ")
     catarg("calcwidth.subgroup     ")
     catarg("calcwidth.addline      ")
+    catarg("calcwidth.details      ")
     #
     catarg("just.studlab           ")
     catarg("just.addcols           ")
@@ -1725,6 +1727,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setlogical("calcwidth.tests", args)
     setlogical("calcwidth.subgroup", args)
     setlogical("calcwidth.addline", args)
+    setlogical("calcwidth.details", args)
     #
     setcharacter("just.studlab", args, c("right", "center", "left"))
     setcharacter("just.addcols", args, c("right", "center", "left"))

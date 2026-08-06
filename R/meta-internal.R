@@ -717,6 +717,7 @@ argslist <-
     "colgap", "colgap.forest",
     "calcwidth.predict", "calcwidth.hetstat",
     "calcwidth.tests", "calcwidth.subgroup", "calcwidth.addline",
+    "calcwidth.details",
     "just.studlab", "just.addcols",
     "spacing",
     "addrow", "addrow.overall", "addrow.subgroups", "addrows.below.overall"
@@ -1029,6 +1030,7 @@ setOption("calcwidth.hetstat", TRUE)
 setOption("calcwidth.tests", FALSE)
 setOption("calcwidth.subgroup", FALSE)
 setOption("calcwidth.addline", FALSE)
+setOption("calcwidth.details", FALSE)
 #
 setOption("just.studlab", "left")
 setOption("just.addcols", "center")

@@ -9,9 +9,9 @@
   and both common effect and random effects meta-analysis were
   conducted
 
-* In forest plots, arguments 'calcwidth.*' consider the full space taken on the
-  left side of the forest plot to add additional space to prevent overlapping
-  text on the x-axis
+* In forest plots, arguments 'calcwidth.*' now consider the full width of
+  information printed on the left side of the forest plot when adding space to
+  prevent text from overlapping the x-axis.
 
 
 ### User-visible changes
@@ -30,6 +30,9 @@
 * forest.metacum():
   - use default colours for squares regardless of layout
     [(issue #96)](https://github.com/guido-s/meta/issues/96)
+
+* forest.metacum():
+  - new argument 'calcwidth.details' 
 
 ### Bug fixes
 
