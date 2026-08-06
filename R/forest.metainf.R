@@ -21,6 +21,9 @@
 #' @param lab.NA A character string to label missing values.
 #' @param layout A character string specifying the layout of the
 #'   forest plot (see \code{\link{forest.meta}}).
+#' @param calcwidth.details A logical indicating whether the first line
+#'   of meta-analysis details should be considered to calculate width
+#'   of columns on the left side of the forest plot.
 #' @param backtransf A logical indicating whether results should be
 #'   back transformed in forest plots. If \code{backtransf = TRUE},
 #'   results for \code{sm = "OR"} are presented as odds ratios rather
@@ -93,6 +96,8 @@ forest.metainf <- function(x,
                            layout = gs("layout"),
                            lab.NA = ".",
                            #
+                           calcwidth.details = TRUE,
+                           #
                            backtransf = x$backtransf,
                            #
                            big.mark = gs("big.mark"),
@@ -156,6 +161,7 @@ forest.metainf <- function(x,
                         type = type,
                         layout = layout,
                         lab.NA = lab.NA,
+                        calcwidth.details = calcwidth.details,
                         #
                         big.mark = big.mark,
                         digits = digits,

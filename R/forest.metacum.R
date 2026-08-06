@@ -31,6 +31,9 @@
 #' @param layout A character string specifying the layout of the
 #'   forest plot (see \code{\link{forest.meta}}).
 #' @param lab.NA A character string to label missing values.
+#' @param calcwidth.details A logical indicating whether the first line
+#'   of meta-analysis details should be considered to calculate width
+#'   of columns on the left side of the forest plot.
 #' @param backtransf A logical indicating whether results should be
 #'   back transformed in forest plots. If \code{backtransf = TRUE},
 #'   results for \code{sm = "OR"} are presented as odds ratios rather
@@ -125,6 +128,8 @@ forest.metacum <- function(x,
                            layout = gs("layout"),
                            lab.NA = ".",
                            #
+                           calcwidth.details = TRUE,
+                           #
                            backtransf = x$backtransf,
                            #
                            big.mark = gs("big.mark"),
@@ -213,7 +218,10 @@ forest.metacum <- function(x,
   if (missing(col.border.predict))
     col.border.predict = colors[8]
   #
+  chklogical(calcwidth.details)
+  #
   chklogical(backtransf)
+  #
   chknumeric(digits, min = 0, length = 1)
   chknumeric(digits.pval, min = 0, length = 1)
   chknumeric(digits.tau2, min = 0, length = 1)
@@ -675,6 +683,7 @@ forest.metacum <- function(x,
          col.study = col,
          col.square = col.bg, col.square.lines = col.border,
          #
+         calcwidth.details = calcwidth.details,
          details = details)
   #
   res <- do.call("forest.meta", c(args_list, dots_list))

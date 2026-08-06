@@ -13,6 +13,7 @@
   type = "square",
   layout = gs("layout"),
   lab.NA = ".",
+  calcwidth.details = TRUE,
   backtransf = x$backtransf,
   big.mark = gs("big.mark"),
   digits = gs("digits.forest"),
@@ -54,6 +55,10 @@ meta-analysis results.}
 forest plot (see \code{\link{forest.meta}}).}
 
 \item{lab.NA}{A character string to label missing values.}
+
+\item{calcwidth.details}{A logical indicating whether the first line
+of meta-analysis details should be considered to calculate width
+of columns on the left side of the forest plot.}
 
 \item{backtransf}{A logical indicating whether results should be
 back transformed in forest plots. If \code{backtransf = TRUE},
