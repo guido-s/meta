@@ -4210,7 +4210,7 @@ forest.meta <- function(x,
   #
   lab.TE <- sm
   #
-  if (is_relative)
+  if (is_relative || sm == "VE")
     lab.TE <- paste0("ln", if (sm == "VE") "VR" else sm)
   else if (!is.null(ftr)) {
     lab.TE <-

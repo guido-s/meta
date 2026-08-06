@@ -55,6 +55,9 @@
   - show labels on the correct positions if argument 'backtransf = TRUE' and
     argument 'pscale' or 'irscale' is used for meta-analyses conducted with
     metaprop() or metarate()
+  - print "lnVR" and "SE(lnVR)" instead of "VE" and "SE(VE)" in forest plots
+    for meta-analysis objects created with metagen(sm = "VE")
+    [(issue #98)](https://github.com/guido-s/meta/issues/98)
 
 * forest.metacum(), forest.metainf():
   - show prediction intervals if argument 'layout = "BMJ"'
