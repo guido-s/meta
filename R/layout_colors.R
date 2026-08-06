@@ -8,8 +8,12 @@ layout_colors <- function(layout, classes = NULL) {
   # - color2 - diamond for meta-analysis results
   # - color3 - outer lines of diamonds
   # - color4 - square or circle colour
-  # - color5 - outer lines of squares or circles (not defined for RevMan5)
+  # - color5 - outer lines of squares or circles
   # - color6 - line color (axes, reference line, header lines)
+  # - color7 - prediction interval
+  # - color8 - outer lines of prediction intervals
+  # - color9 - subgroups
+  # - color10 - color within squares or circles
   #
   if (bmj) {
     color1 <- "#6b58a6"
