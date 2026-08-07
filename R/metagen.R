@@ -269,7 +269,7 @@
 #' For confidence limits, the treatment estimate is defined as the
 #' center of the confidence interval (on the log scale for relative
 #' effect measures like the odds ratio or hazard ratio).
-#'
+#' 
 #' If the treatment effect is a mean it can be approximated from
 #' sample size, median, interquartile range and range.
 #'
@@ -339,7 +339,16 @@
 #' on the standard normal or \emph{t}-distribution if argument
 #' \code{df} is provided. Furthermore, argument \code{level.ci} can be
 #' used to provide the level of the confidence interval.
-#'
+#' 
+#' If arguments \code{TE}, \code{lower}, and \code{upper} are provided,
+#' \code{metagen} checks whether \code{TE} is approximately halfway between the
+#' confidence limits. A warning is printed if the absolute difference between
+#' \code{TE} and the confidence interval midpoint, divided by the confidence
+#' interval width, is larger than 0.1. This may indicate that the confidence
+#' interval was not calculated as a symmetric Wald-type confidence interval on
+#' the analysis scale, that values were reported on a different scale, or that
+#' the impact of rounding is substantial.
+#' 
 #' Wan et al. (2014) describe methods to estimate the standard
 #' deviation (and thus the standard error by deviding the standard
 #' deviation with the square root of the sample size) from the sample
@@ -2726,10 +2735,59 @@ metagen <- function(TE, seTE, studlab,
   #
   # Keep original confidence limits
   #
+  if (warn && avail.TE && avail.lower && avail.upper) {
+    ci.width <- upper - lower
+    ci.midpoint.diff <- abs((upper + lower) / 2 - TE) / ci.width
+    sel.asymmetric <- !is.na(ci.midpoint.diff) & ci.width > 0 &
+      ci.midpoint.diff > 0.1
+    #
+    if (any(sel.asymmetric)) {
+      studlab.asymmetric <- studlab[sel.asymmetric]
+      warning("In the following stud",
+              if (length(studlab.asymmetric) == 1) "y" else "ies",
+              ", the treatment estimate is not halfway between ",
+              "the confidence limits: ",
+              paste0("'", studlab.asymmetric, "'", collapse = ", "),
+              call. = FALSE)
+    }
+  }
+  #
+  level.study <- rep_len(level, length(TE))
+  level.ci.study <- if (is.null(level.ci)) level.study else level.ci
+  #
+  known.level <- !is.na(level.ci.study) & !is.na(level.study)
+  same.level <- known.level & is_zero(level.ci.study - level.study)
+  different.level <- known.level & !same.level
+  #
+  sel.recalc <- rep(FALSE, length(TE))
   if (avail.lower)
-    ci.study$lower[!is.na(lower)] <- lower[!is.na(lower)]
+    sel.recalc <- sel.recalc | (!is.na(lower) & different.level)
   if (avail.upper)
-    ci.study$upper[!is.na(upper)] <- upper[!is.na(upper)]
+    sel.recalc <- sel.recalc | (!is.na(upper) & different.level)
+  #
+  if (any(sel.recalc)) {
+    ci.study.z <- ci(TE, seTE, level = level, null.effect = null.effect)
+    ci.study$lower[sel.recalc] <- ci.study.z$lower[sel.recalc]
+    ci.study$upper[sel.recalc] <- ci.study.z$upper[sel.recalc]
+    #
+    studlab.recalc <- studlab[sel.recalc]
+    #
+    if (warn)
+      warning("In the following stud",
+              if (length(studlab.recalc) == 1) "y" else "ies",
+              ", the confidence limits are recalculated ",
+              "using a normal approximation because arguments ",
+              "'level' and 'level.ci' differ: ",
+              paste0("'", studlab.recalc, "'", collapse = ", "),
+              call. = FALSE)
+  }
+  #
+  if (avail.lower)
+    ci.study$lower[!is.na(lower) & same.level] <-
+      lower[!is.na(lower) & same.level]
+  if (avail.upper)
+    ci.study$upper[!is.na(upper) & same.level] <-
+      upper[!is.na(upper) & same.level]
   #
   if (length(lower.random) > 1) {
     methci <- paste(method.random.ci,

@@ -13,7 +13,6 @@
   information printed on the left side of the forest plot when adding space to
   prevent text from overlapping the x-axis.
 
-
 ### User-visible changes
 
 * metabias():
@@ -31,8 +30,20 @@
   - use default colours for squares regardless of layout
     [(issue #96)](https://github.com/guido-s/meta/issues/96)
 
-* forest.metacum():
+* forest.metacum(), forest.metainf():
   - new argument 'calcwidth.details' 
+
+* metagen():
+  - study-level confidence limits supplied in arguments 'lower' and 'upper'
+    are now retained only if arguments 'level' and 'level.ci' agree
+    [(issue #99)](https://github.com/guido-s/meta/issues/99)
+  - if they differ, confidence limits are recalculated using a normal
+    approximation and a warning identifies the affected studies
+    [(issue #99)](https://github.com/guido-s/meta/issues/99)
+  - print a warning if supplied values for 'TE', 'lower', and 'upper'
+    suggest that the treatment estimate is not approximately halfway between
+    the confidence limits
+    [(issue #99)](https://github.com/guido-s/meta/issues/99)
 
 ### Bug fixes
 

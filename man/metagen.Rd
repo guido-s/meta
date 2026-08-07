@@ -536,6 +536,15 @@ on the standard normal or \emph{t}-distribution if argument
 \code{df} is provided. Furthermore, argument \code{level.ci} can be
 used to provide the level of the confidence interval.
 
+If arguments \code{TE}, \code{lower}, and \code{upper} are provided,
+\code{metagen} checks whether \code{TE} is approximately halfway between the
+confidence limits. A warning is printed if the absolute difference between
+\code{TE} and the confidence interval midpoint, divided by the confidence
+interval width, is larger than 0.1. This may indicate that the confidence
+interval was not calculated as a symmetric Wald-type confidence interval on
+the analysis scale, that values were reported on a different scale, or that
+the impact of rounding is substantial.
+
 Wan et al. (2014) describe methods to estimate the standard
 deviation (and thus the standard error by deviding the standard
 deviation with the square root of the sample size) from the sample
