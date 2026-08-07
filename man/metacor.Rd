@@ -296,6 +296,14 @@ least one cluster provides more than one estimate. Internally,
 \code{\link[metafor]{weights.rma.mv}} with argument \code{type =
 "rowsum"} is used to calculate random effects weights.
 
+Cluster-robust variance estimators (Pustejovsky and Tipton, 2018) are
+available for univariate random effects and three-level models
+(argument \code{method.random.ci} equal to \code{"CR0"}, \code{"CR1"},
+or \code{"CR2"}). Internally, \code{\link[metafor]{rma.uni}} or
+\code{\link[metafor]{rma.mv}} is called and then passed to
+\code{\link[metafor]{robust}}. For univariate random effects models,
+study labels (argument \code{studlab}) are used as clusters.
+
 Default settings are utilised for several arguments (assignments
 using \code{\link{gs}} function). These defaults can be changed for
 the current R session using the \code{\link{settings.meta}}
@@ -353,7 +361,7 @@ ma1 <- metacor(c(0.85, 0.7, 0.95), c(20, 40, 10))
 #
 summary(ma1)
 
-# Print Fisher's z transformed correlations 
+# Print Fisher's z transformed correlations
 #
 print(summary(ma1), backtransf = FALSE)
 
@@ -381,6 +389,12 @@ Cooper H, Hedges LV, Valentine JC (2009):
 \emph{The Handbook of Research Synthesis and Meta-Analysis},
 2nd Edition.
 New York: Russell Sage Foundation
+
+Pustejovsky JE, Tipton E (2018):
+Small-sample methods for cluster-robust variance estimation and hypothesis
+testing in fixed effects models
+\emph{Journal of Business and Economic Statistics},
+\bold{36}, 672--83
 
 Van den Noortgate W, López-López JA, Marín-Martínez F, Sánchez-Meca J (2013):
 Three-level meta-analysis of dependent effect sizes.

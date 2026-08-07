@@ -1,5 +1,5 @@
 #' Meta-analysis of binary outcome data
-#' 
+#'
 #' @description
 #' Calculation of common effect and random effects estimates (risk
 #' ratio, odds ratio, risk difference, arcsine difference, or
@@ -10,7 +10,7 @@
 #' the \code{\link[metafor]{rma.glmm}} function from R package \bold{metafor}
 #' (Viechtbauer, 2010) is called internally. For penalised logistic regression,
 #' R package \bold{brglma2} must be available.
-#' 
+#'
 #' @param event.e Number of events in experimental group, or true
 #'   positives in diagnostic study, or an R object
 #'   created with \code{\link{pairwise}}.
@@ -203,14 +203,14 @@
 #' @param \dots Additional arguments passed on to
 #'   \code{\link[metafor]{rma.glmm}} function and to catch deprecated
 #'   arguments.
-#' 
+#'
 #' @details
 #' Calculation of common and random effects estimates for meta-analyses
 #' with binary outcome data.
-#' 
+#'
 #' The following measures of treatment effect are available (Rücker et
 #' al., 2009):
-#' 
+#'
 #' \itemize{
 #' \item Risk ratio (\code{sm = "RR"})
 #' \item Odds ratio (\code{sm = "OR"})
@@ -226,24 +226,32 @@
 #' (logVR) are mathematical identical, however, back-transformed
 #' results differ as vaccine efficacy or effectiveness is defined as
 #' \code{VE = 100 * (1 - RR)}.
-#' 
+#'
 #' A three-level random effects meta-analysis model (Van den Noortgate
 #' et al., 2013) is utilised if argument \code{cluster} is used and at
 #' least one cluster provides more than one estimate. Internally,
 #' \code{\link[metafor]{rma.mv}} is called to conduct the analysis and
 #' \code{\link[metafor]{weights.rma.mv}} with argument \code{type =
 #' "rowsum"} is used to calculate random effects weights.
-#' 
+#'
+#' Cluster-robust variance estimators (Pustejovsky and Tipton, 2018) are
+#' available for univariate random effects and three-level models
+#' (argument \code{method.random.ci} equal to \code{"CR0"}, \code{"CR1"},
+#' or \code{"CR2"}). Internally, \code{\link[metafor]{rma.uni}} or
+#' \code{\link[metafor]{rma.mv}} is called and then passed to
+#' \code{\link[metafor]{robust}}. For univariate random effects models,
+#' study labels (argument \code{studlab}) are used as clusters.
+#'
 #' Default settings are utilised for several arguments (assignments
 #' using \code{\link{gs}} function). These defaults can be changed for
 #' the current R session using the \code{\link{settings.meta}}
 #' function.
-#' 
+#'
 #' Furthermore, R function \code{\link{update.meta}} can be used to
 #' rerun a meta-analysis with different settings.
-#' 
+#'
 #' \subsection{Meta-analysis method}{
-#' 
+#'
 #' By default, both common effect (also called common effect) and
 #' random effects models are considered (see arguments \code{common}
 #' and \code{random}). If \code{method} is \code{"MH"} (default), the
@@ -272,20 +280,20 @@
 #' effects model using \code{method = "MH"} or \code{method =
 #' "Inverse"}. Note, the random effects estimate is based on the
 #' inverse variance method for all methods discussed so far.
-#' 
+#'
 #' A distinctive and frequently overlooked advantage of binary
 #' endpoints is that individual patient data (IPD) can be extracted
 #' from a two-by-two table.  Accordingly, statistical methods for IPD,
 #' i.e., logistic regression and generalised linear mixed models, can
 #' be utilised in a meta-analysis of binary outcomes (Stijnen et al.,
 #' 2010; Simmonds et al., 2016).
-#' 
+#'
 #' R package \bold{brglma2} must be available to fit a one-stage logistic
 #' regression model with penalised likelihood (Evrenoglou et al., 2022).
-#' The estimation of the summary odds ratio relies on the maximisation of the 
+#' The estimation of the summary odds ratio relies on the maximisation of the
 #' likelihood function, penalised using a Firth-type correction. This
 #' penalisation aims to reduce bias in cases with rare events and a small
-#' number of available studies. However, this method is not restricted 
+#' number of available studies. However, this method is not restricted
 #' to only such cases and can be applied more generally to binary data. Note,
 #' with this type of penalisation, all studies can be included in the analysis,
 #' regardless of the total number of observed events. This allows both single
@@ -295,12 +303,12 @@
 #' this parameter relies on a modified expression of Pearson's statistic, which
 #' accounts for sparse data. An estimate of \eqn{\phi} equal to 1 indicates the
 #' absence of heterogeneity.
-#' 
+#'
 #' Generalised linear mixed models are available
 #' (argument \code{method = "GLMM"}) for the odds ratio as summary measure for
 #' the common effect and random effects model by calling the
 #' \code{\link[metafor]{rma.glmm}} function from R package
-#' \bold{metafor} internally. 
+#' \bold{metafor} internally.
 #'
 #' Four different GLMMs are available for
 #' meta-analysis with binary outcomes using argument \code{model.glmm}
@@ -334,7 +342,7 @@
 #' common effect model (with fixed treatment effect) and random
 #' effects model (with random treatment effects).
 #' }
-#' 
+#'
 #' \subsection{Continuity correction}{
 #'
 #' Four approaches are available to apply a continuity correction:
@@ -394,13 +402,13 @@
 #' }
 #'
 #' \subsection{Subgroup analysis}{
-#' 
+#'
 #' Argument \code{subgroup} can be used to conduct subgroup analysis for
 #' a categorical covariate. The \code{\link{metareg}} function can be
 #' used instead for more than one categorical covariate or continuous
 #' covariates.
 #' }
-#' 
+#'
 #' \subsection{Exclusion of studies from meta-analysis}{
 #'
 #' Arguments \code{subset} and \code{exclude} can be used to exclude
@@ -410,9 +418,9 @@
 #' \code{exclude} (see Examples in \code{\link{metagen}}).
 #' Meta-analysis results are the same for both arguments.
 #' }
-#' 
+#'
 #' \subsection{Presentation of meta-analysis results}{
-#' 
+#'
 #' Internally, both common effect and random effects models are
 #' calculated regardless of values choosen for arguments
 #' \code{common} and \code{random}. Accordingly, the estimate
@@ -427,56 +435,62 @@
 #' A prediction interval will only be shown if \code{prediction =
 #' TRUE}.
 #' }
-#' 
+#'
 #' @return
 #' An object of class \code{c("metabin", "meta")} with corresponding
 #' generic functions (see \code{\link{meta-object}}).
 #'
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
-#' 
+#'
 #' @seealso \code{\link{meta-package}}, \code{\link{update.meta}},
 #'   \code{\link{forest}}, \code{\link{funnel}},
 #'   \code{\link{metabias}}, \code{\link{metacont}},
 #'   \code{\link{metagen}}, \code{\link{metareg}},
 #'   \code{\link{print.meta}}
-#' 
+#'
 #' @references
 #' Bakbergenuly I, Hoaglin DC, Kulinskaya E (2020):
 #' Methods for estimating between-study variance and overall
 #' effect in meta-analysis of odds-ratios.
 #' \emph{Research Synthesis Methods},
 #' \bold{11}, 426--42
-#' 
+#'
 #' Cooper H & Hedges LV (1994):
 #' \emph{The Handbook of Research Synthesis}.
 #' Newbury Park, CA: Russell Sage Foundation
-#' 
+#'
 #' Diamond GA, Bax L, Kaul S (2007):
 #' Uncertain Effects of Rosiglitazone on the Risk for Myocardial
 #' Infarction and Cardiovascular Death.
 #' \emph{Annals of Internal Medicine},
 #' \bold{147}, 578--81
-#' 
+#'
 #' DerSimonian R & Laird N (1986):
 #' Meta-analysis in clinical trials.
 #' \emph{Controlled Clinical Trials},
 #' \bold{7}, 177--88
-#' 
+#'
 #' Evrenoglou T, White IR, Afach S, Mavridis D, Chaimani A. (2022):
 #' Network meta-analysis of rare events using penalized likelihood regression.
 #' \emph{Statistics in Medicine},
 #' \bold{41}, 5203--19
-#' 
+#'
 #' Fleiss JL (1993):
 #' The statistical basis of meta-analysis.
 #' \emph{Statistical Methods in Medical Research},
 #' \bold{2}, 121--45
-#' 
+#'
 #' Greenland S & Robins JM (1985):
 #' Estimation of a common effect parameter from sparse follow-up data.
 #' \emph{Biometrics},
 #' \bold{41}, 55--68
-#' 
+#'
+#' Pustejovsky JE, Tipton E (2018):
+#' Small-sample methods for cluster-robust variance estimation and hypothesis
+#' testing in fixed effects models
+#' \emph{Journal of Business and Economic Statistics},
+#' \bold{36}, 672--83
+#'
 #' \emph{Review Manager (RevMan)} [Computer program]. Version 5.4.
 #' The Cochrane Collaboration, 2020
 #'
@@ -485,30 +499,30 @@
 #' Sparse Data and Large-Strata Limiting Models.
 #' \emph{Biometrics},
 #' \bold{42}, 311--23
-#' 
+#'
 #' Rücker G, Schwarzer G, Carpenter J, Olkin I (2009):
 #' Why add anything to nothing? The arcsine difference as a measure of
 #' treatment effect in meta-analysis with zero cells.
 #' \emph{Statistics in Medicine},
 #' \bold{28}, 721--38
-#' 
+#'
 #' Simmonds MC, Higgins JP (2016):
 #' A general framework for the use of logistic regression models in
 #' meta-analysis.
 #' \emph{Statistical Methods in Medical Research},
 #' \bold{25}, 2858--77
-#' 
+#'
 #' StataCorp. 2011.
 #' \emph{Stata Statistical Software: Release 12}.
 #' College Station, TX: StataCorp LP.
-#' 
+#'
 #' Stijnen T, Hamza TH, Ozdemir P (2010):
 #' Random effects meta-analysis of event outcome in the framework of
 #' the generalized linear mixed model with applications in sparse
 #' data.
 #' \emph{Statistics in Medicine},
 #' \bold{29}, 3046--67
-#' 
+#'
 #' Sweeting MJ, Sutton AJ, Lambert PC (2004):
 #' What to add to nothing? Use and avoidance of continuity corrections
 #' in meta-analysis of sparse data.
@@ -519,12 +533,12 @@
 #' Three-level meta-analysis of dependent effect sizes.
 #' \emph{Behavior Research Methods},
 #' \bold{45}, 576--94
-#' 
+#'
 #' Viechtbauer W (2010):
 #' Conducting meta-analyses in R with the metafor package.
 #' \emph{Journal of Statistical Software},
 #' \bold{36}, 1--48
-#' 
+#'
 #' Weber F, Knapp G, Ickstadt K, Kundt G, Glass Ä (2020):
 #' Zero-cell corrections in random-effects meta-analyses.
 #' \emph{Research Synthesis Methods},
@@ -535,17 +549,17 @@
 #' of the randomized trials.
 #' \emph{Progress in Cardiovascular Diseases},
 #' \bold{27}, 335--71
-#' 
+#'
 #' @examples
 #' # Calculate odds ratio and confidence interval for a single study
 #' #
 #' metabin(10, 20, 15, 20, sm = "OR")
-#' 
+#'
 #' # Different results (due to handling of studies with double zeros)
 #' #
 #' metabin(0, 10, 0, 10, sm = "OR")
 #' metabin(0, 10, 0, 10, sm = "OR", allstudies = TRUE)
-#' 
+#'
 #' # Use subset of Olkin (1995) to conduct meta-analysis based on
 #' # inverse variance method (with risk ratio as summary measure)
 #' #
@@ -557,7 +571,7 @@
 #' ma1
 #' # Show results for individual studies
 #' summary(ma1)
-#' 
+#'
 #' # Use different subset of Olkin (1995)
 #' #
 #' ma2 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
@@ -566,7 +580,7 @@
 #'   method = "Inverse")
 #' ma2
 #' forest(ma2)
-#' 
+#'
 #' # Meta-analysis with odds ratio as summary measure
 #' #
 #' ma3 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
@@ -576,22 +590,22 @@
 #' # Same meta-analysis result using 'update.meta' function
 #' ma3 <- update(ma2, sm = "OR")
 #' ma3
-#' 
+#'
 #' # Meta-analysis based on Mantel-Haenszel method (with odds ratio as
 #' # summary measure)
 #' #
 #' ma4 <- update(ma3, method = "MH")
 #' ma4
-#' 
+#'
 #' # Meta-analysis based on Peto method (only available for odds ratio or
 #' # diagnostic odds ratio as summary measure)
 #' #
 #' ma5 <- update(ma3, method = "Peto")
 #' ma5
-#' 
+#'
 #' \dontrun{
 #' # Meta-analyses using generalised linear mixed models (GLMM)
-#' 
+#'
 #' # Logistic regression model with (k = 4) fixed study effects
 #' # (default: model.glmm = "UM.FS")
 #' ma6 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
@@ -600,7 +614,7 @@
 #' # Same results:
 #' ma6 <- update(ma2, method = "GLMM")
 #' ma6
-#' 
+#'
 #' # Mixed-effects logistic regression model with random study effects
 #' ma7 <- update(ma6, model.glmm = "UM.RS")
 #' #
@@ -609,35 +623,35 @@
 #' #
 #' ma7 <- update(ma6, model.glmm = "UM.RS", nAGQ = 1)
 #' ma7
-#' 
+#'
 #' # Generalised linear mixed model (conditional Hypergeometric-Normal)
 #' # (R package 'BiasedUrn' must be available)
 #' if (requireNamespace("BiasedUrn", quietly = TRUE)) {
 #'  ma8 <- update(ma6, model.glmm = "CM.EL")
 #'  ma8
 #' }
-#' 
+#'
 #' # Generalised linear mixed model (conditional Binomial-Normal)
 #' ma9 <- update(ma6, model.glmm = "CM.AL")
 #' ma9
-#' 
+#'
 #' # Logistic regression model with (k = 70) fixed study effects
 #' ma10 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
 #'   studlab = paste(author, year),
 #'   data = Olkin1995, method = "GLMM")
 #' ma10
-#' 
+#'
 #' # Mixed-effects logistic regression model with random study effects
 #' update(ma10, model.glmm = "UM.RS")
-#' 
+#'
 #' # Conditional Hypergeometric-Normal GLMM (with long computation time)
 #' system.time(ma11 <- update(ma10, model.glmm = "CM.EL"))
 #' ma11
-#' 
+#'
 #' # Generalised linear mixed model (conditional Binomial-Normal)
 #' update(ma10, model.glmm = "CM.AL")
 #' }
-#' 
+#'
 #' @export metabin
 
 metabin <- function(event.e, n.e, event.c, n.c, studlab,
@@ -741,7 +755,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   # (1) Check arguments
   #
   #
-  
+
   args <- list(...)
   nam.args <- names(args)
   #
@@ -941,6 +955,12 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   #
   method.random.ci <- setchar(method.random.ci, gs("meth4random.ci"))
   #
+  if (any(method.random.ci %in% c("CR0", "CR1", "CR2")) &&
+      method %in% c("Peto", "GLMM", "LRP", "SSW"))
+    stop("Methods 'CR0', 'CR1', and 'CR2' not available for ",
+         "argument 'method = \"", method, "\"'.",
+         call. = FALSE)
+  #
   if (any(method.random.ci == "CR2"))
     is_installed_package("clubSandwich", argument = "method.random.ci",
                          value = "CR2")
@@ -986,14 +1006,14 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     warn_ignore_input(addincr, TRUE, txt.ignore)
   if (!is.na(charmatch("allincr", nam.args)))
     warn_ignore_input(allincr, TRUE, txt.ignore)
-  
-  
+
+
   #
   #
   # (2) Read data
   #
   #
-  
+
   nulldata <- is.null(data)
   sfsp <- sys.frame(sys.parent())
   mc <- match.call()
@@ -1276,14 +1296,14 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   n.e     <- int2num(n.e)
   event.c <- int2num(event.c)
   n.c     <- int2num(n.c)
-  
-  
+
+
   #
   #
   # (3) Check length of essential variables
   #
   #
-  
+
   chklength(n.e, k.All, fun)
   chklength(event.c, k.All, fun)
   chklength(n.c, k.All, fun)
@@ -1310,14 +1330,14 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     chklength(incr, k.All, fun)
   #
   if (avail.incr.e) {
-    if (length(incr.e) == 1)  
+    if (length(incr.e) == 1)
       incr.e <- rep_len(incr.e, k.All)
     else
       chklength(incr.e, k.All, fun)
   }
   #
   if (avail.incr.c) {
-    if (length(incr.c) == 1)  
+    if (length(incr.c) == 1)
       incr.c <- rep_len(incr.c, k.All)
     else
       chklength(incr.c, k.All, fun)
@@ -1357,14 +1377,14 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
            "'method.incr = \"user\"'.",
            call. = FALSE)
   }
-  
-  
+
+
   #
   #
   # (4) Subset, exclude studies, and subgroups
   #
   #
-  
+
   if (!missing.subset)
     if ((is.logical(subset) & (sum(subset) > k.All)) ||
         (length(subset) > k.All))
@@ -1381,15 +1401,15 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   }
   else
     exclude <- rep(FALSE, k.All)
-  
-  
+
+
   #
   #
   # (5) Store complete dataset in list object data
   #     (if argument keepdata is TRUE)
   #
   #
-  
+
   if (keepdata) {
     if (nulldata)
       data <- data.frame(.studlab = studlab)
@@ -1428,14 +1448,14 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     if (usw.random)
       data$.weights.random <- weights.random
   }
-  
-  
+
+
   #
   #
   # (6) Use subset for analysis
   #
   #
-  
+
   if (!missing.subset) {
     event.e <- event.e[subset]
     n.e <- n.e[subset]
@@ -1508,14 +1528,14 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   #
   if (!is.null(subgroup.name))
     chkchar(subgroup.name, length = 1)
-  
-  
+
+
   #
   #
   # (7) Continuity correction
   #
   #
-  
+
   #
   # Include non-informative studies?
   # (i.e. studies with either zero or all events in both groups)
@@ -1693,14 +1713,14 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
       data$.incr.c[subset] <- incr.c
     }
   }
-  
-  
+
+
   #
   #
   # (8) Calculate results for individual studies
   #
   #
-  
+
   n11 <- event.e * incl
   n21 <- event.c * incl
   n1. <- n.e * incl
@@ -1781,14 +1801,14 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   # Set NaN to NA
   #
   TE[is.nan(TE)] <- NA
-  
-  
+
+
   #
   #
   # (9) Additional checks for three-level model
   #
   #
-  
+
   three.level <- FALSE
   sel.ni <- !is.infinite(TE) & !is.infinite(seTE)
   #
@@ -1824,15 +1844,15 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
            "assuming a common tau-squared.",
            call. = FALSE)
   }
-  
-  
+
+
   #
   #
   # (10) Additional checks for GLMM, penalised logistic regression,
   #      Peto method or SSW
   #
   #
-  
+
   if (!(sm %in% c("OR", "DOR"))) {
     if (method == "Peto")
       stop("Peto's method only possible with argument 'sm = \"OR\"' or ",
@@ -1919,14 +1939,14 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
       }
     }
   }
-  
-  
+
+
   #
   #
   # (11) Do meta-analysis
   #
   #
-  
+
   k <- sum(!is.na(event.e[!exclude]) & !is.na(event.c[!exclude]) &
            !is.na(n.e[!exclude]) & !is.na(n.c[!exclude]))
   #
@@ -2130,14 +2150,14 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     hcc <- hetcalc(TE, seTE, method.tau, m$method.tau.ci,
                    if (Q.Cochrane & method == "MH") TE.common else TE.tau,
                    method.I2, level.hetstat, subgroup, control)
-  
-  
+
+
   #
   #
   # (12) Generate R object
   #
   #
-  
+
   res <- list(event.e = event.e, n.e = n.e,
               event.c = event.c, n.c = n.c,
               method = method, method.random = method,
@@ -2324,7 +2344,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   res <- backward(res)
   #
   class(res) <- c(fun, "meta")
-  
-  
+
+
   res
 }

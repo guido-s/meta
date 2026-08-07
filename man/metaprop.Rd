@@ -361,6 +361,14 @@ least one cluster provides more than one estimate. Internally,
 \code{\link[metafor]{weights.rma.mv}} with argument \code{type =
 "rowsum"} is used to calculate random effects weights.
 
+Cluster-robust variance estimators (Pustejovsky and Tipton, 2018) are
+available for univariate random effects and three-level models
+(argument \code{method.random.ci} equal to \code{"CR0"}, \code{"CR1"},
+or \code{"CR2"}). Internally, \code{\link[metafor]{rma.uni}} or
+\code{\link[metafor]{rma.mv}} is called and then passed to
+\code{\link[metafor]{robust}}. For univariate random effects models,
+study labels (argument \code{studlab}) are used as clusters.
+
 Default settings are utilised for several arguments (assignments
 using \code{\link{gs}} function). These defaults can be changed for
 the current R session using the \code{\link{settings.meta}}
@@ -444,7 +452,7 @@ summary measure, i.e. \code{method.ci = "NAsm"}, the same
 confidence interval is calculated for individual studies for any
 summary measure (argument \code{sm}) as only number of events and
 observations are used in the calculation disregarding the chosen
-transformation. Furthermore, the continuity correction 
+transformation. Furthermore, the continuity correction
 
 Results will be presented for transformed proportions if argument
 \code{backtransf = FALSE}. In this case, argument \code{method.ci =
@@ -696,6 +704,12 @@ The bias and higher cumulants of the logarithm of a binomial
 variate.
 \emph{Biometrika},
 \bold{73}, 425--35
+
+Pustejovsky JE, Tipton E (2018):
+Small-sample methods for cluster-robust variance estimation and hypothesis
+testing in fixed effects models
+\emph{Journal of Business and Economic Statistics},
+\bold{36}, 672--83
 
 Schwarzer G, Chemaitelly H, Abu-Raddad LJ, Rücker G (2019):
 Seriously misleading results using inverse of Freeman-Tukey double

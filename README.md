@@ -18,11 +18,12 @@ Official Git repository of R package **meta**
 User-friendly general package providing standard methods for meta-analysis and supporting Schwarzer, Carpenter, and Rücker, "Meta-Analysis with R" (2015):
  - common effect and random effects meta-analysis;
  - several plots (forest, funnel, Galbraith / radial, L'Abbe, Baujat, bubble);
- - three-level model with or without cluster-robust variance estimators;
+ - three-level meta-analysis model
  - generalised linear mixed model;
  - logistic regression with penalised likelihood for rare events;
  - Hartung-Knapp method for random effects model;
  - Kenward-Roger method for random effects model;
+ - cluster-robust variance estimators for univariate random effects and three-level models;
  - prediction interval and density of the prediction distribution;
  - expected proportion of comparable studies with clinically important benefit or harm;
  - statistical tests for funnel plot asymmetry;

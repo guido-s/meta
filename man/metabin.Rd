@@ -406,6 +406,14 @@ least one cluster provides more than one estimate. Internally,
 \code{\link[metafor]{weights.rma.mv}} with argument \code{type =
 "rowsum"} is used to calculate random effects weights.
 
+Cluster-robust variance estimators (Pustejovsky and Tipton, 2018) are
+available for univariate random effects and three-level models
+(argument \code{method.random.ci} equal to \code{"CR0"}, \code{"CR1"},
+or \code{"CR2"}). Internally, \code{\link[metafor]{rma.uni}} or
+\code{\link[metafor]{rma.mv}} is called and then passed to
+\code{\link[metafor]{robust}}. For univariate random effects models,
+study labels (argument \code{studlab}) are used as clusters.
+
 Default settings are utilised for several arguments (assignments
 using \code{\link{gs}} function). These defaults can be changed for
 the current R session using the \code{\link{settings.meta}}
@@ -454,10 +462,10 @@ be utilised in a meta-analysis of binary outcomes (Stijnen et al.,
 
 R package \bold{brglma2} must be available to fit a one-stage logistic
 regression model with penalised likelihood (Evrenoglou et al., 2022).
-The estimation of the summary odds ratio relies on the maximisation of the 
+The estimation of the summary odds ratio relies on the maximisation of the
 likelihood function, penalised using a Firth-type correction. This
 penalisation aims to reduce bias in cases with rare events and a small
-number of available studies. However, this method is not restricted 
+number of available studies. However, this method is not restricted
 to only such cases and can be applied more generally to binary data. Note,
 with this type of penalisation, all studies can be included in the analysis,
 regardless of the total number of observed events. This allows both single
@@ -472,7 +480,7 @@ Generalised linear mixed models are available
 (argument \code{method = "GLMM"}) for the odds ratio as summary measure for
 the common effect and random effects model by calling the
 \code{\link[metafor]{rma.glmm}} function from R package
-\bold{metafor} internally. 
+\bold{metafor} internally.
 
 Four different GLMMs are available for
 meta-analysis with binary outcomes using argument \code{model.glmm}
@@ -739,6 +747,12 @@ Greenland S & Robins JM (1985):
 Estimation of a common effect parameter from sparse follow-up data.
 \emph{Biometrics},
 \bold{41}, 55--68
+
+Pustejovsky JE, Tipton E (2018):
+Small-sample methods for cluster-robust variance estimation and hypothesis
+testing in fixed effects models
+\emph{Journal of Business and Economic Statistics},
+\bold{36}, 672--83
 
 \emph{Review Manager (RevMan)} [Computer program]. Version 5.4.
 The Cochrane Collaboration, 2020

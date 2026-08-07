@@ -441,6 +441,14 @@ least one cluster provides more than one estimate. Internally,
 \code{\link[metafor]{weights.rma.mv}} with argument \code{type =
 "rowsum"} is used to calculate random effects weights.
 
+Cluster-robust variance estimators (Pustejovsky and Tipton, 2018) are
+available for univariate random effects and three-level models
+(argument \code{method.random.ci} equal to \code{"CR0"}, \code{"CR1"},
+or \code{"CR2"}). Internally, \code{\link[metafor]{rma.uni}} or
+\code{\link[metafor]{rma.mv}} is called and then passed to
+\code{\link[metafor]{robust}}. For univariate random effects models,
+study labels (argument \code{studlab}) are used as clusters.
+
 Default settings are utilised for several arguments (assignments
 using \code{\link{gs}} function). These defaults can be changed for
 the current R session using the \code{\link{settings.meta}}
@@ -835,6 +843,12 @@ Estimating the sample mean and standard deviation from commonly
 reported quantiles in meta-analysis.
 \emph{Statistical Methods in Medical Research},
 \bold{29}, 2520--2537
+
+Pustejovsky JE, Tipton E (2018):
+Small-sample methods for cluster-robust variance estimation and hypothesis
+testing in fixed effects models
+\emph{Journal of Business and Economic Statistics},
+\bold{36}, 672--83
 
 Senn S (2024):
 The analysis of continuous data from n-of-1 trials using paired cycles:

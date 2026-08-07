@@ -1,10 +1,10 @@
 #' Meta-analysis of correlations
-#' 
+#'
 #' @description
 #' Calculation of common effect and random effects estimates for
 #' meta-analyses with correlations; inverse variance weighting is used
 #' for pooling.
-#' 
+#'
 #' @param cor Correlations.
 #' @param n Number of observations.
 #' @param studlab An optional vector with study labels.
@@ -138,7 +138,7 @@
 #'   estimate the between-study variance \eqn{\tau^2}. This argument
 #'   is passed on to \code{\link[metafor]{rma.uni}}.
 #' @param \dots Additional arguments (to catch deprecated arguments).
-#' 
+#'
 #' @details
 #' This function conducts common effect and random effects meta-analysis of
 #' correlations based either on Fisher's z transformation of correlations
@@ -146,36 +146,44 @@
 #' (\code{sm = "COR"}) (see Cooper et al., 2009, p264-5 and p273-4). Note, the
 #' input to argument \code{cor} is always correlations and not Fisher's z
 #' transformed correlations if \code{sm = "ZCOR"}.
-#' 
+#'
 #' Only few statisticians would advocate the use of untransformed correlations
 #' unless sample sizes are very large (see Cooper et al., 2009, p265). The
 #' artificial example given below shows that the smallest study gets the largest
 #' weight if correlations are combined directly because the correlation is
 #' closest to 1.
-#' 
+#'
 #' A three-level random effects meta-analysis model (Van den Noortgate
 #' et al., 2013) is utilised if argument \code{cluster} is used and at
 #' least one cluster provides more than one estimate. Internally,
 #' \code{\link[metafor]{rma.mv}} is called to conduct the analysis and
 #' \code{\link[metafor]{weights.rma.mv}} with argument \code{type =
 #' "rowsum"} is used to calculate random effects weights.
-#' 
+#'
+#' Cluster-robust variance estimators (Pustejovsky and Tipton, 2018) are
+#' available for univariate random effects and three-level models
+#' (argument \code{method.random.ci} equal to \code{"CR0"}, \code{"CR1"},
+#' or \code{"CR2"}). Internally, \code{\link[metafor]{rma.uni}} or
+#' \code{\link[metafor]{rma.mv}} is called and then passed to
+#' \code{\link[metafor]{robust}}. For univariate random effects models,
+#' study labels (argument \code{studlab}) are used as clusters.
+#'
 #' Default settings are utilised for several arguments (assignments
 #' using \code{\link{gs}} function). These defaults can be changed for
 #' the current R session using the \code{\link{settings.meta}}
 #' function.
-#' 
+#'
 #' Furthermore, R function \code{\link{update.meta}} can be used to
 #' rerun a meta-analysis with different settings.
 #'
 #' \subsection{Subgroup analysis}{
-#' 
+#'
 #' Argument \code{subgroup} can be used to conduct subgroup analysis for
 #' a categorical covariate. The \code{\link{metareg}} function can be
 #' used instead for more than one categorical covariate or continuous
 #' covariates.
 #' }
-#' 
+#'
 #' \subsection{Exclusion of studies from meta-analysis}{
 #'
 #' Arguments \code{subset} and \code{exclude} can be used to exclude
@@ -185,9 +193,9 @@
 #' \code{exclude} (see Examples in \code{\link{metagen}}).
 #' Meta-analysis results are the same for both arguments.
 #' }
-#' 
+#'
 #' \subsection{Presentation of meta-analysis results}{
-#' 
+#'
 #' Internally, both common effect and random effects models are
 #' calculated regardless of values choosen for arguments
 #' \code{common} and \code{random}. Accordingly, the estimate
@@ -203,53 +211,59 @@
 #' A prediction interval will only be shown if \code{prediction =
 #' TRUE}.
 #' }
-#' 
+#'
 #' @note
 #' The function \code{\link{metagen}} is called internally to
 #' calculate individual and overall treatment estimates and standard
 #' errors.
-#' 
+#'
 #' @return
 #' An object of class \code{c("metacor", "meta")} with corresponding
 #' generic functions (see \code{\link{meta-object}}).
-#' 
+#'
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
-#' 
+#'
 #' @seealso \code{\link{meta-package}}, \code{\link{update.meta}},
 #'   \code{\link{metacont}}, \code{\link{metagen}},
 #'   \code{\link{print.meta}}
-#' 
+#'
 #' @references
 #' Cooper H, Hedges LV, Valentine JC (2009):
 #' \emph{The Handbook of Research Synthesis and Meta-Analysis},
 #' 2nd Edition.
 #' New York: Russell Sage Foundation
 #'
+#' Pustejovsky JE, Tipton E (2018):
+#' Small-sample methods for cluster-robust variance estimation and hypothesis
+#' testing in fixed effects models
+#' \emph{Journal of Business and Economic Statistics},
+#' \bold{36}, 672--83
+#'
 #' Van den Noortgate W, López-López JA, Marín-Martínez F, Sánchez-Meca J (2013):
 #' Three-level meta-analysis of dependent effect sizes.
 #' \emph{Behavior Research Methods},
 #' \bold{45}, 576--94
-#' 
+#'
 #' @examples
 #' ma1 <- metacor(c(0.85, 0.7, 0.95), c(20, 40, 10))
-#' 
+#'
 #' # Print correlations (back transformed from Fisher's z
 #' # transformation)
 #' #
 #' summary(ma1)
-#' 
-#' # Print Fisher's z transformed correlations 
+#'
+#' # Print Fisher's z transformed correlations
 #' #
 #' print(summary(ma1), backtransf = FALSE)
-#' 
+#'
 #' # Forest plot with back transformed correlations
 #' #
 #' forest(ma1)
-#' 
+#'
 #' # Forest plot with Fisher's z transformed correlations
 #' #
 #' forest(ma1, backtransf = FALSE)
-#' 
+#'
 #' ma2 <- update(ma1, sm = "cor")
 #' summary(ma2)
 #'
@@ -259,7 +273,7 @@
 #' forest(ma2)
 #' forest(ma2, backtransf = FALSE)
 #' }
-#' 
+#'
 #' @export metacor
 
 metacor <- function(cor, n, studlab,
@@ -280,7 +294,7 @@ metacor <- function(cor, n, studlab,
                       if (is.null(gs("overall.hetstat")))
                         common | random
                       else
-                        gs("overall.hetstat"),   
+                        gs("overall.hetstat"),
                     prediction = gs("prediction") | !missing(method.predict),
                     #
                     method.tau = gs("method.tau"),
@@ -336,8 +350,8 @@ metacor <- function(cor, n, studlab,
                     #
                     control = NULL,
                     ...) {
-  
-  
+
+
   #
   #
   # (1) Check arguments
@@ -463,8 +477,8 @@ metacor <- function(cor, n, studlab,
   #
   fun <- "metacor"
   sm <- setchar(sm, gs("sm4cor"))
-  
-  
+
+
   #
   #
   # (2) Read data
@@ -544,8 +558,8 @@ metacor <- function(cor, n, studlab,
   #
   if (usw.random)
     chknumeric(weights.random, min = 0)
-  
-  
+
+
   #
   #
   # (3) Check length of essential variables
@@ -575,8 +589,8 @@ metacor <- function(cor, n, studlab,
     chklogical(test.subgroup)
     chklogical(prediction.subgroup)
   }
-  
-  
+
+
   #
   #
   # (4) Subset, exclude studies, and subgroups
@@ -598,8 +612,8 @@ metacor <- function(cor, n, studlab,
   }
   else
     exclude <- rep(FALSE, k.All)
-  
-  
+
+
   #
   #
   # (5) Store complete dataset in list object data
@@ -639,8 +653,8 @@ metacor <- function(cor, n, studlab,
     if (usw.random)
       data$.weights.random <- weights.random
   }
-  
-  
+
+
   #
   #
   # (6) Use subset for analysis
@@ -696,8 +710,8 @@ metacor <- function(cor, n, studlab,
   #
   if (!is.null(subgroup.name))
     chkchar(subgroup.name, length = 1)
-  
-  
+
+
   #
   #
   # (7) Calculate results for individual studies
@@ -713,8 +727,8 @@ metacor <- function(cor, n, studlab,
     seTE <- sqrt((1 - cor^2)^2 / (n - 1))
     transf.null.effect <- null.effect
   }
-  
-  
+
+
   #
   #
   # (8) Additional checks for three-level model
@@ -739,8 +753,8 @@ metacor <- function(cor, n, studlab,
     if (!(method.tau %in% c("REML", "ML")))
       method.tau <- "REML"
   }
-  
-  
+
+
   #
   #
   # (9) Do meta-analysis
@@ -807,8 +821,8 @@ metacor <- function(cor, n, studlab,
   if (by & tau.common)
     hcc <- hetcalc(TE, seTE, method.tau, "", TE.tau,
                    method.I2, level.hetstat, subgroup, control)
-  
-  
+
+
   #
   #
   # (9) Generate R object
@@ -903,7 +917,7 @@ metacor <- function(cor, n, studlab,
   res <- backward(res)
   #
   class(res) <- c(fun, "meta")
-  
-  
+
+
   res
 }

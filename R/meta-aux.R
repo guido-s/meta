@@ -393,6 +393,83 @@ calcPI <- function(x) {
   res
 }
 
+runCRuni <- function(x, method.tau, method.random.ci, level,
+                     warn = TRUE, ...) {
+
+  n.methci <- length(method.random.ci)
+  #
+  list.b <- list(level = 100 * level, method = method.tau, ...)
+  #
+  res <- list.r <- vector("list", n.methci)
+  #
+  for (i in seq_len(n.methci))
+    list.r[[i]] <- c(x, list.b)
+  #
+  for (i in seq_len(n.methci)) {
+    res[[i]] <- runNN(rma.uni, list.r[[i]], warn = warn)
+    #
+    if (method.random.ci[i] %in% c("CR0", "CR1", "CR2")) {
+      res[[i]] <-
+        suppressPackageStartupMessages(
+          robust(res[[i]], cluster = x$data$studlab,
+                 adjust = method.random.ci[i] != "CR0",
+                 clubSandwich = method.random.ci[i] == "CR2"))
+    }
+  }
+  #
+  res
+}
+
+extrCRuni <- function(x, k, len, sel,
+                      method.random.ci, method.predict,
+                      level.ma, level.predict) {
+
+  #
+  # Random effects model(s)
+  #
+  res <- list(tau2 = NA, tau = NA, se.tau2 = NA)
+  #
+  res$k <- k
+  res$method.predict <- method.predict
+  res$level.predict <- level.predict
+  #
+  if (k > 1) {
+    res$tau2 <- x[[1]]$tau2
+    res$tau <- sqrt(res$tau2)
+  }
+  #
+  res$TE.random <- as.numeric(coef(x[[1]]))
+  res$seTE.random <- sapply(x, extrVar, "se")
+  #
+  res$lower.random <- sapply(x, extrVar, "ci.lb")
+  res$upper.random <- sapply(x, extrVar, "ci.ub")
+  #
+  res$statistic.random <- sapply(x, extrVar, "zval")
+  res$df.random <- res$df.hakn <- sapply(x, extrVar, "ddf")
+  res$pval.random <- sapply(x, extrVar, "pval")
+  #
+  res$w.random <- rep_len(NA, len)
+  res$w.random[sel] <- weights(x[[1]])
+  res$w.random[is.na(res$w.random)] <- 0
+  #
+  res$zval.random <- res$statistic.random
+  #
+  if (length(method.random.ci) > 1)
+    names(res$seTE.random) <-
+    names(res$lower.random) <- names(res$upper.random) <-
+    names(res$statistic.random) <- names(res$pval.random) <-
+    names(res$df.random) <- names(res$df.hakn) <-
+    names(res$zval.random) <- method.random.ci
+  #
+  # Prediction interval
+  #
+  res <- calcPI(res)
+  #
+  res$k <- res$method.predict <- res$level.predict <- NULL
+  #
+  res
+}
+
 runMLM <- function(x, method.tau, method.random.ci, level,
                    warn = TRUE, ...) {
   

@@ -311,9 +311,9 @@ metareg.meta <- function(x, formula, method.tau = x$method.tau,
   #
   chklogical(hakn)
   #
-  if (!three.level && method.random.ci %in% CRs)
-    stop("Methods 'CR0', 'CR1', and 'CR2' are only available ",
-         "for three-level models.",
+  if (method == "GLMM" && method.random.ci %in% CRs)
+    stop("Methods 'CR0', 'CR1', and 'CR2' not available for ",
+         "generalized linear mixed models.",
          call. = FALSE)
   #
   chklevel(level.ma)
@@ -385,7 +385,7 @@ metareg.meta <- function(x, formula, method.tau = x$method.tau,
                    adjust = method.random.ci != "CR0",
                    clubSandwich = method.random.ci == "CR2"))
     }
-    else
+    else {
       res <-
         runNN(rma.uni,
               list(yi = TE[!exclude], sei = seTE[!exclude],
@@ -393,6 +393,14 @@ metareg.meta <- function(x, formula, method.tau = x$method.tau,
                    mods = formula, method = method.tau,
                    test = test, level = 100 * level.ma,
                    ...))
+      #
+      if (method.random.ci %in% CRs)
+        res <-
+        suppressPackageStartupMessages(
+          robust(res, cluster = dataset$.studlab,
+                 adjust = method.random.ci != "CR0",
+                 clubSandwich = method.random.ci == "CR2"))
+    }
   }
   else {
     if (metabin) {

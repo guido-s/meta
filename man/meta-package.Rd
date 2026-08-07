@@ -39,8 +39,7 @@ provides the following statistical methods for meta-analysis.
   (\code{\link{bubble.metareg}})
 }
 \item Three-level meta-analysis model (Van den Noortgate et al.,
-  2013) with or without cluster-robust variance estimators
-  (Pustejovsky and Tipton, 2018),
+  2013),
 \item Generalised linear mixed models (GLMMs) for binary and count
   data (Stijnen et al., 2010) (\code{\link{metabin}},
   \code{\link{metainc}}, \code{\link{metaprop}}, and
@@ -49,22 +48,24 @@ provides the following statistical methods for meta-analysis.
   (Evrenoglou et al., 2022) (\code{\link{metabin}},
 \item Various estimators for the between-study variance
  \eqn{\tau^2} in a random effects model (Veroniki et al., 2016);
- see description of argument \code{method.tau} below
+ see description of argument \code{method.tau}
 \item Two methods to estimate the I-squared statistic
   (Higgins and Thompson, 2002); see description of argument
-  \code{method.I2} below
+  \code{method.I2}
 \item Hartung-Knapp method for random effects meta-analysis
- (Hartung & Knapp, 2001a,b), see description of arguments
- \code{method.random.ci} and \code{adhoc.hakn.ci} below
+ (Hartung & Knapp, 2001a,b); see description of arguments
+ \code{method.random.ci} and \code{adhoc.hakn.ci}
 \item Kenward-Roger method for random effects meta-analysis
- (Partlett and Riley, 2017), see description of arguments
- \code{method.random.ci} and \code{method.predict} below
-\item Inverse variance heterogeneity method (Doi et al., 2015),
- see description of argument \code{method.common.ci} below
+ (Partlett and Riley, 2017); see description of arguments
+ \code{method.random.ci} and \code{method.predict}
+\item Inverse variance heterogeneity method (Doi et al., 2015);
+ see description of argument \code{method.common.ci}
+\item Cluster-robust variance estimators for univariate random effects
+  and three-level models (Pustejovsky and Tipton, 2018); see description of
+  argument \code{method.random.ci}
 \item Prediction interval for the treatment effect of a new study
  (Veroniki et al., 2019; Higgins et al., 2009; Partlett and Riley, 2017;
- Nagashima et al., 2019), see description of argument \code{method.predict}
- below
+ Nagashima et al., 2019); see description of argument \code{method.predict}
 \item Expected proportion of comparable studies with clinically important
  benefit or harm derived from the prediction distribution
  (Siemens et al., 2025)
@@ -76,7 +77,7 @@ provides the following statistical methods for meta-analysis.
 \item Cumulative meta-analysis (\code{\link{metacum}}) and
   leave-one-out meta-analysis (\code{\link{metainf}})
 \item Import data from RevMan Web (\code{\link{read.cdir}}), RevMan
-  5 (\code{\link{read.rm5}}), see also \code{\link{metacr}} to
+  5 (\code{\link{read.rm5}}); see also \code{\link{metacr}} to
   conduct meta-analysis for a single comparison and outcome from a
   Cochrane review
 }
@@ -194,7 +195,8 @@ to calculate a confidence interval for the common effect estimate.
 \code{method.common.ci = "classic"} \tab Based on standard normal
   quantile \cr
 \code{method.common.ci = "IVhet"} \tab Method by Doi et al. (2015) going
-  back to Henmi and Copas (2010) \cr
+  back to \cr
+\tab Henmi and Copas (2010)
 }
 
 The inverse variance heterogeneity method (IVhet) uses the weights under the
@@ -214,8 +216,7 @@ to calculate a confidence interval for the random effects estimate.
 \code{method.random.ci = "HK"} \tab Method by Hartung and Knapp
   (2001a/b) \cr
 \code{method.random.ci = "KR"} \tab Kenward-Roger method (Partlett and
-  Riley, 2017) \cr\cr
-\emph{Three-level models only:} \cr
+  Riley, 2017) \cr
 \code{method.random.ci = "CR0"} \tab Original cluster-robust (sandwich)
   covariance \cr
   \tab estimator (Pustejovsky and Tipton, 2018) \cr
@@ -297,9 +298,8 @@ hoc} correction for the Hartung-Knapp (HK) method:
 For GLMMs and three-level models, the \emph{ad hoc} variance
 corrections are not available.
 
-For three-level models, the cluster-robust variance estimators are calculated
-by internally calling the \code{\link[metafor]{robust}} function from
-R package \bold{metafor}:
+The cluster-robust variance estimators are calculated by internally calling
+the \code{\link[metafor]{robust}} function from R package \bold{metafor}:
 \tabular{ll}{
 \bold{Argument} \tab \bold{Arguments in \code{\link[metafor]{robust}}} \cr
 \code{method.random.ci = "CR0"} \tab \code{adjust = FALSE} and
@@ -311,6 +311,8 @@ R package \bold{metafor}:
 The cluster-robust variance estimator with Satterthwaite degrees of freedom
 (\code{method.random.ci = "CR2"}) is only available if R package
 \bold{clubSandwich} is installed.
+In a univariate random effects meta-analysis, study labels are used as
+clusters.
 }
 
 \subsection{Prediction interval}{

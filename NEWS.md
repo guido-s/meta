@@ -2,7 +2,8 @@
 
 ### Major changes
 
-* Cluster-robust variance estimators implemented for three-level models
+* Cluster-robust variance estimators implemented for univariate random effects
+  meta-analysis and three-level model
 
 * Cumulative meta-analysis and leave-one-out method return results for random
   effects instead of common effect model if prediction intervals are requested
@@ -24,7 +25,7 @@
 * metabin(), metacont(), metacor(), metagen(), metainc(), metamean(),
   metaprop(), metarate(), metareg(), update.meta():
   - argument 'method.random.ci' can be equal to "CR0", "CR1", or "CR2" for
-    cluster-robust variance estimators in three-level models
+    cluster-robust variance estimators
 
 * forest.metacum():
   - use default colours for squares regardless of layout

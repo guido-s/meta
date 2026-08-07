@@ -1,10 +1,10 @@
 #' Meta-analysis of continuous outcome data
-#' 
+#'
 #' @description
 #' Calculation of common and random effects estimates for meta-analyses
 #' with continuous outcome data; inverse variance weighting is used
 #' for pooling.
-#' 
+#'
 #' @param n.e Number of observations in experimental group or an R object
 #'   created with \code{\link{pairwise}}.
 #' @param mean.e Estimated mean in experimental group.
@@ -202,27 +202,35 @@
 #'   estimate the between-study variance \eqn{\tau^2}. This argument
 #'   is passed on to \code{\link[metafor]{rma.uni}}.
 #' @param \dots Additional arguments (to catch deprecated arguments).
-#' 
+#'
 #' @details
 #' Calculation of common and random effects estimates for meta-analyses
 #' with continuous outcome data; inverse variance weighting is used
 #' for pooling.
-#' 
+#'
 #' A three-level random effects meta-analysis model (Van den Noortgate
 #' et al., 2013) is utilised if argument \code{cluster} is used and at
 #' least one cluster provides more than one estimate. Internally,
 #' \code{\link[metafor]{rma.mv}} is called to conduct the analysis and
 #' \code{\link[metafor]{weights.rma.mv}} with argument \code{type =
 #' "rowsum"} is used to calculate random effects weights.
-#' 
+#'
+#' Cluster-robust variance estimators (Pustejovsky and Tipton, 2018) are
+#' available for univariate random effects and three-level models
+#' (argument \code{method.random.ci} equal to \code{"CR0"}, \code{"CR1"},
+#' or \code{"CR2"}). Internally, \code{\link[metafor]{rma.uni}} or
+#' \code{\link[metafor]{rma.mv}} is called and then passed to
+#' \code{\link[metafor]{robust}}. For univariate random effects models,
+#' study labels (argument \code{studlab}) are used as clusters.
+#'
 #' Default settings are utilised for several arguments (assignments
 #' using \code{\link{gs}} function). These defaults can be changed for
 #' the current R session using the \code{\link{settings.meta}}
 #' function.
-#' 
+#'
 #' Furthermore, R function \code{\link{update.meta}} can be used to
 #' rerun a meta-analysis with different settings.
-#' 
+#'
 #' Three different types of summary measures are available for continuous
 #' outcomes:
 #' \itemize{
@@ -230,9 +238,9 @@
 #' \item standardised mean difference (\code{sm = "SMD"})
 #' \item ratio of means (\code{sm = "ROM"})
 #' }
-#' 
+#'
 #' \subsection{Standardised mean difference}{
-#' 
+#'
 #' For the standardised mean difference three methods are implemented:
 #' \itemize{
 #' \item Hedges' g (default, \code{method.smd = "Hedges"}) - see
@@ -256,7 +264,7 @@
 #' error. In typical applications (with sample sizes above 10), the differences
 #' between using the exact formulae (\code{exact.smd = TRUE}) and the
 #' approximation (\code{exact.smd = FALSE}) will be minimal.
-#' 
+#'
 #' For Glass' delta, by default (argument \code{sd.glass =
 #' "control"}), the standard deviation in the control group
 #' (\code{sd.c}) is used in the denominator of the standard mean
@@ -264,9 +272,9 @@
 #' (\code{sd.e}) can be used by specifying \code{sd.glass =
 #' "experimental"}.
 #' }
-#' 
+#'
 #' \subsection{Ratio of means}{
-#' 
+#'
 #' Meta-analysis of ratio of means -- also called response ratios --
 #' is described in Hedges et al. (1999) and Friedrich et al. (2008).
 #' Calculations are conducted on the log scale and list elements
@@ -274,9 +282,9 @@
 #' logarithm of the ratio of means. In printouts and plots these
 #' values are back transformed if argument \code{backtransf = TRUE}.
 #' }
-#' 
+#'
 #' \subsection{Approximate means from sample sizes, medians and other statistics}{
-#' 
+#'
 #' Missing means in the experimental group (analogously for the
 #' control group) can be derived from
 #' \enumerate{
@@ -288,21 +296,21 @@
 #' \item sample size, median and range (arguments \code{n.e},
 #'   \code{median.e}, \code{min.e}, and \code{max.e}).
 #' }
-#' 
+#'
 #' By default, methods described in Luo et al. (2018) are utilised
 #' (argument \code{method.mean = "Luo"}):
 #' \itemize{
-#' \item equation (15) if sample size, median, interquartile range and 
+#' \item equation (15) if sample size, median, interquartile range and
 #'   range are available,
 #' \item equation (11) if sample size, median and interquartile range
 #'   are available,
 #' \item equation (7) if sample size, median and range are available.
 #' }
-#' 
+#'
 #' Instead the methods described in Wan et al. (2014) are used if
 #' argument \code{method.mean = "Wan"}:
 #' \itemize{
-#' \item equation (10) if sample size, median, interquartile range and 
+#' \item equation (10) if sample size, median, interquartile range and
 #'   range are available,
 #' \item equation (14) if sample size, median and interquartile range
 #'   are available,
@@ -337,7 +345,7 @@
 #'
 #' \subsection{Approximate standard deviations from sample sizes,
 #' medians and other statistics}{
-#' 
+#'
 #' Missing standard deviations in the experimental group (analogously
 #' for the control group) can be derived from
 #' \enumerate{
@@ -349,7 +357,7 @@
 #' \item sample size, median and range (arguments \code{n.e},
 #'   \code{median.e}, \code{min.e} and \code{max.e}).
 #' }
-#' 
+#'
 #' Wan et al. (2014) describe methods to estimate the standard
 #' deviation from the sample size, median and additional
 #' statistics. Shi et al. (2020) provide an improved estimate of the
@@ -387,28 +395,28 @@
 #' \item sample size, median and range (\code{"range"}).
 #' }
 #' }
-#' 
+#'
 #' \subsection{Confidence intervals for individual studies}{
-#' 
+#'
 #' For the mean difference (argument \code{sm = "MD"}), the confidence
 #' interval for individual studies can be based on the
 #' \itemize{
 #' \item standard normal distribution (\code{method.ci = "z"}, default), or
 #' \item t-distribution (\code{method.ci = "t"}).
 #' }
-#' 
+#'
 #' Note, this choice does not affect the results of the common effect
 #' and random effects meta-analysis.
 #' }
 #'
 #' \subsection{Subgroup analysis}{
-#' 
+#'
 #' Argument \code{subgroup} can be used to conduct subgroup analysis for
 #' a categorical covariate. The \code{\link{metareg}} function can be
 #' used instead for more than one categorical covariate or continuous
 #' covariates.
 #' }
-#' 
+#'
 #' \subsection{Exclusion of studies from meta-analysis}{
 #'
 #' Arguments \code{subset} and \code{exclude} can be used to exclude
@@ -418,9 +426,9 @@
 #' \code{exclude} (see Examples in \code{\link{metagen}}).
 #' Meta-analysis results are the same for both arguments.
 #' }
-#' 
+#'
 #' \subsection{Presentation of meta-analysis results}{
-#' 
+#'
 #' Internally, both common effect and random effects models are
 #' calculated regardless of values choosen for arguments \code{common}
 #' and \code{random}. Accordingly, the estimate for the random effects
@@ -435,21 +443,21 @@
 #' A prediction interval will only be shown if \code{prediction =
 #' TRUE}.
 #' }
-#' 
+#'
 #' @note
 #' The function \code{\link{metagen}} is called internally to
 #' calculate individual and overall treatment estimates and standard
 #' errors.
-#' 
+#'
 #' @return
 #' An object of class \code{c("metacont", "meta")} with corresponding
 #' generic functions (see \code{\link{meta-object}}).
-#' 
+#'
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
-#' 
+#'
 #' @seealso \code{\link{meta-package}}, \code{\link{update.meta}},
 #'   \code{\link{metabin}}, \code{\link{metagen}}, \code{\link{pairwise}}
-#' 
+#'
 #' @references
 #' Borenstein M, Hedges LV, Higgins JPT, Rothstein HR (2009):
 #' \emph{Introduction to Meta-Analysis}.
@@ -460,30 +468,30 @@
 #' statistics and sample size in meta-analysis.
 #' \emph{Statistical Methods in Medical Research},
 #' \bold{30}, 2701--2719
-#' 
+#'
 #' Cohen J (1988):
 #' \emph{Statistical Power Analysis for the Behavioral Sciences
 #'   (second ed.)}.
 #' Lawrence Erlbaum Associates
-#' 
+#'
 #' Friedrich JO, Adhikari NK, Beyene J (2008):
 #' The ratio of means method as an alternative to mean differences for
 #' analyzing continuous outcome variables in meta-analysis: A
 #' simulation study.
 #' \emph{BMC Medical Research Methodology},
 #' \bold{8}, 32
-#' 
+#'
 #' Glass G (1976):
 #' Primary, secondary, and meta-analysis of research.
 #' \emph{Educational Researcher},
 #' \bold{5}, 3--8
-#' 
+#'
 #' Hedges LV (1981):
 #' Distribution theory for Glass's estimator of effect size and
 #' related estimators.
 #' \emph{Journal of Educational and Behavioral Statistics},
 #' \bold{6}, 107--28
-#' 
+#'
 #' Hedges LV, Gurevitch J, Curtis PS (1999):
 #' The meta-analysis of response ratios in experimental ecology.
 #' \emph{Ecology},
@@ -501,10 +509,16 @@
 #' reported quantiles in meta-analysis.
 #' \emph{Statistical Methods in Medical Research},
 #' \bold{29}, 2520--2537
-#' 
+#'
+#' Pustejovsky JE, Tipton E (2018):
+#' Small-sample methods for cluster-robust variance estimation and hypothesis
+#' testing in fixed effects models
+#' \emph{Journal of Business and Economic Statistics},
+#' \bold{36}, 672--83
+#'
 #' \emph{Review Manager (RevMan)} [Computer program]. Version 5.4.
 #' The Cochrane Collaboration, 2020
-#' 
+#'
 #' Shi J, Luo D, Weng H, Zeng XT, Lin L, Chu H, Tong T (2020):
 #' Optimally estimating the sample standard deviation from the
 #' five-number summary.
@@ -521,13 +535,13 @@
 #' size, median, range and/or interquartile range.
 #' \emph{BMC Medical Research Methodology},
 #' \bold{14}, 135
-#' 
+#'
 #' White IR, Thomas J (2005):
 #' Standardized mean differences in individually-randomized and
 #' cluster-randomized trials, with applications to meta-analysis.
 #' \emph{Clinical Trials},
 #' \bold{2}, 141--51
-#' 
+#'
 #' @examples
 #' data(Fleiss1993cont)
 #'
@@ -537,33 +551,33 @@
 #'   data = Fleiss1993cont, sm = "SMD")
 #' ma1
 #' forest(ma1)
-#' 
+#'
 #' # Use Cohen's d instead of Hedges' g as effect measure
 #' #
 #' update(ma1, method.smd = "Cohen")
-#' 
+#'
 #' # Use Glass' delta instead of Hedges' g as effect measure
 #' #
 #' update(ma1, method.smd = "Glass")
-#' 
+#'
 #' # Use Glass' delta based on the standard deviation in the experimental group
 #' #
 #' update(ma1, method.smd = "Glass", sd.glass = "experimental")
-#' 
+#'
 #' # Calculate Hedges' g based on exact formulae
 #' #
 #' update(ma1, exact.smd = TRUE)
-#' 
+#'
 #' data(amlodipine)
 #' ma2 <- metacont(n.amlo, mean.amlo, sqrt(var.amlo),
 #'   n.plac, mean.plac, sqrt(var.plac),
 #'   data = amlodipine, studlab = study)
 #' ma2
-#' 
+#'
 #' # Use pooled variance
 #' #
 #' update(ma2, pooledvar = TRUE)
-#' 
+#'
 #' # Meta-analysis of response ratios (Hedges et al., 1999)
 #' #
 #' data(woodyplants)
@@ -571,7 +585,7 @@
 #'   data = woodyplants, sm = "ROM")
 #' ma3
 #' print(ma3, backtransf = FALSE)
-#' 
+#'
 #' @export metacont
 
 metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
@@ -604,7 +618,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                        if (is.null(gs("overall.hetstat")))
                          common | random
                        else
-                         gs("overall.hetstat"),   
+                         gs("overall.hetstat"),
                      prediction = gs("prediction") | !missing(method.predict),
                      #
                      method.tau = gs("method.tau"),
@@ -658,14 +672,14 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                      #
                      control = NULL,
                      ...) {
-  
-  
+
+
   #
   #
   # (1) Check arguments
   #
   #
-  
+
   missing.sm <- missing(sm)
   missing.subgroup <- missing(subgroup)
   missing.byvar <- missing(byvar)
@@ -854,14 +868,14 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   #
   chklogical(overall)
   chklogical(overall.hetstat)
-  
-  
+
+
   #
   #
   # (2) Read data
   #
   #
-  
+
   nulldata <- is.null(data)
   sfsp <- sys.frame(sys.parent())
   mc <- match.call()
@@ -1075,8 +1089,8 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   #
   if (usw.random)
     chknumeric(weights.random, min = 0)
-  
-  
+
+
   #
   # Catch 'median.e', 'q1.e', 'q3.e', 'min.e', 'max.e', 'median.c',
   # 'q1.c', 'q3.c', 'min.c', 'max.c', 'approx.mean.e', 'approx.sd.e',
@@ -1131,8 +1145,8 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   avail.approx.sd.c <-
     !(missing.approx.sd.c || is.null(approx.sd.c)) &&
     any(approx.sd.c != "")
-  
-  
+
+
   #
   # Additional checks
   #
@@ -1166,8 +1180,8 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
             "argument tau.preset is not NULL.")
     tau.common <- TRUE
   }
-  
-  
+
+
   #
   #
   # (3) Check length of essential variables
@@ -1268,8 +1282,8 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     chklogical(test.subgroup)
     chklogical(prediction.subgroup)
   }
-  
-  
+
+
   #
   #
   # (4) Subset, exclude studies, and subgroups
@@ -1291,8 +1305,8 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   }
   else
     exclude <- rep(FALSE, k.All)
-  
-  
+
+
   #
   #
   # (5) Store complete dataset in list object data
@@ -1362,8 +1376,8 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     if (usw.random)
       data$.weights.random <- weights.random
   }
-  
-  
+
+
   #
   #
   # (6) Use subset for analysis
@@ -1523,14 +1537,14 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   #
   if (!is.null(subgroup.name))
     chkchar(subgroup.name, length = 1)
-  
-  
+
+
   #
   #
   # (7) Calculate means from other information
   #
   #
-  
+
   if (!avail.approx.mean.e) {
     #
     # (a) Use IQR and range
@@ -1650,14 +1664,14 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
       }
     }
   }
-  
-  
+
+
   #
   #
   # (8) Calculate standard deviation from other information
   #
   #
-  
+
   if (!avail.median.e) {
     median.e.sd <- mean.e
     avail.median.e <- TRUE
@@ -1820,8 +1834,8 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
       data$.approx.sd.c[data$.subset] <- approx.sd.c
     }
   }
-  
-  
+
+
   #
   #
   # (9) Calculate results for individual studies
@@ -1923,7 +1937,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     #
     if (any(npn.mean) & warn)
       warning("Note, studies with negative or zero means get no weight in meta-analysis.")
-    
+
     TE <- ifelse(npn.n | npn.mean, NA, log(mean.e / mean.c))
     #
     if (pooledvar)
@@ -1947,8 +1961,8 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   #
   if (sm == "SMD")
     TE[sel] <- NA
-  
-  
+
+
   #
   #
   # (10) Additional checks for three-level model
@@ -1973,8 +1987,8 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     if (!(method.tau %in% c("REML", "ML")))
       method.tau <- "REML"
   }
-  
-  
+
+
   #
   #
   # (11) Do meta-analysis
@@ -2040,8 +2054,8 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   if (by & tau.common)
     hcc <- hetcalc(TE, seTE, method.tau, "", TE.tau,
                    method.I2, level.hetstat, subgroup, control)
-  
-  
+
+
   #
   #
   # (11) Generate R object
@@ -2216,7 +2230,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   res <- backward(res)
   #
   class(res) <- c(fun, "meta")
-  
-  
+
+
   res
 }

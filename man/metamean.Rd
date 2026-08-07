@@ -340,6 +340,14 @@ least one cluster provides more than one estimate. Internally,
 \code{\link[metafor]{weights.rma.mv}} with argument \code{type =
 "rowsum"} is used to calculate random effects weights.
 
+Cluster-robust variance estimators (Pustejovsky and Tipton, 2018) are
+available for univariate random effects and three-level models
+(argument \code{method.random.ci} equal to \code{"CR0"}, \code{"CR1"},
+or \code{"CR2"}). Internally, \code{\link[metafor]{rma.uni}} or
+\code{\link[metafor]{rma.mv}} is called and then passed to
+\code{\link[metafor]{robust}}. For univariate random effects models,
+study labels (argument \code{studlab}) are used as clusters.
+
 Default settings are utilised for several arguments (assignments
 using \code{\link{gs}} function). These defaults can be changed for
 the current R session using the \code{\link{settings.meta}}
@@ -377,7 +385,7 @@ Missing means can be derived from
 By default, methods described in Luo et al. (2018) are utilised
 (argument \code{method.mean = "Luo"}):
 \itemize{
-\item equation (15) if sample size, median, interquartile range and 
+\item equation (15) if sample size, median, interquartile range and
   range are available,
 \item equation (11) if sample size, median and interquartile range
   are available,
@@ -387,7 +395,7 @@ By default, methods described in Luo et al. (2018) are utilised
 Instead the methods described in Wan et al. (2014) are used if
 argument \code{method.mean = "Wan"}:
 \itemize{
-\item equation (10) if sample size, median, interquartile range and 
+\item equation (10) if sample size, median, interquartile range and
   range are available,
 \item equation (14) if sample size, median and interquartile range
   are available,
@@ -560,6 +568,12 @@ Estimating the sample mean and standard deviation from commonly
 reported quantiles in meta-analysis.
 \emph{Statistical Methods in Medical Research},
 \bold{29}, 2520--2537
+
+Pustejovsky JE, Tipton E (2018):
+Small-sample methods for cluster-robust variance estimation and hypothesis
+testing in fixed effects models
+\emph{Journal of Business and Economic Statistics},
+\bold{36}, 672--83
 
 Shi J, Luo D, Weng H, Zeng X-T, Lin L, Chu H, et al. (2020):
 Optimally estimating the sample standard deviation from the

@@ -1,12 +1,12 @@
 #' Meta-analysis of single incidence rates
-#' 
+#'
 #' @description
 #' Calculation of an overall incidence rate from studies reporting a
 #' single incidence rate. Inverse variance method and generalised
 #' linear mixed model (GLMM) are available for pooling. For GLMMs, the
 #' \code{\link[metafor]{rma.glmm}} function from R package
 #' \bold{metafor} (Viechtbauer 2010) is called internally.
-#' 
+#'
 #' @param event Number of events.
 #' @param time Person time at risk.
 #' @param studlab An optional vector with study labels.
@@ -164,7 +164,7 @@
 #' @param \dots Additional arguments passed on to
 #'   \code{\link[metafor]{rma.glmm}} function and to catch deprecated
 #'   arguments.
-#' 
+#'
 #' @details
 #' This function provides methods for common effect and random effects
 #' meta-analysis of single incidence rates to calculate an overall
@@ -175,7 +175,7 @@
 #'
 #' The following transformations of incidence rates are implemented to
 #' calculate an overall rate:
-#' 
+#'
 #' \itemize{
 #' \item Log transformation (\code{sm = "IRLN"}, default)
 #' \item Square root transformation (\code{sm = "IRS"})
@@ -196,22 +196,30 @@
 #' instead with argument \code{method = "GLMM"} which calls the
 #' \code{\link[metafor]{rma.glmm}} function from R package
 #' \bold{metafor}.
-#' 
+#'
 #' A three-level random effects meta-analysis model (Van den Noortgate
 #' et al., 2013) is utilised if argument \code{cluster} is used and at
 #' least one cluster provides more than one estimate. Internally,
 #' \code{\link[metafor]{rma.mv}} is called to conduct the analysis and
 #' \code{\link[metafor]{weights.rma.mv}} with argument \code{type =
 #' "rowsum"} is used to calculate random effects weights.
-#' 
+#'
+#' Cluster-robust variance estimators (Pustejovsky and Tipton, 2018) are
+#' available for univariate random effects and three-level models
+#' (argument \code{method.random.ci} equal to \code{"CR0"}, \code{"CR1"},
+#' or \code{"CR2"}). Internally, \code{\link[metafor]{rma.uni}} or
+#' \code{\link[metafor]{rma.mv}} is called and then passed to
+#' \code{\link[metafor]{robust}}. For univariate random effects models,
+#' study labels (argument \code{studlab}) are used as clusters.
+#'
 #' Default settings are utilised for several arguments (assignments
 #' using \code{\link{gs}} function). These defaults can be changed for
 #' the current R session using the \code{\link{settings.meta}}
 #' function.
-#' 
+#'
 #' Furthermore, R function \code{\link{update.meta}} can be used to
 #' rerun a meta-analysis with different settings.
-#' 
+#'
 #' \subsection{Continuity correction}{
 #'
 #' Three approaches are available to apply a continuity correction:
@@ -223,7 +231,7 @@
 #' \item All studies irrespective of zero cell counts
 #'   (\code{method.incr = "all"})
 #' }
-#' 
+#'
 #' If the summary measure (argument \code{sm}) is equal to "IR" or
 #' "IRLN", the continuity correction is applied if a study has zero
 #' events, i.e., an incidence rate of 0.
@@ -240,13 +248,13 @@
 #' }
 #'
 #' \subsection{Subgroup analysis}{
-#' 
+#'
 #' Argument \code{subgroup} can be used to conduct subgroup analysis for
 #' a categorical covariate. The \code{\link{metareg}} function can be
 #' used instead for more than one categorical covariate or continuous
 #' covariates.
 #' }
-#' 
+#'
 #' \subsection{Specify the null hypothesis of test for an overall effect}{
 #'
 #' Argument \code{null.effect} can be used to specify the rate used
@@ -261,7 +269,7 @@
 #' alternative hypothesis that the effect is unequal to
 #' \code{null.effect}.
 #' }
-#' 
+#'
 #' \subsection{Exclusion of studies from meta-analysis}{
 #'
 #' Arguments \code{subset} and \code{exclude} can be used to exclude
@@ -271,9 +279,9 @@
 #' \code{exclude} (see Examples in \code{\link{metagen}}).
 #' Meta-analysis results are the same for both arguments.
 #' }
-#' 
+#'
 #' \subsection{Presentation of meta-analysis results}{
-#' 
+#'
 #' Internally, both common effect and random effects models are
 #' calculated regardless of values choosen for arguments
 #' \code{common} and \code{random}. Accordingly, the estimate
@@ -284,7 +292,7 @@
 #' \code{common} and \code{random}. E.g. function
 #' \code{\link{print.meta}} will not print results for the random
 #' effects model if \code{random = FALSE}.
-#' 
+#'
 #' Argument \code{irscale} can be used to rescale rates, e.g.
 #' \code{irscale = 1000} means that rates are expressed as events per
 #' 1000 time units, e.g. person-years. This is useful in situations
@@ -296,29 +304,35 @@
 #' A prediction interval will only be shown if \code{prediction =
 #' TRUE}.
 #' }
-#' 
+#'
 #' @return
 #' An object of class \code{c("metarate", "meta")} with corresponding
 #' generic functions (see \code{\link{meta-object}}).
-#' 
+#'
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
-#' 
+#'
 #' @seealso \code{\link{meta-package}}, \code{\link{update.meta}},
 #'   \code{\link{metacont}}, \code{\link{metagen}},
 #'   \code{\link{print.meta}}
-#' 
+#'
 #' @references
 #' Borenstein M, Hedges LV, Higgins JP, Rothstein HR (2010):
 #' A basic introduction to fixed-effect and random-effects models for
 #' meta-analysis.
 #' \emph{Research Synthesis Methods},
 #' \bold{1}, 97--111
-#' 
+#'
 #' Freeman MF & Tukey JW (1950):
 #' Transformations related to the angular and the square root.
 #' \emph{Annals of Mathematical Statistics},
 #' \bold{21}, 607--11
-#' 
+#'
+#' Pustejovsky JE, Tipton E (2018):
+#' Small-sample methods for cluster-robust variance estimation and hypothesis
+#' testing in fixed effects models
+#' \emph{Journal of Business and Economic Statistics},
+#' \bold{36}, 672--83
+#'
 #' Stijnen T, Hamza TH, Ozdemir P (2010):
 #' Random effects meta-analysis of event outcome in the framework of
 #' the generalized linear mixed model with applications in sparse
@@ -330,12 +344,12 @@
 #' Three-level meta-analysis of dependent effect sizes.
 #' \emph{Behavior Research Methods},
 #' \bold{45}, 576--94
-#' 
+#'
 #' Viechtbauer W (2010):
 #' Conducting Meta-Analyses in R with the Metafor Package.
 #' \emph{Journal of Statistical Software},
 #' \bold{36}, 1--48
-#' 
+#'
 #' @examples
 #' # Apply various meta-analysis methods to estimate incidence rates
 #' #
@@ -358,10 +372,10 @@
 #' forest(ma3)
 #' forest(ma4)
 #' }
-#' 
+#'
 #' ma5 <- metarate(40:37, c(100, 200, 300, 400), sm = "IRFT")
 #' ma5
-#' 
+#'
 #' @export metarate
 
 metarate <- function(event, time, studlab,
@@ -388,7 +402,7 @@ metarate <- function(event, time, studlab,
                        if (is.null(gs("overall.hetstat")))
                          common | random
                        else
-                         gs("overall.hetstat"),   
+                         gs("overall.hetstat"),
                      prediction = gs("prediction") | !missing(method.predict),
                      #
                      method.tau,
@@ -446,14 +460,14 @@ metarate <- function(event, time, studlab,
                      control = NULL,
                      ...
                      ) {
-  
-  
+
+
   #
   #
   # (1) Check and set arguments
   #
   #
-  
+
   chknumeric(rho, min = -1, max = 1)
   #
   missing.method <- missing(method)
@@ -577,6 +591,12 @@ metarate <- function(event, time, studlab,
   #
   method.random.ci <- setchar(method.random.ci, gs("meth4random.ci"))
   #
+  if (any(method.random.ci %in% c("CR0", "CR1", "CR2")) &&
+      method == "GLMM")
+    stop("Methods 'CR0', 'CR1', and 'CR2' not available for ",
+         "argument 'method = \"GLMM\"'.",
+         call. = FALSE)
+  #
   if (any(method.random.ci == "CR2"))
     is_installed_package("clubSandwich", argument = "method.random.ci",
                          value = "CR2")
@@ -629,14 +649,14 @@ metarate <- function(event, time, studlab,
   #
   chklogical(overall)
   chklogical(overall.hetstat)
-  
-  
+
+
   #
   #
   # (2) Read data
   #
   #
-  
+
   nulldata <- is.null(data)
   sfsp <- sys.frame(sys.parent())
   mc <- match.call()
@@ -718,14 +738,14 @@ metarate <- function(event, time, studlab,
     stop("User-specified weights for the random effects model not implemented ",
          "for generalized linear mixed models (method = \"GLMM\").",
          call. = FALSE)
-  
-  
+
+
   #
   #
   # (3) Check length of essential variables
   #
   #
-  
+
   chklength(time, k.All, fun)
   if (!is.null(n))
     chklength(n, k.All, fun)
@@ -771,14 +791,14 @@ metarate <- function(event, time, studlab,
             call. = FALSE)
     tau.common <- TRUE
   }
-  
-  
+
+
   #
   #
   # (4) Subset, exclude studies, and subgroups
   #
   #
-  
+
   if (!missing.subset)
     if ((is.logical(subset) & (sum(subset) > k.All)) ||
         (length(subset) > k.All))
@@ -795,15 +815,15 @@ metarate <- function(event, time, studlab,
   }
   else
     exclude <- rep(FALSE, k.All)
-  
-  
+
+
   #
   #
   # (5) Store complete dataset in list object data
   #     (if argument keepdata is TRUE)
   #
   #
-  
+
   if (keepdata) {
     if (nulldata)
       data <- data.frame(.event = event)
@@ -841,14 +861,14 @@ metarate <- function(event, time, studlab,
     if (usw.random)
       data$.weights.random <- weights.random
   }
-  
-    
+
+
   #
   #
   # (6) Use subset for analysis
   #
   #
-  
+
   if (!missing.subset) {
     event <- event[subset]
     time  <- time[subset]
@@ -925,14 +945,14 @@ metarate <- function(event, time, studlab,
   #
   if (!is.null(subgroup.name))
     chkchar(subgroup.name, length = 1)
-  
-  
+
+
   #
   #
   # (7) Continuity correction
   #
   #
-  
+
   sel <- switch(sm,
                 IR   = event == 0,
                 IRLN = event == 0,
@@ -966,14 +986,14 @@ metarate <- function(event, time, studlab,
       data$.incr[subset] <- incr.event
     }
   }
-  
-  
+
+
   #
   #
   # (8) Calculate results for individual studies
   #
   #
-  
+
   if (sm == "IR") {
     TE <- (event + incr.event) / time
     seTE <- sqrt(TE / time)
@@ -1016,8 +1036,8 @@ metarate <- function(event, time, studlab,
     }
     #
     else if (sm == "IRFT") {
-      lower.ev <- time * lower.study 
-      upper.ev <- time * upper.study 
+      lower.ev <- time * lower.study
+      upper.ev <- time * upper.study
       #
       lower.study <-
         0.5 * (sqrt(lower.ev / time) + sqrt((lower.ev + 1) / time))
@@ -1025,14 +1045,14 @@ metarate <- function(event, time, studlab,
         0.5 * (sqrt(upper.ev / time) + sqrt((upper.ev + 1) / time))
     }
   }
-  
-  
+
+
   #
   #
   # (9) Additional checks for three-level model
   #
   #
-  
+
   three.level <- FALSE
   sel.ni <- !is.infinite(TE) & !is.infinite(seTE)
   #
@@ -1055,14 +1075,14 @@ metarate <- function(event, time, studlab,
     if (!(method.tau %in% c("REML", "ML")))
       method.tau <- "REML"
   }
-  
-  
+
+
   #
   #
   # (10) Additional checks for GLMM
   #
   #
-  
+
   if (is.glmm) {
     chkglmm(sm, method.tau, method.random.ci, method.predict,
             adhoc.hakn.ci, adhoc.hakn.pi,
@@ -1088,14 +1108,14 @@ metarate <- function(event, time, studlab,
       tau.preset <- NULL
     }
   }
-  
-  
+
+
   #
   #
   # (11) Do meta-analysis
   #
   #
-  
+
   k <- sum(!is.na(event[!exclude]) & !is.na(time[!exclude]))
   #
   for (i in seq_along(method.random.ci))
@@ -1164,14 +1184,14 @@ metarate <- function(event, time, studlab,
   if (by & tau.common & !is.glmm)
     hcc <- hetcalc(TE, seTE, method.tau, "", TE.tau,
                    method.I2, level.hetstat, subgroup, control)
-  
-  
+
+
   #
   #
   # (12) Generate R object
   #
   #
-  
+
   res <- list(event = event, time = time,
               n = n,
               incr = if (length(unique(incr)) == 1) unique(incr) else incr,
@@ -1199,7 +1219,7 @@ metarate <- function(event, time, studlab,
   if (method.ci == "exact") {
     m$statistic <- rep(NA, length(m$statistic))
     m$pval <- ci.study$p
-  }    
+  }
   #
   if (is.glmm) {
     m$method.tau <- method.tau
@@ -1340,6 +1360,6 @@ metarate <- function(event, time, studlab,
   #
   class(res) <- c(fun, "meta")
 
-  
+
   res
 }
