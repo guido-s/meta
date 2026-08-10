@@ -11811,7 +11811,7 @@ forest.meta <- function(x,
   #
   # Position on y-axis of left and right labels (at bottom of forest plot)
   #
-  y.bottom.lr <- ymin.line - 2.5 + (!(overall | overall.hetstat) & addrow)
+  y.bottom.lr <- ymin.line - 2.5
   #
   # Position on y-axis of label below x-axis
   #
