@@ -2019,13 +2019,14 @@ forest.meta <- function(x,
   # - colors[1] - vertical line for common effect or random effects model
   # - colors[2] - diamond for meta-analysis results
   # - colors[3] - outer lines of diamonds
-  # - colors[4] - square or circle colour
-  # - colors[5] - outer lines of squares or circles
+  # - colors[4] - square  colour
+  # - colors[5] - outer lines of squares
   # - colors[6] - line color (axes, reference line, header lines)
   # - colors[7] - prediction interval
   # - colors[8] - outer lines of prediction intervals
   # - colors[9] - subgroups
   # - colors[10] - color within squares or circles
+  # - colors[11] - color of circles and outer lines of circles
   #
   colors <- layout_colors(layout, class(x))
   #
@@ -2109,7 +2110,7 @@ forest.meta <- function(x,
   }
   else {
     col.square <-
-      chksetVar(col.square, miss.col.square, colors[1], func = chkcolor,
+      chksetVar(col.square, miss.col.square, colors[4], func = chkcolor,
                 n = K.all, one = TRUE)
   }
   #
@@ -2126,26 +2127,26 @@ forest.meta <- function(x,
   }
   #
   if (miss.col.circle) {
-    col.circle <- colors[4]
+    col.circle <- colors[11]
     #
     if (length(col.circle) == 1)
       col.circle <- rep(col.circle, K.all)
   }
   else {
     col.circle <-
-      chksetVar(col.circle, miss.col.circle, colors[1], func = chkcolor,
+      chksetVar(col.circle, miss.col.circle, colors[11], func = chkcolor,
                 n = K.all, one = TRUE)
   }
   #
   if (miss.col.circle.lines) {
-    col.circle.lines <- colors[5]
+    col.circle.lines <- colors[11]
     #
     if (length(col.circle.lines) == 1)
       col.circle.lines <- rep(col.circle.lines, K.all)
   }
   else {
     col.circle.lines <-
-      chksetVar(col.circle.lines, miss.col.circle.lines, colors[5],
+      chksetVar(col.circle.lines, miss.col.circle.lines, colors[11],
                 func = chkcolor, n = K.all, one = TRUE)
   }
   #
@@ -11792,7 +11793,8 @@ forest.meta <- function(x,
   maxrow <- function(x)
     if (all(is.na(x))) NA else max(x, na.rm = TRUE)
   #
-  yline.ref <- c(yTE, yTE.common, yTE.random, yPredict)
+  yline.ref <- c(yTE, yTE.common, yTE.random, yPredict,
+                 if (by) yTE.w else NA)
   yline.common <- yTE.common
   yline.random <- yTE.random
   #

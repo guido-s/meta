@@ -194,13 +194,14 @@ forest.metacum <- function(x,
   # - colors[1] - vertical line for common effect or random effects model
   # - colors[2] - diamond for meta-analysis results
   # - colors[3] - outer lines of diamonds
-  # - colors[4] - square or circle colour
-  # - colors[5] - outer lines of squares or circles
+  # - colors[4] - square  colour
+  # - colors[5] - outer lines of squares
   # - colors[6] - line color (axes, reference line, header lines)
   # - colors[7] - prediction interval
   # - colors[8] - outer lines of prediction intervals
   # - colors[9] - subgroups
   # - colors[10] - color within squares or circles
+  # - colors[11] - color of circles and outer lines of circles
   #
   colors <- layout_colors(layout)
   #
@@ -208,10 +209,12 @@ forest.metacum <- function(x,
     col <- colors[1]
   #
   if (missing(col.bg))
-    col.bg <- ifelse(type == "diamond", colors[2], colors[4])
+    col.bg <- ifelse(type == "diamond", colors[2],
+                     ifelse(type == "circle", colors[11], colors[4]))
   #
   if (missing(col.border))
-    col.border <- ifelse(type == "diamond", colors[3], colors[5])
+    col.border <- ifelse(type == "diamond", colors[3],
+                         ifelse(type == "circle", colors[11], colors[5]))
   #
   if (missing(col.bg.predict))
     col.bg.predict <- colors[7]

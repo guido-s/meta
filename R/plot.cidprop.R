@@ -197,13 +197,14 @@ plot.cidprop <- function(x,
   # - colors[1] - vertical line for common effect or random effects model
   # - colors[2] - diamond for meta-analysis results
   # - colors[3] - outer lines of diamonds
-  # - colors[4] - square or circle colour
-  # - colors[5] - outer lines of squares or circles
+  # - colors[4] - square  colour
+  # - colors[5] - outer lines of squares
   # - colors[6] - line color (axes, reference line, header lines)
   # - colors[7] - prediction interval
   # - colors[8] - outer lines of prediction intervals
   # - colors[9] - subgroups
   # - colors[10] - color within squares or circles
+  # - colors[11] - color of circles and outer lines of circles
   #
   colors <- layout_colors(layout)
   #
