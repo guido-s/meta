@@ -361,13 +361,13 @@ least one cluster provides more than one estimate. Internally,
 \code{\link[metafor]{weights.rma.mv}} with argument \code{type =
 "rowsum"} is used to calculate random effects weights.
 
-Cluster-robust variance estimators (Pustejovsky and Tipton, 2018) are
-available for univariate random effects and three-level models
-(argument \code{method.random.ci} equal to \code{"CR0"}, \code{"CR1"},
-or \code{"CR2"}). Internally, \code{\link[metafor]{rma.uni}} or
-\code{\link[metafor]{rma.mv}} is called and then passed to
-\code{\link[metafor]{robust}}. For univariate random effects models,
-study labels (argument \code{studlab}) are used as clusters.
+Cluster-robust variance estimators (Tipton and Pustejovsky, 2015;
+Pustejovsky and Tipton, 2022) are available for univariate random effects
+and three-level models (argument \code{method.random.ci} equal to
+\code{"CR0"}, \code{"CR1"}, or \code{"CR2"}). Internally,
+\code{\link[metafor]{rma.uni}} or \code{\link[metafor]{rma.mv}} is called
+and then passed to \code{\link[metafor]{robust}}. For univariate random
+effects models, study labels (argument \code{studlab}) are used as clusters.
 
 Default settings are utilised for several arguments (assignments
 using \code{\link{gs}} function). These defaults can be changed for
@@ -705,11 +705,11 @@ variate.
 \emph{Biometrika},
 \bold{73}, 425--35
 
-Pustejovsky JE, Tipton E (2018):
-Small-sample methods for cluster-robust variance estimation and hypothesis
-testing in fixed effects models
-\emph{Journal of Business and Economic Statistics},
-\bold{36}, 672--83
+Pustejovsky JE, Tipton E (2022):
+Meta-Analysis with robust variance estimation: Expanding the range of
+working models.
+\emph{Prevention Science},
+\bold{23}, 425--38
 
 Schwarzer G, Chemaitelly H, Abu-Raddad LJ, Rücker G (2019):
 Seriously misleading results using inverse of Freeman-Tukey double
@@ -723,6 +723,12 @@ the generalized linear mixed model with applications in sparse
 data.
 \emph{Statistics in Medicine},
 \bold{29}, 3046--67
+
+Tipton E, Pustejovsky JE (2015):
+Small-sample adjustments for tests of moderators and model fit using
+robust variance estimation in meta-regression.
+\emph{Journal of Educational and Behavioral Statistics},
+\bold{40}, 604--34
 
 Van den Noortgate W, López-López JA, Marín-Martínez F, Sánchez-Meca J (2013):
 Three-level meta-analysis of dependent effect sizes.

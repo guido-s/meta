@@ -9,7 +9,7 @@
 R package \bold{meta} is a user-friendly general package providing
 standard methods for meta-analysis and supporting Schwarzer et
 al. (2015),
-\url{https://link.springer.com/book/10.1007/978-3-319-21416-0}.
+\url{https://link.springer.com/book/10.1007/978-3-319-21416-0}:
 }
 \details{
 R package \bold{meta} (Schwarzer, 2007; Balduzzi et al., 2019)
@@ -61,7 +61,7 @@ provides the following statistical methods for meta-analysis.
 \item Inverse variance heterogeneity method (Doi et al., 2015);
  see description of argument \code{method.common.ci}
 \item Cluster-robust variance estimators for univariate random effects
-  and three-level models (Pustejovsky and Tipton, 2018); see description of
+  and three-level models (Tipton and Pustejovsky, 2015; Pustejovsky and Tipton, 2022); see description of
   argument \code{method.random.ci}
 \item Prediction interval for the treatment effect of a new study
  (Veroniki et al., 2019; Higgins et al., 2009; Partlett and Riley, 2017;
@@ -219,13 +219,13 @@ to calculate a confidence interval for the random effects estimate.
   Riley, 2017) \cr
 \code{method.random.ci = "CR0"} \tab Original cluster-robust (sandwich)
   covariance \cr
-  \tab estimator (Pustejovsky and Tipton, 2018) \cr
+  \tab estimator (Tipton and Pustejovsky, 2015; Pustejovsky and Tipton, 2022) \cr
 \code{method.random.ci = "CR1"} \tab Bias-adjusted version of CR0 \cr
-  \tab (Pustejovsky and Tipton, 2018) \cr
+  \tab (Tipton and Pustejovsky, 2015; Pustejovsky and Tipton, 2022) \cr
 \code{method.random.ci = "CR2"} \tab Cluster-robust covariance estimator
   with \cr
   \tab Satterthwaite degrees of freedom \cr
-  \tab (Pustejovsky and Tipton, 2018)
+  \tab (Tipton and Pustejovsky, 2015; Pustejovsky and Tipton, 2022)
 }
 
 DerSimonian and Laird (1986) introduced the classic random effects
@@ -638,11 +638,11 @@ distribution approach.
 \emph{Statistical Methods in Medical Research},
 \bold{28}, 1689--702
 
-Pustejovsky JE, Tipton E (2018):
-Small-sample methods for cluster-robust variance estimation and hypothesis
-testing in fixed effects models
-\emph{Journal of Business and Economic Statistics},
-\bold{36}, 672--83
+Pustejovsky JE, Tipton E (2022):
+Meta-Analysis with robust variance estimation: Expanding the range of
+working models.
+\emph{Prevention Science},
+\bold{23}, 425--38
 
 Schwarzer G (2007):
 meta: An R package for meta-analysis.
@@ -671,6 +671,12 @@ the generalized linear mixed model with applications in sparse
 data.
 \emph{Statistics in Medicine},
 \bold{29}, 3046--67
+
+Tipton E, Pustejovsky JE (2015):
+Small-sample adjustments for tests of moderators and model fit using
+robust variance estimation in meta-regression.
+\emph{Journal of Educational and Behavioral Statistics},
+\bold{40}, 604--34
 
 Veroniki AA, Jackson D, Viechtbauer W, Bender R, Bowden J, Knapp G,
 et al. (2016):

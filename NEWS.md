@@ -4,11 +4,13 @@
 
 * Cluster-robust variance estimators implemented for univariate random effects
   meta-analysis and three-level model
+  ([Tipton and Pustejovsky, 2015](https://doi.org/10.3102/1076998615606099);
+  [Pustejovsky and Tipton, 2022](https://doi.org/10.1007/s11121-021-01246-3)).
 
 * Cumulative meta-analysis and leave-one-out method return results for random
   effects instead of common effect model if prediction intervals are requested
   and both common effect and random effects meta-analysis were
-  conducted
+  conducted.
 
 * In forest plots, arguments 'calcwidth.*' now consider the full width of
   information printed on the left side of the forest plot when adding space to
@@ -117,9 +119,9 @@
 
 ### Internal changes
 
-* Use R package testthat for unit tests
+* Use R package testthat for unit tests.
 
-* R package **testthat** added to Suggests
+* R package **testthat** added to Suggests.
 
 * cidprop():
   - for vaccine efficacy (sm = "VE"), defaults for 'cid.below.null' and
@@ -128,7 +130,7 @@
     [(issue #94)](https://github.com/guido-s/meta/issues/94)
 
 * New internal function layout_colors() to define default colours for forest
-  plots
+  plots.
 
 * forest.meta():
   - new default for argument 'calcwidth.hetstat' which is TRUE instead of FALSE
@@ -148,11 +150,11 @@
   functions forest.meta() and author of forest_dims().
 
 * For generalised linear mixed models, the number of studies included in the
-  meta-analysis is extracted from rma.glmm() in R package **metafor**
+  meta-analysis is extracted from rma.glmm() in R package **metafor**.
 
-* R package **cli** added to Depends
+* R package **cli** added to Depends.
 
-* R package **svglite** added to Suggests
+* R package **svglite** added to Suggests.
 
 ### User-visible changes
 
@@ -209,24 +211,24 @@
     (was more than three studies)
 
 * Calculate confidence for I2 and H if argument 'method.I2 = "tau2"'
-  [(issue #80)](https://github.com/guido-s/meta/issues/80):
+  [(issue #80)](https://github.com/guido-s/meta/issues/80).
 
 * More flexible definition of column labels in forest plots
-  [(issue #87)](https://github.com/guido-s/meta/issues/87)
+  [(issue #87)](https://github.com/guido-s/meta/issues/87).
 
 * New function rd() to calculate risk difference(s) from meta-analysis results;
   results are expressed as absolute risk reduction / increase or absolute
-  benefit increase / reduction
+  benefit increase / reduction.
 
-* R function cidprop() uses null effect as threshold, if defined
+* R function cidprop() uses null effect as threshold, if defined.
 
 * R function pairwise() accepts data in the common BUGS format, i.e.,
-  relative treatment effects in comparison to a reference treatment
+  relative treatment effects in comparison to a reference treatment.
 
 * For relative effect measures show "ln" instead of "log" in printouts and
-  forest plots if 'backtransf = FALSE'
+  forest plots if 'backtransf = FALSE'.
 
-* R package **metabook** added to Depends (to access meta-analysis datasets)
+* R package **metabook** added to Depends (to access meta-analysis datasets).
 
 ### User-visible changes
 
@@ -310,14 +312,14 @@
 * Inverse variance heterogeneity (IVhet) method by
   [Doi et al. (2015)](https://doi.org/10.1016/j.cct.2015.05.009) going
   back to [Henmi and Copas (2010)](https://doi.org/10.1002/sim.4029)
-  implemented
+  implemented.
 
-* User-defined weights can be provided in meta-analysis functions
+* User-defined weights can be provided in meta-analysis functions.
 
 * Major revision of R function metaadd() to add meta-analysis results to
-  existing meta-analysis object
+  existing meta-analysis object.
 
-* R function longarm() can be used with dose-response data
+* R function longarm() can be used with dose-response data.
 
 ### Bug fixes
 
@@ -376,23 +378,23 @@
 
 * New functions cidprop() and plot.cidprop() to calculate and plot
   expected proportions of comparable studies with clinically important benefit
-  or harm which are derived from the prediction interval
+  or harm which are derived from the prediction interval.
 
 * Rewrite of R function metacum() for cumulative meta-analysis with dedicated
-  print and forest functions
+  print and forest functions.
 
 * Rewrite of R function metainf() for leave-one-out meta-analysis with dedicated
-  print and forest functions
+  print and forest functions.
 
 * Remove R code for cumulative or leave-one-out meta-analysis from R function
-  forest.meta()
+  forest.meta().
 
 * In forest plots, information for additional columns can be printed in the
-  lines with pooled effects using the new argument 'data.pooled'
+  lines with pooled effects using the new argument 'data.pooled'.
 
-* R packages **ggplot2*, **tibble**, and **scales** added to Imports
+* R packages **ggplot2*, **tibble**, and **scales** added to Imports.
 
-* R packages **gridExtra** and **ggpubr** added to Suggests
+* R packages **gridExtra** and **ggpubr** added to Suggests.
 
 ### Bug fixes
 
@@ -517,59 +519,59 @@ Revise web links
   ([Veroniki et al., 2019, RSM](https://doi.org/10.1002/jrsm.1319)) where *k*
   corresponds to the number of studies in the meta-analysis;
   see *help("meta-package")* for more details on methods to calculate prediction
-  intervals
+  intervals.
 
 * Meta-analysis of n-of-1 trials implemented
-  [(Senn, 2024, Trials)](https://doi.org/10.1186/s13063-024-07964-7)
+  [(Senn, 2024, Trials)](https://doi.org/10.1186/s13063-024-07964-7).
 
 * Logistic regression with penalised likelihood implemented for meta-analysis
   of rare events
-  ([Evrenoglou et al., 2022, Stat Med](https://doi.org/10.1002/sim.9562))
+  ([Evrenoglou et al., 2022, Stat Med](https://doi.org/10.1002/sim.9562)).
 
 * *I2* statistic can be calculated from between-study variance instead of
-  *Q* statistic (new argument 'method.I2')
+  *Q* statistic (new argument 'method.I2').
 
 * R functions pairwise() and subset.pairwise() moved from R package
-  **netmeta** to **meta**
+  **netmeta** to **meta**.
 
-* R function pairwise() can be used with dose-response data
+* R function pairwise() can be used with dose-response data.
 
 * Information on colour of labels on left and right side of null effect in
-  forest plots can be stored in meta-analysis object
+  forest plots can be stored in meta-analysis object.
 
 * In forest plots,
   - the heterogeneity statistic *Q*, its p-value, and the *I2* statistic are
     printed with the same number of digits as in printouts
   - the text for subgroups is printed in "black" instead of "darkgray"
-    (argument 'col.subgroup')
+    (argument 'col.subgroup').
 
 * Level of confidence intervals for heterogeneity statistics can be specified
   by the user (argument 'level.hetstat'); in previous version of R package
   **meta** confidence intervals for *tau2* and *tau* were always 95%-CIs while
   confidence intervals for *I2* and *H* were based on the value for argument
-  'level.ma'
+  'level.ma'.
   
 * First argument to R functions metabin(), metacont(), metagen(), and metainc()
-  can be a pairwise() object
+  can be a pairwise() object.
 
 * In funnel.meta(), arguments 'pch', 'cex', and 'cex.studlab' can be of same
-  length as the number of studies
+  length as the number of studies.
 
 * New auxiliary function setvals() to easily define the input for arguments
   'pch', 'cex', 'col', 'bg', 'text', and 'cex.studlab' in funnel.meta();
-  e.g., to use different colours for subgroups
+  e.g., to use different colours for subgroups.
 
 * R package
   [**brglm2**](https://cran.r-project.org/package=brglm2)
   added to suggested packages to fit penalized logistic regression for
   meta-analysis of rare events
-  ([Evrenoglou et al., 2022, Stat Med](https://doi.org/10.1002/sim.9562))
+  ([Evrenoglou et al., 2022, Stat Med](https://doi.org/10.1002/sim.9562)).
 
 * Print a warning message if deprecated arguments are used, e.g., 'comb.fixed'
-  or 'fixed' instead of 'common'
+  or 'fixed' instead of 'common'.
 
 * The command  *settings.meta("meta7")* can be used to get the meta-analysis
-  settings from **meta**, version 7.0-0
+  settings from **meta**, version 7.0-0.
 
 ### User-visible changes
 
