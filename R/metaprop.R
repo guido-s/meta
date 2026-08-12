@@ -820,8 +820,7 @@ metaprop <- function(event, n, studlab,
   #
   method.random.ci <- setchar(method.random.ci, gs("meth4random.ci"))
   #
-  if (any(method.random.ci %in% c("CR0", "CR1", "CR2")) &&
-      method == "GLMM")
+  if (any(method.random.ci %in% c("CR0", "CR1", "CR2")) && method == "GLMM")
     stop("Methods 'CR0', 'CR1', and 'CR2' not available for ",
          "argument 'method = \"GLMM\"'.",
          call. = FALSE)

@@ -532,8 +532,6 @@ update.meta <- function(object,
     object$random <- object$comb.random
     object$level.ma <- object$level.comb
     #
-    object$detail.tau <- ""
-    #
     if (!is.null(object$byvar)) {
       object$data$.subgroup <- object$byvar
       object$subgroup.name <- object$bylab

@@ -2772,7 +2772,7 @@ metagen <- function(TE, seTE, studlab,
     if (k != k.study)
       detail.tau <- c("between cluster", "within cluster")
     else
-      detail.tau <- ""
+      detail.tau <- NULL
   }
   #
   ci.study <- ci(TE, seTE, level = level,
@@ -2792,7 +2792,8 @@ metagen <- function(TE, seTE, studlab,
       ci.midpoint.diff > 0.1
     #
     if (any(sel.asymmetric)) {
-      studlab.asymmetric <- studlab[sel.asymmetric]
+      studlab.asymmetric <- unique(studlab[sel.asymmetric])
+      #
       warning("In the following stud",
               if (length(studlab.asymmetric) == 1) "y" else "ies",
               ", the treatment estimate is not halfway between ",

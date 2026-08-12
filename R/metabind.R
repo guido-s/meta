@@ -687,7 +687,7 @@ metabind <- function(..., subgroup = NULL,
     res$tau2 <- unique(res$tau2)
     res$tau <- unique(res$tau)
     #
-    res$detail.tau <- ""
+    res$detail.tau <- NULL
     #
     res$H <- unique(res$H)
     res$lower.H <- unique(res$lower.H)

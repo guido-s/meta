@@ -49,7 +49,7 @@ taudat <- function(method.tau, detail.tau,
                    tau2, lower.tau2, upper.tau2, print.tau2.ci, digits.tau2,
                    sign.lower, sign.upper) {
   
-  dat <- data.frame(method.tau, names = detail.tau, tau, tau2)
+  dat <- data.frame(method.tau, names = replaceNULL(detail.tau), tau, tau2)
   #
   # In order to use duplicated()
   #

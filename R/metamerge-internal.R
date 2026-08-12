@@ -185,7 +185,7 @@ updateobj <- function(x,
   if (is.null(x$hetlabel) || all(x$hetlabel == ""))
     res$hetlabel <- replaceNULL(hetlabel, "")
   #
-  if (all(x$detail.tau == ""))
+  if (is.null(x$detail.tau) || all(x$detail.tau == ""))
     res$detail.tau <- replaceNULL(taulabel, "")
   #
   if (!is.merge) {    
