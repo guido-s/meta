@@ -453,6 +453,7 @@ update.meta <- function(object,
   #
   missing.method.common.ci <- missing(method.common.ci)
   missing.method.random.ci <- missing(method.random.ci)
+  missing.method.tau <- missing(method.tau)
   missing.method.tau.ci <- missing(method.tau.ci)
   missing.adhoc.hakn.ci <- missing(adhoc.hakn.ci)
   missing.text.random <- missing(text.random)
@@ -1047,9 +1048,14 @@ update.meta <- function(object,
   else
     ...cluster <- catch2(object, "cluster")
   #
-  if ((!missing.cluster | !missing.id) &&
-      missing.method.tau.ci && is.null(object$cluster))
-    method.tau.ci <- NULL
+  if ((!missing.cluster | !missing.id) && is.null(object$cluster)) {
+    if (missing.method.tau)
+      method.tau <- if (method == "GLMM") "ML" else gs("method.tau")
+    if (missing.method.predict)
+      method.predict <- "V"
+    if (missing.method.tau.ci)
+      method.tau.ci <- NULL
+  }
   #
   # Catch argument 'cycles'
   #
