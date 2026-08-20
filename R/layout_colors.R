@@ -38,15 +38,17 @@ layout_colors <- function(layout, classes = NULL) {
     #
     if (!is.null(classes)) {
       metacont <- "metacont" %in% classes
-      metamean <- "metamean" %in% classes
       metabin <- "metabin" %in% classes
+      metagen <- "metagen" %in% classes
       #
-      if (metacont | metamean)
+      if (metacont)
         color4 <- color5 <- "green"
       else if (metabin)
         color4 <- color5 <- "blue"
-      else
+      else if (metagen)
         color4 <- color5 <- "red"
+      else
+        color4 <- color5 <- "gray"
     }
     else {
       color4 <- color5 <- "gray"
