@@ -190,29 +190,21 @@ draw.axis <- function(x, column, yS, log.xaxis, at, label,
       min.x <- min(exp(x$range[1]), 1)
       max.x <- max(exp(x$range[2]), 1)
       #
-      if (all(x1000 >= min.x) &
-          all(x1000 <= max.x))
+      if (all(x1000 >= min.x) & all(x1000 <= max.x))
         label <- x1000
-      else if (all(x100 >= min.x) &
-               all(x100 <= max.x))
+      else if (all(x100 >= min.x) & all(x100 <= max.x))
         label <- x100
-      else if (all(x10 >= min.x) &
-               all(x10 <= max.x))
+      else if (all(x10 >= min.x) & all(x10 <= max.x))
         label <- x10
-      else if (all(x5 >= min.x) &
-               all(x5 <= max.x))
+      else if (all(x5 >= min.x) & all(x5 <= max.x))
         label <- x5
-      else if (all(x2 >= min.x) &
-               all(x2 <= max.x))
+      else if (all(x2 >= min.x) & all(x2 <= max.x))
         label <- x2
-      else if (all(x1.5 >= min.x) &
-               all(x1.5 <= max.x))
+      else if (all(x1.5 >= min.x) & all(x1.5 <= max.x))
         label <- x1.5
-      else if (all(x1.25 >= min.x) &
-               all(x1.25 <= max.x))
+      else if (all(x1.25 >= min.x) & all(x1.25 <= max.x))
         label <- x1.25
-      else if (all(x1 >= min.x) &
-               all(x1 <= max.x))
+      else if (all(x1 >= min.x) & all(x1 <= max.x))
         label <- x1
       else
         label <- 1
@@ -223,6 +215,7 @@ draw.axis <- function(x, column, yS, log.xaxis, at, label,
         if (exp(max(xlim)) > max(label))
           label <- c(label, exp(max(xlim)))
       }
+      #
       at <- log(label)
     }
     else {
@@ -236,7 +229,7 @@ draw.axis <- function(x, column, yS, log.xaxis, at, label,
                gp = gpar(fontsize = fs.axis, fontface = ff.axis,
                          fontfamily = fontfamily, lwd = lwd,
                          col = col.label, tcl = -0.1))
-    # Print xaxis and tick marks (in different colour)
+    # Print x-axis and tick marks (in different colours)
     grid.xaxis(name = "xaxis2",
                at = at, label = FALSE,
                gp = gpar(fontsize = fs.axis, fontface = ff.axis,
