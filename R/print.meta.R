@@ -1019,7 +1019,9 @@ print.meta <- function(x,
                        collapse = ""))
           else {
             if (any(k.study != k, na.rm = TRUE)) {
-              cat(paste0("Number of studies: n = ",
+              cat(paste0("Number of ",
+                         if (three.level) "clusters" else "studies",
+                         ": n = ",
                          format(cond(x$k.study, digits = 0),
                                 big.mark = big.mark), "\n",
                          collapse = ""))

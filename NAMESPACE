@@ -130,160 +130,184 @@ export(units2inches)
 export(z2cor)
 import(metabook)
 importFrom(CompQuadForm,farebrother)
-importFrom(cli,cli_abort)
-importFrom(cli,cli_alert_success)
-importFrom(cli,cli_warn)
-importFrom(dplyr,"%>%")
-importFrom(dplyr,across)
-importFrom(dplyr,all_of)
-importFrom(dplyr,bind_rows)
-importFrom(dplyr,filter)
-importFrom(dplyr,group_by)
-importFrom(dplyr,group_map)
-importFrom(dplyr,if_else)
-importFrom(dplyr,mutate)
-importFrom(dplyr,relocate)
-importFrom(dplyr,rename)
-importFrom(dplyr,rename_with)
-importFrom(dplyr,select)
-importFrom(dplyr,tibble)
-importFrom(ggplot2,aes)
-importFrom(ggplot2,annotate)
-importFrom(ggplot2,coord_cartesian)
-importFrom(ggplot2,geom_area)
-importFrom(ggplot2,geom_line)
-importFrom(ggplot2,geom_point)
-importFrom(ggplot2,geom_polygon)
-importFrom(ggplot2,ggplot)
-importFrom(ggplot2,scale_x_continuous)
-importFrom(ggplot2,xlab)
-importFrom(ggplot2,ylab)
-importFrom(grDevices,bmp)
-importFrom(grDevices,cairo_pdf)
-importFrom(grDevices,cairo_ps)
-importFrom(grDevices,dev.cur)
-importFrom(grDevices,dev.list)
-importFrom(grDevices,dev.off)
-importFrom(grDevices,dev.set)
-importFrom(grDevices,dev.size)
-importFrom(grDevices,gray)
-importFrom(grDevices,gray.colors)
-importFrom(grDevices,hcl.colors)
-importFrom(grDevices,jpeg)
-importFrom(grDevices,pdf)
-importFrom(grDevices,pictex)
-importFrom(grDevices,png)
-importFrom(grDevices,postscript)
-importFrom(grDevices,svg)
-importFrom(grDevices,tiff)
-importFrom(graphics,abline)
-importFrom(graphics,axis)
-importFrom(graphics,barplot)
-importFrom(graphics,box)
-importFrom(graphics,lines)
-importFrom(graphics,mtext)
-importFrom(graphics,par)
-importFrom(graphics,plot)
-importFrom(graphics,points)
-importFrom(graphics,polygon)
-importFrom(graphics,text)
-importFrom(grid,arrow)
-importFrom(grid,convertHeight)
-importFrom(grid,convertWidth)
-importFrom(grid,convertX)
-importFrom(grid,gpar)
-importFrom(grid,grid.circle)
-importFrom(grid,grid.draw)
-importFrom(grid,grid.get)
-importFrom(grid,grid.gget)
-importFrom(grid,grid.grabExpr)
-importFrom(grid,grid.layout)
-importFrom(grid,grid.lines)
-importFrom(grid,grid.newpage)
-importFrom(grid,grid.polygon)
-importFrom(grid,grid.rect)
-importFrom(grid,grid.text)
-importFrom(grid,grid.xaxis)
-importFrom(grid,grobTree)
-importFrom(grid,popViewport)
-importFrom(grid,pushViewport)
-importFrom(grid,rectGrob)
-importFrom(grid,textGrob)
-importFrom(grid,unit)
-importFrom(grid,unit.c)
-importFrom(grid,unit.pmax)
-importFrom(grid,viewport)
+importFrom(cli,
+  cli_abort,
+  cli_alert_success,
+  cli_warn
+)
+importFrom(dplyr,
+  "%>%",
+  across,
+  all_of,
+  bind_rows,
+  filter,
+  group_by,
+  group_map,
+  if_else,
+  mutate,
+  relocate,
+  rename,
+  rename_with,
+  select,
+  tibble
+)
+importFrom(ggplot2,
+  aes,
+  annotate,
+  coord_cartesian,
+  geom_area,
+  geom_line,
+  geom_point,
+  geom_polygon,
+  ggplot,
+  scale_x_continuous,
+  xlab,
+  ylab
+)
+importFrom(grDevices,
+  bmp,
+  cairo_pdf,
+  cairo_ps,
+  dev.cur,
+  dev.list,
+  dev.off,
+  dev.set,
+  dev.size,
+  gray,
+  gray.colors,
+  hcl.colors,
+  jpeg,
+  pdf,
+  pictex,
+  png,
+  postscript,
+  svg,
+  tiff
+)
+importFrom(graphics,
+  abline,
+  axis,
+  barplot,
+  box,
+  lines,
+  mtext,
+  par,
+  plot,
+  points,
+  polygon,
+  text
+)
+importFrom(grid,
+  arrow,
+  convertHeight,
+  convertWidth,
+  convertX,
+  gpar,
+  grid.circle,
+  grid.draw,
+  grid.get,
+  grid.gget,
+  grid.grabExpr,
+  grid.layout,
+  grid.lines,
+  grid.newpage,
+  grid.polygon,
+  grid.rect,
+  grid.text,
+  grid.xaxis,
+  grobTree,
+  popViewport,
+  pushViewport,
+  rectGrob,
+  textGrob,
+  unit,
+  unit.c,
+  unit.pmax,
+  viewport
+)
 importFrom(lme4,glmer)
 importFrom(magrittr,"%<>%")
-importFrom(metafor,baujat)
-importFrom(metafor,blup)
-importFrom(metafor,confint.rma.mv)
-importFrom(metafor,confint.rma.uni)
-importFrom(metafor,escalc)
-importFrom(metafor,forest)
-importFrom(metafor,funnel)
-importFrom(metafor,funnel.default)
-importFrom(metafor,labbe)
-importFrom(metafor,predict.rma)
-importFrom(metafor,radial)
-importFrom(metafor,regtest)
-importFrom(metafor,rma.glmm)
-importFrom(metafor,rma.mv)
-importFrom(metafor,rma.uni)
-importFrom(metafor,robust)
-importFrom(metafor,to.long)
-importFrom(metafor,trimfill)
-importFrom(metafor,vcalc)
+importFrom(metafor,
+  baujat,
+  blup,
+  confint.rma.mv,
+  confint.rma.uni,
+  escalc,
+  forest,
+  funnel,
+  funnel.default,
+  labbe,
+  predict.rma,
+  radial,
+  regtest,
+  rma.glmm,
+  rma.mv,
+  rma.uni,
+  robust,
+  to.long,
+  trimfill,
+  vcalc
+)
 importFrom(methods,formalArgs)
 importFrom(purrr,compact)
-importFrom(readr,cols)
-importFrom(readr,read_csv)
-importFrom(rlang,":=")
-importFrom(rlang,enexprs)
-importFrom(rlang,expr)
-importFrom(rlang,is_bare_list)
+importFrom(readr,
+  cols,
+  read_csv
+)
+importFrom(rlang,
+  ":=",
+  enexprs,
+  expr,
+  is_bare_list
+)
 importFrom(scales,number_format)
-importFrom(stats,as.formula)
-importFrom(stats,binom.test)
-importFrom(stats,binomial)
-importFrom(stats,coef)
-importFrom(stats,cor)
-importFrom(stats,dt)
-importFrom(stats,fitted)
-importFrom(stats,glm)
-importFrom(stats,lm)
-importFrom(stats,pchisq)
-importFrom(stats,pf)
-importFrom(stats,pnorm)
-importFrom(stats,poisson.test)
-importFrom(stats,pt)
-importFrom(stats,qlogis)
-importFrom(stats,qnorm)
-importFrom(stats,qt)
-importFrom(stats,residuals)
-importFrom(stats,runif)
-importFrom(stats,update)
-importFrom(stats,var)
-importFrom(stats,vcov)
-importFrom(stats,weighted.mean)
-importFrom(stats,weights)
+importFrom(stats,
+  as.formula,
+  binom.test,
+  binomial,
+  coef,
+  cor,
+  dt,
+  fitted,
+  glm,
+  lm,
+  pchisq,
+  pf,
+  pnorm,
+  poisson.test,
+  pt,
+  qlogis,
+  qnorm,
+  qt,
+  residuals,
+  runif,
+  update,
+  var,
+  vcov,
+  weighted.mean,
+  weights
+)
 importFrom(stringr,str_pad)
 importFrom(tibble,column_to_rownames)
 importFrom(tools,file_ext)
-importFrom(utils,assignInNamespace)
-importFrom(utils,combn)
-importFrom(utils,count.fields)
-importFrom(utils,find)
-importFrom(utils,getFromNamespace)
-importFrom(utils,globalVariables)
-importFrom(utils,head)
-importFrom(utils,modifyList)
-importFrom(utils,packageDescription)
-importFrom(utils,packageVersion)
-importFrom(utils,read.table)
-importFrom(utils,tail)
-importFrom(utils,unzip)
-importFrom(xml2,as_xml_document)
-importFrom(xml2,xml_attr)
-importFrom(xml2,xml_find_all)
-importFrom(xml2,xml_text)
+importFrom(utils,
+  assignInNamespace,
+  combn,
+  count.fields,
+  find,
+  getFromNamespace,
+  globalVariables,
+  head,
+  modifyList,
+  packageDescription,
+  packageVersion,
+  read.table,
+  tail,
+  unzip
+)
+importFrom(xml2,
+  as_xml_document,
+  xml_attr,
+  xml_find_all,
+  xml_text
+)
