@@ -595,19 +595,21 @@ funnel.meta <- function(x,
   #
   # x-axis: labels / xlim
   #
-  if (is.null(xlab))
-    if (backtransf)
+  if (is.null(xlab)) {
+    if (backtransf) {
       xlab <- xlab_meta(sm, backtransf)
-  else
-    xlab <- xlab_meta(sm, FALSE)
-  #
-  if (xlab == "") {
-    if (sm == "PRAW" | (backtransf & is_prop(sm)))
-      xlab <- "Proportion"
-    else if (sm == "IR" | (backtransf & is_rate(sm)))
-      xlab <- "Incidence Rate"
-    else if (sm == "MRAW" | (backtransf & is_mean(sm)))
-      xlab <- "Mean"
+      #
+      if (xlab == "") {
+        if (is_prop(sm))
+          xlab <- "Proportion"
+        else if (is_rate(sm))
+          xlab <- "Incidence Rate"
+        else if (is_mean(sm))
+          xlab <- "Mean"
+      }
+    }
+    else
+      xlab <- xlab_meta(sm, FALSE)
   }
   #
   if (axis.only.backtransf & !is.null(xlim)) {

@@ -67,11 +67,12 @@
 #'   x-axis. For transformed proportions, rates, means, and correlations,
 #'   drapery plots are drawn on the analysis scale with back-transformed tick
 #'   marks on the x-axis.
-#' @param xlab A label for the x-axis.
-#' @param ylab A label for the y-axis.
 #' @param xlim The x limits (min, max) of the plot.
 #' @param ylim The y limits (min, max) of the plot (ignored if
 #'   \code{type = "pvalue"}).
+#' @param xlab A label for the x-axis.
+#' @param ylab A label for the y-axis.
+#' @param ylab.right A label for the right y-axis.
 #' @param lwd.max The maximum line width (only considered if argument
 #'   \code{layout} is equal to \code{"linewidth"}).
 #' @param lwd.study.weight A character string indicating whether to
@@ -225,8 +226,8 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
                     bg = "white", bty = "o",
                     #
                     backtransf = x$backtransf,
-                    xlab, ylab,
-                    xlim, ylim,
+                    xlim = NULL, ylim = NULL, xlab = NULL, ylab = NULL,
+                    ylab.right = NULL,
                     lwd.max = 2.5,
                     lwd.study.weight = if (random) "random" else "common",
                     axes = TRUE,
@@ -414,23 +415,22 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
   #
   sm <- x$sm
   #
-  if (missing(xlab)) {
-    xlab <- ""
+  if (is.null(xlab)) {
     xlab <- xlab_meta(sm, backtransf = backtransf)
+    #
+    if (xlab == "") {
+      if (sm == "PRAW" | (backtransf & is_prop(sm)))
+        xlab <- "Proportion"
+      else if (sm == "IR" | (backtransf & is_rate(sm)))
+        xlab <- "Incidence Rate"
+      else if (sm == "MRAW" | (backtransf & is_mean(sm)))
+        xlab <- "Mean"
+    }
   }
   else
     chkchar(xlab, length = 1)
   #
-  if (xlab == "") {
-    if (sm == "PRAW" | (backtransf & is_prop(sm)))
-      xlab <- "Proportion"
-    else if (sm == "IR" | (backtransf & is_rate(sm)))
-      xlab <- "Incidence Rate"
-    else if (sm == "MRAW" | (backtransf & is_mean(sm)))
-      xlab <- "Mean"
-  }
-  #
-  if (missing(ylab))
+  if (is.null(ylab))
     ylab <- c("Test statistic",
               "P-value",
               "Binary S-value / surprisal")[charmatch(type, types)]
@@ -457,7 +457,7 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
   #
   #
   
-  if (missing(ylim))
+  if (is.null(ylim))
     ylim <-
       if (type == "pvalue") c(0, 1)
       else if (type == "zvalue") c(qnorm(0.0005), 0)
@@ -475,7 +475,7 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
                             "PLOGIT", "PLN", "PAS", "PFT",
                             "IRLN", "IRS", "IRFT",
                             "MLN")
-  missing.xlim <- missing(xlim)
+  missing.xlim <- is.null(xlim)
   #
   if (missing.xlim) {
     if (!VE.backtransf) {
@@ -786,9 +786,15 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
              at = qnorm(seq(0.2, 1, by = 0.2) / 2),
              labels = format(seq(0.8, 0, by = -0.2)))
       }
-      #
-      if (type %in% c("pvalue", "zvalue"))
-        mtext("Confidence level", 4, line = 3)
+    }
+    #
+    if (type %in% c("pvalue", "zvalue")) {
+      if (is.null(ylab.right)) {
+        ylab.right <- "Confidence level"
+        #
+        chkchar(ylab.right, length = 1)
+      }
+      mtext(ylab.right, 4, line = 3)
     }
   }
   
