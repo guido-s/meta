@@ -233,7 +233,9 @@ be used. Either \code{"Begg"}, \code{"Egger"}, or
 \item{n.e}{Number of observations in experimental group (or total
 sample size in study).}
 
-\item{n.c}{Number of observations in control group.}
+\item{n.c}{Number of observations in control group. This argument must not
+be provided for meta-analysis of single proportions, rates, means, or
+correlations.}
 
 \item{pval}{P-value (used to estimate the standard error).}
 

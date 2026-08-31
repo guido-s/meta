@@ -103,7 +103,9 @@
 #'   \code{\link{metabias}}.
 #' @param n.e Number of observations in experimental group (or total
 #'   sample size in study).
-#' @param n.c Number of observations in control group.
+#' @param n.c Number of observations in control group. This argument must not
+#'   be provided for meta-analysis of single proportions, rates, means, or
+#'   correlations.
 #' @param pval P-value (used to estimate the standard error).
 #' @param df Degrees of freedom (used in test or to construct
 #'   confidence intervals).
@@ -1222,9 +1224,40 @@ metagen <- function(TE, seTE, studlab,
   avail.upper <- !(missing.upper || is.null(upper))
   #
   if (!avail.TE & !avail.median & (!avail.lower | !avail.upper))
-    stop("Treatment estimates missing. ",
-         "Provide either argument 'TE' or 'median', ",
-         "or arguments 'lower' and 'upper'.",
+    stop("Treatment estimates missing. Provide either argument 'TE' or ",
+         "'median', or arguments 'lower' and 'upper'.",
+         call. = FALSE)
+  #
+  if (is_single(sm) && !is.null(n.c))
+    stop("Argument 'n.c' must not be provided for meta-analysis of ",
+         "single proportions, rates, means, or correlations.",
+         call. = FALSE)
+  #
+  n.pft <- NULL
+  #
+  if (sm == "PFT" && !transf) {
+    if (is.null(n.e))
+      stop("Argument 'n.e' must be provided if argument 'sm = \"PFT\"' ",
+           "and 'transf = FALSE'.",
+           call. = FALSE)
+    #
+    n.pft <- n.e
+    #
+    if (avail.TE && length(n.pft) != length(TE))
+      stop("Length of argument 'n.e' must match length of argument 'TE' ",
+           "if argument 'sm = \"PFT\"' and 'transf = FALSE'.",
+           call. = FALSE)
+    if (avail.lower && length(n.pft) != length(lower))
+      stop("Length of argument 'n.e' must match length of argument 'lower' ",
+           "if argument 'sm = \"PFT\"' and 'transf = FALSE'.",
+           call. = FALSE)
+    if (avail.upper && length(n.pft) != length(upper))
+      stop("Length of argument 'n.e' must match length of argument 'upper' ",
+           "if argument 'sm = \"PFT\"' and 'transf = FALSE'.",
+           call. = FALSE)
+  }
+  else if (sm == "IRFT" && !transf)
+    stop("Argument 'transf = FALSE' not available if argument 'sm = \"IRFT\"'.",
          call. = FALSE)
   #
   TE.orig <- NULL
@@ -1234,15 +1267,15 @@ metagen <- function(TE, seTE, studlab,
   if (!transf) {
     if (avail.TE) {
       TE.orig <- TE
-      TE <- transf(TE, sm, func.transf, args.transf)
+      TE <- transf(TE, sm, func.transf, args.transf, n = n.pft)
     }
     if (avail.lower) {
       lower.orig <- lower
-      lower <- transf(lower, sm, func.transf, args.transf)
+      lower <- transf(lower, sm, func.transf, args.transf, n = n.pft)
     }
     if (avail.upper) {
       upper.orig <- upper
-      upper <- transf(upper, sm, func.transf, args.transf)
+      upper <- transf(upper, sm, func.transf, args.transf, n = n.pft)
     }
     if (sm == "VE" && avail.lower & avail.upper) {
       tmp.l <- lower

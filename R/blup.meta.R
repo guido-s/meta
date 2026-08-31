@@ -137,7 +137,9 @@ blup.meta <- function(x, level = x$level, backtransf = x$backtransf,
       res.i <- data.frame(studlab = x$studlab,
                           blup = dat.i$blup, se.blup = dat.i$se.blup,
                           lower = ci.blup.i$lower,
-                          upper = ci.blup.i$upper)
+                          upper = ci.blup.i$upper,
+                          n = rep_len(replaceNULL(x$n), length(x$studlab)),
+                          time = rep_len(replaceNULL(x$time), length(x$studlab)))
       #
       if (length(x$method.random.ci) > 1)
         res.i$method <- i
@@ -211,6 +213,8 @@ blup.meta <- function(x, level = x$level, backtransf = x$backtransf,
                           blup = blup.i, se.blup = se.blup.i,
                           lower = ci.blup.i$lower,
                           upper = ci.blup.i$upper,
+                          n = rep_len(replaceNULL(x$n), length(x$studlab)),
+                          time = rep_len(replaceNULL(x$time), length(x$studlab)),
                           tau2 = dat.i$tau2,
                           df.hakn = dat.i$df.hakn,
                           df.kero = dat.i$df.kero)
@@ -305,9 +309,9 @@ print.blup.meta <- function(x, backtransf = attr(x, "x")$backtransf,
   sm.lab.se <- smlab(sm, FALSE)
   #
   if (backtransf) {
-    x$blup <- backtransf(x$blup, sm)
-    x$lower <- backtransf(x$lower, sm)
-    x$upper <- backtransf(x$upper, sm)
+    x$blup <- backtransf(x$blup, sm, x$n, x$time)
+    x$lower <- backtransf(x$lower, sm, x$n, x$time)
+    x$upper <- backtransf(x$upper, sm, x$n, x$time)
   }
   #
   blup <- round(x$blup, digits)
@@ -464,9 +468,9 @@ estimates.blup.meta <- function(x,
   # (2) Back-transform
   #
   if (backtransf) {
-    res$blup <- backtransf(res$blup, meta$sm)
-    res$lower <- backtransf(res$lower, meta$sm)
-    res$upper <- backtransf(res$upper, meta$sm)
+    res$blup <- backtransf(res$blup, meta$sm, res$n, res$time)
+    res$lower <- backtransf(res$lower, meta$sm, res$n, res$time)
+    res$upper <- backtransf(res$upper, meta$sm, res$n, res$time)
   }
   #
   sm.lab <- smlab(meta$sm, backtransf, meta$pscale, meta$irscale)

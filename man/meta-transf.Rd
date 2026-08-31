@@ -5,6 +5,7 @@
 \alias{transf}
 \alias{cor2z}
 \alias{p2asin}
+\alias{ir2asin}
 \alias{p2logit}
 \alias{VE2logVR}
 \alias{backtransf}
@@ -15,17 +16,19 @@
 \alias{z2cor}
 \title{Auxiliary functions for (back) transformations}
 \usage{
-transf(x, sm, func = NULL, args = NULL)
+transf(x, sm, func = NULL, args = NULL, n = NULL, time = NULL)
 
 cor2z(x)
 
-p2asin(x)
+p2asin(x, n = NULL)
+
+ir2asin(x, time = NULL)
 
 p2logit(x)
 
 VE2logVR(x)
 
-backtransf(x, sm, n, time, func = NULL, args = NULL)
+backtransf(x, sm, n = NULL, time = NULL, func = NULL, args = NULL)
 
 asin2ir(x, time = NULL)
 
@@ -47,11 +50,11 @@ confidence / prediction interval limit(s).}
 
 \item{args}{Function arguments for user-specified function.}
 
-\item{n}{Sample size(s) to back transform Freeman-Tukey transformed
-proportions.}
+\item{n}{Sample size(s) to transform or back transform Freeman-Tukey
+transformed proportions.}
 
-\item{time}{Time(s) to back transform Freeman-Tukey transformed
-incidence rates.}
+\item{time}{Time(s) to transform or back transform Freeman-Tukey
+transformed incidence rates.}
 }
 \description{
 Auxiliary functions to (back) transform effect estimates or
@@ -75,13 +78,18 @@ prediction interval limits.
 \bold{Function} \tab \bold{Transformation} \cr
 \code{cor2z} \tab Correlations to Fisher's Z transformed correlations \cr
 \code{p2logit} \tab Proportions to logit transformed proportions \cr
-\code{p2asin} \tab Proportions to arcsine transformed proportions \cr
+\code{p2asin} \tab Proportions to (Freeman-Tukey) arcsine transformed proportions \cr
+\code{ir2asin} \tab Incidence rates to (Freeman-Tukey) arcsine transformed rates \cr
 \code{VE2logVR} \tab Vaccine efficacy / effectiveness to log vaccine ratio
 }
 
-Note, no function for the Freeman-Tukey arcsine transformation is
-provided as this transformation is based on the number of events
-and sample sizes instead of the effect estimates.
+If argument \code{n} is provided in R function \code{p2asin},
+proportions are Freeman-Tukey arcsine transformed. Otherwise,
+proportions are arcsine transformed.
+
+If argument \code{time} is provided in R function \code{ir2asin},
+incidence rates are Freeman-Tukey arcsine transformed. Otherwise,
+incidence rates are square root transformed.
 
 R function \code{transf} is a wrapper function for the above and
 additional transformations, e.g., the log transformation using
@@ -115,8 +123,7 @@ R function \code{backtransf} is a wrapper function for the above
 and additional transformations, e.g., the exponential
 transformation using \code{\link[base]{exp}} for log odds or log
 risk ratios. Argument \code{sm} is mandatory to specify the
-requested transformation. For the Freeman-Tukey transformations,
-argument \code{n} or \code{time} is mandatory.
+requested transformation.
 
 It is also possible to specify a different function with arguments
 \code{func} and \code{args}.

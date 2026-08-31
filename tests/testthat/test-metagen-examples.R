@@ -96,3 +96,38 @@ test_that("metagen recalculates supplied confidence limits for changed level", {
   expect_false(isTRUE(all.equal(ma1$lower[5], ma3$lower[5])))
   expect_false(isTRUE(all.equal(ma1$upper[5], ma3$upper[5])))
 })
+
+test_that("metagen rejects n.c for single-arm summary measures", {
+  TE <- c(0.1, 0.2, 0.3)
+  seTE <- c(0.01, 0.02, 0.03)
+  n <- c(10, 20, 30)
+
+  for (sm in c("PRAW", "PLOGIT", "PLN", "PAS", "PFT",
+               "IR", "IRLN", "IRS", "IRFT",
+               "MRAW", "MLN",
+               "COR", "ZCOR")) {
+    expect_error(
+      metagen(TE, seTE, sm = sm, n.c = n),
+      "Argument 'n.c' must not be provided"
+    )
+  }
+})
+
+test_that("metagen uses n.e as sample sizes for untransformed PFT input", {
+  p <- c(0.1, 0.2, 0.3)
+  lower <- c(0.05, 0.10, 0.20)
+  upper <- c(0.20, 0.30, 0.40)
+  seTE <- c(0.01, 0.02, 0.03)
+  n <- c(10, 20, 30)
+
+  m <- metagen(p, seTE, lower = lower, upper = upper,
+               sm = "PFT", transf = FALSE, n.e = n, warn = FALSE)
+
+  expect_equal(m$TE, p2asin(p, n))
+  expect_equal(m$lower, p2asin(lower, n))
+  expect_equal(m$upper, p2asin(upper, n))
+  expect_error(
+    metagen(p, seTE, sm = "PFT", transf = FALSE, n.e = n, n.c = n),
+    "Argument 'n.c' must not be provided"
+  )
+})

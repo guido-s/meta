@@ -71,12 +71,12 @@
 #' @param col.ref Colour of line representing reference value.
 #' @param lty.ref.triangle Line type (confidence intervals of
 #'   reference value).
-#' @param backtransf A logical indicating whether results for relative
-#'   summary measures (argument \code{sm} equal to \code{"OR"},
-#'   \code{"RR"}, \code{"HR"}, or \code{"IRR"}) should be back
-#'   transformed in funnel plots. If \code{backtransf=TRUE}, results
-#'   for \code{sm="OR"} are printed as odds ratios rather than log
-#'   odds ratios, for example.
+#' @param backtransf A logical indicating whether results should be back
+#'   transformed in funnel plots. If \code{backtransf = TRUE}, results for
+#'   \code{sm = "OR"} are printed as odds ratios rather than log odds ratios,
+#'   for example. For transformed proportions, rates, means, and correlations,
+#'   funnel plots are drawn on the analysis scale with back-transformed tick
+#'   marks on the x-axis.
 #' @param warn.deprecated A logical indicating whether warnings should
 #'   be printed if deprecated arguments are used.
 #' @param vals Vector with values used in \code{setvals} (see Examples).
@@ -212,7 +212,7 @@ funnel.meta <- function(x,
                           if (type == "contour")
                             c("gray80", "gray70", "gray60") else NULL,
                         #
-                        ref = ifelse(is_relative_effect(x$sm), 1, 0),
+                        ref,
                         #
                         level = if (common | random) x$level else NULL,
                         studlab = FALSE, cex.studlab = 0.8, pos.studlab = 2,
@@ -330,8 +330,10 @@ funnel.meta <- function(x,
   col.common <- deprecated(col.common, missing(col.common), args, "col.fixed",
                            warn.deprecated)
   #
+  sm <- x$sm
+  #
   if (missing(yaxis))
-    if (inherits(x, "metabin") && x$sm == "DOR")
+    if (inherits(x, "metabin") && sm == "DOR")
       yaxis <- "ess"
     else
       yaxis <- "se"
@@ -341,7 +343,23 @@ funnel.meta <- function(x,
   #
   if (!is.null(contour.levels))
     chklevel(contour.levels, length = 0, ci = FALSE)
-  chknumeric(ref)
+  chklogical(backtransf)
+  #
+  miss.ref <- missing(ref)
+  if (miss.ref) {
+    if (is_single(sm)) {
+      if (!is.null(x$null.effect))
+        ref <- x$null.effect
+      else
+        ref <- NA
+    }
+    else if (backtransf & is_relative_effect(sm))
+      ref <- 1
+    else
+      ref <- 0
+  }
+  else
+    chknumeric(ref, length = 1)
   if (!is.null(level))
     chklevel(level)
   #
@@ -363,7 +381,6 @@ funnel.meta <- function(x,
   chknumeric(lty.ref, length = 1)
   chknumeric(lwd.ref, length = 1)
   chknumeric(lty.ref.triangle, length = 1)
-  chklogical(backtransf)
   
   
   #
@@ -424,7 +441,45 @@ funnel.meta <- function(x,
   #
   TE.common <- x$TE.common
   TE.random <- x$TE.random
-  sm <- x$sm
+  axis.only.backtransf <-
+    backtransf && sm %in% c("ZCOR",
+                            "PLOGIT", "PLN", "PAS", "PFT",
+                            "IRLN", "IRS", "IRFT",
+                            "MLN")
+  generic.backtransf <-
+    sm %in% c("PLOGIT", "PLN", "PAS", "IRLN", "IRS", "MLN", "ZCOR")
+  funnel_transf <- function(xlim) {
+    if (sm == "PFT") {
+      if (inherits(x, "trimfill"))
+        transf(xlim, "PAS")
+      else
+        transf(xlim, sm, n = x$n.harmonic.mean)
+    }
+    else if (sm == "IRFT") {
+      if (inherits(x, "trimfill"))
+        transf(xlim, "IRS")
+      else
+        transf(xlim, sm, time = x$t.harmonic.mean)
+    }
+    else
+      transf(xlim, sm)
+  }
+  funnel_backtransf <- function(xlim) {
+    if (sm == "PFT") {
+      if (inherits(x, "trimfill"))
+        backtransf(xlim, "PAS")
+      else
+        backtransf(xlim, sm, n = x$n.harmonic.mean)
+    }
+    else if (sm == "IRFT") {
+      if (inherits(x, "trimfill"))
+        backtransf(xlim, "IRS")
+      else
+        backtransf(xlim, sm, time = x$t.harmonic.mean)
+    }
+    else
+      backtransf(xlim, sm)
+  }
   #
   if (missing(log))
     if (backtransf & is_relative_effect(sm))
@@ -439,8 +494,22 @@ funnel.meta <- function(x,
   #
   seTE.max <- max(seTE, na.rm = TRUE)
   #
-  if (is_relative_effect(sm))
+  if (backtransf & is_relative_effect(sm))
     ref <- log(ref)
+  else if (sm == "PFT") {
+    if (inherits(x, "trimfill"))
+      ref <- transf(ref, "PAS")
+    else
+      ref <- transf(ref, sm, n = x$n.harmonic.mean)
+  }
+  else if (sm == "IRFT") {
+    if (inherits(x, "trimfill"))
+      ref <- transf(ref, "IRS")
+    else
+      ref <- transf(ref, sm, time = x$t.harmonic.mean)
+  }
+  else if (is_single(sm))
+    ref <- transf(ref, sm)
   #
   ref.contour <- ref
   #
@@ -508,6 +577,62 @@ funnel.meta <- function(x,
       TE.xlim <- rev(-TE.xlim)
     }
   }
+  else if (sm == "PFT" & backtransf & !axis.only.backtransf) {
+    TE <- asin2p(TE, x$n)
+    if (inherits(x, "trimfill"))
+      harmonic.mean <- NULL
+    else
+      harmonic.mean <- x$n.harmonic.mean
+    TE.common <- asin2p(TE.common, harmonic.mean)
+    TE.random <- asin2p(TE.random, harmonic.mean)
+    ref <- asin2p(ref, harmonic.mean)
+    #
+    if (!is.null(level)) {
+      ciTE$lower <- asin2p(ciTE$lower, harmonic.mean)
+      ciTE$upper <- asin2p(ciTE$upper, harmonic.mean)
+      #
+      ciTE.ref$lower <- asin2p(ciTE.ref$lower, harmonic.mean)
+      ciTE.ref$upper <- asin2p(ciTE.ref$upper, harmonic.mean)
+      #
+      TE.xlim <- asin2p(TE.xlim, harmonic.mean)
+    }
+  }
+  else if (sm == "IRFT" & backtransf & !axis.only.backtransf) {
+    TE <- asin2ir(TE, x$time)
+    if (inherits(x, "trimfill"))
+      harmonic.mean <- NULL
+    else
+      harmonic.mean <- x$t.harmonic.mean
+    TE.common <- asin2ir(TE.common, harmonic.mean)
+    TE.random <- asin2ir(TE.random, harmonic.mean)
+    ref <- asin2ir(ref, harmonic.mean)
+    #
+    if (!is.null(level)) {
+      ciTE$lower <- asin2ir(ciTE$lower, harmonic.mean)
+      ciTE$upper <- asin2ir(ciTE$upper, harmonic.mean)
+      #
+      ciTE.ref$lower <- asin2ir(ciTE.ref$lower, harmonic.mean)
+      ciTE.ref$upper <- asin2ir(ciTE.ref$upper, harmonic.mean)
+      #
+      TE.xlim <- asin2ir(TE.xlim, harmonic.mean)
+    }
+  }
+  else if (generic.backtransf & backtransf & !axis.only.backtransf) {
+    TE <- backtransf(TE, sm)
+    TE.common <- backtransf(TE.common, sm)
+    TE.random <- backtransf(TE.random, sm)
+    ref <- backtransf(ref, sm)
+    #
+    if (!is.null(level)) {
+      ciTE$lower <- backtransf(ciTE$lower, sm)
+      ciTE$upper <- backtransf(ciTE$upper, sm)
+      #
+      ciTE.ref$lower <- backtransf(ciTE.ref$lower, sm)
+      ciTE.ref$upper <- backtransf(ciTE.ref$upper, sm)
+      #
+      TE.xlim <- backtransf(TE.xlim, sm)
+    }
+  }
   #
   # y-value: weight
   #
@@ -552,12 +677,34 @@ funnel.meta <- function(x,
   # x-axis: labels / xlim
   #
   if (is.null(xlab))
-    if (is_relative_effect(sm) | sm == "VE")
+    if (backtransf)
       xlab <- xlab_meta(sm, backtransf)
-    else if (sm == "PRAW")
-      xlab <- "Proportion"
     else
       xlab <- xlab_meta(sm, FALSE)
+  #
+  if (xlab == "") {
+    if (sm == "PRAW" | (backtransf & is_prop(sm)))
+      xlab <- "Proportion"
+    else if (sm == "IR" | (backtransf & is_rate(sm)))
+      xlab <- "Incidence Rate"
+    else if (sm == "MRAW" | (backtransf & is_mean(sm)))
+      xlab <- "Mean"
+  }
+  #
+  if (axis.only.backtransf & !is.null(xlim)) {
+    xlim.transf <- funnel_transf(xlim)
+    xlim.fallback <-
+      if (!is.null(level) &
+          (yaxis == "se" |
+             yaxis == "invse" |
+               yaxis == "invvar"))
+        TE.xlim
+      else
+        range(TE, na.rm = TRUE)
+    xlim.transf[!is.finite(xlim.transf)] <-
+      xlim.fallback[!is.finite(xlim.transf)]
+    xlim <- xlim.transf
+  }
   #
   if (is.null(xlim) & !is.null(level) &
       (yaxis == "se" |
@@ -601,7 +748,7 @@ funnel.meta <- function(x,
   args$xlab <- xlab
   args$ylab <- ylab
   #
-  if (sm == "VE" & backtransf) {
+  if ((sm == "VE" & backtransf) | axis.only.backtransf) {
     axes.orig <- axes
     axes <- FALSE
   }
@@ -619,6 +766,16 @@ funnel.meta <- function(x,
   if (sm == "VE" & backtransf && axes.orig) {
     xs <- pretty(xlim)
     axis(1, at = xs, labels = round(logVR2VE(-xs)))
+    axis(2)
+    box()
+  }
+  else if (axis.only.backtransf && axes.orig) {
+    xlim.orig <- funnel_backtransf(xlim)
+    xs <- pretty(xlim.orig)
+    xs <- xs[xs >= min(xlim.orig) & xs <= max(xlim.orig)]
+    at <- funnel_transf(xs)
+    sel <- is.finite(at) & at >= min(xlim) & at <= max(xlim)
+    axis(1, at = at[sel], labels = xs[sel])
     axis(2)
     box()
   }
@@ -652,6 +809,21 @@ funnel.meta <- function(x,
         ciContour$TE    <- exp(ciContour$TE)
         ciContour$lower <- exp(ciContour$lower)
         ciContour$upper <- exp(ciContour$upper)
+      }
+      else if (sm == "PFT" & backtransf & !axis.only.backtransf) {
+        ciContour$TE <- asin2p(ciContour$TE, harmonic.mean)
+        ciContour$lower <- asin2p(ciContour$lower, harmonic.mean)
+        ciContour$upper <- asin2p(ciContour$upper, harmonic.mean)
+      }
+      else if (sm == "IRFT" & backtransf & !axis.only.backtransf) {
+        ciContour$TE <- asin2ir(ciContour$TE, harmonic.mean)
+        ciContour$lower <- asin2ir(ciContour$lower, harmonic.mean)
+        ciContour$upper <- asin2ir(ciContour$upper, harmonic.mean)
+      }
+      else if (generic.backtransf & backtransf & !axis.only.backtransf) {
+        ciContour$TE <- backtransf(ciContour$TE, sm)
+        ciContour$lower <- backtransf(ciContour$lower, sm)
+        ciContour$upper <- backtransf(ciContour$upper, sm)
       }
       sel.l <- ciContour$lower > min(xlim) & ciContour$lower < max(xlim)
       sel.u <- ciContour$upper > min(xlim) & ciContour$upper < max(xlim)

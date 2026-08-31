@@ -22,13 +22,18 @@
 #' \bold{Function} \tab \bold{Transformation} \cr
 #' \code{cor2z} \tab Correlations to Fisher's Z transformed correlations \cr
 #' \code{p2logit} \tab Proportions to logit transformed proportions \cr
-#' \code{p2asin} \tab Proportions to arcsine transformed proportions \cr
+#' \code{p2asin} \tab Proportions to (Freeman-Tukey) arcsine transformed proportions \cr
+#' \code{ir2asin} \tab Incidence rates to (Freeman-Tukey) arcsine transformed rates \cr
 #' \code{VE2logVR} \tab Vaccine efficacy / effectiveness to log vaccine ratio
 #' }
 #'
-#' Note, no function for the Freeman-Tukey arcsine transformation is
-#' provided as this transformation is based on the number of events
-#' and sample sizes instead of the effect estimates.
+#' If argument \code{n} is provided in R function \code{p2asin},
+#' proportions are Freeman-Tukey arcsine transformed. Otherwise,
+#' proportions are arcsine transformed.
+#'
+#' If argument \code{time} is provided in R function \code{ir2asin},
+#' incidence rates are Freeman-Tukey arcsine transformed. Otherwise,
+#' incidence rates are square root transformed.
 #' 
 #' R function \code{transf} is a wrapper function for the above and
 #' additional transformations, e.g., the log transformation using
@@ -62,8 +67,7 @@
 #' and additional transformations, e.g., the exponential
 #' transformation using \code{\link[base]{exp}} for log odds or log
 #' risk ratios. Argument \code{sm} is mandatory to specify the
-#' requested transformation. For the Freeman-Tukey transformations,
-#' argument \code{n} or \code{time} is mandatory.
+#' requested transformation.
 #'
 #' It is also possible to specify a different function with arguments
 #' \code{func} and \code{args}.
@@ -74,14 +78,12 @@
 #' @param sm Summary measure.
 #' @param func User-specified function for (back) transformation.
 #' @param args Function arguments for user-specified function.
-#' @param n Sample size(s) to back transform Freeman-Tukey transformed
-#'   proportions.
-#' @param time Time(s) to back transform Freeman-Tukey transformed
-#'   incidence rates.
+#' @param n Sample size(s) to transform or back transform Freeman-Tukey
+#'   transformed proportions.
+#' @param time Time(s) to transform or back transform Freeman-Tukey
+#'   transformed incidence rates.
 #'
 #' @name meta-transf
-#' 
-#' @aliases meta-transf
 #' 
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
@@ -93,7 +95,7 @@
 #' @rdname meta-transf
 #' @export transf
 
-transf <- function(x, sm, func = NULL, args = NULL) {
+transf <- function(x, sm, func = NULL, args = NULL, n = NULL, time = NULL) {
   
   #
   # Do nothing if all values are NA
@@ -116,8 +118,14 @@ transf <- function(x, sm, func = NULL, args = NULL) {
   else if (sm == "PAS")
     res <- p2asin(x)
   #
+  else if (sm == "PFT")
+    res <- p2asin(x, n)
+  #
   else if (sm == "IRS")
     res <- sqrt(x)
+  #
+  else if (sm == "IRFT")
+    res <- ir2asin(x, time)
   #
   else if (sm == "VE")
     res <- VE2logVR(x)
@@ -129,9 +137,6 @@ transf <- function(x, sm, func = NULL, args = NULL) {
 }
 
 
-
-
-
 #' @rdname meta-transf
 #' @export cor2z
 
@@ -139,17 +144,34 @@ cor2z <- function(x)
   0.5 * log((1 + x) / (1 - x))
 
 
-
-
-
 #' @rdname meta-transf
 #' @export p2asin
 
-p2asin <- function(x)
-  asin(sqrt(x))
+p2asin <- function(x, n = NULL) {
+  chknumeric(x, min = 0, max = 1)
+  #
+  if (is.null(n))
+    return(asin(sqrt(x)))
+  #
+  chknumeric(n, min = 1)
+  #
+  0.5 * (asin(sqrt(x * n / (n + 1))) + asin(sqrt((x * n + 1) / (n + 1))))
+}
 
 
+#' @rdname meta-transf
+#' @export ir2asin
 
+ir2asin <- function(x, time = NULL) {
+  chknumeric(x, min = 0)
+  #
+  if (is.null(time))
+    return(sqrt(x))
+  #
+  chknumeric(time, min = 0)
+  #
+  0.5 * (sqrt(x) + sqrt(x + 1 / time))
+}
 
 
 #' @rdname meta-transf
@@ -159,9 +181,6 @@ p2logit <- function(x)
   qlogis(x)
 
 
-
-
-
 #' @rdname meta-transf
 #' @export VE2logVR
 
@@ -169,13 +188,10 @@ VE2logVR <- function(x)
   log(1 - x / 100)
 
 
-
-
-
 #' @rdname meta-transf
 #' @export backtransf
 
-backtransf <- function(x, sm, n, time, func = NULL, args = NULL) {
+backtransf <- function(x, sm, n = NULL, time = NULL, func = NULL, args = NULL) {
   
   chkchar(sm, length = 1)
   
@@ -211,9 +227,6 @@ backtransf <- function(x, sm, n, time, func = NULL, args = NULL) {
     res <- x^2
   #
   else if (sm == "IRFT") {
-    if (missing(time))
-      stop("Argument 'time' must be provided to back transform ",
-           "Freeman-Tukey transformed incidence rates.")
     res <- asin2ir(x, time)
   }
   #
@@ -254,9 +267,6 @@ backtransf <- function(x, sm, n, time, func = NULL, args = NULL) {
 }
 
 
-
-
-
 #' @rdname meta-transf
 #' @export asin2ir
 
@@ -268,7 +278,11 @@ asin2ir <- function(x, time = NULL) {
   if (all(is.na(x)))
     return(x)
   
-  
+  if (is.null(time))
+    return(x^2)
+  #
+  if (length(time) == 1)
+    time <- rep(time, length(x))
   #
   # Calculate possible minimum for each transformation
   #
@@ -296,9 +310,6 @@ asin2ir <- function(x, time = NULL) {
 }
 
 
-
-
-
 #' @rdname meta-transf
 #' @export asin2p
 
@@ -320,6 +331,9 @@ asin2p <- function(x, n = NULL) {
     maximum <- asin(sqrt(1))
   }
   else {
+    if (length(n) == 1)
+      n <- rep(n, length(x))
+    #
     minimum <- 0.5 * (asin(sqrt(0 / (n + 1))) + asin(sqrt((0 + 1) / (n + 1))))
     maximum <- 0.5 * (asin(sqrt(n / (n + 1))) + asin(sqrt((n + 1) / (n + 1))))
   }
@@ -355,9 +369,6 @@ asin2p <- function(x, n = NULL) {
 }
 
 
-
-
-
 #' @rdname meta-transf
 #' @export logit2p
 
@@ -365,17 +376,11 @@ logit2p <- function(x)
   1 / (1 + exp(-x))
 
 
-
-
-
 #' @rdname meta-transf
 #' @export logVR2VE
 
 logVR2VE <- function(x)
   100 * (1 - exp(x))
-
-
-
 
 
 #' @rdname meta-transf

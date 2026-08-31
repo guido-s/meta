@@ -119,7 +119,7 @@ summary.meta <- function(object, ...) {
                p = object$pval.common,
                level = object$level.ma)
   if (metaprop)
-    ci.c$harmonic.mean <- 1 / mean(1 / object$n)
+    ci.c$harmonic.mean <- object$n.harmonic.mean
   else if (metarate)
     ci.c$harmonic.mean <- 1 / mean(1 / object$time)
   #
@@ -132,7 +132,7 @@ summary.meta <- function(object, ...) {
                level = object$level.ma,
                df = object$df.random)
   if (metaprop)
-    ci.r$harmonic.mean <- 1 / mean(1 / object$n)
+    ci.r$harmonic.mean <- object$n.harmonic.mean
   else if (metarate)
     ci.r$harmonic.mean <- 1 / mean(1 / object$time)
   #

@@ -710,15 +710,8 @@ update.meta <- function(object,
       }
       #
       else if (object$sm == "PFT") {
-        lower.ev <- object$n * object$lower 
-        upper.ev <- object$n * object$upper 
-        #
-        object$lower <-
-          0.5 * (asin(sqrt(lower.ev / object$n)) +
-                 asin(sqrt((lower.ev + 1) / object$n)))
-        object$upper <-
-          0.5 * (asin(sqrt(upper.ev / object$n)) +
-                 asin(sqrt((upper.ev + 1) / object$n)))
+        object$lower <- p2asin(object$lower, object$n)
+        object$upper <- p2asin(object$upper, object$n)
       }
       #
       else if (object$sm == "PLN") {
@@ -738,15 +731,8 @@ update.meta <- function(object,
       }
       #
       else if (object$sm == "IRFT") {
-        lower.ev <- object$time * object$lower 
-        upper.ev <- object$time * object$upper 
-        #
-        object$lower <-
-          0.5 * (sqrt(lower.ev / object$time) +
-                 sqrt((lower.ev + 1) / object$time))
-        object$upper <-
-          0.5 * (sqrt(upper.ev / object$time) +
-                 sqrt((upper.ev + 1) / object$time))
+        object$lower <- ir2asin(object$lower, object$time)
+        object$upper <- ir2asin(object$upper, object$time)
       }
       #
       if (inherits(object, "metabind")) {
@@ -817,6 +803,20 @@ update.meta <- function(object,
     # Changes for meta objects with version < 8.2
     #
     object$method.common.ci <- "classic"
+  }
+  #
+  if (update_needed(object$version, 8, 6, verbose)) {
+    #
+    # Changes for meta objects with version < 8.6
+    #
+    if (inherits(object, "metaprop") && object$sm == "PFT") {
+      exclude <- replaceNULL(object$exclude, rep(FALSE, length(object$n)))
+      object$n.harmonic.mean <- 1 / mean(1 / object$n[!exclude])
+    }
+    if (inherits(object, "metarate") && object$sm == "IRFT") {
+      exclude <- replaceNULL(object$exclude, rep(FALSE, length(object$time)))
+      object$t.harmonic.mean <- 1 / mean(1 / object$time[!exclude])
+    }
   }
   
   

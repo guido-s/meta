@@ -102,7 +102,7 @@
 #' values, e.g., log odds ratio (\code{sm = "OR"}) or Fisher's Z
 #' transformed correlations (\code{sm = "ZCOR"}). See
 #' \code{\link{meta-sm}} for available summary measures and
-#' \code{\link{meta-transf}} for the corresponding transformations and
+#' \code{\link{transf}} for the corresponding transformations and
 #' back transformations.
 #' 
 #' @return
@@ -110,7 +110,7 @@
 #' 
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
-#' @seealso \code{\link{meta-transf}}, \code{\link{meta-sm}},
+#' @seealso \code{\link{transf}}, \code{\link{meta-sm}},
 #'   \code{\link{as.data.frame.meta}}
 #' 
 #' @examples
@@ -504,7 +504,7 @@ estimates.meta <- function(x,
   #
   if (backtransf) {
     if (inherits(x, "metaprop")) {
-      harmonic.mean <- 1 / mean(1 / x$n)
+      harmonic.mean <- x$n.harmonic.mean
       #
       nback <- c(if (study.results)
                    x$n[o],
@@ -526,7 +526,10 @@ estimates.meta <- function(x,
       nback <- NULL
     #
     if (inherits(x, "metarate")) {
-      harmonic.mean <- 1 / mean(1 / x$time)
+      harmonic.mean <- if (x$sm == "IRFT")
+                         x$t.harmonic.mean
+                       else
+                         1 / mean(1 / x$time)
       #
       timeback <- c(if (study.results)
                       x$time[o],

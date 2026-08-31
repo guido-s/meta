@@ -16,10 +16,15 @@
   information printed on the left side of the forest plot when adding space to
   prevent text from overlapping the x-axis.
 
+* Freeman-Tukey double arcsine transformed proportions and rates (sm = "PFT" or
+  "IRFT") are back transformed using the harmonic mean for pooled estimates.
+  [(issue #102)](https://github.com/guido-s/meta/issues/102)
+
 ### User-visible changes
 
 * metabias():
-  - print information on response variable in meta-regression
+  - report the response variable used in meta-regression for linear regression
+    tests
   - radial plot can be created for Deeks' test (arguments method = "Deeks"
     and plotit = TRUE)
     [(pull #92)](https://github.com/guido-s/meta/pull/92)
@@ -47,6 +52,42 @@
     suggest that the treatment estimate is not approximately halfway between
     the confidence limits
     [(issue #99)](https://github.com/guido-s/meta/issues/99)
+
+* funnel.meta():
+  - draw funnel plots on the analysis scale but show back-transformed tick marks
+    for transformed proportions, rates, means, or correlations if argument
+    'backtransf = TRUE'
+    [(issue #102)](https://github.com/guido-s/meta/issues/102)
+  - for these transformed summary measures, user-supplied x-limits in argument
+    'xlim' are interpreted on the original scale if argument 'backtransf = TRUE'
+
+* bubble(), funnel.meta():
+  - use the null effect stored in the meta-analysis object as default for the
+    reference line in meta-analyses of single proportions, rates, means, or
+    correlations [(issue #102)](https://github.com/guido-s/meta/issues/102)
+
+* metagen():
+  - correctly transform proportions supplied in arguments 'TE', 'lower', and
+    'upper' for Freeman-Tukey double arcsine transformed proportions
+    (sm = "PFT") if argument 'transf = FALSE'; sample sizes must be supplied
+    in argument 'n.e'
+  - stop with an error if argument 'n.c' is provided for meta-analysis of
+    single proportions, rates, means, or correlations
+
+* metaadd():
+  - function no longer available for Freeman-Tukey double arcsine transformed
+    proportions or rates (sm = "PFT" or "IRFT")
+
+* New function ir2asin() to calculate the Freeman-Tukey double arcsine
+    transformation for incidence rates if argument 'time' is provided and
+    otherwise uses the ordinary square root transformation
+
+* p2asin():
+  - new argument 'n' to calculate Freeman-Tukey double arcsine transformation
+
+* transf():
+  - new arguments 'n' and 'time' to pass these argument to p2asin() or ir2asin()
+    for summary measure "PFT" or "IRFT"
 
 ### Bug fixes
 
@@ -94,6 +135,26 @@
 * bubble():
   - back transform results for vaccine efficacy (sm = "VE")
     [(issue #94)](https://github.com/guido-s/meta/issues/94)
+  - back transform results for Freeman-Tukey double arcsine transformed
+    proportions or rates (sm = "PFT" or "IRFT") using study-specific sample
+    sizes or times for individual studies and the corresponding harmonic mean
+    for the meta-regression line
+    [(issue #102)](https://github.com/guido-s/meta/issues/102)
+
+* cidprop():
+  - transform decision thresholds for Freeman-Tukey double arcsine transformed
+    proportions or rates (sm = "PFT" or "IRFT") using the harmonic mean of
+    sample sizes or times
+    [(issue #102)](https://github.com/guido-s/meta/issues/102)
+
+* metaprop(), metarate():
+  - use the harmonic mean of sample sizes or times to transform the null effect
+    for Freeman-Tukey double arcsine transformed proportions and rates
+    (sm = "PFT" or "IRFT")
+    [(issue #102)](https://github.com/guido-s/meta/issues/102)
+  - respect argument 'exclude' when calculating the harmonic mean used to back
+    transform Freeman-Tukey double arcsine transformed proportions or rates
+    (sm = "PFT" or "IRFT")
 
 * metabias():
   - use efficient score for risk ratio instead of odds ratio in meta-analysis
@@ -123,18 +184,28 @@
 
 * R package **testthat** added to Suggests.
 
+* New internal function layout_colors() to define default colours for forest
+  plots.
+
 * cidprop():
   - for vaccine efficacy (sm = "VE"), defaults for 'cid.below.null' and
     'cid.above.null' calculated from 'cid' are based on relative instead of
     absolute distances from the null effect
     [(issue #94)](https://github.com/guido-s/meta/issues/94)
 
-* New internal function layout_colors() to define default colours for forest
-  plots.
-
 * forest.meta():
   - new default for argument 'calcwidth.hetstat' which is TRUE instead of FALSE
   - set 'addrows.below.overall <- 1' instead of 3 for JAMA layout
+
+* metaprop(), metarate():
+  - store harmonic mean of sample sizes or times for Freeman-Tukey double
+    arcsine transformed proportions and rates (sm = "PFT" or "IRFT")
+
+* trimfill():
+  - use ordinary arcsine transformation logic for Freeman-Tukey double arcsine
+    transformed proportions (sm = "PFT") and ordinary square root
+    transformation logic for Freeman-Tukey double arcsine transformed rates
+    (sm = "IRFT") because harmonic mean changes with filled studies
 
 
 ## meta, version 8.5-0 (2026-05-25)
@@ -169,7 +240,7 @@
   - new argument 'units' to specify the unit of the width and height
   - new argument 'dpi' to specify the plot resolution
   - new argument 'height' to specify height of forest plot
-  
+
 * New function forest_dims() to get the width and height of a forest plot
 
 ### Bug fixes

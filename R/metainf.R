@@ -659,8 +659,8 @@ metainf.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
                       m$Rb,                                          # 17
                       #
                       sum(m$w.common, na.rm = TRUE),                 # 18
-                      if (sel.pft) 1 / mean(1 / n[sel]) else NA,     # 19
-                      if (sel.irft) 1 / mean(1 / time[sel]) else NA, # 20
+                      if (sel.pft) m$n.harmonic.mean else NA,        # 19
+                      if (sel.irft) m$t.harmonic.mean else NA,        # 20
                       #
                       NA,                                            # 21
                       #
@@ -718,8 +718,8 @@ metainf.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
                       m$Rb,                                          # 17
                       #
                       sum(m$w.random, na.rm = TRUE),                 # 18
-                      if (sel.pft) 1 / mean(1 / n[sel]) else NA,     # 19
-                      if (sel.irft) 1 / mean(1 / time[sel]) else NA, # 20
+                      if (sel.pft) m$n.harmonic.mean else NA,        # 19
+                      if (sel.irft) m$t.harmonic.mean else NA,        # 20
                       #
                       if (tdist_random) m$df.random else NA,         # 21
                       #
@@ -826,8 +826,8 @@ metainf.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
   #
   Rb.pooled <- x$Rb
   #
-  n.harmonic.mean.pooled <- 1 / mean(1 / n)
-  t.harmonic.mean.pooled <- 1 / mean(1 / time)
+  n.harmonic.mean.pooled <- replaceNULL(x$n.harmonic.mean)
+  t.harmonic.mean.pooled <- replaceNULL(x$t.harmonic.mean)
   #
   if (pooled == "random" & run_cidprop) {
     pp.pooled <-

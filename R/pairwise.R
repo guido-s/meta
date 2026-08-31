@@ -493,6 +493,11 @@ pairwise <- function(treat,
   missing.keep.all.comparisons <- missing(keep.all.comparisons)
   missing.varnames <- missing(varnames)
   #
+  if (!is.null(sm) && is_single(sm))
+    stop("Summary measure '", sm, "' is only available for single-arm ",
+         "meta-analysis and cannot be used in pairwise().",
+         call. = FALSE)
+  #
   chknumeric(incr, min = 0, length = 1)
   chklogical(allstudies)
   #

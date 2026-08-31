@@ -505,18 +505,38 @@ print.meta <- function(x,
   metaprop <- inherits(x, "metaprop")
   metarate <- inherits(x, "metarate")
   #
+  if (inherits(x, "trimfill")) {
+    harmonic.mean <- NULL
+  }
+  else if (sm == "IRFT") {
+    if (is.metabind)
+      harmonic.mean <- x$t.harmonic.mean.ma
+    else
+      harmonic.mean <- x$t.harmonic.mean
+  }
+  else {
+    if (is.metabind)
+      harmonic.mean <- x$n.harmonic.mean.ma
+    else
+      harmonic.mean <- replaceNULL(x$n.harmonic.mean)
+  }
+  #
   null.effect <- x$null.effect
   null.given <- !is.null(null.effect) && !is.na(null.effect)
   #
   if (null.given & !backtransf) {
     #
-    if (sm %in% c("PFT", "PAS"))
-      null.effect <- asin(sqrt(null.effect))
+    if (sm == "PFT")
+      null.effect <- p2asin(null.effect, makeunique(harmonic.mean))
+    else if (sm == "PAS")
+      null.effect <- p2asin(null.effect)
     else if (is_log_effect(sm))
       null.effect <- log(null.effect)
     else if (sm == c("PLOGIT"))
       null.effect <- log(null.effect / (1 - null.effect))
-    else if (sm %in% c("IRS", "IRFT"))
+    else if (sm == "IRFT")
+      null.effect <- ir2asin(null.effect, makeunique(harmonic.mean))
+    else if (sm == "IRS")
       null.effect <- sqrt(null.effect)
     else if (sm == "ZCOR")
       null.effect <- 0.5 * log((1 + null.effect) / (1 - null.effect))
@@ -669,19 +689,6 @@ print.meta <- function(x,
   }
   #
   if (backtransf) {
-    if (sm == "IRFT") {
-      if (is.metabind)
-        harmonic.mean <- x$t.harmonic.mean.ma
-      else
-        harmonic.mean <- 1 / mean(1 / x$time)
-    }
-    else {
-      if (is.metabind)
-        harmonic.mean <- x$n.harmonic.mean.ma
-      else
-        harmonic.mean <- 1 / mean(1 / x$n)
-    }
-    #
     TE.common <-
       backtransf(TE.common, sm, harmonic.mean, harmonic.mean, fbt, abt)
     lowTE.common <-

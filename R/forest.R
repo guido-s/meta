@@ -2608,7 +2608,7 @@ forest.meta <- function(x,
   log.xaxis <- backtransf & is_relative
   #
   if (miss.ref) {
-    if (is_prop(sm) | is_rate(sm) | is_mean(sm)) {
+    if (is_single(sm)) {
       if (!is.null(x$null.effect))
         ref <- x$null.effect
       else
@@ -3842,8 +3842,8 @@ forest.meta <- function(x,
   if (!avail.xlim) {
     mrm <- c("metaprop", "metarate", "metamean")
     #
-    if (metaprop || metarate || metamean ||
-        (metabind && sm %in% c(gs("sm4prop"), gs("sm4rate"), gs("sm4mean"))) ||
+    if (metaprop || metarate || metamean || metacor ||
+        (metabind && is_single(sm)) ||
         (metacum && any(x$classes %in% mrm)) ||
         (metainf && any(x$classes %in% mrm))) {
       xlim <- NULL
@@ -3889,11 +3889,27 @@ forest.meta <- function(x,
   }
   #
   if (!backtransf) {
-    if (is_prop(sm))
-      ref <- transf(ref, if (sm == "PFT") "PAS" else sm)
-    else if (is_rate(sm))
-      ref <- transf(ref, if (sm == "IRFT") "IRS" else sm)
-    else if (is_mean(sm))
+    if (sm == "PFT") {
+      if (inherits(x, "trimfill"))
+        ref <- transf(ref, "PAS")
+      else if (metabind)
+        ref <- transf(ref, sm, n = makeunique(x$n.harmonic.mean.ma))
+      else if (metacum | metainf)
+        ref <- transf(ref, sm, n = x$n.harmonic.mean.pooled)
+      else
+        ref <- transf(ref, sm, n = x$n.harmonic.mean)
+    }
+    else if (sm == "IRFT") {
+      if (inherits(x, "trimfill"))
+        ref <- transf(ref, "IRS")
+      else if (metabind)
+        ref <- transf(ref, sm, time = makeunique(x$t.harmonic.mean.ma))
+      else if (metacum | metainf)
+        ref <- transf(ref, sm, time = x$t.harmonic.mean.pooled)
+      else
+        ref <- transf(ref, sm, time = x$t.harmonic.mean)
+    }
+    else if (is_single(sm))
       ref <- transf(ref, sm)
   }
   #
@@ -4841,8 +4857,10 @@ forest.meta <- function(x,
   studlab <- studlab[sel]
   type.study <- type.study[sel]
   #
-  x$n.harmonic.mean <- x$n.harmonic.mean[sel]
-  x$t.harmonic.mean <- x$t.harmonic.mean[sel]
+  if (metacum | metainf) {
+    x$n.harmonic.mean <- x$n.harmonic.mean[sel]
+    x$t.harmonic.mean <- x$t.harmonic.mean[sel]
+  }
   #
   x$pval <- x$pval[sel]
   #
@@ -4912,8 +4930,10 @@ forest.meta <- function(x,
     studlab  <- studlab[o]
     type.study  <- type.study[o]
     #
-    x$n.harmonic.mean <- x$n.harmonic.mean[o]
-    x$t.harmonic.mean <- x$t.harmonic.mean[o]
+    if (metacum | metainf) {
+      x$n.harmonic.mean <- x$n.harmonic.mean[o]
+      x$t.harmonic.mean <- x$t.harmonic.mean[o]
+    }
     #
     x$pval <- x$pval[o]
     #
@@ -8468,14 +8488,24 @@ forest.meta <- function(x,
         npft.ma <- x$n.harmonic.mean.ma
       }
     }
+    else if (metacum | metainf) {
+      if (sm == "IRFT") {
+        npft <- x$t.harmonic.mean
+        npft.ma <- x$t.harmonic.mean.pooled
+      }
+      else {
+        npft <- x$n.harmonic.mean
+        npft.ma <- x$n.harmonic.mean.pooled
+      }
+    }
     else {
       if (sm == "IRFT") {
         npft <- x$time
-        npft.ma <- 1 / mean(1 / x$time)
+        npft.ma <- replaceNULL(x$t.harmonic.mean)
       }
       else {
         npft <- x$n
-        npft.ma <- 1 / mean(1 / x$n)
+        npft.ma <- replaceNULL(x$n.harmonic.mean)
       }
     }
     #

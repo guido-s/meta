@@ -137,16 +137,22 @@ cidprop.meta <- function(x,
   sm <- x$sm
   is_relative <- is_relative_effect(sm)
   is_VE <- sm == "VE"
+  n.pft <- if (sm == "PFT") x$n.harmonic.mean else NULL
+  time.irft <- if (sm == "IRFT") x$t.harmonic.mean else NULL
+  use.transf <- sm %in% c("PLOGIT", "PLN", "PAS", "PFT",
+                          "IRLN", "IRS", "IRFT", "MLN", "ZCOR")
   #
   missing.cid <- missing(cid)
   #
-  if (is_prop(sm) | is_rate(sm) | is_mean(sm)) {
+  if (is_single(sm)) {
     if (is_prop(sm))
       outcome <- "proportions"
-    else if (is_prop(sm))
+    else if (is_rate(sm))
       outcome <- "rates"
-    else
+    else if (is_mean(sm))
       outcome <- "means"
+    else
+      outcome <- "correlations"
     #
     ref <- replaceNULL(x$null.effect)
     #
@@ -179,8 +185,8 @@ cidprop.meta <- function(x,
       stop("At least one decision threshold (argument 'cid', ",
            "'cid.below.null', or 'cid.above.null') must be specified.",
            call. = FALSE)
-    else if (!(is_prop(x$sm) | is_rate(x$sm) | is_mean(x$sm)))
-      cid <- backtransf(cid, x$sm)
+    else if (!is_single(sm))
+      cid <- backtransf(cid, sm)
     #
     avail.cid <- TRUE
   }
@@ -212,7 +218,7 @@ cidprop.meta <- function(x,
            "smaller or larger than reference value of ", ref, ".",
            call. = FALSE)
     #
-    if (is_prop(x$sm) | is_rate(x$sm) | is_mean(x$sm)) {
+    if (is_single(sm)) {
         cid.below.null <- cid
         cid.above.null <- cid
     }
@@ -254,6 +260,9 @@ cidprop.meta <- function(x,
     #
     if (is_relative)
       cid.below.null.transf <- log(cid.below.null)
+    else if (use.transf)
+      cid.below.null.transf <- transf(cid.below.null, sm,
+                                      n = n.pft, time = time.irft)
   }
   else {
     cid.below.null <- NA
@@ -267,6 +276,9 @@ cidprop.meta <- function(x,
     #
     if (is_relative)
       cid.above.null.transf <- log(cid.above.null)
+    else if (use.transf)
+      cid.above.null.transf <- transf(cid.above.null, sm,
+                                      n = n.pft, time = time.irft)
   }
   else {
     cid.above.null <- NA
@@ -461,8 +473,12 @@ print.cidprop <- function(x,
   #
   if (!is.null(x$x)) {
     if (!x$x$backtransf) {
-      cid.below.null <- transf(cid.below.null, x$x$sm)
-      cid.above.null <- transf(cid.above.null, x$x$sm)
+      n.pft <- if (x$x$sm == "PFT") x$x$n.harmonic.mean else NULL
+      time.irft <- if (x$x$sm == "IRFT") x$x$t.harmonic.mean else NULL
+      cid.below.null <- transf(cid.below.null, x$x$sm,
+                               n = n.pft, time = time.irft)
+      cid.above.null <- transf(cid.above.null, x$x$sm,
+                               n = n.pft, time = time.irft)
     }
     #
     if (x$x$sm == "")
@@ -473,6 +489,8 @@ print.cidprop <- function(x,
       smlab <- "R "
     else if (is_mean(x$x$sm))
       smlab <- "Mean "
+    else if (is_cor(x$x$sm))
+      smlab <- "Cor "
     else
       smlab <-
         paste0(smlab(x$x$sm, x$x$backtransf), " ")

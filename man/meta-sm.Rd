@@ -175,7 +175,7 @@ List elements \code{TE}, \code{TE.common}, \code{TE.random}, etc.,
 contain transformed values, i.e., log hazard ratios and log vaccine
 ratios. In printouts and plots these values are back transformed if
 argument \code{backtransf = TRUE} (default); see also
-\link{meta-transf}.
+\link{transf}.
 }
 }
 \references{

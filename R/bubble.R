@@ -31,12 +31,10 @@
 #' @param regline A logical indicating whether a regression line
 #'   should be added to the bubble plot.
 #' @param col.line Colour for the meta-regression line.
-#' @param backtransf A logical indicating whether results for relative
-#'   summary measures (argument \code{sm} equal to \code{"OR"},
-#'   \code{"RR"}, \code{"HR"}, or \code{"IRR"}) should be back
-#'   transformed. If \code{backtransf=TRUE}, results for
-#'   \code{sm="OR"} are printed as odds ratios rather than log odds
-#'   ratios, for example.
+#' @param backtransf A logical indicating whether results should be back
+#'   transformed in bubble plots. If \code{backtransf = TRUE}, results for
+#'   \code{sm = "OR"} are printed as odds ratios rather than log odds ratios,
+#'   for example.
 #' @param ref A numerical giving the reference value to be plotted as
 #'   a line in the bubble plot. No reference line is plotted if
 #'   argument \code{ref} is equal to \code{NA}.
@@ -215,9 +213,15 @@ bubble.metareg <- function(x,
   else
     log <- ""
   #
-  if (missing(ref)) {
-    if (is_prop(sm) | is_rate(sm) | is_mean(sm))
-      ref <- NA
+  missing.ref <- missing(ref)
+  #
+  if (missing.ref) {
+    if (is_single(sm)) {
+      if (!is.null(m1$null.effect))
+        ref <- m1$null.effect
+      else
+        ref <- NA
+    }
     else if (log.y)
       ref <- 1
     else
@@ -225,6 +229,23 @@ bubble.metareg <- function(x,
   }
   #
   chknumeric(ref, length = 1)
+  #
+  if (!backtransf) {
+    if (sm == "PFT") {
+      if (inherits(m1, "trimfill"))
+        ref <- transf(ref, "PAS")
+      else
+        ref <- transf(ref, sm, n = m1$n.harmonic.mean)
+    }
+    else if (sm == "IRFT") {
+      if (inherits(m1, "trimfill"))
+        ref <- transf(ref, "IRS")
+      else
+        ref <- transf(ref, sm, time = m1$t.harmonic.mean)
+    }
+    else if (is_single(sm))
+      ref <- transf(ref, sm)
+  }
   
   
   if (is.logical(studlab)) {
@@ -328,6 +349,10 @@ bubble.metareg <- function(x,
   if (backtransf & !log.y) {
     if (!is.null(m1$func.backtransf))
       func.backtransf <- m1$func.backtransf
+    else if (sm == "PFT")
+      func.backtransf <- function(x) asin2p(x, m1$n.harmonic.mean)
+    else if (sm == "IRFT")
+      func.backtransf <- function(x) asin2ir(x, m1$t.harmonic.mean)
     else if (sm == "PLOGIT")
       func.backtransf <- logit2p
     else if (sm == "PAS")
@@ -341,7 +366,12 @@ bubble.metareg <- function(x,
     else
       func.backtransf <- I
     #
-    ys <- do.call(func.backtransf, list(ys))
+    if (sm == "PFT")
+      ys <- asin2p(ys, m1$n)
+    else if (sm == "IRFT")
+      ys <- asin2ir(ys, m1$time)
+    else
+      ys <- do.call(func.backtransf, list(ys))
   }
   #
   if (missing(ylim))
@@ -352,12 +382,13 @@ bubble.metareg <- function(x,
                  func.backtransf = m1$func.backtransf)
     #
     if (ylab == "") {
-      if (sm == "PRAW" | (backtransf & sm %in% c("PLN", "PAS", "PLOGIT")))
+      if (sm == "PRAW" |
+          (backtransf & sm %in% c("PLN", "PAS", "PFT", "PLOGIT")))
         ylab <- "Proportion"
-      else if (sm == "IR" | (backtransf & sm %in% c("IRLN", "IRS")))
+      else if (sm == "IR" | (backtransf & sm %in% c("IRLN", "IRS", "IRFT")))
         ylab <- "Incidence Rate"
-      else if (sm == "MRAW" | (backtransf & sm %in% c("IRLN", "IRS")))
-        ylab <- "Incidence Rate"
+      else if (sm == "MRAW" | (backtransf & sm == "MLN"))
+        ylab <- "Mean"
       else if (sm == "COR" | (backtransf & sm == "ZCOR"))
         ylab <- "Correlation"
     }

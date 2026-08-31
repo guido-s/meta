@@ -177,7 +177,7 @@ limits, e.g., odds ratio (argument \code{sm = "OR"} in
 values, e.g., log odds ratio (\code{sm = "OR"}) or Fisher's Z
 transformed correlations (\code{sm = "ZCOR"}). See
 \code{\link{meta-sm}} for available summary measures and
-\code{\link{meta-transf}} for the corresponding transformations and
+\code{\link{transf}} for the corresponding transformations and
 back transformations.
 }
 \examples{
@@ -212,7 +212,7 @@ write.csv(estimates(ma), file = fname2, row.names = FALSE)
 
 }
 \seealso{
-\code{\link{meta-transf}}, \code{\link{meta-sm}},
+\code{\link{transf}}, \code{\link{meta-sm}},
   \code{\link{as.data.frame.meta}}
 }
 \author{

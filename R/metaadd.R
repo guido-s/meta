@@ -53,6 +53,9 @@
 #' "random"}. For \code{type = "prediction"}, only arguments
 #' \code{lower} and \code{upper} are mandatory.
 #'
+#' This function is not available for Freeman-Tukey double arcsine
+#' transformed proportions or rates (\code{sm = "PFT"} or \code{"IRFT"}).
+#'
 #' Note, R function \code{\link{metamerge}} can be used to add
 #' meta-analysis results of another meta-analysis object (see
 #' \code{\link{meta-object}}).
@@ -132,6 +135,11 @@ metaadd <- function(x, type = NULL,
   missing.text <- missing(text)
   #
   chklogical(transf)
+  if (x$sm %in% c("PFT", "IRFT"))
+    stop("Function metaadd() not available for Freeman-Tukey ",
+         "double arcsine transformed proportions or rates ",
+         "(sm = \"PFT\" or \"IRFT\").",
+         call. = FALSE)
   
   
   #

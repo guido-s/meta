@@ -172,7 +172,7 @@
 #' contain transformed values, i.e., log hazard ratios and log vaccine
 #' ratios. In printouts and plots these values are back transformed if
 #' argument \code{backtransf = TRUE} (default); see also
-#' \link{meta-transf}.
+#' \link{transf}.
 #' }
 #'
 #' @name meta-sm

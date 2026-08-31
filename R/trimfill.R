@@ -274,7 +274,7 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
   transf.null.effect <- null.effect <- x$null.effect
   #
   if (sm %in% c("PFT", "PAS"))
-    transf.null.effect <- asin(sqrt(null.effect))
+    transf.null.effect <- p2asin(null.effect)
   else if (is_log_effect(sm))
     transf.null.effect <- log(null.effect)
   else if (sm == c("PLOGIT"))

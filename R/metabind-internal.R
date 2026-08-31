@@ -80,7 +80,7 @@ overall2meta <- function(x, common, random, prediction, name) {
       df.hakn = if (random) replaceNULL(x$df.hakn) else NULL,
       df.kero = if (random) replaceNULL(x$df.kero) else NULL,
       #
-      n.harmonic.mean.ma = 1 / mean(1 / replaceNULL(x$n)),
+      n.harmonic.mean.ma = replaceNULL(x$n.harmonic.mean),
       t.harmonic.mean.ma = 1 / mean(1 / replaceNULL(x$time)),
       #
       seTE.predict = if (prediction) x$seTE.predict else NULL,
@@ -248,10 +248,10 @@ overall2subgr <- function(x) {
   #
   res[["w.random.w"]] <- rep(0, length(res[["lower.random.w"]]))
   #
-  res[["n.harmonic.mean.ma"]] <- 1 / mean(1 / replaceNULL(x$n))
+  res[["n.harmonic.mean.ma"]] <- replaceNULL(x$n.harmonic.mean)
   res[["t.harmonic.mean.ma"]] <- 1 / mean(1 / replaceNULL(x$time))
   #
-  res[["n.harmonic.mean.w"]] <- 1 / mean(1 / replaceNULL(x$n))
+  res[["n.harmonic.mean.w"]] <- replaceNULL(x$n.harmonic.mean)
   res[["t.harmonic.mean.w"]] <- 1 / mean(1 / replaceNULL(x$time))
   #
   res[["n.e.w"]] <- sum(replaceNULL(x$n.e))

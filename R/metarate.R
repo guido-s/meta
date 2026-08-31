@@ -868,7 +868,6 @@ metarate <- function(event, time, studlab,
       data$.weights.random <- weights.random
   }
 
-
   #
   #
   # (6) Use subset for analysis
@@ -925,6 +924,8 @@ metarate <- function(event, time, studlab,
   time  <- int2num(time)
   if (!is.null(n))
     n <- int2num(n)
+  #
+  t.harmonic.mean <- 1 / mean(1 / time[!exclude])
   #
   # Check for whole numbers
   #
@@ -1016,9 +1017,9 @@ metarate <- function(event, time, studlab,
     transf.null.effect <- sqrt(null.effect)
   }
   else if (sm == "IRFT") {
-    TE <- 0.5 * (sqrt(event / time) + sqrt((event + 1) / time))
+    TE <- ir2asin(event / time, time)
     seTE <- sqrt(1 / (4 * time))
-    transf.null.effect <- sqrt(null.effect)
+    transf.null.effect <- ir2asin(null.effect, t.harmonic.mean)
   }
   #
   # Calculate confidence intervals
@@ -1042,13 +1043,8 @@ metarate <- function(event, time, studlab,
     }
     #
     else if (sm == "IRFT") {
-      lower.ev <- time * lower.study
-      upper.ev <- time * upper.study
-      #
-      lower.study <-
-        0.5 * (sqrt(lower.ev / time) + sqrt((lower.ev + 1) / time))
-      upper.study <-
-        0.5 * (sqrt(upper.ev / time) + sqrt((upper.ev + 1) / time))
+      lower.study <- ir2asin(lower.study, time)
+      upper.study <- ir2asin(upper.study, time)
     }
   }
 
@@ -1301,6 +1297,7 @@ metarate <- function(event, time, studlab,
   #
   res$irscale <- irscale
   res$irunit  <- irunit
+  res$t.harmonic.mean <- if (sm == "IRFT") t.harmonic.mean else NULL
   #
   res$pairwise <- FALSE
   #

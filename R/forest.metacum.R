@@ -411,6 +411,7 @@ forest.metacum <- function(x,
                  prediction = any(prediction),
                  overall = overall,
                  sm = x$sm,
+                 transf = TRUE,
                  backtransf = backtransf,
                  func.backtransf = x$func.backtransf,
                  #
@@ -423,6 +424,19 @@ forest.metacum <- function(x,
     #
     m$lower <- lower[sel.pred]
     m$upper <- upper[sel.pred]
+    #
+    if (x$sm == "PFT") {
+      m$n.harmonic.mean <- as.vector(
+        matrix(c(x$n.harmonic.mean, x$n.harmonic.mean),
+               ncol = k.all, byrow = TRUE))[sel.pred]
+      m$n.harmonic.mean.pooled <- x$n.harmonic.mean.pooled
+    }
+    else if (x$sm == "IRFT") {
+      m$t.harmonic.mean <- as.vector(
+        matrix(c(x$t.harmonic.mean, x$t.harmonic.mean),
+               ncol = k.all, byrow = TRUE))[sel.pred]
+      m$t.harmonic.mean.pooled <- x$t.harmonic.mean.pooled
+    }
     #
     m$pval <- as.vector(
       matrix(c(pval, rep("", k.all)),
@@ -466,6 +480,7 @@ forest.metacum <- function(x,
                  prediction = any(prediction),
                  overall = overall,
                  sm = x$sm,
+                 transf = TRUE,
                  backtransf = backtransf,
                  func.backtransf = x$func.backtransf,
                  #
@@ -478,6 +493,15 @@ forest.metacum <- function(x,
     #
     m$lower <- lower
     m$upper <- upper
+    #
+    if (x$sm == "PFT") {
+      m$n.harmonic.mean <- x$n.harmonic.mean
+      m$n.harmonic.mean.pooled <- x$n.harmonic.mean.pooled
+    }
+    else if (x$sm == "IRFT") {
+      m$t.harmonic.mean <- x$t.harmonic.mean
+      m$t.harmonic.mean.pooled <- x$t.harmonic.mean.pooled
+    }
     #
     m$pval <- pval
     m$I2 <- I2

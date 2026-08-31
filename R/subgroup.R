@@ -521,7 +521,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                        time.c =
                          if (inc) sumNA(meta1$time.c, meta1$exclude) else NA,
                        #
-                       n.harmonic.mean = 1 / mean(1 / x$n[sel]),
+                       n.harmonic.mean = replaceNULL(meta1$n.harmonic.mean),
                        t.harmonic.mean = 1 / mean(1 / x$time[sel]))
   }
   #

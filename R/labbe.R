@@ -297,8 +297,8 @@ labbe.metabin <- function(x,
       ypos <- log(ypos)
     }
     else if (sm == "ASD") {
-      xpos <- asin(sqrt(xpos))
-      ypos <- asin(sqrt(ypos))
+      xpos <- p2asin(xpos)
+      ypos <- p2asin(ypos)
     }
   }
   
@@ -462,7 +462,7 @@ labbe.metabin <- function(x,
       }
       else if (sm == "ASD" & length(TE.common) > 0) {
         for (i in 1:length(TE.common)) {
-          y.line <- sin(asin(sqrt(x.line)) + TE.common[i])^2
+          y.line <- asin2p(p2asin(x.line) + TE.common[i])
           addlines(x.line, y.line, ylim,
                    lty.common[i], lwd.common[i], col.common[i])
         }
@@ -507,7 +507,7 @@ labbe.metabin <- function(x,
       }
       else if (sm == "ASD" & length(TE.random) > 0) {
         for (i in 1:length(TE.random)) {
-          y.line <- sin(asin(sqrt(x.line)) + TE.random[i])^2
+          y.line <- asin2p(p2asin(x.line) + TE.random[i])
           addlines(x.line, y.line, ylim,
                    lty.random[i], lwd.random[i], col.random[i])
         }
@@ -613,8 +613,8 @@ labbe.default <- function(x, y,
       ypos <- log(ypos)
     }
     else if (sm %in% c("RR", "VE")) {
-      xpos <- asin(sqrt(xpos))
-      ypos <- asin(sqrt(ypos))
+      xpos <- p2asin(xpos)
+      ypos <- p2asin(ypos)
     }
   }
   
@@ -773,7 +773,7 @@ labbe.default <- function(x, y,
       }
       else if (sm == "ASD" & length(TE.common) > 0) {
         for (i in 1:length(TE.common)) {
-          y.line <- sin(asin(sqrt(x.line)) + TE.common[i])^2
+          y.line <- asin2p(p2asin(x.line) + TE.common[i])
           addlines(x.line, y.line, ylim,
                    lty.common[i], lwd.common[i], col.common[i])
         }
@@ -818,7 +818,7 @@ labbe.default <- function(x, y,
       }
       else if (sm == "ASD" & length(TE.random) > 0) {
         for (i in 1:length(TE.random)) {
-          y.line <- sin(asin(sqrt(x.line)) + TE.random[i])^2
+          y.line <- asin2p(p2asin(x.line) + TE.random[i])
           addlines(x.line, y.line, ylim,
                    lty.random[i], lwd.random[i], col.random[i])
         }

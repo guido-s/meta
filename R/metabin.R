@@ -1800,7 +1800,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     #
     # Ruecker et al. (2009)
     #
-    TE <- asin(sqrt(n11 / n1.)) - asin(sqrt(n21 / n2.))
+    TE <- p2asin(n11 / n1.) - p2asin(n21 / n2.)
     seTE <- sqrt(0.25 * (1 / n1. + 1 / n2.))
   }
   #

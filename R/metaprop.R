@@ -1215,6 +1215,9 @@ metaprop <- function(event, n, studlab,
   }
 
 
+  n.harmonic.mean <- 1 / mean(1 / n[!exclude])
+
+
   #
   #
   # (8) Calculate results for individual studies
@@ -1228,15 +1231,14 @@ metaprop <- function(event, n, studlab,
     transf.null.effect <- p2logit(null.effect)
   }
   else if (sm == "PAS") {
-    TE <- asin(sqrt(event / n))
+    TE <- p2asin(event / n)
     seTE <- sqrt(1 / (4 * n))
     transf.null.effect <- p2asin(null.effect)
   }
   else if (sm == "PFT") {
-    TE <-
-      0.5 * (asin(sqrt(event / (n + 1))) + asin(sqrt((event + 1) / (n + 1))))
+    TE <- p2asin(event / n, n)
     seTE <- sqrt(1 / (4 * n + 2))
-    transf.null.effect <- p2asin(null.effect)
+    transf.null.effect <- p2asin(null.effect, n.harmonic.mean)
   }
   else if (sm == "PLN") {
     TE <- log((event + incr.event) / (n + incr.event))
@@ -1286,15 +1288,8 @@ metaprop <- function(event, n, studlab,
     }
     #
     else if (sm == "PFT") {
-      lower.ev <- n * lower.study
-      upper.ev <- n * upper.study
-      #
-      lower.study <-
-        0.5 * (asin(sqrt(lower.ev / (n + 1))) +
-               asin(sqrt((lower.ev + 1) / (n + 1))))
-      upper.study <-
-        0.5 * (asin(sqrt(upper.ev / (n + 1))) +
-               asin(sqrt((upper.ev + 1) / (n + 1))))
+      lower.study <- p2asin(lower.study, n)
+      upper.study <- p2asin(upper.study, n)
     }
     #
     else if (sm == "PLN") {
@@ -1448,7 +1443,8 @@ metaprop <- function(event, n, studlab,
               method.incr = method.incr,
               sparse = sparse,
               method.ci = method.ci,
-              incr.event = incr.event)
+              incr.event = incr.event,
+              n.harmonic.mean = if (sm == "PFT") n.harmonic.mean else NULL)
   #
   # Add meta-analysis results
   # (after removing unneeded list elements)
