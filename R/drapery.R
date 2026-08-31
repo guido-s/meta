@@ -421,6 +421,15 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
   else
     chkchar(xlab, length = 1)
   #
+  if (xlab == "") {
+    if (sm == "PRAW" | (backtransf & is_prop(sm)))
+      xlab <- "Proportion"
+    else if (sm == "IR" | (backtransf & is_rate(sm)))
+      xlab <- "Incidence Rate"
+    else if (sm == "MRAW" | (backtransf & is_mean(sm)))
+      xlab <- "Mean"
+  }
+  #
   if (missing(ylab))
     ylab <- c("Test statistic",
               "P-value",
@@ -758,27 +767,29 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
     #
     # Add y-axis on right side
     #
-    if (type == "pvalue") {
-      par(new = TRUE)
-      plot(x.grid, y.common,
-           xlab = xlab, ylab = ylab,
-           xlim = xlim, ylim = rev(ylim),
-           type = "n", las = 1, if (x.backtransf) log = "x" else log = "",
-           axes = FALSE,
-           ...)
-      axis(4, las = 1)
+    if (axes) {
+      if (type == "pvalue") {
+        par(new = TRUE)
+        plot(x.grid, y.common,
+             xlab = xlab, ylab = ylab,
+             xlim = xlim, ylim = rev(ylim),
+             type = "n", las = 1, if (x.backtransf) log = "x" else log = "",
+             axes = FALSE,
+             ...)
+        axis(4, las = 1)
+      }
+      else if (type == "zvalue") {
+        axis(4, las = 1,
+             at = qnorm(c(0.001, 0.01, 0.05) / 2),
+             labels = 1 - c(0.001, 0.01, 0.05))
+        axis(4, las = 1,
+             at = qnorm(seq(0.2, 1, by = 0.2) / 2),
+             labels = format(seq(0.8, 0, by = -0.2)))
+      }
+      #
+      if (type %in% c("pvalue", "zvalue"))
+        mtext("Confidence level", 4, line = 3)
     }
-    else if (type == "zvalue") {
-      axis(4, las = 1,
-           at = qnorm(c(0.001, 0.01, 0.05) / 2),
-           labels = 1 - c(0.001, 0.01, 0.05))
-      axis(4, las = 1,
-           at = qnorm(seq(0.2, 1, by = 0.2) / 2),
-           labels = format(seq(0.8, 0, by = -0.2)))
-    }
-    #
-    if (type %in% c("pvalue", "zvalue"))
-      mtext("Confidence level", 4, line = 3)
   }
   
   if (study.results) {

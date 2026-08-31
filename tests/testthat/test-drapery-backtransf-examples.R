@@ -12,6 +12,27 @@ test_that("drapery shows back-transformed tick marks for single proportions", {
   expect_equal(attr(res, "xlim"), transf(c(0.001, 0.1), m$sm))
 })
 
+test_that("drapery labels x-axis for single proportions", {
+  m <- metaprop(1:5, 101:105)
+  assign(".drapery_xlab", NULL, envir = .GlobalEnv)
+  on.exit(rm(".drapery_xlab", envir = .GlobalEnv), add = TRUE)
+
+  suppressMessages(capture.output(
+    trace(graphics::plot, quote({
+      .drapery_xlab <<- list(...)$xlab
+    }), print = FALSE)
+  ))
+  on.exit(suppressMessages(capture.output(untrace(graphics::plot))),
+          add = TRUE)
+  #
+  pdf(tempfile())
+  on.exit(if (dev.cur() > 1) dev.off(), add = TRUE)
+  expect_silent(drapery(m))
+  dev.off()
+
+  expect_equal(get(".drapery_xlab", envir = .GlobalEnv), "Proportion")
+})
+
 test_that("drapery transforms original-scale x-limits for axis-only measures", {
   dat.rate <- data.frame(event = c(2, 5, 8, 12, 18),
                          time = c(30, 40, 35, 50, 45))
