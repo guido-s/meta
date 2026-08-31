@@ -117,6 +117,8 @@
   - print "lnVR" and "SE(lnVR)" instead of "VE" and "SE(VE)" in forest plots
     for meta-analysis objects created with metagen(sm = "VE")
     [(issue #98)](https://github.com/guido-s/meta/issues/98)
+  - correctly clip diamonds for pooled estimates if argument 'xlim' excludes
+    the pooled estimate but includes one confidence limit
 
 * forest.metacum(), forest.metainf():
   - show prediction intervals if argument 'layout = "BMJ"'
@@ -145,12 +147,6 @@
     for the meta-regression line
     [(issue #102)](https://github.com/guido-s/meta/issues/102)
 
-* cidprop():
-  - transform decision thresholds for Freeman-Tukey double arcsine transformed
-    proportions or rates (sm = "PFT" or "IRFT") using the harmonic mean of
-    sample sizes or times
-    [(issue #102)](https://github.com/guido-s/meta/issues/102)
-
 * metaprop(), metarate():
   - use the harmonic mean of sample sizes or times to transform the null effect
     for Freeman-Tukey double arcsine transformed proportions and rates
@@ -164,6 +160,12 @@
   - use efficient score for risk ratio instead of odds ratio in meta-analysis
     with binary outcome and vaccine efficacy (sm = "VE")
     [(issue #94)](https://github.com/guido-s/meta/issues/94)
+
+* cidprop():
+  - transform decision thresholds for Freeman-Tukey double arcsine transformed
+    proportions or rates (sm = "PFT" or "IRFT") using the harmonic mean of
+    sample sizes or times
+    [(issue #102)](https://github.com/guido-s/meta/issues/102)
 
 * plot.cidprop():
   - back transform results for vaccine efficacy (sm = "VE") (#94)
