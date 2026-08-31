@@ -79,6 +79,8 @@
 #'   common effect (\code{"common"}) or random effects model
 #'   (\code{"random"}), can be abbreviated (only considered if
 #'   argument \code{layout} is equal to \code{"linewidth"}).
+#' @param axes A logical indicating whether axes should be drawn on
+#'   the plot.
 #' @param at Points at which tick-marks are to be drawn on the x-axis.
 #' @param n.grid The number of grid points to calculate the p-value or
 #'   test statistic functions.
@@ -227,6 +229,7 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
                     xlim, ylim,
                     lwd.max = 2.5,
                     lwd.study.weight = if (random) "random" else "common",
+                    axes = TRUE,
                     at = NULL,
                     n.grid = if (type == "zvalue") 10000 else 1000,
                     mar = c(5.1, 4.1, 4.1, 4.1),
@@ -237,10 +240,8 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
                     #
                     ...) {
   
-  
   pvf <- function(x, TE, seTE)
     2 * pnorm(abs(TE - x) / seTE, lower.tail = FALSE)
-  
   
   if (plot) {
     oldpar <- par(mar = mar)
@@ -268,6 +269,7 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
   layout <- setchar(layout, c("grayscale", "linewidth", "equal"))
   #
   chklogical(study.results)
+  chklogical(axes)
   #
   # Argument lty.study
   #
@@ -486,7 +488,7 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
     else if (VE.backtransf)
       xlim <- VE2logVR(xlim)
     else if (axis.only.backtransf)
-      xlim <- transf_ticks(xlim, sm, x)
+      xlim <- transf_xvals(xlim, sm, x)
     #
     mn <- xlim[1]
     mx <- xlim[2]
@@ -521,7 +523,7 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
   }
   else if (axis.only.backtransf) {
     x.grid <- grid
-    null.effect <- transf_ticks(x$null.effect, sm, x)
+    null.effect <- transf_xvals(x$null.effect, sm, x)
   }
   else {
     x.grid <- grid
@@ -615,18 +617,22 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
   #
   
   if (plot) {
-    plot(x.grid, y.common,
-         xlab = xlab, ylab = ylab, xlim = xlim, ylim = ylim,
-         type = "n", las = 1, if (x.backtransf) log = "x" else log = "",
-         axes = FALSE, ...)
+    args <- list(...)
+    args$x <- x.grid
+    args$y <- y.common
+    args$xlab <- xlab
+    args$ylab <- ylab
+    args$xlim <- xlim
+    args$ylim <- ylim
+    args$type <- "n"
+    args$las <- 1
+    args$log <- if (x.backtransf) "x" else ""
+    args$axes <- FALSE
     #
-    if (axis.only.backtransf)
-      axis1_ticks(xlim, sm, x, at)
-    else
-      axis(1, at = at)
+    do.call("plot", args)
     #
-    axis(2)
-    box()
+    if (axes)
+      axes_ticks1(xlim, sm, x, at, VE.backtransf, axis.only.backtransf)
     #
     # Add prediction region
     #
@@ -775,7 +781,6 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
       mtext("Confidence level", 4, line = 3)
   }
   
-  
   if (study.results) {
     res <- data.frame(ID = seq.TE, studlab = studlab,
                       lty.study, lwd.study, col.study,
@@ -792,7 +797,6 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
   }
   else
     res <- NULL
-  
   
   invisible(res)
 }

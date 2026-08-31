@@ -48,6 +48,7 @@ drapery(
   ylim,
   lwd.max = 2.5,
   lwd.study.weight = if (random) "random" else "common",
+  axes = TRUE,
   at = NULL,
   n.grid = if (type == "zvalue") 10000 else 1000,
   mar = c(5.1, 4.1, 4.1, 4.1),
@@ -176,6 +177,9 @@ determine line width for individual studies using weights from
 common effect (\code{"common"}) or random effects model
 (\code{"random"}), can be abbreviated (only considered if
 argument \code{layout} is equal to \code{"linewidth"}).}
+
+\item{axes}{A logical indicating whether axes should be drawn on
+the plot.}
 
 \item{at}{Points at which tick-marks are to be drawn on the x-axis.}
 

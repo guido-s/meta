@@ -16,6 +16,7 @@
   common = x$common,
   random = x$random,
   axes = TRUE,
+  at = NULL,
   pch = if (!inherits(x, "trimfill")) 21 else ifelse(x$trimfill, 1, 21),
   text = NULL,
   cex = 1,
@@ -71,6 +72,8 @@ estimate should be plotted.}
 
 \item{axes}{A logical indicating whether axes should be drawn on
 the plot.}
+
+\item{at}{Points at which tick-marks are to be drawn on the x-axis.}
 
 \item{pch}{The plotting symbol(s) used for individual studies.}
 

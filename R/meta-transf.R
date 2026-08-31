@@ -390,7 +390,7 @@ z2cor <- function(x)
   tanh(x)
 
 
-transf_ticks <- function(vals, sm, x) {
+transf_xvals <- function(vals, sm, x) {
   if (sm == "PFT") {
     if (inherits(x, "trimfill"))
       transf(vals, "PAS")
@@ -408,35 +408,49 @@ transf_ticks <- function(vals, sm, x) {
 }
 
 
-backtransf_ticks <- function(vals, sm, x) {
+backtransf_xlim <- function(xlim, sm, x) {
   if (sm == "PFT") {
     if (inherits(x, "trimfill"))
-      backtransf(vals, "PAS")
+      backtransf(xlim, "PAS")
     else
-      backtransf(vals, sm, n = x$n.harmonic.mean)
+      backtransf(xlim, sm, n = x$n.harmonic.mean)
   }
   else if (sm == "IRFT") {
     if (inherits(x, "trimfill"))
-      backtransf(vals, "IRS")
+      backtransf(xlim, "IRS")
     else
-      backtransf(vals, sm, time = x$t.harmonic.mean)
+      backtransf(xlim, sm, time = x$t.harmonic.mean)
   }
   else
-    backtransf(vals, sm)
+    backtransf(xlim, sm)
 }
 
 
-axis1_ticks <- function(xlim, sm, x, at = NULL) {
-  if (is.null(at)) {
-    xlim.orig <- backtransf_ticks(xlim, sm, x)
-    xs <- pretty(xlim.orig)
-    xs <- xs[xs >= min(xlim.orig) & xs <= max(xlim.orig)]
+axes_ticks1 <- function(xlim, sm, x, at = NULL,
+                        VE.backtransf = FALSE,
+                        axis.only.backtransf = FALSE) {
+  if (VE.backtransf) {
+    xs <- if (is.null(at)) pretty(xlim) else at
+    axis(1, at = xs, labels = round(logVR2VE(-xs)))
   }
+  else if (axis.only.backtransf) {
+    if (is.null(at)) {
+      xlim.orig <- backtransf_xlim(xlim, sm, x)
+      xs <- pretty(xlim.orig)
+      xs <- xs[xs >= min(xlim.orig) & xs <= max(xlim.orig)]
+    }
+    else
+      xs <- at
+    #
+    at <- transf_xvals(xs, sm, x)
+    sel <- is.finite(at) & at >= min(xlim) & at <= max(xlim)
+    axis(1, at = at[sel], labels = xs[sel])
+  }
+  else if (!is.null(at))
+    axis(1, at = at)
   else
-    xs <- at
+    axis(1)
   #
-  at <- transf_ticks(xs, sm, x)
-  sel <- is.finite(at) & at >= min(xlim) & at <= max(xlim)
-  #
-  axis(1, at = at[sel], labels = xs[sel])
+  axis(2)
+  box()
 }

@@ -25,6 +25,16 @@ test_that("funnel back transforms supported proportion transformations", {
   dev.off()
 })
 
+test_that("funnel accepts user-specified x-axis tick marks", {
+  m <- metaprop(1:5, 101:105)
+
+  pdf(tempfile())
+  on.exit(if (dev.cur() > 1) dev.off())
+  expect_silent(funnel(m, at = c(0.02, 0.04, 0.06)))
+  expect_silent(funnel(m, backtransf = FALSE, at = c(-4, -3, -2)))
+  dev.off()
+})
+
 test_that("funnel back transforms supported rate transformations", {
   dat <- data.frame(event = c(2, 5, 8, 12, 18),
                     time = c(30, 40, 35, 50, 45))

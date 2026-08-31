@@ -60,6 +60,10 @@
     [(issue #102)](https://github.com/guido-s/meta/issues/102)
   - for these transformed summary measures, user-supplied x-limits in argument
     'xlim' are interpreted on the original scale if argument 'backtransf = TRUE'
+  - new argument 'at' can be used in funnel.meta() to specify tick marks on the
+    x-axis
+  - new argument 'axes' can be used in drapery() to suppress axes and the plot
+    box
 
 * bubble(), funnel.meta():
   - use the null effect stored in the meta-analysis object as default for the

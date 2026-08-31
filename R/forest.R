@@ -3842,8 +3842,8 @@ forest.meta <- function(x,
   if (!avail.xlim) {
     mrm <- c("metaprop", "metarate", "metamean")
     #
-    if (metaprop || metarate || metamean || metacor ||
-        (metabind && is_single(sm)) ||
+    if (metaprop || metarate || metamean ||
+        (metabind && is_single(sm) && !is_cor(sm)) ||
         (metacum && any(x$classes %in% mrm)) ||
         (metainf && any(x$classes %in% mrm))) {
       xlim <- NULL
