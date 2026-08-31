@@ -53,8 +53,8 @@
     the confidence limits
     [(issue #99)](https://github.com/guido-s/meta/issues/99)
 
-* funnel.meta():
-  - draw funnel plots on the analysis scale but show back-transformed tick marks
+* drapery(), funnel.meta():
+  - draw plots on the analysis scale but show back-transformed tick marks
     for transformed proportions, rates, means, or correlations if argument
     'backtransf = TRUE'
     [(issue #102)](https://github.com/guido-s/meta/issues/102)

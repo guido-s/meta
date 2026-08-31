@@ -64,7 +64,9 @@
 #' @param backtransf A logical indicating whether results should be
 #'   back transformed on the x-axis. For example, if \code{backtransf
 #'   = FALSE}, log odds ratios instead of odds ratios are shown on the
-#'   x-axis.
+#'   x-axis. For transformed proportions, rates, means, and correlations,
+#'   drapery plots are drawn on the analysis scale with back-transformed tick
+#'   marks on the x-axis.
 #' @param xlab A label for the x-axis.
 #' @param ylab A label for the y-axis.
 #' @param xlim The x limits (min, max) of the plot.
@@ -408,9 +410,11 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
   bty <- setchar(bty, c("o", "n"))
   chklogical(backtransf)
   #
+  sm <- x$sm
+  #
   if (missing(xlab)) {
     xlab <- ""
-    xlab <- xlab_meta(x$sm, backtransf = backtransf)
+    xlab <- xlab_meta(sm, backtransf = backtransf)
   }
   else
     chkchar(xlab, length = 1)
@@ -453,9 +457,13 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
       ylim <- c(0, 1)
     }
   #
-  x.backtransf <- is_relative_effect(x$sm) & backtransf
-  VE.backtransf <- x$sm == "VE" & backtransf
-  #
+  x.backtransf <- is_relative_effect(sm) & backtransf
+  VE.backtransf <- sm == "VE" & backtransf
+  axis.only.backtransf <-
+    backtransf && sm %in% c("ZCOR",
+                            "PLOGIT", "PLN", "PAS", "PFT",
+                            "IRLN", "IRS", "IRFT",
+                            "MLN")
   missing.xlim <- missing(xlim)
   #
   if (missing.xlim) {
@@ -477,6 +485,8 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
       xlim <- log(xlim)
     else if (VE.backtransf)
       xlim <- VE2logVR(xlim)
+    else if (axis.only.backtransf)
+      xlim <- transf_ticks(xlim, sm, x)
     #
     mn <- xlim[1]
     mx <- xlim[2]
@@ -508,6 +518,10 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
     x.grid <- logVR2VE(grid)
     xlim <- logVR2VE(xlim)
     null.effect <- logVR2VE(x$null.effect)
+  }
+  else if (axis.only.backtransf) {
+    x.grid <- grid
+    null.effect <- transf_ticks(x$null.effect, sm, x)
   }
   else {
     x.grid <- grid
@@ -605,7 +619,12 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
          xlab = xlab, ylab = ylab, xlim = xlim, ylim = ylim,
          type = "n", las = 1, if (x.backtransf) log = "x" else log = "",
          axes = FALSE, ...)
-    axis(1, at = at)
+    #
+    if (axis.only.backtransf)
+      axis1_ticks(xlim, sm, x, at)
+    else
+      axis(1, at = at)
+    #
     axis(2)
     box()
     #

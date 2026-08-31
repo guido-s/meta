@@ -441,46 +441,14 @@ funnel.meta <- function(x,
   #
   TE.common <- x$TE.common
   TE.random <- x$TE.random
+  #
+  generic.backtransf <-
+    sm %in% c("PLOGIT", "PLN", "PAS", "IRLN", "IRS", "MLN", "ZCOR")
   axis.only.backtransf <-
     backtransf && sm %in% c("ZCOR",
                             "PLOGIT", "PLN", "PAS", "PFT",
                             "IRLN", "IRS", "IRFT",
                             "MLN")
-  generic.backtransf <-
-    sm %in% c("PLOGIT", "PLN", "PAS", "IRLN", "IRS", "MLN", "ZCOR")
-  funnel_transf <- function(xlim) {
-    if (sm == "PFT") {
-      if (inherits(x, "trimfill"))
-        transf(xlim, "PAS")
-      else
-        transf(xlim, sm, n = x$n.harmonic.mean)
-    }
-    else if (sm == "IRFT") {
-      if (inherits(x, "trimfill"))
-        transf(xlim, "IRS")
-      else
-        transf(xlim, sm, time = x$t.harmonic.mean)
-    }
-    else
-      transf(xlim, sm)
-  }
-  funnel_backtransf <- function(xlim) {
-    if (sm == "PFT") {
-      if (inherits(x, "trimfill"))
-        backtransf(xlim, "PAS")
-      else
-        backtransf(xlim, sm, n = x$n.harmonic.mean)
-    }
-    else if (sm == "IRFT") {
-      if (inherits(x, "trimfill"))
-        backtransf(xlim, "IRS")
-      else
-        backtransf(xlim, sm, time = x$t.harmonic.mean)
-    }
-    else
-      backtransf(xlim, sm)
-  }
-  #
   if (missing(log))
     if (backtransf & is_relative_effect(sm))
       log <- "x"
@@ -692,7 +660,7 @@ funnel.meta <- function(x,
   }
   #
   if (axis.only.backtransf & !is.null(xlim)) {
-    xlim.transf <- funnel_transf(xlim)
+    xlim.transf <- transf_ticks(xlim, sm, x)
     xlim.fallback <-
       if (!is.null(level) &
           (yaxis == "se" |
@@ -763,19 +731,15 @@ funnel.meta <- function(x,
   #
   do.call(plot, args)
   #
-  if (sm == "VE" & backtransf && axes.orig) {
-    xs <- pretty(xlim)
-    axis(1, at = xs, labels = round(logVR2VE(-xs)))
-    axis(2)
-    box()
-  }
-  else if (axis.only.backtransf && axes.orig) {
-    xlim.orig <- funnel_backtransf(xlim)
-    xs <- pretty(xlim.orig)
-    xs <- xs[xs >= min(xlim.orig) & xs <= max(xlim.orig)]
-    at <- funnel_transf(xs)
-    sel <- is.finite(at) & at >= min(xlim) & at <= max(xlim)
-    axis(1, at = at[sel], labels = xs[sel])
+  if (axes.orig) {
+    if (sm == "VE" & backtransf) {
+      xs <- pretty(xlim)
+      axis(1, at = xs, labels = round(logVR2VE(-xs)))
+    }
+    else if (axis.only.backtransf) {
+      axis1_ticks(xlim, sm, x)
+    }
+    #
     axis(2)
     box()
   }

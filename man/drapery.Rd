@@ -155,7 +155,9 @@ printed.}
 \item{backtransf}{A logical indicating whether results should be
 back transformed on the x-axis. For example, if \code{backtransf
 = FALSE}, log odds ratios instead of odds ratios are shown on the
-x-axis.}
+x-axis. For transformed proportions, rates, means, and correlations,
+drapery plots are drawn on the analysis scale with back-transformed tick
+marks on the x-axis.}
 
 \item{xlab}{A label for the x-axis.}
 

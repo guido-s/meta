@@ -388,3 +388,55 @@ logVR2VE <- function(x)
 
 z2cor <- function(x)
   tanh(x)
+
+
+transf_ticks <- function(vals, sm, x) {
+  if (sm == "PFT") {
+    if (inherits(x, "trimfill"))
+      transf(vals, "PAS")
+    else
+      transf(vals, sm, n = x$n.harmonic.mean)
+  }
+  else if (sm == "IRFT") {
+    if (inherits(x, "trimfill"))
+      transf(vals, "IRS")
+    else
+      transf(vals, sm, time = x$t.harmonic.mean)
+  }
+  else
+    transf(vals, sm)
+}
+
+
+backtransf_ticks <- function(vals, sm, x) {
+  if (sm == "PFT") {
+    if (inherits(x, "trimfill"))
+      backtransf(vals, "PAS")
+    else
+      backtransf(vals, sm, n = x$n.harmonic.mean)
+  }
+  else if (sm == "IRFT") {
+    if (inherits(x, "trimfill"))
+      backtransf(vals, "IRS")
+    else
+      backtransf(vals, sm, time = x$t.harmonic.mean)
+  }
+  else
+    backtransf(vals, sm)
+}
+
+
+axis1_ticks <- function(xlim, sm, x, at = NULL) {
+  if (is.null(at)) {
+    xlim.orig <- backtransf_ticks(xlim, sm, x)
+    xs <- pretty(xlim.orig)
+    xs <- xs[xs >= min(xlim.orig) & xs <= max(xlim.orig)]
+  }
+  else
+    xs <- at
+  #
+  at <- transf_ticks(xs, sm, x)
+  sel <- is.finite(at) & at >= min(xlim) & at <= max(xlim)
+  #
+  axis(1, at = at[sel], labels = xs[sel])
+}
