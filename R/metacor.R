@@ -396,7 +396,7 @@ metacor <- function(cor, n, studlab,
   #
   adhoc.hakn.pi <- setchar(replaceNA(adhoc.hakn.pi, ""), gs("adhoc4hakn.pi"))
   #
-  chknumeric(null.effect, length = 1)
+  chknumeric(null.effect, min = -1, max = 1, length = 1)
   #
   method.bias <- setmethodbias(method.bias)
   #

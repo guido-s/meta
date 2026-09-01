@@ -565,7 +565,10 @@ metamean <- function(n, mean, sd, studlab,
   #
   adhoc.hakn.pi <- setchar(adhoc.hakn.pi, gs("adhoc4hakn.pi"))
   #
-  chknumeric(null.effect, length = 1)
+  if (sm == "MLN")
+    chknumeric(null.effect, min = 0, zero = TRUE, length = 1)
+  else
+    chknumeric(null.effect, length = 1)
   #
   method.bias <- setmethodbias(method.bias)
   #

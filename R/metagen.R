@@ -886,7 +886,18 @@ metagen <- function(TE, seTE, studlab,
   if (!is.null(seed.predict))
     chknumeric(seed.predict, length = 1)
   #
-  chknumeric(null.effect, length = 1)
+  if (is_prop(sm) && (!transf || sm == "PRAW"))
+    chknumeric(null.effect, min = 0, max = 1, length = 1)
+  else if (is_rate(sm) && (!transf || sm == "IR"))
+    chknumeric(null.effect, min = 0, length = 1)
+  else if (sm == "MLN" && !transf)
+    chknumeric(null.effect, min = 0, zero = TRUE, length = 1)
+  else if (is_mean(sm))
+    chknumeric(null.effect, length = 1)
+  else if (is_cor(sm) && (!transf || sm == "COR"))
+    chknumeric(null.effect, min = -1, max = 1, length = 1)
+  else
+    chknumeric(null.effect, length = 1)
   #
   chklogical(transf)
   chklogical(backtransf)

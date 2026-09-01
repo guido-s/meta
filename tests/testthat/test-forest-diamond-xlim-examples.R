@@ -26,3 +26,20 @@ test_that("forest clips pooled diamonds to narrow x-limits", {
   expect_true(length(xs) > 0)
   expect_true(all(xs[[1]] >= xlim[1] & xs[[1]] <= xlim[2]))
 })
+
+test_that("forest accepts graphics devices", {
+  data(Fleiss1993bin)
+  m <- metabin(d.asp, n.asp, d.plac, n.plac, study,
+               data = Fleiss1993bin, sm = "OR", method = "I")
+  oldwd <- setwd(tempdir())
+  on.exit(setwd(oldwd), add = TRUE)
+  on.exit(unlink(file.path(tempdir(), "Rplots.pdf")), add = TRUE)
+
+  unlink("Rplots.pdf")
+  expect_invisible(forest(m, device = pdf))
+  expect_true(file.exists("Rplots.pdf"))
+
+  unlink("Rplots.pdf")
+  expect_invisible(forest(m, device = "pdf"))
+  expect_true(file.exists("Rplots.pdf"))
+})

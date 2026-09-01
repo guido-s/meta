@@ -513,7 +513,7 @@ metarate <- function(event, time, studlab,
   #
   adhoc.hakn.pi <- setchar(replaceNA(adhoc.hakn.pi, ""), gs("adhoc4hakn.pi"))
   #
-  chknumeric(null.effect, length = 1)
+  chknumeric(null.effect, min = 0, length = 1)
   #
   method.bias <- setmethodbias(method.bias)
   #

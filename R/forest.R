@@ -1740,6 +1740,12 @@ forest.meta <- function(x,
   
   chkclass(x, "meta")
   x.name <- deparse(substitute(x))
+  device.name <- NULL
+  if (!missing(device)) {
+    device.expr <- substitute(device)
+    device.name <-
+      if (is.character(device.expr)) device.expr else deparse(device.expr)
+  }
   x <- updateversion(x)
   
   
@@ -1761,9 +1767,11 @@ forest.meta <- function(x,
   #
   device <-
     deprecated(device, missing(device), args, "func.gr", warn.deprecated)
+  if (is.character(device) && length(device) == 1)
+    device.name <- device
   #
   if (is.null(filename) & !is.null(device))
-    filename <- paste0("Rplots.", substitute(device))
+    filename <- paste0("Rplots.", device.name)
   #
   # Capture width and height expressions to safely evaluate them later
   #
@@ -12089,8 +12097,8 @@ forest.meta <- function(x,
                "\".bmp\", \".jpg\", \".png\", \"tif\") or ",
                "\n  graphics function (argument 'device').")
       }
-      else
-        device <- deparse(substitute(device))
+      else if (is.function(device))
+        device <- device.name
     }
     #
     if (is.null(height)) {

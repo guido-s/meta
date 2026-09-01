@@ -16,30 +16,12 @@
   information printed on the left side of the forest plot when adding space to
   prevent text from overlapping the x-axis.
 
-* Freeman-Tukey double arcsine transformed proportions and rates (sm = "PFT" or
-  "IRFT") are back transformed using the harmonic mean for pooled estimates.
-  [(issue #102)](https://github.com/guido-s/meta/issues/102)
-
 ### User-visible changes
-
-* metabias():
-  - report the response variable used in meta-regression for linear regression
-    tests
-  - radial plot can be created for Deeks' test (arguments method = "Deeks"
-    and plotit = TRUE)
-    [(pull #92)](https://github.com/guido-s/meta/pull/92)
 
 * metabin(), metacont(), metacor(), metagen(), metainc(), metamean(),
   metaprop(), metarate(), metareg(), update.meta():
   - argument 'method.random.ci' can be equal to "CR0", "CR1", or "CR2" for
     cluster-robust variance estimators
-
-* forest.metacum():
-  - use default colours for squares regardless of layout
-    [(issue #96)](https://github.com/guido-s/meta/issues/96)
-
-* forest.metacum(), forest.metainf():
-  - new argument 'calcwidth.details' 
 
 * metagen():
   - study-level confidence limits supplied in arguments 'lower' and 'upper'
@@ -52,6 +34,34 @@
     suggest that the treatment estimate is not approximately halfway between
     the confidence limits
     [(issue #99)](https://github.com/guido-s/meta/issues/99)
+  - correctly transform proportions supplied in arguments 'TE', 'lower', and
+    'upper' for Freeman-Tukey double arcsine transformed proportions
+    (sm = "PFT") if argument 'transf = FALSE'; sample sizes must be supplied
+    in argument 'n.e'
+  - stop with an error if argument 'n.c' is provided for meta-analysis of
+    single proportions, rates, means, or correlations
+  - check argument 'null.effect' on the original scale for meta-analyses of
+    single proportions, rates, means, or correlations if argument
+    'transf = FALSE'
+    [(issue #103)](https://github.com/guido-s/meta/issues/103)
+
+* metacor(), metamean(), metarate():
+  - use summary-measure specific checks for argument 'null.effect'
+    [(issue #103)](https://github.com/guido-s/meta/issues/103)
+
+* metabias():
+  - report the response variable used in meta-regression for linear regression
+    tests
+  - radial plot can be created for Deeks' test (arguments method = "Deeks"
+    and plotit = TRUE)
+    [(pull #92)](https://github.com/guido-s/meta/pull/92)
+
+* forest.metacum():
+  - use default colours for squares regardless of layout
+    [(issue #96)](https://github.com/guido-s/meta/issues/96)
+
+* forest.metacum(), forest.metainf():
+  - new argument 'calcwidth.details'
 
 * drapery(), funnel.meta():
   - draw plots on the analysis scale but show back-transformed tick marks
@@ -70,14 +80,6 @@
     reference line in meta-analyses of single proportions, rates, means, or
     correlations [(issue #102)](https://github.com/guido-s/meta/issues/102)
 
-* metagen():
-  - correctly transform proportions supplied in arguments 'TE', 'lower', and
-    'upper' for Freeman-Tukey double arcsine transformed proportions
-    (sm = "PFT") if argument 'transf = FALSE'; sample sizes must be supplied
-    in argument 'n.e'
-  - stop with an error if argument 'n.c' is provided for meta-analysis of
-    single proportions, rates, means, or correlations
-
 * metaadd():
   - function no longer available for Freeman-Tukey double arcsine transformed
     proportions or rates (sm = "PFT" or "IRFT")
@@ -94,6 +96,24 @@
     for summary measure "PFT" or "IRFT"
 
 ### Bug fixes
+
+* metaprop(), metarate():
+  - use the harmonic mean of sample sizes or times to transform the null effect
+    for Freeman-Tukey double arcsine transformed proportions and rates
+    (sm = "PFT" or "IRFT")
+    [(issue #102)](https://github.com/guido-s/meta/issues/102)
+  - respect argument 'exclude' when calculating the harmonic mean used to back
+    transform Freeman-Tukey double arcsine transformed proportions or rates
+    (sm = "PFT" or "IRFT")
+
+* metacont(), metamean():
+  - correctly identify studies with non-positive sample sizes or means
+    [(issue #103)](https://github.com/guido-s/meta/issues/103)
+
+* pairwise():
+  - consider continuity correction in binary outcomes with summary measure "DOR"
+    or "VE"
+    [(issue #94)](https://github.com/guido-s/meta/issues/94)
 
 * forest.meta():
   - do not automatically attach 'label.e' to the column 'n.e' with
@@ -124,11 +144,6 @@
   - show prediction intervals if argument 'layout = "BMJ"'
     [(issue #96)](https://github.com/guido-s/meta/issues/96)
 
-* pairwise():
-  - consider continuity correction in binary outcomes with summary measure "DOR"
-    or "VE"
-    [(issue #94)](https://github.com/guido-s/meta/issues/94)
-
 * labbe():
   - show common effect / random effects lines for summary measure "VE"
     [(issue #94)](https://github.com/guido-s/meta/issues/94)
@@ -146,15 +161,6 @@
     sizes or times for individual studies and the corresponding harmonic mean
     for the meta-regression line
     [(issue #102)](https://github.com/guido-s/meta/issues/102)
-
-* metaprop(), metarate():
-  - use the harmonic mean of sample sizes or times to transform the null effect
-    for Freeman-Tukey double arcsine transformed proportions and rates
-    (sm = "PFT" or "IRFT")
-    [(issue #102)](https://github.com/guido-s/meta/issues/102)
-  - respect argument 'exclude' when calculating the harmonic mean used to back
-    transform Freeman-Tukey double arcsine transformed proportions or rates
-    (sm = "PFT" or "IRFT")
 
 * metabias():
   - use efficient score for risk ratio instead of odds ratio in meta-analysis
