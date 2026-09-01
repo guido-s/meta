@@ -77,3 +77,195 @@ test_that("forest accounts for attached treatment labels in column headings", {
   )
   dev.off()
 })
+
+test_that("forest accepts different colours for multiple overall diamonds", {
+  m <- metagen(1:5, 5:1, sm = "MD")
+  m$TE.common <- c(1, 2)
+  m$lower.common <- c(0, 1)
+  m$upper.common <- c(2, 3)
+  m$statistic.common <- c(1, 2)
+  m$pval.common <- c(0.1, 0.2)
+  m$text.common <- c("A", "B")
+  m$TE.random <- c(1.5, 2.5)
+  m$lower.random <- c(0.5, 1.5)
+  m$upper.random <- c(2.5, 3.5)
+  m$statistic.random <- c(1.5, 2.5)
+  m$pval.random <- c(0.15, 0.25)
+  m$text.random <- c("C", "D")
+
+  pdf(tempfile())
+  on.exit(if (dev.cur() > 1) dev.off(), add = TRUE)
+  expect_silent(
+    forest(m, common = TRUE, random = TRUE,
+           col.diamond.common = c("red", "blue"),
+           col.diamond.random = c("green", "yellow"),
+           col.diamond.lines.common = c("black", "gray"),
+           col.diamond.lines.random = c("purple", "orange"))
+  )
+  expect_error(
+    forest(m, common = TRUE, random = FALSE,
+           col.diamond.common = c("red", "blue", "green")),
+    "Length of argument 'col.diamond.common'"
+  )
+  dev.off()
+})
+
+test_that("forest accepts different colours for multiple prediction intervals", {
+  m <- metagen(1:5, 5:1, method.predict = c("V", "HTS"))
+
+  pdf(tempfile())
+  on.exit(if (dev.cur() > 1) dev.off(), add = TRUE)
+  expect_silent(
+    forest(m, prediction = TRUE,
+           col.predict = c("red", "blue"),
+           col.predict.lines = c("green", "yellow"))
+  )
+  expect_error(
+    forest(m, prediction = TRUE,
+           col.predict = c("red", "blue", "green")),
+    "Length of argument 'col.predict'"
+  )
+  dev.off()
+})
+
+test_that("forest accepts different colours for subgroup diamonds", {
+  m <- metagen(1:5, 5:1, method.random.ci = c("classic", "HK"),
+               subgroup = LETTERS[c(1, 1, 2, 2, 2)])
+
+  pdf(tempfile())
+  on.exit(if (dev.cur() > 1) dev.off(), add = TRUE)
+  expect_silent(
+    forest(m,
+           col.diamond.common.subgroup = c("red", "blue"),
+           col.diamond.random.subgroup = c("green", "yellow",
+                                           "purple", "orange"),
+           col.diamond.lines.common.subgroup = c("black", "gray"),
+           col.diamond.lines.random.subgroup = c("blue", "green"))
+  )
+  expect_error(
+    forest(m, col.diamond.random.subgroup = c("red", "blue", "green")),
+    "Length of argument 'col.diamond.random.subgroup'"
+  )
+  dev.off()
+})
+
+test_that("subgroup diamond colours follow displayed subgroup order", {
+  m <- metagen(1:5, 5:1, method.random.ci = c("classic", "HK"),
+               subgroup = LETTERS[c(2, 2, 1, 1, 1)])
+
+  expect_equal(
+    setlength_subgroup_colors(
+      1:4, 2, 4, sort(m$subgroup.levels), m$subgroup.levels,
+      "number of random effects estimates", "col.diamond.random.subgroup"),
+    c(3, 4, 1, 2)
+  )
+  expect_equal(
+    setlength_subgroup_colors(
+      1:4, 2, 4, m$subgroup.levels, m$subgroup.levels,
+      "number of random effects estimates", "col.diamond.random.subgroup"),
+    1:4
+  )
+})
+
+test_that("forest accepts different colours for subgroup prediction intervals", {
+  m <- metagen(1:5, 5:1, method.predict = c("V", "HTS"),
+               subgroup = LETTERS[c(1, 1, 2, 2, 2)])
+
+  pdf(tempfile())
+  on.exit(if (dev.cur() > 1) dev.off(), add = TRUE)
+  expect_silent(
+    forest(m, prediction = TRUE, prediction.subgroup = TRUE,
+           col.predict.subgroup = c("red", "blue"),
+           col.predict.lines.subgroup = c("green", "yellow",
+                                         "purple", "orange"))
+  )
+  expect_error(
+    forest(m, prediction = TRUE, prediction.subgroup = TRUE,
+           col.predict.subgroup = c("red", "blue", "green")),
+    "Length of argument 'col.predict.subgroup'"
+  )
+  dev.off()
+})
+
+test_that("subgroup prediction interval colours follow displayed order", {
+  m <- metagen(1:5, 5:1, method.predict = c("V", "HTS"),
+               subgroup = LETTERS[c(2, 2, 1, 1, 1)])
+
+  expect_equal(
+    setlength_subgroup_colors(
+      1:4, 2, 4, sort(m$subgroup.levels), m$subgroup.levels,
+      "number of prediction intervals", "col.predict.subgroup"),
+    c(3, 4, 1, 2)
+  )
+  expect_equal(
+    setlength_subgroup_colors(
+      1:4, 2, 4, m$subgroup.levels, m$subgroup.levels,
+      "number of prediction intervals", "col.predict.subgroup"),
+    1:4
+  )
+})
+
+test_that("prediction.subgroup accepts method-specific subgroup matrices", {
+  m <- metagen(1:5, 5:1, method.random.ci = c("classic", "HK"),
+               subgroup = LETTERS[c(2, 2, 1, 1, 1)], prediction = TRUE,
+               method.predict = c("V", "HK-PR", "S"))
+
+  expect_equal(
+    show_prediction_subgroup_results(
+      m$df.predict.w > 1, length(m$subgroup.levels),
+      m$lower.predict.w, m$upper.predict.w),
+    c(FALSE, FALSE, TRUE, TRUE, FALSE, TRUE)
+  )
+  expect_equal(
+    order_subgroup_results(
+      show_prediction_subgroup_results(
+        m$df.predict.w > 1, length(m$subgroup.levels),
+        m$lower.predict.w, m$upper.predict.w),
+      order(factor(m$subgroup.levels, levels = sort(m$subgroup.levels))),
+      ncol(m$df.predict.w)),
+    c(TRUE, FALSE, TRUE, FALSE, FALSE, TRUE)
+  )
+
+  pdf(tempfile())
+  on.exit(if (dev.cur() > 1) dev.off(), add = TRUE)
+  expect_silent(
+    forest(m, col.diamond.random.subgroup = 1:4,
+           prediction.subgroup = k.w > 2,
+           col.predict = c("brown", "orange", "violet"))
+  )
+  expect_silent(
+    forest(m, col.diamond.random.subgroup = 1:4,
+           prediction.subgroup = df.predict.w > 1,
+           col.predict = c("brown", "orange", "violet"))
+  )
+  dev.off()
+})
+
+test_that("random.subgroup accepts method-specific subgroup matrices", {
+  m <- metagen(1:5, 5:1, method.random.ci = c("classic", "HK"),
+               subgroup = LETTERS[c(2, 2, 1, 1, 1)], prediction = TRUE,
+               method.predict = c("V", "HK-PR", "S"))
+
+  expect_equal(
+    show_subgroup_results_by_method(
+      m$df.random.w > 1, length(m$subgroup.levels),
+      m$lower.random.w, m$upper.random.w, "random.subgroup"),
+    c(TRUE, FALSE, TRUE, TRUE)
+  )
+  expect_equal(
+    order_subgroup_results(
+      show_subgroup_results_by_method(
+        m$df.random.w > 1, length(m$subgroup.levels),
+        m$lower.random.w, m$upper.random.w, "random.subgroup"),
+      order(factor(m$subgroup.levels, levels = sort(m$subgroup.levels))),
+      ncol(m$df.random.w)),
+    c(TRUE, TRUE, TRUE, FALSE)
+  )
+
+  pdf(tempfile())
+  on.exit(if (dev.cur() > 1) dev.off(), add = TRUE)
+  expect_silent(
+    forest(m, random.subgroup = df.random.w > 1)
+  )
+  dev.off()
+})

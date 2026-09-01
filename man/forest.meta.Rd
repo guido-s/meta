@@ -113,12 +113,18 @@
   col.inside.random = col.inside,
   col.diamond = gs("col.diamond"),
   col.diamond.common = col.diamond,
+  col.diamond.common.subgroup = col.diamond.common,
   col.diamond.random = col.diamond,
+  col.diamond.random.subgroup = col.diamond.random,
   col.diamond.lines = gs("col.diamond.lines"),
   col.diamond.lines.common = col.diamond.lines,
+  col.diamond.lines.common.subgroup = col.diamond.lines.common,
   col.diamond.lines.random = col.diamond.lines,
+  col.diamond.lines.random.subgroup = col.diamond.lines.random,
   col.predict = gs("col.predict"),
+  col.predict.subgroup = col.predict,
   col.predict.lines = gs("col.predict.lines"),
+  col.predict.lines.subgroup = col.predict.lines,
   col.subgroup = gs("col.subgroup"),
   col.label.left = x$col.label.left,
   col.label.right = x$col.label.right,
@@ -648,8 +654,14 @@ for common effect and random effects models.}
 \item{col.diamond.common}{The colour(s) of diamonds for common effect
 estimates.}
 
+\item{col.diamond.common.subgroup}{The colour(s) of diamonds for common
+effect estimates in subgroups.}
+
 \item{col.diamond.random}{The colour(s) of diamonds for random effects
 estimates.}
+
+\item{col.diamond.random.subgroup}{The colour(s) of diamonds for random
+effects estimates in subgroups.}
 
 \item{col.diamond.lines}{The colour of the outer lines of diamonds
 representing the results for common effect and random effects
@@ -658,13 +670,25 @@ models.}
 \item{col.diamond.lines.common}{The colour(s) of the outer lines of
 diamond for common effect estimate.}
 
+\item{col.diamond.lines.common.subgroup}{The colour(s) of the outer lines
+of diamonds for common effect estimates in subgroups.}
+
 \item{col.diamond.lines.random}{The colour(s) of the outer lines of
 diamond for random effects estimate.}
 
+\item{col.diamond.lines.random.subgroup}{The colour(s) of the outer lines
+of diamonds for random effects estimates in subgroups.}
+
 \item{col.predict}{Background colour(s) of prediction intervals.}
+
+\item{col.predict.subgroup}{Background colour(s) of prediction intervals
+in subgroups.}
 
 \item{col.predict.lines}{Colour(s) of outer lines of prediction
 intervals.}
+
+\item{col.predict.lines.subgroup}{Colour(s) of outer lines of prediction
+intervals in subgroups.}
 
 \item{col.subgroup}{The colour to print information on subgroups.}
 
@@ -804,12 +828,12 @@ model).}
 indicating whether / which common effect estimates should be
 printed for subgroups.}
 
-\item{random.subgroup}{A single logical or logical vector
-indicating whether / which random effects estimates should be
-printed for subgroups.}
+\item{random.subgroup}{A single logical, logical vector, or logical matrix
+indicating whether / which random effects estimates should be printed for
+subgroups.}
 
-\item{prediction.subgroup}{A single logical or logical vector
-indicating whether / which prediction intervals should be printed
+\item{prediction.subgroup}{A single logical, logical vector, or logical
+matrix indicating whether / which prediction intervals should be printed
 for subgroups.}
 
 \item{print.tau2.ci.subgroup}{A single logical or logical vector

@@ -1,4 +1,4 @@
-## meta, version 8.6-0 (2026-mm-dd)
+## meta, version 9.0-0 (2026-mm-dd)
 
 ### Major changes
 
@@ -12,9 +12,15 @@
   and both common effect and random effects meta-analysis were
   conducted.
 
-* In forest plots, arguments 'calcwidth.*' now consider the full width of
-  information printed on the left side of the forest plot when adding space to
-  prevent text from overlapping the x-axis.
+* Forest plots:
+  - subgroup random effects estimates and prediction intervals can be selected
+    separately for each confidence interval or prediction interval method
+  - heterogeneity statistics are now considered by default when calculating
+    horizontal spacing, which reduces overlap with the x-axis
+  - less vertical space is added below the overall results in JAMA layout
+    because heterogeneity statistics no longer overlap with the x-axis
+  - automatic spacing based on arguments 'calcwidth.*' now accounts for all
+    information printed to the left of the forest plot
 
 ### User-visible changes
 
@@ -57,9 +63,26 @@
     [(pull #92)](https://github.com/guido-s/meta/pull/92)
 
 * forest.meta():
-  - consider the width of treatment group labels attached to columns when
-    calculating column widths, and suppress these labels if the attached column
-    already has a two-line heading
+  - new default for argument 'calcwidth.hetstat' is TRUE
+  - less vertical space is added below overall results in JAMA layout
+  - allow different colours for multiple overall common effect or random effects
+    diamonds and their outlines
+  - allow different colours for multiple overall prediction intervals and their
+    outlines
+  - new arguments 'col.diamond.common.subgroup', 'col.diamond.random.subgroup',
+    'col.diamond.lines.common.subgroup', and 'col.diamond.lines.random.subgroup'
+    allow different colours for subgroup diamonds and their outlines
+  - new arguments 'col.predict.subgroup' and 'col.predict.lines.subgroup'
+    allow different colours for prediction intervals in subgroups and their
+    outlines
+  - arguments 'random.subgroup' and 'prediction.subgroup' can be logical
+    matrices to select subgroup random effects estimates or prediction
+    intervals separately for each confidence interval or prediction interval
+    method
+  - consider the width of treatment group labels (arguments 'label.e' and
+    'label.c' in meta-analysis functions) attached to columns when calculating
+    column widths, and suppress these labels if the attached column already has
+    a two-line heading
   - center combined treatment group header over both columns in BMJ layout for
     meta-analyses with binary or continuous outcomes
   - use combined event / time columns in BMJ layout for meta-analyses of
@@ -214,10 +237,6 @@
     'cid.above.null' calculated from 'cid' are based on relative instead of
     absolute distances from the null effect
     [(issue #94)](https://github.com/guido-s/meta/issues/94)
-
-* forest.meta():
-  - new default for argument 'calcwidth.hetstat' which is TRUE instead of FALSE
-  - set 'addrows.below.overall <- 1' instead of 3 for JAMA layout
 
 * metaprop(), metarate():
   - store harmonic mean of sample sizes or times for Freeman-Tukey double

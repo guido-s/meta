@@ -250,18 +250,30 @@
 #'   for common effect and random effects models.
 #' @param col.diamond.common The colour(s) of diamonds for common effect
 #'   estimates.
+#' @param col.diamond.common.subgroup The colour(s) of diamonds for common
+#'   effect estimates in subgroups.
 #' @param col.diamond.random The colour(s) of diamonds for random effects
 #'   estimates.
+#' @param col.diamond.random.subgroup The colour(s) of diamonds for random
+#'   effects estimates in subgroups.
 #' @param col.diamond.lines The colour of the outer lines of diamonds
 #'   representing the results for common effect and random effects
 #'   models.
 #' @param col.diamond.lines.common The colour(s) of the outer lines of
 #'   diamond for common effect estimate.
+#' @param col.diamond.lines.common.subgroup The colour(s) of the outer lines
+#'   of diamonds for common effect estimates in subgroups.
 #' @param col.diamond.lines.random The colour(s) of the outer lines of
 #'   diamond for random effects estimate.
+#' @param col.diamond.lines.random.subgroup The colour(s) of the outer lines
+#'   of diamonds for random effects estimates in subgroups.
 #' @param col.predict Background colour(s) of prediction intervals.
+#' @param col.predict.subgroup Background colour(s) of prediction intervals
+#'   in subgroups.
 #' @param col.predict.lines Colour(s) of outer lines of prediction
 #'   intervals.
+#' @param col.predict.lines.subgroup Colour(s) of outer lines of prediction
+#'   intervals in subgroups.
 #' @param col.subgroup The colour to print information on subgroups.
 #' @param col.label.left The colour of the label on the left side of the null
 #'   effect.
@@ -358,11 +370,11 @@
 #' @param common.subgroup A single logical or logical vector
 #'   indicating whether / which common effect estimates should be
 #'   printed for subgroups.
-#' @param random.subgroup A single logical or logical vector
-#'   indicating whether / which random effects estimates should be
-#'   printed for subgroups.
-#' @param prediction.subgroup A single logical or logical vector
-#'   indicating whether / which prediction intervals should be printed
+#' @param random.subgroup A single logical, logical vector, or logical matrix
+#'   indicating whether / which random effects estimates should be printed for
+#'   subgroups.
+#' @param prediction.subgroup A single logical, logical vector, or logical
+#'   matrix indicating whether / which prediction intervals should be printed
 #'   for subgroups.
 #' @param print.tau2.ci.subgroup A single logical or logical vector
 #'   indicating whether / which confidence intervals for between-study
@@ -1509,13 +1521,21 @@ forest.meta <- function(x,
                         #
                         col.diamond = gs("col.diamond"),
                         col.diamond.common = col.diamond,
+                        col.diamond.common.subgroup = col.diamond.common,
                         col.diamond.random = col.diamond,
+                        col.diamond.random.subgroup = col.diamond.random,
                         col.diamond.lines = gs("col.diamond.lines"),
                         col.diamond.lines.common = col.diamond.lines,
+                        col.diamond.lines.common.subgroup =
+                          col.diamond.lines.common,
                         col.diamond.lines.random = col.diamond.lines,
+                        col.diamond.lines.random.subgroup =
+                          col.diamond.lines.random,
                         #
                         col.predict = gs("col.predict"),
+                        col.predict.subgroup = col.predict,
                         col.predict.lines = gs("col.predict.lines"),
+                        col.predict.lines.subgroup = col.predict.lines,
                         #
                         col.subgroup = gs("col.subgroup"),
                         #
@@ -1841,7 +1861,11 @@ forest.meta <- function(x,
   #
   miss.col.diamond.common <-
     missing(col.diamond.common) || is.null(col.diamond.common)
+  miss.col.diamond.common.subgroup <-
+    missing(col.diamond.common.subgroup) || is.null(col.diamond.common.subgroup)
   miss.col.diamond.fixed <- is.na(argid(nam.args, "col.diamond.fixed"))
+  miss.col.diamond.random.subgroup <-
+    missing(col.diamond.random.subgroup) || is.null(col.diamond.random.subgroup)
   #
   miss.col.diamond.lines <- missing(col.diamond.lines) ||
     is.null(col.diamond.lines)
@@ -1850,11 +1874,17 @@ forest.meta <- function(x,
     is.na(argid(nam.args, "col.diamond.fixed.lines"))
   miss.col.diamond.lines.common <- missing(col.diamond.lines.common) ||
     is.null(col.diamond.lines.common)
+  miss.col.diamond.lines.common.subgroup <-
+    missing(col.diamond.lines.common.subgroup) ||
+    is.null(col.diamond.lines.common.subgroup)
   miss.col.diamond.lines.fixed <-
     is.na(argid(nam.args, "col.diamond.lines.fixed"))
   #
   miss.col.diamond.lines.random <- missing(col.diamond.lines.random) ||
     is.null(col.diamond.lines.random)
+  miss.col.diamond.lines.random.subgroup <-
+    missing(col.diamond.lines.random.subgroup) ||
+    is.null(col.diamond.lines.random.subgroup)
   #
   miss.col.study <- missing(col.study) || is.null(col.study)
   miss.col.circle <- missing(col.circle) || is.null(col.circle)
@@ -1877,8 +1907,12 @@ forest.meta <- function(x,
   miss.col.header.line <- missing(col.header.line) || is.null(col.header.line)
   #
   miss.col.predict <- missing(col.predict) || is.null(col.predict)
+  miss.col.predict.subgroup <-
+    missing(col.predict.subgroup) || is.null(col.predict.subgroup)
   miss.col.predict.lines <-
     missing(col.predict.lines) || is.null(col.predict.lines)
+  miss.col.predict.lines.subgroup <-
+    missing(col.predict.lines.subgroup) || is.null(col.predict.lines.subgroup)
   #
   miss.col.cid <- missing(col.cid) || is.null(col.cid)
   #
@@ -2057,9 +2091,15 @@ forest.meta <- function(x,
   }
   #
   col.diamond.common <-
-    chksetVar(col.diamond.common, FALSE, colors[2], func = chkcolor, n = 1)
+    chksetVar(col.diamond.common, FALSE, colors[2], func = chkcolor)
   col.diamond.random <-
-    chksetVar(col.diamond.random, FALSE, colors[2], func = chkcolor, n = 1)
+    chksetVar(col.diamond.random, FALSE, colors[2], func = chkcolor)
+  col.diamond.common.subgroup <-
+    chksetVar(col.diamond.common.subgroup, miss.col.diamond.common.subgroup,
+              col.diamond.common, func = chkcolor)
+  col.diamond.random.subgroup <-
+    chksetVar(col.diamond.random.subgroup, miss.col.diamond.random.subgroup,
+              col.diamond.random, func = chkcolor)
   #
   col.diamond.lines <-
     chksetVar(col.diamond.lines, miss.col.diamond.lines, colors[3],
@@ -2085,10 +2125,18 @@ forest.meta <- function(x,
   #
   col.diamond.lines.common <-
     chksetVar(col.diamond.lines.common, FALSE, col.diamond.lines,
-              func = chkcolor, n = 1)
+              func = chkcolor)
   col.diamond.lines.random <-
     chksetVar(col.diamond.lines.random, FALSE, col.diamond.lines,
-              func = chkcolor, n = 1)
+              func = chkcolor)
+  col.diamond.lines.common.subgroup <-
+    chksetVar(col.diamond.lines.common.subgroup,
+              miss.col.diamond.lines.common.subgroup,
+              col.diamond.lines.common, func = chkcolor)
+  col.diamond.lines.random.subgroup <-
+    chksetVar(col.diamond.lines.random.subgroup,
+              miss.col.diamond.lines.random.subgroup,
+              col.diamond.lines.random, func = chkcolor)
   #
   # Study-specific colours
   #
@@ -2166,11 +2214,17 @@ forest.meta <- function(x,
               n = 1)
   #
   col.predict <-
-    chksetVar(col.predict, miss.col.predict, colors[7], func = chkcolor, n = 1)
+    chksetVar(col.predict, miss.col.predict, colors[7], func = chkcolor)
+  col.predict.subgroup <-
+    chksetVar(col.predict.subgroup, miss.col.predict.subgroup, col.predict,
+              func = chkcolor)
   #
   col.predict.lines <-
     chksetVar(col.predict.lines, miss.col.predict.lines, colors[8],
-              func = chkcolor, n = 1)
+              func = chkcolor)
+  col.predict.lines.subgroup <-
+    chksetVar(col.predict.lines.subgroup, miss.col.predict.lines.subgroup,
+              col.predict.lines, func = chkcolor)
   #
   col.subgroup <-
     chksetVar(col.subgroup, miss.col.subgroup, colors[9], func = chkcolor, n = 1,
@@ -3551,12 +3605,13 @@ forest.meta <- function(x,
                             x$lower.common.w, x$upper.common.w)
     #
     random.subgroup.logical <-
-      show_subgroup_results(random.subgroup, n.by,
-                            x$lower.random.w, x$upper.random.w)
+      show_subgroup_results_by_method(random.subgroup, n.by,
+                                      x$lower.random.w, x$upper.random.w,
+                                      "random.subgroup")
     #
     prediction.subgroup.logical <-
-      show_subgroup_results(prediction.subgroup, n.by,
-                            x$lower.predict.w, x$upper.predict.w)
+      show_prediction_subgroup_results(prediction.subgroup, n.by,
+                                       x$lower.predict.w, x$upper.predict.w)
     #
     print.tau2.ci.subgroup.logical <-
       show_subgroup_results(print.tau2.ci.subgroup, n.by,
@@ -7034,8 +7089,10 @@ forest.meta <- function(x,
     subgroup.hetstat.logical <- subgroup.hetstat.logical[o.w]
     #
     common.subgroup.logical <- common.subgroup.logical[o.w]
-    random.subgroup.logical <- random.subgroup.logical[o.w]
-    prediction.subgroup.logical <- prediction.subgroup.logical[o.w]
+    random.subgroup.logical <-
+      order_subgroup_results(random.subgroup.logical, o.w, n.ran)
+    prediction.subgroup.logical <-
+      order_subgroup_results(prediction.subgroup.logical, o.w, n.prd)
     print.tau2.ci.subgroup.logical <- print.tau2.ci.subgroup.logical[o.w]
     print.tau.ci.subgroup.logical <- print.tau.ci.subgroup.logical[o.w]
     #
@@ -7104,8 +7161,10 @@ forest.meta <- function(x,
     subgroup.hetstat.logical <- subgroup.hetstat.logical[sel.w]
     #
     common.subgroup.logical <- common.subgroup.logical[sel.w]
-    random.subgroup.logical <- random.subgroup.logical[sel.w]
-    prediction.subgroup.logical <- prediction.subgroup.logical[sel.w]
+    random.subgroup.logical <-
+      select_subgroup_results(random.subgroup.logical, sel.w, n.ran)
+    prediction.subgroup.logical <-
+      select_subgroup_results(prediction.subgroup.logical, sel.w, n.prd)
     print.tau2.ci.subgroup.logical <- print.tau2.ci.subgroup.logical[sel.w]
     print.tau.ci.subgroup.logical <- print.tau.ci.subgroup.logical[sel.w]
     #
@@ -7160,11 +7219,17 @@ forest.meta <- function(x,
     lower.common.w[sel.NA] <- NA
     upper.common.w[sel.NA] <- NA
     #
-    sel.NA <- !repl(random.subgroup.logical, n.ran, n.by)
+    sel.NA <- if (length(random.subgroup.logical) == n.by)
+      !repl(random.subgroup.logical, n.ran, n.by)
+    else
+      !random.subgroup.logical
     lower.random.w[sel.NA] <- NA
     upper.random.w[sel.NA] <- NA
     #
-    sel.NA <- !repl(prediction.subgroup.logical, n.prd, n.by)
+    sel.NA <- if (length(prediction.subgroup.logical) == n.by)
+      !repl(prediction.subgroup.logical, n.prd, n.by)
+    else
+      !prediction.subgroup.logical
     lower.predict.w[sel.NA] <- NA
     upper.predict.w[sel.NA] <- NA
     #
@@ -9617,18 +9682,55 @@ forest.meta <- function(x,
                      rep("predict", n.prd.w),
                      blanks.stat.w)
     #
+    col.diamond.common.subgroup <-
+      setlength_subgroup_colors(
+        col.diamond.common.subgroup, n.com, n.com.w,
+        subgroup.levels, x$subgroup.levels,
+        "number of common effect estimates",
+        "col.diamond.common.subgroup")
+    col.diamond.random.subgroup <-
+      setlength_subgroup_colors(
+        col.diamond.random.subgroup, n.ran, n.ran.w,
+        subgroup.levels, x$subgroup.levels,
+        "number of random effects estimates",
+        "col.diamond.random.subgroup")
+    col.diamond.lines.common.subgroup <-
+      setlength_subgroup_colors(
+        col.diamond.lines.common.subgroup, n.com, n.com.w,
+        subgroup.levels, x$subgroup.levels,
+        "number of common effect estimates",
+        "col.diamond.lines.common.subgroup")
+    col.diamond.lines.random.subgroup <-
+      setlength_subgroup_colors(
+        col.diamond.lines.random.subgroup, n.ran, n.ran.w,
+        subgroup.levels, x$subgroup.levels,
+        "number of random effects estimates",
+        "col.diamond.lines.random.subgroup")
+    col.predict.subgroup <-
+      setlength_subgroup_colors(
+        col.predict.subgroup, n.prd, n.prd.w,
+        subgroup.levels, x$subgroup.levels,
+        "number of prediction intervals",
+        "col.predict.subgroup")
+    col.predict.lines.subgroup <-
+      setlength_subgroup_colors(
+        col.predict.lines.subgroup, n.prd, n.prd.w,
+        subgroup.levels, x$subgroup.levels,
+        "number of prediction intervals",
+        "col.predict.lines.subgroup")
+    #
     col.diamond.pooled <-
       c(col.diamond.common, col.diamond.random, col.predict,
-        rep(col.diamond.common, n.by),
-        rep(col.diamond.random, n.by),
-        rep(col.predict, n.by),
+        col.diamond.common.subgroup,
+        col.diamond.random.subgroup,
+        col.predict.subgroup,
         NAs.stat.w)
     #
     col.diamond.lines.pooled <-
       c(col.diamond.lines.common, col.diamond.lines.random, col.predict.lines,
-        rep(col.diamond.lines.common, n.by),
-        rep(col.diamond.lines.random, n.by),
-        rep(col.predict.lines, n.by),
+        col.diamond.lines.common.subgroup,
+        col.diamond.lines.random.subgroup,
+        col.predict.lines.subgroup,
         NAs.stat.w)
     #
     col.inside.pooled <-
@@ -10552,9 +10654,17 @@ forest.meta <- function(x,
       #
       # Random effects model
       #
-      if (random.subgroup.logical[i] & subgroup.logical[i]) {
-        yTE.random.w[n.by.i * n.ran + seq.ran.w] <- j + seq.ran.w - 1
-        j <- j + max(seq.ran.w)
+      if (length(random.subgroup.logical) == n.by)
+        random.subgroup.logical.i <- rep(random.subgroup.logical[i], n.ran)
+      else
+        random.subgroup.logical.i <-
+          random.subgroup.logical[n.by.i * n.ran + seq.ran.w]
+      #
+      if (any(random.subgroup.logical.i) & subgroup.logical[i]) {
+        sel.ran.w <- seq.ran.w[random.subgroup.logical.i]
+        yTE.random.w[n.by.i * n.ran + sel.ran.w] <-
+          j + seq_along(sel.ran.w) - 1
+        j <- j + length(sel.ran.w)
       }
       #
       # Only pooled totals
@@ -10569,17 +10679,25 @@ forest.meta <- function(x,
       # print(random.subgroup.logical[i])
       #
       if (pooled.totals & subgroup.logical[i] &
-          !(common.subgroup.logical[i] | random.subgroup.logical[i])) {
+          !(common.subgroup.logical[i] | any(random.subgroup.logical.i))) {
         yTE.common.w[n.by.i * n.com + seq.com.w] <- j + seq.com.w - 1
         j <- j + max(seq.com.w)
       }
       #
       # Prediction interval in subgroups
       #
-      if (prediction.subgroup.logical[i] & subgroup.logical[i]) {
-        yTE.predict.w[n.by.i * n.prd + seq.prd.w] <-
-          j + seq.prd.w - 1
-        j <- j + max(seq.prd.w)
+      if (length(prediction.subgroup.logical) == n.by)
+        prediction.subgroup.logical.i <-
+          rep(prediction.subgroup.logical[i], n.prd)
+      else
+        prediction.subgroup.logical.i <-
+          prediction.subgroup.logical[n.by.i * n.prd + seq.prd.w]
+      #
+      if (any(prediction.subgroup.logical.i) & subgroup.logical[i]) {
+        sel.prd.w <- seq.prd.w[prediction.subgroup.logical.i]
+        yTE.predict.w[n.by.i * n.prd + sel.prd.w] <-
+          j + seq_along(sel.prd.w) - 1
+        j <- j + length(sel.prd.w)
       }
       #
       # Heterogeneity statistics
@@ -10609,7 +10727,8 @@ forest.meta <- function(x,
       else
         yTE.effect.random.w[i] <- NA
       #
-      y.w.i <- c(yTE.common.w[i], yTE.random.w[i], yTE.predict.w[i],
+      y.w.i <- c(yTE.common.w[i], yTE.random.w[n.by.i * n.ran + seq.ran.w],
+                 yTE.predict.w[n.by.i * n.prd + seq.prd.w],
                  yTE.hetstat.w[i],
                  yTE.effect.common.w[i],
                  yTE.effect.random.w[i])

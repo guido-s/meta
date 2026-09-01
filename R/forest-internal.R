@@ -987,6 +987,29 @@ add_attached_label_widths <- function(width.cols, cols, colgap,
   width.cols
 }
 
+setlength_subgroup_colors <- function(x, n.pooled, n.subgroup,
+                                      subgroup.levels, subgroup.levels.orig,
+                                      text, name) {
+  if (length(x) == 1)
+    x <- rep(x, n.subgroup)
+  else if (length(x) == n.pooled)
+    x <- rep(x, n.subgroup / n.pooled)
+  else if (length(x) == n.subgroup && n.pooled > 0) {
+    subgroup.levels.orig <- subgroup.levels.orig[
+      subgroup.levels.orig %in% subgroup.levels]
+    o <- order(factor(subgroup.levels.orig, levels = subgroup.levels))
+    x <- as.vector(matrix(x, nrow = n.pooled)[, o])
+  }
+  else
+    chklength(x, n.subgroup,
+              text =
+                paste0("Length of argument '", name,
+                       "' must be equal to 1, ", text,
+                       ", or total number of subgroup estimates."))
+  #
+  x
+}
+
 collapsemat <- function(x) {
   if (is.list(x)) {
     for (i in rev(seq_len(length(x)))) {
@@ -1237,6 +1260,52 @@ show_subgroup_results <- function(x, n, lower, upper) {
                             "' must be equal to 1 or number of subgroups."))
     return(x)
   }
+}
+
+show_subgroup_results_by_method <- function(x, n, lower, upper, name) {
+  n.pooled <- if (is.matrix(lower)) ncol(lower) else 1
+  n.pooled.w <- n * n.pooled
+  #
+  if (length(x) == 1) {
+    if (is.matrix(lower))
+      return(unname(x & collapsemat(!is.na(lower) & !is.na(upper))))
+    else
+      return(unname(rep(x & notallNA(lower) & notallNA(upper), n)))
+  }
+  else if (is.matrix(x)) {
+    if (!identical(dim(x), dim(lower)))
+      stop("Dimensions of argument '", name, "' must be equal to ",
+           "the dimensions of subgroup results.")
+    return(unname(collapsemat(!is.na(x) & x & !is.na(lower) & !is.na(upper))))
+  }
+  else if (length(x) == n)
+    return(unname(x))
+  else if (length(x) == n.pooled.w)
+    return(unname(x))
+  else {
+    chklength(x, n,
+              text = paste0("Length of argument '", name, "' must be ",
+                            "equal to 1, number of subgroups, or total ",
+                            "number of subgroup results."))
+    return(x)
+  }
+}
+
+show_prediction_subgroup_results <- function(x, n, lower, upper)
+  show_subgroup_results_by_method(x, n, lower, upper, "prediction.subgroup")
+
+order_subgroup_results <- function(x, o, n.pooled) {
+  if (length(x) == length(o))
+    x[o]
+  else
+    as.vector(matrix(x, nrow = n.pooled)[, o])
+}
+
+select_subgroup_results <- function(x, sel, n.pooled) {
+  if (length(x) == length(sel))
+    x[sel]
+  else
+    as.vector(matrix(x, nrow = n.pooled)[, sel])
 }
 
 newCol <- function(varname, label,

@@ -805,9 +805,9 @@ update.meta <- function(object,
     object$method.common.ci <- "classic"
   }
   #
-  if (update_needed(object$version, 8, 6, verbose)) {
+  if (update_needed(object$version, 9, 0, verbose)) {
     #
-    # Changes for meta objects with version < 8.6
+    # Changes for meta objects with version < 9.0
     #
     if (inherits(object, "metaprop") && object$sm == "PFT") {
       exclude <- replaceNULL(object$exclude, rep(FALSE, length(object$n)))
