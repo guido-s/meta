@@ -1308,6 +1308,92 @@ select_subgroup_results <- function(x, sel, n.pooled) {
     as.vector(matrix(x, nrow = n.pooled)[, sel])
 }
 
+add_hetstat_part <- function(parts, part) {
+  if (length(parts) == 0)
+    part
+  else
+    c(parts, list(", "), part)
+}
+
+make_hetstat <- function(hetlab,
+                         hetstat.I2, hetstat.tau2, hetstat.tau,
+                         hetstat.Q, hetstat.pval.Q, hetstat.Rb,
+                         df.Q,
+                         print.I2, print.tau2, print.tau,
+                         print.Q, print.pval.Q, print.Rb,
+                         bmj, jama, revman5,
+                         miss.print.tau2, miss.print.tau) {
+  if (bmj) {
+    if (print.tau)
+      return(substitute(paste(hl, tau, ht, "; ", chi^2, hq,
+                              ", P", hp, "; ", I^2, hi),
+                        list(hl = hetlab, ht = hetstat.tau, hq = hetstat.Q,
+                             hp = hetstat.pval.Q, hi = hetstat.I2)))
+    else if (print.tau2)
+      return(substitute(paste(hl, tau^2, ht, "; ", chi^2, hq,
+                              ", P", hp, "; ", I^2, hi),
+                        list(hl = hetlab, ht = hetstat.tau2, hq = hetstat.Q,
+                             hp = hetstat.pval.Q, hi = hetstat.I2)))
+    else
+      return(substitute(paste(hl, chi^2, hq, ", P", hp, "; ", I^2, hi),
+                        list(hl = hetlab, hq = hetstat.Q,
+                             hp = hetstat.pval.Q, hi = hetstat.I2)))
+  }
+  else if (jama) {
+    if ((!miss.print.tau2 | !miss.print.tau) & print.tau)
+      return(substitute(paste(hl, chi[df]^2, hq, " (", italic(P), hp,
+                              "), ", italic(I)^2, hi, ", ", tau, ht),
+                        list(hl = hetlab, df = df.Q, hq = hetstat.Q,
+                             hp = hetstat.pval.Q, hi = hetstat.I2,
+                             ht = hetstat.tau)))
+    else if ((!miss.print.tau2 | !miss.print.tau) & print.tau2)
+      return(substitute(paste(hl, chi[df]^2, hq, " (", italic(P), hp,
+                              "), ", italic(I)^2, hi, ", ", tau^2, ht),
+                        list(hl = hetlab, df = df.Q, hq = hetstat.Q,
+                             hp = hetstat.pval.Q, hi = hetstat.I2,
+                             ht = hetstat.tau2)))
+    else
+      return(substitute(paste(hl, chi[df]^2, hq, " (", italic(P), hp,
+                              "), ", italic(I)^2, hi),
+                        list(hl = hetlab, df = df.Q, hq = hetstat.Q,
+                             hp = hetstat.pval.Q, hi = hetstat.I2)))
+  }
+  else if (revman5) {
+    if (print.tau)
+      return(substitute(paste(hl, "Tau", ht, "; ", "Chi"^2, hq,
+                              " (", P, hp, "); ", I^2, hi),
+                        list(hl = hetlab, ht = hetstat.tau, hq = hetstat.Q,
+                             hp = hetstat.pval.Q, hi = hetstat.I2)))
+    else
+      return(substitute(paste(hl, "Tau"^2, ht, "; ", "Chi"^2, hq,
+                              " (", P, hp, "); ", I^2, hi),
+                        list(hl = hetlab, ht = hetstat.tau2, hq = hetstat.Q,
+                             hp = hetstat.pval.Q, hi = hetstat.I2)))
+  }
+  #
+  parts <- list()
+  if (print.I2)
+    parts <- add_hetstat_part(parts, list(quote(italic(I)^2), hetstat.I2))
+  if (print.tau2)
+    parts <- add_hetstat_part(parts, list(quote(tau^2), hetstat.tau2))
+  else if (print.tau)
+    parts <- add_hetstat_part(parts, list(quote(tau), hetstat.tau))
+  if (print.Q & print.pval.Q)
+    parts <- add_hetstat_part(
+      parts,
+      list(bquote(chi[.(df.Q)]^2), hetstat.Q,
+           " (", quote(italic(p)), hetstat.pval.Q, ")"))
+  else if (print.Q)
+    parts <- add_hetstat_part(parts, list(bquote(chi[.(df.Q)]^2), hetstat.Q))
+  else if (print.pval.Q)
+    parts <- add_hetstat_part(parts, list(quote(italic(p)), hetstat.pval.Q))
+  if (print.Rb)
+    parts <- add_hetstat_part(
+      parts, list(quote(italic(R)[italic(b)]), hetstat.Rb))
+  #
+  as.call(c(list(quote(paste), hetlab), parts))
+}
+
 newCol <- function(varname, label,
                    rob, data1, data2, datap,
                    n.com, n.ran, n.prd,
