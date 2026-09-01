@@ -57,6 +57,9 @@
     [(pull #92)](https://github.com/guido-s/meta/pull/92)
 
 * forest.meta():
+  - consider the width of treatment group labels attached to columns when
+    calculating column widths, and suppress these labels if the attached column
+    already has a two-line heading
   - center combined treatment group header over both columns in BMJ layout for
     meta-analyses with binary or continuous outcomes
   - use combined event / time columns in BMJ layout for meta-analyses of

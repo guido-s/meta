@@ -64,3 +64,16 @@ test_that("BMJ layout centers combined treatment group headers", {
   expect_true(all(c("col.event.time.n.e", "col.event.time.n.c") %in%
                     fin$leftcols))
 })
+
+test_that("forest accounts for attached treatment labels in column headings", {
+  m <- metagen(1:5, 5:1, n.e = 1:5, n.c = 1:5, sm = "MD",
+               label.e = "Experimental", label.c = "Control")
+
+  pdf(tempfile())
+  on.exit(if (dev.cur() > 1) dev.off(), add = TRUE)
+  expect_silent(forest(m))
+  expect_silent(
+    forest(m, leftlabs = c(NA, NA, NA, "A\nTotal", NA))
+  )
+  dev.off()
+})

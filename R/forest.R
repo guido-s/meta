@@ -11677,6 +11677,11 @@ forest.meta <- function(x,
     }
   }
   #
+  if (label_attach_has_newline(label.e.attach))
+    label.e <- ""
+  if (label_attach_has_newline(label.c.attach))
+    label.c <- ""
+  #
   col.label.e <-
     tgl(label.e,
         if (bmj && length(label.e.attach) == 1) bmj.xpos else xpos.label.e,
@@ -11959,6 +11964,7 @@ forest.meta <- function(x,
   #
   if (lsel) {
     width.left <- NULL
+    width.left.cols <- vector("list", length(leftcols))
     width.calcwidth <- unit(0, "mm")
     extra.calcwidth <- unit(0, "mm")
     if (!is.null(calcwidth.lines))
@@ -11976,6 +11982,17 @@ forest.meta <- function(x,
           wcalc(cols.calc[[leftcols[i]]]$labels[-del.lines])
         else
           wcalc(cols.calc[[leftcols[i]]]$labels)
+      width.left.cols[[i]] <- width.i
+    }
+    #
+    width.left.cols <-
+      add_attached_label_widths(
+        width.left.cols, leftcols, colgap.left,
+        list(label.e.attach, label.c.attach), list(col.label.e, col.label.c),
+        colgap.studlab)
+    #
+    for (i in seq_along(leftcols)) {
+      width.i <- width.left.cols[[i]]
       #
       if (i == 1)
         width.left <- width.i
@@ -11995,22 +12012,14 @@ forest.meta <- function(x,
     #
     for (i in seq_along(leftcols)) {
       if (i == 1) {
-        if (leftcols[[i]] == "col.studlab" & !is.null(del.lines))
-          x1 <- unit.c(wcalc(cols.calc[[leftcols[i]]]$labels[-del.lines]))
-        else
-          x1 <- unit.c(wcalc(cols.calc[[leftcols[i]]]$labels))
+        x1 <- unit.c(width.left.cols[[i]])
       }
       else {
-        if (leftcols[[i]] == "col.studlab" & !is.null(del.lines))
-          x1 <- unit.c(x1,
-                       colgap.left,
-                        wcalc(cols.calc[[leftcols[i]]]$labels[-del.lines]))
-        else
-          x1 <- unit.c(x1,
-                        if (leftcols[[i - 1]] == "col.studlab")
-                          colgap.studlab + extra.calcwidth
-                        else colgap.left,
-                        wcalc(cols.calc[[leftcols[i]]]$labels))
+        x1 <- unit.c(x1,
+                     if (leftcols[[i - 1]] == "col.studlab")
+                       colgap.studlab + extra.calcwidth
+                     else colgap.left,
+                     width.left.cols[[i]])
       }
     }
     #
@@ -12033,6 +12042,25 @@ forest.meta <- function(x,
   }
   #
   if (rsel | RoB.available) {
+    width.right.cols <- vector("list", length(rightcols))
+    for (i in seq_along(rightcols)) {
+      width.right.cols[[i]] <-
+        if (rightcols[i] %in% colnames(rob))
+          wcalc(grid.text("aa",
+                          just = "center",
+                          gp = gpar(col = "transparent",
+                                    fontsize = fs.head,
+                                    fontface = ff.head,
+                                    fontfamily = fontfamily)))
+        else
+          wcalc(cols.calc[[rightcols[i]]]$labels)
+    }
+    #
+    width.right.cols <-
+      add_attached_label_widths(
+        width.right.cols, rightcols, colgap.right,
+        list(label.e.attach, label.c.attach), list(col.label.e, col.label.c))
+    #
     for (i in seq_along(rightcols)) {
       colgap.right.i <- colgap.right
       #
@@ -12047,15 +12075,7 @@ forest.meta <- function(x,
       #
       x1 <- unit.c(x1,
                    if (i == 1) colgap.forest.right else colgap.right.i,
-                   if (rightcols[i] %in% colnames(rob))
-                     wcalc(grid.text("aa",
-                                     just = "center",
-                                     gp = gpar(col = "transparent",
-                                               fontsize = fs.head,
-                                               fontface = ff.head,
-                                               fontfamily = fontfamily)))
-                   else
-                     wcalc(cols.calc[[rightcols[i]]]$labels)
+                   width.right.cols[[i]]
       )
     }
   }

@@ -941,6 +941,52 @@ twolines <- function(x, xname = deparse(substitute(x)), arg = FALSE) {
 wcalc <- function(x)
   max(unit(rep(1, length(x)), "grobwidth", x))
 
+label_attach_has_newline <- function(attach) {
+  if (is.null(attach))
+    return(FALSE)
+  #
+  newline.names <- paste0("newline.", attach)
+  any(vapply(newline.names,
+             function(x) exists(x) && isTRUE(get(x)),
+             logical(1)))
+}
+
+add_attached_label_widths <- function(width.cols, cols, colgap,
+                                      label.attach, col.label,
+                                      colgap.studlab = colgap) {
+  for (label.i in list(list(attach = label.attach[[1]],
+                            label = col.label[[1]]),
+                       list(attach = label.attach[[2]],
+                            label = col.label[[2]]))) {
+    if (!is.null(label.i$attach) && !is.null(label.i$label)) {
+      cols.i <- paste0("col.", label.i$attach)
+      if (all(cols.i %in% cols)) {
+        id.i <- seq_along(cols)[cols %in% cols.i]
+        width.label.i <- wcalc(label.i$label$labels)
+        if (length(id.i) == 1) {
+          width.cols[[id.i]] <-
+            unit.pmax(width.cols[[id.i]], width.label.i)
+        }
+        else {
+          gap.i <- unit(0, "mm")
+          for (j in seq(min(id.i), max(id.i) - 1))
+            gap.i <- gap.i +
+              if (cols[[j]] == "col.studlab") colgap.studlab else colgap
+          extra.i <-
+            unit.pmax(unit(0, "mm"),
+                      width.label.i -
+                        sum(do.call(unit.c, width.cols[id.i])) -
+                        gap.i) / length(id.i)
+          for (j in id.i)
+            width.cols[[j]] <- width.cols[[j]] + extra.i
+        }
+      }
+    }
+  }
+  #
+  width.cols
+}
+
 collapsemat <- function(x) {
   if (is.list(x)) {
     for (i in rev(seq_len(length(x)))) {
