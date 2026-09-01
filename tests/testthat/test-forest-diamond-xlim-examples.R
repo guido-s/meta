@@ -43,3 +43,24 @@ test_that("forest accepts graphics devices", {
   expect_invisible(forest(m, device = "pdf"))
   expect_true(file.exists("Rplots.pdf"))
 })
+
+test_that("BMJ layout centers combined treatment group headers", {
+  pdf(tempfile())
+  on.exit(if (dev.cur() > 1) dev.off(), add = TRUE)
+
+  fb <- forest(metabin(1:5, 101:105, 5:1, 101:105), layout = "BMJ")
+  fc <- forest(metacont(1:5, rep(1, 5), 101:105,
+                        5:1, rep(1, 5), 101:105),
+               layout = "BMJ")
+  fi <- forest(metainc(1:5, 101:105, 5:1, 101:105), layout = "BMJ")
+  fin <- forest(metainc(1:5, 101:105, 5:1, 101:105,
+                        n.e = 11:15, n.c = 21:25),
+                layout = "BMJ")
+  dev.off()
+
+  expect_true(all(c("col.event.n.e", "col.event.n.c") %in% fb$leftcols))
+  expect_true(all(c("col.mean.sd.n.e", "col.mean.sd.n.c") %in% fc$leftcols))
+  expect_true(all(c("col.event.time.e", "col.event.time.c") %in% fi$leftcols))
+  expect_true(all(c("col.event.time.n.e", "col.event.time.n.c") %in%
+                    fin$leftcols))
+})

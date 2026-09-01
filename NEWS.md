@@ -56,6 +56,13 @@
     and plotit = TRUE)
     [(pull #92)](https://github.com/guido-s/meta/pull/92)
 
+* forest.meta():
+  - center combined treatment group header over both columns in BMJ layout for
+    meta-analyses with binary or continuous outcomes
+  - use combined event / time columns in BMJ layout for meta-analyses of
+    incidence rates, or combined event / time (total) columns if sample sizes
+    are available, and center the corresponding treatment group header
+
 * forest.metacum():
   - use default colours for squares regardless of layout
     [(issue #96)](https://github.com/guido-s/meta/issues/96)

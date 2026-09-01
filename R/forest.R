@@ -2334,6 +2334,8 @@ forest.meta <- function(x,
                 #
                 "cor",
                 "time.e", "time.c",
+                "event.time.e", "event.time.c",
+                "event.time.n.e", "event.time.n.c",
                 #
                 "effect", "ci",
                 "effect.ci",
@@ -2370,6 +2372,13 @@ forest.meta <- function(x,
                    "mean.sd.n.c" %in% c(leftcols, rightcols) )
   #
   ev.n.prop <- metaprop && (bmj || "event.n" %in% c(leftcols, rightcols))
+  #
+  ev.t.inc <-
+    metainc && (bmj ||
+                  "event.time.e" %in% c(leftcols, rightcols) ||
+                  "event.time.c" %in% c(leftcols, rightcols) ||
+                  "event.time.n.e" %in% c(leftcols, rightcols) ||
+                  "event.time.n.c" %in% c(leftcols, rightcols))
   #
   # Identify and process columns in addition to columns
   # defined above in variable 'colnames'
@@ -4262,6 +4271,8 @@ forest.meta <- function(x,
                 #
                 label.cor,
                 label.time, label.time,
+                label.e, label.c,
+                label.e, label.c,
                 #
                 sm.lab,
                 ci.lab,
@@ -4461,7 +4472,7 @@ forest.meta <- function(x,
         if (study.results) {
           if (bmj) {
             leftcols <- add.columns(leftcols, c("event.n.e", "event.n.c"))
-            label.e.attach <- "event.n.e"
+            label.e.attach <- c("event.n.e", "event.n.c")
             #
             if (is.null(bmj.text))
               label.e <- "No of events / total"
@@ -4493,7 +4504,7 @@ forest.meta <- function(x,
           if (bmj) {
             leftcols <-
               add.columns(leftcols, c("mean.sd.n.e", "mean.sd.n.c"))
-            label.e.attach <- "mean.sd.n.e"
+            label.e.attach <- c("mean.sd.n.e", "mean.sd.n.c")
             #
             if (is.null(bmj.text))
               label.e <- "Mean (SD) / total"
@@ -4590,9 +4601,30 @@ forest.meta <- function(x,
       }
       #
       if (metainc) {
-        if (study.results)
-          leftcols <-
-            add.columns(leftcols, c("event.e", "time.e","event.c", "time.c"))
+        if (study.results) {
+          if (bmj) {
+            if (!is.null(x$n.e) & !is.null(x$n.c)) {
+              leftcols <-
+                add.columns(leftcols, c("event.time.n.e", "event.time.n.c"))
+              label.e.attach <- c("event.time.n.e", "event.time.n.c")
+              default.bmj.text <- "No of events / time (total)"
+            }
+            else {
+              leftcols <-
+                add.columns(leftcols, c("event.time.e", "event.time.c"))
+              label.e.attach <- c("event.time.e", "event.time.c")
+              default.bmj.text <- "No of events / time"
+            }
+            #
+            if (is.null(bmj.text))
+              label.e <- default.bmj.text
+            else
+              label.e <- bmj.text
+          }
+          else
+            leftcols <-
+              add.columns(leftcols, c("event.e", "time.e", "event.c", "time.c"))
+        }
         else {
           leftcols <-
             add.columns(leftcols,
@@ -9018,6 +9050,66 @@ forest.meta <- function(x,
     longer.time.c <- labs[["lab.time.c"]]
   }
   #
+  # Check for "\n" in label of column 'event.time.e'
+  #
+  clines <- twolines(labs[["lab.event.time.e"]], "event.time.e")
+  #
+  if (clines$newline) {
+    newline.event.time.e <- TRUE
+    labs[["lab.event.time.e"]] <- clines$bottom
+    add.event.time.e <- clines$top
+    longer.event.time.e <- clines$longer
+  }
+  else {
+    newline.event.time.e <- FALSE
+    longer.event.time.e <- labs[["lab.event.time.e"]]
+  }
+  #
+  # Check for "\n" in label of column 'event.time.c'
+  #
+  clines <- twolines(labs[["lab.event.time.c"]], "event.time.c")
+  #
+  if (clines$newline) {
+    newline.event.time.c <- TRUE
+    labs[["lab.event.time.c"]] <- clines$bottom
+    add.event.time.c <- clines$top
+    longer.event.time.c <- clines$longer
+  }
+  else {
+    newline.event.time.c <- FALSE
+    longer.event.time.c <- labs[["lab.event.time.c"]]
+  }
+  #
+  # Check for "\n" in label of column 'event.time.n.e'
+  #
+  clines <- twolines(labs[["lab.event.time.n.e"]], "event.time.n.e")
+  #
+  if (clines$newline) {
+    newline.event.time.n.e <- TRUE
+    labs[["lab.event.time.n.e"]] <- clines$bottom
+    add.event.time.n.e <- clines$top
+    longer.event.time.n.e <- clines$longer
+  }
+  else {
+    newline.event.time.n.e <- FALSE
+    longer.event.time.n.e <- labs[["lab.event.time.n.e"]]
+  }
+  #
+  # Check for "\n" in label of column 'event.time.n.c'
+  #
+  clines <- twolines(labs[["lab.event.time.n.c"]], "event.time.n.c")
+  #
+  if (clines$newline) {
+    newline.event.time.n.c <- TRUE
+    labs[["lab.event.time.n.c"]] <- clines$bottom
+    add.event.time.n.c <- clines$top
+    longer.event.time.n.c <- clines$longer
+  }
+  else {
+    newline.event.time.n.c <- FALSE
+    longer.event.time.n.c <- labs[["lab.event.time.n.c"]]
+  }
+  #
   # Check for "\n" in label of column 'effect'
   #
   clines <- twolines(labs[["lab.effect"]], "effect")
@@ -9307,6 +9399,8 @@ forest.meta <- function(x,
     newline.w.common | newline.w.random | newline.TE | newline.seTE |
     newline.cluster | newline.cycles |
     newline.n.e | newline.n.c | newline.event.e | newline.event.c |
+    newline.event.time.e | newline.event.time.c |
+    newline.event.time.n.e | newline.event.time.n.c |
     newline.mean.e | newline.mean.c | newline.sd.e | newline.sd.c |
     newline.cor | newline.time.e | newline.time.c |
     newline.pval | newline.tau2 | newline.tau | newline.I2 |
@@ -10215,6 +10309,100 @@ forest.meta <- function(x,
     }
   }
   #
+  if (ev.t.inc) {
+    Ee.bmj <- Ee.format
+    Ec.bmj <- Ec.format
+    #
+    Te.bmj <- Te.format
+    Tc.bmj <- Tc.format
+    #
+    Ne.bmj <- Ne.format
+    Nc.bmj <- Nc.format
+    #
+    Te.bmj <- ifelse(Ee.bmj == "", "", Te.bmj)
+    Tc.bmj <- ifelse(Ec.bmj == "", "", Tc.bmj)
+    Ne.bmj <- ifelse(Ee.bmj == "", "", Ne.bmj)
+    Nc.bmj <- ifelse(Ec.bmj == "", "", Nc.bmj)
+    #
+    while(all(substring(Ee.bmj[Ee.bmj != ""], 1, 1) == " "))
+      Ee.bmj[Ee.bmj != ""] <- substring(Ee.bmj[Ee.bmj != ""], 2)
+    #
+    while(all(substring(Ec.bmj[Ec.bmj != ""], 1, 1) == " "))
+      Ec.bmj[Ec.bmj != ""] <- substring(Ec.bmj[Ec.bmj != ""], 2)
+    #
+    while(all(substring(Te.bmj[Te.bmj != ""], 1, 1) == " "))
+      Te.bmj[Te.bmj != ""] <- substring(Te.bmj[Te.bmj != ""], 2)
+    #
+    while(all(substring(Tc.bmj[Tc.bmj != ""], 1, 1) == " "))
+      Tc.bmj[Tc.bmj != ""] <- substring(Tc.bmj[Tc.bmj != ""], 2)
+    #
+    while(all(substring(Ne.bmj[Ne.bmj != ""], 1, 1) == " "))
+      Ne.bmj[Ne.bmj != ""] <- substring(Ne.bmj[Ne.bmj != ""], 2)
+    #
+    while(all(substring(Nc.bmj[Nc.bmj != ""], 1, 1) == " "))
+      Nc.bmj[Nc.bmj != ""] <- substring(Nc.bmj[Nc.bmj != ""], 2)
+    #
+    Te.bmj <- rmSpace(Te.bmj, end = FALSE)
+    if (monospaced) {
+      nchar.Te.bmj <- nchar(Te.bmj)
+      Te.bmj[nchar.Te.bmj > 0] <-
+        str_pad(Te.bmj[nchar.Te.bmj > 0], width = max(nchar.Te.bmj),
+                side = "right")
+    }
+    #
+    Tc.bmj <- rmSpace(Tc.bmj, end = FALSE)
+    if (monospaced) {
+      nchar.Tc.bmj <- nchar(Tc.bmj)
+      Tc.bmj[nchar.Tc.bmj > 0] <-
+        str_pad(Tc.bmj[nchar.Tc.bmj > 0], width = max(nchar.Tc.bmj),
+                side = "right")
+    }
+    #
+    Ne.bmj <- rmSpace(Ne.bmj, end = FALSE)
+    if (monospaced) {
+      nchar.Ne.bmj <- nchar(Ne.bmj)
+      Ne.bmj[nchar.Ne.bmj > 0] <-
+        str_pad(Ne.bmj[nchar.Ne.bmj > 0], width = max(nchar.Ne.bmj),
+                side = "right")
+    }
+    #
+    Nc.bmj <- rmSpace(Nc.bmj, end = FALSE)
+    if (monospaced) {
+      nchar.Nc.bmj <- nchar(Nc.bmj)
+      Nc.bmj[nchar.Nc.bmj > 0] <-
+        str_pad(Nc.bmj[nchar.Nc.bmj > 0], width = max(nchar.Nc.bmj),
+                side = "right")
+    }
+    #
+    event.time.e.format <-
+      ifelse(Ee.bmj != "",
+             paste0(Ee.bmj, bmj.sep, Te.bmj),
+             "")
+    event.time.c.format <-
+      ifelse(Ec.bmj != "",
+             paste0(Ec.bmj, bmj.sep, Tc.bmj),
+             "")
+    event.time.n.e.format <-
+      ifelse(Ee.bmj != "",
+             paste0(Ee.bmj, bmj.sep, Te.bmj, " (", Ne.bmj, ")"),
+             "")
+    event.time.n.c.format <-
+      ifelse(Ec.bmj != "",
+             paste0(Ec.bmj, bmj.sep, Tc.bmj, " (", Nc.bmj, ")"),
+             "")
+    #
+    if (pooled.times & !pooled.events) {
+      event.time.e.format[Te.format != "" & Ee.format == ""] <-
+        Te.format[Te.format != "" & Ee.format == ""]
+      event.time.c.format[Tc.format != "" & Ec.format == ""] <-
+        Tc.format[Tc.format != "" & Ec.format == ""]
+      event.time.n.e.format[Te.format != "" & Ee.format == ""] <-
+        Te.format[Te.format != "" & Ee.format == ""]
+      event.time.n.c.format[Tc.format != "" & Ec.format == ""] <-
+        Tc.format[Tc.format != "" & Ec.format == ""]
+    }
+  }
+  #
   # Correlation
   #
   if (by)
@@ -10919,6 +11107,32 @@ forest.meta <- function(x,
                 n.com, n.ran, n.prd)
   }
   #
+  if (ev.t.inc) {
+    col.event.time.e <-
+      formatcol(labs[["lab.event.time.e"]], event.time.e.format, yS,
+                if (bmj.revman5 & miss.just) "center" else just.c,
+                fcs, fontfamily,
+                n.com, n.ran, n.prd)
+    #
+    col.event.time.c <-
+      formatcol(labs[["lab.event.time.c"]], event.time.c.format, yS,
+                if (bmj.revman5 & miss.just) "center" else just.c,
+                fcs, fontfamily,
+                n.com, n.ran, n.prd)
+    #
+    col.event.time.n.e <-
+      formatcol(labs[["lab.event.time.n.e"]], event.time.n.e.format, yS,
+                if (bmj.revman5 & miss.just) "center" else just.c,
+                fcs, fontfamily,
+                n.com, n.ran, n.prd)
+    #
+    col.event.time.n.c <-
+      formatcol(labs[["lab.event.time.n.c"]], event.time.n.c.format, yS,
+                if (bmj.revman5 & miss.just) "center" else just.c,
+                fcs, fontfamily,
+                n.com, n.ran, n.prd)
+  }
+  #
   col.w.common  <- formatcol(labs[["lab.w.common"]], Wc.format, yS,
                              just.c, fcs, fontfamily,
                              n.com, n.ran, n.prd)
@@ -11024,6 +11238,28 @@ forest.meta <- function(x,
     col.event.n.e.calc <- formatcol(longer.event.n.e, event.n.e.format, yS,
                                     just.c, fcs, fontfamily,
                                     n.com, n.ran, n.prd)
+  }
+  #
+  if (ev.t.inc) {
+    col.event.time.e.calc <-
+      formatcol(longer.event.time.e, event.time.e.format, yS,
+                just.c, fcs, fontfamily,
+                n.com, n.ran, n.prd)
+    #
+    col.event.time.c.calc <-
+      formatcol(longer.event.time.c, event.time.c.format, yS,
+                just.c, fcs, fontfamily,
+                n.com, n.ran, n.prd)
+    #
+    col.event.time.n.e.calc <-
+      formatcol(longer.event.time.n.e, event.time.n.e.format, yS,
+                just.c, fcs, fontfamily,
+                n.com, n.ran, n.prd)
+    #
+    col.event.time.n.c.calc <-
+      formatcol(longer.event.time.n.c, event.time.n.c.format, yS,
+                just.c, fcs, fontfamily,
+                n.com, n.ran, n.prd)
   }
   #
   col.w.common.calc  <- formatcol(longer.w.common, Wc.format, yS,
@@ -11180,6 +11416,13 @@ forest.meta <- function(x,
     cols$col.event.n.e <- col.event.n.e
   }
   #
+  if (ev.t.inc) {
+    cols$col.event.time.e <- col.event.time.e
+    cols$col.event.time.c <- col.event.time.c
+    cols$col.event.time.n.e <- col.event.time.n.e
+    cols$col.event.time.n.c <- col.event.time.n.c
+  }
+  #
   cols.calc <- list(col.studlab = col.studlab,
                     col.effect = col.effect.calc,
                     col.ci = col.ci.calc,
@@ -11201,6 +11444,13 @@ forest.meta <- function(x,
   #
   if (ev.n.prop) {
     cols.calc$col.event.n.e <- col.event.n.e.calc
+  }
+  #
+  if (ev.t.inc) {
+    cols.calc$col.event.time.e <- col.event.time.e.calc
+    cols.calc$col.event.time.c <- col.event.time.c.calc
+    cols.calc$col.event.time.n.e <- col.event.time.n.e.calc
+    cols.calc$col.event.time.n.c <- col.event.time.n.c.calc
   }
   #
   cols[["col.cluster"]] <- col.cluster
@@ -11429,14 +11679,14 @@ forest.meta <- function(x,
   #
   col.label.e <-
     tgl(label.e,
-        if (bmj) bmj.xpos else xpos.label.e,
-        if (bmj) "left" else just.label.e,
+        if (bmj && length(label.e.attach) == 1) bmj.xpos else xpos.label.e,
+        if (bmj && length(label.e.attach) == 1) "left" else just.label.e,
         fs.head, ff.head, fontfamily)
   #
   col.label.c <-
     tgl(label.c,
-        if (bmj) bmj.xpos else xpos.label.c,
-        if (bmj) "left" else just.label.c,
+        if (bmj && length(label.c.attach) == 1) bmj.xpos else xpos.label.c,
+        if (bmj && length(label.c.attach) == 1) "left" else just.label.c,
         fs.head, ff.head, fontfamily)
   #
   col.rob <- tgl(rob.text, rob.xpos, "left", fs.head, ff.head, fontfamily)
@@ -11444,7 +11694,9 @@ forest.meta <- function(x,
   col.add.TE <- col.add.ci <- col.add.cluster <- col.add.cor <-
     col.add.cycles <- col.add.effect <- col.add.effect.ci <-
     col.add.event.c <- col.add.event.e <- col.add.event.n.c <-
-    col.add.event.n.e <- col.add.mean.c <- col.add.mean.e <-
+    col.add.event.n.e <- col.add.event.time.c <- col.add.event.time.e <-
+    col.add.event.time.n.c <- col.add.event.time.n.e <-
+    col.add.mean.c <- col.add.mean.e <-
     col.add.mean.sd.n.c <- col.add.mean.sd.n.e <- col.add.n.c <-
     col.add.n.e <- col.add.sd.c <- col.add.sd.e <- col.add.seTE <-
     col.add.studlab <- col.add.time.c <- col.add.time.e <-
@@ -11501,6 +11753,32 @@ forest.meta <- function(x,
                                if (bmj.revman5) 0.5 else xpos.c,
                                if (bmj.revman5) "center" else just.c,
                                fs.head, ff.head, fontfamily)
+  }
+  #
+  if (ev.t.inc) {
+    if (newline.event.time.e)
+      col.add.event.time.e <- tgl(add.event.time.e,
+                                  if (bmj.revman5) 0.5 else xpos.c,
+                                  if (bmj.revman5) "center" else just.c,
+                                  fs.head, ff.head, fontfamily)
+    #
+    if (newline.event.time.c)
+      col.add.event.time.c <- tgl(add.event.time.c,
+                                  if (bmj.revman5) 0.5 else xpos.c,
+                                  if (bmj.revman5) "center" else just.c,
+                                  fs.head, ff.head, fontfamily)
+    #
+    if (newline.event.time.n.e)
+      col.add.event.time.n.e <- tgl(add.event.time.n.e,
+                                    if (bmj.revman5) 0.5 else xpos.c,
+                                    if (bmj.revman5) "center" else just.c,
+                                    fs.head, ff.head, fontfamily)
+    #
+    if (newline.event.time.n.c)
+      col.add.event.time.n.c <- tgl(add.event.time.n.c,
+                                    if (bmj.revman5) 0.5 else xpos.c,
+                                    if (bmj.revman5) "center" else just.c,
+                                    fs.head, ff.head, fontfamily)
   }
   #
   if (newline.w.common)
@@ -11935,6 +12213,7 @@ forest.meta <- function(x,
     bmj = bmj, revman5 = revman5,
     #
     ev.n.bin = ev.n.bin, m.s.n.cont = m.s.n.cont, ev.n.prop = ev.n.prop,
+    ev.t.inc = ev.t.inc,
     #
     fontfamily = fontfamily, fs.head = fs.head, ff.head = ff.head,
     #
@@ -11948,7 +12227,12 @@ forest.meta <- function(x,
     col.add.effect.ci = col.add.effect.ci,
     col.add.event.c = col.add.event.c, col.add.event.e = col.add.event.e,
     col.add.event.n.c = col.add.event.n.c,
-    col.add.event.n.e = col.add.event.n.e, col.add.mean.c = col.add.mean.c,
+    col.add.event.n.e = col.add.event.n.e,
+    col.add.event.time.c = col.add.event.time.c,
+    col.add.event.time.e = col.add.event.time.e,
+    col.add.event.time.n.c = col.add.event.time.n.c,
+    col.add.event.time.n.e = col.add.event.time.n.e,
+    col.add.mean.c = col.add.mean.c,
     col.add.mean.e = col.add.mean.e,
     col.add.mean.sd.n.c = col.add.mean.sd.n.c,
     col.add.mean.sd.n.e = col.add.mean.sd.n.e, col.add.n.c = col.add.n.c,
@@ -11997,7 +12281,12 @@ forest.meta <- function(x,
     newline.effect.ci = newline.effect.ci,
     newline.event.c = newline.event.c, newline.event.e = newline.event.e,
     newline.event.n.c = newline.event.n.c,
-    newline.event.n.e = newline.event.n.e, newline.mean.c = newline.mean.c,
+    newline.event.n.e = newline.event.n.e,
+    newline.event.time.c = newline.event.time.c,
+    newline.event.time.e = newline.event.time.e,
+    newline.event.time.n.c = newline.event.time.n.c,
+    newline.event.time.n.e = newline.event.time.n.e,
+    newline.mean.c = newline.mean.c,
     newline.mean.e = newline.mean.e,
     newline.mean.sd.n.c = newline.mean.sd.n.c,
     newline.mean.sd.n.e = newline.mean.sd.n.e, newline.n.c = newline.n.c,

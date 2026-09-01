@@ -27,7 +27,7 @@ forest_meta_internal <- function(
     #
     clines, jama, col.jama.line, bmj, revman5,
     #
-    ev.n.bin, m.s.n.cont, ev.n.prop,
+    ev.n.bin, m.s.n.cont, ev.n.prop, ev.t.inc,
     #
     fontfamily, fs.head, ff.head,
     #
@@ -37,7 +37,9 @@ forest_meta_internal <- function(
     col.add.TE, col.add.ci, col.add.cluster, col.add.cor,
     col.add.cycles, col.add.effect, col.add.effect.ci,
     col.add.event.c, col.add.event.e, col.add.event.n.c,
-    col.add.event.n.e, col.add.mean.c, col.add.mean.e,
+    col.add.event.n.e, col.add.event.time.c, col.add.event.time.e,
+    col.add.event.time.n.c, col.add.event.time.n.e,
+    col.add.mean.c, col.add.mean.e,
     col.add.mean.sd.n.c, col.add.mean.sd.n.e, col.add.n.c,
     col.add.n.e, col.add.sd.c, col.add.sd.e, col.add.seTE,
     col.add.studlab, col.add.time.c, col.add.time.e,
@@ -68,7 +70,9 @@ forest_meta_internal <- function(
     newline.TE, newline.ci, newline.cluster, newline.cor,
     newline.cycles, newline.effect,newline.effect.ci,
     newline.event.c, newline.event.e, newline.event.n.c,
-    newline.event.n.e, newline.mean.c, newline.mean.e,
+    newline.event.n.e, newline.event.time.c, newline.event.time.e,
+    newline.event.time.n.c, newline.event.time.n.e,
+    newline.mean.c, newline.mean.e,
     newline.mean.sd.n.c, newline.mean.sd.n.e, newline.n.c,
     newline.n.e, newline.sd.c, newline.sd.e, newline.seTE,
     newline.studlab, newline.time.c, newline.time.e,
@@ -202,6 +206,14 @@ forest_meta_internal <- function(
           add.text(col.add.event.n.e, j)
         if (newline.event.n.c & leftcols[i] == "col.event.n.c")
           add.text(col.add.event.n.c, j)
+        if (newline.event.time.e & leftcols[i] == "col.event.time.e")
+          add.text(col.add.event.time.e, j)
+        if (newline.event.time.c & leftcols[i] == "col.event.time.c")
+          add.text(col.add.event.time.c, j)
+        if (newline.event.time.n.e & leftcols[i] == "col.event.time.n.e")
+          add.text(col.add.event.time.n.e, j)
+        if (newline.event.time.n.c & leftcols[i] == "col.event.time.n.c")
+          add.text(col.add.event.time.n.c, j)
         if (newline.mean.sd.n.e & leftcols[i] == "col.mean.sd.n.e")
           add.text(col.add.mean.sd.n.e, j)
         if (newline.mean.sd.n.c & leftcols[i] == "col.mean.sd.n.c")
@@ -509,6 +521,14 @@ forest_meta_internal <- function(
           add.text(col.add.event.e, j)
         if (newline.event.c & rightcols[i] == "col.event.c")
           add.text(col.add.event.c, j)
+        if (newline.event.time.e & rightcols[i] == "col.event.time.e")
+          add.text(col.add.event.time.e, j)
+        if (newline.event.time.c & rightcols[i] == "col.event.time.c")
+          add.text(col.add.event.time.c, j)
+        if (newline.event.time.n.e & rightcols[i] == "col.event.time.n.e")
+          add.text(col.add.event.time.n.e, j)
+        if (newline.event.time.n.c & rightcols[i] == "col.event.time.n.c")
+          add.text(col.add.event.time.n.c, j)
         if (newline.mean.e & rightcols[i] == "col.mean.e")
           add.text(col.add.mean.e, j)
         if (newline.mean.c & rightcols[i] == "col.mean.c")
@@ -602,6 +622,33 @@ forest_meta_internal <- function(
         sel3 <- sel2
         sel2 <- sel1
         sel1 <- sel2
+      }
+      #
+      for (i in seq(2 * sel1 - 1, 2 * sel2 - 1)) {
+        pushViewport(
+          viewport(
+            layout.pos.col = i,
+            xscale = col.forest$range))
+        #
+        grid.lines(x = unit(0:1, "npc"),
+                   y = unit(nrow - 1.5 + 0.5 * addrow, "lines"),
+                   gp = gpar(lwd = lwd))
+        #
+        popViewport()
+      }
+    }
+  }
+  #
+  if (ev.t.inc) {
+    cols.all <- c(leftcols, if (all(rightcols != "col.")) rightcols)
+    sel1 <- grep("col.event.time.e|col.event.time.n.e", cols.all)
+    sel2 <- grep("col.event.time.c|col.event.time.n.c", cols.all)
+    #
+    if (length(sel1) > 0 & length(sel2) > 0) {
+      if (sel1 > sel2) {
+        sel3 <- sel2
+        sel2 <- sel1
+        sel1 <- sel3
       }
       #
       for (i in seq(2 * sel1 - 1, 2 * sel2 - 1)) {
