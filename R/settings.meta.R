@@ -761,6 +761,7 @@ settings.meta <- function(..., quietly = TRUE) {
     #
     setOption("col.lines", NULL)
     setOption("col.label", NULL)
+    setOption("col.main", "black")
     #
     setOption("hetlab", "Heterogeneity: ")
     setOption("resid.hetstat", NULL)
@@ -801,6 +802,7 @@ settings.meta <- function(..., quietly = TRUE) {
     #
     setOption("fontsize", 12)
     setOption("fontfamily", NULL)
+    setOption("fs.main", NULL)
     setOption("fs.common", NULL)
     setOption("fs.random", NULL)
     setOption("fs.predict", NULL)
@@ -814,6 +816,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("fs.addline", NULL)
     #
     setOption("ff.heading", "bold")
+    setOption("ff.main", "bold")
     setOption("ff.common", NULL)
     setOption("ff.random", NULL)
     setOption("ff.predict", NULL)
@@ -843,6 +846,10 @@ settings.meta <- function(..., quietly = TRUE) {
     #
     setOption("just.studlab", "left")
     setOption("just.addcols", "center")
+    setOption("just.main", "center")
+    setOption("xpos.main", 0.5)
+    setOption("gap.main", 1)
+    setOption("lineheight.main", 1)
     #
     setOption("spacing", 1)
     setOption("addrow", NULL)
@@ -1313,6 +1320,7 @@ settings.meta <- function(..., quietly = TRUE) {
     #
     catarg("col.lines              ")
     catarg("col.label              ")
+    catarg("col.main               ")
     #
     catarg("hetlab                 ")
     catarg("resid.hetstat          ")
@@ -1353,6 +1361,7 @@ settings.meta <- function(..., quietly = TRUE) {
     #
     catarg("fontsize               ")
     catarg("fontfamily             ")
+    catarg("fs.main                ")
     catarg("fs.common              ")
     catarg("fs.random              ")
     catarg("fs.predict             ")
@@ -1366,6 +1375,7 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("fs.addline             ")
     #
     catarg("ff.heading             ")
+    catarg("ff.main                ")
     catarg("ff.common              ")
     catarg("ff.random              ")
     catarg("ff.predict             ")
@@ -1395,6 +1405,10 @@ settings.meta <- function(..., quietly = TRUE) {
     #
     catarg("just.studlab           ")
     catarg("just.addcols           ")
+    catarg("just.main              ")
+    catarg("xpos.main              ")
+    catarg("gap.main               ")
+    catarg("lineheight.main        ")
     #
     catarg("spacing                ")
     catarg("addrow                 ")
@@ -1647,6 +1661,7 @@ settings.meta <- function(..., quietly = TRUE) {
     #
     setcolor("col.lines", args)
     setcolor("col.label", args)
+    setcolor("col.main", args)
     #
     setcharacter("hetlab", args)
     setlogical("resid.hetstat", args, TRUE)
@@ -1689,6 +1704,7 @@ settings.meta <- function(..., quietly = TRUE) {
     #
     setnumeric("fontsize", args)
     setcharacter("fontfamily", args, NULL.ok = TRUE)
+    setnumeric("fs.main", args, TRUE)
     setnumeric("fs.common", args, TRUE)
     setnumeric("fs.random", args, TRUE)
     setnumeric("fs.predict", args, TRUE)
@@ -1702,6 +1718,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setnumeric("fs.addline", args, TRUE)
     #
     setcharacter("ff.heading", args)
+    setcharacter("ff.main", args)
     setcharacter("ff.common", args, NULL.ok = TRUE)
     setcharacter("ff.random", args, NULL.ok = TRUE)
     setcharacter("ff.predict", args, NULL.ok = TRUE)
@@ -1731,6 +1748,10 @@ settings.meta <- function(..., quietly = TRUE) {
     #
     setcharacter("just.studlab", args, c("right", "center", "left"))
     setcharacter("just.addcols", args, c("right", "center", "left"))
+    setcharacter("just.main", args, c("right", "center", "left"))
+    setnumeric("xpos.main", args)
+    setnumeric("gap.main", args, integer = TRUE)
+    setnumeric("lineheight.main", args)
     #
     setnumeric("spacing", args)
     setlogical("addrow", args, TRUE)

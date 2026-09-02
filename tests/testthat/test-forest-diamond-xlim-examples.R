@@ -78,6 +78,57 @@ test_that("forest accounts for attached treatment labels in column headings", {
   dev.off()
 })
 
+test_that("forest accepts plot titles", {
+  m <- metagen(1:5, 5:1, sm = "MD")
+
+  pdf(tempfile())
+  on.exit(if (dev.cur() > 1) dev.off(), add = TRUE)
+  res <- forest(m, main = "First line\nSecond line", just.main = "left",
+                xpos.main = 0, fs.main = 14, ff.main = "italic",
+                col.main = "blue", gap.main = 2, lineheight.main = 1)
+
+  expect_equal(res$main, "First line\nSecond line")
+  expect_equal(res$just.main, "left")
+  expect_equal(res$xpos.main, 0)
+  expect_equal(res$fs.main, 14)
+  expect_equal(res$ff.main, "italic")
+  expect_equal(res$col.main, "blue")
+  expect_equal(res$gap.main, 2)
+  expect_equal(res$lineheight.main, 1)
+
+  res.default <- forest(m, main = "Title", fontsize = 10)
+  expect_equal(res.default$fs.main, 11)
+  expect_error(forest(m, main = "Title", gap.main = 1.5),
+               "Argument 'gap.main'")
+  dev.off()
+})
+
+test_that("forest title does not shift header line", {
+  m <- metagen(1:5, 5:1, sm = "MD")
+  header.line.y <- character(0)
+  assign(".forest_header_line_y", header.line.y, envir = .GlobalEnv)
+  on.exit(rm(".forest_header_line_y", envir = .GlobalEnv), add = TRUE)
+
+  suppressMessages(capture.output(
+    trace(grid::grid.lines, quote({
+      if (!missing(gp) && identical(gp$col, "hotpink"))
+        .forest_header_line_y <<- c(.forest_header_line_y, as.character(y))
+    }), print = FALSE)
+  ))
+  on.exit(suppressMessages(capture.output(untrace(grid::grid.lines))),
+          add = TRUE)
+
+  pdf(tempfile())
+  on.exit(if (dev.cur() > 1) dev.off(), add = TRUE)
+  forest(m, header = TRUE, col.header.line = "hotpink")
+  forest(m, main = "Title", header = TRUE, col.header.line = "hotpink")
+  dev.off()
+
+  header.line.y <- get(".forest_header_line_y", envir = .GlobalEnv)
+  expect_true(length(header.line.y) > 0)
+  expect_length(unique(header.line.y), 1)
+})
+
 test_that("forest accepts different colours for multiple overall diamonds", {
   m <- metagen(1:5, 5:1, sm = "MD")
   m$TE.common <- c(1, 2)

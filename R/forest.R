@@ -93,6 +93,13 @@
 #' @param xlab A label for the x-axis.
 #' @param xlab.pos A numeric specifying the center of the label on the
 #'   x-axis.
+#' @param main A title for the forest plot.
+#' @param col.main The colour of the main title.
+#' @param just.main Justification of title.
+#' @param xpos.main Horizontal position of title.
+#' @param gap.main Number of empty rows between title and column headings.
+#' @param lineheight.main Line height for the main title,
+#'   see \code{\link{gpar}}.
 #' @param smlab A label for the summary measure (printed at top of
 #'   figure).
 #' @param smlab.pos A numeric specifying the center of the label for
@@ -231,13 +238,6 @@
 #'   results (random effects model).
 #' @param col.study The colour for individual study results and
 #'   confidence limits.
-#' @param col.inside The colour for individual study results and
-#'   confidence limits if confidence limits are completely within
-#'   squares.
-#' @param col.inside.common The colour for result of common effect
-#'   meta-analysis if confidence limit lies completely within square.
-#' @param col.inside.random The colour for result of random effects
-#'   meta-analysis if confidence limit lies completely within square.
 #' @param col.square The colour for squares reflecting study's weight
 #'   in the meta-analysis.
 #' @param col.square.lines The colour for the outer lines of squares
@@ -246,6 +246,13 @@
 #'   in the meta-analysis.
 #' @param col.circle.lines The colour for the outer lines of circles
 #'   reflecting study's weight in the meta-analysis.
+#' @param col.inside The colour for individual study results and
+#'   confidence limits if confidence limits are completely within
+#'   squares.
+#' @param col.inside.common The colour for result of common effect
+#'   meta-analysis if confidence limit lies completely within square.
+#' @param col.inside.random The colour for result of random effects
+#'   meta-analysis if confidence limit lies completely within square.
 #' @param col.diamond The colour of diamonds representing the results
 #'   for common effect and random effects models.
 #' @param col.diamond.common The colour(s) of diamonds for common effect
@@ -323,10 +330,10 @@
 #'   means.
 #' @param label.sd A character string specifying the column label for
 #'   standard deviations.
-#' @param label.time A character string specifying the column label for
-#'   times.
 #' @param label.cor A character string specifying the column label for
 #'   correlations.
+#' @param label.time A character string specifying the column label for
+#'   times.
 #' @param label.pval A character string specifying the column label for
 #'   p-values.
 #' @param label.tau2 A character string specifying the column label for
@@ -420,6 +427,7 @@
 #' @param fontfamily The font family, see \code{\link{gpar}}.
 #' @param fs.heading The size of text for column headings, see
 #'   \code{\link{gpar}}.
+#' @param fs.main The size of text for the main title, see \code{\link{gpar}}.
 #' @param fs.common The size of text for results of common effect
 #'   model, see \code{\link{gpar}}.
 #' @param fs.random The size of text for results of random effects
@@ -461,6 +469,8 @@
 #'   methods, see \code{\link{gpar}}.
 #' @param ff.heading The fontface for column headings, see
 #'   \code{\link{gpar}}.
+#' @param ff.main The fontface of text for the main title,
+#'   see \code{\link{gpar}}.
 #' @param ff.common The fontface of text for results of common effect
 #'   model, see \code{\link{gpar}}.
 #' @param ff.random The fontface of text for results of random effects
@@ -616,16 +626,16 @@
 #'   errors.
 #' @param digits.stat Minimal number of significant digits for z- or
 #'   t-statistic for test of overall effect.
-#' @param digits.tau2 Minimal number of significant digits for
-#'   between-study variance.
-#' @param digits.tau Minimal number of significant digits for square
-#'   root of between-study variance.
 #' @param digits.pval Minimal number of significant digits for p-value
 #'   of overall treatment effect.
 #' @param digits.pval.Q Minimal number of significant digits for
 #'   p-value of heterogeneity test.
 #' @param digits.Q Minimal number of significant digits for
 #'   heterogeneity statistic Q.
+#' @param digits.tau2 Minimal number of significant digits for
+#'   between-study variance.
+#' @param digits.tau Minimal number of significant digits for square
+#'   root of between-study variance.
 #' @param digits.I2 Minimal number of significant digits for I-squared
 #'   statistic.
 #' @param digits.weight Minimal number of significant digits for
@@ -647,11 +657,11 @@
 #'   element 'TE'.
 #' @param digits.addcols A vector or scalar with minimal number of
 #'   significant digits for additional columns.
-#' @param digits.addcols.left A vector or scalar with minimal number
-#'   of significant digits for additional columns on left side of
-#'   forest plot.
 #' @param digits.addcols.right A vector or scalar with minimal number
 #'   of significant digits for additional columns on right side of
+#'   forest plot.
+#' @param digits.addcols.left A vector or scalar with minimal number
+#'   of significant digits for additional columns on left side of
 #'   forest plot.
 #' @param scientific.pval A logical specifying whether p-values should
 #'   be printed in scientific notation, e.g., 1.2345e-01 instead of
@@ -1442,6 +1452,14 @@ forest.meta <- function(x,
                         rob.only = FALSE,
                         #
                         xlab = "", xlab.pos,
+                        #
+                        main = NULL,
+                        col.main = gs("col.main"),
+                        just.main = gs("just.main"),
+                        xpos.main = gs("xpos.main"),
+                        gap.main = gs("gap.main"),
+                        lineheight.main = gs("lineheight.main"),
+                        #
                         smlab = NULL, smlab.pos, xlim,
                         #
                         allstudies = TRUE,
@@ -1620,7 +1638,9 @@ forest.meta <- function(x,
                         #
                         fontsize = gs("fontsize"),
                         fontfamily = gs("fontfamily"),
+                        #
                         fs.heading = fontsize,
+                        fs.main = gs("fs.main"),
                         fs.common = gs("fs.common"),
                         fs.random = gs("fs.random"),
                         fs.predict = gs("fs.predict"),
@@ -1643,6 +1663,7 @@ forest.meta <- function(x,
                         fs.details = fontsize,
                         #
                         ff.heading = "bold",
+                        ff.main = gs("ff.main"),
                         ff.common = gs("ff.common"),
                         ff.random = gs("ff.random"),
                         ff.predict = gs("ff.predict"),
@@ -1929,6 +1950,7 @@ forest.meta <- function(x,
   miss.digits.sd <- missing(digits.sd)
   miss.digits.stat <- missing(digits.stat)
   miss.digits.time <- missing(digits.time)
+  #
   miss.ff.addline <- missing(ff.addline)
   miss.ff.common <- missing(ff.common)
   miss.ff.common.labels <- missing(ff.common.labels)
@@ -1943,6 +1965,7 @@ forest.meta <- function(x,
   miss.ff.test.effect.subgroup <- missing(ff.test.effect.subgroup)
   miss.ff.test.overall <- missing(ff.test.overall)
   miss.ff.test.subgroup <- missing(ff.test.subgroup)
+  #
   miss.fs.addline <- missing(fs.addline)
   miss.fs.common <- missing(fs.common)
   miss.fs.common.labels <- missing(fs.common.labels)
@@ -1956,6 +1979,7 @@ forest.meta <- function(x,
   miss.fs.test.effect.subgroup <- missing(fs.test.effect.subgroup)
   miss.fs.test.overall <- missing(fs.test.overall)
   miss.fs.test.subgroup <- missing(fs.test.subgroup)
+  #
   miss.header.line <- missing(header.line)
   miss.hetstat <- missing(hetstat)
   miss.irscale <- missing(irscale)
@@ -2240,6 +2264,8 @@ forest.meta <- function(x,
   #
   col.label <- replaceNULL(col.label, "black")
   chkcolor(col.label, length = 1)
+  col.main <- replaceNULL(col.main, "black")
+  chkcolor(col.main, length = 1)
   #
   col.label.left <- replaceNULL(col.label.left, "black")
   chkcolor(col.label.left, length = 1)
@@ -2511,13 +2537,14 @@ forest.meta <- function(x,
       !(c(rightcols, rightcols.rob) %in% colnames.notNULL)]
     leftcols.new <- leftcols[!leftcols %in% colnames.notNULL]
   }
-  
+
+
   #
   #
   # (7) Check other arguments
   #
   #
-  
+
   sfsp <- sys.frame(sys.parent())
   mc <- match.call()
   #
@@ -3100,7 +3127,7 @@ forest.meta <- function(x,
   }
   #
   if (is.character(header.line)) {
-    header.line.pos <- setchar(header.line, c("below", "new", ""))
+    header.line.pos <- setchar(header.line, c("below", "both", ""))
     header.line <- header.line.pos != ""
   }
   else {
@@ -3112,6 +3139,16 @@ forest.meta <- function(x,
   }
   #
   chknumeric(fontsize, length = 1)
+  #
+  if (!is.null(main))
+    chkchar(main, length = 1)
+  main <- replaceNULL(main, "")
+  just.main <- setchar(just.main, c("right", "center", "left"))
+  chknumeric(xpos.main, length = 1)
+  chknumeric(gap.main, min = 0, length = 1, integer = TRUE)
+  fs.main <- replaceNULL(fs.main, 1.1 * fontsize)
+  chknumeric(fs.main, length = 1)
+  chknumeric(lineheight.main, min = 0, zero = FALSE, length = 1)
   #
   if (!is.null(fontfamily)) {
     chkchar(fontfamily, length = 1)
@@ -3170,6 +3207,8 @@ forest.meta <- function(x,
   chknumeric(fs.xlab, length = 1)
   chknumeric(fs.lr, length = 1)
   #
+  # Check fontfaces
+  #
   if (!miss.ff.fixed) {
     ff.common <-
       deprecated(ff.common, miss.ff.common, args, "ff.fixed",
@@ -3184,6 +3223,8 @@ forest.meta <- function(x,
                  warn.deprecated)
     miss.ff.common.labels <- FALSE
   }
+  #
+  chkchar(ff.main, length = 1)
   #
   chknumeric(squaresize, length = 1)
   chknumeric(lwd, length = 1)
@@ -8852,6 +8893,9 @@ forest.meta <- function(x,
   # y-axis:
   #
   #
+  rows.main <- if (main == "") 0 else length(strsplit(main, "\n")[[1]])
+  rows.main.total <- if (rows.main == 0) 0 else rows.main + gap.main
+  #
   if ((!(metaprop | metacor) &
        (any(rightcols %in% c("n.e", "n.c")) |
         any(leftcols  %in% c("n.e", "n.c")))) |
@@ -8872,11 +8916,11 @@ forest.meta <- function(x,
       RoB.available |
       newline.all
   ) {
-    yHead <- 2
-    yHeadadd <- 1
+    yHead <- rows.main.total + 2
+    yHeadadd <- rows.main.total + 1
   }
   else {
-    yHead <- 1
+    yHead <- rows.main.total + 1
     yHeadadd <- NA
   }
   #
@@ -10255,6 +10299,42 @@ forest.meta <- function(x,
     col.add.time.c <- tgl(add.time.c, xpos.c, just.c, fs.head, ff.head,
                           fontfamily)
   #
+  if (!is.na(yHeadadd)) {
+    col.label.e <- set_rows(col.label.e, yHeadadd)
+    col.label.c <- set_rows(col.label.c, yHeadadd)
+    col.rob <- set_rows(col.rob, yHeadadd)
+    #
+    col.add.studlab <- set_rows(col.add.studlab, yHeadadd)
+    col.add.effect <- set_rows(col.add.effect, yHeadadd)
+    col.add.ci <- set_rows(col.add.ci, yHeadadd)
+    col.add.effect.ci <- set_rows(col.add.effect.ci, yHeadadd)
+    col.add.event.n.e <- set_rows(col.add.event.n.e, yHeadadd)
+    col.add.event.n.c <- set_rows(col.add.event.n.c, yHeadadd)
+    col.add.mean.sd.n.e <- set_rows(col.add.mean.sd.n.e, yHeadadd)
+    col.add.mean.sd.n.c <- set_rows(col.add.mean.sd.n.c, yHeadadd)
+    col.add.event.time.e <- set_rows(col.add.event.time.e, yHeadadd)
+    col.add.event.time.c <- set_rows(col.add.event.time.c, yHeadadd)
+    col.add.event.time.n.e <- set_rows(col.add.event.time.n.e, yHeadadd)
+    col.add.event.time.n.c <- set_rows(col.add.event.time.n.c, yHeadadd)
+    col.add.w.common <- set_rows(col.add.w.common, yHeadadd)
+    col.add.w.random <- set_rows(col.add.w.random, yHeadadd)
+    col.add.TE <- set_rows(col.add.TE, yHeadadd)
+    col.add.seTE <- set_rows(col.add.seTE, yHeadadd)
+    col.add.cluster <- set_rows(col.add.cluster, yHeadadd)
+    col.add.cycles <- set_rows(col.add.cycles, yHeadadd)
+    col.add.n.e <- set_rows(col.add.n.e, yHeadadd)
+    col.add.n.c <- set_rows(col.add.n.c, yHeadadd)
+    col.add.event.e <- set_rows(col.add.event.e, yHeadadd)
+    col.add.event.c <- set_rows(col.add.event.c, yHeadadd)
+    col.add.mean.e <- set_rows(col.add.mean.e, yHeadadd)
+    col.add.mean.c <- set_rows(col.add.mean.c, yHeadadd)
+    col.add.sd.e <- set_rows(col.add.sd.e, yHeadadd)
+    col.add.sd.c <- set_rows(col.add.sd.c, yHeadadd)
+    col.add.cor <- set_rows(col.add.cor, yHeadadd)
+    col.add.time.e <- set_rows(col.add.time.e, yHeadadd)
+    col.add.time.c <- set_rows(col.add.time.c, yHeadadd)
+  }
+  #
   leftcols  <- paste0("col.", leftcols)
   rightcols <- paste0("col.", rightcols)
   
@@ -10540,7 +10620,9 @@ forest.meta <- function(x,
   ymin.line <- nrow - maxrow(yline.ref)
   ymin.ref <- spacing * ymin.line
   #
-  ymax <- spacing * (nrow - ifelse(is.na(yHeadadd), 1, 2) - 1 * addrow)
+  ymax <-
+    spacing *
+    (nrow - rows.main.total - ifelse(is.na(yHeadadd), 1, 2) - 1 * addrow)
   #
   if (cid.pooled.only)
     ymax.ref <- spacing *
@@ -10682,6 +10764,11 @@ forest.meta <- function(x,
     lty.cid = lty.cid,
     fill.cid.below.null = fill.cid.below.null,
     fill.cid.above.null = fill.cid.above.null, fill = fill,
+    #
+    main = main, rows.main = rows.main, gap.main = gap.main,
+    just.main = just.main, xpos.main = xpos.main,
+    fs.main = fs.main, ff.main = ff.main,
+    col.main = col.main, lineheight.main = lineheight.main,
     #
     xlab = xlab, xlab.add = xlab.add, newline.xlab = newline.xlab,
     xlab.pos = xlab.pos, xlab.ypos = xlab.ypos, fs.xlab = fs.xlab,

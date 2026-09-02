@@ -59,6 +59,9 @@ forest_meta_internal <- function(
     cid.below.null, cid.above.null, lty.cid,
     fill.cid.below.null, fill.cid.above.null, fill,
     #
+    main, rows.main, gap.main, just.main, xpos.main, fs.main, ff.main,
+    col.main, lineheight.main,
+    #
     xlab, xlab.add, newline.xlab, xlab.pos, xlab.ypos, fs.xlab, ff.xlab,
     #
     bottom.lr, smlab1, smlab2, newline.smlab, newline.lr,
@@ -98,6 +101,22 @@ forest_meta_internal <- function(
         grid.layout(
           nrow, length(x1), widths = x1,
           heights = unit(spacing, "lines"))))
+  #
+  if (rows.main > 0) {
+    pushViewport(
+      viewport(layout.pos.row = seq_len(rows.main),
+               layout.pos.col = seq_len(length(x1))))
+    #
+    grid.text(main,
+              x = unit(xpos.main, "npc"), y = unit(0.5, "npc"),
+              just = just.main,
+              gp = gpar(fontsize = fs.main, fontface = ff.main,
+                        fontfamily = fontfamily, col = col.main,
+                        lineheight = lineheight.main))
+    #
+    popViewport()
+  }
+  nrow.plot <- nrow - if (rows.main > 0) rows.main + gap.main else 0
   #
   # Left side of forest plot
   #
@@ -603,7 +622,7 @@ forest_meta_internal <- function(
             xscale = col.forest$range))
         #
         grid.lines(x = unit(0:1, "npc"),
-                   y = unit(nrow - 1.5 + 0.5 * addrow, "lines"),
+                   y = unit(nrow.plot - 1.5 + 0.5 * addrow, "lines"),
                    gp = gpar(lwd = lwd))
         #
         popViewport()
@@ -631,7 +650,7 @@ forest_meta_internal <- function(
             xscale = col.forest$range))
         #
         grid.lines(x = unit(0:1, "npc"),
-                   y = unit(nrow - 1.5 + 0.5 * addrow, "lines"),
+                   y = unit(nrow.plot - 1.5 + 0.5 * addrow, "lines"),
                    gp = gpar(lwd = lwd))
         #
         popViewport()
@@ -658,7 +677,7 @@ forest_meta_internal <- function(
             xscale = col.forest$range))
         #
         grid.lines(x = unit(0:1, "npc"),
-                   y = unit(nrow - 1.5 + 0.5 * addrow, "lines"),
+                   y = unit(nrow.plot - 1.5 + 0.5 * addrow, "lines"),
                    gp = gpar(lwd = lwd))
         #
         popViewport()
@@ -675,7 +694,7 @@ forest_meta_internal <- function(
             xscale = col.forest$range))
         #
         grid.lines(x = unit(0:1, "npc"),
-                   y = unit(nrow + 0.5 * addrow, "lines"),
+                   y = unit(nrow.plot + 0.5 * addrow, "lines"),
                    gp = gpar(lwd = lwd, col = col.header.line))
         #
         popViewport()
@@ -727,6 +746,15 @@ forest_meta_internal <- function(
               colgap.forest = colgap.forest,
               colgap.forest.left = colgap.forest.left,
               colgap.forest.right = colgap.forest.right,
+              #
+              main = main,
+              gap.main = gap.main,
+              just.main = just.main,
+              xpos.main = xpos.main,
+              fs.main = fs.main,
+              ff.main = ff.main,
+              col.main = col.main,
+              lineheight.main = lineheight.main,
               #
               studlab = studlab,
               TE.format = TE.format,

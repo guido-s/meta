@@ -1394,6 +1394,12 @@ make_hetstat <- function(hetlab,
   as.call(c(list(quote(paste), hetlab), parts))
 }
 
+set_rows <- function(x, rows) {
+  if (!is.null(x))
+    x$rows <- rows
+  x
+}
+
 newCol <- function(varname, label,
                    rob, data1, data2, datap,
                    n.com, n.ran, n.prd,

@@ -691,6 +691,7 @@ argslist <-
     "col.subgroup",
     "col.label.right", "col.label.left",
     "col.lines", "col.label",
+    "col.main",
     "hetlab", "resid.hetstat", "resid.hetlab",
     "forest.I2", "forest.I2.ci", "forest.tau2", "forest.tau2.ci",
     "forest.tau", "forest.tau.ci", "forest.Q", "forest.pval.Q",
@@ -705,6 +706,7 @@ argslist <-
     "forest.stat", "forest.Q.subgroup",
     "header.line",
     "fontsize", "fontfamily",
+    "fs.main",
     "fs.common", "fs.random", "fs.predict",
     "fs.common.labels", "fs.random.labels", "fs.predict.labels",
     "fs.hetstat", "fs.test.overall", "fs.test.subgroup",
@@ -713,12 +715,13 @@ argslist <-
     "ff.common.labels", "ff.random.labels", "ff.predict.labels",
     "ff.study", "ff.hetstat", "ff.test.overall", "ff.test.subgroup",
     "ff.test.effect.subgroup", "ff.addline",
-    "ff.axis", "ff.smlab", "ff.xlab", "ff.lr",
+    "ff.main", "ff.axis", "ff.smlab", "ff.xlab", "ff.lr",
     "colgap", "colgap.forest",
     "calcwidth.predict", "calcwidth.hetstat",
     "calcwidth.tests", "calcwidth.subgroup", "calcwidth.addline",
     "calcwidth.details",
-    "just.studlab", "just.addcols",
+    "just.studlab", "just.addcols", "just.main", "xpos.main", "gap.main",
+    "lineheight.main",
     "spacing",
     "addrow", "addrow.overall", "addrow.subgroups", "addrows.below.overall"
     )
@@ -952,6 +955,7 @@ setOption("col.label.left", NULL)
 #
 setOption("col.lines", NULL)
 setOption("col.label", NULL)
+setOption("col.main", "black")
 #
 setOption("hetlab", "Heterogeneity: ")
 setOption("resid.hetstat", NULL)
@@ -992,6 +996,7 @@ setOption("header.line", FALSE)
 #
 setOption("fontsize", 12)
 setOption("fontfamily", NULL)
+setOption("fs.main", NULL)
 setOption("fs.common", NULL)
 setOption("fs.random", NULL)
 setOption("fs.predict", NULL)
@@ -1005,6 +1010,7 @@ setOption("fs.test.effect.subgroup", NULL)
 setOption("fs.addline", NULL)
 #
 setOption("ff.heading", "bold")
+setOption("ff.main", "bold")
 setOption("ff.common", NULL)
 setOption("ff.random", NULL)
 setOption("ff.predict", NULL)
@@ -1034,6 +1040,10 @@ setOption("calcwidth.details", FALSE)
 #
 setOption("just.studlab", "left")
 setOption("just.addcols", "center")
+setOption("just.main", "center")
+setOption("xpos.main", 0.5)
+setOption("gap.main", 1)
+setOption("lineheight.main", 1)
 #
 setOption("spacing", 1)
 setOption("addrow", NULL)

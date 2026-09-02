@@ -47,6 +47,12 @@
   rob.only = FALSE,
   xlab = "",
   xlab.pos,
+  main = NULL,
+  col.main = gs("col.main"),
+  just.main = gs("just.main"),
+  xpos.main = gs("xpos.main"),
+  gap.main = gs("gap.main"),
+  lineheight.main = gs("lineheight.main"),
   smlab = NULL,
   smlab.pos,
   xlim,
@@ -190,6 +196,7 @@
   fontsize = gs("fontsize"),
   fontfamily = gs("fontfamily"),
   fs.heading = fontsize,
+  fs.main = gs("fs.main"),
   fs.common = gs("fs.common"),
   fs.random = gs("fs.random"),
   fs.predict = gs("fs.predict"),
@@ -211,6 +218,7 @@
   fs.rob.symbols = fontsize,
   fs.details = fontsize,
   ff.heading = "bold",
+  ff.main = gs("ff.main"),
   ff.common = gs("ff.common"),
   ff.random = gs("ff.random"),
   ff.predict = gs("ff.predict"),
@@ -430,6 +438,19 @@ the forest plot.}
 
 \item{xlab.pos}{A numeric specifying the center of the label on the
 x-axis.}
+
+\item{main}{A title for the forest plot.}
+
+\item{col.main}{The colour of the main title.}
+
+\item{just.main}{Justification of title.}
+
+\item{xpos.main}{Horizontal position of title.}
+
+\item{gap.main}{Number of empty rows between title and column headings.}
+
+\item{lineheight.main}{Line height for the main title,
+see \code{\link{gpar}}.}
 
 \item{smlab}{A label for the summary measure (printed at top of
 figure).}
@@ -901,6 +922,8 @@ results (see Details).}
 \item{fs.heading}{The size of text for column headings, see
 \code{\link{gpar}}.}
 
+\item{fs.main}{The size of text for the main title, see \code{\link{gpar}}.}
+
 \item{fs.common}{The size of text for results of common effect
 model, see \code{\link{gpar}}.}
 
@@ -962,6 +985,9 @@ methods, see \code{\link{gpar}}.}
 
 \item{ff.heading}{The fontface for column headings, see
 \code{\link{gpar}}.}
+
+\item{ff.main}{The fontface of text for the main title,
+see \code{\link{gpar}}.}
 
 \item{ff.common}{The fontface of text for results of common effect
 model, see \code{\link{gpar}}.}

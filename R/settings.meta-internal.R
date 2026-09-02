@@ -156,7 +156,7 @@ setlogical <- function(argname, args, NULL.ok = FALSE,
 }
 
 
-setnumeric <- function(argname, args, NULL.ok = FALSE) {
+setnumeric <- function(argname, args, NULL.ok = FALSE, integer = FALSE) {
   id <- argid(names(args), argname)
   #
   if (!is.na(id)) {
@@ -167,7 +167,7 @@ setnumeric <- function(argname, args, NULL.ok = FALSE) {
       return(invisible(NULL))
     }
     #
-    chknumeric(val, min = 0, length = 1, name = argname)
+    chknumeric(val, min = 0, length = 1, integer = integer, name = argname)
     setOption(argname, val)
   }
   #

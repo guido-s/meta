@@ -13,6 +13,7 @@
   conducted.
 
 * Forest plots:
+  - a main title can be added
   - subgroup random effects estimates and prediction intervals can be selected
     separately for each confidence interval or prediction interval method
   - heterogeneity statistics are now considered by default when calculating
@@ -63,6 +64,9 @@
     [(pull #92)](https://github.com/guido-s/meta/pull/92)
 
 * forest.meta():
+  - new arguments 'main', 'just.main', 'xpos.main', 'gap.main', 'fs.main',
+    'ff.main', 'col.main', and 'lineheight.main' can be used to add and format
+    a main title
   - new default for argument 'calcwidth.hetstat' is TRUE
   - less vertical space is added below overall results in JAMA layout
   - allow different colours for multiple overall common effect or random effects
@@ -127,6 +131,11 @@
 * transf():
   - new arguments 'n' and 'time' to pass these argument to p2asin() or ir2asin()
     for summary measure "PFT" or "IRFT"
+
+* settings.meta():
+  - new arguments 'col.main', 'just.main', 'xpos.main', 'gap.main',
+    'lineheight.main', 'fs.main', 'ff.main' to define defaults for the main
+    title of a forest plot
 
 ### Bug fixes
 
