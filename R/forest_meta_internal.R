@@ -6,7 +6,7 @@
 #
 
 forest_meta_internal <- function(
-    new, nrow, x1, spacing, 
+    new, nrow, x1, spacing, spacing.main, top.pad.lines, layout.just,
     yHeadadd,
     #
     cols, cols.new, newcols, by,
@@ -62,10 +62,10 @@ forest_meta_internal <- function(
     main, rows.main, gap.main, just.main, xpos.main, fs.main, ff.main,
     col.main, lineheight.main,
     #
-    xlab, xlab.add, newline.xlab, xlab.pos, xlab.ypos, fs.xlab, ff.xlab,
+    grob.xlab, xlab.pos, xlab.ypos, fs.xlab, ff.xlab,
     #
-    bottom.lr, smlab1, smlab2, newline.smlab, newline.lr,
-    print.label, ll1, ll2, newline.ll, lr1, lr2,
+    bottom.lr, grob.smlab,
+    print.label, grob.label.left, grob.label.right,
     y.bottom.lr, fs.lr, ff.lr,
     #
     yS, log.xaxis, at, label, fs.axis, ff.axis,
@@ -95,12 +95,19 @@ forest_meta_internal <- function(
   if (new)
     grid.newpage()
   #
+  heights <- unit(rep(spacing, nrow), "lines")
+  if (rows.main > 0)
+    heights[seq_len(rows.main)] <- unit(spacing.main, "lines")
+  #
   pushViewport(
     viewport(
+      y = unit(1, "npc") - unit(top.pad.lines, "lines"),
+      height = unit(1, "npc") - unit(top.pad.lines, "lines"),
+      just = c("center", "top"),
       layout =
         grid.layout(
           nrow, length(x1), widths = x1,
-          heights = unit(spacing, "lines"))))
+          heights = heights, just = layout.just)))
   #
   if (rows.main > 0) {
     pushViewport(
@@ -324,29 +331,18 @@ forest_meta_internal <- function(
             xlim, avail.xlim,
             col.lines, col.label)
   #
-  if (bottom.lr) {
-    add.text(smlab1, j, xscale = col.forest$range)
-    #
-    if (newline.smlab)
-      add.text(smlab2, j, xscale = col.forest$range)
-  }
+  if (bottom.lr)
+    add.text(grob.smlab, j, xscale = col.forest$range)
   #
   if (print.label) {
     if (!bottom.lr) {
       if (!is.na(ref)) {
-        add.text(ll1, j, xscale = col.forest$range)
-        #
-        if (newline.ll)
-          add.text(ll2, j, xscale = col.forest$range)
-        #
-        add.text(lr1, j, xscale = col.forest$range)
-        #
-        if (newline.lr)
-          add.text(lr2, j, xscale = col.forest$range)
+        add.text(grob.label.left, j, xscale = col.forest$range)
+        add.text(grob.label.right, j, xscale = col.forest$range)
       }
     }
     else {
-      add.label(ll1, j,
+      add.label(grob.label.left, j,
                 if (bmj)
                   unit(xlim[1], "native")
                 else
@@ -356,18 +352,7 @@ forest_meta_internal <- function(
                 fs.lr, ff.lr, col.label.left, fontfamily,
                 xscale = col.forest$range)
       #
-      if (newline.ll)
-        add.label(ll2, j,
-                  if (bmj)
-                    unit(xlim[1], "native")
-                  else
-                    unit(ref - (xlim[2] - xlim[1]) / 30, "native"),
-                  unit(y.bottom.lr - 1, "lines"),
-                  if (bmj) "left" else "right",
-                  fs.lr, ff.lr, col.label.left, fontfamily,
-                  xscale = col.forest$range)
-      #
-      add.label(lr1, j,
+      add.label(grob.label.right, j,
                 if (bmj)
                   unit(xlim[2], "native")
                 else
@@ -376,21 +361,10 @@ forest_meta_internal <- function(
                 if (bmj) "right" else "left",
                 fs.lr, ff.lr, col.label.right, fontfamily,
                 xscale = col.forest$range)
-      #
-      if (newline.lr)
-        add.label(lr2, j,
-                  if (bmj)
-                    unit(xlim[2], "native")
-                  else
-                    unit(ref + (xlim[2] - xlim[1]) / 30, "native"),
-                  unit(y.bottom.lr - 1, "lines"),
-                  if (bmj) "right" else "left",
-                  fs.lr, ff.lr, col.label.right, fontfamily,
-                  xscale = col.forest$range)
     }
   }
   #
-  add.xlab(col.forest, j, xlab, xlab.add, newline.xlab,
+  add.xlab(col.forest, j, grob.xlab,
            xlab.pos, xlab.ypos, fs.xlab, ff.xlab,
            fontfamily)
   #

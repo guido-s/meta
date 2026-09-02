@@ -7704,70 +7704,20 @@ forest.meta <- function(x,
     longer.I2 <- labs[["lab.I2"]]
   }
   #
-  # Check for "\n" in argument 'smlab'
+  # Split bottom labels and x-axis label into unrestricted multiple lines.
   #
-  clines <- twolines(smlab, arg = TRUE)
+  split_lines <- function(x)
+    if (is.null(x) || x == "") character(0) else
+      strsplit(x, "\n", fixed = TRUE)[[1]]
   #
-  if (clines$newline) {
-    smlab1 <- clines$top
-    smlab2 <- clines$bottom
-    #
-    newline.smlab <- TRUE
-  }
-  else {
-    smlab1 <- smlab
-    smlab2 <- ""
-    #
-    newline.smlab <- FALSE
-  }
+  lines.smlab <- split_lines(smlab)
+  lines.xlab <- split_lines(xlab)
+  lines.label.left <- split_lines(label.left)
+  lines.label.right <- split_lines(label.right)
   #
-  # Check for "\n" in argument 'xlab'
-  #
-  clines <- twolines(xlab, arg = TRUE)
-  #
-  if (clines$newline) {
-    newline.xlab <- TRUE
-    xlab <- clines$top
-    xlab.add <- clines$bottom
-  }
-  else {
-    xlab.add <- ""
-    newline.xlab <- FALSE
-  }
-  #
-  # Check for "\n" in argument 'label.left'
-  #
-  clines <- twolines(label.left, arg = TRUE)
-  #
-  if (clines$newline) {
-    ll1 <- clines$top
-    ll2 <- clines$bottom
-    #
-    newline.ll <- TRUE
-  }
-  else {
-    ll1 <- label.left
-    ll2 <- ""
-    #
-    newline.ll <- FALSE
-  }
-  #
-  # Check for "\n" in argument 'label.right'
-  #
-  clines <- twolines(label.right, arg = TRUE)
-  #
-  if (clines$newline) {
-    lr1 <- clines$top
-    lr2 <- clines$bottom
-    #
-    newline.lr <- TRUE
-  }
-  else {
-    lr1 <- label.right
-    lr2 <- ""
-    #
-    newline.lr <- FALSE
-  }
+  rows.smlab <- length(lines.smlab)
+  rows.xlab <- length(lines.xlab)
+  rows.lr <- max(length(lines.label.left), length(lines.label.right))
   #
   # Check for "\n" in additional columns
   #
@@ -7803,9 +7753,9 @@ forest.meta <- function(x,
     newline.mean.e | newline.mean.c | newline.sd.e | newline.sd.c |
     newline.cor | newline.time.e | newline.time.c |
     newline.pval | newline.tau2 | newline.tau | newline.I2 |
-    newline.smlab | newline.addcol.left | newline.addcol.right
+    rows.smlab > 1 | newline.addcol.left | newline.addcol.right
   #
-  newline.all <- newline | (!newline & (newline.ll | newline.lr) & !addrow)
+  newline.all <- newline | (!newline & rows.lr > 1 & !addrow)
   
   
   #
@@ -8906,34 +8856,42 @@ forest.meta <- function(x,
   #
   rows.main <- if (main == "") 0 else length(strsplit(main, "\n")[[1]])
   rows.main.total <- if (rows.main == 0) 0 else rows.main + gap.main
+  spacing.main <- fs.main * lineheight.main / (1.1 * fontsize)
   #
-  if ((!(metaprop | metacor) &
-       (any(rightcols %in% c("n.e", "n.c")) |
-        any(leftcols  %in% c("n.e", "n.c")))) |
-      (metainc &
-       (any(rightcols %in% c("time.e", "time.c")) |
-        any(leftcols  %in% c("time.e", "time.c")))
-      ) |
-      (metacont &
-       (any(rightcols %in% c("sd.e", "sd.c")) |
-        any(leftcols  %in% c("sd.e", "sd.c")))
-      ) |
-      (metamean &
-       (any(rightcols %in% c("sd.e")) |
-        any(leftcols  %in% c("sd.e")))
-      ) |
-      (!is.null(label.e.attach) & !is.null(label.e)) |
-      (!is.null(label.c.attach) & !is.null(label.c)) |
-      RoB.available |
-      newline.all
-  ) {
-    yHead <- rows.main.total + 2
-    yHeadadd <- rows.main.total + 1
-  }
-  else {
-    yHead <- rows.main.total + 1
+  two.header.rows <-
+    (!(metaprop | metacor) &
+     (any(rightcols %in% c("n.e", "n.c")) |
+      any(leftcols  %in% c("n.e", "n.c")))) |
+    (metainc &
+     (any(rightcols %in% c("time.e", "time.c")) |
+      any(leftcols  %in% c("time.e", "time.c")))
+    ) |
+    (metacont &
+     (any(rightcols %in% c("sd.e", "sd.c")) |
+      any(leftcols  %in% c("sd.e", "sd.c")))
+    ) |
+    (metamean &
+     (any(rightcols %in% c("sd.e")) |
+      any(leftcols  %in% c("sd.e")))
+    ) |
+    (!is.null(label.e.attach) & !is.null(label.e)) |
+    (!is.null(label.c.attach) & !is.null(label.c)) |
+    RoB.available |
+    newline.all
+  #
+  rows.header <- max(if (two.header.rows) 2 else 1,
+                     if (bottom.lr)
+                       rows.smlab
+                     else if (rows.lr > 1 && two.header.rows &&
+                              header.line.pos != "both")
+                       rows.lr + 1
+                     else
+                       rows.lr)
+  yHead <- rows.main.total + rows.header
+  if (two.header.rows)
+    yHeadadd <- yHead - 1
+  else
     yHeadadd <- NA
-  }
   #
   if (!by) {
     N <- n.stud
@@ -9282,7 +9240,6 @@ forest.meta <- function(x,
   }
   #
   if (details) {
-    yNext <- yNext + 1
     yText.details <- seq(yNext, yNext + length(yText.details) - 1)
     yNext <- yNext + length(yText.details)
   }
@@ -10414,14 +10371,24 @@ forest.meta <- function(x,
   del.lines <- NULL
   calcwidth.lines <- NULL
   calcwidth.details.line <- NULL
+  pooled.data.cols <-
+    c("col.n.e", "col.n.c", "col.event.e", "col.event.c",
+      "col.time.e", "col.time.c", "col.event.n.e", "col.event.n.c",
+      "col.mean.sd.n.e", "col.mean.sd.n.c", "col.event.time.e",
+      "col.event.time.c", "col.event.time.n.e", "col.event.time.n.c")
+  pooled.data.in.row <-
+    (pooled.totals | pooled.events | pooled.times) &&
+    any(c(leftcols, rightcols) %in% pooled.data.cols)
   #
   common.lines <- 1 + seq_len(n.com)
-  del.lines <- c(del.lines, common.lines)
+  if (!pooled.data.in.row)
+    del.lines <- c(del.lines, common.lines)
   if (calcwidth.common)
     calcwidth.lines <- c(calcwidth.lines, common.lines)
   #
   random.lines <- 1 + n.com + seq_len(n.ran)
-  del.lines <- c(del.lines, random.lines)
+  if (!pooled.data.in.row)
+    del.lines <- c(del.lines, random.lines)
   if (calcwidth.random)
     calcwidth.lines <- c(calcwidth.lines, random.lines)
   #
@@ -10638,17 +10605,23 @@ forest.meta <- function(x,
   #
   
   if (by) {
-    addline <- addrow * (!any(c(overall.hetstat,
-                                test.overall.common, test.overall.random,
-                                resid.hetstat,
-                                test.subgroup.common, test.subgroup.random)))
+    addline <-
+      addrow *
+      (!any(c(overall.hetstat,
+              test.overall.common, test.overall.random,
+              resid.hetstat,
+              test.subgroup.common, test.subgroup.random))) *
+      !(details | RoB.legend)
     #
     nrow <- max(addline + c(yTE, yTE.common, yTE.random, yPredict,
                             yStatsDetails, yTE.w), na.rm = TRUE)
   }
   else {
-    addline <- addrow * (!any(c(test.overall.common, test.overall.random,
-                                overall.hetstat)))
+    addline <-
+      addrow *
+      (!any(c(test.overall.common, test.overall.random,
+              overall.hetstat))) *
+      !(details | RoB.legend)
     #
     nrow <- max(addline + c(yTE, yTE.common, yTE.random, yPredict,
                             yStatsDetails), na.rm = TRUE)
@@ -10691,7 +10664,7 @@ forest.meta <- function(x,
   #
   ymax <-
     spacing *
-    (nrow - rows.main.total - ifelse(is.na(yHeadadd), 1, 2) - 1 * addrow)
+    (nrow - rows.main.total - rows.header - 1 * addrow)
   #
   if (cid.pooled.only)
     ymax.ref <- spacing *
@@ -10705,24 +10678,27 @@ forest.meta <- function(x,
   #
   # Position on y-axis of label below x-axis
   #
-  xlab.ypos <- y.bottom.lr - 1 * (print.label & bottom.lr) -
-    1 * (print.label & bottom.lr & (newline.lr | newline.ll))
+  xlab.ypos <- y.bottom.lr - if (print.label & bottom.lr) rows.lr else 0
   #
   # Summary label at top of forest plot
   #
-  smlab1 <- tgl(smlab1, unit(smlab.pos, "native"), "center",
-                fs.smlab, ff.smlab,
-                fontfamily, rows = 1 + (!is.na(yHeadadd) & !newline.smlab))
-  #
-  if (newline.smlab)
-    smlab2 <- tgl(smlab2, unit(smlab.pos, "native"),
-                  "center", fs.smlab, ff.smlab, fontfamily,
-                  rows = 2)
+  grob.smlab <- tgl(lines.smlab, unit(smlab.pos, "native"), "center",
+                    fs.smlab, ff.smlab, fontfamily,
+                    rows = rows.main.total +
+                      if (rows.smlab == 1 && !is.na(yHeadadd))
+                        2
+                      else
+                        seq_len(rows.smlab))
+  grob.xlab <- lines.xlab
+  grob.label.left <- lines.label.left
+  grob.label.right <- lines.label.right
   #
   # Left and right label on x-axis:
   #
   if (!bottom.lr & !is.na(ref)) {
-    row1.lr <- if (!newline & (newline.ll | newline.lr) & !addrow)
+    row.lr <- if (rows.lr > 1 && header.line.pos == "both")
+      1
+    else if (!newline & rows.lr > 1 & !addrow)
       1
     else if (!is.na(yHeadadd) & addrow)
       2
@@ -10731,23 +10707,17 @@ forest.meta <- function(x,
     else
       2
     #
-    ll1 <- tgl(ll1, unit(ref - (xlim[2] - xlim[1]) / 30, "native"),
-               "right", fs.lr, ff.lr, fontfamily, col.label.left,
-               rows = row1.lr)
+    grob.label.left <-
+      tgl(lines.label.left,
+          unit(ref - (xlim[2] - xlim[1]) / 30, "native"),
+          "right", fs.lr, ff.lr, fontfamily, col.label.left,
+          rows = rows.main.total + row.lr + seq_along(lines.label.left) - 1)
     #
-    if (newline.ll)
-      ll2 <- tgl(ll2, unit(ref - (xlim[2] - xlim[1]) / 30, "native"),
-                 "right", fs.lr, ff.lr, fontfamily, col.label.left,
-                 rows = row1.lr + 1)
-    #
-    lr1 <- tgl(lr1, unit(ref + (xlim[2] - xlim[1]) / 30, "native"),
-               "left", fs.lr, ff.lr, fontfamily, col.label.right,
-               rows = row1.lr)
-    #
-    if (newline.lr)
-      lr2 <- tgl(lr2, unit(ref + (xlim[2] - xlim[1]) / 30, "native"),
-                 "left", fs.lr, ff.lr, fontfamily, col.label.right,
-                 rows = row1.lr + 1)
+    grob.label.right <-
+      tgl(lines.label.right,
+          unit(ref + (xlim[2] - xlim[1]) / 30, "native"),
+          "left", fs.lr, ff.lr, fontfamily, col.label.right,
+          rows = rows.main.total + row.lr + seq_along(lines.label.right) - 1)
   }
   
   
@@ -10758,7 +10728,10 @@ forest.meta <- function(x,
   #
   
   forest.args <- list(
-    new = new, nrow = nrow, x1 = x1, spacing = spacing, 
+    new = new, nrow = nrow, x1 = x1, spacing = spacing,
+    spacing.main = spacing.main,
+    top.pad.lines = if (header.line.pos == "both") 0.5 else 0,
+    layout.just = c("center", "top"),
     yHeadadd = yHeadadd,
     #
     cols = cols, cols.new = cols.new, newcols = newcols, by = by,
@@ -10839,14 +10812,12 @@ forest.meta <- function(x,
     fs.main = fs.main, ff.main = ff.main,
     col.main = col.main, lineheight.main = lineheight.main,
     #
-    xlab = xlab, xlab.add = xlab.add, newline.xlab = newline.xlab,
-    xlab.pos = xlab.pos, xlab.ypos = xlab.ypos, fs.xlab = fs.xlab,
-    ff.xlab = ff.xlab,
+    grob.xlab = grob.xlab, xlab.pos = xlab.pos, xlab.ypos = xlab.ypos,
+    fs.xlab = fs.xlab, ff.xlab = ff.xlab,
     #
-    bottom.lr = bottom.lr, smlab1 = smlab1, smlab2 = smlab2,
-    newline.smlab = newline.smlab, newline.lr = newline.lr,
-    print.label = print.label, ll1 = ll1, ll2 = ll2,
-    newline.ll = newline.ll, lr1 = lr1, lr2 = lr2,
+    bottom.lr = bottom.lr, grob.smlab = grob.smlab,
+    print.label = print.label, grob.label.left = grob.label.left,
+    grob.label.right = grob.label.right,
     y.bottom.lr = y.bottom.lr, fs.lr = fs.lr, ff.lr = ff.lr,
     #
     yS = yS, log.xaxis = log.xaxis, at = at, label = label,
@@ -10889,6 +10860,7 @@ forest.meta <- function(x,
     cluster.format = cluster.format, cycles.format = cycles.format,
     effect.format = effect.format, ci.format = ci.format,
     effect.ci.format = effect.ci.format)
+  attr(forest.args, "details") <- details
   #
   figheight <- NULL
   #
@@ -10988,7 +10960,7 @@ forest.meta <- function(x,
                       #
                       spacing,
                       #
-                      xlab, xlab.add, label.right, label.left, bottom.lr,
+                      xlab, smlab, label.right, label.left, bottom.lr,
                       #
                       prediction.subgroup, subgroup.hetstat,
                       if (metabind) FALSE else test.overall.common,

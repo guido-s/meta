@@ -39,16 +39,46 @@ forest_dims_internal <- function(x, units = "in") {
   #
   width <- convertWidth(sum(layout$widths), grid_unit, valueOnly = TRUE)
   
-  # Heights: single unit recycled across nrow — expand then sum
+  # Heights: exact per-row units, sum directly
   #
-  height <-
-    convertHeight(sum(rep(layout$heights, layout$nrow)),
-                  grid_unit, valueOnly = TRUE)
+  height <- convertHeight(sum(layout$heights), grid_unit, valueOnly = TRUE)
   
-  # Hardcoded padding to prevent clipping of axis labels
+  # Padding to prevent clipping of axis labels and text below the x-axis.
+  #
+  n_lines <- function(x)
+    if (length(x) == 0 || all(x == "")) 0 else length(x)
+  #
+  bottom_positions <-
+    if (n_lines(x$grob.xlab) == 0)
+      numeric(0)
+    else
+      x$xlab.ypos - seq_len(n_lines(x$grob.xlab)) + 1
+  #
+  if (isTRUE(x$print.label) && isTRUE(x$bottom.lr))
+    bottom_positions <-
+      c(bottom_positions,
+        x$y.bottom.lr - seq_len(max(n_lines(x$grob.label.left),
+                                     n_lines(x$grob.label.right))) + 1)
+  #
+  bottom_depth <-
+    if (length(bottom_positions) == 0)
+      0
+    else if (min(bottom_positions) >= 0)
+      0
+    else
+      abs(min(bottom_positions)) + 0.5
   #
   extra_width <- inches2units(0.3, units)
-  extra_height <- inches2units(0.8, units)
+  extra_height.default <- inches2units(0.3, units)
+  extra_height <-
+    if (bottom_depth == 0)
+      if (isTRUE(attr(x, "details"))) 0 else extra_height.default
+    else
+      max(extra_height.default,
+          convertHeight(unit(bottom_depth, "lines"),
+                        grid_unit, valueOnly = TRUE))
+  extra_height <- extra_height +
+    convertHeight(unit(x$top.pad.lines, "lines"), grid_unit, valueOnly = TRUE)
   #
   res <- list(width = width + extra_width, height = height + extra_height,
               units = units)

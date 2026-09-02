@@ -28,6 +28,10 @@
   - new arguments 'main', 'just.main', 'xpos.main', 'gap.main', 'fs.main',
     'ff.main', 'col.main', and 'lineheight.main' can be used to add and format
     a main title
+  - arguments 'smlab', 'xlab', 'label.left', and 'label.right' can contain
+    more than two lines
+  - forest plots are now aligned at the top of the graphics device, so extra
+    height specified by the user is added below the plot
   - new defaults for arguments 'calcwidth.predict', 'calcwidth.hetstat',
     'calcwidth.tests', 'calcwidth.subgroup', 'calcwidth.addline', and
     'calcwidth.details' are TRUE; these arguments only affect spacing if the

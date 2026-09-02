@@ -12,9 +12,10 @@ add.label <- function(x, column,
   #
   pushViewport(viewport(layout.pos.col = column, ...))
   #
-  grid.text(x, x = xpos, y = ypos, just = just,
-            gp = gpar(fontsize = fs.lr, fontface = ff.lr, col = col,
-                      fontfamily = fontfamily))
+  for (i in seq_along(x))
+    grid.text(x[i], x = xpos, y = ypos - unit(i - 1, "lines"), just = just,
+              gp = gpar(fontsize = fs.lr, fontface = ff.lr, col = col,
+                        fontfamily = fontfamily))
   #
   popViewport()
   #
@@ -39,7 +40,7 @@ add.text <- function(x, column, ...) {
   invisible(NULL)
 }
 
-add.xlab <- function(x, column, xlab, xlab.add, newline.xlab,
+add.xlab <- function(x, column, grob.xlab,
                      xpos, ypos, fs.xlab, ff.xlab,
                      fontfamily) {
   #
@@ -47,17 +48,10 @@ add.xlab <- function(x, column, xlab, xlab.add, newline.xlab,
   #
   # Label on x-axis:
   #
-  grid.text(xlab,
-            x = unit(xpos, "native"),
-            y = unit(ypos, "lines"),
-            just = "center",
-            gp = gpar(fontsize = fs.xlab, fontface = ff.xlab,
-                      fontfamily = fontfamily))
-  #
-  if (newline.xlab)
-    grid.text(xlab.add,
+  for (i in seq_along(grob.xlab))
+    grid.text(grob.xlab[i],
               x = unit(xpos, "native"),
-              y = unit(ypos - 1, "lines"),
+              y = unit(ypos - i + 1, "lines"),
               just = "center",
               gp = gpar(fontsize = fs.xlab, fontface = ff.xlab,
                         fontfamily = fontfamily))
@@ -887,10 +881,11 @@ tg <- function(x, xpos, just, fs, ff, fontfamily, col) {
 tgl <- function(x, xpos, just, fs, ff, fontfamily, rows = 1, col) {
   #
   if (missing(col))
-    res <- list(labels = list(tg(x, xpos, just, fs, ff, fontfamily)),
+    res <- list(labels = lapply(as.list(x), tg, xpos, just, fs, ff, fontfamily),
                 rows = rows)
   else
-    res <- list(labels = list(tg(x, xpos, just, fs, ff, fontfamily, col)),
+    res <- list(labels = lapply(as.list(x), tg, xpos, just, fs, ff,
+                                fontfamily, col),
                 rows = rows)
   #
   res
@@ -1060,7 +1055,7 @@ gh <- function(type.gr, rows.gr,
                #
                spacing,
                #
-               xlab, xlab.add, label.right, label.left, bottom.lr,
+               xlab, smlab, label.right, label.left, bottom.lr,
                #
                prediction.subgroup, subgroup.hetstat,
                test.overall.common, test.overall.random,
@@ -1100,6 +1095,13 @@ gh <- function(type.gr, rows.gr,
     labs <- c(labs, text.w.random)
   #
   rows_column_labels <- 1 + 1L * any(grepl("\n", unlist(labs))) + 1L * addrow
+  rows_smlab <-
+    if (length(smlab) == 0 || smlab == "")
+      0
+    else
+      length(strsplit(smlab, "\n", fixed = TRUE)[[1]])
+  if (bottom.lr)
+    rows_column_labels <- max(rows_column_labels, rows_smlab)
   
   #
   # (3) Study results
@@ -1134,7 +1136,7 @@ gh <- function(type.gr, rows.gr,
     test.subgroup.common + test.subgroup.random +
     1L * (text.addline1 != "") +
     1L * (text.addline2 != "") +
-    n.details + 1L * (n.details > 0) +
+    n.details +
     n.rob + 1L * (n.rob > 0) +
     1L * (n.details > 0 | n.rob > 0) +
     2L * (n.details == 0 & n.rob == 0)
@@ -1145,18 +1147,10 @@ gh <- function(type.gr, rows.gr,
   #
   
   rows_xlab <-
-    if (xlab == "")
+    if (length(xlab) == 0 || xlab == "")
       0
     else
-      2
-  #
-  rows_xlab.add <-
-    if (xlab.add == "")
-      0
-    else
-      2
-  #
-  rows_xlab <- rows_xlab + rows_xlab.add
+      2 * length(strsplit(xlab, "\n", fixed = TRUE)[[1]])
   #
   if (!bottom.lr) {
     rows_label.left <- 0
@@ -1166,18 +1160,14 @@ gh <- function(type.gr, rows.gr,
     rows_label.left <-
       if (is.null(label.left) || label.left == "")
         0
-      else if (!grepl("\n", label.left))
-        2
       else
-        4
+        2 * length(strsplit(label.left, "\n", fixed = TRUE)[[1]])
     #
     rows_label.right <-
       if (is.null(label.right) || label.right == "")
         0
-      else if (!grepl("\n", label.right))
-        2
       else
-        4
+        2 * length(strsplit(label.right, "\n", fixed = TRUE)[[1]])
   }
   #
   rows_label <- max(c(rows_label.left, rows_label.right))

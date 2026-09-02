@@ -103,6 +103,20 @@ test_that("forest accepts plot titles", {
   dev.off()
 })
 
+test_that("large file-output titles reserve enough rows", {
+  m <- metagen(1:5, 5:1, sm = "MD")
+  file1 <- tempfile(fileext = ".pdf")
+  file2 <- tempfile(fileext = ".pdf")
+  on.exit(unlink(c(file1, file2)), add = TRUE)
+
+  res1 <- forest(m, main = "MY\nTITLE", filename = file1)
+  res2 <- forest(m, main = "MY\nTITLE", fs.main = 30,
+                 header.line = "both", filename = file2)
+
+  expect_true(file.exists(file2))
+  expect_gt(res2$height, res1$height)
+})
+
 test_that("forest title does not shift header line", {
   m <- metagen(1:5, 5:1, sm = "MD")
   header.line.y <- character(0)
@@ -220,12 +234,186 @@ test_that("calcwidth.pooled reserves extra spacing for pooled labels", {
   forest(metagen(1:3, 1:3, random = FALSE),
          leftcols = c("TE", "seTE"), leftlabs = c("b", "c"),
          hetstat = FALSE, calcwidth.pooled = TRUE)
+  forest(metacont(101:103, 1:3, rep(1, 3),
+                  201:203, 6:4, rep(1, 3)),
+         leftcols = c("studlab", "n.e", "n.c"), calcwidth.pooled = FALSE)
   dev.off()
 
   widths <- get(".forest_widths", envir = .GlobalEnv)
-  expect_length(widths, 2)
+  expect_length(widths, 3)
   expect_false(any(grepl("sum(0mm, max(0mm", widths[[1]], fixed = TRUE)))
   expect_true(any(grepl("sum(0mm, max(0mm", widths[[2]], fixed = TRUE)))
+  expect_equal(lengths(gregexpr("grobwidth", widths[[3]][1], fixed = TRUE)),
+               6)
+})
+
+test_that("forest accepts multi-line labels", {
+  assign(".forest_text", character(0), envir = .GlobalEnv)
+  on.exit(rm(".forest_text", envir = .GlobalEnv), add = TRUE)
+
+  suppressMessages(capture.output(
+    trace(grid::grid.text, quote({
+      .forest_text <<- c(.forest_text, as.character(label))
+    }), print = FALSE)
+  ))
+  on.exit(suppressMessages(capture.output(untrace(grid::grid.text))),
+          add = TRUE)
+  suppressMessages(capture.output(
+    trace(grid::grid.draw, quote({
+      if (inherits(x, "text"))
+        .forest_text <<- c(.forest_text, as.character(x$label))
+    }), print = FALSE)
+  ))
+  on.exit(suppressMessages(capture.output(untrace(grid::grid.draw))),
+          add = TRUE)
+
+  pdf(tempfile())
+  on.exit(if (dev.cur() > 1) dev.off(), add = TRUE)
+  forest(metagen(1:3, 1:3),
+         smlab = "Summary 1\nSummary 2\nSummary 3",
+         xlab = "X 1\nX 2\nX 3",
+         label.left = "Left 1\nLeft 2\nLeft 3",
+         label.right = "Right 1\nRight 2\nRight 3",
+         bottom.lr = TRUE)
+  forest(metagen(1:3, 1:3),
+         label.left = "Top left 1\nTop left 2\nTop left 3",
+         label.right = "Top right 1\nTop right 2\nTop right 3")
+  dev.off()
+
+  text <- get(".forest_text", envir = .GlobalEnv)
+  expect_true(all(c("Summary 1", "Summary 2", "Summary 3",
+                    "X 1", "X 2", "X 3",
+                    "Left 1", "Left 2", "Left 3",
+                    "Right 1", "Right 2", "Right 3",
+                    "Top left 1", "Top left 2", "Top left 3",
+                    "Top right 1", "Top right 2", "Top right 3") %in% text))
+})
+
+test_that("multi-line top labels reserve header rows", {
+  assign(".forest_rows", data.frame(label = character(), row = integer()),
+         envir = .GlobalEnv)
+  assign(".forest_row", NA_integer_, envir = .GlobalEnv)
+  on.exit(rm(".forest_rows", ".forest_row", envir = .GlobalEnv), add = TRUE)
+
+  suppressMessages(capture.output(
+    trace(grid::pushViewport, quote({
+      vp <- list(...)[[1]]
+      if (inherits(vp, "viewport") && !is.null(vp$layout.pos.row))
+        .forest_row <<- vp$layout.pos.row[1]
+    }), print = FALSE)
+  ))
+  on.exit(suppressMessages(capture.output(untrace(grid::pushViewport))),
+          add = TRUE)
+  suppressMessages(capture.output(
+    trace(grid::grid.draw, quote({
+      if (inherits(x, "text"))
+        .forest_rows <<-
+          rbind(.forest_rows,
+                data.frame(label = as.character(x$label), row = .forest_row))
+    }), print = FALSE)
+  ))
+  on.exit(suppressMessages(capture.output(untrace(grid::grid.draw))),
+          add = TRUE)
+
+  pdf(tempfile())
+  on.exit(if (dev.cur() > 1) dev.off(), add = TRUE)
+  forest(metagen(1:3, 1:3),
+         smlab = "p\nq\nr\ns\nt",
+         main = "MY TITLE !!!\n:-)")
+  dev.off()
+
+  rows <- get(".forest_rows", envir = .GlobalEnv)
+  expect_equal(rows$row[match(letters[16:20], rows$label)], 4:8)
+  expect_gt(min(rows$row[rows$label %in% c("1.0000", "2.0000", "3.0000")]),
+            8)
+
+  assign(".forest_rows", data.frame(label = character(), row = integer()),
+         envir = .GlobalEnv)
+  assign(".forest_row", NA_integer_, envir = .GlobalEnv)
+
+  pdf(tempfile())
+  forest(metagen(1:3, 1:3),
+         label.left = "M\nN\nO", label.right = "P\nQ\nR",
+         bottom.lr = FALSE, header.line = "both")
+  dev.off()
+
+  rows <- get(".forest_rows", envir = .GlobalEnv)
+  expect_equal(rows$row[match(LETTERS[13:15], rows$label)], 1:3)
+  expect_equal(rows$row[match(LETTERS[16:18], rows$label)], 1:3)
+  expect_gt(min(rows$row[rows$label %in% c("1.0000", "2.0000", "3.0000")]),
+            3)
+})
+
+test_that("file output handles forest layout height", {
+  save_forest <- function(x, ...) {
+    file <- tempfile(fileext = ".pdf")
+    on.exit(unlink(file), add = TRUE)
+    forest(x, ..., filename = file)
+  }
+
+  res1 <- save_forest(metagen(1:3, 1:3))
+  res2 <- save_forest(metagen(1:3, 1:3),
+                      xlab = "a\nb\nc", label.left = "A\nB\nC")
+  res3 <- save_forest(metagen(1:3, 1:3), xlab = "a\nb\nc")
+  ma <- metagen(1:5, 1:5)
+  res4 <- save_forest(ma, details = TRUE)
+  res5 <- save_forest(ma, details = TRUE, xlab = "A")
+  res6 <- save_forest(ma, detail = TRUE, main = "ABC", fs.main = 30)
+  res7 <- save_forest(ma, main = "MY\nTITLE", fs.main = 26,
+                      detail = TRUE, hetstat = FALSE)
+  res8 <- save_forest(ma, header.line = "both")
+  res9 <- save_forest(ma)
+  res10 <- save_forest(ma, main = "MY\nTITLE", fs.main = 26,
+                       detail = TRUE)
+
+  expect_gt(res2$height, res1$height)
+  expect_gte(res3$height, res1$height)
+  expect_equal(res5$height, res4$height, tolerance = 0.001)
+  expect_gt(res6$height, res4$height)
+  expect_lt(res6$height - res4$height, 0.7)
+  expect_gt(res10$height, res7$height)
+  expect_gt(res8$height, res9$height)
+  expect_lt(res8$height - res9$height, 0.2)
+
+  assign(".forest_layout_just", list(), envir = .GlobalEnv)
+  on.exit(rm(".forest_layout_just", envir = .GlobalEnv), add = TRUE)
+
+  suppressMessages(capture.output(
+    trace(grid::grid.layout, quote({
+      .forest_layout_just[[length(.forest_layout_just) + 1]] <<- just
+    }), print = FALSE)
+  ))
+  on.exit(suppressMessages(capture.output(untrace(grid::grid.layout))),
+          add = TRUE)
+
+  file <- tempfile(fileext = ".pdf")
+  on.exit(unlink(file), add = TRUE)
+  forest(metagen(1:5, 1:5), height = .height * 1.1,
+         width = .width * 1.1, filename = file)
+
+  layout_just <- get(".forest_layout_just", envir = .GlobalEnv)
+  expect_equal(layout_just[[length(layout_just)]], c("center", "top"))
+})
+
+test_that("forest_dims matches file output dimensions", {
+  ma <- metagen(1:5, 1:5)
+  cases <- list(
+    list(),
+    list(xlab = "a\nb\nc"),
+    list(details = TRUE),
+    list(details = TRUE, xlab = "A"),
+    list(main = "ABC", fs.main = 30)
+  )
+
+  for (args in cases) {
+    file <- tempfile(fileext = ".pdf")
+    on.exit(unlink(file), add = TRUE)
+    dims <- do.call(forest_dims, c(list(x = ma), args))
+    res <- do.call(forest, c(list(x = ma, filename = file), args))
+
+    expect_equal(dims$width, res$width, tolerance = 0.001)
+    expect_equal(dims$height, res$height, tolerance = 0.001)
+  }
 })
 
 test_that("forest accepts different colours for multiple overall diamonds", {
