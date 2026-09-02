@@ -2,6 +2,16 @@
 
 ### Major changes
 
+* Forest plots:
+  - visible labels for pooled estimates, prediction intervals, heterogeneity
+    statistics, tests, subgroups, additional lines, and details are now
+    considered by default when calculating horizontal spacing
+  - less vertical space is added below the overall results in JAMA layout
+    because heterogeneity statistics no longer overlap with the x-axis
+  - a main title can be added
+  - subgroup random effects estimates and prediction intervals can be selected
+    separately for each confidence interval or prediction interval method
+
 * Cluster-robust variance estimators implemented for univariate random effects
   meta-analysis and three-level model
   ([Tipton and Pustejovsky, 2015](https://doi.org/10.3102/1076998615606099);
@@ -12,18 +22,50 @@
   and both common effect and random effects meta-analysis were
   conducted.
 
-* Forest plots:
-  - a main title can be added
-  - subgroup random effects estimates and prediction intervals can be selected
-    separately for each confidence interval or prediction interval method
-  - heterogeneity statistics are now considered by default when calculating
-    horizontal spacing, which reduces overlap with the x-axis
-  - less vertical space is added below the overall results in JAMA layout
-    because heterogeneity statistics no longer overlap with the x-axis
-  - automatic spacing based on arguments 'calcwidth.*' now accounts for all
-    information printed to the left of the forest plot
-
 ### User-visible changes
+
+* forest.meta():
+  - new arguments 'main', 'just.main', 'xpos.main', 'gap.main', 'fs.main',
+    'ff.main', 'col.main', and 'lineheight.main' can be used to add and format
+    a main title
+  - new defaults for arguments 'calcwidth.predict', 'calcwidth.hetstat',
+    'calcwidth.tests', 'calcwidth.subgroup', 'calcwidth.addline', and
+    'calcwidth.details' are TRUE; these arguments only affect spacing if the
+    corresponding information is shown
+  - less vertical space is added below overall results in JAMA layout
+  - allow different colours for multiple overall common effect or random effects
+    diamonds and their outlines
+  - allow different colours for multiple overall prediction intervals and their
+    outlines
+  - new arguments 'col.diamond.common.subgroup', 'col.diamond.random.subgroup',
+    'col.diamond.lines.common.subgroup', and 'col.diamond.lines.random.subgroup'
+    allow different colours for subgroup diamonds and their outlines
+  - new arguments 'col.predict.subgroup' and 'col.predict.lines.subgroup'
+    allow different colours for prediction intervals in subgroups and their
+    outlines
+  - arguments 'random.subgroup' and 'prediction.subgroup' can be logical
+    matrices to select subgroup random effects estimates or prediction
+    intervals separately for each confidence interval or prediction interval
+    method
+  - consider the width of treatment group labels (arguments 'label.e' and
+    'label.c' in meta-analysis functions) attached to columns when calculating
+    column widths, and suppress these labels if the attached column already has
+    a two-line heading
+  - center combined treatment group header over both columns in BMJ layout for
+    meta-analyses with binary or continuous outcomes
+  - use combined event / time columns in BMJ layout for meta-analyses of
+    incidence rates, or combined event / time (total) columns if sample sizes
+    are available, and center the corresponding treatment group header
+  - print labels for pooled estimates and heterogeneity or details on the left
+    side if study labels are printed on the right side, and suppress these
+    labels if argument 'leftcols' is FALSE
+
+* forest.metacum():
+  - use default colours for squares regardless of layout
+    [(issue #96)](https://github.com/guido-s/meta/issues/96)
+
+* forest.metacum(), forest.metainf():
+  - new argument 'calcwidth.details'
 
 * metabin(), metacont(), metacor(), metagen(), metainc(), metamean(),
   metaprop(), metarate(), metareg(), update.meta():
@@ -62,43 +104,6 @@
   - radial plot can be created for Deeks' test (arguments method = "Deeks"
     and plotit = TRUE)
     [(pull #92)](https://github.com/guido-s/meta/pull/92)
-
-* forest.meta():
-  - new arguments 'main', 'just.main', 'xpos.main', 'gap.main', 'fs.main',
-    'ff.main', 'col.main', and 'lineheight.main' can be used to add and format
-    a main title
-  - new default for argument 'calcwidth.hetstat' is TRUE
-  - less vertical space is added below overall results in JAMA layout
-  - allow different colours for multiple overall common effect or random effects
-    diamonds and their outlines
-  - allow different colours for multiple overall prediction intervals and their
-    outlines
-  - new arguments 'col.diamond.common.subgroup', 'col.diamond.random.subgroup',
-    'col.diamond.lines.common.subgroup', and 'col.diamond.lines.random.subgroup'
-    allow different colours for subgroup diamonds and their outlines
-  - new arguments 'col.predict.subgroup' and 'col.predict.lines.subgroup'
-    allow different colours for prediction intervals in subgroups and their
-    outlines
-  - arguments 'random.subgroup' and 'prediction.subgroup' can be logical
-    matrices to select subgroup random effects estimates or prediction
-    intervals separately for each confidence interval or prediction interval
-    method
-  - consider the width of treatment group labels (arguments 'label.e' and
-    'label.c' in meta-analysis functions) attached to columns when calculating
-    column widths, and suppress these labels if the attached column already has
-    a two-line heading
-  - center combined treatment group header over both columns in BMJ layout for
-    meta-analyses with binary or continuous outcomes
-  - use combined event / time columns in BMJ layout for meta-analyses of
-    incidence rates, or combined event / time (total) columns if sample sizes
-    are available, and center the corresponding treatment group header
-
-* forest.metacum():
-  - use default colours for squares regardless of layout
-    [(issue #96)](https://github.com/guido-s/meta/issues/96)
-
-* forest.metacum(), forest.metainf():
-  - new argument 'calcwidth.details'
 
 * drapery(), funnel.meta():
   - draw plots on the analysis scale but show back-transformed tick marks
@@ -139,24 +144,6 @@
 
 ### Bug fixes
 
-* metaprop(), metarate():
-  - use the harmonic mean of sample sizes or times to transform the null effect
-    for Freeman-Tukey double arcsine transformed proportions and rates
-    (sm = "PFT" or "IRFT")
-    [(issue #102)](https://github.com/guido-s/meta/issues/102)
-  - respect argument 'exclude' when calculating the harmonic mean used to back
-    transform Freeman-Tukey double arcsine transformed proportions or rates
-    (sm = "PFT" or "IRFT")
-
-* metacont(), metamean():
-  - correctly identify studies with non-positive sample sizes or means
-    [(issue #103)](https://github.com/guido-s/meta/issues/103)
-
-* pairwise():
-  - consider continuity correction in binary outcomes with summary measure "DOR"
-    or "VE"
-    [(issue #94)](https://github.com/guido-s/meta/issues/94)
-
 * forest.meta():
   - do not automatically attach 'label.e' to the column 'n.e' with
     sample sizes for meta-analysis objects created with metagen() if
@@ -185,6 +172,24 @@
 * forest.metacum(), forest.metainf():
   - show prediction intervals if argument 'layout = "BMJ"'
     [(issue #96)](https://github.com/guido-s/meta/issues/96)
+
+* metaprop(), metarate():
+  - use the harmonic mean of sample sizes or times to transform the null effect
+    for Freeman-Tukey double arcsine transformed proportions and rates
+    (sm = "PFT" or "IRFT")
+    [(issue #102)](https://github.com/guido-s/meta/issues/102)
+  - respect argument 'exclude' when calculating the harmonic mean used to back
+    transform Freeman-Tukey double arcsine transformed proportions or rates
+    (sm = "PFT" or "IRFT")
+
+* metacont(), metamean():
+  - correctly identify studies with non-positive sample sizes or means
+    [(issue #103)](https://github.com/guido-s/meta/issues/103)
+
+* pairwise():
+  - consider continuity correction in binary outcomes with summary measure "DOR"
+    or "VE"
+    [(issue #94)](https://github.com/guido-s/meta/issues/94)
 
 * labbe():
   - show common effect / random effects lines for summary measure "VE"

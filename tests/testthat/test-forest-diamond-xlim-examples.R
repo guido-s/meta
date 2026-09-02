@@ -129,6 +129,105 @@ test_that("forest title does not shift header line", {
   expect_length(unique(header.line.y), 1)
 })
 
+test_that("forest prints non-study labels on the left", {
+  assign(".forest_add_text", list(), envir = .GlobalEnv)
+  on.exit(rm(".forest_add_text", envir = .GlobalEnv), add = TRUE)
+
+  suppressMessages(capture.output(
+    trace(meta:::add.text, quote({
+      .forest_add_text[[length(.forest_add_text) + 1]] <<-
+        vapply(x$labels,
+               function(z) paste(as.character(z$label), collapse = ""),
+               character(1))
+    }), print = FALSE)
+  ))
+  on.exit(suppressMessages(capture.output(untrace(meta:::add.text))),
+          add = TRUE)
+
+  pdf(tempfile())
+  on.exit(if (dev.cur() > 1) dev.off(), add = TRUE)
+  res <- forest(metagen(1:3, 1:3),
+                leftcols = c("TE", "seTE"),
+                rightcols = c("studlab", "effect", "ci"),
+                details = TRUE)
+  res2 <- forest(metagen(1:3, 1:3), leftcols = c("TE", "seTE"),
+                 leftlabs = c("a", "b"), hetstat = FALSE)
+  dev.off()
+
+  drawn <- get(".forest_add_text", envir = .GlobalEnv)
+  labels <- unlist(drawn)
+  right.studlab <- drawn[[which(vapply(drawn, function(x) "Study" %in% x,
+                                      logical(1)))]]
+
+  expect_equal(res$leftcols, c("col.TE", "col.seTE"))
+  expect_equal(res$rightcols, c("col.studlab", "col.effect", "col.ci"))
+  expect_true(any(grepl("Heterogeneity", labels)))
+  expect_true(any(grepl("Details of meta-analysis methods", labels)))
+  expect_false(any(grepl("Heterogeneity", right.studlab)))
+  expect_false(any(grepl("Details of meta-analysis methods", right.studlab)))
+
+  expect_equal(res2$leftcols, c("col.TE", "col.seTE"))
+  expect_equal(as.character(res2$colgap.studlab), "0mm")
+})
+
+test_that("forest suppresses non-study labels if no left columns are shown", {
+  assign(".forest_add_text", list(), envir = .GlobalEnv)
+  on.exit(rm(".forest_add_text", envir = .GlobalEnv), add = TRUE)
+
+  suppressMessages(capture.output(
+    trace(meta:::add.text, quote({
+      .forest_add_text[[length(.forest_add_text) + 1]] <<-
+        vapply(x$labels,
+               function(z) paste(as.character(z$label), collapse = ""),
+               character(1))
+    }), print = FALSE)
+  ))
+  on.exit(suppressMessages(capture.output(untrace(meta:::add.text))),
+          add = TRUE)
+
+  pdf(tempfile())
+  on.exit(if (dev.cur() > 1) dev.off(), add = TRUE)
+  res <- forest(metagen(1:3, 1:3), leftcols = FALSE,
+                rightcols = c("studlab", "effect", "ci"), details = TRUE)
+  dev.off()
+
+  labels <- unlist(get(".forest_add_text", envir = .GlobalEnv))
+
+  expect_equal(res$leftcols, character(0))
+  expect_equal(res$rightcols, c("col.studlab", "col.effect", "col.ci"))
+  expect_false(any(grepl("Heterogeneity", labels)))
+  expect_false(any(grepl("Details of meta-analysis methods", labels)))
+})
+
+test_that("calcwidth.pooled reserves extra spacing for pooled labels", {
+  assign(".forest_widths", list(), envir = .GlobalEnv)
+  on.exit(rm(".forest_widths", envir = .GlobalEnv), add = TRUE)
+
+  suppressMessages(capture.output(
+    trace(grid::grid.layout, quote({
+      if (!missing(widths))
+        .forest_widths[[length(.forest_widths) + 1]] <<- as.character(widths)
+    }), print = FALSE)
+  ))
+  on.exit(suppressMessages(capture.output(untrace(grid::grid.layout))),
+          add = TRUE)
+
+  pdf(tempfile())
+  on.exit(if (dev.cur() > 1) dev.off(), add = TRUE)
+  forest(metagen(1:3, 1:3, random = FALSE),
+         leftcols = c("TE", "seTE"), leftlabs = c("b", "c"),
+         hetstat = FALSE, calcwidth.pooled = FALSE)
+  forest(metagen(1:3, 1:3, random = FALSE),
+         leftcols = c("TE", "seTE"), leftlabs = c("b", "c"),
+         hetstat = FALSE, calcwidth.pooled = TRUE)
+  dev.off()
+
+  widths <- get(".forest_widths", envir = .GlobalEnv)
+  expect_length(widths, 2)
+  expect_false(any(grepl("sum(0mm, max(0mm", widths[[1]], fixed = TRUE)))
+  expect_true(any(grepl("sum(0mm, max(0mm", widths[[2]], fixed = TRUE)))
+})
+
 test_that("forest accepts different colours for multiple overall diamonds", {
   m <- metagen(1:5, 5:1, sm = "MD")
   m$TE.common <- c(1, 2)

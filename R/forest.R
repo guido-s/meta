@@ -4835,6 +4835,17 @@ forest.meta <- function(x,
          if (length(leftcols) > 1) "s",
          ".",
          call. = FALSE)
+  #
+  studlab.left <- lsel && "studlab" %in% leftcols
+  studlab.right <- rsel && "studlab" %in% rightcols
+  add.left.studlab <- lsel && !studlab.left
+  #
+  leftcols.return <- if (length(leftcols) == 0) character(0) else
+    paste0("col.", leftcols)
+  rightcols.return <- if (length(rightcols) == 0) character(0) else
+    paste0("col.", rightcols)
+  leftlabs.return <- leftlabs
+  rightlabs.return <- rightlabs
   
   
   #
@@ -9355,9 +9366,12 @@ forest.meta <- function(x,
   #
   #
   
+  if (is.null(labs[["lab.studlab"]]))
+    labs[["lab.studlab"]] <- ""
+  #
   col.studlab <- list(labels =
-                        lapply(as.list(c(labs[["lab.studlab"]], modlabs)),
-                               tg,
+                         lapply(as.list(c(labs[["lab.studlab"]], modlabs)),
+                                tg,
                                xpos = xpos.s, just = just.s,
                                fs = fs.study.labels,
                                ff = ff.study.labels,
@@ -9494,6 +9508,30 @@ forest.meta <- function(x,
            fs.test.effect.subgroup, ff.test.effect.subgroup,
            fontfamily, col.subgroup)
     }
+  }
+  #
+  # If study labels are printed on the right side, do not print pooled labels,
+  # heterogeneity statistics, tests, or details there. If study labels are not
+  # printed on the left side, add an internal left column for these labels.
+  #
+  study.lines <- length(col.studlab$labels) - length(yTE) + seq_along(yTE)
+  nonstudy.lines <- setdiff(seq_along(col.studlab$labels), c(1, study.lines))
+  blank.labels <- function(x, lines) {
+    for (i in lines)
+      x$labels[[i]] <- tg("", xpos.s, just.s, fs.study.labels,
+                          ff.study.labels, fontfamily)
+    x
+  }
+  #
+  col.studlab.right <- col.studlab
+  if (studlab.right)
+    col.studlab.right <- blank.labels(col.studlab.right, nonstudy.lines)
+  col.studlab.calc <- col.studlab
+  if (add.left.studlab) {
+    col.studlab <- blank.labels(col.studlab, c(1, study.lines))
+    col.studlab.calc <- blank.labels(col.studlab.calc,
+                                     seq_along(col.studlab.calc$labels))
+    colgap.studlab <- unit(0, "mm")
   }
   #
   fcs <- list(fs.study = fs.study, ff.study = ff.study,
@@ -9837,6 +9875,7 @@ forest.meta <- function(x,
   col.forest$range <- xlim
   #
   cols <- list(col.studlab = col.studlab,
+               col.studlab.right = col.studlab.right,
                col.effect = col.effect,
                col.ci = col.ci,
                col.effect.ci = col.effect.ci,
@@ -9868,7 +9907,8 @@ forest.meta <- function(x,
     cols$col.event.time.n.c <- col.event.time.n.c
   }
   #
-  cols.calc <- list(col.studlab = col.studlab,
+  cols.calc <- list(col.studlab = col.studlab.calc,
+                    col.studlab.right = col.studlab.right,
                     col.effect = col.effect.calc,
                     col.ci = col.ci.calc,
                     col.effect.ci = col.effect.ci.calc,
@@ -10335,8 +10375,31 @@ forest.meta <- function(x,
     col.add.time.c <- set_rows(col.add.time.c, yHeadadd)
   }
   #
+  if (add.left.studlab)
+    leftcols <- c("studlab", leftcols)
+  #
   leftcols  <- paste0("col.", leftcols)
   rightcols <- paste0("col.", rightcols)
+  if (studlab.right)
+    rightcols[rightcols == "col.studlab"] <- "col.studlab.right"
+  #
+  calcwidth.common <- calcwidth.common && common
+  calcwidth.random <- calcwidth.random && random
+  calcwidth.predict <- calcwidth.predict && prediction
+  calcwidth.hetstat <-
+    calcwidth.hetstat &&
+    any(!is.na(c(yHetstat, yResidHetstat,
+                 if (by) yTE.hetstat.w else NA)))
+  calcwidth.tests <-
+    calcwidth.tests &&
+    any(!is.na(c(yOverall.common, yOverall.random,
+                 ySubgroup.common, ySubgroup.random,
+                 if (by) c(yTE.effect.common.w,
+                           yTE.effect.random.w) else NA)))
+  calcwidth.subgroup <- calcwidth.subgroup && by && any(!is.na(yBylab))
+  calcwidth.addline <-
+    calcwidth.addline && any(!is.na(c(yText.addline1, yText.addline2)))
+  calcwidth.details <- calcwidth.details && details && length(text.details) > 0
   
   
   #
@@ -10353,16 +10416,19 @@ forest.meta <- function(x,
   calcwidth.details.line <- NULL
   #
   common.lines <- 1 + seq_len(n.com)
-  if (!calcwidth.common)
-    del.lines <- common.lines
+  del.lines <- c(del.lines, common.lines)
+  if (calcwidth.common)
+    calcwidth.lines <- c(calcwidth.lines, common.lines)
   #
   random.lines <- 1 + n.com + seq_len(n.ran)
-  if (!calcwidth.random)
-    del.lines <- c(del.lines, random.lines)
+  del.lines <- c(del.lines, random.lines)
+  if (calcwidth.random)
+    calcwidth.lines <- c(calcwidth.lines, random.lines)
   #
   predict.lines <- 1 + n.com + n.ran + seq_len(n.prd)
-  if (!calcwidth.predict)
-    del.lines <- c(del.lines, predict.lines)
+  del.lines <- c(del.lines, predict.lines)
+  if (calcwidth.predict)
+    calcwidth.lines <- c(calcwidth.lines, predict.lines)
   #
   hetstat.lines <- 1 + n.com + n.ran + n.prd + seq(2)
   del.lines <- c(del.lines, hetstat.lines)
@@ -10409,17 +10475,20 @@ forest.meta <- function(x,
       calcwidth.lines <- c(calcwidth.lines, subgroup.lines)
     #
     common.lines.w <- nd + n.by + seq_len(n.by * n.com)
-    if (!calcwidth.common)
-      del.lines <- c(del.lines, common.lines.w)
+    del.lines <- c(del.lines, common.lines.w)
+    if (calcwidth.common)
+      calcwidth.lines <- c(calcwidth.lines, common.lines.w)
     #
     random.lines.w <- nd + n.by + n.by * n.com + seq_len(n.by * n.ran)
-    if (!calcwidth.random)
-      del.lines <- c(del.lines, random.lines.w)
+    del.lines <- c(del.lines, random.lines.w)
+    if (calcwidth.random)
+      calcwidth.lines <- c(calcwidth.lines, random.lines.w)
     #
     predict.lines.w <-
       nd + n.by + n.by * n.com + n.by * n.ran + seq_len(n.by * n.prd)
-    if (!calcwidth.predict)
-      del.lines <- c(del.lines, predict.lines.w)
+    del.lines <- c(del.lines, predict.lines.w)
+    if (calcwidth.predict)
+      calcwidth.lines <- c(calcwidth.lines, predict.lines.w)
     #
     hetstat.lines.w <-
       nd + n.by + n.by * n.com + n.by * n.ran + n.by * n.prd +
@@ -10450,12 +10519,12 @@ forest.meta <- function(x,
     extra.calcwidth <- unit(0, "mm")
     if (!is.null(calcwidth.lines))
       width.calcwidth <-
-        wcalc(cols.calc[["col.studlab"]]$labels[calcwidth.lines])
+        wcalc(cols[["col.studlab"]]$labels[calcwidth.lines])
     if (!is.null(calcwidth.details.line))
       width.calcwidth <-
         unit.pmax(
           width.calcwidth,
-          wcalc(cols.calc[["col.studlab"]]$labels[calcwidth.details.line]))
+          wcalc(cols[["col.studlab"]]$labels[calcwidth.details.line]))
     #
     for (i in seq_along(leftcols)) {
       width.i <-
@@ -10862,6 +10931,10 @@ forest.meta <- function(x,
     dims$file <- NULL
     #
     res <- c(res, dims, autosize = autosize)
+    res$leftcols <- leftcols.return
+    res$leftlabs <- leftlabs.return
+    res$rightcols <- rightcols.return
+    res$rightlabs <- rightlabs.return
     #
     class(res) <- "forest.meta"
     #
@@ -10972,6 +11045,10 @@ forest.meta <- function(x,
   res$width <- width
   res$figheight <- figheight
   res$rows.gr <- rows.gr
+  res$leftcols <- leftcols.return
+  res$leftlabs <- leftlabs.return
+  res$rightcols <- rightcols.return
+  res$rightlabs <- rightlabs.return
   #
   res$autosize <- autosize
   #

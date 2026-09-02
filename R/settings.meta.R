@@ -837,12 +837,12 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("colgap", "2mm")
     setOption("colgap.forest", "2mm")
     #
-    setOption("calcwidth.predict", FALSE)
+    setOption("calcwidth.predict", TRUE)
     setOption("calcwidth.hetstat", TRUE)
-    setOption("calcwidth.tests", FALSE)
-    setOption("calcwidth.subgroup", FALSE)
-    setOption("calcwidth.addline", FALSE)
-    setOption("calcwidth.details", FALSE)
+    setOption("calcwidth.tests", TRUE)
+    setOption("calcwidth.subgroup", TRUE)
+    setOption("calcwidth.addline", TRUE)
+    setOption("calcwidth.details", TRUE)
     #
     setOption("just.studlab", "left")
     setOption("just.addcols", "center")
