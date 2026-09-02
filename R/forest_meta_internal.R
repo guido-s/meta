@@ -5,8 +5,58 @@
 # License: GPL (>= 2)
 #
 
+calc_pooled_prefix_extra <- function(lines, pooled.cols, do.calc,
+                                     leftcols, width.left.cols,
+                                     colgap.left, colgap.studlab,
+                                     pooled.labels, wcalc) {
+  if (!do.calc || length(lines) == 0)
+    return(unit(0, "mm"))
+  first.pooled <- match(TRUE, leftcols %in% pooled.cols)
+  prefix <-
+    if (is.na(first.pooled))
+      seq_along(leftcols)
+    else if (first.pooled > 1)
+      seq_len(first.pooled - 1)
+    else
+      integer(0)
+  if (length(prefix) == 0)
+    return(unit(0, "mm"))
+  pooled.width <- wcalc(pooled.labels[lines])
+  prefix.width <- width.left.cols[[prefix[1]]]
+  if (length(prefix) > 1) {
+    for (j in prefix[-1]) {
+      prefix.width <-
+        unit.c(prefix.width,
+               if (leftcols[[j - 1]] == "col.studlab")
+                 colgap.studlab
+               else
+                 colgap.left,
+               width.left.cols[[j]])
+    }
+  }
+  unit.pmax(unit(0, "mm"), pooled.width - sum(prefix.width))
+}
+
+split_lines <- function(x) {
+  if (is.null(x) || x == "") character(0) else
+    strsplit(x, "\n", fixed = TRUE)[[1]]
+}
+
+blank_labels <- function(x, lines, xpos, just, fontsize, fontface,
+                         fontfamily) {
+  for (i in lines)
+    x$labels[[i]] <- tg("", xpos, just, fontsize, fontface, fontfamily)
+  x
+}
+
+maxrow <- function(x) {
+  if (all(is.na(x))) NA else max(x, na.rm = TRUE)
+}
+
 forest_meta_internal <- function(
-    new, nrow, x1, spacing, spacing.main, top.pad.lines, layout.just,
+    new, nrow, x1, spacing, spacing.main,
+    bottom.rows, bottom.heights,
+    top.depth.lines, bottom.depth.lines,
     yHeadadd,
     #
     cols, cols.new, newcols, by,
@@ -68,7 +118,7 @@ forest_meta_internal <- function(
     print.label, grob.label.left, grob.label.right,
     y.bottom.lr, fs.lr, ff.lr,
     #
-    yS, log.xaxis, at, label, fs.axis, ff.axis,
+    yS, axis.row, axis.label.row, log.xaxis, at, label, fs.axis, ff.axis,
     #
     newline.TE, newline.ci, newline.cluster, newline.cor,
     newline.cycles, newline.effect,newline.effect.ci,
@@ -98,16 +148,17 @@ forest_meta_internal <- function(
   heights <- unit(rep(spacing, nrow), "lines")
   if (rows.main > 0)
     heights[seq_len(rows.main)] <- unit(spacing.main, "lines")
+  if (length(bottom.rows) > 0)
+    heights[bottom.rows] <- unit(bottom.heights, "lines")
   #
   pushViewport(
     viewport(
-      y = unit(1, "npc") - unit(top.pad.lines, "lines"),
-      height = unit(1, "npc") - unit(top.pad.lines, "lines"),
-      just = c("center", "top"),
+      y = unit(0.5, "npc") +
+        unit((bottom.depth.lines - top.depth.lines) / 2, "lines"),
       layout =
         grid.layout(
           nrow, length(x1), widths = x1,
-          heights = heights, just = layout.just)))
+          heights = heights)))
   #
   if (rows.main > 0) {
     pushViewport(
@@ -123,7 +174,8 @@ forest_meta_internal <- function(
     #
     popViewport()
   }
-  nrow.plot <- nrow - if (rows.main > 0) rows.main + gap.main else 0
+  body.rows <- seq_len(axis.row)
+  nrow.plot <- axis.row - if (rows.main > 0) rows.main + gap.main else 0
   #
   # Left side of forest plot
   #
@@ -313,7 +365,7 @@ forest_meta_internal <- function(
   #
   # Produce forest plot
   #
-  draw.lines(col.forest, j,
+  draw.lines(col.forest, j, seq_len(axis.row),
              ref, TE.common, unique(TE.random),
              overall, common, random, prediction,
              ymin.common, ymin.random, ymin.ref,
@@ -326,7 +378,7 @@ forest_meta_internal <- function(
              fill,
              col.lines)
   #
-  draw.axis(col.forest, j, yS, log.xaxis, at, label,
+  draw.axis(col.forest, j, axis.row, axis.label.row, log.xaxis, at, label,
             fs.axis, ff.axis, fontfamily, lwd,
             xlim, avail.xlim,
             col.lines, col.label)
@@ -342,33 +394,14 @@ forest_meta_internal <- function(
       }
     }
     else {
-      add.label(grob.label.left, j,
-                if (bmj)
-                  unit(xlim[1], "native")
-                else
-                  unit(ref - (xlim[2] - xlim[1]) / 30, "native"),
-                unit(y.bottom.lr, "lines"),
-                if (bmj) "left" else "right",
-                fs.lr, ff.lr, col.label.left, fontfamily,
-                xscale = col.forest$range)
-      #
-      add.label(grob.label.right, j,
-                if (bmj)
-                  unit(xlim[2], "native")
-                else
-                  unit(ref + (xlim[2] - xlim[1]) / 30, "native"),
-                unit(y.bottom.lr, "lines"),
-                if (bmj) "right" else "left",
-                fs.lr, ff.lr, col.label.right, fontfamily,
-                xscale = col.forest$range)
+      add.text(grob.label.left, j, xscale = col.forest$range)
+      add.text(grob.label.right, j, xscale = col.forest$range)
     }
   }
   #
-  add.xlab(col.forest, j, grob.xlab,
-           xlab.pos, xlab.ypos, fs.xlab, ff.xlab,
-           fontfamily)
-  #
   draw.forest(col.forest, j)
+  #
+  add.text(grob.xlab, j, xscale = col.forest$range)
   #
   j <- j + 2
   #
@@ -592,6 +625,7 @@ forest_meta_internal <- function(
       for (i in seq(2 * sel1 - 1, 2 * sel2 - 1)) {
         pushViewport(
           viewport(
+            layout.pos.row = body.rows,
             layout.pos.col = i,
             xscale = col.forest$range))
         #
@@ -620,6 +654,7 @@ forest_meta_internal <- function(
       for (i in seq(2 * sel1 - 1, 2 * sel2 - 1)) {
         pushViewport(
           viewport(
+            layout.pos.row = body.rows,
             layout.pos.col = i,
             xscale = col.forest$range))
         #
@@ -647,6 +682,7 @@ forest_meta_internal <- function(
       for (i in seq(2 * sel1 - 1, 2 * sel2 - 1)) {
         pushViewport(
           viewport(
+            layout.pos.row = body.rows,
             layout.pos.col = i,
             xscale = col.forest$range))
         #
@@ -664,6 +700,7 @@ forest_meta_internal <- function(
       for (i in seq_len(hcols)) {
         pushViewport(
           viewport(
+            layout.pos.row = body.rows,
             layout.pos.col = i,
             xscale = col.forest$range))
         #
@@ -678,6 +715,7 @@ forest_meta_internal <- function(
     for (i in seq_len(hcols)) {
       pushViewport(
         viewport(
+          layout.pos.row = body.rows,
           layout.pos.col = i,
           xscale = col.forest$range))
       #
@@ -695,6 +733,7 @@ forest_meta_internal <- function(
     for (i in seq_len(hcols)) {
       pushViewport(
         viewport(
+          layout.pos.row = body.rows,
           layout.pos.col = i,
           xscale = col.forest$range))
       #

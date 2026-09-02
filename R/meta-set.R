@@ -171,21 +171,21 @@ setunit <- function(x) {
       if (length(plotval) == 0 | is.na(as.numeric(plotval)))
         stop("Argument '", xname, "' must contain at least one number.")
       #
-      res <- grid::unit(as.numeric(plotval), "cm")
+      res <- unit(as.numeric(plotval), "cm")
     }
     else if (plotunit == "inch") {
       plotval <- substring(x, 1, nchar(x) - 4)
       if (length(plotval) == 0 | is.na(as.numeric(plotval)))
         stop("Argument '", xname, "' must contain at least one number.")
       #
-      res <- grid::unit(as.numeric(plotval), "inch")
+      res <- unit(as.numeric(plotval), "inch")
     }
     else if (plotunit == "mm") {
       plotval <- substring(x, 1, nchar(x) - 2)
       if (length(plotval) == 0 | is.na(as.numeric(plotval)))
         stop("Argument '", xname, "' must contain at least one number.")
       #
-      res <- grid::unit(as.numeric(plotval), "mm")
+      res <- unit(as.numeric(plotval), "mm")
     }
   }
   else

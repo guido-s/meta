@@ -6,6 +6,9 @@
   - visible labels for pooled estimates, prediction intervals, heterogeneity
     statistics, tests, subgroups, additional lines, and details are now
     considered by default when calculating horizontal spacing
+  - argument 'calcwidth.pooled' considers the combined width of left-side
+    columns without pooled-row information, including information provided via
+    argument 'data.pooled', before adding spacing for labels of pooled estimates
   - less vertical space is added below the overall results in JAMA layout
     because heterogeneity statistics no longer overlap with the x-axis
   - a main title can be added
@@ -30,8 +33,6 @@
     a main title
   - arguments 'smlab', 'xlab', 'label.left', and 'label.right' can contain
     more than two lines
-  - forest plots are now aligned at the top of the graphics device, so extra
-    height specified by the user is added below the plot
   - new defaults for arguments 'calcwidth.predict', 'calcwidth.hetstat',
     'calcwidth.tests', 'calcwidth.subgroup', 'calcwidth.addline', and
     'calcwidth.details' are TRUE; these arguments only affect spacing if the

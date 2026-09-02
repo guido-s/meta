@@ -3925,11 +3925,7 @@ forest.meta <- function(x,
   if (is.null(addrows.below.overall)) {
     addrows.below.overall <- 0
     #
-    if (jama) {
-      if (!metacum & !metainf)
-        addrows.below.overall <- 1
-    }
-    else if (layout == "meta" & (metacor | metagen) &
+    if (!jama && layout == "meta" & (metacor | metagen) &
              miss.leftcols &
              (overall.hetstat | test.overall.common |
               test.overall.random) &
@@ -7706,10 +7702,6 @@ forest.meta <- function(x,
   #
   # Split bottom labels and x-axis label into unrestricted multiple lines.
   #
-  split_lines <- function(x)
-    if (is.null(x) || x == "") character(0) else
-      strsplit(x, "\n", fixed = TRUE)[[1]]
-  #
   lines.smlab <- split_lines(smlab)
   lines.xlab <- split_lines(xlab)
   lines.label.left <- split_lines(label.left)
@@ -9473,21 +9465,21 @@ forest.meta <- function(x,
   #
   study.lines <- length(col.studlab$labels) - length(yTE) + seq_along(yTE)
   nonstudy.lines <- setdiff(seq_along(col.studlab$labels), c(1, study.lines))
-  blank.labels <- function(x, lines) {
-    for (i in lines)
-      x$labels[[i]] <- tg("", xpos.s, just.s, fs.study.labels,
-                          ff.study.labels, fontfamily)
-    x
-  }
   #
   col.studlab.right <- col.studlab
   if (studlab.right)
-    col.studlab.right <- blank.labels(col.studlab.right, nonstudy.lines)
+    col.studlab.right <-
+      blank_labels(col.studlab.right, nonstudy.lines, xpos.s, just.s,
+                   fs.study.labels, ff.study.labels, fontfamily)
   col.studlab.calc <- col.studlab
   if (add.left.studlab) {
-    col.studlab <- blank.labels(col.studlab, c(1, study.lines))
-    col.studlab.calc <- blank.labels(col.studlab.calc,
-                                     seq_along(col.studlab.calc$labels))
+    col.studlab <-
+      blank_labels(col.studlab, c(1, study.lines), xpos.s, just.s,
+                   fs.study.labels, ff.study.labels, fontfamily)
+    col.studlab.calc <-
+      blank_labels(col.studlab.calc, seq_along(col.studlab.calc$labels),
+                   xpos.s, just.s, fs.study.labels, ff.study.labels,
+                   fontfamily)
     colgap.studlab <- unit(0, "mm")
   }
   #
@@ -10376,21 +10368,36 @@ forest.meta <- function(x,
       "col.time.e", "col.time.c", "col.event.n.e", "col.event.n.c",
       "col.mean.sd.n.e", "col.mean.sd.n.c", "col.event.time.e",
       "col.event.time.c", "col.event.time.n.e", "col.event.time.n.c")
-  pooled.data.in.row <-
-    (pooled.totals | pooled.events | pooled.times) &&
-    any(c(leftcols, rightcols) %in% pooled.data.cols)
+  pooled.common.cols <- character(0)
+  pooled.random.cols <- character(0)
+  if (jama) {
+    pooled.common.cols <- c(pooled.common.cols, "col.effect.ci")
+    pooled.random.cols <- c(pooled.random.cols, "col.effect.ci")
+  }
+  if (revman5) {
+    pooled.common.cols <- c(pooled.common.cols, "col.w.common", "col.effect.ci")
+    pooled.random.cols <- c(pooled.random.cols, "col.w.random", "col.effect.ci")
+  }
+  if (!is.null(data.pooled)) {
+    pooled.datap.cols <- paste0("col.", intersect(leftcols.new,
+                                                   colnames(data.pooled)))
+    pooled.common.cols <- c(pooled.common.cols, pooled.datap.cols)
+    pooled.random.cols <- c(pooled.random.cols, pooled.datap.cols)
+  }
+  pooled.common.in.row <-
+    ((pooled.totals | pooled.events | pooled.times) &&
+       any(leftcols %in% pooled.data.cols)) ||
+    any(leftcols %in% pooled.common.cols)
+  pooled.random.in.row <-
+    ((pooled.totals | pooled.events | pooled.times) &&
+       any(leftcols %in% pooled.data.cols)) ||
+    any(leftcols %in% pooled.random.cols)
   #
   common.lines <- 1 + seq_len(n.com)
-  if (!pooled.data.in.row)
-    del.lines <- c(del.lines, common.lines)
-  if (calcwidth.common)
-    calcwidth.lines <- c(calcwidth.lines, common.lines)
+  del.lines <- c(del.lines, common.lines)
   #
   random.lines <- 1 + n.com + seq_len(n.ran)
-  if (!pooled.data.in.row)
-    del.lines <- c(del.lines, random.lines)
-  if (calcwidth.random)
-    calcwidth.lines <- c(calcwidth.lines, random.lines)
+  del.lines <- c(del.lines, random.lines)
   #
   predict.lines <- 1 + n.com + n.ran + seq_len(n.prd)
   del.lines <- c(del.lines, predict.lines)
@@ -10507,6 +10514,17 @@ forest.meta <- function(x,
         width.left.cols, leftcols, colgap.left,
         list(label.e.attach, label.c.attach), list(col.label.e, col.label.c),
         colgap.studlab)
+    extra.calcwidth.pooled <-
+      unit.pmax(calc_pooled_prefix_extra(common.lines, pooled.common.cols,
+                                         calcwidth.common,
+                                         leftcols, width.left.cols,
+                                         colgap.left, colgap.studlab,
+                                         cols[["col.studlab"]]$labels, wcalc),
+                calc_pooled_prefix_extra(random.lines, pooled.random.cols,
+                                         calcwidth.random,
+                                         leftcols, width.left.cols,
+                                         colgap.left, colgap.studlab,
+                                         cols[["col.studlab"]]$labels, wcalc))
     #
     for (i in seq_along(leftcols)) {
       width.i <- width.left.cols[[i]]
@@ -10534,7 +10552,8 @@ forest.meta <- function(x,
       else {
         x1 <- unit.c(x1,
                      if (leftcols[[i - 1]] == "col.studlab")
-                       colgap.studlab + extra.calcwidth
+                        colgap.studlab + extra.calcwidth +
+                          extra.calcwidth.pooled
                      else colgap.left,
                      width.left.cols[[i]])
       }
@@ -10543,7 +10562,7 @@ forest.meta <- function(x,
     x1 <-
       unit.c(x1,
              if (leftcols[[length(leftcols)]] == "col.studlab")
-               colgap.forest.left + extra.calcwidth
+                colgap.forest.left + extra.calcwidth + extra.calcwidth.pooled
              else
                colgap.forest.left,
              col.forestwidth)
@@ -10626,6 +10645,35 @@ forest.meta <- function(x,
     nrow <- max(addline + c(yTE, yTE.common, yTE.random, yPredict,
                             yStatsDetails), na.rm = TRUE)
   }
+  nrow.all <- nrow
+  # The forest body ends with the last study / pooled-effect / prediction
+  # row. Overall heterogeneity statistics, tests, details, RoB legend, and
+  # bottom axis annotations belong to the bottom extension. Text columns and
+  # the forest column may therefore use the same extension rows.
+  nrow.body <- max(yS, na.rm = TRUE)
+  axislabel.gap <- max(0, fs.axis - fontsize) / fontsize
+  rows.bottom.axis <- 1
+  rows.bottom.lr <- if (print.label && bottom.lr) rows.lr else 0
+  bottom.axis.row <- nrow.body + 1
+  bottom.axis.rows <- nrow.body + seq_len(rows.bottom.axis)
+  bottom.lr.rows <-
+    if (rows.bottom.lr > 0)
+      nrow.body + rows.bottom.axis + seq_len(rows.bottom.lr)
+    else
+      numeric(0)
+  xlab.rows <-
+    if (rows.xlab > 0)
+      nrow.body + rows.bottom.axis + rows.bottom.lr + seq_len(rows.xlab)
+    else
+      numeric(0)
+  spacing.axis.labels <- max(1.5 * spacing, fs.axis / fontsize + axislabel.gap)
+  spacing.xlab <- max(spacing, fs.xlab / fontsize)
+  spacing.lr <- max(spacing, fs.lr / fontsize)
+  bottom.rows <- c(bottom.axis.rows, bottom.lr.rows, xlab.rows)
+  bottom.heights <- c(spacing.axis.labels,
+                      rep(spacing.lr, rows.bottom.lr),
+                      rep(spacing.xlab, rows.xlab))
+  nrow <- max(nrow.all, nrow.body + rows.bottom.axis + rows.bottom.lr + rows.xlab)
   #
   addrows.below.line <- addrows.below.overall
   if (details & layout == "meta" & (metacor | metagen) &
@@ -10649,26 +10697,23 @@ forest.meta <- function(x,
   # Determine minimal value on y-axis for lines of common / random
   # effect estimate or reference line
   #
-  maxrow <- function(x)
-    if (all(is.na(x))) NA else max(x, na.rm = TRUE)
-  #
   yline.ref <- c(yTE, yTE.common, yTE.random, yPredict,
                  if (by) yTE.w else NA)
   yline.common <- yTE.common
   yline.random <- yTE.random
   #
-  ymin.common <- spacing * (nrow - maxrow(yline.common) + 0.5)
-  ymin.random <- spacing * (nrow - maxrow(yline.random) + 0.5)
-  ymin.line <- nrow - maxrow(yline.ref)
+  ymin.common <- spacing * (nrow.body - maxrow(yline.common) + 0.5)
+  ymin.random <- spacing * (nrow.body - maxrow(yline.random) + 0.5)
+  ymin.line <- nrow.body - maxrow(yline.ref)
   ymin.ref <- spacing * ymin.line
   #
   ymax <-
     spacing *
-    (nrow - rows.main.total - rows.header - 1 * addrow)
+    (nrow.body - rows.main.total - rows.header - 1 * addrow)
   #
   if (cid.pooled.only)
     ymax.ref <- spacing *
-      (nrow - min(c(yTE.common, yTE.random, yPredict), na.rm = TRUE) + 0.5)
+      (nrow.body - min(c(yTE.common, yTE.random, yPredict), na.rm = TRUE) + 0.5)
   else
     ymax.ref <- ymax
   #
@@ -10689,7 +10734,10 @@ forest.meta <- function(x,
                         2
                       else
                         seq_len(rows.smlab))
-  grob.xlab <- lines.xlab
+  grob.xlab <-
+    tgl(lines.xlab, unit(xlab.pos, "native"), "center",
+        fs.xlab, ff.xlab, fontfamily,
+        rows = xlab.rows)
   grob.label.left <- lines.label.left
   grob.label.right <- lines.label.right
   #
@@ -10719,6 +10767,37 @@ forest.meta <- function(x,
           "left", fs.lr, ff.lr, fontfamily, col.label.right,
           rows = rows.main.total + row.lr + seq_along(lines.label.right) - 1)
   }
+  else if (bottom.lr && print.label && !is.na(ref)) {
+    bottom.lines.left <-
+      if (length(lines.label.left) == 0) rep("", rows.bottom.lr) else
+        rep_len(lines.label.left, rows.bottom.lr)
+    bottom.lines.right <-
+      if (length(lines.label.right) == 0) rep("", rows.bottom.lr) else
+        rep_len(lines.label.right, rows.bottom.lr)
+    grob.label.left <-
+      tgl(bottom.lines.left,
+          if (bmj)
+            unit(xlim[1], "native")
+          else
+            unit(ref - (xlim[2] - xlim[1]) / 30, "native"),
+          if (bmj) "left" else "right", fs.lr, ff.lr, fontfamily,
+          col.label.left, rows = bottom.lr.rows)
+    grob.label.right <-
+      tgl(bottom.lines.right,
+          if (bmj)
+            unit(xlim[2], "native")
+          else
+            unit(ref + (xlim[2] - xlim[1]) / 30, "native"),
+          if (bmj) "right" else "left", fs.lr, ff.lr, fontfamily,
+          col.label.right, rows = bottom.lr.rows)
+  }
+  #
+  top.depth.lines <- if (header.line.pos == "both") 0.5 else 0
+  if (rows.main > 0)
+    top.depth.lines <- top.depth.lines +
+      max(0, rows.main * (spacing.main - spacing) / 2)
+  #
+  bottom.depth.lines <- 0
   
   
   #
@@ -10730,8 +10809,10 @@ forest.meta <- function(x,
   forest.args <- list(
     new = new, nrow = nrow, x1 = x1, spacing = spacing,
     spacing.main = spacing.main,
-    top.pad.lines = if (header.line.pos == "both") 0.5 else 0,
-    layout.just = c("center", "top"),
+    bottom.rows = bottom.rows,
+    bottom.heights = bottom.heights,
+    top.depth.lines = top.depth.lines,
+    bottom.depth.lines = bottom.depth.lines,
     yHeadadd = yHeadadd,
     #
     cols = cols, cols.new = cols.new, newcols = newcols, by = by,
@@ -10821,6 +10902,8 @@ forest.meta <- function(x,
     y.bottom.lr = y.bottom.lr, fs.lr = fs.lr, ff.lr = ff.lr,
     #
     yS = yS, log.xaxis = log.xaxis, at = at, label = label,
+    axis.row = nrow.body,
+    axis.label.row = bottom.axis.row,
     fs.axis = fs.axis, ff.axis = ff.axis,
     #
     newline.TE = newline.TE, newline.ci = newline.ci,

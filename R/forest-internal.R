@@ -10,7 +10,7 @@ add.label <- function(x, column,
                       fontfamily,
                       ...) {
   #
-  pushViewport(viewport(layout.pos.col = column, ...))
+  pushViewport(viewport(layout.pos.col = column, clip = "off", ...))
   #
   for (i in seq_along(x))
     grid.text(x[i], x = xpos, y = ypos - unit(i - 1, "lines"), just = just,
@@ -44,7 +44,8 @@ add.xlab <- function(x, column, grob.xlab,
                      xpos, ypos, fs.xlab, ff.xlab,
                      fontfamily) {
   #
-  pushViewport(viewport(layout.pos.col = column, xscale = x$range))
+  pushViewport(viewport(layout.pos.col = column, xscale = x$range,
+                        clip = "off"))
   #
   # Label on x-axis:
   #
@@ -155,7 +156,8 @@ add.columns <- function(x, new = NULL) {
   res
 }
 
-draw.axis <- function(x, column, yS, log.xaxis, at, label,
+draw.axis <- function(x, column, axis.row, axis.label.row,
+                      log.xaxis, at, label,
                       fs.axis, ff.axis, fontfamily, lwd,
                       xlim, notmiss.xlim,
                       col.line, col.label) {
@@ -164,11 +166,23 @@ draw.axis <- function(x, column, yS, log.xaxis, at, label,
   #
   pushViewport(
     viewport(
-      layout.pos.row = max(yS, na.rm = TRUE),
+      layout.pos.row = axis.row,
       layout.pos.col = column,
-      xscale = x$range))
+      xscale = x$range,
+      clip = "off"))
   #
   # x-axis:
+  #
+  draw_axis_ticks <- function(at) {
+    grid.lines(x = unit(range(at), "native"),
+               y = unit(0, "npc"),
+               gp = gpar(lwd = lwd, col = col.line))
+    grid::grid.segments(x0 = unit(at, "native"), y0 = unit(0, "npc"),
+                        x1 = unit(at, "native"),
+                        y1 = unit(-0.25, "lines"),
+                        gp = gpar(lwd = lwd, col = col.line))
+  }
+  draw.labels <- FALSE
   #
   if (log.xaxis) {
     if (is.null(at)) {
@@ -217,65 +231,43 @@ draw.axis <- function(x, column, yS, log.xaxis, at, label,
         label <- at
       at <- log(at)
     }
-    # Print x-axis labels
-    grid.xaxis(name = "xaxis1",
-               at = at, label = label,
-               gp = gpar(fontsize = fs.axis, fontface = ff.axis,
-                         fontfamily = fontfamily, lwd = lwd,
-                         col = col.label, tcl = -0.1))
-    # Print x-axis and tick marks (in different colours)
-    grid.xaxis(name = "xaxis2",
-               at = at, label = FALSE,
-               gp = gpar(fontsize = fs.axis, fontface = ff.axis,
-                         fontfamily = fontfamily, lwd = lwd,
-                         col = col.line, tcl = -0.1))
+    draw_axis_ticks(at)
+    draw.labels <- TRUE
   }
   else {
     if (is.null(at)) {
-      # Print x-axis labels
-      grid.xaxis(name = "xaxis1",
-        gp = gpar(fontsize = fs.axis, fontface = ff.axis,
-                  fontfamily = fontfamily, lwd = lwd,
-                  col = col.label, tcl = -0.1))
-      # Print xaxis and tick marks (in different colour)
-      grid.xaxis(name = "xaxis2",
-        label = FALSE,
-        gp = gpar(fontsize = fs.axis, fontface = ff.axis,
-                  fontfamily = fontfamily, lwd = lwd,
-                  col = col.line, tcl = -0.1))
+      at <- grid::grid.pretty(x$range)
+      label <- at
+      draw_axis_ticks(at)
+      draw.labels <- TRUE
     }
     else if ((length(label) == 1 && is.logical(label) && label) |
           (length(label) >= 1 & !is.logical(label))) {
-      # Print x-axis labels
-      grid.xaxis(name = "xaxis1",
-        at = at, label = label,
-        gp = gpar(fontsize = fs.axis, fontface = ff.axis,
-                  fontfamily = fontfamily, lwd = lwd,
-                  col = col.label, tcl = -0.1))
-      # Print xaxis and tick marks (in different colour)
-      grid.xaxis(name = "xaxis2",
-        at = at, label = FALSE,
-        gp = gpar(fontsize = fs.axis, fontface = ff.axis,
-                  fontfamily = fontfamily, lwd = lwd,
-                  col = col.line, tcl = -0.1))
+      draw_axis_ticks(at)
+      if (length(label) == 1 && is.logical(label) && label)
+        label <- at
+      draw.labels <- TRUE
     }
     else {
-      # Print x-axis labels
-      grid.xaxis(name = "xaxis1",
-                 at = at,
-                 gp = gpar(fontsize = fs.axis, fontface = ff.axis,
-                           fontfamily = fontfamily, lwd = lwd,
-                           col = col.label, tcl = -0.1))
-      # Print xaxis and tick marks (in different colour)
-      grid.xaxis(name = "xaxis2",
-        at = at, label = FALSE,
-        gp = gpar(fontsize = fs.axis, fontface = ff.axis,
-                  fontfamily = fontfamily, lwd = lwd,
-                  col = col.line, tcl = -0.1))
+      draw_axis_ticks(at)
     }
   }
   #
   popViewport()
+  #
+  if (draw.labels) {
+    pushViewport(
+      viewport(
+        layout.pos.row = axis.label.row,
+        layout.pos.col = column,
+        xscale = x$range,
+        clip = "off"))
+    grid.text(label, x = unit(at, "native"), y = unit(0.5, "npc"),
+              gp = gpar(fontsize = fs.axis, fontface = ff.axis,
+                        fontfamily = fontfamily, col = col.label),
+              just = "center")
+    popViewport()
+  }
   #
   invisible(NULL)
 }
@@ -561,7 +553,7 @@ draw.forest <- function(x, column) {
   invisible(NULL)
 }
 
-draw.lines <- function(x, column,
+draw.lines <- function(x, column, rows,
                        ref, TE.common, TE.random,
                        overall, common, random, prediction,
                        ymin.common, ymin.random, ymin.ref, ymax, ymax.ref,
@@ -582,7 +574,8 @@ draw.lines <- function(x, column,
     xmax <- x$range[2]
   }
   #
-  pushViewport(viewport(layout.pos.col = column, xscale = x$range))
+  pushViewport(viewport(layout.pos.row = rows,
+                        layout.pos.col = column, xscale = x$range))
   #
   # Add background colour for confidence interval plot
   #

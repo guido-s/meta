@@ -747,7 +747,7 @@
 #'
 #' @importFrom readr read_csv cols
 #'
-#' @importFrom grid arrow gpar grid.circle grid.draw grid.layout grid.lines grid.newpage grid.polygon grid.rect grid.text grid.xaxis textGrob popViewport pushViewport viewport unit unit.c convertX grobTree rectGrob grid.get grid.gget grid.grabExpr convertWidth convertHeight unit.pmax
+#' @importFrom grid arrow gpar grid.circle grid.draw grid.layout grid.lines grid.newpage grid.polygon grid.rect grid.text textGrob popViewport pushViewport viewport unit unit.c convertX grobTree rectGrob grid.get grid.gget grid.grabExpr convertWidth convertHeight unit.pmax grid.segments grid.pretty
 #'
 #' @importFrom grDevices gray gray.colors hcl.colors cairo_pdf cairo_ps pdf postscript svg bmp jpeg png tiff pictex dev.cur dev.list dev.off dev.set dev.size
 #'
