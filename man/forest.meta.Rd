@@ -42,14 +42,12 @@
   study.results = gs("study.results"),
   rob = x$rob,
   rob.text = "Risk of Bias",
-  rob.xpos = 0,
   rob.legend = TRUE,
   rob.only = FALSE,
   xlab = "",
   xlab.pos,
   main = NULL,
   col.main = gs("col.main"),
-  just.main = gs("just.main"),
   xpos.main = gs("xpos.main"),
   gap.main = gs("gap.main"),
   lineheight.main = gs("lineheight.main"),
@@ -264,12 +262,14 @@
   calcwidth.addline = gs("calcwidth.addline"),
   calcwidth.details = gs("calcwidth.details"),
   just = if (layout == "JAMA") "left" else "right",
+  just.main = gs("just.main"),
   just.studlab = gs("just.studlab"),
   just.addcols = gs("just.addcols"),
   just.addcols.left = just.addcols,
   just.addcols.right = just.addcols,
   just.label.e = just,
   just.label.c = just,
+  just.rob = "left",
   bmj.text = NULL,
   bmj.sep = " / ",
   spacing = gs("spacing"),
@@ -421,11 +421,6 @@ plot subgroup results).}
 
 \item{rob.text}{Column heading for RoB table.}
 
-\item{rob.xpos}{A numeric specifying the horizontal position of the
-risk of bias label in RoB table heading. The value is a so called
-normalised parent coordinate in the horizontal direction (see
-\code{\link[grid]{unit}}).}
-
 \item{rob.legend}{A logical specifying whether a legend with RoB
 domains should be printed.}
 
@@ -441,8 +436,6 @@ x-axis.}
 \item{main}{A title for the forest plot.}
 
 \item{col.main}{The colour of the main title.}
-
-\item{just.main}{Justification of title.}
 
 \item{xpos.main}{Horizontal position of title.}
 
@@ -1138,30 +1131,30 @@ of meta-analysis details should be considered to calculate width
 of columns on the left side of the forest plot.}
 
 \item{just}{Justification of text in all columns but columns with
-study labels and additional variables (possible values: "left",
+study labels and additional variables (admissible values: "left",
 "right", "center").}
 
-\item{just.studlab}{Justification of text for study labels
-(possible values: "left", "right", "center").}
+\item{just.main}{Justification of title.}
 
-\item{just.addcols}{Justification of text for additional columns
-(possible values: "left", "right", "center").}
+\item{just.studlab}{Justification of text for study labels.}
+
+\item{just.addcols}{Justification of text for additional columns.}
 
 \item{just.addcols.left}{Justification of text for additional
-columns on left side of forest plot (possible values: "left",
-"right", "center"). Can be of same length as number of additional
-columns on left side of forest plot.}
+columns on left side of forest plot; can be of same length as number of
+additional columns on left side of forest plot.}
 
 \item{just.addcols.right}{Justification of text for additional
-columns on right side of forest plot (possible values: "left",
-"right", "center"). Can be of same length as number of additional
-columns on right side of forest plot.}
+columns on right side of forest plot; can be of same length as number of
+additional columns on right side of forest plot.}
 
 \item{just.label.e}{Justification of text for experimental group in table
-heading (possible values: "left", "right", "center").}
+heading.}
 
 \item{just.label.c}{Justification of text for control group in table
-heading (possible values: "left", "right", "center").}
+heading.}
+
+\item{just.rob}{Justification of text for the risk of bias table heading.}
 
 \item{bmj.text}{A character string used in the plot with BMJ layout
 to label the group specific information.}

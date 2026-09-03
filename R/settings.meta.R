@@ -845,9 +845,10 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("calcwidth.addline", TRUE)
     setOption("calcwidth.details", TRUE)
     #
+    setOption("just.main", "center")
     setOption("just.studlab", "left")
     setOption("just.addcols", "center")
-    setOption("just.main", "center")
+    #
     setOption("xpos.main", 0.5)
     setOption("gap.main", 1)
     setOption("lineheight.main", 1)
@@ -1404,9 +1405,10 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("calcwidth.addline      ")
     catarg("calcwidth.details      ")
     #
+    catarg("just.main              ")
     catarg("just.studlab           ")
     catarg("just.addcols           ")
-    catarg("just.main              ")
+    #
     catarg("xpos.main              ")
     catarg("gap.main               ")
     catarg("lineheight.main        ")
@@ -1749,9 +1751,10 @@ settings.meta <- function(..., quietly = TRUE) {
     setlogical("calcwidth.addline", args)
     setlogical("calcwidth.details", args)
     #
-    setcharacter("just.studlab", args, c("right", "center", "left"))
-    setcharacter("just.addcols", args, c("right", "center", "left"))
-    setcharacter("just.main", args, c("right", "center", "left"))
+    setcharacter("just.main", args, gs("just"))
+    setcharacter("just.studlab", args, gs("just"))
+    setcharacter("just.addcols", args, gs("just"))
+    #
     setnumeric("xpos.main", args)
     setnumeric("gap.main", args, integer = TRUE)
     setnumeric("lineheight.main", args)

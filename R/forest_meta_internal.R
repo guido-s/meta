@@ -511,8 +511,12 @@ forest_meta_internal <- function(
         }
         #
         if (!is.null(rob.attach)) {
-          if (rightcols[i] == rob.attach)
-            add.text(col.rob, j)
+          if (rightcols[i] == rob.attach) {
+            id.rob <- seq_along(rightcols)[rightcols %in% colnames(rob)]
+            id.rob <- 2 * (range(id.rob) - min(id.rob))
+            id.rob <- seq(min(id.rob), max(id.rob))
+            add.text(col.rob, j + id.rob)
+          }
         }
         #
         if (newline.studlab & rightcols[i] == "col.studlab")

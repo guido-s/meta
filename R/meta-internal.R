@@ -576,7 +576,7 @@ argslist.internal <-
     "adhoc4hakn.ci", "adhoc4hakn.pi",
     "meth4bias", "meth4bias.old",
     "tool4rob",
-    "meth4incr",
+    "meth4incr", "just",
     "text.fixed", "text.w.fixed",
     "major.update", "minor.update",
     #
@@ -623,6 +623,8 @@ setOption("tool4rob",
             "ROBINS-I", "ROBINS-E"))
 #
 setOption("meth4incr", c("only0", "if0all", "all", "user"))
+#
+setOption("just", c("left", "center", "right"))
 #
 setOption("special.characters", c("+", ".", "&", "$", "#", "|", "*", "^"))
 #

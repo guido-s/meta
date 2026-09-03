@@ -81,10 +81,6 @@
 #'   plot subgroup results).
 #' @param rob Risk of bias (RoB) assessment.
 #' @param rob.text Column heading for RoB table.
-#' @param rob.xpos A numeric specifying the horizontal position of the
-#'   risk of bias label in RoB table heading. The value is a so called
-#'   normalised parent coordinate in the horizontal direction (see
-#'   \code{\link[grid]{unit}}).
 #' @param rob.legend A logical specifying whether a legend with RoB
 #'   domains should be printed.
 #' @param rob.only A logical indicating whether the risk of bias
@@ -95,7 +91,6 @@
 #'   x-axis.
 #' @param main A title for the forest plot.
 #' @param col.main The colour of the main title.
-#' @param just.main Justification of title.
 #' @param xpos.main Horizontal position of title.
 #' @param gap.main Number of empty rows between title and column headings.
 #' @param lineheight.main Line height for the main title,
@@ -577,24 +572,22 @@
 #'   of meta-analysis details should be considered to calculate width
 #'   of columns on the left side of the forest plot.
 #' @param just Justification of text in all columns but columns with
-#'   study labels and additional variables (possible values: "left",
+#'   study labels and additional variables (admissible values: "left",
 #'   "right", "center").
-#' @param just.studlab Justification of text for study labels
-#'   (possible values: "left", "right", "center").
-#' @param just.addcols Justification of text for additional columns
-#'   (possible values: "left", "right", "center").
+#' @param just.main Justification of title.
+#' @param just.studlab Justification of text for study labels.
+#' @param just.addcols Justification of text for additional columns.
 #' @param just.addcols.left Justification of text for additional
-#'   columns on left side of forest plot (possible values: "left",
-#'   "right", "center"). Can be of same length as number of additional
-#'   columns on left side of forest plot.
+#'   columns on left side of forest plot; can be of same length as number of
+#'   additional columns on left side of forest plot.
 #' @param just.addcols.right Justification of text for additional
-#'   columns on right side of forest plot (possible values: "left",
-#'   "right", "center"). Can be of same length as number of additional
-#'   columns on right side of forest plot.
+#'   columns on right side of forest plot; can be of same length as number of
+#'   additional columns on right side of forest plot.
 #' @param just.label.e Justification of text for experimental group in table
-#'   heading (possible values: "left", "right", "center").
+#'   heading.
 #' @param just.label.c Justification of text for control group in table
-#'   heading (possible values: "left", "right", "center").
+#'   heading.
+#' @param just.rob Justification of text for the risk of bias table heading.
 #' @param bmj.text A character string used in the plot with BMJ layout
 #'   to label the group specific information.
 #' @param bmj.sep A character string used to separate sample sizes
@@ -1444,7 +1437,6 @@ forest.meta <- function(x,
                         #
                         rob = x$rob,
                         rob.text = "Risk of Bias",
-                        rob.xpos = 0,
                         rob.legend = TRUE,
                         rob.only = FALSE,
                         #
@@ -1452,7 +1444,6 @@ forest.meta <- function(x,
                         #
                         main = NULL,
                         col.main = gs("col.main"),
-                        just.main = gs("just.main"),
                         xpos.main = gs("xpos.main"),
                         gap.main = gs("gap.main"),
                         lineheight.main = gs("lineheight.main"),
@@ -1715,12 +1706,14 @@ forest.meta <- function(x,
                         calcwidth.details = gs("calcwidth.details"),
                         #
                         just = if (layout == "JAMA") "left" else "right",
+                        just.main = gs("just.main"),
                         just.studlab = gs("just.studlab"),
                         just.addcols = gs("just.addcols"),
                         just.addcols.left = just.addcols,
                         just.addcols.right = just.addcols,
                         just.label.e = just,
                         just.label.c = just,
+                        just.rob = "left",
                         #
                         bmj.text = NULL,
                         bmj.sep = " / ",
@@ -1821,6 +1814,7 @@ forest.meta <- function(x,
   #
   chklogical(warn.deprecated)
   chkdeprecated(nam.args, NULL, "bmj.xpos", warn.deprecated)
+  chkdeprecated(nam.args, NULL, "rob.xpos", warn.deprecated)
   #
   device <-
     deprecated(device, missing(device), args, "func.gr", warn.deprecated)
@@ -1852,14 +1846,14 @@ forest.meta <- function(x,
     autosize <- "old"
   else
     autosize <- "new"
-    
+  
   
   #
   #
   # (3) Some assignments
   #
   #
-    
+  
   K.all <- length(x$TE)
   #
   sm <- x$sm
@@ -2137,14 +2131,14 @@ forest.meta <- function(x,
   #
   if (jama && (missing(ff.lr) || is.null(ff.lr)))
     ff.lr <- "bold"
-
-
+  
+  
   #
   #
   # (4) Define colours
   #
   #
-
+  
   # Colour schemes for layouts:
   # - colors[1] - vertical line for common effect or random effects model
   # - colors[2] - diamond for meta-analysis results
@@ -2382,7 +2376,7 @@ forest.meta <- function(x,
   # (6) Determine columns on left and right side of forest plot
   #
   #
-    
+  
   if (layout == "subgroup") {
     if (miss.type.subgroup)
       type.subgroup <- "square"
@@ -2409,7 +2403,6 @@ forest.meta <- function(x,
     rsel <- !(is.logical(rightcols) && length(rightcols) == 1 && !rightcols)
   #
   chkchar(rob.text, length = 1)
-  chknumeric(rob.xpos, min = 0, max = 1, length = 1)
   chklogical(rob.legend)
   chklogical(rob.only)
   if (rob.only && !miss.rightlabs && !is.null(rightlabs)) {
@@ -2419,7 +2412,7 @@ forest.meta <- function(x,
     rightlabs <- NULL
   }
   #
-  text.rob <- ""
+  text.rob.legend <- ""
   RoB.available <- !is.null(rob) && !(is.logical(rob) && !rob)
   RoB.legend <- RoB.available & rob.legend
   if (!RoB.available & rob.only) {
@@ -2440,7 +2433,7 @@ forest.meta <- function(x,
     rob.symbols <- attr(rob, "symbols")
     rob.col <- attr(rob, "col")
     #
-    text.rob <- c("Risk of bias legend", catleg(rob))
+    text.rob.legend <- c("Risk of bias legend", catleg(rob))
     #
     rob <- rob[, !(colnames(rob) %in% c("Study", "Weight")), drop = FALSE]
     #
@@ -2449,11 +2442,11 @@ forest.meta <- function(x,
     #
     rightcols.rob <- colnames(rob)
     #
-    text.rob <- text.rob[text.rob != ""]
+    text.rob.legend <- text.rob.legend[text.rob.legend != ""]
   }
   else {
     rightcols.rob <- rob.labels <- rob.categories <- rob.symbols <-
-      rob.col <- text.rob <- rob <- NULL
+      rob.col <- text.rob.legend <- rob <- NULL
   }
   #
   if (!rsel)
@@ -2601,14 +2594,14 @@ forest.meta <- function(x,
       !(c(rightcols, rightcols.rob) %in% colnames.notNULL)]
     leftcols.new <- leftcols[!leftcols %in% colnames.notNULL]
   }
-
-
+  
+  
   #
   #
   # (7) Check other arguments
   #
   #
-
+  
   sfsp <- sys.frame(sys.parent())
   mc <- match.call()
   #
@@ -3201,7 +3194,6 @@ forest.meta <- function(x,
   if (!is.null(main))
     chkchar(main, length = 1)
   main <- replaceNULL(main, "")
-  just.main <- setchar(just.main, c("right", "center", "left"))
   chknumeric(xpos.main, min = 0, max = 1, length = 1)
   chknumeric(gap.main, min = 0, length = 1, integer = TRUE)
   chknumeric(lineheight.main, min = 0, zero = FALSE, length = 1)
@@ -3293,14 +3285,17 @@ forest.meta <- function(x,
   #
   if (miss.just && bmj)
     just <- "center"
-  just.cols <- setchar(just, c("right", "center", "left"))
-  just.studlab <- setchar(just.studlab, c("right", "center", "left"))
-  just.addcols <- setchar(just.addcols, c("right", "center", "left"))
-  just.addcols.left <- setchar(just.addcols.left, c("right", "center", "left"))
-  just.addcols.right <-
-    setchar(just.addcols.right, c("right", "center", "left"))
-  just.label.e <- setchar(just.label.e, c("right", "center", "left"))
-  just.label.c <- setchar(just.label.c, c("right", "center", "left"))
+  #
+  just <- setchar(just, gs("just"))
+  just.cols <- just
+  just.main <- setchar(just.main, gs("just"))
+  just.studlab <- setchar(just.studlab, gs("just"))
+  just.addcols <- setchar(just.addcols, gs("just"))
+  just.addcols.left <- setchar(just.addcols.left, gs("just"))
+  just.addcols.right <- setchar(just.addcols.right, gs("just"))
+  just.label.e <- setchar(just.label.e, gs("just"))
+  just.label.c <- setchar(just.label.c, gs("just"))
+  just.rob <- setchar(just.rob, gs("just"))
   #
   if (!is.null(bmj.text))
     chkchar(bmj.text, length = 1)
@@ -3792,11 +3787,11 @@ forest.meta <- function(x,
     addrows.below.overall <- 0
     #
     if (!jama && layout == "meta" & (metacor | metagen) &
-             miss.leftcols &
-             (overall.hetstat | test.overall.common |
-              test.overall.random) &
-             !(calcwidth.hetstat | calcwidth.tests) &
-             !(details | RoB.legend))
+        miss.leftcols &
+        (overall.hetstat | test.overall.common |
+         test.overall.random) &
+        !(calcwidth.hetstat | calcwidth.tests) &
+        !(details | RoB.legend))
       addrows.below.overall <- 2
     else if (layout %in% c("meta", "subgroup") &
              (test.subgroup.common & test.subgroup.random) &
@@ -3856,6 +3851,13 @@ forest.meta <- function(x,
     xpos.label.c <- 0.5
   else if (just.label.c == "right")
     xpos.label.c <- 1
+  #
+  if (just.rob == "left")
+    xpos.rob <- 0
+  else if (just.rob == "center")
+    xpos.rob <- 0.5
+  else if (just.rob == "right")
+    xpos.rob <- 1
   #
   if (log.xaxis) {
     ref <- log(ref)
@@ -5203,13 +5205,13 @@ forest.meta <- function(x,
     #
     hetstat.overall <-
       make_hetstat(hetlab,
-                           hetstat.I2, hetstat.tau2, hetstat.tau,
-                           hetstat.Q, hetstat.pval.Q, hetstat.Rb,
-                           df.Q,
-                           print.I2, print.tau2, print.tau,
-                           print.Q, print.pval.Q, print.Rb,
-                           bmj, jama, revman5,
-                           miss.print.tau2, miss.print.tau)
+                   hetstat.I2, hetstat.tau2, hetstat.tau,
+                   hetstat.Q, hetstat.pval.Q, hetstat.Rb,
+                   df.Q,
+                   print.I2, print.tau2, print.tau,
+                   print.Q, print.pval.Q, print.Rb,
+                   bmj, jama, revman5,
+                   miss.print.tau2, miss.print.tau)
   }
   #
   # Line with residual heterogeneity
@@ -5286,14 +5288,14 @@ forest.meta <- function(x,
     #
     hetstat.resid <-
       make_hetstat(resid.hetlab,
-                           hetstat.I2.resid, hetstat.tau2.resid,
-                           hetstat.tau.resid, hetstat.Q.resid,
-                           hetstat.pval.Q.resid, hetstat.Rb.resid,
-                           df.Q.resid,
-                           print.I2, print.tau2.resid, print.tau.resid,
-                           print.Q, print.pval.Q, print.Rb.resid,
-                           bmj, jama, revman5,
-                           miss.print.tau2, miss.print.tau)
+                   hetstat.I2.resid, hetstat.tau2.resid,
+                   hetstat.tau.resid, hetstat.Q.resid,
+                   hetstat.pval.Q.resid, hetstat.Rb.resid,
+                   df.Q.resid,
+                   print.I2, print.tau2.resid, print.tau.resid,
+                   print.Q, print.pval.Q, print.Rb.resid,
+                   bmj, jama, revman5,
+                   miss.print.tau2, miss.print.tau)
   }
   #
   # Label of test for overall effect
@@ -6534,7 +6536,7 @@ forest.meta <- function(x,
               "calculation of Q and tau"),
         td,
         fixed = TRUE
-        )
+      )
     #
     any.tau <- sum(is.tau)
     any.tau.c <- sum(is.tau.c)
@@ -7758,7 +7760,7 @@ forest.meta <- function(x,
                  text.subgroup.common, text.subgroup.random,
                  text.addline1, text.addline2,
                  if (details) text.details else NULL,
-                 if (RoB.legend) text.rob else NULL,
+                 if (RoB.legend) text.rob.legend else NULL,
                  subgroup.name, text.common.w, text.random.w, text.predict.w,
                  hetstat.w,
                  unlist(text.effect.subgroup.common),
@@ -7894,7 +7896,7 @@ forest.meta <- function(x,
                  text.subgroup.common, text.subgroup.random,
                  text.addline1, text.addline2,
                  if (details) text.details else NULL,
-                 if (RoB.legend) text.rob else NULL,
+                 if (RoB.legend) text.rob.legend else NULL,
                  studlab)
     #
     TEs    <- c(TE.common, TE.random, NAs.prd, TE)
@@ -8717,19 +8719,19 @@ forest.meta <- function(x,
   #
   two.header.rows <-
     (!(metaprop | metacor) &
-     (any(rightcols %in% c("n.e", "n.c")) |
-      any(leftcols  %in% c("n.e", "n.c")))) |
+       (any(rightcols %in% c("n.e", "n.c")) |
+          any(leftcols  %in% c("n.e", "n.c")))) |
     (metainc &
-     (any(rightcols %in% c("time.e", "time.c")) |
-      any(leftcols  %in% c("time.e", "time.c")))
+       (any(rightcols %in% c("time.e", "time.c")) |
+          any(leftcols  %in% c("time.e", "time.c")))
     ) |
     (metacont &
-     (any(rightcols %in% c("sd.e", "sd.c")) |
-      any(leftcols  %in% c("sd.e", "sd.c")))
+       (any(rightcols %in% c("sd.e", "sd.c")) |
+          any(leftcols  %in% c("sd.e", "sd.c")))
     ) |
     (metamean &
-     (any(rightcols %in% c("sd.e")) |
-      any(leftcols  %in% c("sd.e")))
+       (any(rightcols %in% c("sd.e")) |
+          any(leftcols  %in% c("sd.e")))
     ) |
     (!is.null(label.e.attach) & !is.null(label.e)) |
     (!is.null(label.c.attach) & !is.null(label.c)) |
@@ -8810,7 +8812,7 @@ forest.meta <- function(x,
         random.subgroup.logical.i <- rep(random.subgroup.logical[i], n.ran)
       else
         random.subgroup.logical.i <-
-          random.subgroup.logical[n.by.i * n.ran + seq.ran.w]
+        random.subgroup.logical[n.by.i * n.ran + seq.ran.w]
       #
       if (any(random.subgroup.logical.i) & subgroup.logical[i]) {
         sel.ran.w <- seq.ran.w[random.subgroup.logical.i]
@@ -8840,10 +8842,10 @@ forest.meta <- function(x,
       #
       if (length(prediction.subgroup.logical) == n.by)
         prediction.subgroup.logical.i <-
-          rep(prediction.subgroup.logical[i], n.prd)
+        rep(prediction.subgroup.logical[i], n.prd)
       else
         prediction.subgroup.logical.i <-
-          prediction.subgroup.logical[n.by.i * n.prd + seq.prd.w]
+        prediction.subgroup.logical[n.by.i * n.prd + seq.prd.w]
       #
       if (any(prediction.subgroup.logical.i) & subgroup.logical[i]) {
         sel.prd.w <- seq.prd.w[prediction.subgroup.logical.i]
@@ -9019,9 +9021,9 @@ forest.meta <- function(x,
     yText.details <- NULL
   #
   if (RoB.legend)
-    yText.rob <- rep_len(NA, length(text.rob))
+    yText.rob.legend <- rep_len(NA, length(text.rob.legend))
   else
-    yText.rob <- NULL
+    yText.rob.legend <- NULL
   #
   seq.com <- seq_len(n.com) - 1
   seq.ran <- seq_len(n.ran) - 1
@@ -9101,13 +9103,14 @@ forest.meta <- function(x,
   }
   #
   if (details) {
+    yNext <- yNext + 1
     yText.details <- seq(yNext, yNext + length(yText.details) - 1)
     yNext <- yNext + length(yText.details)
   }
   #
   if (RoB.legend) {
     yNext <- yNext + 1
-    yText.rob <- seq(yNext, yNext + length(yText.rob) - 1)
+    yText.rob.legend <- seq(yNext, yNext + length(yText.rob.legend) - 1)
   }
   #
   if (!common & !pooled.totals) text.common <- ""
@@ -9131,7 +9134,7 @@ forest.meta <- function(x,
   if (details)
     yText.details <- yHead + yText.details + addrow
   if (RoB.legend)
-    yText.rob <- yHead + yText.rob + addrow
+    yText.rob.legend <- yHead + yText.rob.legend + addrow
   #
   yStats <- c(yHetstat,
               yResidHetstat,
@@ -9144,7 +9147,7 @@ forest.meta <- function(x,
                      yOverall.common, yOverall.random,
                      ySubgroup.common, ySubgroup.random,
                      yText.addline1, yText.addline2,
-                     yText.details, yText.rob)
+                     yText.details, yText.rob.legend)
   #
   if (by) {
     yBylab <- yHead + yBylab + addrow
@@ -9188,8 +9191,8 @@ forest.meta <- function(x,
     labs[["lab.studlab"]] <- ""
   #
   col.studlab <- list(labels =
-                         lapply(as.list(c(labs[["lab.studlab"]], modlabs)),
-                                tg,
+                        lapply(as.list(c(labs[["lab.studlab"]], modlabs)),
+                               tg,
                                xpos = xpos.s, just = just.s,
                                fs = fs.study.labels,
                                ff = ff.study.labels,
@@ -9265,9 +9268,9 @@ forest.meta <- function(x,
   strt <- strt + i
   i <- 0
   if (RoB.legend) {
-    for (i in seq_len(length(text.rob))) {
+    for (i in seq_len(length(text.rob.legend))) {
       col.studlab$labels[[strt + i]] <-
-        tg(text.rob[i], xpos.s, just.s,
+        tg(text.rob.legend[i], xpos.s, just.s,
            if (i == 1) fs.heading else fs.rob,
            if (i == 1) ff.heading else ff.rob,
            fontfamily)
@@ -9338,8 +9341,8 @@ forest.meta <- function(x,
   col.studlab.right <- col.studlab
   if (studlab.right)
     col.studlab.right <-
-      blank_labels(col.studlab.right, nonstudy.lines, xpos.s, just.s,
-                   fs.study.labels, ff.study.labels, fontfamily)
+    blank_labels(col.studlab.right, nonstudy.lines, xpos.s, just.s,
+                 fs.study.labels, ff.study.labels, fontfamily)
   col.studlab.calc <- col.studlab
   if (add.left.studlab) {
     col.studlab <-
@@ -9997,7 +10000,7 @@ forest.meta <- function(x,
         just.label.c,
         fs.head, ff.head, fontfamily)
   #
-  col.rob <- tgl(rob.text, rob.xpos, "left", fs.head, ff.head, fontfamily)
+  col.rob <- tgl(rob.text, xpos.rob, just.rob, fs.head, ff.head, fontfamily)
   #
   col.add.TE <- col.add.ci <- col.add.cluster <- col.add.cor <-
     col.add.cycles <- col.add.effect <- col.add.effect.ci <-
@@ -10267,7 +10270,7 @@ forest.meta <- function(x,
   }
   if (!is.null(data.pooled)) {
     pooled.datap.cols <- paste0("col.", intersect(leftcols.new,
-                                                   colnames(data.pooled)))
+                                                  colnames(data.pooled)))
     pooled.common.cols <- c(pooled.common.cols, pooled.datap.cols)
     pooled.random.cols <- c(pooled.random.cols, pooled.datap.cols)
   }
@@ -10321,11 +10324,11 @@ forest.meta <- function(x,
     del.lines <-
     c(del.lines,
       1 + n.com + n.ran + n.prd + 2 + 4 + 2 + length(text.details) +
-        seq_along(text.rob))
+        seq_along(text.rob.legend))
   #
   nd <- 1 + n.com + n.ran + n.prd + 2 + 4 + 2 +
     details * length(text.details) +
-    RoB.legend * length(text.rob)
+    RoB.legend * length(text.rob.legend)
   #
   #nd <- n.com + n.ran + n.prd + 2 + 4 + 2
   #
@@ -10370,7 +10373,7 @@ forest.meta <- function(x,
     del.lines <- c(del.lines, tests.lines.random.w)
     if (calcwidth.tests)
       calcwidth.lines <-
-        c(calcwidth.lines, tests.lines.common.w, tests.lines.random.w)
+      c(calcwidth.lines, tests.lines.common.w, tests.lines.random.w)
   }
   pooled.width.cols <- function(lines, candidates) {
     candidates <- intersect(candidates, leftcols)
@@ -10394,19 +10397,19 @@ forest.meta <- function(x,
     extra.calcwidth <- unit(0, "mm")
     if (!is.null(calcwidth.lines))
       width.calcwidth <-
-        wcalc(cols[["col.studlab"]]$labels[calcwidth.lines])
+      wcalc(cols[["col.studlab"]]$labels[calcwidth.lines])
     if (!is.null(calcwidth.details.line))
       width.calcwidth <-
-        unit.pmax(
-          width.calcwidth,
-          wcalc(cols[["col.studlab"]]$labels[calcwidth.details.line]))
+      unit.pmax(
+        width.calcwidth,
+        wcalc(cols[["col.studlab"]]$labels[calcwidth.details.line]))
     #
     for (i in seq_along(leftcols)) {
       width.i <-
         if (leftcols[[i]] == "col.studlab" & !is.null(del.lines))
           wcalc(cols.calc[[leftcols[i]]]$labels[-del.lines])
-        else
-          wcalc(cols.calc[[leftcols[i]]]$labels)
+      else
+        wcalc(cols.calc[[leftcols[i]]]$labels)
       width.left.cols[[i]] <- width.i
     }
     #
@@ -10428,14 +10431,14 @@ forest.meta <- function(x,
     }
     extra.calcwidth.pooled <-
       unit.pmax(calc_pooled_prefix_extra(common.lines, pooled.common.width.cols,
-                                          calcwidth.common,
-                                          leftcols, width.left.cols,
-                                          colgap.left, colgap.studlab,
-                                          cols[["col.studlab"]]$labels, wcalc),
+                                         calcwidth.common,
+                                         leftcols, width.left.cols,
+                                         colgap.left, colgap.studlab,
+                                         cols[["col.studlab"]]$labels, wcalc),
                 calc_pooled_prefix_extra(random.lines, pooled.random.width.cols,
-                                          calcwidth.random,
-                                          leftcols, width.left.cols,
-                                          colgap.left, colgap.studlab,
+                                         calcwidth.random,
+                                         leftcols, width.left.cols,
+                                         colgap.left, colgap.studlab,
                                          cols[["col.studlab"]]$labels, wcalc))
     #
     for (i in seq_along(leftcols)) {
@@ -10464,9 +10467,9 @@ forest.meta <- function(x,
       else {
         x1 <- unit.c(x1,
                      if (leftcols[[i - 1]] == "col.studlab")
-                        colgap.studlab + extra.calcwidth +
-                          extra.calcwidth.pooled
-                      else colgap.left,
+                       colgap.studlab + extra.calcwidth +
+                       extra.calcwidth.pooled
+                     else colgap.left,
                      width.left.cols[[i]])
       }
     }
@@ -10474,9 +10477,9 @@ forest.meta <- function(x,
     x1 <-
       unit.c(x1,
              if (leftcols[[length(leftcols)]] == "col.studlab")
-                colgap.forest.left + extra.calcwidth + extra.calcwidth.pooled
-              else
-                colgap.forest.left,
+               colgap.forest.left + extra.calcwidth + extra.calcwidth.pooled
+             else
+               colgap.forest.left,
              col.forestwidth)
   }
   else
@@ -10500,8 +10503,8 @@ forest.meta <- function(x,
                                     fontsize = fs.head,
                                     fontface = ff.head,
                                     fontfamily = fontfamily)))
-        else
-          wcalc(cols.calc[[rightcols[i]]]$labels)
+      else
+        wcalc(cols.calc[[rightcols[i]]]$labels)
     }
     #
     width.right.cols <-
@@ -10571,13 +10574,13 @@ forest.meta <- function(x,
   bottom.lr.rows <-
     if (rows.bottom.lr > 0)
       nrow.body + rows.bottom.axis + seq_len(rows.bottom.lr)
-    else
-      numeric(0)
+  else
+    numeric(0)
   xlab.rows <-
     if (rows.xlab > 0)
       nrow.body + rows.bottom.axis + rows.bottom.lr + seq_len(rows.xlab)
-    else
-      numeric(0)
+  else
+    numeric(0)
   spacing.axis.labels <- max(1.5 * spacing, fs.axis / fontsize + axislabel.gap)
   spacing.xlab <- max(spacing, fs.xlab / fontsize)
   spacing.lr <- max(spacing, fs.lr / fontsize)
@@ -10625,7 +10628,7 @@ forest.meta <- function(x,
   #
   if (cid.pooled.only)
     ymax.ref <- spacing *
-      (nrow.body - min(c(yTE.common, yTE.random, yPredict), na.rm = TRUE) + 0.5)
+    (nrow.body - min(c(yTE.common, yTE.random, yPredict), na.rm = TRUE) + 0.5)
   else
     ymax.ref <- ymax
   #
@@ -10644,8 +10647,8 @@ forest.meta <- function(x,
                     rows = rows.main.total +
                       if (rows.smlab == 1 && !is.na(yHeadadd))
                         2
-                      else
-                        seq_len(rows.smlab))
+                    else
+                      seq_len(rows.smlab))
   grob.xlab <-
     tgl(lines.xlab, unit(xlab.pos, "native"), "center",
         fs.xlab, ff.xlab, fontfamily,
@@ -10707,7 +10710,7 @@ forest.meta <- function(x,
   top.depth.lines <- if (header.line.pos == "both") 0.5 else 0
   if (rows.main > 0)
     top.depth.lines <- top.depth.lines +
-      max(0, rows.main * (spacing.main - spacing) / 2)
+    max(0, rows.main * (spacing.main - spacing) / 2)
   #
   bottom.depth.lines <- 0
   
@@ -10964,7 +10967,7 @@ forest.meta <- function(x,
                       if (metabind) FALSE else test.subgroup.random,
                       #
                       text.addline1, text.addline2,
-                      text.details, text.rob,
+                      text.details, text.rob.legend,
                       #
                       addrow, addrow.overall,
                       addrow.subgroups,

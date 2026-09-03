@@ -99,10 +99,11 @@ add.rob <- function(x, column, size, fs, ff, fontfamily,
       rob.colour <- rev(seq_len(n.levs))
   }
   #
-  if (!(length(rob.symbols) == 1 && is.logical(rob.symbols) && !rob.symbols))
+  if (!(length(rob.symbols) == 1 && is.logical(rob.symbols) && !rob.symbols)) {
     txt.rob <-
       as.character(
         factor(rob, levels = rob.levels, labels = rob.symbols))
+  }
   else
     txt.rob <- NULL
   #
@@ -242,7 +243,7 @@ draw.axis <- function(x, column, axis.row, axis.label.row,
       draw.labels <- TRUE
     }
     else if ((length(label) == 1 && is.logical(label) && label) |
-          (length(label) >= 1 & !is.logical(label))) {
+             (length(label) >= 1 & !is.logical(label))) {
       draw_axis_ticks(at)
       if (length(label) == 1 && is.logical(label) && label)
         label <- at
@@ -300,7 +301,6 @@ draw.ci.diamond <- function(TE, lower, upper,
     #
     list(x = res.x, y = res.y)
   }
-
   #
   if (min > max) {
     tmp <- min
@@ -587,9 +587,11 @@ draw.lines <- function(x, column, rows,
   #
   # Add equivalence region
   #
-  if (is.na(ref) & any(!is.na(cid.below.null)) & any(!is.na(cid.above.null)))
+  if (is.na(ref) & any(!is.na(cid.below.null)) & any(!is.na(cid.above.null))) {
     ref.equi <- min(cid.below.null, na.rm = TRUE) +
-      0.5 * (max(cid.above.null, na.rm = TRUE) - min(cid.below.null, na.rm = TRUE))
+      0.5 * (max(cid.above.null, na.rm = TRUE) -
+               min(cid.below.null, na.rm = TRUE))
+  }
   else
     ref.equi <- ref
   #
@@ -670,9 +672,9 @@ draw.lines <- function(x, column, rows,
       if ((i != n.up | (i == n.up & lastline)) &
           !is.na(cid.above.null[i + 1]) &&
           (xmin <= cid.above.null[i + 1] & cid.above.null[i + 1] <= xmax))
-          grid.lines(x = unit(cid.above.null[i + 1], "native"),
-                     y = unit(c(ymin.ref, ymax.ref), "lines"),
-                     gp = gpar(lwd = lwd, col = col.cid, lty = lty.cid))
+        grid.lines(x = unit(cid.above.null[i + 1], "native"),
+                   y = unit(c(ymin.ref, ymax.ref), "lines"),
+                   gp = gpar(lwd = lwd, col = col.cid, lty = lty.cid))
     }
   }
   #
@@ -732,7 +734,7 @@ formatcol <- function(x, y, rows, just = "right", settings,
                          fontsize = settings$fs.study,
                          fontface = settings$ff.study,
                          fontfamily = fontfamily)
-                       ),
+                ),
               rows = rows,
               rob = rob)
   #
@@ -744,7 +746,7 @@ formatcol <- function(x, y, rows, just = "right", settings,
                                 fontsize = settings$fs.heading,
                                 fontface = settings$ff.heading,
                                 fontfamily = fontfamily)
-                              )
+  )
   #
   # Common effect estimate:
   #
@@ -756,7 +758,7 @@ formatcol <- function(x, y, rows, just = "right", settings,
                                          fontsize = settings$fs.common,
                                          fontface = settings$ff.common,
                                          fontfamily = fontfamily)
-                                       ) 
+    )
     j <- j + 1
   }
   #
@@ -770,7 +772,7 @@ formatcol <- function(x, y, rows, just = "right", settings,
                                          fontsize = settings$fs.random,
                                          fontface = settings$ff.random,
                                          fontfamily = fontfamily)
-                                       )
+    )
     j <- j + 1
   }
   #
@@ -784,7 +786,7 @@ formatcol <- function(x, y, rows, just = "right", settings,
                                          fontsize = settings$fs.predict,
                                          fontface = settings$ff.predict,
                                          fontfamily = fontfamily)
-                                       )
+    )
     j <- j + 1
   }
   #
@@ -804,7 +806,7 @@ formatcol <- function(x, y, rows, just = "right", settings,
                      fontface = settings$ff.common,
                      fontfamily = fontfamily,
                      col = settings$col.subgroup)
-                 )
+        )
       j <- j + 1
     }
     #
@@ -821,7 +823,7 @@ formatcol <- function(x, y, rows, just = "right", settings,
                      fontface = settings$ff.random,
                      fontfamily = fontfamily,
                      col = settings$col.subgroup)
-                 )
+        )
       j <- j + 1
     }
     #
@@ -838,7 +840,7 @@ formatcol <- function(x, y, rows, just = "right", settings,
                      fontface = settings$ff.predict,
                      fontfamily = fontfamily,
                      col = settings$col.subgroup)
-                 )
+        )
       j <- j + 1
     }
   }
@@ -1055,7 +1057,7 @@ gh <- function(type.gr, rows.gr,
                test.subgroup.common, test.subgroup.random,
                #
                text.addline1, text.addline2,
-               text.details, text.rob,
+               text.details, text.rob.legend,
                #
                addrow, addrow.overall,
                addrow.subgroups, addrows.below.overall,
@@ -1088,11 +1090,12 @@ gh <- function(type.gr, rows.gr,
     labs <- c(labs, text.w.random)
   #
   rows_column_labels <- 1 + 1L * any(grepl("\n", unlist(labs))) + 1L * addrow
-  rows_smlab <-
-    if (length(smlab) == 0 || smlab == "")
-      0
-    else
-      length(strsplit(smlab, "\n", fixed = TRUE)[[1]])
+  #
+  if (length(smlab) == 0 || smlab == "")
+    rows_smlab <- 0
+  else
+    rows_smlab <- length(strsplit(smlab, "\n", fixed = TRUE)[[1]])
+  #
   if (bottom.lr)
     rows_column_labels <- max(rows_column_labels, rows_smlab)
   
@@ -1103,18 +1106,19 @@ gh <- function(type.gr, rows.gr,
   rows_studies <-
     if (!study.results)
       0
-    else
-      n.stud
+  else
+    n.stud
   #
   # (3) Meta-analysis results
   #
-  if (overall)
+  if (overall) {
     rows_overall <-
       1L * addrow.overall +
       1L * common * length(lower.common) +
       1L * random * length(lower.random) +
       1L * prediction * length(lower.predict) +
       1L * ((any(common) + any(random) + any(prediction)) == 1)
+  }
   else
     rows_overall <- 1L * addrow.overall
   
@@ -1123,7 +1127,7 @@ gh <- function(type.gr, rows.gr,
   #
   
   n.details <- sum(text.details != "")
-  n.rob <- sum(text.rob != "")
+  n.rob <- sum(text.rob.legend != "")
   rows_below_overall_labels <- addrows.below.overall + overall.hetstat +
     test.overall.common + test.overall.random +
     test.subgroup.common + test.subgroup.random +
@@ -1139,27 +1143,26 @@ gh <- function(type.gr, rows.gr,
   # (5) Information below confidence interval plot
   #
   
-  rows_xlab <-
-    if (length(xlab) == 0 || xlab == "")
-      0
-    else
-      2 * length(strsplit(xlab, "\n", fixed = TRUE)[[1]])
+  if (length(xlab) == 0 || xlab == "")
+    rows_xlab <- 0
+  else
+    rows_xlab <- 2 * length(strsplit(xlab, "\n", fixed = TRUE)[[1]])
   #
   if (!bottom.lr) {
     rows_label.left <- 0
     rows_label.right <- 0
   }
   else {
-    rows_label.left <-
-      if (is.null(label.left) || label.left == "")
-        0
-      else
+    if (is.null(label.left) || label.left == "")
+      rows_label.left <- 0
+    else
+      rows_label.left <-
         2 * length(strsplit(label.left, "\n", fixed = TRUE)[[1]])
     #
-    rows_label.right <-
-      if (is.null(label.right) || label.right == "")
-        0
-      else
+    if (is.null(label.right) || label.right == "")
+      rows_label.right <- 0
+    else
+      rows_label.right <-
         2 * length(strsplit(label.right, "\n", fixed = TRUE)[[1]])
   }
   #
@@ -1179,17 +1182,15 @@ gh <- function(type.gr, rows.gr,
     rows_subgroups_common <- common * n.subgr
     rows_subgroups_random <- random * n.subgr
     #
-    rows_subgroups_predict <- 
-      if (is.vector(prediction.subgroup))
-        sum(prediction.subgroup)
-      else
-        prediction.subgroup * n.subgr
+    if (is.vector(prediction.subgroup))
+      rows_subgroups_predict <- sum(prediction.subgroup)
+    else
+      rows_subgroups_predict <- prediction.subgroup * n.subgr
     #
-    rows_subgroups_hetstat <- 
-      if (length(subgroup.hetstat) > 1)
-        sum(subgroup.hetstat)
-      else
-        subgroup.hetstat * n.subgr
+    if (length(subgroup.hetstat) > 1)
+      rows_subgroups_hetstat <- sum(subgroup.hetstat)
+    else
+      rows_subgroups_hetstat <- subgroup.hetstat * n.subgr
     #
     if (is.matrix(lower.common.w))
       rows_subgroups_common <- rows_subgroups_common * nrow(lower.common.w)
@@ -1231,8 +1232,8 @@ show_subgroup_results <- function(x, n, lower, upper) {
   if (length(x) == 1) {
     if (is.matrix(lower))
       return(x &
-             apply(lower, 1, notallNA) &
-             apply(upper, 1, notallNA))
+               apply(lower, 1, notallNA) &
+               apply(upper, 1, notallNA))
     else
       return(rep(x & notallNA(lower) & notallNA(upper), n))
   }
@@ -1443,21 +1444,21 @@ newCol <- function(varname, label,
     else if (is.numeric(fvar)) {
       if (varname == "pval")
         fvar <- formatPT(fvar, digits = digits.pval,
-                          big.mark = big.mark,
-                          lab = FALSE, labval = "",
-                          zero = zero.pval, JAMA = JAMA.pval,
-                          scientific = scientific.pval,
-                          lab.NA = lab.NA)
+                         big.mark = big.mark,
+                         lab = FALSE, labval = "",
+                         zero = zero.pval, JAMA = JAMA.pval,
+                         scientific = scientific.pval,
+                         lab.NA = lab.NA)
       else if (varname == "tau2")
         fvar <- formatPT(fvar, digits = digits.tau2,
-                          big.mark = big.mark,
-                          lab = FALSE, labval = "",
-                          lab.NA = lab.NA)
+                         big.mark = big.mark,
+                         lab = FALSE, labval = "",
+                         lab.NA = lab.NA)
       else if (varname == "tau")
         fvar <- formatPT(fvar, digits = digits.tau,
-                          big.mark = big.mark,
-                          lab = FALSE, labval = "",
-                          lab.NA = lab.NA)
+                         big.mark = big.mark,
+                         lab = FALSE, labval = "",
+                         lab.NA = lab.NA)
       else if (varname == "I2") {
         sel.r <- !is.na(fvar)
         fvar[sel.r] <-

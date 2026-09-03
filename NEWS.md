@@ -52,6 +52,9 @@
     e.g., 'random.subgroup = df.random.w > 1'
   - center combined treatment-group headers over both columns in BMJ layout for
     meta-analyses of binary outcomes, continuous outcomes, or incidence rates
+  - left-align the risk-of-bias table header
+  - new argument 'just.rob' to specify the justification of the risk-of-bias
+    table heading; the heading now spans all risk-of-bias columns
   - print labels for pooled estimates and heterogeneity or details on the left
     side if study labels are printed on the right side, and suppress these
     labels if argument 'leftcols' is FALSE
@@ -262,8 +265,8 @@
     values or font face arguments
 
 * forest.meta():
-  - removed obsolete argument 'bmj.xpos'; a warning is printed if it is used
-    and argument 'warn.deprecated = TRUE'
+  - removed obsolete arguments 'bmj.xpos' and 'rob.xpos'; a warning is printed
+    if either is used and argument 'warn.deprecated = TRUE'
 
 * cidprop():
   - for vaccine efficacy (sm = "VE"), defaults for 'cid.below.null' and
