@@ -46,7 +46,7 @@
   rob.only = FALSE,
   xlab = "",
   xlab.pos,
-  main = NULL,
+  main = x$title,
   col.main = gs("col.main"),
   xpos.main = gs("xpos.main"),
   gap.main = gs("gap.main"),

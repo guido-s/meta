@@ -4,7 +4,8 @@
 
 * Forest plots have improved layout and column spacing.
 
-* Forest plots can now include a customisable main title.
+* Forest plots can now include a customisable main title, using the
+  meta-analysis title by default.
 
 * Cluster-robust variance estimators are now available for univariate random
   effects meta-analysis and three-level models.
@@ -70,6 +71,7 @@
   metaprop(), metarate(), metareg(), update.meta():
   - argument 'method.random.ci' can be equal to "CR0", "CR1", or "CR2" for
     cluster-robust variance estimators
+  - argument 'title' is used as default for argument 'main' in forest.meta()
 
 * metagen():
   - study-level confidence limits supplied in arguments 'lower' and 'upper'
