@@ -4977,6 +4977,9 @@ forest.meta <- function(x,
     }
   }
   #
+  if (avail.exclude && miss.col.study.text)
+    col.study.text[x$exclude] <- "lightgrey"
+  #
   if (bmj)
     studlab <- paste0(" ", studlab)
   #

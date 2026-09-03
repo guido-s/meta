@@ -54,6 +54,7 @@ test_that("forest accepts graphics devices", {
 
 test_that("forest applies colours to individual study-row text", {
   m <- metagen(1:3, 1:3, sm = "MD")
+  m$exclude <- c(FALSE, TRUE, FALSE)
   old.settings <- settings.meta(quietly = TRUE)
   on.exit(settings.meta(old.settings), add = TRUE)
   assign(".forest_study_text_colours", character(), envir = .GlobalEnv)
@@ -76,7 +77,7 @@ test_that("forest applies colours to individual study-row text", {
   forest(m, filename = f)
 
   colours <- get(".forest_study_text_colours", envir = .GlobalEnv)
-  expect_true(all(c("red", "blue", "green") %in% colours))
+  expect_true(all(c("red", "blue", "green", "lightgrey") %in% colours))
 })
 
 test_that("BMJ layout centers combined treatment group headers", {
