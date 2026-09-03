@@ -52,6 +52,33 @@ test_that("forest accepts graphics devices", {
   expect_true(file.exists("Rplots.pdf"))
 })
 
+test_that("forest applies colours to individual study-row text", {
+  m <- metagen(1:3, 1:3, sm = "MD")
+  old.settings <- settings.meta(quietly = TRUE)
+  on.exit(settings.meta(old.settings), add = TRUE)
+  assign(".forest_study_text_colours", character(), envir = .GlobalEnv)
+  on.exit(rm(".forest_study_text_colours", envir = .GlobalEnv), add = TRUE)
+  suppressMessages(capture.output(
+    trace(grid::grid.draw, quote({
+      if (inherits(x, "text") && !is.null(x$gp$col))
+        .forest_study_text_colours <<-
+          c(.forest_study_text_colours, as.character(x$gp$col))
+    }), print = FALSE)
+  ))
+  on.exit(suppressMessages(capture.output(untrace(grid::grid.draw))),
+          add = TRUE)
+
+  f <- tempfile(fileext = ".pdf")
+  on.exit(unlink(f), add = TRUE)
+
+  forest(m, filename = f, col.study.text = c("red", "blue", "green"))
+  settings.meta(col.study.text = c("red", "blue", "green"), quietly = TRUE)
+  forest(m, filename = f)
+
+  colours <- get(".forest_study_text_colours", envir = .GlobalEnv)
+  expect_true(all(c("red", "blue", "green") %in% colours))
+})
+
 test_that("BMJ layout centers combined treatment group headers", {
   pdf(tempfile())
   on.exit(if (dev.cur() > 1) dev.off(), add = TRUE)

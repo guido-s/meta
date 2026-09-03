@@ -687,7 +687,8 @@ argslist <-
     "lwd", "lwd.square", "lwd.diamond",
     "arrow.type", "arrow.length",
     "type.study", "type.common",
-    "col.study", "col.square", "col.square.lines", "col.circle", "col.inside",
+    "col.study", "col.study.text", "col.square", "col.square.lines",
+    "col.circle", "col.inside",
     "col.diamond", "col.diamond.lines",
     "col.predict", "col.predict.lines",
     "col.subgroup",
@@ -943,6 +944,7 @@ setOption("type.study", "square")
 setOption("type.common", "diamond")
 #
 setOption("col.study", NULL)
+setOption("col.study.text", "black")
 setOption("col.square", NULL)
 setOption("col.square.lines", NULL)
 setOption("col.circle", NULL)

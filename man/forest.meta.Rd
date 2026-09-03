@@ -108,6 +108,7 @@
   type.subgroup.common = type.subgroup,
   type.subgroup.random = type.subgroup,
   col.study = gs("col.study"),
+  col.study.text = gs("col.study.text"),
   col.square = gs("col.square"),
   col.square.lines = gs("col.square.lines"),
   col.circle = gs("col.circle"),
@@ -638,6 +639,9 @@ results (random effects model).}
 
 \item{col.study}{The colour for individual study results and
 confidence limits.}
+
+\item{col.study.text}{Colour(s) for text in individual study rows,
+including study labels and study results.}
 
 \item{col.square}{The colour for squares reflecting study's weight
 in the meta-analysis.}

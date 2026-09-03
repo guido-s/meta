@@ -42,6 +42,8 @@
   - less vertical space is added below overall results in JAMA layout
   - allow different colours for multiple overall common-effect and
     random-effects diamonds, prediction intervals, and their outlines
+  - new argument 'col.study.text' to specify colours for text in individual
+    study rows
   - allow different colours for subgroup diamonds and prediction intervals
     compared with overall results; new arguments 'col.diamond.common.subgroup',
     'col.diamond.random.subgroup', 'col.diamond.lines.common.subgroup',

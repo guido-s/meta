@@ -233,6 +233,8 @@
 #'   results (random effects model).
 #' @param col.study The colour for individual study results and
 #'   confidence limits.
+#' @param col.study.text Colour(s) for text in individual study rows,
+#'   including study labels and study results.
 #' @param col.square The colour for squares reflecting study's weight
 #'   in the meta-analysis.
 #' @param col.square.lines The colour for the outer lines of squares
@@ -1516,6 +1518,7 @@ forest.meta <- function(x,
                         type.subgroup.random = type.subgroup,
                         #
                         col.study = gs("col.study"),
+                        col.study.text = gs("col.study.text"),
                         col.square = gs("col.square"),
                         col.square.lines = gs("col.square.lines"),
                         col.circle = gs("col.circle"),
@@ -1585,8 +1588,7 @@ forest.meta <- function(x,
                         #
                         test.overall = gs("test.overall"),
                         test.overall.common = common & overall & test.overall,
-                        test.overall.random =
-                          random & overall & test.overall,
+                        test.overall.random = random & overall & test.overall,
                         label.test.overall.common,
                         label.test.overall.random,
                         #
@@ -1918,6 +1920,7 @@ forest.meta <- function(x,
     is.null(col.diamond.lines.random.subgroup)
   #
   miss.col.study <- missing(col.study) || is.null(col.study)
+  miss.col.study.text <- missing(col.study.text) || is.null(col.study.text)
   miss.col.circle <- missing(col.circle) || is.null(col.circle)
   miss.col.circle.lines <-
     missing(col.circle.lines) || is.null(col.circle.lines)
@@ -2225,6 +2228,9 @@ forest.meta <- function(x,
   col.study <-
     chksetVar(col.study, miss.col.study, colors[1], func = chkcolor, n = K.all,
               one = TRUE)
+  col.study.text <-
+    chksetVar(col.study.text, miss.col.study.text, gs("col.study.text"),
+              func = chkcolor, n = K.all, one = TRUE)
   #
   col.inside <-
     chksetVar(col.inside, miss.col.inside, colors[10], func = chkcolor,
@@ -4882,6 +4888,7 @@ forest.meta <- function(x,
   sortvar <- sortvar[sel]
   #
   col.study <- col.study[sel]
+  col.study.text <- col.study.text[sel]
   col.square <- col.square[sel]
   col.square.lines <- col.square.lines[sel]
   col.circle <- col.circle[sel]
@@ -4951,6 +4958,7 @@ forest.meta <- function(x,
     sortvar <- sortvar[o]
     #
     col.study <- col.study[o]
+    col.study.text <- col.study.text[o]
     col.square <- col.square[o]
     col.square.lines <- col.square.lines[o]
     col.circle <- col.circle[o]
@@ -9337,6 +9345,8 @@ forest.meta <- function(x,
   #
   study.lines <- length(col.studlab$labels) - length(yTE) + seq_along(yTE)
   nonstudy.lines <- setdiff(seq_along(col.studlab$labels), c(1, study.lines))
+  for (i in seq_along(study.lines))
+    col.studlab$labels[[study.lines[i]]]$gp$col <- col.study.text[i]
   #
   col.studlab.right <- col.studlab
   if (studlab.right)
@@ -9356,6 +9366,7 @@ forest.meta <- function(x,
   }
   #
   fcs <- list(fs.study = fs.study, ff.study = ff.study,
+              col.study.text = col.study.text,
               fs.heading = fs.head, ff.heading = ff.head,
               fs.common = fs.common, ff.common = ff.common,
               fs.random = fs.random, ff.random = ff.random,

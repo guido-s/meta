@@ -747,6 +747,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("type.common", "diamond")
     #
     setOption("col.study", NULL)
+    setOption("col.study.text", "black")
     setOption("col.square", NULL)
     setOption("col.square.lines", NULL)
     setOption("col.circle", NULL)
@@ -882,7 +883,8 @@ settings.meta <- function(..., quietly = TRUE) {
                  "colgap.forest",
                  #
                  "col.common", "col.random", "col.subgroup",
-                 "col.study", "col.square", "col.square.lines",
+                 "col.study", "col.study.text",
+                 "col.square", "col.square.lines",
                  "col.diamond", "col.diamond.lines",
                  #
                  "col.lines",
@@ -1308,6 +1310,7 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("type.common            ")
     #
     catarg("col.study              ")
+    catarg("col.study.text         ")
     catarg("col.square             ")
     catarg("col.square.lines       ")
     catarg("col.circle             ")
@@ -1650,6 +1653,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setcharacter("type.common", args, c("square", "diamond", "predict"))
     #
     setcolor("col.study", args)
+    setcolor("col.study.text", args)
     setcolor("col.square", args)
     setcolor("col.square.lines", args)
     setcolor("col.circle", args)
