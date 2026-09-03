@@ -27,6 +27,14 @@ test_that("forest clips pooled diamonds to narrow x-limits", {
   expect_true(all(xs[[1]] >= xlim[1] & xs[[1]] <= xlim[2]))
 })
 
+test_that("settings.meta rejects NULL for non-null numeric settings", {
+  on.exit(settings.meta(reset = TRUE), add = TRUE)
+
+  expect_error(settings.meta(fontsize = NULL),
+               "Argument 'fontsize' must not be NULL.", fixed = TRUE)
+  expect_silent(settings.meta(fs.hetstat = NULL))
+})
+
 test_that("forest accepts graphics devices", {
   data(Fleiss1993bin)
   m <- metabin(d.asp, n.asp, d.plac, n.plac, study,
@@ -268,8 +276,39 @@ test_that("calcwidth.pooled reserves extra spacing for pooled labels", {
   res1 <- do.call(forest, c(list(x = ma, filename = file1,
                                  calcwidth.pooled = FALSE), args))
   res2 <- do.call(forest, c(list(x = ma, filename = file2,
-                                 calcwidth.pooled = TRUE), args))
+                                  calcwidth.pooled = TRUE), args))
   expect_gt(res2$width, res1$width)
+
+  data(Olkin1995)
+  meta1 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
+                   data = Olkin1995, subset = c(41, 47, 51, 59),
+                   sm = "RR", method = "I",
+                   studlab = paste(author, year))
+  file3 <- tempfile(fileext = ".pdf")
+  file4 <- tempfile(fileext = ".pdf")
+  on.exit(unlink(c(file3, file4)), add = TRUE)
+  args <- list(x = meta1,
+               leftcols = c("studlab", "n.e", "event.e", "n.c", "event.c"))
+  res3 <- do.call(forest, c(list(filename = file3,
+                                 calcwidth.pooled = FALSE), args))
+  res4 <- do.call(forest, c(list(filename = file4,
+                                 calcwidth.pooled = TRUE), args))
+  expect_gt(res4$width, res3$width)
+
+  meta2 <- update(meta1,
+                  subgroup = ifelse(year < 1987,
+                                    "Before 1987", "1987 and later"),
+                  print.subgroup.name = FALSE)
+  assign(".forest_widths", list(), envir = .GlobalEnv)
+  file5 <- tempfile(fileext = ".pdf")
+  on.exit(unlink(file5), add = TRUE)
+  forest(meta2, filename = file5, colgap.studlab = "0mm",
+         calcwidth.tests = TRUE)
+
+  widths <- get(".forest_widths", envir = .GlobalEnv)
+  expect_gt(length(widths), 0)
+  expect_true(grepl("sum(0mm", widths[[1]][2], fixed = TRUE))
+  expect_equal(widths[[1]][10], "2mm")
 })
 
 test_that("forest accepts multi-line labels", {
@@ -415,6 +454,52 @@ test_that("bottom annotations use structured rows", {
   expect_equal(test.rows, het.row + 1:2)
   expect_equal(label.row, unname(axis.rows["labels"]) + 1)
   expect_equal(xlab.row, label.row + 1)
+})
+
+test_that("heterogeneity statistics and axis use smaller default font size", {
+  assign(".hetstat_fs", numeric(), envir = .GlobalEnv)
+  assign(".test_fs", numeric(), envir = .GlobalEnv)
+  assign(".addline_fs", numeric(), envir = .GlobalEnv)
+  assign(".details_fs", numeric(), envir = .GlobalEnv)
+  assign(".axis_fs", numeric(), envir = .GlobalEnv)
+  on.exit(rm(".hetstat_fs", ".test_fs", ".addline_fs", ".details_fs",
+             ".axis_fs", envir = .GlobalEnv), add = TRUE)
+
+  suppressMessages(capture.output(
+    trace(meta:::tg, quote({
+      lab <- paste(as.character(x), collapse = "")
+      if (grepl("Heterogeneity", lab))
+        .hetstat_fs <<- c(.hetstat_fs, fs)
+      if (grepl("Test for overall", lab))
+        .test_fs <<- c(.test_fs, fs)
+      if (lab == "ADD")
+        .addline_fs <<- c(.addline_fs, fs)
+      if (grepl("^- ", lab))
+        .details_fs <<- c(.details_fs, fs)
+    }), print = FALSE)
+  ))
+  on.exit(suppressMessages(capture.output(untrace(meta:::tg))), add = TRUE)
+  suppressMessages(capture.output(
+    trace(grid::grid.text, quote({
+      if (!missing(label) && is.numeric(label) && length(label) > 1 &&
+          !missing(gp))
+        .axis_fs <<- c(.axis_fs, gp$fontsize)
+    }), print = FALSE)
+  ))
+  on.exit(suppressMessages(capture.output(untrace(grid::grid.text))),
+          add = TRUE)
+
+  pdf(tempfile())
+  on.exit(if (dev.cur() > 1) dev.off(), add = TRUE)
+  forest(metagen(1:5, 1:5), fontsize = 10, test.overall = TRUE,
+         text.addline1 = "ADD", details = TRUE)
+  dev.off()
+
+  expect_true(any(get(".hetstat_fs", envir = .GlobalEnv) == 9))
+  expect_true(any(get(".test_fs", envir = .GlobalEnv) == 9))
+  expect_true(any(get(".addline_fs", envir = .GlobalEnv) == 9))
+  expect_true(any(get(".details_fs", envir = .GlobalEnv) == 9))
+  expect_equal(get(".axis_fs", envir = .GlobalEnv)[[1]], 9)
 })
 
 test_that("forest draws short explicit x-axis ticks", {

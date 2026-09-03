@@ -968,7 +968,8 @@ metagen <- function(TE, seTE, studlab,
   }
   #
   missing.pscale <- missing(pscale)
-  chknumeric(pscale, length = 1)
+  pscale <- replaceNULL(pscale, 1)
+  chknumeric_strict(pscale, min = 1, length = 1)
   if (!backtransf & pscale != 1) {
     if (!missing.pscale)
       warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.",
@@ -976,7 +977,8 @@ metagen <- function(TE, seTE, studlab,
     pscale <- 1
   }
   missing.irscale <- missing(irscale)
-  chknumeric(irscale, length = 1)
+  irscale <- replaceNULL(irscale, 1)
+  chknumeric_strict(irscale, min = 1, length = 1)
   if (!backtransf & irscale != 1) {
     if (!missing.irscale)
       warning("Argument 'irscale' set to 1 as argument 'backtransf' is FALSE.",

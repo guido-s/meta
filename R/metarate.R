@@ -519,7 +519,8 @@ metarate <- function(event, time, studlab,
   #
   chklogical(backtransf)
   #
-  chknumeric(irscale, length = 1)
+  irscale <- replaceNULL(irscale, 1)
+  chknumeric_strict(irscale, min = 1, length = 1)
   if (!backtransf & irscale != 1 & !is_untransformed(sm)) {
     warning("Argument 'irscale' set to 1 as argument 'backtransf' is FALSE.",
             call. = FALSE)

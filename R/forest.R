@@ -425,9 +425,9 @@
 #' @param fontsize The size of text (in points), see
 #'   \code{\link{gpar}}.
 #' @param fontfamily The font family, see \code{\link{gpar}}.
+#' @param fs.main The size of text for the main title, see \code{\link{gpar}}.
 #' @param fs.heading The size of text for column headings, see
 #'   \code{\link{gpar}}.
-#' @param fs.main The size of text for the main title, see \code{\link{gpar}}.
 #' @param fs.common The size of text for results of common effect
 #'   model, see \code{\link{gpar}}.
 #' @param fs.random The size of text for results of random effects
@@ -467,10 +467,10 @@
 #'   \code{\link{gpar}}.
 #' @param fs.details The size of text for details on (meta-analysis)
 #'   methods, see \code{\link{gpar}}.
-#' @param ff.heading The fontface for column headings, see
-#'   \code{\link{gpar}}.
 #' @param ff.main The fontface of text for the main title,
 #'   see \code{\link{gpar}}.
+#' @param ff.heading The fontface for column headings, see
+#'   \code{\link{gpar}}.
 #' @param ff.common The fontface of text for results of common effect
 #'   model, see \code{\link{gpar}}.
 #' @param ff.random The fontface of text for results of random effects
@@ -597,9 +597,6 @@
 #'   heading (possible values: "left", "right", "center").
 #' @param bmj.text A character string used in the plot with BMJ layout
 #'   to label the group specific information.
-#' @param bmj.xpos A numeric specifying the horizontal position of the
-#'   BMJ label. The value is a so called normalised parent coordinate
-#'   in the horizontal direction (see \code{\link[grid]{unit}}).
 #' @param bmj.sep A character string used to separate sample sizes
 #'   from number of events or means / standard deviations.
 #' @param spacing A numeric determining line spacing in a forest plot.
@@ -1639,8 +1636,8 @@ forest.meta <- function(x,
                         fontsize = gs("fontsize"),
                         fontfamily = gs("fontfamily"),
                         #
-                        fs.heading = fontsize,
                         fs.main = gs("fs.main"),
+                        fs.heading = fontsize,
                         fs.common = gs("fs.common"),
                         fs.random = gs("fs.random"),
                         fs.predict = gs("fs.predict"),
@@ -1654,16 +1651,16 @@ forest.meta <- function(x,
                         fs.test.subgroup = gs("fs.test.subgroup"),
                         fs.test.effect.subgroup = gs("fs.test.effect.subgroup"),
                         fs.addline = gs("fs.addline"),
-                        fs.axis = fontsize,
+                        fs.axis = fontsize - 1,
                         fs.smlab = fontsize,
                         fs.xlab = fontsize,
                         fs.lr = fontsize,
-                        fs.rob = fontsize,
-                        fs.rob.symbols = fontsize,
-                        fs.details = fontsize,
+                        fs.rob = gs("fs.rob"),
+                        fs.rob.symbols = gs("fs.rob.symbols"),
+                        fs.details = fontsize - 1,
                         #
-                        ff.heading = "bold",
                         ff.main = gs("ff.main"),
+                        ff.heading = "bold",
                         ff.common = gs("ff.common"),
                         ff.random = gs("ff.random"),
                         ff.predict = gs("ff.predict"),
@@ -1726,7 +1723,6 @@ forest.meta <- function(x,
                         just.label.c = just,
                         #
                         bmj.text = NULL,
-                        bmj.xpos = 0,
                         bmj.sep = " / ",
                         #
                         spacing = gs("spacing"),
@@ -1775,7 +1771,7 @@ forest.meta <- function(x,
   
   #
   #
-  # (1) Check for meta object and upgrade older meta objects
+  # (1) Check for meta object and global plot settings
   #
   #
   
@@ -1788,6 +1784,25 @@ forest.meta <- function(x,
       if (is.character(device.expr)) device.expr else deparse(device.expr)
   }
   x <- updateversion(x)
+  #
+  # Global plot settings
+  #
+  chknumeric(fontsize, min = 0, zero = TRUE, length = 1)
+  #
+  layout <- setchar(layout, c("meta", "BMJ", "RevMan5", "JAMA", "subgroup"))
+  #
+  if (layout == "subgroup" & is.null(x$subgroup)) {
+    warning("Argument 'layout' set to \"meta\" (default) as ",
+            "no subgroup analysis was conducted.")
+    layout <- "meta"
+  }
+  #
+  bmj <- layout == "BMJ"
+  revman5 <- layout == "RevMan5"
+  jama <- layout == "JAMA"
+  revman5.jama <- revman5 | jama
+  bmj.revman5 <- bmj | revman5
+  bmj.revman5.jama <- bmj | revman5 | jama
   
   
   #
@@ -1805,6 +1820,7 @@ forest.meta <- function(x,
   nam.args <- names(args)
   #
   chklogical(warn.deprecated)
+  chkdeprecated(nam.args, NULL, "bmj.xpos", warn.deprecated)
   #
   device <-
     deprecated(device, missing(device), args, "func.gr", warn.deprecated)
@@ -1941,6 +1957,17 @@ forest.meta <- function(x,
   #
   miss.common <- missing(common)
   miss.common.subgroup <- missing(common.subgroup)
+  #
+  miss.fs.common <- missing(fs.common)
+  miss.fs.common.labels <- missing(fs.common.labels)
+  miss.fs.fixed <- is.na(argid(nam.args, "fs.fixed"))
+  miss.fs.fixed.labels <- is.na(argid(nam.args, "fs.fixed.labels"))
+  #
+  miss.ff.common <- missing(ff.common)
+  miss.ff.common.labels <- missing(ff.common.labels)
+  miss.ff.fixed <- is.na(argid(nam.args, "ff.fixed"))
+  miss.ff.fixed.labels <- is.na(argid(nam.args, "ff.fixed.labels"))
+  #
   miss.digits.TE <- missing(digits.TE)
   miss.digits.addcols <- missing(digits.addcols)
   miss.digits.addcols.left <- missing(digits.addcols.left)
@@ -1950,35 +1977,6 @@ forest.meta <- function(x,
   miss.digits.sd <- missing(digits.sd)
   miss.digits.stat <- missing(digits.stat)
   miss.digits.time <- missing(digits.time)
-  #
-  miss.ff.addline <- missing(ff.addline)
-  miss.ff.common <- missing(ff.common)
-  miss.ff.common.labels <- missing(ff.common.labels)
-  miss.ff.fixed <- is.na(argid(nam.args, "ff.fixed"))
-  miss.ff.fixed.labels <- is.na(argid(nam.args, "ff.fixed.labels"))
-  miss.ff.hetstat <- missing(ff.hetstat)
-  miss.ff.lr <- missing(ff.lr)
-  miss.ff.predict <- missing(ff.predict)
-  miss.ff.predict.labels <- missing(ff.predict.labels)
-  miss.ff.random <- missing(ff.random)
-  miss.ff.random.labels <- missing(ff.random.labels)
-  miss.ff.test.effect.subgroup <- missing(ff.test.effect.subgroup)
-  miss.ff.test.overall <- missing(ff.test.overall)
-  miss.ff.test.subgroup <- missing(ff.test.subgroup)
-  #
-  miss.fs.addline <- missing(fs.addline)
-  miss.fs.common <- missing(fs.common)
-  miss.fs.common.labels <- missing(fs.common.labels)
-  miss.fs.fixed <- is.na(argid(nam.args, "fs.fixed"))
-  miss.fs.fixed.labels <- is.na(argid(nam.args, "fs.fixed.labels"))
-  miss.fs.hetstat <- missing(fs.hetstat)
-  miss.fs.predict <- missing(fs.predict)
-  miss.fs.predict.labels <- missing(fs.predict.labels)
-  miss.fs.random <- missing(fs.random)
-  miss.fs.random.labels <- missing(fs.random.labels)
-  miss.fs.test.effect.subgroup <- missing(fs.test.effect.subgroup)
-  miss.fs.test.overall <- missing(fs.test.overall)
-  miss.fs.test.subgroup <- missing(fs.test.subgroup)
   #
   miss.header.line <- missing(header.line)
   miss.hetstat <- missing(hetstat)
@@ -2058,29 +2056,95 @@ forest.meta <- function(x,
   #
   avail.xlim <- !missing(xlim)
   avail.fill.equi <- !missing(fill.equi) & !is.null(fill.equi)
-  
-  
+  #
+  # Font sizes
+  #
+  fs.main <- replaceNULL(fs.main, 1.1 * fontsize)
+  fs.heading <- replaceNULL(fs.heading, fontsize)
+  #
+  if (!miss.fs.fixed) {
+    fs.common <-
+      deprecated(fs.common, miss.fs.common, args, "fs.fixed",
+                 warn.deprecated)
+    miss.fs.common <- FALSE
+  }
+  fs.common <- replaceNULL(fs.common, fontsize)
+  #
+  fs.random <- replaceNULL(fs.random, fs.common)
+  fs.predict <- replaceNULL(fs.predict, fs.common)
+  #
+  if (!miss.fs.fixed.labels) {
+    fs.common.labels <-
+      deprecated(fs.common.labels, miss.fs.common.labels,
+                 args, "fs.fixed.labels",
+                 warn.deprecated)
+    miss.fs.common.labels <- FALSE
+  }
+  fs.common.labels <- replaceNULL(fs.common.labels, fs.common)
+  #
+  fs.random.labels <- replaceNULL(fs.random.labels, fs.random)
+  fs.predict.labels <- replaceNULL(fs.predict.labels, fs.predict)
+  #
+  fs.study <- replaceNULL(fs.study, fontsize)
+  fs.study.labels <- replaceNULL(fs.study.labels, fs.study)
+  #
+  fs.hetstat <- replaceNULL(fs.hetstat, fontsize - 1)
+  fs.test.overall <- replaceNULL(fs.test.overall, fs.hetstat)
+  fs.test.subgroup <- replaceNULL(fs.test.subgroup, fs.hetstat)
+  fs.test.effect.subgroup <- replaceNULL(fs.test.effect.subgroup, fs.hetstat)
+  fs.addline <- replaceNULL(fs.addline, fs.hetstat)
+  #
+  fs.axis <- replaceNULL(fs.axis, fontsize - 1)
+  fs.smlab <- replaceNULL(fs.smlab, fontsize)
+  fs.xlab <- replaceNULL(fs.xlab, fontsize)
+  fs.lr <- replaceNULL(fs.lr, fontsize)
+  #
+  fs.rob <- replaceNULL(fs.rob, fontsize - 1)
+  fs.rob.symbols <- replaceNULL(fs.rob.symbols, fontsize - 1)
+  #
+  fs.details <- replaceNULL(fs.details, fontsize - 1)
+  #
+  # Font faces
+  #
+  if (!miss.ff.fixed) {
+    ff.common <-
+      deprecated(ff.common, miss.ff.common, args, "ff.fixed",
+                 warn.deprecated)
+  }
+  #
+  if (!miss.ff.fixed.labels) {
+    ff.common.labels <-
+      deprecated(ff.common.labels, miss.ff.common.labels,
+                 args, "ff.fixed.labels",
+                 warn.deprecated)
+  }
+  #
+  ff.common <- replaceNULL(ff.common, if (bmj || jama) "plain" else "bold")
+  #
+  ff.random <- replaceNULL(ff.random, ff.common)
+  ff.predict <- replaceNULL(ff.predict, ff.common)
+  #
+  ff.common.labels <- replaceNULL(ff.common.labels, ff.common)
+  ff.random.labels <- replaceNULL(ff.random.labels, ff.random)
+  ff.predict.labels <- replaceNULL(ff.predict.labels, ff.predict)
+  #
+  ff.hetstat <- replaceNULL(ff.hetstat, "plain")
+  ff.test.overall <- replaceNULL(ff.test.overall, ff.hetstat)
+  ff.test.subgroup <- replaceNULL(ff.test.subgroup, ff.hetstat)
+  ff.test.effect.subgroup <-
+    replaceNULL(ff.test.effect.subgroup, ff.hetstat)
+  ff.addline <- replaceNULL(ff.addline, ff.hetstat)
+  #
+  if (jama && (missing(ff.lr) || is.null(ff.lr)))
+    ff.lr <- "bold"
+
+
   #
   #
   # (4) Define colours
   #
   #
-  
-  layout <- setchar(layout, c("meta", "BMJ", "RevMan5", "JAMA", "subgroup"))
-  #
-  if (layout == "subgroup" & is.null(x$subgroup)) {
-    warning("Argument 'layout' set to \"meta\" (default) as ",
-            "no subgroup analysis was conducted.")
-    layout <- "meta"
-  }
-  #
-  bmj <- layout == "BMJ"
-  revman5 <- layout == "RevMan5"
-  jama <- layout == "JAMA"
-  revman5.jama <- revman5 | jama
-  bmj.revman5 <- bmj | revman5
-  bmj.revman5.jama <- bmj | revman5 | jama
-  #
+
   # Colour schemes for layouts:
   # - colors[1] - vertical line for common effect or random effects model
   # - colors[2] - diamond for meta-analysis results
@@ -2345,7 +2409,7 @@ forest.meta <- function(x,
     rsel <- !(is.logical(rightcols) && length(rightcols) == 1 && !rightcols)
   #
   chkchar(rob.text, length = 1)
-  chknumeric(rob.xpos, length = 1)
+  chknumeric(rob.xpos, min = 0, max = 1, length = 1)
   chklogical(rob.legend)
   chklogical(rob.only)
   if (rob.only && !miss.rightlabs && !is.null(rightlabs)) {
@@ -2613,9 +2677,9 @@ forest.meta <- function(x,
   lty.common <- deprecated(lty.common, miss.lty.common, args, "lty.fixed",
                            warn.deprecated)
   if (!is.null(lty.common))
-    chknumeric(lty.common, length = 1)
+    chknumeric(lty.common, min = 0, length = 1)
   if (!is.null(lty.random))
-    chknumeric(lty.random, length = 1)
+    chknumeric(lty.random, min = 0, length = 1)
   #
   chklogical(prediction)
   #
@@ -2639,21 +2703,15 @@ forest.meta <- function(x,
   chklogical(pooled.events)
   chklogical(pooled.times)
   chklogical(study.results)
-  # chknumeric(xlab.pos) ??
-  # chknumeric(smlab.pos) ??
   chklogical(allstudies)
   #
   chklogical(backtransf)
   #
-  if (!is.null(pscale))
-    chknumeric(pscale, length = 1)
-  else
-    pscale <- 1
+  pscale <- replaceNULL(pscale, 1)
+  chknumeric_strict(pscale, min = 1, length = 1)
   #
-  if (!is.null(irscale))
-    chknumeric(irscale, length = 1)
-  else
-    irscale <- 1
+  irscale <- replaceNULL(irscale, 1)
+  chknumeric_strict(irscale, min = 1, length = 1)
   #
   if (!is.null(irunit) && !is.na(irunit))
     chkchar(irunit)
@@ -3138,16 +3196,14 @@ forest.meta <- function(x,
       header.line.pos <- ""
   }
   #
-  chknumeric(fontsize, length = 1)
+  chklogical(details)
   #
   if (!is.null(main))
     chkchar(main, length = 1)
   main <- replaceNULL(main, "")
   just.main <- setchar(just.main, c("right", "center", "left"))
-  chknumeric(xpos.main, length = 1)
+  chknumeric(xpos.main, min = 0, max = 1, length = 1)
   chknumeric(gap.main, min = 0, length = 1, integer = TRUE)
-  fs.main <- replaceNULL(fs.main, 1.1 * fontsize)
-  chknumeric(fs.main, length = 1)
   chknumeric(lineheight.main, min = 0, zero = FALSE, length = 1)
   #
   if (!is.null(fontfamily)) {
@@ -3157,74 +3213,61 @@ forest.meta <- function(x,
   else
     monospaced <- FALSE
   #
-  chknumeric(fs.heading, length = 1)
+  # Check font sizes
   #
-  if (!miss.fs.fixed) {
-    fs.common <-
-      deprecated(fs.common, miss.fs.common, args, "fs.fixed",
-                 warn.deprecated)
-    miss.fs.common <- FALSE
-  }
+  chknumeric_strict(fs.main, min = 0, length = 1)
+  chknumeric_strict(fs.heading, min = 0, length = 1)
   #
-  if (!miss.fs.common)
-    chknumeric(fs.common, length = 1)
+  chknumeric_strict(fs.common, min = 0, length = 1)
+  chknumeric_strict(fs.random, min = 0, length = 1)
+  chknumeric_strict(fs.predict, min = 0, length = 1)
+  chknumeric_strict(fs.common.labels, min = 0, length = 1)
+  chknumeric_strict(fs.random.labels, min = 0, length = 1)
+  chknumeric_strict(fs.predict.labels, min = 0, length = 1)
   #
-  if (!is.null(fs.random))
-    chknumeric(fs.random, length = 1)
-  if (!is.null(fs.predict))
-    chknumeric(fs.predict, length = 1)
+  chknumeric_strict(fs.study, min = 0, length = 1)
+  chknumeric_strict(fs.study.labels, min = 0, length = 1)
   #
-  if (!miss.fs.fixed.labels) {
-    fs.common.labels <-
-      deprecated(fs.common.labels, miss.fs.common.labels,
-                 args, "fs.fixed.labels",
-                 warn.deprecated)
-    miss.fs.common.labels <- FALSE
-  }
-  if (!miss.fs.common.labels)
-    chknumeric(fs.common.labels, length = 1)
+  chknumeric_strict(fs.hetstat, min = 0, length = 1)
+  chknumeric_strict(fs.test.overall, min = 0, length = 1)
+  chknumeric_strict(fs.test.subgroup, min = 0, length = 1)
+  chknumeric_strict(fs.test.effect.subgroup, min = 0, length = 1)
+  chknumeric_strict(fs.addline, min = 0, length = 1)
   #
-  if (!is.null(fs.random.labels))
-    chknumeric(fs.random.labels, length = 1)
-  if (!is.null(fs.predict.labels))
-    chknumeric(fs.predict.labels, length = 1)
-  if (!is.null(fs.study))
-    chknumeric(fs.study, length = 1)
-  if (!is.null(fs.study.labels))
-    chknumeric(fs.study.labels, length = 1)
-  if (!is.null(fs.hetstat))
-    chknumeric(fs.hetstat, length = 1)
-  if (!is.null(fs.test.overall))
-    chknumeric(fs.test.overall, length = 1)
-  if (!is.null(fs.test.subgroup))
-    chknumeric(fs.test.subgroup, length = 1)
-  if (!is.null(fs.test.effect.subgroup))
-    chknumeric(fs.test.effect.subgroup, length = 1)
-  if (!is.null(fs.addline))
-    chknumeric(fs.addline, length = 1)
-  chknumeric(fs.axis, length = 1)
-  chknumeric(fs.smlab, length = 1)
-  chknumeric(fs.xlab, length = 1)
-  chknumeric(fs.lr, length = 1)
+  chknumeric_strict(fs.axis, min = 0, length = 1)
+  chknumeric_strict(fs.smlab, min = 0, length = 1)
+  chknumeric_strict(fs.xlab, min = 0, length = 1)
+  chknumeric_strict(fs.lr, min = 0, length = 1)
   #
-  # Check fontfaces
+  chknumeric_strict(fs.rob, min = 0, length = 1)
+  chknumeric_strict(fs.rob.symbols, min = 0, length = 1)
   #
-  if (!miss.ff.fixed) {
-    ff.common <-
-      deprecated(ff.common, miss.ff.common, args, "ff.fixed",
-                 warn.deprecated)
-    miss.ff.common <- FALSE
-  }
+  chknumeric_strict(fs.details, min = 0, length = 1)
   #
-  if (!miss.ff.fixed.labels) {
-    ff.common.labels <-
-      deprecated(ff.common.labels, miss.ff.common.labels,
-                 args, "ff.fixed.labels",
-                 warn.deprecated)
-    miss.ff.common.labels <- FALSE
-  }
+  # Check font faces
   #
-  chkchar(ff.main, length = 1)
+  chkfontface(ff.main)
+  chkfontface(ff.heading)
+  chkfontface(ff.common)
+  chkfontface(ff.random)
+  chkfontface(ff.predict)
+  chkfontface(ff.common.labels)
+  chkfontface(ff.random.labels)
+  chkfontface(ff.predict.labels)
+  chkfontface(ff.study)
+  chkfontface(ff.study.labels)
+  chkfontface(ff.hetstat)
+  chkfontface(ff.test.overall)
+  chkfontface(ff.test.subgroup)
+  chkfontface(ff.test.effect.subgroup)
+  chkfontface(ff.addline)
+  chkfontface(ff.axis)
+  chkfontface(ff.smlab)
+  chkfontface(ff.xlab)
+  chkfontface(ff.lr)
+  chkfontface(ff.rob)
+  chkfontface(ff.rob.symbols)
+  chkfontface(ff.details)
   #
   chknumeric(squaresize, length = 1)
   chknumeric(lwd, length = 1)
@@ -3261,7 +3304,6 @@ forest.meta <- function(x,
   #
   if (!is.null(bmj.text))
     chkchar(bmj.text, length = 1)
-  chknumeric(bmj.xpos)
   chkchar(bmj.sep, length = 1)
   #
   chknumeric(spacing, length = 1)
@@ -3366,183 +3408,7 @@ forest.meta <- function(x,
   #
   # Additional assignments
   #
-  if (bmj) {
-    if (miss.ff.common)
-      ff.common <- "plain"
-    if (miss.ff.random)
-      ff.random <- ff.common
-    if (miss.ff.predict)
-      ff.predict <- ff.common
-    if (miss.ff.common.labels)
-      ff.common.labels <- ff.common
-    if (miss.ff.random.labels)
-      ff.random.labels <- ff.random
-    if (miss.ff.predict.labels)
-      ff.predict.labels <- ff.predict
-    #
-    if (miss.fs.common)
-      fs.common <- fontsize
-    if (miss.fs.random)
-      fs.random <- fs.common
-    if (miss.fs.predict)
-      fs.predict <- fs.common
-    if (miss.fs.common.labels)
-      fs.common.labels <- fs.common
-    if (miss.fs.random.labels)
-      fs.random.labels <- fs.random
-    if (miss.fs.predict.labels)
-      fs.predict.labels <- fs.predict
-  }
-  else if (jama) {
-    if (miss.ff.common)
-      ff.common <- "plain"
-    if (miss.ff.random)
-      ff.random <- ff.common
-    if (miss.ff.predict)
-      ff.predict <- ff.common
-    if (miss.ff.common.labels)
-      ff.common.labels <- ff.common
-    if (miss.ff.random.labels)
-      ff.random.labels <- ff.random
-    if (miss.ff.predict.labels)
-      ff.predict.labels <- ff.predict
-    #
-    if (miss.fs.common)
-      fs.common <- fontsize
-    if (miss.fs.random)
-      fs.random <- fs.common
-    if (miss.fs.predict)
-      fs.predict <- fs.common
-    if (miss.fs.common.labels)
-      fs.common.labels <- fs.common
-    if (miss.fs.random.labels)
-      fs.random.labels <- fs.random
-    if (miss.fs.predict.labels)
-      fs.predict.labels <- fs.predict
-  }
-  else {
-    if (miss.ff.common)
-      ff.common <- "bold"
-    if (miss.ff.random)
-      ff.random <- ff.common
-    if (miss.ff.predict)
-      ff.predict <- ff.common
-    if (miss.ff.common.labels)
-      ff.common.labels <- ff.common
-    if (miss.ff.random.labels)
-      ff.random.labels <- ff.random
-    if (miss.ff.predict.labels)
-      ff.predict.labels <- ff.predict
-    #
-    if (miss.fs.common)
-      fs.common <- fontsize
-    if (miss.fs.random)
-      fs.random <- fs.common
-    if (miss.fs.predict)
-      fs.predict <- fs.common
-    if (miss.fs.common.labels)
-      fs.common.labels <- fs.common
-    if (miss.fs.random.labels)
-      fs.random.labels <- fs.random
-    if (miss.fs.predict.labels)
-      fs.predict.labels <- fs.predict
-  }
   hetseparator <- " = "
-  #
-  if (bmj) {
-    if (miss.ff.hetstat)
-      ff.hetstat <- "plain"
-    if (miss.ff.test.overall)
-      ff.test.overall <- ff.hetstat
-    if (miss.ff.test.subgroup)
-      ff.test.subgroup <- ff.hetstat
-    if (miss.ff.test.effect.subgroup)
-      ff.test.effect.subgroup <- ff.hetstat
-    if (miss.ff.addline)
-      ff.addline <- ff.hetstat
-    #
-    if (miss.fs.hetstat)
-      fs.hetstat <- fontsize - 1
-    if (miss.fs.test.overall)
-      fs.test.overall <- fs.hetstat
-    if (miss.fs.test.subgroup)
-      fs.test.subgroup <- fs.hetstat
-    if (miss.fs.test.effect.subgroup)
-      fs.test.effect.subgroup <- fs.hetstat
-    if (miss.fs.addline)
-      fs.addline <- fs.hetstat
-  }
-  else if (revman5) {
-    if (miss.ff.hetstat)
-      ff.hetstat <- "plain"
-    if (miss.ff.test.overall)
-      ff.test.overall <- ff.hetstat
-    if (miss.ff.test.subgroup)
-      ff.test.subgroup <- ff.hetstat
-    if (miss.ff.test.effect.subgroup)
-      ff.test.effect.subgroup <- ff.hetstat
-    if (miss.ff.addline)
-      ff.addline <- ff.hetstat
-    #
-    if (miss.fs.hetstat)
-      fs.hetstat <- fontsize - 1
-    if (miss.fs.test.overall)
-      fs.test.overall <- fs.hetstat
-    if (miss.fs.test.subgroup)
-      fs.test.subgroup <- fs.hetstat
-    if (miss.fs.test.effect.subgroup)
-      fs.test.effect.subgroup <- fs.hetstat
-    if (miss.fs.addline)
-      fs.addline <- fs.hetstat
-  }
-  else if (jama) {
-    if (miss.ff.hetstat)
-      ff.hetstat <- "plain"
-    if (miss.ff.test.overall)
-      ff.test.overall <- ff.hetstat
-    if (miss.ff.test.subgroup)
-      ff.test.subgroup <- ff.hetstat
-    if (miss.ff.test.effect.subgroup)
-      ff.test.effect.subgroup <- ff.hetstat
-    if (miss.ff.addline)
-      ff.addline <- ff.hetstat
-    #
-    if (miss.fs.hetstat)
-      fs.hetstat <- fontsize - 1
-    if (miss.fs.test.overall)
-      fs.test.overall <- fs.hetstat
-    if (miss.fs.test.subgroup)
-      fs.test.subgroup <- fs.hetstat
-    if (miss.fs.test.effect.subgroup)
-      fs.test.effect.subgroup <- fs.hetstat
-    if (miss.fs.addline)
-      fs.addline <- fs.hetstat
-  }
-  else {
-    if (miss.ff.hetstat)
-      ff.hetstat <- "plain"
-    if (miss.ff.test.overall)
-      ff.test.overall <- ff.hetstat
-    if (miss.ff.test.subgroup)
-      ff.test.subgroup <- ff.hetstat
-    if (miss.ff.test.effect.subgroup)
-      ff.test.effect.subgroup <- ff.hetstat
-    if (miss.ff.addline)
-      ff.addline <- ff.hetstat
-    #
-    if (miss.fs.hetstat)
-      fs.hetstat <- fontsize - 1
-    if (miss.fs.test.overall)
-      fs.test.overall <- fs.hetstat
-    if (miss.fs.test.subgroup)
-      fs.test.subgroup <- fs.hetstat
-    if (miss.fs.test.effect.subgroup)
-      fs.test.effect.subgroup <- fs.hetstat
-    if (miss.fs.addline)
-      fs.addline <- fs.hetstat
-  }
-  #
-  chklogical(details)
   
   
   #
@@ -4177,6 +4043,8 @@ forest.meta <- function(x,
         paste0(" (", gs("text.w.random"), " effects)"),
       ": ")
   #
+  # Define aliases
+  #
   fs.head <- fs.heading
   ff.head <- ff.heading
   #
@@ -4233,9 +4101,6 @@ forest.meta <- function(x,
     ci.lab <- paste0(100 * level.ma, "% CI")
   #
   if (jama) {
-    if (miss.ff.lr)
-      ff.lr <- "bold"
-    #
     if (xlab == "")
       xlab <- paste0(sm.lab, " (", ci.lab, ")")
     #
@@ -9128,9 +8993,13 @@ forest.meta <- function(x,
   #
   if (miss.xlab.pos)
     xlab.pos <- mean(xlim)
+  else
+    chknumeric(xlab.pos, length = 1)
   #
   if (miss.smlab.pos)
     smlab.pos <- mean(xlim)
+  else
+    chknumeric(smlab.pos, length = 1)
   #
   yTE.common  <- rep(NA, n.com)
   yTE.random <- rep(NA, n.ran)
@@ -10118,14 +9987,14 @@ forest.meta <- function(x,
   #
   col.label.e <-
     tgl(label.e,
-        if (bmj && length(label.e.attach) == 1) bmj.xpos else xpos.label.e,
-        if (bmj && length(label.e.attach) == 1) "left" else just.label.e,
+        xpos.label.e,
+        just.label.e,
         fs.head, ff.head, fontfamily)
   #
   col.label.c <-
     tgl(label.c,
-        if (bmj && length(label.c.attach) == 1) bmj.xpos else xpos.label.c,
-        if (bmj && length(label.c.attach) == 1) "left" else just.label.c,
+        xpos.label.c,
+        just.label.c,
         fs.head, ff.head, fontfamily)
   #
   col.rob <- tgl(rob.text, rob.xpos, "left", fs.head, ff.head, fontfamily)
@@ -10363,11 +10232,29 @@ forest.meta <- function(x,
   del.lines <- NULL
   calcwidth.lines <- NULL
   calcwidth.details.line <- NULL
-  pooled.data.cols <-
-    c("col.n.e", "col.n.c", "col.event.e", "col.event.c",
-      "col.time.e", "col.time.c", "col.event.n.e", "col.event.n.c",
-      "col.mean.sd.n.e", "col.mean.sd.n.c", "col.event.time.e",
-      "col.event.time.c", "col.event.time.n.e", "col.event.time.n.c")
+  pooled.data.cols <- c(
+    if (pooled.events)
+      c("col.event.e", "col.event.c")
+    else
+      NULL,
+    if (pooled.totals)
+      c("col.n.e", "col.n.c")
+    else
+      NULL,
+    if (pooled.times)
+      c("col.time.e", "col.time.c")
+    else
+      NULL,
+    if (pooled.events | pooled.totals)
+      c("col.event.n.e", "col.event.n.c", "col.mean.sd.n.e",
+        "col.mean.sd.n.c")
+    else
+      NULL,
+    if (pooled.events | pooled.times)
+      c("col.event.time.e", "col.event.time.c",
+        "col.event.time.n.e", "col.event.time.n.c")
+    else
+      NULL)
   pooled.common.cols <- character(0)
   pooled.random.cols <- character(0)
   if (jama) {
@@ -10485,6 +10372,20 @@ forest.meta <- function(x,
       calcwidth.lines <-
         c(calcwidth.lines, tests.lines.common.w, tests.lines.random.w)
   }
+  pooled.width.cols <- function(lines, candidates) {
+    candidates <- intersect(candidates, leftcols)
+    candidates[vapply(candidates, function(col) {
+      labels <- cols.calc[[col]]$labels[lines]
+      any(vapply(labels, function(label)
+        !is.null(label$label) && any(label$label != ""), logical(1)))
+    }, logical(1))]
+  }
+  pooled.common.width.cols <-
+    pooled.width.cols(c(common.lines, if (by) common.lines.w),
+                      c(pooled.data.cols, pooled.common.cols))
+  pooled.random.width.cols <-
+    pooled.width.cols(c(random.lines, if (by) random.lines.w),
+                      c(pooled.data.cols, pooled.random.cols))
   #
   if (lsel) {
     width.left <- NULL
@@ -10514,16 +10415,27 @@ forest.meta <- function(x,
         width.left.cols, leftcols, colgap.left,
         list(label.e.attach, label.c.attach), list(col.label.e, col.label.c),
         colgap.studlab)
+    width.left.total <- width.left.cols[[1]]
+    if (length(width.left.cols) > 1) {
+      for (i in 2:length(width.left.cols))
+        width.left.total <-
+          unit.c(width.left.total,
+                 if (leftcols[[i - 1]] == "col.studlab")
+                   colgap.studlab
+                 else
+                   colgap.left,
+                 width.left.cols[[i]])
+    }
     extra.calcwidth.pooled <-
-      unit.pmax(calc_pooled_prefix_extra(common.lines, pooled.common.cols,
-                                         calcwidth.common,
-                                         leftcols, width.left.cols,
-                                         colgap.left, colgap.studlab,
-                                         cols[["col.studlab"]]$labels, wcalc),
-                calc_pooled_prefix_extra(random.lines, pooled.random.cols,
-                                         calcwidth.random,
-                                         leftcols, width.left.cols,
-                                         colgap.left, colgap.studlab,
+      unit.pmax(calc_pooled_prefix_extra(common.lines, pooled.common.width.cols,
+                                          calcwidth.common,
+                                          leftcols, width.left.cols,
+                                          colgap.left, colgap.studlab,
+                                          cols[["col.studlab"]]$labels, wcalc),
+                calc_pooled_prefix_extra(random.lines, pooled.random.width.cols,
+                                          calcwidth.random,
+                                          leftcols, width.left.cols,
+                                          colgap.left, colgap.studlab,
                                          cols[["col.studlab"]]$labels, wcalc))
     #
     for (i in seq_along(leftcols)) {
@@ -10542,7 +10454,7 @@ forest.meta <- function(x,
     #
     if (!is.null(calcwidth.lines) | !is.null(calcwidth.details.line)) {
       extra.calcwidth <-
-        unit.pmax(unit(0, "mm"), width.calcwidth - sum(width.left))
+        unit.pmax(unit(0, "mm"), width.calcwidth - sum(width.left.total))
     }
     #
     for (i in seq_along(leftcols)) {
@@ -10554,7 +10466,7 @@ forest.meta <- function(x,
                      if (leftcols[[i - 1]] == "col.studlab")
                         colgap.studlab + extra.calcwidth +
                           extra.calcwidth.pooled
-                     else colgap.left,
+                      else colgap.left,
                      width.left.cols[[i]])
       }
     }
@@ -10563,8 +10475,8 @@ forest.meta <- function(x,
       unit.c(x1,
              if (leftcols[[length(leftcols)]] == "col.studlab")
                 colgap.forest.left + extra.calcwidth + extra.calcwidth.pooled
-             else
-               colgap.forest.left,
+              else
+                colgap.forest.left,
              col.forestwidth)
   }
   else

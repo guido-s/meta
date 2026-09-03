@@ -156,18 +156,40 @@ setlogical <- function(argname, args, NULL.ok = FALSE,
 }
 
 
-setnumeric <- function(argname, args, NULL.ok = FALSE, integer = FALSE) {
+setnumeric <- function(argname, args, NULL.ok = FALSE, integer = FALSE,
+                       min = 0, length = 1, ...) {
   id <- argid(names(args), argname)
   #
   if (!is.na(id)) {
     val <- args[[id]]
     #
-    if (NULL.ok & is.null(val)) {
-      setOption(argname, val)
-      return(invisible(NULL))
+    if (is.null(val)) {
+      if (NULL.ok) {
+        setOption(argname, val)
+        return(invisible(NULL))
+      }
+      else
+        stop("Argument '", argname, "' must not be NULL.",
+             call. = FALSE)
     }
     #
-    chknumeric(val, min = 0, length = 1, integer = integer, name = argname)
+    chknumeric(val, min = min, length = length,
+               integer = integer, name = argname,
+               ...)
+    setOption(argname, val)
+  }
+  #
+  invisible(id)
+}
+
+
+setfontface <- function(argname, args, length = 1) {
+  id <- argid(names(args), argname)
+  #
+  if (!is.na(id)) {
+    val <- args[[id]]
+    #
+    chkfontface(val, length = length, name = argname)
     setOption(argname, val)
   }
   #

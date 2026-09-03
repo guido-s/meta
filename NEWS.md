@@ -2,28 +2,18 @@
 
 ### Major changes
 
-* Forest plots:
-  - visible labels for pooled estimates, prediction intervals, heterogeneity
-    statistics, tests, subgroups, additional lines, and details are now
-    considered by default when calculating horizontal spacing
-  - argument 'calcwidth.pooled' considers the combined width of left-side
-    columns without pooled-row information, including information provided via
-    argument 'data.pooled', before adding spacing for labels of pooled estimates
-  - less vertical space is added below the overall results in JAMA layout
-    because heterogeneity statistics no longer overlap with the x-axis
-  - a main title can be added
-  - subgroup random effects estimates and prediction intervals can be selected
-    separately for each confidence interval or prediction interval method
+* Forest plots have improved layout and column spacing.
 
-* Cluster-robust variance estimators implemented for univariate random effects
-  meta-analysis and three-level model
+* Forest plots can now include a customisable main title.
+
+* Cluster-robust variance estimators are now available for univariate random
+  effects meta-analysis and three-level models.
   ([Tipton and Pustejovsky, 2015](https://doi.org/10.3102/1076998615606099);
   [Pustejovsky and Tipton, 2022](https://doi.org/10.1007/s11121-021-01246-3)).
 
-* Cumulative meta-analysis and leave-one-out method return results for random
-  effects instead of common effect model if prediction intervals are requested
-  and both common effect and random effects meta-analysis were
-  conducted.
+* Cumulative meta-analysis and leave-one-out analyses now return random-effects
+  results when prediction intervals are requested and both common-effect and
+  random-effects analyses are available.
 
 ### User-visible changes
 
@@ -33,34 +23,35 @@
     a main title
   - arguments 'smlab', 'xlab', 'label.left', and 'label.right' can contain
     more than two lines
-  - new defaults for arguments 'calcwidth.predict', 'calcwidth.hetstat',
-    'calcwidth.tests', 'calcwidth.subgroup', 'calcwidth.addline', and
-    'calcwidth.details' are TRUE; these arguments only affect spacing if the
-    corresponding information is shown
-  - less vertical space is added below overall results in JAMA layout
-  - allow different colours for multiple overall common effect or random effects
-    diamonds and their outlines
-  - allow different colours for multiple overall prediction intervals and their
-    outlines
-  - new arguments 'col.diamond.common.subgroup', 'col.diamond.random.subgroup',
-    'col.diamond.lines.common.subgroup', and 'col.diamond.lines.random.subgroup'
-    allow different colours for subgroup diamonds and their outlines
-  - new arguments 'col.predict.subgroup' and 'col.predict.lines.subgroup'
-    allow different colours for prediction intervals in subgroups and their
-    outlines
-  - arguments 'random.subgroup' and 'prediction.subgroup' can be logical
-    matrices to select subgroup random effects estimates or prediction
-    intervals separately for each confidence interval or prediction interval
-    method
+  - visible labels for pooled estimates, heterogeneity statistics, tests,
+    subgroup results, additional lines, and details are considered when
+    calculating horizontal spacing; new defaults for arguments:
+    'calcwidth.predict', 'calcwidth.hetstat', 'calcwidth.tests',
+    'calcwidth.subgroup', 'calcwidth.addline', and 'calcwidth.details' are
+    TRUE
+  - argument 'calcwidth.pooled' prevents pooled labels from overlapping columns
+    containing pooled-row information by reserving additional space
   - consider the width of treatment group labels (arguments 'label.e' and
     'label.c' in meta-analysis functions) attached to columns when calculating
     column widths, and suppress these labels if the attached column already has
     a two-line heading
-  - center combined treatment group header over both columns in BMJ layout for
-    meta-analyses with binary or continuous outcomes
-  - use combined event / time columns in BMJ layout for meta-analyses of
-    incidence rates, or combined event / time (total) columns if sample sizes
-    are available, and center the corresponding treatment group header
+  - the default font size for x-axis tick labels matches the font size of
+    heterogeneity statistics, details, statistical tests, additional lines, and
+    risk of bias legends
+  - less vertical space is added below overall results in JAMA layout
+  - allow different colours for multiple overall common-effect and
+    random-effects diamonds, prediction intervals, and their outlines
+  - allow different colours for subgroup diamonds and prediction intervals
+    compared with overall results; new arguments 'col.diamond.common.subgroup',
+    'col.diamond.random.subgroup', 'col.diamond.lines.common.subgroup',
+    'col.diamond.lines.random.subgroup', 'col.predict.subgroup', and
+    'col.predict.lines.subgroup'
+  - arguments 'random.subgroup' and 'prediction.subgroup' can be logical
+    matrices to select subgroup random-effects estimates or prediction intervals
+    separately for each available confidence- or prediction-interval method,
+    e.g., 'random.subgroup = df.random.w > 1'
+  - center combined treatment-group headers over both columns in BMJ layout for
+    meta-analyses of binary outcomes, continuous outcomes, or incidence rates
   - print labels for pooled estimates and heterogeneity or details on the left
     side if study labels are printed on the right side, and suppress these
     labels if argument 'leftcols' is FALSE
@@ -93,9 +84,9 @@
     (sm = "PFT") if argument 'transf = FALSE'; sample sizes must be supplied
     in argument 'n.e'
   - stop with an error if argument 'n.c' is provided for meta-analysis of
-    single proportions, rates, means, or correlations
+    single proportions, incidence rates, means, or correlations
   - check argument 'null.effect' on the original scale for meta-analyses of
-    single proportions, rates, means, or correlations if argument
+    single proportions, incidence rates, means, or correlations if argument
     'transf = FALSE'
     [(issue #103)](https://github.com/guido-s/meta/issues/103)
 
@@ -106,14 +97,14 @@
 * metabias():
   - report the response variable used in meta-regression for linear regression
     tests
-  - radial plot can be created for Deeks' test (arguments method = "Deeks"
-    and plotit = TRUE)
+  - radial plot can be created for Deeks' test (arguments 'method = "Deeks"'
+    and 'plotit = TRUE')
     [(pull #92)](https://github.com/guido-s/meta/pull/92)
 
 * drapery(), funnel.meta():
   - draw plots on the analysis scale but show back-transformed tick marks
-    for transformed proportions, rates, means, or correlations if argument
-    'backtransf = TRUE'
+    for transformed proportions, incidence rates, means, or correlations if
+    argument 'backtransf = TRUE'
     [(issue #102)](https://github.com/guido-s/meta/issues/102)
   - for these transformed summary measures, user-supplied x-limits in argument
     'xlim' are interpreted on the original scale if argument 'backtransf = TRUE'
@@ -124,16 +115,17 @@
 
 * bubble(), funnel.meta():
   - use the null effect stored in the meta-analysis object as default for the
-    reference line in meta-analyses of single proportions, rates, means, or
-    correlations [(issue #102)](https://github.com/guido-s/meta/issues/102)
+    reference line in meta-analyses of single proportions, incidence rates,
+    means, or correlations
+    [(issue #102)](https://github.com/guido-s/meta/issues/102)
 
 * metaadd():
   - function no longer available for Freeman-Tukey double arcsine transformed
     proportions or rates (sm = "PFT" or "IRFT")
 
 * New function ir2asin() to calculate the Freeman-Tukey double arcsine
-    transformation for incidence rates if argument 'time' is provided and
-    otherwise uses the ordinary square root transformation
+  transformation for incidence rates if argument 'time' is provided and
+  otherwise uses the ordinary square root transformation
 
 * p2asin():
   - new argument 'n' to calculate Freeman-Tukey double arcsine transformation
@@ -146,6 +138,10 @@
   - new arguments 'col.main', 'just.main', 'xpos.main', 'gap.main',
     'lineheight.main', 'fs.main', 'ff.main' to define defaults for the main
     title of a forest plot
+
+* forest.meta(), settings.meta():
+  - font face arguments 'ff.xyz' are checked against values accepted by
+    grid::gpar() and also allow integer values 1 to 4
 
 ### Bug fixes
 
@@ -161,8 +157,8 @@
     using the sample size method or a logistic regression with penalised
     likelihood
     [(issue #93)](https://github.com/guido-s/meta/issues/93)
-  - print labels defined in metarate() for meta-analysis of single rates
-    [(issue #97)](https://github.com/guido-s/meta/issues/97)
+  - print labels defined in metarate() for meta-analysis of single incidence
+    rates [(issue #97)](https://github.com/guido-s/meta/issues/97)
   - show labels on the correct positions if argument 'backtransf = FALSE' for
     meta-analyses conducted with metamean(), metaprop(), or metarate()
   - show labels on the correct positions if argument 'backtransf = TRUE' and
@@ -173,6 +169,11 @@
     [(issue #98)](https://github.com/guido-s/meta/issues/98)
   - correctly clip diamonds for pooled estimates if argument 'xlim' excludes
     the pooled estimate but includes one confidence limit
+
+* bubble(), forest.meta(), metabin(), metagen(), metainc(), metaprop(),
+  metarate(), print.meta(), print.summary.meta(), rd(), trimfill(),
+  update.meta():
+  - reject missing values in arguments 'pscale' and 'irscale'
 
 * forest.metacum(), forest.metainf():
   - show prediction intervals if argument 'layout = "BMJ"'
@@ -191,10 +192,12 @@
   - correctly identify studies with non-positive sample sizes or means
     [(issue #103)](https://github.com/guido-s/meta/issues/103)
 
+* settings.meta():
+  - reject 'NULL' for numeric settings where 'NULL' is not an admissible value
+
 * pairwise():
   - consider continuity correction in binary outcomes with summary measure "DOR"
-    or "VE"
-    [(issue #94)](https://github.com/guido-s/meta/issues/94)
+    or "VE" [(issue #94)](https://github.com/guido-s/meta/issues/94)
 
 * labbe():
   - show common effect / random effects lines for summary measure "VE"
@@ -221,12 +224,12 @@
 
 * cidprop():
   - transform decision thresholds for Freeman-Tukey double arcsine transformed
-    proportions or rates (sm = "PFT" or "IRFT") using the harmonic mean of
-    sample sizes or times
+    proportions or incidence rates (sm = "PFT" or "IRFT") using the harmonic
+    mean of sample sizes or times
     [(issue #102)](https://github.com/guido-s/meta/issues/102)
 
 * plot.cidprop():
-  - back transform results for vaccine efficacy (sm = "VE") (#94)
+  - back transform results for vaccine efficacy (sm = "VE")
     [(issue #94)](https://github.com/guido-s/meta/issues/94)
   - input to arguments 'random' and 'prediction' was ignored
   - input to argument 'xlim' determines the limits of the x-axis
@@ -250,6 +253,17 @@
 
 * New internal function layout_colors() to define default colours for forest
   plots.
+
+* chkchar(), chkcolor(), chklevel(), chknumeric():
+  - removed deprecated argument 'single'; replaced by argument 'length'
+
+* chknumeric_strict(), chkfontface():
+  - new internal functions to check numeric arguments without missing or NULL
+    values or font face arguments
+
+* forest.meta():
+  - removed obsolete argument 'bmj.xpos'; a warning is printed if it is used
+    and argument 'warn.deprecated = TRUE'
 
 * cidprop():
   - for vaccine efficacy (sm = "VE"), defaults for 'cid.below.null' and
@@ -472,7 +486,7 @@
   - calculate correct totals in subgroups if studies have been excluded from the
     meta-analysis
 
-* Do not print information on continuity correction for generalized linear
+* Do not print information on continuity correction for generalised linear
   mixed model and argument 'method.ci != "NAsm"'
 
 ### User-visible changes
@@ -553,7 +567,7 @@
 
 * metabin(), metainc():
   - new arguments 'incr.e' and 'incr.c' for user-specified continuity correction
-  - do not warn about continuity correction for generalized linear mixed models
+  - do not warn about continuity correction for generalised linear mixed models
     and penalised logistic regression
   - arguments 'addincr' and 'allincr' in argument '...' ignored
 
@@ -694,7 +708,7 @@ Revise web links
 
 * R package
   [**brglm2**](https://cran.r-project.org/package=brglm2)
-  added to suggested packages to fit penalized logistic regression for
+  added to suggested packages to fit penalised logistic regression for
   meta-analysis of rare events
   ([Evrenoglou et al., 2022, Stat Med](https://doi.org/10.1002/sim.9562)).
 
@@ -739,7 +753,7 @@ Revise web links
     its standard error
 
 * bubble.metareg():
-  - argument 'backtransf = TRUE' is recognized for additional summary measures,
+  - argument 'backtransf = TRUE' is recognised for additional summary measures,
     i.e., "PLOGIT", "PLN", "PAS", "IRLN", "IRS", "ZCOR"
 
 * settings.meta():
@@ -2872,7 +2886,7 @@ Revise web links
 
 * forest.meta():
   - new argument 'spacing' to determine line spacing
-  - bug fix for for meta-analysis with standardized mean difference
+  - bug fix for for meta-analysis with standardised mean difference
     (sm = "SMD") and argument 'layout = "RevMan5"'
 
 * R function ci() can be used with vectors or matrices of treatment

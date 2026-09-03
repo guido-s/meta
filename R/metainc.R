@@ -613,7 +613,8 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   #
   chklogical(backtransf)
   #
-  chknumeric(irscale, length = 1)
+  irscale <- replaceNULL(irscale, 1)
+  chknumeric_strict(irscale, min = 1, length = 1)
   chkchar(irunit)
   #
   if (!is.null(text.common))

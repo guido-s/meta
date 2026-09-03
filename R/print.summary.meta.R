@@ -273,19 +273,15 @@ print.summary.meta <- function(x,
   #
   chklogical(details.methods)
   #
-  if (!is.null(pscale))
-    chknumeric(pscale, length = 1)
-  else
-    pscale <- 1
+  pscale <- replaceNULL(pscale, 1)
+  chknumeric_strict(pscale, min = 1, length = 1)
   if (!backtransf & pscale != 1 & !is_untransformed(x$sm)) {
     warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
     pscale <- 1
   }
   #
-  if (!is.null(irscale))
-    chknumeric(irscale, length = 1)
-  else
-    irscale <- 1
+  irscale <- replaceNULL(irscale, 1)
+  chknumeric_strict(irscale, min = 1, length = 1)
   if (!backtransf & irscale != 1 & !is_untransformed(x$sm)) {
     warning("Argument 'irscale' set to 1 as argument 'backtransf' is FALSE.")
     irscale <- 1

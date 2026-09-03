@@ -873,7 +873,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   #
   chklogical(backtransf)
   #
-  chknumeric(pscale, length = 1)
+  pscale <- replaceNULL(pscale, 1)
+  chknumeric_strict(pscale, min = 1, length = 1)
   #
   if (!is.null(text.common))
     chkchar(text.common, length = 1)

@@ -147,7 +147,8 @@ rd.meta <- function(x, p.c,
          "risk ratio, odds ratio, or hazard ratio as summary measure ",
          "(argument 'sm').")
   #
-  chknumeric(pscale, length = 1)
+  pscale <- replaceNULL(pscale, 1)
+  chknumeric_strict(pscale, min = 1, length = 1)
   
   
   #
@@ -317,7 +318,8 @@ rd.default <- function(x, p.c, sm, lower, upper,
   #
   chknumeric(p.c, 0, 1)
   #
-  chknumeric(pscale, length = 1)
+  pscale <- replaceNULL(pscale, 1)
+  chknumeric_strict(pscale, min = 1, length = 1)
   #
   missing.lower <- missing(lower)
   if (!missing.lower)
@@ -449,7 +451,8 @@ print.rd.meta <- function(x,
   chklogical(common)
   chklogical(random)
   #
-  chknumeric(pscale, length = 1)
+  pscale <- replaceNULL(pscale, 1)
+  chknumeric_strict(pscale, min = 1, length = 1)
   #
   chknumeric(digits, min = 0, length = 1)
   chknumeric(digits.prop, min = 0, length = 1)

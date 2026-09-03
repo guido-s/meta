@@ -195,8 +195,8 @@
   data.pooled = NULL,
   fontsize = gs("fontsize"),
   fontfamily = gs("fontfamily"),
-  fs.heading = fontsize,
   fs.main = gs("fs.main"),
+  fs.heading = fontsize,
   fs.common = gs("fs.common"),
   fs.random = gs("fs.random"),
   fs.predict = gs("fs.predict"),
@@ -210,15 +210,15 @@
   fs.test.subgroup = gs("fs.test.subgroup"),
   fs.test.effect.subgroup = gs("fs.test.effect.subgroup"),
   fs.addline = gs("fs.addline"),
-  fs.axis = fontsize,
+  fs.axis = fontsize - 1,
   fs.smlab = fontsize,
   fs.xlab = fontsize,
   fs.lr = fontsize,
-  fs.rob = fontsize,
-  fs.rob.symbols = fontsize,
-  fs.details = fontsize,
-  ff.heading = "bold",
+  fs.rob = gs("fs.rob"),
+  fs.rob.symbols = gs("fs.rob.symbols"),
+  fs.details = fontsize - 1,
   ff.main = gs("ff.main"),
+  ff.heading = "bold",
   ff.common = gs("ff.common"),
   ff.random = gs("ff.random"),
   ff.predict = gs("ff.predict"),
@@ -271,7 +271,6 @@
   just.label.e = just,
   just.label.c = just,
   bmj.text = NULL,
-  bmj.xpos = 0,
   bmj.sep = " / ",
   spacing = gs("spacing"),
   addrow = gs("addrow"),
@@ -919,10 +918,10 @@ results (see Details).}
 
 \item{fontfamily}{The font family, see \code{\link{gpar}}.}
 
+\item{fs.main}{The size of text for the main title, see \code{\link{gpar}}.}
+
 \item{fs.heading}{The size of text for column headings, see
 \code{\link{gpar}}.}
-
-\item{fs.main}{The size of text for the main title, see \code{\link{gpar}}.}
 
 \item{fs.common}{The size of text for results of common effect
 model, see \code{\link{gpar}}.}
@@ -983,11 +982,11 @@ see \code{\link{gpar}}.}
 \item{fs.details}{The size of text for details on (meta-analysis)
 methods, see \code{\link{gpar}}.}
 
-\item{ff.heading}{The fontface for column headings, see
-\code{\link{gpar}}.}
-
 \item{ff.main}{The fontface of text for the main title,
 see \code{\link{gpar}}.}
+
+\item{ff.heading}{The fontface for column headings, see
+\code{\link{gpar}}.}
 
 \item{ff.common}{The fontface of text for results of common effect
 model, see \code{\link{gpar}}.}
@@ -1166,10 +1165,6 @@ heading (possible values: "left", "right", "center").}
 
 \item{bmj.text}{A character string used in the plot with BMJ layout
 to label the group specific information.}
-
-\item{bmj.xpos}{A numeric specifying the horizontal position of the
-BMJ label. The value is a so called normalised parent coordinate
-in the horizontal direction (see \code{\link[grid]{unit}}).}
 
 \item{bmj.sep}{A character string used to separate sample sizes
 from number of events or means / standard deviations.}

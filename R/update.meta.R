@@ -830,6 +830,8 @@ update.meta <- function(object,
   #
   pscale <- replaceNULL(pscale, 1)
   irscale <- replaceNULL(irscale, 1)
+  chknumeric_strict(pscale, min = 1, length = 1)
+  chknumeric_strict(irscale, min = 1, length = 1)
   irunit <- replaceNULL(irunit, "")
   #
   tau.common <- replaceNULL(tau.common, gs("tau.common"))

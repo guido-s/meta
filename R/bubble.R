@@ -167,15 +167,11 @@ bubble.metareg <- function(x,
   chknumeric(lty.ref)
   chknumeric(lwd.ref)
   #
-  if (!is.null(pscale))
-    chknumeric(pscale, length = 1)
-  else
-    pscale <- 1
+  pscale <- replaceNULL(pscale, 1)
+  chknumeric_strict(pscale, min = 1, length = 1)
   #
-  if (!is.null(irscale))
-    chknumeric(irscale, length = 1)
-  else
-    irscale <- 1
+  irscale <- replaceNULL(irscale, 1)
+  chknumeric_strict(irscale, min = 1, length = 1)
   #
   if (!is.character(axes)) {
     chklogical(axes)

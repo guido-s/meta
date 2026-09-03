@@ -324,16 +324,12 @@ print.meta <- function(x,
   chklogical(warn.deprecated)
   #
   missing.pscale <- missing(pscale)
-  if (!is.null(pscale))
-    chknumeric(pscale, length = 1)
-  else
-    pscale <- 1
+  pscale <- replaceNULL(pscale, 1)
+  chknumeric_strict(pscale, min = 1, length = 1)
   #
   missing.irscale <- missing(irscale)
-  if (!is.null(irscale))
-    chknumeric(irscale, length = 1)
-  else
-    irscale <- 1
+  irscale <- replaceNULL(irscale, 1)
+  chknumeric_strict(irscale, min = 1, length = 1)
   if (!is.null(irunit) && !is.na(irunit))
     chkchar(irunit)
   #

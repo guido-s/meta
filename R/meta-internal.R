@@ -996,6 +996,7 @@ setOption("header.line", FALSE)
 #
 setOption("fontsize", 12)
 setOption("fontfamily", NULL)
+#
 setOption("fs.main", NULL)
 setOption("fs.common", NULL)
 setOption("fs.random", NULL)
@@ -1009,8 +1010,8 @@ setOption("fs.test.subgroup", NULL)
 setOption("fs.test.effect.subgroup", NULL)
 setOption("fs.addline", NULL)
 #
-setOption("ff.heading", "bold")
 setOption("ff.main", "bold")
+setOption("ff.heading", "bold")
 setOption("ff.common", NULL)
 setOption("ff.random", NULL)
 setOption("ff.predict", NULL)

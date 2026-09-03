@@ -760,7 +760,8 @@ metaprop <- function(event, n, studlab,
   #
   chklogical(backtransf)
   #
-  chknumeric(pscale, length = 1)
+  pscale <- replaceNULL(pscale, 1)
+  chknumeric_strict(pscale, min = 1, length = 1)
   if (!backtransf & pscale != 1 & !is_untransformed(sm)) {
     warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.",
             call. = FALSE)
