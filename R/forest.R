@@ -10473,6 +10473,8 @@ forest.meta <- function(x,
       extra.calcwidth <-
         unit.pmax(unit(0, "mm"), width.calcwidth - sum(width.left.total))
     }
+    extra.calcwidth.pooled <-
+      unit.pmax(unit(0, "mm"), extra.calcwidth.pooled - extra.calcwidth)
     #
     for (i in seq_along(leftcols)) {
       if (i == 1) {
