@@ -285,11 +285,11 @@ test_that("calcwidth.pooled reserves extra spacing for pooled labels", {
   widths <- get(".forest_widths", envir = .GlobalEnv)
   expect_length(widths, 5)
   expect_false(any(grepl("sum(0mm, max(0mm", widths[[1]], fixed = TRUE)))
-  expect_true(any(grepl("sum(0mm, max(0mm", widths[[2]], fixed = TRUE)))
+  expect_false(any(grepl("sum(0mm, max(0mm", widths[[2]], fixed = TRUE)))
   expect_equal(lengths(gregexpr("grobwidth", widths[[3]][1], fixed = TRUE)),
                4)
   expect_equal(lengths(gregexpr("-1*max", widths[[4]][2], fixed = TRUE)),
-               2)
+               1)
   expect_equal(lengths(gregexpr("-1*max", widths[[5]][2], fixed = TRUE)),
                1)
 

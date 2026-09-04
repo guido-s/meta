@@ -9,7 +9,7 @@ calc_pooled_prefix_extra <- function(lines, pooled.cols, do.calc,
                                      leftcols, width.left.cols,
                                      colgap.left, colgap.studlab,
                                      pooled.labels, wcalc) {
-  if (!do.calc || length(lines) == 0)
+  if (!do.calc || length(lines) == 0 || length(pooled.cols) == 0)
     return(unit(0, "mm"))
   first.pooled <- match(TRUE, leftcols %in% pooled.cols)
   prefix <-
