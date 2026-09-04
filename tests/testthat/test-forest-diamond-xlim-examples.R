@@ -507,8 +507,8 @@ test_that("bottom annotations use structured rows", {
   label.row <- text.rows$row[text.rows$label == "Du"][1]
   xlab.row <- text.rows$row[text.rows$label == "a"][1]
 
-  expect_equal(unname(axis.rows["labels"]), het.row)
-  expect_equal(test.rows, het.row + 1:2)
+  expect_equal(unname(axis.rows["labels"]), test.rows[1])
+  expect_equal(test.rows, unname(axis.rows["labels"]) + 0:1)
   expect_equal(label.row, unname(axis.rows["labels"]) + 1)
   expect_equal(xlab.row, label.row + 1)
 })

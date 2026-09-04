@@ -8854,15 +8854,6 @@ forest.meta <- function(x,
         j <- j + length(sel.prd.w)
       }
       #
-      # Heterogeneity statistics
-      #
-      if (subgroup.hetstat.logical[i]) {
-        yTE.hetstat.w[i] <- j
-        j <- j + 1
-      }
-      else
-        yTE.hetstat.w[i] <- NA
-      #
       # Test for effect in subgroup (common effect)
       #
       if (test.effect.subgroup.common.logical[i]) {
@@ -8881,11 +8872,20 @@ forest.meta <- function(x,
       else
         yTE.effect.random.w[i] <- NA
       #
+      # Heterogeneity statistics
+      #
+      if (subgroup.hetstat.logical[i]) {
+        yTE.hetstat.w[i] <- j
+        j <- j + 1
+      }
+      else
+        yTE.hetstat.w[i] <- NA
+      #
       y.w.i <- c(yTE.common.w[i], yTE.random.w[n.by.i * n.ran + seq.ran.w],
                  yTE.predict.w[n.by.i * n.prd + seq.prd.w],
-                 yTE.hetstat.w[i],
                  yTE.effect.common.w[i],
-                 yTE.effect.random.w[i])
+                 yTE.effect.random.w[i],
+                 yTE.hetstat.w[i])
       #
       if (!study.results & !any(!is.na(y.w.i))) {
         yBylab[i] <- NA
@@ -8902,8 +8902,8 @@ forest.meta <- function(x,
     if (!addrow.subgroups)
       j <- j + 1
     #
-    yTE.w <- c(yTE.common.w, yTE.random.w, yTE.predict.w, yTE.hetstat.w,
-               yTE.effect.common.w, yTE.effect.random.w)
+    yTE.w <- c(yTE.common.w, yTE.random.w, yTE.predict.w,
+               yTE.effect.common.w, yTE.effect.random.w, yTE.hetstat.w)
   }
   #
   #
@@ -9062,16 +9062,6 @@ forest.meta <- function(x,
   #
   yNext <- yNext + addrows.below.overall
   #
-  if (overall.hetstat) {
-    yHetstat <- yNext
-    yNext <- yNext + 1
-  }
-  #
-  if (resid.hetstat) {
-    yResidHetstat <- yNext
-    yNext <- yNext + 1
-  }
-  #
   if (test.overall.common) {
     yOverall.common <- yNext
     yNext <- yNext + 1
@@ -9079,6 +9069,16 @@ forest.meta <- function(x,
   #
   if (test.overall.random) {
     yOverall.random <- yNext
+    yNext <- yNext + 1
+  }
+  #
+  if (overall.hetstat) {
+    yHetstat <- yNext
+    yNext <- yNext + 1
+  }
+  #
+  if (resid.hetstat) {
+    yResidHetstat <- yNext
     yNext <- yNext + 1
   }
   #
@@ -9136,15 +9136,13 @@ forest.meta <- function(x,
   if (RoB.legend)
     yText.rob.legend <- yHead + yText.rob.legend + addrow
   #
-  yStats <- c(yHetstat,
-              yResidHetstat,
-              yOverall.common, yOverall.random,
+  yStats <- c(yOverall.common, yOverall.random,
+              yHetstat, yResidHetstat,
               ySubgroup.common, ySubgroup.random,
               yText.addline1, yText.addline2)
   #
-  yStatsDetails <- c(yHetstat,
-                     yResidHetstat,
-                     yOverall.common, yOverall.random,
+  yStatsDetails <- c(yOverall.common, yOverall.random,
+                     yHetstat, yResidHetstat,
                      ySubgroup.common, ySubgroup.random,
                      yText.addline1, yText.addline2,
                      yText.details, yText.rob.legend)
@@ -9223,21 +9221,21 @@ forest.meta <- function(x,
       tg(text.predict[i], xpos.s, just.s,
          fs.predict.labels, ff.predict.labels, fontfamily)
   }
-  # Heterogeneity statistics:
+  # Test for overall effect (common effect model):
   strt <- strt + i
   col.studlab$labels[[strt + 1]] <-
-    tg(hetstat.overall, xpos.s, just.s, fs.hetstat, ff.hetstat, fontfamily)
-  # Statistic for residual heterogeneity:
-  col.studlab$labels[[strt + 2]] <-
-    tg(hetstat.resid, xpos.s, just.s, fs.hetstat, ff.hetstat, fontfamily)
-  # Test for overall effect (common effect model):
-  col.studlab$labels[[strt + 3]] <-
     tg(text.overall.common, xpos.s, just.s, fs.test.overall, ff.test.overall,
        fontfamily)
   # Test for overall effect (random effects model):
-  col.studlab$labels[[strt + 4]] <-
+  col.studlab$labels[[strt + 2]] <-
     tg(text.overall.random, xpos.s, just.s, fs.test.overall, ff.test.overall,
        fontfamily)
+  # Heterogeneity statistics:
+  col.studlab$labels[[strt + 3]] <-
+    tg(hetstat.overall, xpos.s, just.s, fs.hetstat, ff.hetstat, fontfamily)
+  # Statistic for residual heterogeneity:
+  col.studlab$labels[[strt + 4]] <-
+    tg(hetstat.resid, xpos.s, just.s, fs.hetstat, ff.hetstat, fontfamily)
   # Test for subgroup differences (common effect model):
   col.studlab$labels[[strt + 5]] <-
     tg(text.subgroup.common, xpos.s, just.s, fs.test.subgroup, ff.test.subgroup,
@@ -9306,13 +9304,6 @@ forest.meta <- function(x,
         tg(text.predict.w[i], xpos.s, just.s,
            fs.predict.labels, ff.predict.labels, fontfamily, col.subgroup)
     }
-    # Heterogeneity statistics:
-    strt <- strt + i
-    for (i in seq_len(n.by)) {
-      col.studlab$labels[[strt + i]] <-
-        tg(hetstat.w[[i]], xpos.s, just.s,
-           fs.hetstat, ff.hetstat, fontfamily, col.subgroup)
-    }
     # Test for effect in subgroup (common effect model):
     strt <- strt + i
     for (i in seq_len(n.by)) {
@@ -9328,6 +9319,13 @@ forest.meta <- function(x,
         tg(text.effect.subgroup.random[[i]], xpos.s, just.s,
            fs.test.effect.subgroup, ff.test.effect.subgroup,
            fontfamily, col.subgroup)
+    }
+    # Heterogeneity statistics:
+    strt <- strt + i
+    for (i in seq_len(n.by)) {
+      col.studlab$labels[[strt + i]] <-
+        tg(hetstat.w[[i]], xpos.s, just.s,
+           fs.hetstat, ff.hetstat, fontfamily, col.subgroup)
     }
   }
   #
@@ -10297,12 +10295,14 @@ forest.meta <- function(x,
   if (calcwidth.predict)
     calcwidth.lines <- c(calcwidth.lines, predict.lines)
   #
-  hetstat.lines <- 1 + n.com + n.ran + n.prd + seq(2)
+  overall.tests.lines <- 1 + n.com + n.ran + n.prd + seq(2)
+  hetstat.lines <- 1 + n.com + n.ran + n.prd + 2 + seq(2)
   del.lines <- c(del.lines, hetstat.lines)
   if (calcwidth.hetstat)
     calcwidth.lines <- c(calcwidth.lines, hetstat.lines)
   #
-  tests.lines <- 1 + n.com + n.ran + n.prd + 2 + seq(4)
+  tests.lines <- c(overall.tests.lines,
+                   1 + n.com + n.ran + n.prd + 4 + seq(2))
   del.lines <- c(del.lines, tests.lines)
   if (calcwidth.tests)
     calcwidth.lines <- c(calcwidth.lines, tests.lines)
@@ -10357,23 +10357,24 @@ forest.meta <- function(x,
     if (calcwidth.predict)
       calcwidth.lines <- c(calcwidth.lines, predict.lines.w)
     #
-    hetstat.lines.w <-
-      nd + n.by + n.by * n.com + n.by * n.ran + n.by * n.prd +
-      seq_len(n.by)
-    hetstat.lines <- c(hetstat.lines, hetstat.lines.w)
-    del.lines <- c(del.lines, hetstat.lines.w)
-    if (calcwidth.hetstat)
-      calcwidth.lines <- c(calcwidth.lines, hetstat.lines.w)
     # test for effect (CE)
     tests.lines.common.w <-
       nd + n.by + n.by * n.com + n.by * n.ran + n.by * n.prd +
-      n.by + seq_len(n.by)
+      seq_len(n.by)
     del.lines <- c(del.lines, tests.lines.common.w)
     # test for effect (RE)
     tests.lines.random.w <-
       nd + n.by + n.by * n.com + n.by * n.ran + n.by * n.prd +
       n.by + n.by + seq_len(n.by)
     del.lines <- c(del.lines, tests.lines.random.w)
+    # Heterogeneity statistics
+    hetstat.lines.w <-
+      nd + n.by + n.by * n.com + n.by * n.ran + n.by * n.prd +
+      n.by + n.by + seq_len(n.by)
+    hetstat.lines <- c(hetstat.lines, hetstat.lines.w)
+    del.lines <- c(del.lines, hetstat.lines.w)
+    if (calcwidth.hetstat)
+      calcwidth.lines <- c(calcwidth.lines, hetstat.lines.w)
     if (calcwidth.tests)
       calcwidth.lines <-
       c(calcwidth.lines, tests.lines.common.w, tests.lines.random.w)

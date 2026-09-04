@@ -2,7 +2,8 @@
 
 ### Major changes
 
-* Forest plots have improved layout and column spacing.
+* Forest plots have improved layout and column spacing, including printing tests
+  for an overall effect before heterogeneity statistics.
 
 * Forest plots can now include a customisable main title, using the
   meta-analysis title by default.
