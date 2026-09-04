@@ -1525,3 +1525,6 @@ warn_only_subgroup <- function(x) {
   #
   invisible(NULL)
 }
+
+set_xpos <- function(x)
+  c(left = 0, center = 0.5, right = 1)[[x]]

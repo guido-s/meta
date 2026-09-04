@@ -7,6 +7,8 @@
 * Forest plots can now include a customisable main title, using the
   meta-analysis title by default.
 
+* Tests for an overall effect are now shown by default in forest plots.
+
 * Cluster-robust variance estimators are now available for univariate random
   effects meta-analysis and three-level models.
   ([Tipton and Pustejovsky, 2015](https://doi.org/10.3102/1076998615606099);

@@ -390,11 +390,10 @@ settings.meta <- function(..., quietly = TRUE) {
   #
   # Set internal variables
   #
-  settings <- c("BMJ", "JAMA", "RevMan5", 
-                "IQWiG5", "IQWiG6",
-                "geneexpr", "IVhet",
+  settings.layouts <- c("BMJ", "JAMA", "RevMan5")
+  settings <- c(settings.layouts, "IQWiG5", "IQWiG6", "geneexpr", "IVhet",
                 "meta4", "meta7")
-  layouts <- c(settings[1:2], "meta")
+  layouts <- c(settings.layouts, "meta")
   #
   print.settings <- FALSE
   reset.settings <- FALSE
@@ -695,7 +694,7 @@ settings.meta <- function(..., quietly = TRUE) {
     #
     setOption("layout", "meta")
     setOption("forest.details", FALSE)
-    setOption("test.overall", FALSE)
+    setOption("test.overall", TRUE)
     setOption("test.effect.subgroup", FALSE)
     setOption("digits.forest", 2)
     setOption("digits.TE.forest", 4)
@@ -846,11 +845,11 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("calcwidth.addline", TRUE)
     setOption("calcwidth.details", TRUE)
     #
-    setOption("just.main", "center")
+    setOption("just.main", NULL)
     setOption("just.studlab", "left")
     setOption("just.addcols", "center")
     #
-    setOption("xpos.main", 0.5)
+    setOption("xpos.main", NULL)
     setOption("gap.main", 1)
     setOption("lineheight.main", 1)
     #

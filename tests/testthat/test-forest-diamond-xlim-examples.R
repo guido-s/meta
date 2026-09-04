@@ -52,6 +52,26 @@ test_that("forest accepts graphics devices", {
   expect_true(file.exists("Rplots.pdf"))
 })
 
+test_that("forest does not create Rplots.pdf for RoB file output", {
+  data(caffeine)
+  m <- suppressWarnings(
+    metabin(h.caf, n.caf, h.decaf, n.decaf, sm = "OR",
+            data = caffeine, studlab = paste(study, year))
+  )
+  m <- rob(D1, D2, D3, D4, D5, overall = rob,
+           data = m, tool = "rob2")
+  oldwd <- setwd(tempdir())
+  on.exit(setwd(oldwd), add = TRUE)
+  file <- tempfile(fileext = ".pdf")
+  on.exit(unlink(file), add = TRUE)
+  unlink("Rplots.pdf")
+
+  forest(m, filename = file)
+
+  expect_true(file.exists(file))
+  expect_false(file.exists("Rplots.pdf"))
+})
+
 test_that("forest applies colours to individual study-row text", {
   m <- metagen(1:3, 1:3, sm = "MD")
   m$exclude <- c(FALSE, TRUE, FALSE)
@@ -137,6 +157,12 @@ test_that("forest accepts plot titles", {
   expect_error(forest(m, main = "Title", gap.main = 1.5),
                "Argument 'gap.main'")
   dev.off()
+})
+
+test_that("set_xpos maps text justification to positions", {
+  expect_equal(meta:::set_xpos("left"), 0)
+  expect_equal(meta:::set_xpos("center"), 0.5)
+  expect_equal(meta:::set_xpos("right"), 1)
 })
 
 test_that("large file-output titles reserve enough rows", {
@@ -266,20 +292,23 @@ test_that("calcwidth.pooled reserves extra spacing for pooled labels", {
   on.exit(if (dev.cur() > 1) dev.off(), add = TRUE)
   forest(metagen(1:3, 1:3, random = FALSE),
          leftcols = c("TE", "seTE"), leftlabs = c("b", "c"),
-         hetstat = FALSE, calcwidth.pooled = FALSE)
+         hetstat = FALSE, calcwidth.pooled = FALSE,
+         test.overall = FALSE)
   forest(metagen(1:3, 1:3, random = FALSE),
          leftcols = c("TE", "seTE"), leftlabs = c("b", "c"),
-         hetstat = FALSE, calcwidth.pooled = TRUE)
+         hetstat = FALSE, calcwidth.pooled = TRUE,
+         test.overall = FALSE)
   forest(metacont(101:103, 1:3, rep(1, 3),
-                  201:203, 6:4, rep(1, 3)),
-         leftcols = c("studlab", "n.e", "n.c"), calcwidth.pooled = FALSE)
+                   201:203, 6:4, rep(1, 3)),
+         leftcols = c("studlab", "n.e", "n.c"), calcwidth.pooled = FALSE,
+         test.overall = FALSE)
   dat <- data.frame(TE = 1:3, seTE = 1:3, grp = c("a", "b", "c"))
   ma <- metagen(TE, seTE, data = dat, random = FALSE)
   forest(ma, leftcols = c("studlab", "grp"), leftlabs = c("", "Group"),
-         hetstat = FALSE, calcwidth.pooled = TRUE)
+         hetstat = FALSE, calcwidth.pooled = TRUE, test.overall = FALSE)
   forest(ma, leftcols = c("studlab", "grp"), leftlabs = c("", "Group"),
          data.pooled = data.frame(grp = "Common effect model"),
-         hetstat = FALSE, calcwidth.pooled = TRUE)
+         hetstat = FALSE, calcwidth.pooled = TRUE, test.overall = FALSE)
   dev.off()
 
   widths <- get(".forest_widths", envir = .GlobalEnv)
@@ -300,7 +329,7 @@ test_that("calcwidth.pooled reserves extra spacing for pooled labels", {
   args <- list(header = "bo", details = TRUE, main = "MY TITLE",
                xlab = "djdjdjdjjd", label.left = "djdjdj",
                label.right = "jdjdjdh", layout = "R",
-               overall.hetstat = FALSE)
+               overall.hetstat = FALSE, test.overall = FALSE)
   res1 <- do.call(forest, c(list(x = ma, filename = file1,
                                  calcwidth.pooled = FALSE), args))
   res2 <- do.call(forest, c(list(x = ma, filename = file2,
@@ -316,7 +345,8 @@ test_that("calcwidth.pooled reserves extra spacing for pooled labels", {
   file4 <- tempfile(fileext = ".pdf")
   on.exit(unlink(c(file3, file4)), add = TRUE)
   args <- list(x = meta1,
-               leftcols = c("studlab", "n.e", "event.e", "n.c", "event.c"))
+               leftcols = c("studlab", "n.e", "event.e", "n.c", "event.c"),
+               test.overall = FALSE)
   res3 <- do.call(forest, c(list(filename = file3,
                                  calcwidth.pooled = FALSE), args))
   res4 <- do.call(forest, c(list(filename = file4,
@@ -467,8 +497,7 @@ test_that("bottom annotations use structured rows", {
 
   pdf(tempfile())
   on.exit(if (dev.cur() > 1) dev.off(), add = TRUE)
-  forest(metagen(1:5, 1:5), xlab = "a", label.left = "Du",
-         test.overall = TRUE)
+  forest(metagen(1:5, 1:5), xlab = "a", label.left = "Du")
   dev.off()
 
   axis.rows <- get(".axis_rows", envir = .GlobalEnv)[[1]]

@@ -1,9 +1,9 @@
 #' Forest plot to display the result of a meta-analysis
-#' 
+#'
 #' @description
 #' Draw a forest plot (using grid graphics system) in the active
 #' graphics window or store the forest plot in a file.
-#' 
+#'
 #' @aliases forest forest.meta
 #' 
 #' @param x An object of class \code{meta}.
@@ -89,7 +89,8 @@
 #' @param xlab A label for the x-axis.
 #' @param xlab.pos A numeric specifying the center of the label on the
 #'   x-axis.
-#' @param main A title for the forest plot.
+#' @param main A title for the forest plot; by default using list element
+#'   'title' from the meta-analysis object \code{x}.
 #' @param col.main The colour of the main title.
 #' @param xpos.main Horizontal position of title.
 #' @param gap.main Number of empty rows between title and column headings.
@@ -170,7 +171,7 @@
 #'   as colour for region between CID limits if argument \code{fill.equi} was
 #'   not provided).
 #' @param fill.equi Colour(s) for region between limits of equivalence defined
-#'   by arguments \code{cid}, \code{cid.lower} or \code{cid.upper}.
+#'   by arguments \code{cid}, \code{cid.below.null} or \code{cid.above.null}.
 #' @param fill.lower.equi Colour of region between lower limit(s) and
 #'   reference value. Can be equal to the number of lower limits or
 #'   the number of limits plus 1 (in this case the the region between
@@ -234,7 +235,8 @@
 #' @param col.study The colour for individual study results and
 #'   confidence limits.
 #' @param col.study.text Colour(s) for text in individual study rows,
-#'   including study labels and study results.
+#'   including study labels and study results; excluded studies are printed
+#'   in lightgrey by default unless the argument is provided.
 #' @param col.square The colour for squares reflecting study's weight
 #'   in the meta-analysis.
 #' @param col.square.lines The colour for the outer lines of squares
@@ -316,9 +318,9 @@
 #' @param print.pval.Q A logical value indicating whether to print the
 #'   p-value of the heterogeneity statistic Q.
 #' @param print.Rb A logical value indicating whether to print the
-#'   value of the I-squared statistic.
+#'   value of the Rb statistic.
 #' @param print.Rb.ci A logical value indicating whether to print the
-#'   confidence interval of the I-squared statistic.
+#'   confidence interval of the Rb statistic.
 #' @param label.n A character string specifying the column label for
 #'   the sample size.
 #' @param label.events A character string specifying the column label for
@@ -728,7 +730,7 @@
 #' the argument \code{device.args}.
 #' }
 #' 
-#' \subsection{Default layout for studies and pooled effects}{
+#' \subsection{Default forest plot layout (layout = "meta")}{
 #' 
 #' By default, treatment estimates and confidence intervals are
 #' plotted in the following way:
@@ -736,10 +738,12 @@
 #' \item For an individual study, a square with treatment estimate in
 #'   the center and confidence interval as line extending either side
 #'   of the square (\code{type.study = "square"})
-#' \item For meta-analysis results, a diamond with treatment estimate
-#'   in the center and right and left side corresponding to lower and
-#'   upper confidence limits (\code{type.common = "diamond"},
-#'   \code{type.random = "diamond"}, and \code{type.subgroup = "diamond"})
+#' \item For overall meta-analysis results, a diamond is used by default
+#'   (\code{type.common = "diamond"} and \code{type.random = "diamond"}).
+#' \item For subgroup results, a diamond is used by default if individual
+#'   study results are shown; otherwise, a square is used
+#'   (\code{type.subgroup}, \code{type.subgroup.common},
+#'   \code{type.subgroup.random}, and \code{study.results}).
 #' }
 #' 
 #' In a forest plot, size of the squares typically reflects the precision of
@@ -759,8 +763,29 @@
 #' Guddat et al. (2012) is used.
 #' }
 #' 
-#' \subsection{Columns printed on left side of forest plot}{
+#' \subsection{Spacing below forest plot results}{
+#'
+#' Information on heterogeneity measures and statistical tests is printed
+#' below the meta-analysis results. Argument
+#' \code{addrows.below.overall} can be used to specify the number of
+#' empty rows between these results and the information below them.
+#' By default, \code{addrows.below.overall = NULL}; the function determines
+#' the required spacing automatically.
+#'
+#' The width of information printed in the leftmost column is considered
+#' automatically when calculating the width of the forest plot. Therefore,
+#' this information does not overlap with the forest plot or x-axis by
+#' default. The automatic calculation can be disabled with the relevant
+#' \code{calcwidth.*} arguments.
+#'
+#' Very wide text supplied to \code{xlab}, \code{label.left}, or
+#' \code{label.right} can extend beyond the graphics area. Such text is
+#' not covered by the width calculation for the leftmost column and may
+#' need to be shortened or formatted over multiple lines.
+#' }
 #' 
+#' \subsection{Columns printed on left side of forest plot}{
+#'
 #' Argument \code{leftcols} can be used to specify columns which are
 #' printed on the left side of the forest plot. By default, i.e. if
 #' argument \code{leftcols} is \code{NULL} and \code{layout = "meta"},
@@ -803,23 +828,6 @@
 #' forest plot if the variable \code{"study"} was used in the command
 #' to conduct the meta-analysis. If no additional variable is provided
 #' by the user, no study labels will be printed.
-#' }
-#' 
-#' \subsection{Overlapping information on left side of forest plot}{
-#'
-#' Depending on the number of columns printed on the left side of the
-#' forest plot, information on heterogeneity measures or statistical
-#' tests (see below) can be overlapping with the x-axis. Argument
-#' \code{addrows.below.overall} can be used to specify the number of
-#' empty rows that are printed between meta-analysis results and
-#' information on heterogeneity measures and statistical tests. By
-#' default, no additional rows are added to the forest plot. If
-#' \code{addrows.below.overall = NULL}, the function tries to add a
-#' sufficient number of empty rows to prevent overlapping
-#' text. Another possibility is to manually increase the space between
-#' the columns on the left side (argument \code{colgap.left}) or
-#' between the columns on the left side and the forest plot (argument
-#' \code{colgap.forest.left}).
 #' }
 #' 
 #' \subsection{Columns printed on right side of forest plot}{
@@ -957,12 +965,11 @@
 #'   model)
 #' }
 #' 
-#' By default, these arguments are \code{FALSE} with exception of
-#' tests for subgroup differences which are \code{TRUE}. R function
-#' \code{\link{settings.meta}} can be used to change this default for
-#' the entire R session. For example, use the following command to
-#' always print results of tests for an overall effect:
-#' \code{settings.meta(test.overall = TRUE)}.
+#' By default, tests for an overall effect and tests for subgroup
+#' differences are printed if the corresponding models or subgroup analyses
+#' are available. Tests can be suppressed with the relevant arguments.
+#' R function \code{\link{settings.meta}} can be used to change this default
+#' for the entire R session.
 #' }
 #' 
 #' \subsection{Highlight regions corresponding to minimal clinically important
@@ -990,8 +997,8 @@
 #' number of subgroups can be provided to determine which subgroup
 #' summaries are printed. By default, only subgroup results based on
 #' at least two studies are printed which is identical to use argument
-#' \code{subgroup = k.w > 1}. The order of the logical vector
-#' corresponds to the order of subgroups in list element 'subgroup.levels' of a
+#' \code{subgroup = k.w > 1}. The order of the logical vector corresponds to
+#' the order of subgroups in list element 'subgroup.levels' of a
 #' meta-analysis object. Argument \code{subgroup = k.w >= 1} can be
 #' used to show results for all subgroups (including those with a
 #' single study).
@@ -999,19 +1006,15 @@
 #' The following arguments can be used in a similar way:
 #'
 #' \itemize{
-#' \item \code{subgroup.hetstat} (heterogeneity statistic in
-#'   subgroups),
-#' \item \code{common.subgroup} (common effect estimates in
-#'   subgroups),
-#' \item \code{random.subgroup} (random effects estimates in
-#'   subgroups),
-#' \item \code{prediction.subgroup} (prediction interval in
-#'   subgroups),
+#' \item \code{subgroup.hetstat} (heterogeneity statistic in subgroups),
+#' \item \code{common.subgroup} (common effect estimates in subgroups),
+#' \item \code{random.subgroup} (random effects estimates in subgroups),
+#' \item \code{prediction.subgroup} (prediction interval in subgroups),
 #' \item \code{test.effect.subgroup} (test for effect in subgroups),
-#' \item \code{test.effect.subgroup.common} (test for effect in
-#'   subgroups, common effect model),
-#' \item \code{test.effect.subgroup.random} (test for effect in
-#'   subgroups, random effects model).
+#' \item \code{test.effect.subgroup.common} (test for effect in subgroups,
+#'   common effect model),
+#' \item \code{test.effect.subgroup.random} (test for effect in subgroups,
+#'   random effects model).
 #' }
 #' }
 #'
@@ -1077,11 +1080,11 @@
 #' \enumerate{
 #' \item All columns are printed on the left side of the forest plot
 #'   (see arguments \code{leftcols} and \code{rightcols})
+#' \item The main title is left aligned (\code{just.main})
 #' \item Tests for overall effect and subgroup differences are printed
-#'   (\code{test.overall}, \code{test.effect.subgroup},
-#'   \code{test.subgroup})
+#'   (\code{test.overall}, \code{test.subgroup})
 #' \item Diamonds representing meta-analysis results are printed in
-#'   black (\code{diamond.common}, \code{diamond.random})
+#'   black (\code{col.diamond.common}, \code{col.diamond.random})
 #' \item Colour of squares depends on the meta-analysis object
 #'   (\code{col.square}, \code{col.square.lines})
 #' \item Information on effect measure and meta-analysis method is
@@ -1097,6 +1100,9 @@
 #' \code{rightcols} are \code{NULL}), instructions for authors of the
 #' \emph{Journal of the American Medical Association} are taken into account:
 #' \enumerate{
+#' \item All columns are printed on the left side of the forest plot
+#'   (see arguments \code{leftcols} and \code{rightcols})
+#' \item The main title is center aligned (\code{just.main})
 #' \item Graph labels on right and left side are printed in bold font
 #'   at top of forest plot (see arguments \code{bottom.lr} and
 #'   \code{ff.lr})
@@ -1104,7 +1110,7 @@
 #'   interval is printed at bottom of forest plot (\code{xlab})
 #' \item Tests for overall effect are printed (\code{test.overall})
 #' \item Diamonds representing meta-analysis results are printed in
-#'   lightblue (\code{diamond.common}, \code{diamond.random})
+#'   lightblue (\code{col.diamond.common}, \code{col.diamond.random})
 #' \item Squares representing individual study results are printed in
 #'   darkblue (\code{col.square}, \code{col.square.lines})
 #' \item Between-study variance \eqn{\tau^2} is not printed
@@ -1117,6 +1123,23 @@
 #' }
 #' Study labels according to JAMA guidelines can be generated using
 #' \code{\link{labels.meta}}.
+#' }
+#'
+#' \subsection{Forest plots in BMJ layout}{
+#'
+#' If argument \code{layout = "BMJ"} (and arguments \code{leftcols} and
+#' \code{rightcols} are \code{NULL}), the following features of forest plots
+#' for the \emph{British Medical Journal} are taken into account:
+#' \enumerate{
+#' \item Columns are printed on the left and right side of the forest plot
+#'   (see arguments \code{leftcols} and \code{rightcols})
+#' \item The main title is center aligned (\code{just.main})
+#' \item Combined treatment-group headers are centered over both columns for
+#'   binary outcomes, continuous outcomes, and incidence rates
+#' \item Prediction intervals are shown if requested (\code{prediction})
+#' \item Tests for overall effect and subgroup differences are printed
+#'   (\code{test.overall}, \code{test.subgroup})
+#' }
 #' }
 #'
 #' \subsection{Forest plots showing results of subgroups}{
@@ -1176,14 +1199,13 @@
 #' 
 #' # Layout of forest plot similar to Review Manager 5
 #' #
-#' # Furthermore, add labels on both sides of forest plot and
-#' # prediction interval
+#' # Furthermore, add labels on both sides of the forest plot and
+#' # a prediction interval
 #' #
 #' forest(ma1, layout = "RevMan5", common = FALSE,
 #'   label.left = "Favours experimental", col.label.left = "green",
 #'   label.right = "Favours control", col.label.right = "red",
 #'   prediction = TRUE)
-#' 
 #' 
 #' \dontrun{
 #' #
@@ -1195,22 +1217,17 @@
 #' #
 #' forest(ma1, filename = "forest-ma1-1.pdf")
 #' 
-#' # 2) Specify the device; results in the creation of a file "Rplots.pdf"
+#' # 2) Specify the device; results in the creation of a file "Rplots.svg"
 #' #
-#' forest(ma1, device = pdf)
+#' forest(ma1, device = "svg")
 #' 
-#' # 3) Manually set width to 10 inches; a different method is used to
-#' #    determine the height of the forest plot
-#' #
-#' forest(ma1, filename = "forest-ma1-2.pdf", width = 10)
-#' 
-#' # 4) Set title for PDF file and set background colour of forest plot
-#' forest(ma1, filename = "forest-ma1-3.pdf",
+#' # 3) Set title for PDF file and set background colour of forest plot
+#' forest(ma1, filename = "forest-ma1-2.pdf",
 #'   device.args = list(title = "My Forest Plot", bg = "green"))
 #' 
-#' # 5) Manually specify the height of the figure
+#' # 4) Manually specify the width and height of the figure
 #' #
-#' forest(ma1, filename = "forest-ma1-4.pdf", width = 10, height = 3)
+#' forest(ma1, filename = "forest-ma1-3.pdf", width = 10, height = 3)
 #' }
 #' 
 #' \dontrun{
@@ -1220,15 +1237,14 @@
 #' 
 #' # Define equivalence limits: 0.75 and 1 / 0.75
 #' #
-#' forest(ma1, layout = "RevMan5", common = FALSE, cid = 0.75,
-#'   fill = "lightgray", fill.cid = "white")
+#' forest(ma1, layout = "RevMan5", common = FALSE,
+#'   cid = 0.75, fill = "lightgray", fill.cid = "white")
 #' 
 #' # Fill regions with beneficial and detrimental effects
 #' #
-#' forest(ma1, layout = "RevMan5", common = FALSE, cid = 0.75,
-#'   fill = "lightgray",
-#'   fill.cid.below.null = "green",
-#'   fill.cid.above.null = "red")
+#' forest(ma1, layout = "RevMan5", common = FALSE,
+#'   cid = 0.75, fill = "lightgray", fill.cid = "white",
+#'   fill.cid.below.null = "green", fill.cid.above.null = "red")
 #' 
 #' # Define thresholds for small, moderate and large effects
 #' # and use hcl.colors() to define colours to fill regions
@@ -1236,8 +1252,7 @@
 #' thresholds <- c(0.25, 0.5, 0.75)
 #' n.cols <- length(thresholds)
 #' forest(ma1, layout = "RevMan5", common = FALSE,
-#'   label.left = "Desirable effect", 
-#'   label.right = "Undesirable effect", 
+#'   label.left = "Desirable effect", label.right = "Undesirable effect",
 #'   lty.cid = 3, col.cid = "darkgray",
 #'   cid.below.null = thresholds, cid.above.null = 1 / rev(thresholds),
 #'   fill.cid.below.null =
@@ -1259,7 +1274,7 @@
 #' #
 #' forest(ma2, sortvar = -TE, random = FALSE, subgroup = k.w >= 1)
 #' 
-#' # Forest plot specifying argument xlim
+#' # Forest plot specifying argument 'xlim'
 #' #
 #' forest(ma1, xlim = c(0.01, 10))
 #' 
@@ -1277,16 +1292,10 @@
 #' #
 #' forest(ma1, random = FALSE, leftcols = "studlab")
 #' 
-#' # Use argument 'calcwidth.hetstat' to consider text for heterogeneity
-#' # measures in width of column with study labels
-#' #
-#' forest(ma1, random = FALSE, leftcols = "studlab",
-#'   calcwidth.hetstat = TRUE)
-#' 
 #' # Use argument 'addrows.below.overall' to manually add two empty
 #' # rows
 #' #
-#' forest(ma1, random = FALSE, leftcols = "studlab", addrows = 2)
+#' forest(ma1, random = FALSE, leftcols = "studlab", addrows.below.overall = 2)
 #' 
 #' # Do not print columns on right side of forest plot
 #' #
@@ -1381,16 +1390,6 @@
 #' # Print only subgroup results
 #' #
 #' forest(ma2, layout = "subgroup")
-#' 
-#' # Print only subgroup results (and consider text for tests of
-#' # subgroup differences in width of subgroup column)
-#' #
-#' forest(ma2, layout = "subgroup", calcwidth.tests = TRUE)
-#' 
-#' # Print only subgroup results (and consider text for heterogeneity
-#' # in width of subgroup column)
-#' #
-#' forest(ma2, layout = "subgroup", calcwidth.hetstat = TRUE)
 #' }
 #'
 #' @method forest meta
@@ -1825,6 +1824,22 @@ forest.meta <- function(x,
   #
   if (is.null(filename) & !is.null(device))
     filename <- paste0("Rplots.", device.name)
+  if (!is.null(filename)) {
+    default.device.file <- tempfile(fileext = ".pdf")
+    old.device <- getOption("device")
+    old.devs <- dev.list()
+    options(device = function(width = 7, height = 7, ...)
+      pdf(file = default.device.file, width = width, height = height, ...))
+    on.exit({
+      new.devs <- setdiff(dev.list(), c(old.devs, 1))
+      for (new.dev in rev(new.devs)) {
+        dev.set(new.dev)
+        dev.off()
+      }
+      options(device = old.device)
+      unlink(default.device.file)
+    }, add = TRUE)
+  }
   #
   # Capture width and height expressions to safely evaluate them later
   #
@@ -3200,7 +3215,6 @@ forest.meta <- function(x,
   if (!is.null(main))
     chkchar(main, length = 1)
   main <- replaceNULL(main, "")
-  chknumeric(xpos.main, min = 0, max = 1, length = 1)
   chknumeric(gap.main, min = 0, length = 1, integer = TRUE)
   chknumeric(lineheight.main, min = 0, zero = FALSE, length = 1)
   #
@@ -3294,6 +3308,7 @@ forest.meta <- function(x,
   #
   just <- setchar(just, gs("just"))
   just.cols <- just
+  just.main <- replaceNULL(just.main, if (revman5) "left" else "center")
   just.main <- setchar(just.main, gs("just"))
   just.studlab <- setchar(just.studlab, gs("just"))
   just.addcols <- setchar(just.addcols, gs("just"))
@@ -3302,6 +3317,9 @@ forest.meta <- function(x,
   just.label.e <- setchar(just.label.e, gs("just"))
   just.label.c <- setchar(just.label.c, gs("just"))
   just.rob <- setchar(just.rob, gs("just"))
+  #
+  xpos.main <- replaceNULL(xpos.main, set_xpos(just.main))
+  chknumeric(xpos.main, min = 0, max = 1, length = 1)
   #
   if (!is.null(bmj.text))
     chkchar(bmj.text, length = 1)
@@ -3830,40 +3848,11 @@ forest.meta <- function(x,
       xlim <- "symmetric"
   }
   #
-  if (just.studlab == "left")
-    xpos.s <- 0
-  else if (just.studlab == "center")
-    xpos.s <- 0.5
-  else if (just.studlab == "right")
-    xpos.s <- 1
-  #
-  if (just.cols == "left")
-    xpos.c <- 0
-  else if (just.cols == "center")
-    xpos.c <- 0.5
-  else if (just.cols == "right")
-    xpos.c <- 1
-  #
-  if (just.label.e == "left")
-    xpos.label.e <- 0
-  else if (just.label.e == "center")
-    xpos.label.e <- 0.5
-  else if (just.label.e == "right")
-    xpos.label.e <- 1
-  #
-  if (just.label.c == "left")
-    xpos.label.c <- 0
-  else if (just.label.c == "center")
-    xpos.label.c <- 0.5
-  else if (just.label.c == "right")
-    xpos.label.c <- 1
-  #
-  if (just.rob == "left")
-    xpos.rob <- 0
-  else if (just.rob == "center")
-    xpos.rob <- 0.5
-  else if (just.rob == "right")
-    xpos.rob <- 1
+  xpos.s <- set_xpos(just.studlab)
+  xpos.c <- set_xpos(just.cols)
+  xpos.label.e <- set_xpos(just.label.e)
+  xpos.label.c <- set_xpos(just.label.c)
+  xpos.rob <- set_xpos(just.rob)
   #
   if (log.xaxis) {
     ref <- log(ref)
