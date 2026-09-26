@@ -811,11 +811,13 @@ update.meta <- function(object,
     #
     if (inherits(object, "metaprop") && object$sm == "PFT") {
       exclude <- replaceNULL(object$exclude, rep(FALSE, length(object$n)))
-      object$n.harmonic.mean <- 1 / mean(1 / object$n[!exclude])
+      sel.harmonic <- !exclude & !is.na(object$event) & !is.na(object$n)
+      object$n.harmonic.mean <- 1 / mean(1 / object$n[sel.harmonic])
     }
     if (inherits(object, "metarate") && object$sm == "IRFT") {
       exclude <- replaceNULL(object$exclude, rep(FALSE, length(object$time)))
-      object$t.harmonic.mean <- 1 / mean(1 / object$time[!exclude])
+      sel.harmonic <- !exclude & !is.na(object$event) & !is.na(object$time)
+      object$t.harmonic.mean <- 1 / mean(1 / object$time[sel.harmonic])
     }
   }
   

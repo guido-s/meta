@@ -657,7 +657,10 @@ print.meta <- function(x,
     lowTE.predict.w <- x$lower.predict.w
     uppTE.predict.w <- x$upper.predict.w
     #
-    harmonic.mean.w <- x$n.harmonic.mean.w
+    harmonic.mean.w <- if (sm == "IRFT")
+                         x$t.harmonic.mean.w
+                       else
+                         x$n.harmonic.mean.w
     #
     Q.b.common <- unlist(x$Q.b.common)
     names(Q.b.common) <- colnames(lowTE.common.w)

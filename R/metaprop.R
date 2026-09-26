@@ -1216,7 +1216,8 @@ metaprop <- function(event, n, studlab,
   }
 
 
-  n.harmonic.mean <- 1 / mean(1 / n[!exclude])
+  sel.harmonic <- !exclude & !is.na(event) & !is.na(n)
+  n.harmonic.mean <- 1 / mean(1 / n[sel.harmonic])
 
 
   #
