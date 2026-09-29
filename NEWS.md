@@ -64,6 +64,9 @@
   - print labels for pooled estimates and heterogeneity or details on the left
     side if study labels are printed on the right side, and suppress these
     labels if argument 'leftcols' is FALSE
+  - the reporting base for event frequencies is printed in the forest plot using
+    the JAMA layout for the meta-analysis of single proportions or rates
+    [(issue #104)](https://github.com/guido-s/meta/issues/104)
 
 * forest.metacum():
   - use default colours for squares regardless of layout

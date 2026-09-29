@@ -2059,6 +2059,7 @@ forest.meta <- function(x,
   miss.type.subgroup.common <- missing(type.subgroup.common)
   miss.type.subgroup.random <- missing(type.subgroup.random)
   miss.weight.study <- missing(weight.study)
+  miss.xlab <- missing(xlab) || is.null(xlab)
   miss.xlab.pos <- missing(xlab.pos)
   #
   notavail.digits.addcols.left <-
@@ -4097,10 +4098,8 @@ forest.meta <- function(x,
   else
     ci.lab <- paste0(100 * level.ma, "% CI")
   #
-  if (jama) {
-    if (xlab == "")
-      xlab <- paste0(sm.lab, " (", ci.lab, ")")
-    #
+  if (jama && miss.xlab) {
+    xlab <- smlab
     smlab <- ""
     bottom.lr <- FALSE
   }
