@@ -926,7 +926,8 @@ metarate <- function(event, time, studlab,
   if (!is.null(n))
     n <- int2num(n)
   #
-  t.harmonic.mean <- 1 / mean(1 / time[!exclude])
+  sel.harmonic <- !exclude & !is.na(event) & !is.na(time)
+  t.harmonic.mean <- 1 / mean(1 / time[sel.harmonic])
   #
   # Check for whole numbers
   #

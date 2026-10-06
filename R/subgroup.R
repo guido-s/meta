@@ -526,7 +526,7 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                          if (inc) sumNA(meta1$time.c, meta1$exclude) else NA,
                        #
                        n.harmonic.mean = replaceNULL(meta1$n.harmonic.mean),
-                       t.harmonic.mean = 1 / mean(1 / x$time[sel]))
+                       t.harmonic.mean = replaceNULL(meta1$t.harmonic.mean))
   }
   #
   k.w <- extrVec(res.i, "k", levs)

@@ -111,7 +111,7 @@ summary.meta <- function(object, ...) {
   if (metaprop)
     ci.c$harmonic.mean <- object$n.harmonic.mean
   else if (metarate)
-    ci.c$harmonic.mean <- 1 / mean(1 / object$time)
+    ci.c$harmonic.mean <- object$t.harmonic.mean
   #
   ci.r <- list(TE = object$TE.random,
                seTE = object$seTE.random,
@@ -124,7 +124,7 @@ summary.meta <- function(object, ...) {
   if (metaprop)
     ci.r$harmonic.mean <- object$n.harmonic.mean
   else if (metarate)
-    ci.r$harmonic.mean <- 1 / mean(1 / object$time)
+    ci.r$harmonic.mean <- object$t.harmonic.mean
   #
   ci.p <- list(TE = NA,
                seTE = object$seTE.predict,
@@ -189,8 +189,10 @@ summary.meta <- function(object, ...) {
                          df = object$df.predict.w,
                          harmonic.mean = object$n.harmonic.mean.w)
     #
-    if (metarate)
+    if (metarate) {
       ci.random.w$harmonic.mean <- object$t.harmonic.mean.w
+      ci.predict.w$harmonic.mean <- object$t.harmonic.mean.w
+    }
     #
     res$within.common  <- ci.common.w
     res$within.random  <- ci.random.w
