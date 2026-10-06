@@ -374,22 +374,13 @@ bubble.metareg <- function(x,
     ylim <- scale * range(ys)
   #
   if (missing(ylab)) {
-    ylab <- xlab_meta(sm, backtransf, func.transf = m1$func.transf,
-                 func.backtransf = m1$func.backtransf)
-    #
-    if (ylab == "") {
-      if (sm == "PRAW" |
-          (backtransf & sm %in% c("PLN", "PAS", "PFT", "PLOGIT")))
-        ylab <- "Proportion"
-      else if (sm == "IR" | (backtransf & sm %in% c("IRLN", "IRS", "IRFT")))
-        ylab <- "Incidence Rate"
-      else if (sm == "MRAW" | (backtransf & sm == "MLN"))
-        ylab <- "Mean"
-      else if (sm == "COR" | (backtransf & sm == "ZCOR"))
-        ylab <- "Correlation"
-    }
+    ylab <-
+      xlab_meta(sm, backtransf,
+                pscale = pscale,
+                irscale = irscale, irunit = x$.meta$x$irunit,
+                func.transf = m1$func.transf,
+                func.backtransf = m1$func.backtransf)
   }
-  
   
   missing.cex <- missing(cex)
   #
@@ -581,12 +572,8 @@ bubble.metareg <- function(x,
       box()
   }
   
-  
   invisible(NULL)
 }
-
-
-
 
 
 #' @rdname bubble.metareg

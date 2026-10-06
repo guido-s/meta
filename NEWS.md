@@ -278,6 +278,9 @@
     sizes or times for individual studies and the corresponding harmonic mean
     for the meta-regression line
     [(issue #102)](https://github.com/guido-s/meta/issues/102)
+  - print the correct y-axis label if 'pscale' or 'irscale' differs from 1
+    [(issue #105)](https://github.com/guido-s/meta/issues/105)
+
 
 * metabias():
   - use efficient score for risk ratio instead of odds ratio in meta-analysis

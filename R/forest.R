@@ -3923,13 +3923,15 @@ forest.meta <- function(x,
   #
   if (miss.xlab) {
     if ((is_prop(sm) || sm == "RD") && pscale != 1)
-      xlab <- xlab_meta("PRAW", backtransf, pscale = pscale,
+      xlab <- xlab_meta("PRAW", backtransf,
+                        pscale = pscale,
                         newline = FALSE, revman5 = revman5,
                         big.mark = big.mark)
     else if ((is_rate(sm) || sm == "IRD") && irscale != 1)
-      xlab <- xlab_meta("IR", backtransf, irscale = irscale,
-                        irunit = irunit, newline = FALSE,
-                        revman5 = revman5, big.mark = big.mark)
+      xlab <- xlab_meta("IR", backtransf,
+                        irscale = irscale, irunit = irunit,
+                        newline = FALSE, revman5 = revman5,
+                        big.mark = big.mark)
     else
       xlab <- ""
   }

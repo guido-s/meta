@@ -183,6 +183,9 @@ xlab_meta <- function(sm, backtransf,
     #
     # metarate() - gs("sm4rate")
     #
+    else if (sm == "IR")
+      res <- paste0("Incidence Rate")
+    #
     else if (sm == "IRLN")
       res <- paste0("Log Incidence Rate")
     #
