@@ -348,7 +348,7 @@ bubble.metareg <- function(x,
     else if (sm == "PFT")
       func.backtransf <- function(x) asin2p(x, m1$n.harmonic.mean)
     else if (sm == "IRFT")
-      func.backtransf <- function(x) asin2ir(x, m1$t.harmonic.mean)
+      func.backtransf <- function(x) ft2ir(x, m1$t.harmonic.mean)
     else if (sm == "PLOGIT")
       func.backtransf <- logit2p
     else if (sm == "PAS")
@@ -365,7 +365,7 @@ bubble.metareg <- function(x,
     if (sm == "PFT")
       ys <- asin2p(ys, m1$n)
     else if (sm == "IRFT")
-      ys <- asin2ir(ys, m1$time)
+      ys <- ft2ir(ys, m1$time)
     else
       ys <- do.call(func.backtransf, list(ys))
   }

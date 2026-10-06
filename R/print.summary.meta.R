@@ -662,7 +662,7 @@ print.summary.meta <- function(x,
       x$method.ci <- "!RR.Cochrane"
     #
     if (backtransf) {
-      # Freeman-Tukey Arcsin transformation
+      # Freeman-Tukey transformations
       if (metainf.metacum | inherits(x, "metabind")) {
         if (sm == "IRFT")
           harmonic.mean <- x$t.harmonic.mean

@@ -70,7 +70,7 @@ summary.meta <- function(object, ...) {
   #
   metaprop <- inherits(class(object), "metaprop")
   metarate <- inherits(class(object), "metarate")
-
+  
   #
   #
   # (2) Results for individual studies

@@ -682,8 +682,10 @@ catmeth <- function(x,
              "\n- Fisher's z transformation of correlations"
            else if (sm == "COR")
              "\n- Untransformed correlations"
-           else if (sm == "PFT" | sm == "IRFT")
+           else if (sm == "PFT")
              "\n- Freeman-Tukey double arcsine transformation"
+           else if (sm == "IRFT")
+             "\n- Freeman-Tukey transformation"
            else if (sm == "PAS")
              "\n- Arcsine transformation"
            else if (is_log_effect(sm))

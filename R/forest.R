@@ -6772,7 +6772,7 @@ forest.meta <- function(x,
   #
   if (backtransf) {
     #
-    # Freeman-Tukey Arcsin transformation
+    # Freeman-Tukey transformations
     #
     if (metabind) {
       if (sm == "IRFT") {

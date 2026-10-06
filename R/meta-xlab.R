@@ -193,8 +193,7 @@ xlab_meta <- function(sm, backtransf,
       res <- paste0("Square Root of", newline, "Incidence Rate")
     #
     else if (sm == "IRFT")
-      res <- paste0("Freeman-Tukey Double Arcsine", newline,
-                   "Transformed Rate")
+      res <- paste0("Freeman-Tukey ", newline, "Transformed Rate")
     #
     # metagen()
     #

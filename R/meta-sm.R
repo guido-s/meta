@@ -10,12 +10,11 @@
 #' \subsection{Meta-analysis of binary outcome data (\code{\link{metabin})}}{
 #' \tabular{ll}{
 #' \bold{Argument} \tab \bold{Summary measure} \cr
-#' \code{sm = "OR"} \tab Odds ratio (Fleiss, 1993)\cr
+#' \code{sm = "OR"} \tab Odds ratio (Fleiss, 1993) \cr
 #' \code{sm = "RR"} \tab Risk ratio (Fleiss, 1993) \cr
 #' \code{sm = "RD"} \tab Risk difference (Fleiss, 1993) \cr
 #' \code{sm = "ASD"} \tab Arcsine difference (Rücker et al., 2009) \cr
-#' \code{sm = "DOR"} \tab Diagnostic odds ratio (Moses et al., 1993)
-#'   \cr
+#' \code{sm = "DOR"} \tab Diagnostic odds ratio (Moses et al., 1993) \cr
 #' \code{sm = "VE"} \tab Vaccine efficacy or vaccine effectiveness
 #' }
 #'
@@ -25,10 +24,10 @@
 #' (logVR) are mathematical identical, however, back-transformed
 #' results differ as vaccine efficacy or effectiveness is defined as
 #' \code{VE = 100 * (1 - RR)}.
-#'
+#' 
 #' A continuity correction is used for some summary measures in the
 #' case of a zero cell count (see \code{\link{metabin}}). 
-#'
+#' 
 #' List elements \code{TE}, \code{TE.common}, \code{TE.random}, etc.,
 #' contain transformed values, e.g., log odds ratios, log risk ratios
 #' or log vaccine ratios.  In printouts and plots transformed values
@@ -39,7 +38,7 @@
 #' to vaccine efficacy or effectiveness while \code{\link[base]{exp}}
 #' is used to back-transform log odds or risk ratios.
 #' }
-#'
+#' 
 #' \subsection{Meta-analysis of continuous outcome data (\code{\link{metacont})}}{
 #' \tabular{ll}{
 #' \bold{Argument} \tab \bold{Summary measure} \cr
@@ -47,7 +46,7 @@
 #' \code{sm = "SMD"} \tab Standardised mean difference \cr
 #' \code{sm = "ROM"} \tab Ratio of means
 #' }
-#'
+#' 
 #' Three variants to calculate the standardised mean difference are
 #' available (see \code{\link{metacont}}).
 #' 
@@ -57,21 +56,21 @@
 #' using \code{\link[base]{exp}} if argument \code{backtransf = TRUE}
 #' (default).
 #' }
-#'
+#' 
 #' \subsection{Meta-analysis of correlations (\code{\link{metacor})}}{
 #' \tabular{ll}{
 #' \bold{Argument} \tab \bold{Summary measure} \cr
 #' \code{sm = "ZCOR"} \tab Fisher's z transformed correlation \cr
 #' \code{sm = "COR"} \tab Untransformed correlations
 #' }
-#'
+#' 
 #' For Fisher's z transformed correlations, list elements \code{TE},
 #' \code{TE.common}, \code{TE.random}, etc., contain the transformed
 #' correlations. In printouts and plots these values are back
 #' transformed using auxiliary function \code{\link{z2cor}} if
 #' argument \code{backtransf = TRUE} (default).
 #' }
-#'
+#' 
 #' \subsection{Meta-analysis of incidence rates (\code{\link{metainc})}}{
 #' \tabular{ll}{
 #' \bold{Argument} \tab \bold{Summary measure} \cr
@@ -81,7 +80,7 @@
 #'   difference \cr
 #' \code{sm = "VE"} \tab Vaccine efficacy or vaccine effectiveness
 #' }
-#'
+#' 
 #' Note, log incidence rate ratio (logIRR) and log vaccine ratio
 #' (logVR) are mathematical identical, however, back-transformed
 #' results differ as vaccine efficacy or effectiveness is defined as
@@ -95,7 +94,7 @@
 #' root transformed rates and \code{\link{logVR2VE}} is used for
 #' vaccine efficacy / effectiveness.
 #' }
-#'
+#' 
 #' \subsection{Meta-analysis of single means (\code{\link{metamean})}}{
 #' \tabular{ll}{
 #' \bold{Argument} \tab \bold{Summary measure} \cr
@@ -119,12 +118,11 @@
 #' \bold{Argument} \tab \bold{Summary measure} \cr
 #' \code{sm = "PLOGIT"} \tab Logit transformation \cr
 #' \code{sm = "PAS"} \tab Arcsine transformation \cr
-#' \code{sm = "PFT"} \tab Freeman-Tukey Double arcsine transformation
-#'   \cr
+#' \code{sm = "PFT"} \tab Freeman-Tukey double arcsine transformation \cr
 #' \code{sm = "PLN"} \tab Log transformation \cr
 #' \code{sm = "PRAW"} \tab No transformation
 #' }
-#'
+#' 
 #' List elements \code{TE}, \code{TE.common}, \code{TE.random}, etc.,
 #' contain the transformed proportions. In printouts and plots these
 #' values are back transformed if argument \code{backtransf = TRUE}
@@ -143,17 +141,16 @@
 #' \bold{Argument} \tab \bold{Summary measure} \cr
 #' \code{sm = "IRLN"} \tab Log transformation \cr
 #' \code{sm = "IRS"} \tab Square root transformation \cr
-#' \code{sm = "IRFT"} \tab Freeman-Tukey Double arcsine transformation
-#'   \cr
+#' \code{sm = "IRFT"} \tab Freeman-Tukey transformation \cr
 #' \code{sm = "IR"} \tab No transformation
 #' }
-#'
+#' 
 #' List elements \code{TE}, \code{TE.common}, \code{TE.random}, etc.,
 #' contain the transformed incidence rates. In printouts and plots
 #' these values are back transformed if argument \code{backtransf =
 #' TRUE} (default). For back-transformation, \code{\link[base]{exp}}
 #' is used for log transformed rates, power of 2 is used for square
-#' root transformed rates and \code{\link{asin2ir}} is used for
+#' root transformed rates and \code{\link{ft2ir}} is used for
 #' Freeman-Tukey arcsine transformed rates.
 #' }
 #'
@@ -167,14 +164,14 @@
 #' \code{sm = "HR"} \tab Hazard ratio \cr
 #' \code{sm = "VE"} \tab Vaccine efficacy or vaccine effectiveness
 #' }
-#'
+#' 
 #' List elements \code{TE}, \code{TE.common}, \code{TE.random}, etc.,
 #' contain transformed values, i.e., log hazard ratios and log vaccine
 #' ratios. In printouts and plots these values are back transformed if
 #' argument \code{backtransf = TRUE} (default); see also
 #' \link{transf}.
 #' }
-#'
+#' 
 #' @name meta-sm
 #' 
 #' @aliases meta-sm
@@ -216,6 +213,5 @@
 #' data.
 #' \emph{Statistics in Medicine},
 #' \bold{29}, 3046--67
-
 
 NULL

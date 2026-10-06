@@ -179,8 +179,7 @@
 #' \itemize{
 #' \item Log transformation (\code{sm = "IRLN"}, default)
 #' \item Square root transformation (\code{sm = "IRS"})
-#' \item Freeman-Tukey Double arcsine transformation (\code{sm =
-#'   "IRFT"})
+#' \item Freeman-Tukey transformation (\code{sm = "IRFT"})
 #' \item No transformation (\code{sm = "IR"})
 #' }
 #'
@@ -970,7 +969,7 @@ metarate <- function(event, time, studlab,
   #
   sparse <- any(sel, na.rm = TRUE)
   #
-  # No need to add anything to cell counts for arcsine transformation
+  # No need to add anything to cell counts for Freeman-Tukey transformation
   #
   if (addincr | method.incr == "user")
     incr.event <- if (length(incr) == 1) rep(incr, k.all) else incr
@@ -1019,9 +1018,9 @@ metarate <- function(event, time, studlab,
     transf.null.effect <- sqrt(null.effect)
   }
   else if (sm == "IRFT") {
-    TE <- ir2asin(event / time, time)
+    TE <- ir2ft(event / time, time)
     seTE <- sqrt(1 / (4 * time))
-    transf.null.effect <- ir2asin(null.effect, t.harmonic.mean)
+    transf.null.effect <- ir2ft(null.effect, t.harmonic.mean)
   }
   #
   # Calculate confidence intervals
@@ -1045,8 +1044,8 @@ metarate <- function(event, time, studlab,
     }
     #
     else if (sm == "IRFT") {
-      lower.study <- ir2asin(lower.study, time)
-      upper.study <- ir2asin(upper.study, time)
+      lower.study <- ir2ft(lower.study, time)
+      upper.study <- ir2ft(upper.study, time)
     }
   }
 

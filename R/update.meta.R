@@ -733,8 +733,8 @@ update.meta <- function(object,
       }
       #
       else if (object$sm == "IRFT") {
-        object$lower <- ir2asin(object$lower, object$time)
-        object$upper <- ir2asin(object$upper, object$time)
+        object$lower <- ir2ft(object$lower, object$time)
+        object$upper <- ir2ft(object$upper, object$time)
       }
       #
       if (inherits(object, "metabind")) {

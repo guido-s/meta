@@ -333,8 +333,7 @@ calculate an overall rate:
 \itemize{
 \item Log transformation (\code{sm = "IRLN"}, default)
 \item Square root transformation (\code{sm = "IRS"})
-\item Freeman-Tukey Double arcsine transformation (\code{sm =
-  "IRFT"})
+\item Freeman-Tukey transformation (\code{sm = "IRFT"})
 \item No transformation (\code{sm = "IR"})
 }
 

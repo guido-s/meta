@@ -28,6 +28,9 @@
   scale. If argument 'transf = FALSE', the supplied value is transformed
   before being stored.
 
+* Function asin2ir() renamed to ft2ir() to reflect that it is the inverse
+  of the Freeman-Tukey transformation of incidence rates.
+
 * New setting 'log.prefix' allows users to define the prefix for
   log-transformed effect measures. The default prefix is now "log" instead
   of "ln" in printouts and forest plots.
@@ -154,21 +157,21 @@
     [(issue #102)](https://github.com/guido-s/meta/issues/102)
 
 * metaadd():
-  - function no longer available for Freeman-Tukey double arcsine transformed
-    proportions or rates (sm = "PFT" or "IRFT")
+  - function no longer available for Freeman-Tukey transformed
+    proportions (sm = "PFT") or rates (sm = "IRFT")
 
 * Functions that ignore additional arguments in argument '...' now print a
   warning if such arguments are supplied.
 
-* New function ir2asin() to calculate the Freeman-Tukey double arcsine
-  transformation for incidence rates if argument 'time' is provided and
-  otherwise uses the ordinary square root transformation
+* New function ir2ft() to calculate the Freeman-Tukey transformation of
+  incidence rates. If argument 'time' is not provided, the ordinary
+  square-root transformation is calculated.
 
 * p2asin():
   - new argument 'n' to calculate Freeman-Tukey double arcsine transformation
 
 * transf():
-  - new arguments 'n' and 'time' to pass these argument to p2asin() or ir2asin()
+  - new arguments 'n' and 'time' to pass these argument to p2asin() or ir2ft()
     for summary measure "PFT" or "IRFT"
   - new arguments 'n' and 'time' precede arguments 'func' and 'args',
     matching the argument order of backtransf()
@@ -223,12 +226,16 @@
 
 * metaprop(), metarate():
   - use the harmonic mean of sample sizes or times to transform the null effect
-    for Freeman-Tukey double arcsine transformed proportions and rates
-    (sm = "PFT" or "IRFT")
+    for Freeman-Tukey transformed proportions (sm = "PFT") or rates
+    (sm = "IRFT")
     [(issue #102)](https://github.com/guido-s/meta/issues/102)
   - respect argument 'exclude' when calculating the harmonic mean used to back
-    transform Freeman-Tukey double arcsine transformed proportions or rates
-    (sm = "PFT" or "IRFT")
+    transform Freeman-Tukey transformed proportions (sm = "PFT") or rates
+    (sm = "IRFT")
+  - calculate harmonic means for Freeman-Tukey transformed proportions
+    (sm = "PFT") or rates (sm = "IRFT") using only non-excluded studies with
+    both event counts and sample sizes or exposure times available
+    [(pull #107)](https://github.com/guido-s/meta/pull/107)
 
 * metacont(), metamean():
   - correctly identify studies with non-positive sample sizes or means
@@ -254,8 +261,16 @@
     'method.smd', 'sd.glass', 'exact.smd', and 'pooledvar'
 
 * subgroup():
+  - correctly use subgroup harmonic exposure times for back-transformation
+    of IRFT common-effect, random-effects, and prediction results
+    [(pull #107)](https://github.com/guido-s/meta/pull/107)
   - preserve user-specified common-effect and random-effects weights
   - preserve the specified null effect for all supported meta-analysis types
+
+* summary.meta():
+  - correctly identify PFT and IRFT meta-analysis objects and use the
+    corresponding summary branches
+    [(pull #107)](https://github.com/guido-s/meta/pull/107)
 
 * settings.meta():
   - reject 'NULL' for numeric settings where 'NULL' is not an admissible value
@@ -276,14 +291,13 @@
 * bubble():
   - back transform results for vaccine efficacy (sm = "VE")
     [(issue #94)](https://github.com/guido-s/meta/issues/94)
-  - back transform results for Freeman-Tukey double arcsine transformed
-    proportions or rates (sm = "PFT" or "IRFT") using study-specific sample
+  - back transform results for Freeman-Tukey transformed proportions
+    (sm = "PFT") or rates (sm = "IRFT") using study-specific sample
     sizes or times for individual studies and the corresponding harmonic mean
     for the meta-regression line
     [(issue #102)](https://github.com/guido-s/meta/issues/102)
   - print the correct y-axis label if 'pscale' or 'irscale' differs from 1
     [(issue #105)](https://github.com/guido-s/meta/issues/105)
-
 
 * metabias():
   - use efficient score for risk ratio instead of odds ratio in meta-analysis
@@ -291,9 +305,9 @@
     [(issue #94)](https://github.com/guido-s/meta/issues/94)
 
 * cidprop():
-  - transform decision thresholds for Freeman-Tukey double arcsine transformed
-    proportions or incidence rates (sm = "PFT" or "IRFT") using the harmonic
-    mean of sample sizes or times
+  - transform decision thresholds for Freeman-Tukey transformed proportions
+    (sm = "PFT") or rates (sm = "IRFT") using the harmonic mean of sample sizes
+    or times
     [(issue #102)](https://github.com/guido-s/meta/issues/102)
 
 * plot.cidprop():
@@ -312,6 +326,11 @@
   - return correct order of lower and upper confidence limits for
     summary measure "VE"
     [(issue #94)](https://github.com/guido-s/meta/issues/94)
+
+* ciClopperPearson(), ciPoisson():
+  - calculate confidence intervals only when both event counts and sample sizes
+    or exposures times are available; otherwise return missing intervals
+    [(pull #107)](https://github.com/guido-s/meta/pull/107)
 
 ### Internal changes
 
@@ -342,14 +361,14 @@
     [(issue #94)](https://github.com/guido-s/meta/issues/94)
 
 * metaprop(), metarate():
-  - store harmonic mean of sample sizes or times for Freeman-Tukey double
-    arcsine transformed proportions and rates (sm = "PFT" or "IRFT")
+  - store harmonic mean of sample sizes or times for Freeman-Tukey transformed
+    proportions (sm = "PFT") or rates (sm = "IRFT")
 
 * trimfill():
   - use ordinary arcsine transformation logic for Freeman-Tukey double arcsine
     transformed proportions (sm = "PFT") and ordinary square root
-    transformation logic for Freeman-Tukey double arcsine transformed rates
-    (sm = "IRFT") because harmonic mean changes with filled studies
+    transformation logic for Freeman-Tukey transformed rates (sm = "IRFT")
+    because harmonic mean changes with filled studies
 
 
 ## meta, version 8.5-0 (2026-05-25)
@@ -3417,7 +3436,7 @@ Revise web links
 
 ### Internal changes
 
-* New function asin2ir() to back transform arcsine transformed
+* New function asin2ir() to back transform Freeman-Tukey transformed
   incidence rates
 
 * backtransf(), catmeth(), metacum(), metainf(), subgroup(), xlab():

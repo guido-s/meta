@@ -3,13 +3,13 @@ test_that("transf handles Freeman-Tukey transformed incidence rates", {
   time <- c(10, 20, 30)
   expected <- 0.5 * (sqrt(rate) + sqrt(rate + 1 / time))
   
-  expect_equal(ir2asin(rate, time), expected)
+  expect_equal(ir2ft(rate, time), expected)
   expect_equal(transf(rate, "IRFT", time = time), expected)
   expect_equal(transf(rate, "IRFT"), sqrt(rate))
-  expect_equal(asin2ir(ir2asin(rate, time), time), rate)
-  expect_equal(asin2ir(sqrt(rate)), rate)
+  expect_equal(ft2ir(ir2ft(rate, time), time), rate)
+  expect_equal(ft2ir(sqrt(rate)), rate)
   expect_equal(backtransf(sqrt(rate), "IRFT"), rate)
-  expect_equal(asin2ir(ir2asin(rate, 20), 20), rate)
+  expect_equal(ft2ir(ir2ft(rate, 20), 20), rate)
 })
 
 test_that("metarate uses Freeman-Tukey transformation and harmonic mean", {
@@ -17,10 +17,10 @@ test_that("metarate uses Freeman-Tukey transformation and harmonic mean", {
   time <- c(30, 40, 35, 50)
   m <- metarate(event, time, sm = "IRFT", null.effect = 0.2)
   
-  expect_equal(m$TE, ir2asin(event / time, time))
+  expect_equal(m$TE, ir2ft(event / time, time))
   expect_equal(m$t.harmonic.mean, 1 / mean(1 / time))
   expect_equal(m$statistic.random,
-               (m$TE.random - ir2asin(0.2, m$t.harmonic.mean)) /
+               (m$TE.random - ir2ft(0.2, m$t.harmonic.mean)) /
                  m$seTE.random)
 })
 
@@ -29,8 +29,8 @@ test_that("cidprop transforms IRFT decision thresholds using harmonic mean", {
                 sm = "IRFT", null.effect = 0.2, prediction = TRUE)
   pp <- cidprop(m, cid.below.null = 0.1, cid.above.null = 0.4)
   
-  cid.below <- ir2asin(0.1, m$t.harmonic.mean)
-  cid.above <- ir2asin(0.4, m$t.harmonic.mean)
+  cid.below <- ir2ft(0.1, m$t.harmonic.mean)
+  cid.above <- ir2ft(0.4, m$t.harmonic.mean)
   
   expect_equal(pp$prop.cid.below.null,
                pt((cid.below - m$TE.random) / m$seTE.predict, m$df.predict))

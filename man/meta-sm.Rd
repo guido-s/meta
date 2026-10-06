@@ -13,12 +13,11 @@ in R package \bold{meta}.
 \subsection{Meta-analysis of binary outcome data (\code{\link{metabin})}}{
 \tabular{ll}{
 \bold{Argument} \tab \bold{Summary measure} \cr
-\code{sm = "OR"} \tab Odds ratio (Fleiss, 1993)\cr
+\code{sm = "OR"} \tab Odds ratio (Fleiss, 1993) \cr
 \code{sm = "RR"} \tab Risk ratio (Fleiss, 1993) \cr
 \code{sm = "RD"} \tab Risk difference (Fleiss, 1993) \cr
 \code{sm = "ASD"} \tab Arcsine difference (Rücker et al., 2009) \cr
-\code{sm = "DOR"} \tab Diagnostic odds ratio (Moses et al., 1993)
-  \cr
+\code{sm = "DOR"} \tab Diagnostic odds ratio (Moses et al., 1993) \cr
 \code{sm = "VE"} \tab Vaccine efficacy or vaccine effectiveness
 }
 
@@ -122,8 +121,7 @@ implemented to calculate an overall proportion:
 \bold{Argument} \tab \bold{Summary measure} \cr
 \code{sm = "PLOGIT"} \tab Logit transformation \cr
 \code{sm = "PAS"} \tab Arcsine transformation \cr
-\code{sm = "PFT"} \tab Freeman-Tukey Double arcsine transformation
-  \cr
+\code{sm = "PFT"} \tab Freeman-Tukey double arcsine transformation \cr
 \code{sm = "PLN"} \tab Log transformation \cr
 \code{sm = "PRAW"} \tab No transformation
 }
@@ -146,8 +144,7 @@ calculate an overall rate:
 \bold{Argument} \tab \bold{Summary measure} \cr
 \code{sm = "IRLN"} \tab Log transformation \cr
 \code{sm = "IRS"} \tab Square root transformation \cr
-\code{sm = "IRFT"} \tab Freeman-Tukey Double arcsine transformation
-  \cr
+\code{sm = "IRFT"} \tab Freeman-Tukey transformation \cr
 \code{sm = "IR"} \tab No transformation
 }
 
@@ -156,7 +153,7 @@ contain the transformed incidence rates. In printouts and plots
 these values are back transformed if argument \code{backtransf =
 TRUE} (default). For back-transformation, \code{\link[base]{exp}}
 is used for log transformed rates, power of 2 is used for square
-root transformed rates and \code{\link{asin2ir}} is used for
+root transformed rates and \code{\link{ft2ir}} is used for
 Freeman-Tukey arcsine transformed rates.
 }
 

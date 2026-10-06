@@ -5,11 +5,11 @@
 \alias{transf}
 \alias{cor2z}
 \alias{p2asin}
-\alias{ir2asin}
+\alias{ir2ft}
 \alias{p2logit}
 \alias{VE2logVR}
 \alias{backtransf}
-\alias{asin2ir}
+\alias{ft2ir}
 \alias{asin2p}
 \alias{logit2p}
 \alias{logVR2VE}
@@ -22,7 +22,7 @@ cor2z(x)
 
 p2asin(x, n = NULL)
 
-ir2asin(x, time = NULL)
+ir2ft(x, time = NULL)
 
 p2logit(x)
 
@@ -30,7 +30,7 @@ VE2logVR(x)
 
 backtransf(x, sm, n = NULL, time = NULL, func = NULL, args = NULL)
 
-asin2ir(x, time = NULL)
+ft2ir(x, time = NULL)
 
 asin2p(x, n = NULL)
 
@@ -78,8 +78,9 @@ prediction interval limits.
 \bold{Function} \tab \bold{Transformation} \cr
 \code{cor2z} \tab Correlations to Fisher's Z transformed correlations \cr
 \code{p2logit} \tab Proportions to logit transformed proportions \cr
-\code{p2asin} \tab Proportions to (Freeman-Tukey) arcsine transformed proportions \cr
-\code{ir2asin} \tab Incidence rates to (Freeman-Tukey) arcsine transformed rates \cr
+\code{p2asin} \tab Proportions to (Freeman-Tukey) arcsine transformed
+  proportions \cr
+\code{ir2ft} \tab Incidence rates to Freeman-Tukey transformed rates \cr
 \code{VE2logVR} \tab Vaccine efficacy / effectiveness to log vaccine ratio
 }
 
@@ -87,9 +88,9 @@ If argument \code{n} is provided in R function \code{p2asin},
 proportions are Freeman-Tukey arcsine transformed. Otherwise,
 proportions are arcsine transformed.
 
-If argument \code{time} is provided in R function \code{ir2asin},
-incidence rates are Freeman-Tukey arcsine transformed. Otherwise,
-incidence rates are square root transformed.
+If argument \code{time} is provided in R function \code{ir2ft},
+incidence rates are Freeman-Tukey transformed. Otherwise, incidence rates
+are square root transformed.
 
 R function \code{transf} is a wrapper function for the above and
 additional transformations, e.g., the log transformation using
@@ -105,19 +106,20 @@ effect estimates or confidence / prediction interval limits.
 
 \tabular{ll}{
 \bold{Function} \tab \bold{Transformation} \cr
-\code{asin2ir} \tab Freeman-Tukey arcsine transformed rates to rates \cr
+\code{ft2ir} \tab Freeman-Tukey transformed rates to rates \cr
 \code{asin2p} \tab (Freeman-Tukey) arcsine transformed proportions to proportions \cr
 \code{logit2p} \tab Logit transformed proportions to proportions \cr
 \code{logVR2VE} \tab Log vaccine ratio to vaccine efficacy / effectiveness \cr
 \code{z2cor} \tab Fisher's Z transformed correlations  to correlations
 }
 
-Argument \code{time} is mandatory in R function \code{asin2ir}.
-
 If argument \code{n} is provided in R function \code{asin2p},
-Freeman-Tukey arcsine transformed proportions are
-back transformed. Otherwise, arcsine transformed proportions are
-back transformed.
+Freeman-Tukey arcsine transformed proportions are back transformed.
+Otherwise, arcsine transformed proportions are back transformed.
+
+If argument \code{time} is provided in R function \code{ft2ir},
+Freeman-Tukey transformed rates are back transformed. Otherwise, square-root
+transformed rates are back transformed.
 
 R function \code{backtransf} is a wrapper function for the above
 and additional transformations, e.g., the exponential

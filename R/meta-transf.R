@@ -22,8 +22,9 @@
 #' \bold{Function} \tab \bold{Transformation} \cr
 #' \code{cor2z} \tab Correlations to Fisher's Z transformed correlations \cr
 #' \code{p2logit} \tab Proportions to logit transformed proportions \cr
-#' \code{p2asin} \tab Proportions to (Freeman-Tukey) arcsine transformed proportions \cr
-#' \code{ir2asin} \tab Incidence rates to (Freeman-Tukey) arcsine transformed rates \cr
+#' \code{p2asin} \tab Proportions to (Freeman-Tukey) arcsine transformed
+#'   proportions \cr
+#' \code{ir2ft} \tab Incidence rates to Freeman-Tukey transformed rates \cr
 #' \code{VE2logVR} \tab Vaccine efficacy / effectiveness to log vaccine ratio
 #' }
 #'
@@ -31,9 +32,9 @@
 #' proportions are Freeman-Tukey arcsine transformed. Otherwise,
 #' proportions are arcsine transformed.
 #'
-#' If argument \code{time} is provided in R function \code{ir2asin},
-#' incidence rates are Freeman-Tukey arcsine transformed. Otherwise,
-#' incidence rates are square root transformed.
+#' If argument \code{time} is provided in R function \code{ir2ft},
+#' incidence rates are Freeman-Tukey transformed. Otherwise, incidence rates
+#' are square root transformed.
 #' 
 #' R function \code{transf} is a wrapper function for the above and
 #' additional transformations, e.g., the log transformation using
@@ -49,19 +50,20 @@
 #'
 #' \tabular{ll}{
 #' \bold{Function} \tab \bold{Transformation} \cr
-#' \code{asin2ir} \tab Freeman-Tukey arcsine transformed rates to rates \cr
+#' \code{ft2ir} \tab Freeman-Tukey transformed rates to rates \cr
 #' \code{asin2p} \tab (Freeman-Tukey) arcsine transformed proportions to proportions \cr
 #' \code{logit2p} \tab Logit transformed proportions to proportions \cr
 #' \code{logVR2VE} \tab Log vaccine ratio to vaccine efficacy / effectiveness \cr
 #' \code{z2cor} \tab Fisher's Z transformed correlations  to correlations
 #' }
-#' 
-#' Argument \code{time} is mandatory in R function \code{asin2ir}.
 #'
 #' If argument \code{n} is provided in R function \code{asin2p},
-#' Freeman-Tukey arcsine transformed proportions are
-#' back transformed. Otherwise, arcsine transformed proportions are
-#' back transformed.
+#' Freeman-Tukey arcsine transformed proportions are back transformed.
+#' Otherwise, arcsine transformed proportions are back transformed.
+#'
+#' If argument \code{time} is provided in R function \code{ft2ir},
+#' Freeman-Tukey transformed rates are back transformed. Otherwise, square-root
+#' transformed rates are back transformed.
 #'
 #' R function \code{backtransf} is a wrapper function for the above
 #' and additional transformations, e.g., the exponential
@@ -125,7 +127,7 @@ transf <- function(x, sm, n = NULL, time = NULL, func = NULL, args = NULL) {
     res <- sqrt(x)
   #
   else if (sm == "IRFT")
-    res <- ir2asin(x, time)
+    res <- ir2ft(x, time)
   #
   else if (sm == "VE")
     res <- VE2logVR(x)
@@ -160,9 +162,9 @@ p2asin <- function(x, n = NULL) {
 
 
 #' @rdname meta-transf
-#' @export ir2asin
+#' @export ir2ft
 
-ir2asin <- function(x, time = NULL) {
+ir2ft <- function(x, time = NULL) {
   chknumeric(x, min = 0)
   #
   if (is.null(time))
@@ -227,7 +229,7 @@ backtransf <- function(x, sm, n = NULL, time = NULL, func = NULL, args = NULL) {
     res <- x^2
   #
   else if (sm == "IRFT") {
-    res <- asin2ir(x, time)
+    res <- ft2ir(x, time)
   }
   #
   else if (sm == "VE")
@@ -268,9 +270,9 @@ backtransf <- function(x, sm, n = NULL, time = NULL, func = NULL, args = NULL) {
 
 
 #' @rdname meta-transf
-#' @export asin2ir
+#' @export ft2ir
 
-asin2ir <- function(x, time = NULL) {
+ft2ir <- function(x, time = NULL) {
   
   #
   # Do nothing if all values are NA
