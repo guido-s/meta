@@ -517,29 +517,10 @@ print.meta <- function(x,
       harmonic.mean <- replaceNULL(x$n.harmonic.mean)
   }
   #
-  null.effect <- x$null.effect
-  null.given <- !is.null(null.effect) && !is.na(null.effect)
+  # Null-effect display conversion is handled by catmeth()
   #
-  if (null.given & !backtransf) {
-    #
-    if (sm == "PFT")
-      null.effect <- p2asin(null.effect, makeunique(harmonic.mean))
-    else if (sm == "PAS")
-      null.effect <- p2asin(null.effect)
-    else if (is_log_effect(sm))
-      null.effect <- log(null.effect)
-    else if (sm == c("PLOGIT"))
-      null.effect <- log(null.effect / (1 - null.effect))
-    else if (sm == "IRFT")
-      null.effect <- ir2asin(null.effect, makeunique(harmonic.mean))
-    else if (sm == "IRS")
-      null.effect <- sqrt(null.effect)
-    else if (sm == "ZCOR")
-      null.effect <- 0.5 * log((1 + null.effect) / (1 - null.effect))
-  }
+  null.given <- !is.null(x$null.effect) && !is.na(x$null.effect)
   #
-  x$null.effect <- null.effect
-  #    
   if (is.null(prediction) || is.na(prediction))
     prediction <- FALSE
   #
@@ -740,15 +721,18 @@ print.meta <- function(x,
   # Apply argument 'pscale' to proportions / risk differences and
   # 'irscale' to rates / incidence rate differences
   #
-  if (pscale != 1 || irscale != 1) {
-    if (pscale != 1 && irscale != 1)
-      stop("Provide either arguments 'pscale' or 'irscale' but not ",
-           "both arguments.",
-           call. = FALSE)
-    if (pscale != 1)
-      scale <- pscale
-    else
-      scale <- irscale
+  scale <- 1
+  #
+  if (pscale != 1 && irscale != 1)
+    stop("Provide either arguments 'pscale' or 'irscale' but not both arguments.",
+         call. = FALSE)
+  #
+  if ((is_prop(sm) || sm == "RD") && pscale != 1)
+    scale <- pscale
+  else if ((is_rate(sm) || sm == "IRD") && irscale != 1)
+    scale <- irscale
+  #
+  if (scale != 1) {
     #
     TE.common    <- scale * TE.common
     lowTE.common <- scale * lowTE.common

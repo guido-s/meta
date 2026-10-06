@@ -186,6 +186,8 @@ plot.cidprop <- function(x,
   
   chkclass(x, "cidprop")
   #
+  warn_ignored(list(...), "plot.cidprop")
+  #
   chklogical(legend)
   chklogical(studies)
   chklogical(random)

@@ -42,7 +42,7 @@ metagen(
   method.predict = gs("method.predict"),
   adhoc.hakn.pi = gs("adhoc.hakn.pi"),
   seed.predict = NULL,
-  null.effect = 0,
+  null.effect,
   method.bias = gs("method.bias"),
   n.e = NULL,
   n.c = NULL,
@@ -279,13 +279,13 @@ estimate (see Details).}
 \item{approx.seTE}{Approximation method to estimate standard error
 (see Details).}
 
-\item{transf}{A logical indicating whether inputs for arguments
-\code{TE}, \code{lower} and \code{upper} are already
-appropriately transformed to conduct the meta-analysis or on the
-original scale. If \code{transf = TRUE} (default), inputs are
-expected to be log odds ratios instead of odds ratios for
-\code{sm = "OR"} and Fisher's z transformed correlations instead
-of correlations for \code{sm = "ZCOR"}, for example.}
+\item{transf}{A logical indicating whether the inputs to arguments
+\code{TE}, \code{lower}, \code{upper}, and \code{null.effect} are already
+appropriately transformed for the meta-analysis or are on the original
+scale. If \code{transf = TRUE} (default), inputs are expected to be on
+the analysis scale, e.g., log odds ratios instead of odds ratios for
+\code{sm = "OR"} and Fisher's z-transformed correlations instead of
+correlations for \code{sm = "ZCOR"}.}
 
 \item{backtransf}{A logical indicating whether results should be
 back transformed in printouts and plots. If \code{backtransf =
@@ -628,28 +628,33 @@ covariates.
 
 \subsection{Specify the null hypothesis of test for an overall effect}{
 
-Argument \code{null.effect} can be used to specify the (treatment)
-effect under the null hypothesis in a test for an overall
-effect.
+Argument \code{null.effect} can be used to specify the effect under
+the null hypothesis for a test of an overall effect.
 
-By default (\code{null.effect = 0}), the null hypothesis
-corresponds to "no difference" (which is obvious for absolute
-effect measures like the mean difference (\code{sm = "MD"}) or
-standardised mean difference (\code{sm = "SMD"})). For relative
-effect measures, e.g., risk ratio (\code{sm = "RR"}) or odds ratio
-(\code{sm = "OR"}), the null effect is defined on the log scale,
-i.e., \emph{log}(RR) = 0 or \emph{log}(OR) = 0 which is equivalent
-to testing RR = 1 or OR = 1.
+For absolute effect measures, such as the mean difference (\code{sm = "MD"})
+or standardised mean difference (\code{sm = "SMD"}), the default null effect
+is 0, corresponding to "no difference". For relative effect measures, such
+as the risk ratio (\code{sm = "RR"}) or odds ratio (\code{sm = "OR"}), the
+null effect is defined on the log scale: \emph{log}(RR) = 0 or
+\emph{log}(OR) = 0, which is equivalent to testing RR = 1 or OR = 1.
 
-Use of argument \code{null.effect} is especially useful for summary
-measures without a "natural" null effect, i.e., in situations
-without a second (treatment) group. For example, an overall
-proportion of 50\% could be tested in the meta-analysis of single
-proportions with argument \code{null.effect = 0.5}.
+A null effect is not defined by default for meta-analyses of single
+means, proportions, or rates, i.e., if \code{sm} is one of
+\code{gs("sm4mean")}, \code{gs("sm4prop")}, or \code{gs("sm4rate")}.
+
+The argument \code{null.effect} is especially useful for summary
+measures without a natural null effect, for example, in a meta-analysis
+of single proportions. An overall proportion of 50\% can be tested by
+specifying \code{null.effect = 0.5}.
+
+The value of \code{null.effect} is stored on the transformed analysis scale
+in the returned object. If \code{transf = FALSE}, \code{null.effect} is
+supplied on the original scale and transformed internally. If
+\code{transf = TRUE}, it must already be supplied on the transformed
+analysis scale.
 
 Note, all tests for an overall effect are two-sided with the
-alternative hypothesis that the effect is unequal to
-\code{null.effect}.
+alternative hypothesis that the effect is unequal to \code{null.effect}.
 }
 
 \subsection{Exclusion of studies from meta-analysis}{
@@ -658,8 +663,14 @@ Arguments \code{subset} and \code{exclude} can be used to exclude
 studies from the meta-analysis. Studies are removed completely from
 the meta-analysis using argument \code{subset}, while excluded
 studies are shown in printouts and forest plots using argument
-\code{exclude} (see Examples).
-Meta-analysis results are the same for both arguments.
+\code{exclude} (see Examples). Meta-analysis results are the same for
+both arguments.
+
+Studies with missing or non-finite treatment effect estimates or standard
+errors, such as infinite values resulting from a transformation, are not
+considered in meta-analysis calculations. Studies with non-positive
+standard errors are also not considered. These studies remain available in
+the returned object and can be identified by their zero weights.
 }
 
 \subsection{Presentation of meta-analysis results}{

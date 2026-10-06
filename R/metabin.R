@@ -1808,8 +1808,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   # Set NaN to NA
   #
   TE[is.nan(TE)] <- NA
-
-
+  
+  
   #
   #
   # (9) Additional checks for three-level model
@@ -1961,9 +1961,13 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     if (k == 1 & method.random.ci[i] == "HK")
       method.random.ci[i] <- "classic"
   #
+  if (k == 1 && MH.exact) {
+    MH.exact <- FALSE
+  }
+  #
   if (method == "MH") {
-    incr.e <- incr.e * (!MH.exact)
-    incr.c <- incr.c * (!MH.exact)
+    incr.e <- incr.e * !MH.exact
+    incr.c <- incr.c * !MH.exact
     #
     if (sm %in% c("OR", "DOR")) {
       #

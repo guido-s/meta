@@ -135,6 +135,8 @@ print.metacum <- function(x,
   chkclass(x, c("metacum", "metainf"))
   x <- updateversion(x)
   #
+  warn_ignored(list(...), "print.metacum")
+  #
   chklogical(prediction)
   chklogical(overall)
   chklogical(backtransf)
@@ -286,7 +288,23 @@ print.metacum <- function(x,
           backtransf(lower.predict, sm, harmonic.mean, harmonic.mean, fbt, abt),
         upper.predict =
           backtransf(upper.predict, sm, harmonic.mean, harmonic.mean, fbt, abt),
-      )    
+      )
+    #
+    if (is_prop(sm)) {
+      dat %<>%
+        mutate(TE = x$pscale * TE,
+               lower = x$pscale * lower, upper = x$pscale * upper,
+               lower.predict = x$pscale * lower.predict,
+               upper.predict = x$pscale * upper.predict)
+    }
+    #
+    if (is_rate(sm)) {
+      dat %<>%
+        mutate(TE = x$irscale * TE,
+               lower = x$irscale * lower, upper = x$irscale * upper,
+               lower.predict = x$irscale * lower.predict,
+               upper.predict = x$irscale * upper.predict)
+    }
   }
   #
   dat %<>% select(-harmonic.mean)

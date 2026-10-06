@@ -254,7 +254,8 @@
 #'   estimate the between-study variance \eqn{\tau^2}. This argument
 #'   is passed on to \code{\link[metafor]{rma.uni}} or
 #'   \code{\link[metafor]{rma.glmm}}, respectively.
-#' @param \dots Additional arguments (ignored at the moment).
+#' @param \dots Additional arguments (only considered to fetch deprecated
+#'   arguments)
 #' 
 #' @details
 #' Wrapper function to update an existing meta-analysis object which
@@ -434,6 +435,7 @@ update.meta <- function(object,
   #
   #
   chkclass(object, "meta")
+  #
   suitable <-
     chksuitable(object, "Update",
                 c("metabind", "metaadd", "metamerge", "metamiss"),
@@ -969,8 +971,7 @@ update.meta <- function(object,
                     level.hetstat = level.hetstat,
                     prediction = prediction | !missing.method.predict,
                     level.predict = level.predict,
-                    silent = TRUE,
-                    ...)
+                    silent = TRUE)
     #
     res$call.object <- object$call
     res$call <- match.call()
@@ -1398,8 +1399,7 @@ update.meta <- function(object,
                  #
                  warn = warn, warn.deprecated = FALSE,
                  #
-                 control = control,
-                 ...)
+                 control = control)
     #
     if (method.incr == "user")
       m$incr <- incr.orig
@@ -1808,8 +1808,7 @@ update.meta <- function(object,
                  #
                  warn = warn, warn.deprecated = FALSE,
                  #
-                 control = control,
-                 ...)
+                 control = control)
     #
     if (method.incr == "user")
       m$incr <- incr.orig
@@ -1971,8 +1970,7 @@ update.meta <- function(object,
                   #
                   warn = warn, warn.deprecated = FALSE,
                   #
-                  control = control,
-                  ...)
+                  control = control)
   }
   #
   if (metarate) {
@@ -2056,8 +2054,7 @@ update.meta <- function(object,
                   #
                   warn = warn, warn.deprecated = FALSE,
                   #
-                  control = control,
-                  ...)
+                  control = control)
   }
   #
   m$call.object <- object$call

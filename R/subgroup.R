@@ -72,11 +72,6 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
     if (all(is.na(x$studlab[sel])))
       stop("No data available for subgroup = ", i)
     #
-    if (!is.null(seed))
-      seed.i <- seed[j]
-    else
-      seed.i <- NULL
-    #
     if (bin) {
       if (x$method.incr == "user") {
         incr <- NULL
@@ -92,57 +87,58 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
         incr.c <- NULL
       }
       #
-      meta1 <- metabin(x$event.e[sel], x$n.e[sel],
-                       x$event.c[sel], x$n.c[sel],
+      meta1 <- metabin(x$event.e[sel], x$n.e[sel], x$event.c[sel], x$n.c[sel],
                        studlab = x$studlab[sel],
-                       exclude = x$exclude[sel],
-                       cluster =
-                         if (!is.null(x$cluster)) x$cluster[sel] else NULL,
-                       rho = x$rho,
                        #
-                       method = x$method,
+                       exclude = x$exclude[sel],
+                       #
+                       cluster = x$cluster[sel], rho = x$rho,
+                       #
+                       weights.common = x$weights.common[sel],
+                       weights.random = x$weights.random[sel],
+                       #
                        sm = x$sm,
                        #
-                       incr = incr,
-                       incr.e = incr.e, incr.c = incr.c,
-                       method.incr = x$method.incr, allstudies = x$allstudies,
+                       method = x$method,
                        #
-                       MH.exact = x$MH.exact,
-                       RR.Cochrane = x$RR.Cochrane,
-                       Q.Cochrane = x$Q.Cochrane,
-                       model.glmm = x$model.glmm,
-                       #
-                       level.ma = x$level.ma,
                        method.common.ci = x$method.common.ci,
                        method.random.ci = x$method.random.ci,
-                       adhoc.hakn.ci = x$adhoc.hakn.ci,
-                       #
-                       level.predict = x$level.predict,
-                       method.predict = method.predict,
-                       adhoc.hakn.pi = x$adhoc.hakn.pi,
-                       seed.predict = seed.i,
-                       #
+                       method.predict = x$method.predict,
                        method.tau = x$method.tau,
                        method.tau.ci = x$method.tau.ci,
-                       level.hetstat = x$level.hetstat,
-                       tau.preset = tau.preset,
-                       TE.tau = x$TE.tau,
+                       method.I2 = x$method.I2,
                        #
-                       keepdata = FALSE,
-                       warn = x$warn,
-                       control = x$control)
+                       level.ma = x$level.ma,
+                       level.predict = x$level.predict,
+                       level.hetstat = x$level.hetstat,
+                       #
+                       incr = incr, incr.e = incr.e, incr.c = incr.c,
+                       method.incr = x$method.incr, allstudies = x$allstudies,
+                       #
+                       MH.exact = x$MH.exact, RR.Cochrane = x$RR.Cochrane,
+                       Q.Cochrane = x$Q.Cochrane, model.glmm = x$model.glmm,
+                       #
+                       tau.preset = tau.preset, TE.tau = x$TE.tau,
+                       #
+                       adhoc.hakn.ci = x$adhoc.hakn.ci,
+                       adhoc.hakn.pi = x$adhoc.hakn.pi,
+                       #
+                       seed.predict = seed[j],
+                       #
+                       keepdata = FALSE, warn = x$warn, control = x$control)
     }
     #
     else if (cont)
-      meta1 <- metacont(x$n.e[sel], x$mean.e[sel],
-                        x$sd.e[sel],
-                        x$n.c[sel], x$mean.c[sel],
-                        x$sd.c[sel],
+      meta1 <- metacont(x$n.e[sel], x$mean.e[sel], x$sd.e[sel],
+                        x$n.c[sel], x$mean.c[sel], x$sd.c[sel],
                         studlab = x$studlab[sel],
+                        #
                         exclude = x$exclude[sel],
-                        cluster =
-                          if (!is.null(x$cluster)) x$cluster[sel] else NULL,
-                        rho = x$rho,
+                        #
+                        cluster = x$cluster[sel], rho = x$rho,
+                        #
+                        weights.common = x$weights.common[sel],
+                        weights.random = x$weights.random[sel],
                         #
                         median.e = subsetVar(x$median.e, sel),
                         q1.e = subsetVar(x$q1.e, sel),
@@ -167,100 +163,97 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
                         #
                         sm = x$sm,
                         #
-                        pooledvar = x$pooledvar,
                         method.smd = x$method.smd,
-                        sd.glass = x$sd.glass,
-                        exact.smd = x$exact.smd,
+                        sd.glass = x$sd.glass, exact.smd = x$exact.smd,
+                        pooledvar = x$pooledvar,
                         #
-                        level.ma = x$level.ma,
                         method.common.ci = x$method.common.ci,
                         method.random.ci = x$method.random.ci,
-                        adhoc.hakn.ci = x$adhoc.hakn.ci,
-                        #
-                        level.predict = x$level.predict,
-                        method.predict = method.predict,
-                        adhoc.hakn.pi = x$adhoc.hakn.pi,
-                        seed.predict = seed.i,
-                        #
+                        method.predict = x$method.predict,
                         method.tau = x$method.tau,
                         method.tau.ci = x$method.tau.ci,
-                        level.hetstat = x$level.hetstat,
-                        tau.preset = tau.preset,
-                        TE.tau = x$TE.tau,
+                        method.I2 = x$method.I2,
                         #
-                        keepdata = FALSE,
-                        warn = x$warn,
-                        control = x$control)
+                        level.ma = x$level.ma,
+                        level.predict = x$level.predict,
+                        level.hetstat = x$level.hetstat,
+                        #
+                        tau.preset = tau.preset, TE.tau = x$TE.tau,
+                        #
+                        adhoc.hakn.ci = x$adhoc.hakn.ci,
+                        adhoc.hakn.pi = x$adhoc.hakn.pi,
+                        #
+                        seed.predict = seed[j],
+                        #
+                        keepdata = FALSE, warn = x$warn, control = x$control)
     #
     else if (cor)
       meta1 <- metacor(x$cor[sel], x$n[sel],
                        studlab = x$studlab[sel],
+                       #
                        exclude = x$exclude[sel],
-                       cluster =
-                         if (!is.null(x$cluster)) x$cluster[sel] else NULL,
-                       rho = x$rho,
                        #
-                       sm = x$sm,
+                       cluster = x$cluster[sel], rho = x$rho,
                        #
-                       level.ma = x$level.ma,
+                       weights.common = x$weights.common[sel],
+                       weights.random = x$weights.random[sel],
+                       #
+                       sm = x$sm, null.effect = x$null.effect,
+                       #
                        method.common.ci = x$method.common.ci,
                        method.random.ci = x$method.random.ci,
-                       adhoc.hakn.ci = x$adhoc.hakn.ci,
-                       #
-                       level.predict = x$level.predict,
-                       method.predict = method.predict,
-                       adhoc.hakn.pi = x$adhoc.hakn.pi,
-                       seed.predict = seed.i,
-                       #
+                       method.predict = x$method.predict,
                        method.tau = x$method.tau,
                        method.tau.ci = x$method.tau.ci,
+                       method.I2 = x$method.I2,
+                       #
+                       level.ma = x$level.ma,
+                       level.predict = x$level.predict,
                        level.hetstat = x$level.hetstat,
-                       tau.preset = tau.preset,
-                       TE.tau = x$TE.tau,
                        #
-                       null.effect = x$null.effect,
+                       tau.preset = tau.preset, TE.tau = x$TE.tau,
                        #
-                       keepdata = FALSE,
-                       control = x$control)
+                       adhoc.hakn.ci = x$adhoc.hakn.ci,
+                       adhoc.hakn.pi = x$adhoc.hakn.pi,
+                       #
+                       seed.predict = seed[j],
+                       #
+                       keepdata = FALSE, control = x$control)
     #
     else if (gen)
       meta1 <- metagen(x$TE[sel], x$seTE[sel],
                        studlab = x$studlab[sel],
-                       exclude = x$exclude[sel],
-                       cluster =
-                         if (!is.null(x$cluster)) x$cluster[sel] else NULL,
-                       rho = x$rho,
                        #
-                       weights.common =
-                         if (!is.null(x$weights.common)) x$weights.common[sel] else NULL,
-                       #
-                       weights.random =
-                         if (!is.null(x$weights.random)) x$weights.random[sel] else NULL,
-                       #
-                       sm = x$sm,
-                       #
-                       level.ma = x$level.ma,
-                       method.common.ci = x$method.common.ci,
-                       method.random.ci = x$method.random.ci,
-                       adhoc.hakn.ci = x$adhoc.hakn.ci,
-                       #
-                       level.predict = x$level.predict,
-                       method.predict = method.predict,
-                       adhoc.hakn.pi = x$adhoc.hakn.pi,
-                       seed.predict = seed.i,
-                       #
-                       method.tau = x$method.tau,
-                       method.tau.ci = x$method.tau.ci,
-                       level.hetstat = x$level.hetstat,
-                       tau.preset = tau.preset,
-                       TE.tau = x$TE.tau,
-                       #
-                       null.effect = x$null.effect,
                        n.e = x$n.e[sel], n.c = x$n.c[sel],
                        #
-                       keepdata = FALSE,
-                       warn = x$warn,
-                       control = x$control)
+                       exclude = x$exclude[sel],
+                       #
+                       cluster = x$cluster[sel], rho = x$rho,
+                       #
+                       weights.common = x$weights.common[sel],
+                       weights.random = x$weights.random[sel],
+                       #
+                       sm = x$sm, null.effect = x$null.effect,
+                       #
+                       method.common.ci = x$method.common.ci,
+                       method.random.ci = x$method.random.ci,
+                       method.predict = x$method.predict,
+                       method.tau = x$method.tau,
+                       method.tau.ci = x$method.tau.ci,
+                       method.I2 = x$method.I2,
+                       #
+                       level.ma = x$level.ma,
+                       level.predict = x$level.predict,
+                       level.hetstat = x$level.hetstat,
+                       #
+                       tau.preset = tau.preset, TE.tau = x$TE.tau,
+                       #
+                       adhoc.hakn.ci = x$adhoc.hakn.ci,
+                       adhoc.hakn.pi = x$adhoc.hakn.pi,
+                       #
+                       seed.predict = seed[j],
+                       #
+                       keepdata = FALSE, warn = x$warn, control = x$control)
     #
     else if (inc) {
       if (x$method.incr == "user") {
@@ -280,155 +273,166 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
       meta1 <- metainc(x$event.e[sel], x$time.e[sel],
                        x$event.c[sel], x$time.c[sel],
                        studlab = x$studlab[sel],
-                       exclude = x$exclude[sel],
-                       cluster =
-                         if (!is.null(x$cluster)) x$cluster[sel] else NULL,
-                       rho = x$rho,
-                       #
-                       method = x$method,
-                       sm = x$sm,
-                       #
-                       incr = incr,
-                       incr.e = incr.e, incr.c = incr.c,
-                       method.incr = x$method.incr,
-                       #
-                       model.glmm = x$model.glmm,
-                       #
-                       level.ma = x$level.ma,
-                       method.common.ci = x$method.common.ci,
-                       method.random.ci = x$method.random.ci,
-                       adhoc.hakn.ci = x$adhoc.hakn.ci,
-                       #
-                       level.predict = x$level.predict,
-                       method.predict = method.predict,
-                       adhoc.hakn.pi = x$adhoc.hakn.pi,
-                       seed.predict = seed.i,
-                       #
-                       method.tau = x$method.tau,
-                       method.tau.ci = x$method.tau.ci,
-                       level.hetstat = x$level.hetstat,
-                       tau.preset = tau.preset,
-                       TE.tau = x$TE.tau,
                        #
                        n.e = x$n.e[sel], n.c = x$n.c[sel],
                        #
-                       keepdata = FALSE,
-                       warn = x$warn,
-                       control = x$control)
+                       exclude = x$exclude[sel],
+                       #
+                       cluster = x$cluster[sel], rho = x$rho,
+                       #
+                       weights.common = x$weights.common[sel],
+                       weights.random = x$weights.random[sel],
+                       #
+                       sm = x$sm,
+                       #
+                       method = x$method,
+                       #
+                       method.common.ci = x$method.common.ci,
+                       method.random.ci = x$method.random.ci,
+                       method.predict = x$method.predict,
+                       method.tau = x$method.tau,
+                       method.tau.ci = x$method.tau.ci,
+                       method.I2 = x$method.I2,
+                       #
+                       level.ma = x$level.ma,
+                       level.predict = x$level.predict,
+                       level.hetstat = x$level.hetstat,
+                       #
+                       incr = incr, incr.e = incr.e, incr.c = incr.c,
+                       method.incr = x$method.incr,
+                       model.glmm = x$model.glmm,
+                       #
+                       tau.preset = tau.preset, TE.tau = x$TE.tau,
+                       #
+                       adhoc.hakn.ci = x$adhoc.hakn.ci,
+                       adhoc.hakn.pi = x$adhoc.hakn.pi,
+                       #
+                       seed.predict = seed[j],
+                       #
+                       keepdata = FALSE, warn = x$warn, control = x$control)
     }
     #
     else if (mean)
       meta1 <- metamean(x$n[sel], x$mean[sel], x$sd[sel],
                         studlab = x$studlab[sel],
-                        exclude = x$exclude[sel],
-                        cluster = subsetVar(x$cluster, sel),
-                        rho = x$rho,
                         #
                         median = subsetVar(x$median, sel),
                         q1 = subsetVar(x$q1, sel),
                         q3 = subsetVar(x$q3, sel),
                         min = subsetVar(x$min, sel),
                         max = subsetVar(x$max, sel),
+                        #
                         method.mean = subsetVar(x$method.mean, sel),
                         method.sd = subsetVar(x$method.sd, sel),
+                        #
                         approx.mean = subsetVar(x$approx.mean, sel),
                         approx.sd = subsetVar(x$approx.sd, sel),
                         #
-                        sm = x$sm,
+                        exclude = x$exclude[sel],
                         #
-                        level.ma = x$level.ma,
+                        cluster = x$cluster[sel], rho = x$rho,
+                        #
+                        weights.common = x$weights.common[sel],
+                        weights.random = x$weights.random[sel],
+                        #
+                        sm = x$sm, null.effect = x$null.effect,
+                        #
                         method.common.ci = x$method.common.ci,
                         method.random.ci = x$method.random.ci,
-                        adhoc.hakn.ci = x$adhoc.hakn.ci,
-                        #
-                        level.predict = x$level.predict,
-                        method.predict = method.predict,
-                        adhoc.hakn.pi = x$adhoc.hakn.pi,
-                        seed.predict = seed.i,
-                        #
+                        method.predict = x$method.predict,
                         method.tau = x$method.tau,
                         method.tau.ci = x$method.tau.ci,
+                        method.I2 = x$method.I2,
+                        #
+                        level.ma = x$level.ma,
+                        level.predict = x$level.predict,
                         level.hetstat = x$level.hetstat,
-                        tau.preset = tau.preset,
-                        TE.tau = x$TE.tau,
                         #
-                        null.effect = x$null.effect,
+                        tau.preset = tau.preset, TE.tau = x$TE.tau,
                         #
-                        keepdata = FALSE,
-                        warn = x$warn,
-                        control = x$control)
+                        adhoc.hakn.ci = x$adhoc.hakn.ci,
+                        adhoc.hakn.pi = x$adhoc.hakn.pi,
+                        #
+                        seed.predict = seed[j],
+                        #
+                        keepdata = FALSE, warn = x$warn, control = x$control)
     #
     else if (prop)
       meta1 <- metaprop(x$event[sel], x$n[sel],
                         studlab = x$studlab[sel],
                         exclude = x$exclude[sel],
-                        cluster =
-                          if (!is.null(x$cluster)) x$cluster[sel] else NULL,
-                        rho = x$rho,
+                        #
+                        cluster = x$cluster[sel], rho = x$rho,
+                        #
+                        weights.common = x$weights.common[sel],
+                        weights.random = x$weights.random[sel],
+                        #
+                        sm = x$sm, null.effect = x$null.effect,
                         #
                         method = x$method,
-                        sm = x$sm,
+                        #
+                        method.common.ci = x$method.common.ci,
+                        method.random.ci = x$method.random.ci,
+                        method.predict = x$method.predict,
+                        method.tau = x$method.tau,
+                        method.tau.ci = x$method.tau.ci,
+                        method.I2 = x$method.I2,
+                        #
+                        level.ma = x$level.ma,
+                        level.predict = x$level.predict,
+                        level.hetstat = x$level.hetstat,
+                        #
                         incr = if (length(x$incr) == 1) x$incr else x$incr[sel],
                         method.incr = x$method.incr,
                         #
-                        level.ma = x$level.ma,
-                        method.common.ci = x$method.common.ci,
-                        method.random.ci = x$method.random.ci,
+                        tau.preset = tau.preset, TE.tau = x$TE.tau,
+                        #
                         adhoc.hakn.ci = x$adhoc.hakn.ci,
-                        #
-                        level.predict = x$level.predict,
-                        method.predict = method.predict,
                         adhoc.hakn.pi = x$adhoc.hakn.pi,
-                        seed.predict = seed.i,
                         #
-                        method.tau = x$method.tau,
-                        method.tau.ci = x$method.tau.ci,
-                        level.hetstat = x$level.hetstat,
-                        tau.preset = tau.preset,
-                        TE.tau = x$TE.tau,
+                        seed.predict = seed[j],
                         #
-                        null.effect = x$null.effect,
-                        #
-                        keepdata = FALSE,
-                        warn = x$warn,
-                        control = x$control)
+                        keepdata = FALSE, warn = x$warn, control = x$control)
     #
     else if (rate)
       meta1 <- metarate(x$event[sel], x$time[sel],
                         studlab = x$studlab[sel],
+                        #
+                        n = x$n[sel],
+                        #
                         exclude = x$exclude[sel],
-                        cluster =
-                          if (!is.null(x$cluster)) x$cluster[sel] else NULL,
-                        rho = x$rho,
+                        #
+                        cluster = x$cluster[sel], rho = x$rho,
+                        #
+                        weights.common = x$weights.common[sel],
+                        weights.random = x$weights.random[sel],
+                        #
+                        sm = x$sm, null.effect = x$null.effect,
                         #
                         method = x$method,
-                        sm = x$sm,
+                        #
+                        method.common.ci = x$method.common.ci,
+                        method.random.ci = x$method.random.ci,
+                        method.predict = x$method.predict,
+                        method.tau = x$method.tau,
+                        method.tau.ci = x$method.tau.ci,
+                        method.I2 = x$method.I2,
+                        #
+                        level.ma = x$level.ma,
+                        level.predict = x$level.predict,
+                        level.hetstat = x$level.hetstat,
+                        #
                         incr = if (length(x$incr) == 1) x$incr else x$incr[sel],
                         method.incr = x$method.incr,
                         #
-                        level.ma = x$level.ma,
-                        method.common.ci = x$method.common.ci,
-                        method.random.ci = x$method.random.ci,
+                        tau.preset = tau.preset, TE.tau = x$TE.tau,
+                        #
                         adhoc.hakn.ci = x$adhoc.hakn.ci,
-                        #
-                        level.predict = x$level.predict,
-                        method.predict = method.predict,
                         adhoc.hakn.pi = x$adhoc.hakn.pi,
-                        seed.predict = seed.i,
                         #
-                        method.tau = x$method.tau,
-                        method.tau.ci = x$method.tau.ci,
-                        level.hetstat = x$level.hetstat,
-                        tau.preset = tau.preset,
-                        TE.tau = x$TE.tau,
+                        seed.predict = seed[j],
                         #
-                        n = if (!is.null(x$n)) x$n[sel] else NULL,
-                        #
-                        null.effect = x$null.effect,
-                        #
-                        keepdata = FALSE,
-                        warn = x$warn,
-                        control = x$control)
+                        keepdata = FALSE, warn = x$warn, control = x$control)
     #
     else
       stop("No meta-analysis object used for subgroup analysis.")

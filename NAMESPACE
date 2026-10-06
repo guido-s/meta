@@ -146,6 +146,7 @@ importFrom(dplyr,
   group_map,
   if_else,
   mutate,
+  recode,
   relocate,
   rename,
   rename_with,
@@ -289,7 +290,11 @@ importFrom(stats,
   weighted.mean,
   weights
 )
-importFrom(stringr,str_pad)
+importFrom(stringr,
+  str_pad,
+  str_replace,
+  str_to_upper
+)
 importFrom(tibble,column_to_rownames)
 importFrom(tools,file_ext)
 importFrom(utils,

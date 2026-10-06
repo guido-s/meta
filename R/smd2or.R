@@ -98,7 +98,6 @@ smd2or <- function(smd, se.smd, studlab,
                    data = NULL, subset = NULL, exclude = NULL,
                    method = "HH", backtransf = gs("backtransf"), ...) {
   
-  
   is.meta <- inherits(smd, "meta")
   #
   if (is.meta) {
@@ -110,6 +109,8 @@ smd2or <- function(smd, se.smd, studlab,
       smd <- mdat$TE
       se.smd <- mdat$seTE
     }
+    #
+    warn_ignored(list(...), "smd2or")
   }
   else {
     #

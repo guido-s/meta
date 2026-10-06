@@ -13,17 +13,13 @@
 #'   shown.
 #' @param just.addcols Justification of text for additional columns
 #'   (possible values: "left", "right", "center").
-#' @param smlab A label for the summary measure (printed at top of
-#'   figure).
+#' @param main A title for the forest plot.
 #' @param type A character string or vector specifying how to
 #'   plot treatment effects and confidence intervals for cumulative
 #'   meta-analysis results.
 #' @param lab.NA A character string to label missing values.
 #' @param layout A character string specifying the layout of the
 #'   forest plot (see \code{\link{forest.meta}}).
-#' @param calcwidth.details A logical indicating whether the first line
-#'   of meta-analysis details should be considered to calculate width
-#'   of columns on the left side of the forest plot.
 #' @param backtransf A logical indicating whether results should be
 #'   back transformed in forest plots. If \code{backtransf = TRUE},
 #'   results for \code{sm = "OR"} are presented as odds ratios rather
@@ -90,13 +86,13 @@ forest.metainf <- function(x,
                            prediction = x$prediction,
                            overall = x$overall,
                            just.addcols = "right",
-                           smlab = "Leave-One-Out Meta-Analysis",
+                           #
+                           main = "Leave-One-Out Meta-Analysis",
+                           #
                            type = "square",
                            #
                            layout = gs("layout"),
-                           lab.NA = ".",
-                           #
-                           calcwidth.details = TRUE,
+                           lab.NA = gs("lab.NA"),
                            #
                            backtransf = x$backtransf,
                            #
@@ -163,11 +159,12 @@ forest.metainf <- function(x,
   res <- forest.metacum(x,
                         #
                         just.addcols = just.addcols,
-                        smlab = smlab,
+                        #
+                        main = main,
+                        #
                         type = type,
                         layout = layout,
                         lab.NA = lab.NA,
-                        calcwidth.details = calcwidth.details,
                         #
                         big.mark = big.mark,
                         digits = digits,

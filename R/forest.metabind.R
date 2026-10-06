@@ -232,7 +232,7 @@ forest.metabind <- function(x,
                             print.subgroup.labels = x$with.subgroups,
                             addrow.subgroups = print.subgroup.labels,
                             #
-                            smlab,
+                            smlab = NULL,
                             calcwidth.pooled = overall,
                             #
                             warn.deprecated = gs("warn.deprecated"),
@@ -603,9 +603,6 @@ forest.metabind <- function(x,
       cols.square.lines[i] <- col.square.lines
     }
   }
-  #
-  if (missing(smlab))
-    smlab <- xlab_meta(x$sm, x$backtransf)
   #
   if (!x$samedata) {
     overall <- FALSE

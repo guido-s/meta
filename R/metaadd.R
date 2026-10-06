@@ -346,9 +346,12 @@ metaadd <- function(x, type = NULL,
     #
     for (i in seq_len(nrow(dat))) {
       if (!transf && dat$type[i] != "tau2") {
-        dat$TE[i] <- transf(dat$TE[i], x$sm, x$func.transf, x$args.transf)
-        dat$lower[i] <- transf(dat$lower[i], x$sm, x$func.transf, x$args.transf)
-        dat$upper[i] <- transf(dat$upper[i], x$sm, x$func.transf, x$args.transf)
+        dat$TE[i] <- transf(dat$TE[i], x$sm,
+                            func = x$func.transf, args = x$args.transf)
+        dat$lower[i] <- transf(dat$lower[i], x$sm,
+                               func = x$func.transf, args = x$args.transf)
+        dat$upper[i] <- transf(dat$upper[i], x$sm,
+                               func = x$func.transf, args = x$args.transf)
       }
     }
   }

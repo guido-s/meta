@@ -733,13 +733,13 @@
 #' 
 #' @importFrom tools file_ext
 #'
-#' @importFrom dplyr %>% across mutate all_of select rename rename_with mutate if_else tibble filter bind_rows group_by group_map relocate
+#' @importFrom dplyr %>% across mutate all_of select rename rename_with mutate if_else tibble filter bind_rows group_by group_map relocate recode
 #'
 #' @importFrom tibble column_to_rownames
 #'
 #' @importFrom scales number_format
 #'
-#' @importFrom stringr str_pad
+#' @importFrom stringr str_pad str_replace str_to_upper
 #'
 #' @importFrom magrittr %<>%
 #'

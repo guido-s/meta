@@ -61,29 +61,19 @@ summary.meta <- function(object, ...) {
   
   chkclass(object, "meta")
   #
+  warn_ignored(list(...), "summary.meta")
+  #
   if (inherits(object, c("metacum", "metainf")))
     return(object)
   #
   object <- updateversion(object)
   #
-  metaprop <- inherits(object, "metaprop")
-  metarate <- inherits(object, "metarate")
-  
+  metaprop <- inherits(class(object), "metaprop")
+  metarate <- inherits(class(object), "metarate")
+
   #
   #
-  # (2) Check other arguments
-  #
-  #
-  
-  addargs <- names(list(...))
-  #
-  if (length(addargs) > 0)
-    warning("Additional arguments provided in '...' are ignored.",
-            call. = FALSE)
-  
-  #
-  #
-  # (3) Results for individual studies
+  # (2) Results for individual studies
   #
   #
   
@@ -107,7 +97,7 @@ summary.meta <- function(object, ...) {
   
   #
   #
-  # (4) Results for meta-analysis
+  # (3) Results for meta-analysis
   #
   #
   
@@ -147,7 +137,7 @@ summary.meta <- function(object, ...) {
   
   #
   #
-  # (5) Generate R object
+  # (4) Generate R object
   #
   #
   

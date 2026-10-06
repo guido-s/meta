@@ -86,7 +86,11 @@
 #' @param rob.only A logical indicating whether the risk of bias
 #'   assessment is the only information printed on the right side of
 #'   the forest plot.
-#' @param xlab A label for the x-axis.
+#' @param xlab A label for the x-axis. By default, no label is printed,
+#'   except for meta-analyses of single proportions, incidence rates,
+#'   risk differences, or rate differences if proportions or rates are
+#'   expressed as events per a specified number of observations or time
+#'   units using \code{pscale} or \code{irscale}.
 #' @param xlab.pos A numeric specifying the center of the label on the
 #'   x-axis.
 #' @param main A title for the forest plot; by default using list element
@@ -97,7 +101,8 @@
 #' @param lineheight.main Line height for the main title,
 #'   see \code{\link{gpar}}.
 #' @param smlab A label for the summary measure (printed at top of
-#'   figure).
+#'   figure). By default, no label is printed for single proportions or
+#'   incidence rates.
 #' @param smlab.pos A numeric specifying the center of the label for
 #'   the summary measure.
 #' @param xlim The x limits (min,max) of the plot, or the character
@@ -1441,7 +1446,7 @@ forest.meta <- function(x,
                         rob.legend = TRUE,
                         rob.only = FALSE,
                         #
-                        xlab = "", xlab.pos,
+                        xlab = NULL, xlab.pos,
                         #
                         main = x$title,
                         col.main = gs("col.main"),
@@ -2059,6 +2064,8 @@ forest.meta <- function(x,
   miss.type.subgroup.common <- missing(type.subgroup.common)
   miss.type.subgroup.random <- missing(type.subgroup.random)
   miss.weight.study <- missing(weight.study)
+  avail.smlab <- !missing(smlab) && !is.null(smlab)
+  miss.xlab <- missing(xlab) || is.null(xlab)
   miss.xlab.pos <- missing(xlab.pos)
   #
   notavail.digits.addcols.left <-
@@ -2771,18 +2778,24 @@ forest.meta <- function(x,
   else
     dev.off <- FALSE
   #
-  # Use logarithmic x-axis?
-  # (for back-transformed relative effect measures)
+  # Use logarithmic x-axis (for back-transformed relative effect measures)
+  #
   is_relative <- is_relative_effect(sm) | (!is.null(fbt) && fbt == "exp")
   #
   log.xaxis <- backtransf & is_relative
   #
+  null.effect.original <-
+    inherits(x, c("metacor", "metamean", "metaprop", "metarate"))
+  #
+  ref.from.null <- FALSE
+  #
   if (miss.ref) {
-    if (is_single(sm)) {
-      if (!is.null(x$null.effect))
-        ref <- x$null.effect
-      else
-        ref <- NA
+    if (!is.null(x$null.effect)) {
+      ref <- x$null.effect
+      ref.from.null <- TRUE
+    }
+    else if (is_single(sm)) {
+      ref <- NA
     }
     else if (log.xaxis)
       ref <- 1
@@ -3172,6 +3185,8 @@ forest.meta <- function(x,
       resid.hetstat <- FALSE
   }
   chkchar(resid.hetlab)
+  #
+  test.overall <- replaceNULL(test.overall, bmj.revman5.jama)
   #
   test.overall.common <-
     deprecated(test.overall.common, miss.test.overall.common,
@@ -3636,8 +3651,13 @@ forest.meta <- function(x,
   #
   if (is.null(label.right))
     label.right <- ""
+  else
+    chkchar(label.right, length = 1)
+  #
   if (is.null(label.left))
     label.left <- ""
+  else
+    chkchar(label.left, length = 1)
   #
   subgroup <- x$subgroup
   #
@@ -3805,44 +3825,17 @@ forest.meta <- function(x,
       test.overall.random <- FALSE
   }
   #
-  # Add space for heterogeneity statistics (if needed)
-  #
-  if (is.null(addrows.below.overall)) {
-    addrows.below.overall <- 0
-    #
-    if (!jama && layout == "meta" & (metacor | metagen) &
-        miss.leftcols &
-        (overall.hetstat | test.overall.common |
-         test.overall.random) &
-        !(calcwidth.hetstat | calcwidth.tests) &
-        !(details | RoB.legend))
-      addrows.below.overall <- 2
-    else if (layout %in% c("meta", "subgroup") &
-             (test.subgroup.common & test.subgroup.random) &
-             !calcwidth.tests &
-             !(details | RoB.legend)) {
-      addrows.below.overall <- 1
-      #
-      if (layout == "meta")
-        addrows.below.overall <-
-          addrows.below.overall +
-          as.numeric((label.left != "" | label.right != "")) +
-          as.numeric(xlab != "")
-    }
-  }
-  #
+  addrows.below.overall <- replaceNULL(addrows.below.overall, 0)
   chknumeric(addrows.below.overall, min = 0, length = 1, integer = TRUE)
   #
   if (!avail.xlim) {
     mrm <- c("metaprop", "metarate", "metamean")
     #
     if (metaprop || metarate || metamean ||
-        (metabind && is_single(sm) && !is_cor(sm)) ||
+        (is_single(sm) && !is_cor(sm)) ||
         (metacum && any(x$classes %in% mrm)) ||
         (metainf && any(x$classes %in% mrm))) {
       xlim <- NULL
-      #
-      avail.xlim <- FALSE
     }
     else
       xlim <- "symmetric"
@@ -3853,6 +3846,16 @@ forest.meta <- function(x,
   xpos.label.e <- set_xpos(just.label.e)
   xpos.label.c <- set_xpos(just.label.c)
   xpos.rob <- set_xpos(just.rob)
+  #
+  # Back-transform reference value
+  #
+  if (backtransf && ref.from.null && !null.effect.original) {
+    ref <- backtransf(ref, sm,
+                      n = makeunique(x$n.harmonic.mean),
+                      time = makeunique(x$t.harmonic.mean),
+                      func = x$func.backtransf,
+                      args = x$args.backtransf)
+  }
   #
   if (log.xaxis) {
     ref <- log(ref)
@@ -3881,68 +3884,76 @@ forest.meta <- function(x,
       else
         ref <- transf(ref, sm, time = x$t.harmonic.mean)
     }
-    else if (is_single(sm))
+    else if (is_single(sm) && !(ref.from.null && !null.effect.original))
       ref <- transf(ref, sm)
   }
   #
-  if (!backtransf & !miss.pscale & pscale != 1 & !is_untransformed(sm)) {
+  if (!backtransf && pscale != 1 && !miss.pscale && !is_untransformed(sm)) {
     warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
     pscale <- 1
   }
   #
-  if (!backtransf & pscale != 1)
+  if (!backtransf && pscale != 1)
     pscale <- 1
   #
-  if (!backtransf & !miss.irscale & irscale != 1 & !is_untransformed(sm)) {
+  if (!backtransf && irscale != 1 && !miss.irscale && !is_untransformed(sm)) {
     warning("Argument 'irscale' set to 1 as argument 'backtransf' is FALSE.")
     irscale <- 1
   }
   #
-  if (!backtransf & irscale != 1)
+  if (!backtransf && irscale != 1)
     irscale <- 1
   #
-  if (is.null(xlab))
-    xlab <- xlab_meta(sm, backtransf, newline = revman5.jama, revman5 = revman5,
-                      big.mark = big.mark)
-  #
   scale <- 1
-  if (pscale != 1 || irscale != 1) {
-    if (pscale != 1 && irscale != 1)
-      stop("Provide either arguments 'pscale' or 'irscale' but not ",
-           "both arguments.",
-           call. = FALSE)
-    if (pscale != 1)
-      scale <- pscale
-    else
-      scale <- irscale
-  }
+  #
+  if (pscale != 1 && irscale != 1)
+    stop("Provide either arguments 'pscale' or 'irscale' but not both arguments.",
+         call. = FALSE)
+  #
+  if ((is_prop(sm) || sm == "RD") && pscale != 1)
+    scale <- pscale
+  else if ((is_rate(sm) || sm == "IRD") && irscale != 1)
+    scale <- irscale
   #
   if (backtransf && is_prop(sm))
     ref <- pscale * ref
   #
-  if (backtransf & is_rate(sm))
+  if (backtransf && is_rate(sm))
     ref <- irscale * ref
   #
-  smlab.null <- is.null(smlab)
-  if (smlab.null) {
-    if (is_rate(sm))
-      smlab <- xlab_meta(sm, backtransf, irscale = irscale, irunit = irunit,
-                         newline = !bmj.revman5.jama, revman5 = revman5,
-                         big.mark = big.mark)
-    else if (is_prop(sm))
-      smlab <- xlab_meta(sm, backtransf, pscale = pscale,
-                         newline = !bmj.revman5.jama, revman5 = revman5,
+  if (miss.xlab) {
+    if ((is_prop(sm) || sm == "RD") && pscale != 1)
+      xlab <- xlab_meta("PRAW", backtransf,
+                        pscale = pscale,
+                        newline = FALSE, revman5 = revman5,
+                        big.mark = big.mark)
+    else if ((is_rate(sm) || sm == "IRD") && irscale != 1)
+      xlab <- xlab_meta("IR", backtransf,
+                        irscale = irscale, irunit = irunit,
+                        newline = FALSE, revman5 = revman5,
+                        big.mark = big.mark)
+    else
+      xlab <- ""
+  }
+  #
+  if (!avail.smlab) {
+    if ((is_prop(sm) && pscale != 1) || (is_rate(sm) && irscale != 1))
+      smlab <- ""
+    else if (jama)
+      smlab <- xlab_meta(sm, backtransf,
+                         pscale = pscale,
+                         irscale = irscale, irunit = irunit,
+                         newline = TRUE, revman5 = FALSE,
                          big.mark = big.mark)
     else
-      smlab <- xlab_meta(sm, backtransf, pscale = pscale,
-                         irscale = irscale, irunit = irunit,
-                         newline = !bmj.revman5.jama, revman5 = revman5,
+      smlab <- xlab_meta(sm, backtransf,
+                         newline = !bmj.revman5, revman5 = bmj.revman5,
                          big.mark = big.mark)
   }
   #
   print.label <- (label.left != "" | label.right != "") & !is.na(ref)
   if (print.label & !bottom.lr) {
-    if (!smlab.null)
+    if (avail.smlab && smlab != "")
       warning("Argument 'smlab' ignored as argument 'bottom.lr' is FALSE.")
     smlab <- ""
   }
@@ -4055,34 +4066,11 @@ forest.meta <- function(x,
   #
   #
   
-  sm.lab <- sm
+  sm.lab <- smlab(sm, backtransf, pscale, irscale,
+                  func.backtransf = fbt, forest = TRUE)
   #
-  if (sm == "MRAW")
-    sm.lab <- "Mean"
-  #
-  if (backtransf) {
-    if (sm == "ZCOR")
-      sm.lab <- "COR"
-    else if (is_prop(sm)) {
-      if (pscale == 1)
-        sm.lab <- "Proportion"
-      else
-        sm.lab <- "Events"
-    }
-    else if (is_rate(sm)) {
-      if (irscale == 1)
-        sm.lab <- "Rate"
-      else
-        sm.lab <- "Events"
-    }
-    else if (sm == "proportion")
-      sm.lab <- "Proportion"
-    else if (sm == "MLN")
-      sm.lab <- "Mean"
-  }
-  else if (is_relative_effect(sm) | sm == "VE" |
-           (!is.null(fbt) && fbt == "exp"))
-    sm.lab <- paste0("ln", if (sm == "VE") "VR" else sm)
+  if (!avail.smlab && smlab == sm.lab)
+    smlab <- ""
   #
   sel.studlab <-
     pmatch(layout, c("meta", "BMJ", "RevMan5", "JAMA", "subgroup"))
@@ -4097,11 +4085,11 @@ forest.meta <- function(x,
   else
     ci.lab <- paste0(100 * level.ma, "% CI")
   #
-  if (jama) {
-    if (xlab == "")
-      xlab <- paste0(sm.lab, " (", ci.lab, ")")
-    #
-    smlab <- ""
+  if (jama && miss.xlab) {
+    if (!is_prop(sm) && !is_rate(sm)) {
+      xlab <- smlab
+      smlab <- ""
+    }
     bottom.lr <- FALSE
   }
   else {
@@ -4122,7 +4110,7 @@ forest.meta <- function(x,
       else
         lab.model <- ""
       #
-      if (smlab.null) {
+      if (!avail.smlab) {
         if (smlab != "")
           smlab <- paste0(smlab, "\n")
         smlab <- paste0(smlab, lab.method[1], ", ", lab.model, ci.lab)
@@ -4145,16 +4133,18 @@ forest.meta <- function(x,
       else
         lab.model <- ""
       #
-      if (smlab.null) {
+      if (!avail.smlab) {
         if (smlab != "")
           smlab <- paste0(smlab, ", ")
-        smlab <- paste0(smlab, lab.method[1], ",\n", lab.model,
+        smlab <- paste0(smlab, lab.method[1], ",",
+                        if (smlab != "") "\n" else " ",
+                        lab.model,
                         "(", ci.lab, ")")
       }
     }
   }
   #
-  if (jama | gs("CIbracket") == "(")
+  if (jama || gs("CIbracket") == "(")
     ci.lab.bracket <- paste0("(", ci.lab, ")")
   else if (gs("CIbracket") == "[")
     ci.lab.bracket <- paste0("[", ci.lab, "]")
@@ -4199,7 +4189,7 @@ forest.meta <- function(x,
   lab.TE <- sm
   #
   if (is_relative || sm == "VE")
-    lab.TE <- paste0("ln", if (sm == "VE") "VR" else sm)
+    lab.TE <- paste0(gs("log.prefix"), if (sm == "VE") "VR" else sm)
   else if (!is.null(ftr)) {
     lab.TE <-
       paste0(ftr, "(", sm,
@@ -4230,7 +4220,7 @@ forest.meta <- function(x,
                 #
                 sm.lab,
                 ci.lab,
-                if (bmj.revman5 & smlab.null)
+                if (bmj.revman5 & !avail.smlab)
                   smlab
                 else
                   paste(sm.lab, ci.lab.bracket),
@@ -6476,10 +6466,14 @@ forest.meta <- function(x,
   text.details <- ""
   #
   if (details) {
+    x.details <- x
+    if (!test.overall.common && !test.overall.random)
+      x.details$null.effect <- NA
+    #
     if (is.null(x$.text.details.methods)) {
       if (K.all == 1) {
         text.details <-
-          catmeth(x,
+          catmeth(x.details,
                   common, random, prediction, overall, overall.hetstat,
                   #
                   func.transf = x$func.transf,
@@ -6495,7 +6489,7 @@ forest.meta <- function(x,
       }
       else {
         text.details <-
-          catmeth(x,
+          catmeth(x.details,
                   common, random, prediction, overall, overall.hetstat,
                   #
                   func.transf = x$func.transf,
@@ -10864,6 +10858,7 @@ forest.meta <- function(x,
     cluster.format = cluster.format, cycles.format = cycles.format,
     effect.format = effect.format, ci.format = ci.format,
     effect.ci.format = effect.ci.format)
+  #
   attr(forest.args, "details") <- details
   #
   figheight <- NULL

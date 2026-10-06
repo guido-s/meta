@@ -58,6 +58,16 @@ barplot.rob <- function(height,
                         quiet = FALSE, ...) {
   
   chkclass(height, "rob")
+  #
+  if (!is_installed_package("robvis", stop = FALSE))
+    stop(paste0("Package 'robvis' missing.",
+                "\n  ",
+                "Please use the following R command for installation:",
+                "\n  install.packages(\"robvis\")"),
+         call. = FALSE)
+  #
+  warn_ignored(list(...), "barplot.rob")
+  
   rob <- height
   #
   tool <- attr(rob, "tool")
@@ -65,15 +75,6 @@ barplot.rob <- function(height,
   chklogical(overall)
   chklogical(weighted)
   chklogical(quiet)
-  
-  
-  if (!is_installed_package("robvis", stop = FALSE))
-    stop(paste0("Package 'robvis' missing.",
-                "\n  ",
-                "Please use the following R command for installation:",
-                "\n  install.packages(\"robvis\")"),
-         call. = FALSE)
-  
   
   if (!(tool %in% c("RoB1", "RoB2", "ROBINS-I", "user-defined"))) {
     warning("R function 'rob_summary() in R package robvis not usable with ",

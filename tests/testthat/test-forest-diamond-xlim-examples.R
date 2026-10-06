@@ -497,7 +497,8 @@ test_that("bottom annotations use structured rows", {
 
   pdf(tempfile())
   on.exit(if (dev.cur() > 1) dev.off(), add = TRUE)
-  forest(metagen(1:5, 1:5), xlab = "a", label.left = "Du")
+  forest(metagen(1:5, 1:5), xlab = "a", label.left = "Du",
+         test.overall = TRUE)
   dev.off()
 
   axis.rows <- get(".axis_rows", envir = .GlobalEnv)[[1]]
