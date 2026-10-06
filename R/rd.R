@@ -121,9 +121,6 @@ rd <- function(x, ...)
   UseMethod("rd")
 
 
-
-
-
 #' @rdname rd
 #' @method rd meta
 #' @export
@@ -135,7 +132,6 @@ rd.meta <- function(x, p.c,
                     pscale = 1,
                     ...) {
   
-  
   #
   # (1) Check for meta object and summary measure
   #
@@ -146,6 +142,8 @@ rd.meta <- function(x, p.c,
     stop("Calculation of ARRs /ABIs only possible for risk difference, ",
          "risk ratio, odds ratio, or hazard ratio as summary measure ",
          "(argument 'sm').")
+  #
+  warn_ignored(list(...), "rd.meta")
   #
   pscale <- replaceNULL(pscale, 1)
   chknumeric_strict(pscale, min = 1, length = 1)
@@ -282,9 +280,6 @@ rd.meta <- function(x, p.c,
 }
 
 
-
-
-
 #' @rdname rd
 #' @method rd default
 #' @export
@@ -304,6 +299,8 @@ rd.default <- function(x, p.c, sm, lower, upper,
   #
   if (missing(sm))
     stop("Argument 'sm' is mandatory.")
+  #
+  warn_ignored(list(...), "rd.default")
   #
   sm <- setchar(sm, c("RD", "RR", "OR", "HR"))
   #
@@ -421,9 +418,6 @@ rd.default <- function(x, p.c, sm, lower, upper,
 }
 
 
-
-
-
 #' @rdname rd
 #' @method print rd.meta
 #' @export
@@ -438,16 +432,18 @@ print.rd.meta <- function(x,
                           details = gs("details"),
                           ...) {
   
-  
   #
   # (1) Check for rd.meta object
   #
-  chkclass(x, "rd.meta")
   
+  chkclass(x, "rd.meta")
+  #
+  warn_ignored(list(...), "print.rd.meta")
   
   #
   # (2) Check arguments
   #
+  
   chklogical(common)
   chklogical(random)
   #
@@ -458,7 +454,6 @@ print.rd.meta <- function(x,
   chknumeric(digits.prop, min = 0, length = 1)
   #
   chklogical(details)
-  
   
   sm <- attributes(x)$sm
   sv <- attributes(x)$small.values
@@ -738,9 +733,6 @@ print.rd.meta <- function(x,
 }
 
 
-
-
-
 #' @rdname rd
 #' @method print rd.default
 #' @export
@@ -755,7 +747,10 @@ print.rd.default <- function(x,
   #
   # (1) Check for rd.default object
   #
+  
   chkclass(x, "rd.default")
+  #
+  warn_ignored(list(...), "print.rd.default")
   
   res <- vector("list")
   res$common <- x
@@ -775,9 +770,6 @@ print.rd.default <- function(x,
   #
   invisible(NULL)
 }
-
-
-
 
 
 #

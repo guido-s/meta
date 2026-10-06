@@ -47,8 +47,10 @@ labels.meta <- function(object,
                         ...) {
   
   chkclass(object, "meta")
-  layout <- setchar(layout, c("JAMA", "Lancet"))
+  #
+  warn_ignored(list(...), "labels.meta")
   
+  layout <- setchar(layout, c("JAMA", "Lancet"))
   
   sfsp <- sys.frame(sys.parent())
   mc <- match.call()

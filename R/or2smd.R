@@ -159,6 +159,8 @@ or2smd <- function(lnOR, selnOR, studlab,
           (length(exclude) > k.All))
         stop("Length of argument 'exclude' is larger than number of studies.")
   }
+  #
+  warn_ignored(list(...), "or2smd")
   
   
   method <- setchar(method, c("HH", "CS"))

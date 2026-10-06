@@ -388,7 +388,6 @@ print.summary.meta <- function(x,
   # More checks ...
   #
   cl <- paste0("update.meta() or ", class(x)[1], "()")
-  addargs <- names(list(...))
   #
   level <- x$level
   level.ma <- replaceNULL(x$level.ma, x$level.comb)

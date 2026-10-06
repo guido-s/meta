@@ -16,7 +16,7 @@
 \alias{z2cor}
 \title{Auxiliary functions for (back) transformations}
 \usage{
-transf(x, sm, func = NULL, args = NULL, n = NULL, time = NULL)
+transf(x, sm, n = NULL, time = NULL, func = NULL, args = NULL)
 
 cor2z(x)
 
@@ -46,15 +46,15 @@ confidence / prediction interval limit(s).}
 
 \item{sm}{Summary measure.}
 
-\item{func}{User-specified function for (back) transformation.}
-
-\item{args}{Function arguments for user-specified function.}
-
 \item{n}{Sample size(s) to transform or back transform Freeman-Tukey
 transformed proportions.}
 
 \item{time}{Time(s) to transform or back transform Freeman-Tukey
 transformed incidence rates.}
+
+\item{func}{User-specified function for (back) transformation.}
+
+\item{args}{Function arguments for user-specified function.}
 }
 \description{
 Auxiliary functions to (back) transform effect estimates or

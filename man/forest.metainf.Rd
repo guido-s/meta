@@ -9,11 +9,10 @@
   prediction = x$prediction,
   overall = x$overall,
   just.addcols = "right",
-  smlab = "Leave-One-Out Meta-Analysis",
+  main = "Leave-One-Out Meta-Analysis",
   type = "square",
   layout = gs("layout"),
-  lab.NA = ".",
-  calcwidth.details = TRUE,
+  lab.NA = gs("lab.NA"),
   backtransf = x$backtransf,
   big.mark = gs("big.mark"),
   digits = gs("digits.forest"),
@@ -44,8 +43,7 @@ shown.}
 \item{just.addcols}{Justification of text for additional columns
 (possible values: "left", "right", "center").}
 
-\item{smlab}{A label for the summary measure (printed at top of
-figure).}
+\item{main}{A title for the forest plot.}
 
 \item{type}{A character string or vector specifying how to
 plot treatment effects and confidence intervals for cumulative
@@ -55,10 +53,6 @@ meta-analysis results.}
 forest plot (see \code{\link{forest.meta}}).}
 
 \item{lab.NA}{A character string to label missing values.}
-
-\item{calcwidth.details}{A logical indicating whether the first line
-of meta-analysis details should be considered to calculate width
-of columns on the left side of the forest plot.}
 
 \item{backtransf}{A logical indicating whether results should be
 back transformed in forest plots. If \code{backtransf = TRUE},

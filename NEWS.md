@@ -2,24 +2,43 @@
 
 ### Major changes
 
-* Forest plots have improved layout and column spacing, including printing tests
-  for an overall effect before heterogeneity statistics.
-
-* Forest plots can now include a customisable main title, using the
-  meta-analysis title by default.
-
-* Tests for an overall effect are now shown by default in forest plots.
+* The exact Mantel-Haenszel method is the new default for common effect
+  meta-analysis with a binary outcome; argument 'MH.exact' in metabin() is now
+  TRUE. Thus, continuity corrections are no longer added to cell frequencies
+  when calculating Mantel-Haenszel pooled estimates for studies with zero cells.
+  For a single-study meta-analysis, a continuity correction is still used.
+  Use settings.meta(MH.exact = FALSE) to restore the previous behaviour.
 
 * Cluster-robust variance estimators are now available for univariate random
   effects meta-analysis and three-level models.
   ([Tipton and Pustejovsky, 2015](https://doi.org/10.3102/1076998615606099);
   [Pustejovsky and Tipton, 2022](https://doi.org/10.1007/s11121-021-01246-3)).
 
-* Cumulative meta-analysis and leave-one-out analyses now return random-effects
-  results when prediction intervals are requested and both common-effect and
-  random-effects analyses are available.
+* Cumulative meta-analysis and leave-one-out analyses now return random effects
+  results when prediction intervals are requested and both common effect and
+  random effects analyses are available.
+
+* Forest plots have improved layout and column spacing, including printing tests
+  for an overall effect before heterogeneity statistics.
+
+* Forest plots can now include a customisable main title, using the
+  meta-analysis title by default.
+
+* metagen() now always stores 'null.effect' on the transformed analysis
+  scale. If argument 'transf = FALSE', the supplied value is transformed
+  before being stored.
+
+* New setting 'log.prefix' allows users to define the prefix for
+  log-transformed effect measures. The default prefix is now "log" instead
+  of "ln" in printouts and forest plots.
 
 ### User-visible changes
+
+* metabin(), metacont(), metacor(), metagen(), metainc(), metamean(),
+  metaprop(), metarate(), metareg(), update.meta():
+  - argument 'method.random.ci' can be equal to "CR0", "CR1", or "CR2" for
+    cluster-robust variance estimators
+  - argument 'title' is used as default for argument 'main' in forest.meta()
 
 * forest.meta():
   - new arguments 'main', 'just.main', 'xpos.main', 'gap.main', 'fs.main',
@@ -43,8 +62,8 @@
     heterogeneity statistics, details, statistical tests, additional lines, and
     risk of bias legends
   - less vertical space is added below overall results in JAMA layout
-  - allow different colours for multiple overall common-effect and
-    random-effects diamonds, prediction intervals, and their outlines
+  - allow different colours for multiple overall common effect and
+    random effects diamonds, prediction intervals, and their outlines
   - new argument 'col.study.text' to specify colours for text in individual
     study rows; excluded studies are printed in lightgrey by default
   - allow different colours for subgroup diamonds and prediction intervals
@@ -53,7 +72,7 @@
     'col.diamond.lines.random.subgroup', 'col.predict.subgroup', and
     'col.predict.lines.subgroup'
   - arguments 'random.subgroup' and 'prediction.subgroup' can be logical
-    matrices to select subgroup random-effects estimates or prediction intervals
+    matrices to select subgroup random effects estimates or prediction intervals
     separately for each available confidence- or prediction-interval method,
     e.g., 'random.subgroup = df.random.w > 1'
   - center combined treatment-group headers over both columns in BMJ layout for
@@ -67,19 +86,17 @@
   - the reporting base for event frequencies is printed in the forest plot using
     the JAMA layout for the meta-analysis of single proportions or rates
     [(issue #104)](https://github.com/guido-s/meta/issues/104)
+  - print number of events per number of observations or person-time below
+    x-axis (argument 'xlab') instead of above the forest plot (argument 'smlab')
+    [(related to issue #106)](https://github.com/guido-s/meta/issues/106)
 
 * forest.metacum():
   - use default colours for squares regardless of layout
     [(issue #96)](https://github.com/guido-s/meta/issues/96)
+  - print the title "Cumulative Meta-Analysis"
 
-* forest.metacum(), forest.metainf():
-  - new argument 'calcwidth.details'
-
-* metabin(), metacont(), metacor(), metagen(), metainc(), metamean(),
-  metaprop(), metarate(), metareg(), update.meta():
-  - argument 'method.random.ci' can be equal to "CR0", "CR1", or "CR2" for
-    cluster-robust variance estimators
-  - argument 'title' is used as default for argument 'main' in forest.meta()
+* forest.metainf():
+  - print the title "Leave-One-Out Meta-Analysis"
 
 * metagen():
   - study-level confidence limits supplied in arguments 'lower' and 'upper'
@@ -106,6 +123,10 @@
 * metacor(), metamean(), metarate():
   - use summary-measure specific checks for argument 'null.effect'
     [(issue #103)](https://github.com/guido-s/meta/issues/103)
+
+* print.meta():
+  - print the type of meta-analysis in the details of the meta-analysis
+  - always print the null hypothesis if argument 'null.effect' is not NA
 
 * metabias():
   - report the response variable used in meta-regression for linear regression
@@ -136,6 +157,9 @@
   - function no longer available for Freeman-Tukey double arcsine transformed
     proportions or rates (sm = "PFT" or "IRFT")
 
+* Functions that ignore additional arguments in argument '...' now print a
+  warning if such arguments are supplied.
+
 * New function ir2asin() to calculate the Freeman-Tukey double arcsine
   transformation for incidence rates if argument 'time' is provided and
   otherwise uses the ordinary square root transformation
@@ -146,6 +170,8 @@
 * transf():
   - new arguments 'n' and 'time' to pass these argument to p2asin() or ir2asin()
     for summary measure "PFT" or "IRFT"
+  - new arguments 'n' and 'time' precede arguments 'func' and 'args',
+    matching the argument order of backtransf()
 
 * settings.meta():
   - new arguments 'col.main', 'just.main', 'xpos.main', 'gap.main',
@@ -191,6 +217,9 @@
 * forest.metacum(), forest.metainf():
   - show prediction intervals if argument 'layout = "BMJ"'
     [(issue #96)](https://github.com/guido-s/meta/issues/96)
+  - print number of events per number of observations or person-time instead of
+    proportions or rates
+    [(issue #106)](https://github.com/guido-s/meta/issues/106)
 
 * metaprop(), metarate():
   - use the harmonic mean of sample sizes or times to transform the null effect
@@ -204,6 +233,26 @@
 * metacont(), metamean():
   - correctly identify studies with non-positive sample sizes or means
     [(issue #103)](https://github.com/guido-s/meta/issues/103)
+
+* metagen():
+  - correctly transform 'null.effect' when argument 'transf = FALSE'
+
+* print.meta(), forest.meta():
+  - correctly back-transform 'null.effect' from metagen() objects when
+    argument 'backtransf = TRUE'
+
+* metacum(), metainf(), subgroup():
+  - correctly preserve all user-specified analysis settings and study-level
+    information when reconstructing analyses for binary, continuous,
+    incidence rate, proportion, rate, and generic meta-analyses
+
+* metacum(), metainf():
+  - preserve method details for standardized mean differences, including
+    'method.smd', 'sd.glass', 'exact.smd', and 'pooledvar'
+
+* subgroup():
+  - preserve user-specified common-effect and random-effects weights
+  - preserve the specified null effect for all supported meta-analysis types
 
 * settings.meta():
   - reject 'NULL' for numeric settings where 'NULL' is not an admissible value
@@ -267,12 +316,14 @@
 * New internal function layout_colors() to define default colours for forest
   plots.
 
+* New internal functions chknumeric_strict() and chkfontface() to check
+  numeric arguments without missing or NULL values or font face arguments
+
+* New internal function warn_ignored() to provide consistent warnings for
+  ignored arguments supplied via '...'.
+
 * chkchar(), chkcolor(), chklevel(), chknumeric():
   - removed deprecated argument 'single'; replaced by argument 'length'
-
-* chknumeric_strict(), chkfontface():
-  - new internal functions to check numeric arguments without missing or NULL
-    values or font face arguments
 
 * forest.meta():
   - removed obsolete arguments 'bmj.xpos' and 'rob.xpos'; a warning is printed

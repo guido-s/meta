@@ -649,7 +649,7 @@ argslist <-
     "CIbracket", "CIseparator", "CIlower.blank", "CIupper.blank",
     "print.subgroup.name", "sep.subgroup",
     "keepdata", "keeprma", "warn", "warn.deprecated",
-    "transf", "backtransf",
+    "transf", "backtransf", "log.prefix",
     "smbin", "smcont", "smcor", "sminc", "smmean", "smprop", "smrate",
     "incr", "method.incr",
     "method", "allstudies", "MH.exact",
@@ -794,6 +794,7 @@ setOption("warn", TRUE)
 setOption("warn.deprecated", TRUE)
 setOption("transf", TRUE)
 setOption("backtransf", TRUE)
+setOption("log.prefix", "log")
 setOption("digits", 4)
 setOption("digits.mean", 2)
 setOption("digits.sd", 4)
@@ -854,7 +855,7 @@ setOption("addincr", FALSE)
 #
 setOption("method", "MH")
 setOption("allstudies", FALSE)
-setOption("MH.exact", FALSE)
+setOption("MH.exact", TRUE)
 setOption("RR.Cochrane", FALSE)
 setOption("Q.Cochrane", TRUE)
 setOption("model.glmm", "UM.FS")
@@ -887,7 +888,7 @@ setOption("label.right", "")
 #
 setOption("layout", "meta")
 setOption("forest.details", FALSE)
-setOption("test.overall", TRUE)
+setOption("test.overall", NULL)
 setOption("test.effect.subgroup", FALSE)
 setOption("digits.forest", 2)
 setOption("digits.TE.forest", 4)

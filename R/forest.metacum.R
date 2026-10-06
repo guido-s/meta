@@ -23,17 +23,13 @@
 #'   shown.
 #' @param just.addcols Justification of text for additional columns
 #'   (possible values: "left", "right", "center").
-#' @param smlab A label for the summary measure (printed at top of
-#'   figure).
+#' @param main A title for the forest plot.
 #' @param type A character string or vector specifying how to
 #'   plot treatment effects and confidence intervals for cumulative
 #'   meta-analysis results.
 #' @param layout A character string specifying the layout of the
 #'   forest plot (see \code{\link{forest.meta}}).
 #' @param lab.NA A character string to label missing values.
-#' @param calcwidth.details A logical indicating whether the first line
-#'   of meta-analysis details should be considered to calculate width
-#'   of columns on the left side of the forest plot.
 #' @param backtransf A logical indicating whether results should be
 #'   back transformed in forest plots. If \code{backtransf = TRUE},
 #'   results for \code{sm = "OR"} are presented as odds ratios rather
@@ -122,13 +118,13 @@ forest.metacum <- function(x,
                            prediction = x$prediction,
                            overall = x$overall,
                            just.addcols = "right",
-                           smlab = "Cumulative Meta-Analysis",
+                           #
+                           main = "Cumulative Meta-Analysis",
+                           #
                            type = "square",
                            #
                            layout = gs("layout"),
-                           lab.NA = ".",
-                           #
-                           calcwidth.details = TRUE,
+                           lab.NA = gs("lab.NA"),
                            #
                            backtransf = x$backtransf,
                            #
@@ -220,8 +216,6 @@ forest.metacum <- function(x,
     col.bg.predict <- colors[7]
   if (missing(col.border.predict))
     col.border.predict = colors[8]
-  #
-  chklogical(calcwidth.details)
   #
   chklogical(backtransf)
   #
@@ -406,14 +400,28 @@ forest.metacum <- function(x,
       matrix(c(rep(TRUE, k.all), prediction),
              ncol = k.all, byrow = TRUE))
     #
-    m <- metagen(TE[sel.pred], seTE[sel.pred], studlab = studlab[sel.pred],
+    m <- metagen(TE[sel.pred], seTE[sel.pred],
+                 lower = lower[sel.pred],
+                 upper = upper[sel.pred],
+                 studlab = studlab[sel.pred],
+                 #
                  common = common, random = !common,
                  prediction = any(prediction),
                  overall = overall,
+                 #
                  sm = x$sm,
                  transf = TRUE,
                  backtransf = backtransf,
                  func.backtransf = x$func.backtransf,
+                 #
+                 pscale = x$pscale, irscale = x$irscale,
+                 #
+                 level = x$level,
+                 level.ma = x$level.ma,
+                 level.predict = x$level.predict,
+                 level.hetstat = x$level.hetstat,
+                 #
+                 method.I2 = x$method.I2,
                  #
                  null.effect = x$null.effect,
                  #
@@ -421,9 +429,6 @@ forest.metacum <- function(x,
                  label.right = x$label.right,
                  #
                  method.tau = "DL")
-    #
-    m$lower <- lower[sel.pred]
-    m$upper <- upper[sel.pred]
     #
     if (x$sm == "PFT") {
       m$n.harmonic.mean <- as.vector(
@@ -475,24 +480,35 @@ forest.metacum <- function(x,
     #
     studlab <- x$studlab
     #
-    m <- metagen(TE, seTE, studlab = studlab,
+    m <- metagen(TE, seTE,
+                 lower = lower, upper = upper,
+                 studlab = studlab,
+                 #
                  common = common, random = !common,
                  prediction = any(prediction),
                  overall = overall,
+                 #
                  sm = x$sm,
+                 #
                  transf = TRUE,
                  backtransf = backtransf,
                  func.backtransf = x$func.backtransf,
                  #
                  null.effect = x$null.effect,
                  #
+                 pscale = x$pscale, irscale = x$irscale,
+                 #
+                 level = x$level,
+                 level.ma = x$level.ma,
+                 level.predict = x$level.predict,
+                 level.hetstat = x$level.hetstat,
+                 #
+                 method.I2 = x$method.I2,
+                 #
                  label.left = x$label.left,
                  label.right = x$label.right,
                  #
                  method.tau = "DL")
-    #
-    m$lower <- lower
-    m$upper <- upper
     #
     if (x$sm == "PFT") {
       m$n.harmonic.mean <- x$n.harmonic.mean
@@ -537,9 +553,6 @@ forest.metacum <- function(x,
     m$method.predict <- x$method.predict
   }
   #
-  m$level <- x$level.ma <- x$level.ma
-  m$level.predict <- x$level.predict
-  #
   m$method <- x$method
   m$method.random <- x$method.random
   #
@@ -551,8 +564,6 @@ forest.metacum <- function(x,
   #
   m$tau.preset <- x$tau.preset
   m$TE.tau <- x$TE.tau
-  #
-  m$method.I2 <- x$method.I2
   #
   m$k <- x$k.pooled
   m$k.study <- x$k.study.pooled
@@ -692,7 +703,8 @@ forest.metacum <- function(x,
          overall.hetstat = FALSE,
          type.study = type.study,
          weight.study = "same",
-         lab.NA = lab.NA, smlab = smlab,
+         lab.NA = lab.NA,
+         main = main,
          data.pooled = data.p,
          just.addcols = just.addcols,
          #
@@ -710,7 +722,6 @@ forest.metacum <- function(x,
          col.study = col,
          col.square = col.bg, col.square.lines = col.border,
          #
-         calcwidth.details = calcwidth.details,
          details = details)
   #
   res <- do.call("forest.meta", c(args_list, dots_list))

@@ -134,6 +134,8 @@ cidprop.meta <- function(x,
   
   chkclass(x, "meta")
   #
+  warn_ignored(list(...), "cidprop")
+  #
   sm <- x$sm
   is_relative <- is_relative_effect(sm)
   is_VE <- sm == "VE"
@@ -260,9 +262,10 @@ cidprop.meta <- function(x,
     #
     if (is_relative)
       cid.below.null.transf <- log(cid.below.null)
-    else if (use.transf)
-      cid.below.null.transf <- transf(cid.below.null, sm,
-                                      n = n.pft, time = time.irft)
+    else if (use.transf) {
+      cid.below.null.transf <-
+        transf(cid.below.null, sm, n = n.pft, time = time.irft)
+    }
   }
   else {
     cid.below.null <- NA
@@ -276,9 +279,10 @@ cidprop.meta <- function(x,
     #
     if (is_relative)
       cid.above.null.transf <- log(cid.above.null)
-    else if (use.transf)
-      cid.above.null.transf <- transf(cid.above.null, sm,
-                                      n = n.pft, time = time.irft)
+    else if (use.transf) {
+      cid.above.null.transf <-
+        transf(cid.above.null, sm, n = n.pft, time = time.irft)
+    }
   }
   else {
     cid.above.null <- NA
@@ -475,10 +479,10 @@ print.cidprop <- function(x,
     if (!x$x$backtransf) {
       n.pft <- if (x$x$sm == "PFT") x$x$n.harmonic.mean else NULL
       time.irft <- if (x$x$sm == "IRFT") x$x$t.harmonic.mean else NULL
-      cid.below.null <- transf(cid.below.null, x$x$sm,
-                               n = n.pft, time = time.irft)
-      cid.above.null <- transf(cid.above.null, x$x$sm,
-                               n = n.pft, time = time.irft)
+      cid.below.null <-
+        transf(cid.below.null, x$x$sm, n = n.pft, time = time.irft)
+      cid.above.null <-
+        transf(cid.above.null, x$x$sm, n = n.pft, time = time.irft)
     }
     #
     if (x$x$sm == "")

@@ -48,7 +48,7 @@
   big.mark = gs("big.mark"),
   print.subgroup.labels = x$with.subgroups,
   addrow.subgroups = print.subgroup.labels,
-  smlab,
+  smlab = NULL,
   calcwidth.pooled = overall,
   warn.deprecated = gs("warn.deprecated"),
   ...

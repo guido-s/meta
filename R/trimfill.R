@@ -192,6 +192,7 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
   # (1) Check for (inadmissible) meta object
   #
   #
+  
   chkclass(x, "meta")
   chksuitable(x, "Trim-and-fill method",
               c("metacum", "metainf", "metamerge", "netpairwise"))
@@ -206,12 +207,12 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
     stop("Trim-and-fill method not implemented for three-level model.",
          call. = FALSE)
   
-  
   #
   #
   # (2) Check arguments
   #
   #
+  
   args <- list(...)
   #
   ma.common <- deprecated(ma.common, missing(ma.common), args, "ma.fixed",
@@ -247,7 +248,6 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
   }
   #
   chklogical(silent)
-  
   
   TE <- x$TE
   seTE <- x$seTE
@@ -286,7 +286,6 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
   else if (sm == "ZCOR")
     transf.null.effect <- 0.5 * log((1 + null.effect) / (1 - null.effect))
   
-  
   #
   # Exclude studies from meta-analysis
   #
@@ -309,44 +308,29 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
     warning(paste(sum(miss),
                   "observation(s) dropped due to missing values"))
   
-  
   TE <- TE[sel]
   seTE <- seTE[sel]
   studlab <- studlab[sel]
   #
-  if (!is.null(n.e))
-    n.e <- n.e[sel]
-  if (!is.null(n.c))
-    n.c <- n.c[sel]
-  if (!is.null(n))
-    n <- n[sel]
+  n.e <- n.e[sel]
+  n.c <- n.c[sel]
+  n <- n[sel]
   #
-  if (!is.null(event.e))
-    event.e <- event.e[sel]
-  if (!is.null(event.c))
-    event.c <- event.c[sel]
-  if (!is.null(event))
-    event <- event[sel]
+  event.e <- event.e[sel]
+  event.c <- event.c[sel]
+  event <- event[sel]
   #
-  if (!is.null(time.e))
-    time.e <- time.e[sel]
-  if (!is.null(time.c))
-    time.c <- time.c[sel]
-  if (!is.null(time))
-    time <- time[sel]
+  time.e <- time.e[sel]
+  time.c <- time.c[sel]
+  time <- time[sel]
   #
-  if (!is.null(cor))
-    cor <- cor[sel]
+  cor <- cor[sel]
   #
-  if (!is.null(mean.e))
-    mean.e <- mean.e[sel]
-  if (!is.null(mean.c))
-    mean.c <- mean.c[sel]
+  mean.e <- mean.e[sel]
+  mean.c <- mean.c[sel]
   #
-  if (!is.null(sd.e))
-    sd.e <- sd.e[sel]
-  if (!is.null(sd.c))
-    sd.c <- sd.c[sel]
+  sd.e <- sd.e[sel]
+  sd.c <- sd.c[sel]
   #
   k <- length(TE)
   #
@@ -354,7 +338,6 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
     warning("Minimal number of three studies for trim-and-fill method")
     return(invisible(NULL))
   }
-  
   
   if (is.null(left))
     left <- as.logical(sign(metabias(TE, seTE, method = "Egger",
@@ -367,40 +350,25 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
   seTE <- seTE[ord]
   studlab <- studlab[ord]
   #
-  if (!is.null(n.e))
-    n.e <- n.e[ord]
-  if (!is.null(n.c))
-    n.c <- n.c[ord]
-  if (!is.null(n))
-    n <- n[ord]
+  n.e <- n.e[ord]
+  n.c <- n.c[ord]
+  n <- n[ord]
   #
-  if (!is.null(event.e))
-    event.e <- event.e[ord]
-  if (!is.null(event.c))
-    event.c <- event.c[ord]
-  if (!is.null(event))
-    event <- event[ord]
+  event.e <- event.e[ord]
+  event.c <- event.c[ord]
+  event <- event[ord]
   #
-  if (!is.null(time.e))
-    time.e <- time.e[ord]
-  if (!is.null(time.c))
-    time.c <- time.c[ord]
-  if (!is.null(time))
-    time <- time[ord]
+  time.e <- time.e[ord]
+  time.c <- time.c[ord]
+  time <- time[ord]
   #
-  if (!is.null(cor))
-    cor <- cor[ord]
+  cor <- cor[ord]
   #
-  if (!is.null(mean.e))
-    mean.e <- mean.e[ord]
-  if (!is.null(mean.c))
-    mean.c <- mean.c[ord]
+  mean.e <- mean.e[ord]
+  mean.c <- mean.c[ord]
   #
-  if (!is.null(sd.e))
-    sd.e <- sd.e[ord]
-  if (!is.null(sd.c))
-    sd.c <- sd.c[ord]
-  
+  sd.e <- sd.e[ord]
+  sd.c <- sd.c[ord]
   
   if (ma.common)
     TE.sum <-
@@ -408,7 +376,6 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
   else
     TE.sum <-
       metagen(TE, seTE, method.tau = x$method.tau, method.tau.ci = "")$TE.random
-  
   
   if (k == 1) {
     n.iter <- 0
@@ -449,7 +416,6 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
       k0 <- trim1$res0.plus
     }
   }
-  
   
   if (k0 > (k - 1))
     k0 <- k - 1
@@ -512,41 +478,26 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
     seTE      <- seTE[order(ord)]
     studlab   <- studlab[order(ord)]
     #
-    if (!is.null(n.e))
-      n.e <- n.e[order(ord)]
-    if (!is.null(n.c))
-      n.c <- n.c[order(ord)]
-    if (!is.null(n))
-      n <- n[order(ord)]
+    n.e <- n.e[order(ord)]
+    n.c <- n.c[order(ord)]
+    n <- n[order(ord)]
     #
-    if (!is.null(event.e))
-      event.e <- event.e[order(ord)]
-    if (!is.null(event.c))
-      event.c <- event.c[order(ord)]
-    if (!is.null(event))
-      event <- event[order(ord)]
+    event.e <- event.e[order(ord)]
+    event.c <- event.c[order(ord)]
+    event <- event[order(ord)]
     #
-    if (!is.null(time.e))
-      time.e <- time.e[order(ord)]
-    if (!is.null(time.c))
-      time.c <- time.c[order(ord)]
-    if (!is.null(time))
-      time <- time[order(ord)]
+    time.e <- time.e[order(ord)]
+    time.c <- time.c[order(ord)]
+    time <- time[order(ord)]
     #
-    if (!is.null(cor))
-      cor <- cor[order(ord)]
+    cor <- cor[order(ord)]
     #
-    if (!is.null(mean.e))
-      mean.e <- mean.e[order(ord)]
-    if (!is.null(mean.c))
-      mean.c <- mean.c[order(ord)]
+    mean.e <- mean.e[order(ord)]
+    mean.c <- mean.c[order(ord)]
     #
-    if (!is.null(sd.e))
-      sd.e <- sd.e[order(ord)]
-    if (!is.null(sd.c))
-      sd.c <- sd.c[order(ord)]
+    sd.e <- sd.e[order(ord)]
+    sd.c <- sd.c[order(ord)]
   }
-  
   
   if (!left)
     m <- metagen(-TE, seTE, studlab = studlab, level = x$level,
@@ -587,7 +538,6 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
                  #
                  null.effect = transf.null.effect)
   
-  
   #
   # Calculate H, I-Squared, and Rb
   #
@@ -595,12 +545,10 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
   I2res <- list(TE = m$I2, lower = m$lower.I2, upper = m$upper.I2)
   Rbres <- list(TE = m$Rb, lower = m$lower.Rb, upper = m$upper.Rb)
   
-  
   #
   # Number of filled studies
   #
   k0 <- sum(trimfill)
-  
   
   if (!is.null(exclude) && any(exclude)) {
     exclude.na <- c(exclude, rep(NA, k0))
@@ -659,7 +607,6 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
                    #
                    null.effect = transf.null.effect)
   }
-  
   
   res <- list(studlab = m$studlab,
               #
@@ -815,15 +762,11 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
   #
   res$ma.fixed <- res$ma.common
   res$hakn <- m$hakn
-  #  
+  #
   class(res) <- c("metagen", "meta", "trimfill")
-  
-  
+  #
   res
 }
-
-
-
 
 
 #' @rdname trimfill
@@ -854,12 +797,12 @@ trimfill.default <- function(x, seTE, left = NULL, ma.common = TRUE,
                              irscale = 1, irunit = "person-years",
                              silent = TRUE, ...) {
   
-  
   #
   #
   # (1) Check essential arguments
   #
   #
+  
   k.All <- length(x)
   #
   chknumeric(x)
@@ -877,12 +820,12 @@ trimfill.default <- function(x, seTE, left = NULL, ma.common = TRUE,
   if (is.null(sm))
     sm <- ""
   
-  
   #
   #
   # (2) Do meta-analysis
   #
   #
+  
   m <- metagen(x, seTE, studlab = studlab, sm = sm,
                level = level, level.ma = level.ma,
                common = common, random = random,
@@ -906,16 +849,15 @@ trimfill.default <- function(x, seTE, left = NULL, ma.common = TRUE,
                irscale = irscale, irunit = irunit,
                ...)
   
-  
   #
   #
   # (3) Run trim-and-fill method
   #
   #
+  
   res <- trimfill(m, left = left, ma.common = ma.common,
                   type = type, n.iter.max = n.iter.max,
                   silent = silent, ...)
-  
-  
+  #
   res
 }

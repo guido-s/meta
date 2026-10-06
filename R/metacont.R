@@ -809,8 +809,17 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
                          value = method.sd)
   #
   chklogical(pooledvar)
-  method.smd <- setchar(method.smd, c("Hedges", "Cohen", "Glass"))
-  sd.glass <- setchar(sd.glass, c("control", "experimental"))
+  #
+  if (method.smd == "")
+    method.smd <- gs("method.smd")
+  else
+    method.smd <- setchar(method.smd, c("Hedges", "Cohen", "Glass"))
+  #
+  if (sd.glass == "")
+    sd.glass <- gs("sd.glass")
+  else
+    sd.glass <- setchar(sd.glass, c("control", "experimental"))
+  #
   chklogical(warn)
   #
   # Check for deprecated arguments in '...'

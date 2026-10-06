@@ -95,7 +95,7 @@
 #' @rdname meta-transf
 #' @export transf
 
-transf <- function(x, sm, func = NULL, args = NULL, n = NULL, time = NULL) {
+transf <- function(x, sm, n = NULL, time = NULL, func = NULL, args = NULL) {
   
   #
   # Do nothing if all values are NA

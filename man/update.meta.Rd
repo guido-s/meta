@@ -466,7 +466,8 @@ estimate the between-study variance \eqn{\tau^2}. This argument
 is passed on to \code{\link[metafor]{rma.uni}} or
 \code{\link[metafor]{rma.glmm}}, respectively.}
 
-\item{\dots}{Additional arguments (ignored at the moment).}
+\item{\dots}{Additional arguments (only considered to fetch deprecated
+arguments)}
 }
 \value{
 An object of class \code{"meta"} and \code{"metabin"},

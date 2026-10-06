@@ -44,7 +44,7 @@
   rob.text = "Risk of Bias",
   rob.legend = TRUE,
   rob.only = FALSE,
-  xlab = "",
+  xlab = NULL,
   xlab.pos,
   main = x$title,
   col.main = gs("col.main"),
@@ -429,7 +429,11 @@ domains should be printed.}
 assessment is the only information printed on the right side of
 the forest plot.}
 
-\item{xlab}{A label for the x-axis.}
+\item{xlab}{A label for the x-axis. By default, no label is printed,
+except for meta-analyses of single proportions, incidence rates,
+risk differences, or rate differences if proportions or rates are
+expressed as events per a specified number of observations or time
+units using \code{pscale} or \code{irscale}.}
 
 \item{xlab.pos}{A numeric specifying the center of the label on the
 x-axis.}
@@ -447,7 +451,8 @@ x-axis.}
 see \code{\link{gpar}}.}
 
 \item{smlab}{A label for the summary measure (printed at top of
-figure).}
+figure). By default, no label is printed for single proportions or
+incidence rates.}
 
 \item{smlab.pos}{A numeric specifying the center of the label for
 the summary measure.}

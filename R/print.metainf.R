@@ -128,6 +128,8 @@ print.metainf <- function(x,
   
   chkclass(x, "metainf")
   #
+  warn_ignored(list(...), "print.metainf")
+  #
   print.metacum(x,
                 #
                 prediction = prediction,
@@ -162,8 +164,7 @@ print.metainf <- function(x,
                 text.tau = text.tau,
                 text.I2 = text.I2,
                 #
-                details.methods = details.methods,
-                ...)
+                details.methods = details.methods)
   #
   invisible(NULL)
 }

@@ -1075,3 +1075,28 @@ drop_from_dots <- function(x, old, new) {
   }
   x
 }
+
+warn_ignored <- function(x, func = "") {
+  if (length(x) > 0) {
+    nam.args <- names(x)
+    #
+    if (func != "")
+      txt <- paste0(func, "(): ")
+    else
+      txt <- ""
+    #
+    if (length(nam.args) == 1)
+      txt <- paste0(txt,
+                    "The argument '",
+                    nam.args,
+                    "' provided in '...' is ignored.")
+    else
+      txt <- paste0(txt,
+                    "The following arguments provided in '...' are ignored: ",
+                    paste0(nam.args, collapse = ", "))
+    #
+    warning(txt, call. = FALSE)
+  }
+  #
+  invisible(NULL)
+}
