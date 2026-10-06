@@ -356,13 +356,13 @@ metacor <- function(cor, n, studlab,
                     #
                     control = NULL,
                     ...) {
-
-
+  
   #
   #
   # (1) Check arguments
   #
   #
+  
   chknumeric(rho, min = -1, max = 1)
   #
   chknull(sm)
@@ -483,13 +483,13 @@ metacor <- function(cor, n, studlab,
   #
   fun <- "metacor"
   sm <- setchar(sm, gs("sm4cor"))
-
-
+  
   #
   #
   # (2) Read data
   #
   #
+  
   nulldata <- is.null(data)
   sfsp <- sys.frame(sys.parent())
   mc <- match.call()
@@ -564,13 +564,13 @@ metacor <- function(cor, n, studlab,
   #
   if (usw.random)
     chknumeric(weights.random, min = 0)
-
-
+  
   #
   #
   # (3) Check length of essential variables
   #
   #
+  
   chklength(n, k.All, fun)
   chklength(studlab, k.All, fun)
   if (with.cluster)
@@ -595,13 +595,13 @@ metacor <- function(cor, n, studlab,
     chklogical(test.subgroup)
     chklogical(prediction.subgroup)
   }
-
-
+  
   #
   #
   # (4) Subset, exclude studies, and subgroups
   #
   #
+  
   if (!missing.subset)
     if ((is.logical(subset) & (sum(subset) > k.All)) ||
         (length(subset) > k.All))
@@ -618,14 +618,14 @@ metacor <- function(cor, n, studlab,
   }
   else
     exclude <- rep(FALSE, k.All)
-
-
+  
   #
   #
   # (5) Store complete dataset in list object data
   #     (if argument keepdata is TRUE)
   #
   #
+  
   if (keepdata) {
     if (nulldata)
       data <- data.frame(.cor = cor)
@@ -659,13 +659,13 @@ metacor <- function(cor, n, studlab,
     if (usw.random)
       data$.weights.random <- weights.random
   }
-
-
+  
   #
   #
   # (6) Use subset for analysis
   #
   #
+  
   if (!missing.subset) {
     cor <- cor[subset]
     n   <- n[subset]
@@ -716,30 +716,30 @@ metacor <- function(cor, n, studlab,
   #
   if (!is.null(subgroup.name))
     chkchar(subgroup.name, length = 1)
-
-
+  
   #
   #
   # (7) Calculate results for individual studies
   #
   #
+  
   if (sm == "ZCOR") {
     TE   <- cor2z(cor)
     seTE <- sqrt(1 / (n - 3))
     transf.null.effect <- 0.5 * log((1 + null.effect) / (1 - null.effect))
   }
-  if (sm == "COR") {
+  else if (sm == "COR") {
     TE <- cor
     seTE <- sqrt((1 - cor^2)^2 / (n - 1))
     transf.null.effect <- null.effect
   }
-
-
+   
   #
   #
   # (8) Additional checks for three-level model
   #
   #
+  
   three.level <- FALSE
   sel.ni <- !is.infinite(TE) & !is.infinite(seTE)
   #
@@ -759,13 +759,13 @@ metacor <- function(cor, n, studlab,
     if (!(method.tau %in% c("REML", "ML")))
       method.tau <- "REML"
   }
-
-
+  
   #
   #
   # (9) Do meta-analysis
   #
   #
+  
   m <- metagen(TE, seTE, studlab,
                exclude = if (missing.exclude) NULL else exclude,
                cluster = cluster, rho = rho,
@@ -827,13 +827,13 @@ metacor <- function(cor, n, studlab,
   if (by & tau.common)
     hcc <- hetcalc(TE, seTE, method.tau, "", TE.tau,
                    method.I2, level.hetstat, subgroup, control)
-
-
+  
   #
   #
-  # (9) Generate R object
+  # (10) Generate R object
   #
   #
+  
   res <- list(cor = cor, n = n)
   #
   # Add meta-analysis results
@@ -923,7 +923,6 @@ metacor <- function(cor, n, studlab,
   res <- backward(res)
   #
   class(res) <- c(fun, "meta")
-
-
+  
   res
 }

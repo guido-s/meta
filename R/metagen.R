@@ -469,8 +469,14 @@
 #' studies are shown in printouts and forest plots using argument
 #' \code{exclude} (see Examples). Meta-analysis results are the same for
 #' both arguments.
+#' 
+#' Studies with missing or non-finite treatment effect estimates or standard
+#' errors, such as infinite values resulting from a transformation, are not
+#' considered in meta-analysis calculations. Studies with non-positive
+#' standard errors are also not considered. These studies remain available in
+#' the returned object and can be identified by their zero weights.
 #' }
-#'
+#' 
 #' \subsection{Presentation of meta-analysis results}{
 #'
 #' Internally, both common effect and random effects models are
@@ -2094,24 +2100,28 @@ metagen <- function(TE, seTE, studlab,
     seTE[!is.na(seTE) & seTE == 0] <- NA
   }
   #
+  TE[is.nan(TE)] <- NA
+  seTE[is.nan(seTE)] <- NA
+  #
+  sel.noninf <- !is.infinite(TE) & !is.infinite(seTE)
+  exclude.ma <- exclude | !sel.noninf
+  #
   tau2.calc <- NA
-
-
+  
   #
   #
   # (10) Additional checks for three-level model
   #
   #
-
+  
   three.level <- FALSE
-  sel.ni <- !is.infinite(TE) & !is.infinite(seTE)
   #
   # Only conduct three-level meta-analysis if variable 'cluster'
   # contains duplicate values after removing inestimable study
   # results standard errors
   #
   if (with.cluster &&
-      length(unique(cluster[sel.ni])) != length(cluster[sel.ni]))
+      length(unique(cluster[sel.noninf])) != length(cluster[sel.noninf]))
     three.level <- TRUE
   #
   if (is.null(method.tau.ci))
@@ -2157,8 +2167,8 @@ metagen <- function(TE, seTE, studlab,
   #
   if (!is.null(subgroup.name))
     chkchar(subgroup.name, length = 1)
-
-
+  
+  
   #
   #
   # (11) Additional checks and calculations for n-of-1 trials
@@ -2181,21 +2191,20 @@ metagen <- function(TE, seTE, studlab,
         data$.seTE[data$.subset] <- seTE
     }
   }
-
-
+  
   #
   #
   # (12) Do meta-analysis
   #
   #
-
-  k <- sum(!is.na(TE[!exclude]) & !is.na(seTE[!exclude]))
+  
+  k <- sum(!is.na(TE[!exclude.ma]) & !is.na(seTE[!exclude.ma]))
   #
   if (three.level) {
-    cluster.incl <- cluster[!exclude]
+    cluster.incl <- cluster[!exclude.ma]
     k.study <-
       length(unique(
-        cluster.incl[!is.na(TE[!exclude]) & !is.na(seTE[!exclude])]))
+        cluster.incl[!is.na(TE[!exclude.ma]) & !is.na(seTE[!exclude.ma])]))
   }
   else
     k.study <- k
@@ -2256,19 +2265,19 @@ metagen <- function(TE, seTE, studlab,
     #
     # Estimate tau-squared
     #
-    hc <- hetcalc(TE[!exclude], seTE[!exclude],
+    hc <- hetcalc(TE[!exclude.ma], seTE[!exclude.ma],
                   method.tau, method.tau.ci, TE.tau,
                   method.I2, level.hetstat, control = control,
-                  cluster = cluster[!exclude], rho = rho)
+                  cluster = cluster[!exclude.ma], rho = rho)
     #
     # Estimate common tau-squared across subgroups
     #
     if (by & tau.common)
-      hcc <- hetcalc(TE[!exclude], seTE[!exclude],
+      hcc <- hetcalc(TE[!exclude.ma], seTE[!exclude.ma],
                      method.tau, method.tau.ci, TE.tau,
                      method.I2, level.hetstat,
                      subgroup = subgroup, control = control,
-                     cluster = cluster[!exclude], rho = rho)
+                     cluster = cluster[!exclude.ma], rho = rho)
     #
     # Different calculations for three-level models
     #
@@ -2297,7 +2306,7 @@ metagen <- function(TE, seTE, studlab,
         # Classic meta-analysis (Cooper & Hedges, 1994, p. 265-6)
         #
         w.common <- 1 / seTE^2
-        w.common[is.na(w.common) | is.na(TE) | exclude] <- 0
+        w.common[is.na(w.common) | is.na(TE) | exclude.ma] <- 0
         #
         TE.common <- weighted.mean(TE, w.common, na.rm = TRUE)
         #
@@ -2322,7 +2331,7 @@ metagen <- function(TE, seTE, studlab,
         #
         # Conduct common effect meta-analysis with user-specified weights
         #
-        sel.4 <- !is.na(TE) & !is.na(seTE) & !exclude
+        sel.4 <- !is.na(TE) & !is.na(seTE) & !exclude.ma
         #
         m4.usw.c <-
           runUSW(list(yi = TE[sel.4], sei = seTE[sel.4],
@@ -2355,7 +2364,7 @@ metagen <- function(TE, seTE, studlab,
         # Classic meta-analysis (Cooper & Hedges, 1994, p. 265, 274-5)
         #
         w.random <- 1 / (seTE^2 + tau2.calc)
-        w.random[is.na(w.random) | is.na(TE) | exclude] <- 0
+        w.random[is.na(w.random) | is.na(TE) | exclude.ma] <- 0
         #
         TE.random   <- weighted.mean(TE, w.random, na.rm = TRUE)
         seTE.random <- sqrt(1 / sum(w.random, na.rm = TRUE))
@@ -2390,7 +2399,7 @@ metagen <- function(TE, seTE, studlab,
         ci.r <- as.data.frame(ci(1, NA, level = 0.99999))
         #
         if (any(method.random.ci %in% CRs)) {
-          sel.4 <- !is.na(TE) & !is.na(seTE) & !exclude
+          sel.4 <- !is.na(TE) & !is.na(seTE) & !exclude.ma
           meth.cr <- method.random.ci[method.random.ci %in% CRs]
           #
           m4.uni <-
@@ -2609,7 +2618,7 @@ metagen <- function(TE, seTE, studlab,
                        level.predict, df.kero - 1)
           }
           else if (method.predict[i] == "NNF") {
-            res.pima <- pimeta::pima(TE[!exclude], seTE[!exclude],
+            res.pima <- pimeta::pima(TE[!exclude.ma], seTE[!exclude.ma],
                                      method = "boot",
                                      alpha = 1 - level.predict,
                                      seed = seed.predict)
@@ -2654,7 +2663,7 @@ metagen <- function(TE, seTE, studlab,
         #
         # Conduct random effect meta-analysis with user-specified weights
         #
-        sel.4 <- !is.na(TE) & !is.na(seTE) & !exclude
+        sel.4 <- !is.na(TE) & !is.na(seTE) & !exclude.ma
         #
         m4.usw.r <-
           runUSW(list(yi = TE[sel.4], sei = seTE[sel.4],
@@ -2740,7 +2749,7 @@ metagen <- function(TE, seTE, studlab,
       #
       # Conduct three-level meta-analysis
       #
-      sel.4 <- !is.na(TE) & !is.na(seTE) & !exclude
+      sel.4 <- !is.na(TE) & !is.na(seTE) & !exclude.ma
       #
       list.mlm <- list(yi = TE[sel.4],
                        V = vcalc(vi = seTE[sel.4]^2,

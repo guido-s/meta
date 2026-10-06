@@ -236,6 +236,9 @@
 
 * metagen():
   - correctly transform 'null.effect' when argument 'transf = FALSE'
+  - do not consider studies with infinite treatment estimates or standard
+    errors in meta-analysis calculations
+    [(issue #103)](https://github.com/guido-s/meta/issues/103)
 
 * print.meta(), forest.meta():
   - correctly back-transform 'null.effect' from metagen() objects when

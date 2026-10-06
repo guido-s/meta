@@ -1808,8 +1808,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   # Set NaN to NA
   #
   TE[is.nan(TE)] <- NA
-
-
+  
+  
   #
   #
   # (9) Additional checks for three-level model

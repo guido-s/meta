@@ -665,6 +665,12 @@ the meta-analysis using argument \code{subset}, while excluded
 studies are shown in printouts and forest plots using argument
 \code{exclude} (see Examples). Meta-analysis results are the same for
 both arguments.
+
+Studies with missing or non-finite treatment effect estimates or standard
+errors, such as infinite values resulting from a transformation, are not
+considered in meta-analysis calculations. Studies with non-positive
+standard errors are also not considered. These studies remain available in
+the returned object and can be identified by their zero weights.
 }
 
 \subsection{Presentation of meta-analysis results}{
