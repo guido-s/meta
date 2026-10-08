@@ -511,7 +511,7 @@ forest.metacum <- function(x,
                  backtransf = backtransf,
                  func.backtransf = x$func.backtransf,
                  #
-                 pscale = x$pscale, irscale = x$irscale,
+                 pscale = x$pscale, irscale = x$irscale, irunit = x$irunit,
                  #
                  level = x$level,
                  level.ma = x$level.ma,
@@ -593,7 +593,7 @@ forest.metacum <- function(x,
                  #
                  null.effect = x$null.effect,
                  #
-                 pscale = x$pscale, irscale = x$irscale,
+                 pscale = x$pscale, irscale = x$irscale, irunit = x$irunit,
                  #
                  level = x$level,
                  level.ma = x$level.ma,

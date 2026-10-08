@@ -268,8 +268,10 @@
     incidence rate, proportion, rate, and generic meta-analyses
 
 * metacum(), metainf():
-  - preserve method details for standardized mean differences, including
-    'method.smd', 'sd.glass', 'exact.smd', and 'pooledvar'
+  - preserve method details supplied to metacont() for standardized mean
+    differences, including 'method.smd', 'sd.glass', 'exact.smd', and
+    'pooledvar'
+  - preserve the value of 'irunit' supplied to metarate()
 
 * subgroup():
   - correctly use subgroup harmonic exposure times for back-transformation
