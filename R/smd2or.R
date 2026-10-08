@@ -110,7 +110,7 @@ smd2or <- function(smd, se.smd, studlab,
       se.smd <- mdat$seTE
     }
     #
-    warn_ignored(list(...), "smd2or")
+    warn_ignore_dots(list(...), "smd2or")
   }
   else {
     #

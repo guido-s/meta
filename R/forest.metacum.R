@@ -7,16 +7,16 @@
 #' @aliases forest.metacum
 #' 
 #' @param x An object of class \code{\link{metacum}}.
-#' @param leftcols A character vector specifying (additional) columns
-#'   to be plotted on the left side of the forest plot or a logical
-#'   value.
-#' @param leftlabs A character vector specifying labels for
-#'   (additional) columns on left side of the forest plot.
-#' @param rightcols A character vector specifying (additional) columns
-#'   to be plotted on the right side of the forest plot or a logical
-#'   value.
-#' @param rightlabs A character vector specifying labels for
-#'   (additional) columns on right side of the forest plot.
+#' @param layout A character string specifying the layout of the
+#'   forest plot (see \code{\link{forest.meta}}).
+#' @param leftcols A character vector specifying columns to be plotted on the
+#'   left side of the forest plot or a logical value.
+#' @param leftlabs A character vector specifying labels for columns on the left
+#'   side of the forest plot.
+#' @param rightcols A character vector specifying columns to be plotted on the
+#'   right side of the forest plot or a logical value.
+#' @param rightlabs A character vector specifying labels for columns on the
+#'   right side of the forest plot.
 #' @param prediction A logical indicating whether prediction
 #'   intervals should be printed.
 #' @param overall A logical indicating whether overall results should be
@@ -27,9 +27,27 @@
 #' @param type A character string or vector specifying how to
 #'   plot treatment effects and confidence intervals for cumulative
 #'   meta-analysis results.
-#' @param layout A character string specifying the layout of the
-#'   forest plot (see \code{\link{forest.meta}}).
 #' @param lab.NA A character string to label missing values.
+#' @param print.I2 A logical value indicating whether to print the
+#'   value of the I-squared statistic.
+#' @param print.I2.ci A logical value indicating whether to print the
+#'   confidence interval of the I-squared statistic.
+#' @param print.tau2 A logical value indicating whether to print the
+#'   value of the between-study variance \eqn{\tau^2}.
+#' @param print.tau2.ci A logical value indicating whether to print
+#'   the confidence interval of \eqn{\tau^2}.
+#' @param print.tau A logical value indicating whether to print
+#'   \eqn{\tau}, the square root of the between-study variance
+#'   \eqn{\tau^2}.
+#' @param print.tau.ci A logical value indicating whether to print the
+#'   confidence interval of \eqn{\tau}.
+#' @param print.Q A logical value indicating whether to print the
+#'   value of the heterogeneity statistic Q.
+#' @param print.pval.Q A logical value indicating whether to print the
+#'   p-value of the heterogeneity statistic Q.
+#' @param print.cidprop A logical value indicating whether to print the
+#'   expected proportion of comparable studies with clinically important
+#'   benefit or harm.
 #' @param backtransf A logical indicating whether results should be
 #'   back transformed in forest plots. If \code{backtransf = TRUE},
 #'   results for \code{sm = "OR"} are presented as odds ratios rather
@@ -112,8 +130,9 @@
 
 forest.metacum <- function(x,
                            #
-                           leftcols = NULL, leftlabs = NULL,
-                           rightcols = NULL, rightlabs = NULL,
+                           layout = gs("layout"),
+                           #
+                           leftcols, leftlabs, rightcols, rightlabs,
                            #
                            prediction = x$prediction,
                            overall = x$overall,
@@ -123,8 +142,17 @@ forest.metacum <- function(x,
                            #
                            type = "square",
                            #
-                           layout = gs("layout"),
                            lab.NA = gs("lab.NA"),
+                           #
+                           print.I2 = TRUE,
+                           print.I2.ci = FALSE,
+                           print.tau2 = TRUE,
+                           print.tau2.ci = FALSE,
+                           print.tau = TRUE,
+                           print.tau.ci = FALSE,
+                           print.Q = FALSE,
+                           print.pval.Q = FALSE,
+                           print.cidprop = FALSE,
                            #
                            backtransf = x$backtransf,
                            #
@@ -155,6 +183,8 @@ forest.metacum <- function(x,
   chkclass(x, c("metacum", "metainf"))
   x <- updateversion(x)
   #
+  layout <- setchar(layout, c(gs("layout4forest"), "subgroup"))
+  #
   type <- setchar(type, c("square", "diamond", "circle", "squarediamond"))
   #
   just.addcols <- setchar(just.addcols, c("left", "center", "right"))
@@ -184,7 +214,7 @@ forest.metacum <- function(x,
   #
   chklogical(overall)
   #
-  layout <- setchar(layout, c("meta", "BMJ", "RevMan5", "JAMA"))
+  layout <- setchar(layout, gs("layout4forest"))
   #
   # Colour schemes for layouts:
   # - colors[1] - vertical line for common effect or random effects model
@@ -217,6 +247,16 @@ forest.metacum <- function(x,
   if (missing(col.border.predict))
     col.border.predict = colors[8]
   #
+  chklogical(print.I2)
+  chklogical(print.I2.ci)
+  chklogical(print.tau2)
+  chklogical(print.tau2.ci)
+  chklogical(print.tau)
+  chklogical(print.tau.ci)
+  chklogical(print.Q)
+  chklogical(print.pval.Q)
+  chklogical(print.cidprop)
+  #
   chklogical(backtransf)
   #
   chknumeric(digits, min = 0, length = 1)
@@ -234,46 +274,104 @@ forest.metacum <- function(x,
   #
   missing.col.bg <- missing(col.bg)
   missing.col.border <- missing(col.border)
-  
-  
-  avail.prop.cid.below.null <-
+  #
+  print.cidprop.below.null <- print.cidprop &&
     !is.null(x$prop.cid.below.null) && !(all(is.na(x$prop.cid.below.null)))
-  avail.prop.cid.above.null <-
+  print.cidprop.above.null <- print.cidprop &&
     !is.null(x$prop.cid.above.null) && !(all(is.na(x$prop.cid.above.null)))
   #
-  avail.prop.cid <- avail.prop.cid.below.null | avail.prop.cid.above.null
+  print.cidprop <- print.cidprop.below.null || print.cidprop.above.null
   #
   pvalNA <- all(is.na(x$pval))
+  
+  
   #
-  if (is.null(leftcols))
+  #
+  # (2) Columns and labels shown in forest plot
+  #
+  #
+  
+  if (missing.leftcols) {
     leftcols <- "studlab"
-  #
-  if (is.null(leftlabs))
-    leftlabs <- rep(NA, length(leftcols))
-  #
-  if (is.null(rightcols)) {
-    rightcols <- c("effect", "ci", if (!pvalNA) "pval", "tau2", "tau", "I2")
     #
-    if (avail.prop.cid.below.null)
-      rightcols <- c(rightcols, "prop.cid.below.null")
-    #
-    if (avail.prop.cid.above.null)
-      rightcols <- c(rightcols, "prop.cid.above.null")
+    if (layout != "meta8") {
+      if (print.tau2)
+        leftcols <- c(leftcols, "tau2")
+      #
+      if (print.tau2.ci)
+        leftcols <- c(leftcols, "tau2.ci")
+      #
+      if (print.tau)
+        leftcols <- c(leftcols, "tau")
+      #
+      if (print.tau.ci)
+        leftcols <- c(leftcols, "tau.ci")
+      #
+      if (print.I2)
+        leftcols <- c(leftcols, "I2")
+      #
+      if (print.I2.ci)
+        leftcols <- c(leftcols, "I2.ci")
+      #
+      if (print.Q)
+        leftcols <- c(leftcols, "Q")
+      #
+      if (print.pval.Q)
+        leftcols <- c(leftcols, "pval.Q")
+      #
+      if (print.cidprop.below.null)
+        leftcols <- c(leftcols, "prop.cid.below.null")
+      #
+      if (print.cidprop.above.null)
+        leftcols <- c(leftcols, "prop.cid.above.null")
+      #
+      if (layout %in% c("RevMan5", "JAMA", "BMJ"))
+        leftcols <- c(leftcols, "effect.ci")
+      else
+        leftcols <- c(leftcols, "effect", "ci")
+      #
+      if (!pvalNA)
+        leftcols <- c(leftcols, "pval")
+    }
   }
   #
-  if (is.null(rightlabs))
-    rightlabs <- rep(NA, length(rightcols))
+  missing.leftlabs <- missing(leftlabs)
+  if (missing.leftlabs) {
+    leftlabs <- rep_len(NA, length(leftcols))
+  }
   #
-  print.tau2 <- any(c("tau2" %in% leftcols, "tau2" %in% rightcols))
-  print.tau <- any(c("tau" %in% leftcols, "tau" %in% rightcols))
-  print.I2 <- any(c("I2" %in% leftcols, "I2" %in% rightcols))
+  if (missing.rightcols) {
+    if (layout == "meta8") {
+      rightcols <- c("effect", "ci")
+      #
+      if (!pvalNA)
+        rightcols <- c(rightcols, "pval")
+      #
+      if (print.tau2)
+        rightcols <- c(rightcols, "tau2")
+      #
+      if (print.tau)
+        rightcols <- c(rightcols, "tau")
+      #
+      if (print.I2)
+        rightcols <- c(rightcols, "I2")
+      #
+      if (print.cidprop.below.null)
+        rightcols <- c(rightcols, "prop.cid.below.null")
+      #
+      if (print.cidprop.above.null)
+        rightcols <- c(rightcols, "prop.cid.above.null")
+    }
+    else
+      rightcols <- FALSE
+  }
   #
-  print.cid.below.null <- any(c("prop.cid.below.null" %in% leftcols,
-                                "prop.cid.below.null" %in% rightcols))
-  #
-  print.cid.above.null <- any(c("prop.cid.above.null" %in% leftcols,
-                                "prop.cid.above.null" %in% rightcols))
-  #
+  missing.rightlabs <- missing(rightlabs)
+  if (missing.rightlabs) {
+    rightlabs <- rep_len(NA, length(rightcols))
+  }
+  
+  
   pval <- formatPT(x$pval, digits = digits.pval, lab.NA = lab.NA)
   tau2 <- formatPT(x$tau2, digits = digits.tau2, lab.NA = lab.NA)
   tau <- formatPT(x$tau, digits = digits.tau2, lab.NA = lab.NA)
@@ -281,14 +379,14 @@ forest.metacum <- function(x,
                paste0(formatPT(100 * x$I2, digits = digits.I2,
                                lab.NA = lab.NA), "%"))
   #
-  if (avail.prop.cid.below.null) {
+  if (print.cidprop.below.null) {
     x$prop.cid.below.null <-
       ifelse(is.na(x$prop.cid.below.null), lab.NA,
              paste0(formatPT(100 * x$prop.cid.below.null,
                              digits = digits.percent), "%"))
   }
   #
-  if (avail.prop.cid.above.null) {
+  if (print.cidprop.above.null) {
     x$prop.cid.above.null <-
       ifelse(is.na(x$prop.cid.above.null), lab.NA,
              paste0(formatPT(100 * x$prop.cid.above.null,
@@ -312,9 +410,9 @@ forest.metacum <- function(x,
             text.tau = gs("text.tau"), text.tau2 = gs("text.tau2"),
             #
             print.tau2 = print.tau2 | x$pooled == "random",
-            print.tau2.ci = FALSE,
+            print.tau2.ci = print.tau2.ci,
             print.tau = print.tau | x$pooled == "random",
-            print.tau.ci = FALSE,
+            print.tau.ci = print.tau.ci,
             #
             print.I2 = print.I2, text.I2 = gs("text.I2"),
             #
@@ -322,10 +420,10 @@ forest.metacum <- function(x,
             #
             forest = TRUE)
   #
-  if (avail.prop.cid)
+  if (print.cidprop)
     svd <- x$small.values == "desirable"
   #
-  if (avail.prop.cid.below.null) {
+  if (print.cidprop.below.null) {
     text.details <-
       paste0(text.details,
              paste0("\n- Lower decision threshold (",
@@ -335,7 +433,7 @@ forest.metacum <- function(x,
                             big.mark = big.mark)))
   }
   #
-  if (avail.prop.cid.above.null) {
+  if (print.cidprop.above.null) {
     text.details <-
       paste0(text.details,
              paste0("\n- Upper decision threshold (",
@@ -344,7 +442,6 @@ forest.metacum <- function(x,
                     formatN(x$cid.above.null, digits = digits.cid,
                             big.mark = big.mark)))
   }
-  
   
   #
   # Print prediction intervals in separate rows
@@ -372,13 +469,13 @@ forest.metacum <- function(x,
                rep("", k.all)),
                ncol = k.all, byrow = TRUE))
     #
-    if (print.cid.below.null)
+    if (print.cidprop)
       prop.cid.below.null <- as.vector(
         matrix(c(x$prop.cid.below.null,
                  rep("", k.all)),
                ncol = k.all, byrow = TRUE))
     #
-    if (print.cid.above.null)
+    if (print.cidprop)
       prop.cid.above.null <- as.vector(
         matrix(c(x$prop.cid.above.null,
                  rep("", k.all)),
@@ -457,10 +554,10 @@ forest.metacum <- function(x,
       matrix(c(tau, rep("", k.all)),
              ncol = k.all, byrow = TRUE))[sel.pred]
     #
-    if (print.cid.below.null)
+    if (print.cidprop)
       m$prop.cid.below.null <- prop.cid.below.null[sel.pred]
     #
-    if (print.cid.above.null)
+    if (print.cidprop)
       m$prop.cid.above.null <- prop.cid.above.null[sel.pred]
     #
     type.study <- rep(c(type, "predict"), k.all)[sel.pred]
@@ -524,10 +621,10 @@ forest.metacum <- function(x,
     m$tau2 <- tau2
     m$tau <- tau
     #
-    if (print.cid.below.null)
+    if (print.cidprop)
       m$prop.cid.below.null <- x$prop.cid.below.null
     #
-    if (print.cid.below.null)
+    if (print.cidprop)
       m$prop.cid.above.null <- x$prop.cid.above.null
     #
     type.study <- type
@@ -570,47 +667,9 @@ forest.metacum <- function(x,
   m$k.all <- x$k.all.pooled
   m$k <- x$k.TE.pooled
   #
-  if (any(rightcols %in% c("ci", "effect.ci")) |
-      any(leftcols %in% c("ci", "effect.ci"))) {
-    level.ma <- x$level.ma
-    level.predict <- x$level.predict
-    #
-    if (any(prediction)) {
-      if (level.ma == level.predict)
-        ci.lab <- paste0(100 * level.ma, "% CI/PI")
-      else
-        ci.lab <-
-          paste0(100 * level.ma, "% CI / ", 100 * level.predict, "% PI")
-    }
-    else
-      ci.lab <- paste0(100 * level.ma, "% CI")
-    #
-    sel.left <- leftcols == "ci"
-    #
-    if (any(sel.left) && is.na(leftlabs[sel.left]))
-      leftlabs[sel.left] <- ci.lab
-    #
-    sel.right <- rightcols == "ci"
-    #
-    if (any(sel.right) && is.na(rightlabs[sel.right]))
-      rightlabs[sel.right] <- ci.lab
-    #
-    sel.left <- leftcols == "effect.ci"
-    #
-    if (any(sel.left) && is.na(leftlabs[sel.left]))
-      leftlabs[sel.left] <-
-        paste(smlab(x$sm, backtransf, x$pscale, x$irscale), ci.lab)
-    #
-    sel.right <- rightcols == "effect.ci"
-    #
-    if (any(sel.right) && is.na(rightlabs[sel.right]))
-      rightlabs[sel.right] <-
-        paste(smlab(x$sm, backtransf, x$pscale, x$irscale), ci.lab)
-  }
+  # Set column labels for decision threshold probabilities
   #
-  # Set column labels for decision threshold probabilites
-  #
-  if (print.cid.below.null) {
+  if (print.cidprop) {
     sel.left <- leftcols == "prop.cid.below.null"
     #
     if (any(sel.left) && is.na(leftlabs[sel.left]))
@@ -628,7 +687,7 @@ forest.metacum <- function(x,
              ")")
   }
   #
-  if (print.cid.above.null) {
+  if (print.cidprop) {
     sel.left <- leftcols == "prop.cid.above.null"
     #
     if (any(sel.left) && is.na(leftlabs[sel.left]))
@@ -647,15 +706,6 @@ forest.metacum <- function(x,
   }
   #
   m$.text.details.methods <- text.details
-  #
-  # Move columns to left side of forest plot for JAMA and RevMan5 layouts
-  #
-  if (missing.leftcols & missing.rightcols & layout %in% c("JAMA", "RevMan5")) {
-    leftcols <- c(leftcols, rightcols[-(1:2)], rightcols[1:2])
-    rightcols <- NULL
-    leftlabs <- c(leftlabs, rightlabs[-(1:2)], rightlabs[1:2])
-    rightlabs <- NULL
-  }
   
   
   data.p <-
@@ -670,14 +720,14 @@ forest.metacum <- function(x,
                                            digits = digits.I2,
                                            lab.NA = lab.NA), "%")))
   #
-  if (avail.prop.cid.below.null) {
+  if (print.cidprop.below.null) {
     data.p$prop.cid.below.null <-
       ifelse(is.na(x$prop.cid.below.null.pooled), lab.NA,
              paste0(formatPT(100 * x$prop.cid.below.null.pooled,
                              digits = digits.percent), "%"))
   }
   #
-  if (avail.prop.cid.above.null) {
+  if (print.cidprop.above.null) {
     data.p$prop.cid.above.null <-
       ifelse(is.na(x$prop.cid.above.null.pooled), lab.NA,
              paste0(formatPT(100 * x$prop.cid.above.null.pooled,

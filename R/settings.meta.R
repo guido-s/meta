@@ -33,8 +33,9 @@
 #' \item \code{settings.meta("IVhet")}
 #' \item \code{settings.meta("meta4")}
 #' \item \code{settings.meta("meta7")}
+#' \item \code{settings.meta("meta8")}
 #' }
-#'
+#' 
 #' The first command can be used to reproduce meta-analyses from
 #' Cochrane reviews conducted with \emph{Review Manager 5} (RevMan 5)
 #' and specifies to use a RevMan 5 layout in forest plots.
@@ -111,7 +112,7 @@
 #'   "\code{[., .]}" \cr
 #' \code{header.line}, \tab TRUE \tab print header line
 #' }
-#'
+#' 
 #' BMJ settings:
 #' \tabular{lll}{
 #' \bold{Argument} \tab \bold{Value} \tab \bold{Comment} \cr
@@ -123,23 +124,18 @@
 #' \code{test.effect.subgroup} \tab FALSE \tab print information on
 #'   test for effect in subgroups \cr
 #' \code{forest.I2} \tab TRUE \tab show heterogeneity statistic I2 in
-#'   forest plots
-#'   \cr
+#'   forest plots \cr
 #' \code{forest.tau2} \tab TRUE \tab show between-study heterogeneity \cr
 #'   \tab \tab variance in forest plots \cr
 #' \code{forest.tau} \tab FALSE \tab do not show between-study heterogeneity \cr
 #'   \tab \tab standard deviation in forest plots \cr
 #' \code{forest.Q} \tab TRUE \tab show heterogeneity statistic Q in
-#'   forest plots
-#'   \cr
+#'   forest plots \cr
 #' \code{forest.pval.Q} \tab TRUE \tab show p-value of test for heterogeneity
-#'   in forest plots
-#'   \cr
+#'   in forest plots \cr
 #' \code{forest.Rb} \tab FALSE \tab do not show heterogeneity statistic Rb in
-#'   forest plots
-#'   \cr
-#' \code{digits.I2} \tab 0 \tab number of digits for I-squared measure
-#'   \cr
+#'   forest plots \cr
+#' \code{digits.I2} \tab 0 \tab number of digits for I-squared measure \cr
 #' \code{digits.pval} \tab 2 \tab number of digits for p-values \cr
 #' \code{CIbracket}, \tab "(" \tab \cr
 #' \code{CIseparator} \tab " to " \tab print confidence intervals as
@@ -392,8 +388,8 @@ settings.meta <- function(..., quietly = TRUE) {
   #
   settings.layouts <- c("BMJ", "JAMA", "RevMan5")
   settings <- c(settings.layouts, "IQWiG5", "IQWiG6", "geneexpr", "IVhet",
-                "meta4", "meta7")
-  layouts <- c(settings.layouts, "meta")
+                "meta4", "meta7", "meta8")
+  layouts <- c(settings.layouts, "meta", "meta8")
   #
   print.settings <- FALSE
   reset.settings <- FALSE
@@ -694,7 +690,7 @@ settings.meta <- function(..., quietly = TRUE) {
     # R function forest.meta
     #
     setOption("layout", "meta")
-    setOption("forest.details", FALSE)
+    setOption("forest.details", TRUE)
     setOption("test.overall", NULL)
     setOption("test.effect.subgroup", FALSE)
     setOption("digits.forest", 2)
@@ -869,8 +865,9 @@ settings.meta <- function(..., quietly = TRUE) {
     #
     if (setting == "BMJ") {
       specificSettings(
-        args = c("layout", "test.overall",
-                 "test.subgroup", "test.effect.subgroup",
+        args = c("layout",
+                 #
+                 "test.overall", "test.subgroup", "test.effect.subgroup",
                  #
                  "forest.I2", "forest.tau2", "forest.tau",
                  "forest.Q", "forest.pval.Q", "forest.Rb",
@@ -893,11 +890,11 @@ settings.meta <- function(..., quietly = TRUE) {
                  #
                  "arrow.type",
                  #
-                 "ff.lr",
-                 "zero.pval", "JAMA.pval",
+                 "ff.lr", "zero.pval", "JAMA.pval",
                  #
                  "hetlab", "header.line"),
         new = list("BMJ",
+                   #
                    replaceNULL(args[["test.overall"]], TRUE),
                    replaceNULL(args[["test.subgroup"]], TRUE),
                    replaceNULL(args[["test.effect.subgroup"]], TRUE),
@@ -939,8 +936,9 @@ settings.meta <- function(..., quietly = TRUE) {
     #
     else if (setting == "JAMA") {
       specificSettings(
-        args = c("layout", "test.overall",
-                 "test.subgroup", "test.effect.subgroup",
+        args = c("layout",
+                 #
+                 "test.overall", "test.subgroup", "test.effect.subgroup",
                  #
                  "forest.I2", "forest.tau2", "forest.tau",
                  "forest.Q", "forest.pval.Q", "forest.Rb",
@@ -950,6 +948,7 @@ settings.meta <- function(..., quietly = TRUE) {
                  "zero.pval", "JAMA.pval",
                  "hetlab", "header.line"),
         new = list("JAMA",
+                   #
                    replaceNULL(args[["test.overall"]], TRUE),
                    replaceNULL(args[["test.subgroup"]], FALSE),
                    replaceNULL(args[["test.effect.subgroup"]], FALSE),
@@ -975,11 +974,13 @@ settings.meta <- function(..., quietly = TRUE) {
     #
     else if (setting == "RevMan5") {
       specificSettings(
-        args = c("method.random.ci", "method.tau", "method.I2",
+        args = c("layout",
+                 #
+                 "method.random.ci", "method.tau", "method.I2",
                  "tau.common",
                  "MH.exact", "RR.Cochrane", "Q.Cochrane",
                  "exact.smd",
-                 "layout", "prediction", "test.overall",
+                 "prediction", "test.overall",
                  "test.subgroup", "test.effect.subgroup",
                  #
                  "forest.I2", "forest.tau2", "forest.tau",
@@ -991,14 +992,16 @@ settings.meta <- function(..., quietly = TRUE) {
                  "zero.pval", "JAMA.pval",
                  "text.common", "text.w.common",
                  "hetlab", "header.line"),
-        new = list(replaceNULL(args[["method.random.ci"]], "classic"),
+        new = list("RevMan5",
+                   #
+                   replaceNULL(args[["method.random.ci"]], "classic"),
                    replaceNULL(args[["method.tau"]], "DL"),
                    replaceNULL(args[["method.I2"]], "Q"),
                    replaceNULL(args[["tau.common"]], FALSE),
                    replaceNULL(args[["MH.exact"]], FALSE),
                    replaceNULL(args[["RR.Cochrane"]], TRUE),
                    replaceNULL(args[["Q.Cochrane"]], TRUE),
-                   replaceNULL(args[["exact.smd"]], FALSE), "RevMan5",
+                   replaceNULL(args[["exact.smd"]], FALSE),
                    replaceNULL(args[["prediction"]], FALSE),
                    replaceNULL(args[["test.overall"]], TRUE),
                    replaceNULL(args[["test.subgroup"]], TRUE),
@@ -1031,8 +1034,7 @@ settings.meta <- function(..., quietly = TRUE) {
     #
     else if (setting == "IQWiG5") {
       specificSettings(args = c("method.random.ci", "prediction"),
-                       new = list(replaceNULL(args[["method.random.ci"]],
-                                              "HK"),
+                       new = list(replaceNULL(args[["method.random.ci"]],"HK"),
                                   replaceNULL(args[["prediction"]], TRUE)),
                        setting = "IQWiG 5 settings",
                        quietly = quietly)
@@ -1041,8 +1043,7 @@ settings.meta <- function(..., quietly = TRUE) {
     else if (setting == "IQWiG6") {
       specificSettings(args = c("method.random.ci", "adhoc.hakn.ci",
                                 "method.tau", "prediction"),
-                       new = list(replaceNULL(args[["method.random.ci"]],
-                                              "HK"),
+                       new = list(replaceNULL(args[["method.random.ci"]], "HK"),
                                   replaceNULL(args[["adhoc.hakn.ci"]],
                                               "IQWiG6"),
                                   replaceNULL(args[["method.tau"]], "PM"),
@@ -1052,42 +1053,76 @@ settings.meta <- function(..., quietly = TRUE) {
     }
     #
     else if (setting == "meta4") {
-      specificSettings(args = c("method.tau", "method.I2", "method.predict",
+      specificSettings(args = c("layout",
+                                #
+                                "MH.exact",
                                 "exact.smd",
+                                #
+                                "method.tau", "method.I2", "method.predict",
+                                "method.common.ci",
+                                #
                                 "text.common", "text.w.common",
+                                #
+                                "forest.details",
+                                "header.line",
+                                #
                                 "warn.deprecated"),
-                       new = list(replaceNULL(args[["method.tau"]], "DL"),
+                       new = list("meta8",
+                                  #
+                                  replaceNULL(args[["MH.exact"]], FALSE),
+                                  replaceNULL(args[["exact.smd"]], FALSE),
+                                  #
+                                  replaceNULL(args[["method.tau"]], "DL"),
                                   replaceNULL(args[["method.I2"]], "Q"),
                                   replaceNULL(args[["method.predict"]], "HTS"),
-                                  replaceNULL(args[["exact.smd"]], FALSE),
+                                  replaceNULL(args[["method.common.ci"]],
+                                              "classic"),
+                                  #
                                   replaceNULL(args[["text.common"]],
                                               "Fixed effect model"),
                                   replaceNULL(args[["text.w.common"]],
                                               "fixed"),
+                                  #
+                                  replaceNULL(args[["forest.details"]], FALSE),
+                                  replaceNULL(args[["header.line"]], FALSE),
+                                  #
                                   replaceNULL(args[["warn.deprecated"]],
                                               FALSE)),
-                       setting =
-                         "settings from meta, version 4 or below",
+                       setting = "settings from meta, version 4 or below",
                        quietly = quietly)
     }
     #
-    else if (setting == "meta7") {
-      specificSettings(args = c("method.tau", "method.I2", "method.predict",
+    else if (setting %in% c("meta7", "meta8")) {
+      specificSettings(args = c("layout",
+                                #
+                                "MH.exact",
                                 "exact.smd",
+                                #
+                                "method.tau", "method.I2", "method.predict",
+                                "method.common.ci",
+                                #
                                 "text.common", "text.w.common",
+                                "header.line",
                                 "warn.deprecated"),
-                       new = list(replaceNULL(args[["method.tau"]], "REML"),
+                       new = list("meta8",
+                                  #
+                                  replaceNULL(args[["MH.exact"]], FALSE),
+                                  replaceNULL(args[["exact.smd"]], TRUE),
+                                  #
+                                  replaceNULL(args[["method.tau"]], "REML"),
                                   replaceNULL(args[["method.I2"]], "Q"),
                                   replaceNULL(args[["method.predict"]], "HTS"),
-                                  replaceNULL(args[["exact.smd"]], TRUE),
+                                  replaceNULL(args[["method.common.ci"]],
+                                              "classic"),
+                                  #
                                   replaceNULL(args[["text.common"]],
                                               "Common effect model"),
                                   replaceNULL(args[["text.w.common"]],
                                               "common"),
+                                  replaceNULL(args[["header.line"]], FALSE),
                                   replaceNULL(args[["warn.deprecated"]],
                                               FALSE)),
-                       setting =
-                         "settings from meta, version 7.0-0 or below",
+                       setting = "settings from meta, versions 5 to 8",
                        quietly = quietly)
     }
     #

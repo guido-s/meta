@@ -14,7 +14,7 @@ catmeth <- function(x,
                     print.df = TRUE,
                     #
                     forest = FALSE) {
-
+  
   #
   #
   # (1) Some settings
@@ -127,7 +127,7 @@ catmeth <- function(x,
              x$sd.n_of_1,
              ")")
   }
-  else if (!forest && !is.null(type.meta) && any(x$k.all > 1)) {
+  else if (!is.null(type.meta) && any(x$k.all > 1)) {
     # Other types of meta-analysis
     details <-
       paste0("\n- Meta-analysis ",

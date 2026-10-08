@@ -154,7 +154,7 @@ metainf.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
     return(invisible(NULL))
   }
   #
-  warn_ignored(list(...), "metainf")
+  warn_ignore_dots(list(...), "metainf")
   
   
   #

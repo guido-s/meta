@@ -123,7 +123,7 @@ forest.metainf <- function(x,
   x$overall <- overall
   x$backtransf <- backtransf
   #
-  layout <- setchar(layout, c("meta", "BMJ", "RevMan5", "JAMA"))
+  layout <- setchar(layout, gs("layout4forest"))
   #
   # Colour schemes for layouts:
   # - colors[1] - vertical line for common effect or random effects model

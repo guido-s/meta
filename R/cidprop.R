@@ -134,7 +134,7 @@ cidprop.meta <- function(x,
   
   chkclass(x, "meta")
   #
-  warn_ignored(list(...), "cidprop")
+  warn_ignore_dots(list(...), "cidprop")
   #
   sm <- x$sm
   is_relative <- is_relative_effect(sm)

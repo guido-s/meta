@@ -6,17 +6,26 @@
 \usage{
 \method{forest}{metacum}(
   x,
-  leftcols = NULL,
-  leftlabs = NULL,
-  rightcols = NULL,
-  rightlabs = NULL,
+  layout = gs("layout"),
+  leftcols,
+  leftlabs,
+  rightcols,
+  rightlabs,
   prediction = x$prediction,
   overall = x$overall,
   just.addcols = "right",
   main = "Cumulative Meta-Analysis",
   type = "square",
-  layout = gs("layout"),
   lab.NA = gs("lab.NA"),
+  print.I2 = TRUE,
+  print.I2.ci = FALSE,
+  print.tau2 = TRUE,
+  print.tau2.ci = FALSE,
+  print.tau = TRUE,
+  print.tau.ci = FALSE,
+  print.Q = FALSE,
+  print.pval.Q = FALSE,
+  print.cidprop = FALSE,
   backtransf = x$backtransf,
   big.mark = gs("big.mark"),
   digits = gs("digits.forest"),
@@ -38,19 +47,20 @@
 \arguments{
 \item{x}{An object of class \code{\link{metacum}}.}
 
-\item{leftcols}{A character vector specifying (additional) columns
-to be plotted on the left side of the forest plot or a logical
-value.}
+\item{layout}{A character string specifying the layout of the
+forest plot (see \code{\link{forest.meta}}).}
 
-\item{leftlabs}{A character vector specifying labels for
-(additional) columns on left side of the forest plot.}
+\item{leftcols}{A character vector specifying columns to be plotted on the
+left side of the forest plot or a logical value.}
 
-\item{rightcols}{A character vector specifying (additional) columns
-to be plotted on the right side of the forest plot or a logical
-value.}
+\item{leftlabs}{A character vector specifying labels for columns on the left
+side of the forest plot.}
 
-\item{rightlabs}{A character vector specifying labels for
-(additional) columns on right side of the forest plot.}
+\item{rightcols}{A character vector specifying columns to be plotted on the
+right side of the forest plot or a logical value.}
+
+\item{rightlabs}{A character vector specifying labels for columns on the
+right side of the forest plot.}
 
 \item{prediction}{A logical indicating whether prediction
 intervals should be printed.}
@@ -67,10 +77,36 @@ shown.}
 plot treatment effects and confidence intervals for cumulative
 meta-analysis results.}
 
-\item{layout}{A character string specifying the layout of the
-forest plot (see \code{\link{forest.meta}}).}
-
 \item{lab.NA}{A character string to label missing values.}
+
+\item{print.I2}{A logical value indicating whether to print the
+value of the I-squared statistic.}
+
+\item{print.I2.ci}{A logical value indicating whether to print the
+confidence interval of the I-squared statistic.}
+
+\item{print.tau2}{A logical value indicating whether to print the
+value of the between-study variance \eqn{\tau^2}.}
+
+\item{print.tau2.ci}{A logical value indicating whether to print
+the confidence interval of \eqn{\tau^2}.}
+
+\item{print.tau}{A logical value indicating whether to print
+\eqn{\tau}, the square root of the between-study variance
+\eqn{\tau^2}.}
+
+\item{print.tau.ci}{A logical value indicating whether to print the
+confidence interval of \eqn{\tau}.}
+
+\item{print.Q}{A logical value indicating whether to print the
+value of the heterogeneity statistic Q.}
+
+\item{print.pval.Q}{A logical value indicating whether to print the
+p-value of the heterogeneity statistic Q.}
+
+\item{print.cidprop}{A logical value indicating whether to print the
+expected proportion of comparable studies with clinically important
+benefit or harm.}
 
 \item{backtransf}{A logical indicating whether results should be
 back transformed in forest plots. If \code{backtransf = TRUE},

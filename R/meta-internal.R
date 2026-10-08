@@ -567,17 +567,26 @@ setOptionDepr <- function(x, new, old, func, ...) {
 #
 argslist.internal <-
   c("Wan2014.Table1", "Wan2014.Table2",
+    #
     "sm4bin", "sm4cont", "sm4cor", "sm4inc", "sm4mean", "sm4prop", "sm4rate",
+    #
     "ci4cont", "ci4prop", "ci4rate",
+    #
     "meth4bin", "meth4inc", "meth4prop", "meth4rate",
+    #
     "meth4tau", "meth4tau.ci", "meth4i2",
-    "meth4common.ci",
-    "meth4random.ci", "meth4pi",
-    "adhoc4hakn.ci", "adhoc4hakn.pi",
+    "meth4common.ci", "meth4random.ci", "meth4pi",
     "meth4bias", "meth4bias.old",
+    "meth4incr", 
+    #
+    "adhoc4hakn.ci", "adhoc4hakn.pi",
+    #
     "tool4rob",
-    "meth4incr", "just",
+    "just",
     "text.fixed", "text.w.fixed",
+    #
+    "forest.default.cols", "layout4forest",
+    #
     "major.update", "minor.update",
     #
     "special.characters")
@@ -795,6 +804,7 @@ setOption("warn.deprecated", TRUE)
 setOption("transf", TRUE)
 setOption("backtransf", TRUE)
 setOption("log.prefix", "log")
+#
 setOption("digits", 4)
 setOption("digits.mean", 2)
 setOption("digits.sd", 4)
@@ -812,6 +822,7 @@ setOption("digits.pval", 4)
 setOption("digits.pval.Q", 4)
 setOption("digits.df", 4)
 setOption("digits.cid", 4)
+#
 setOption("scientific.pval", FALSE)
 setOption("big.mark", "")
 setOption("zero.pval", TRUE)
@@ -887,7 +898,7 @@ setOption("label.right", "")
 # Settings for R function forest.meta
 #
 setOption("layout", "meta")
-setOption("forest.details", FALSE)
+setOption("forest.details", TRUE)
 setOption("test.overall", NULL)
 setOption("test.effect.subgroup", FALSE)
 setOption("digits.forest", 2)
@@ -1080,3 +1091,25 @@ setOption("Wan2014.Table2",
             1.336, 1.336, 1.337, 1.337, 1.337,
             1.338, 1.338, 1.338, 1.338, 1.339,
             1.339, 1.339, 1.339, 1.339, 1.340))
+#
+setOption("forest.default.cols",
+          c("studlab",
+            "TE", "seTE",
+            "cluster", "cycles",
+            #
+            "n.e", "n.c", "event.e", "event.c",
+            "event.n.e", "event.n.c", "event.n",
+            "mean.e", "mean.c", "sd.e", "sd.c",
+            "mean.sd.n.e", "mean.sd.n.c", "mean.sd.n",
+            #
+            "cor",
+            "time.e", "time.c",
+            "event.time.e", "event.time.c",
+            "event.time.n.e", "event.time.n.c",
+            #
+            "effect", "ci",
+            "effect.ci",
+            #
+            "w.fixed", "w.common", "w.random"))
+#
+setOption("layout4forest", c("meta", "meta8", "BMJ", "JAMA", "RevMan5"))

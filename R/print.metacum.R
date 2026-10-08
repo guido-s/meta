@@ -135,7 +135,7 @@ print.metacum <- function(x,
   chkclass(x, c("metacum", "metainf"))
   x <- updateversion(x)
   #
-  warn_ignored(list(...), "print.metacum")
+  warn_ignore_dots(list(...), "print.metacum")
   #
   chklogical(prediction)
   chklogical(overall)

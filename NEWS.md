@@ -7,8 +7,30 @@
   TRUE. Thus, continuity corrections are no longer added to cell frequencies
   when calculating Mantel-Haenszel pooled estimates for studies with zero cells.
   For a single-study meta-analysis, a continuity correction is still used.
-  Use settings.meta(MH.exact = FALSE) to restore the previous behaviour.
+  Use `settings.meta("meta8")` to restore the previous behaviour.
+  
+* Defaults for forest plots have been revised. In the default layout
+  (`layout = "meta"`), all default study-level columns are now printed on
+  the left side of the forest plot. Details of the meta-analysis methods,
+  tests for an overall effect, and a header line are printed by default.
+  The previous default layout remains available via
+  `settings.meta("meta8")` or `forest(..., layout = "meta8")`.
 
+  Furthermore, the arguments `leftcols` and `rightcols` are now honored for
+  all layouts, allowing users to customize the columns on either side of the
+  forest plot. Columns specified in `rightcols` are removed from the left
+  side if they would otherwise be printed on both sides.
+
+* metagen() now always stores 'null.effect' on the transformed analysis
+  scale. If argument `transf = FALSE`, the supplied value is transformed
+  before being stored.
+
+* Function asin2ir() renamed to ft2ir() to reflect that it is the inverse
+  of the Freeman-Tukey transformation of incidence rates.
+
+* Forest plots can now include a customisable main title, using the
+  meta-analysis title by default.
+  
 * Cluster-robust variance estimators are now available for univariate random
   effects meta-analysis and three-level models.
   ([Tipton and Pustejovsky, 2015](https://doi.org/10.3102/1076998615606099);
@@ -17,23 +39,6 @@
 * Cumulative meta-analysis and leave-one-out analyses now return random effects
   results when prediction intervals are requested and both common effect and
   random effects analyses are available.
-
-* Forest plots have improved layout and column spacing, including printing tests
-  for an overall effect before heterogeneity statistics.
-
-* Forest plots can now include a customisable main title, using the
-  meta-analysis title by default.
-
-* metagen() now always stores 'null.effect' on the transformed analysis
-  scale. If argument 'transf = FALSE', the supplied value is transformed
-  before being stored.
-
-* Function asin2ir() renamed to ft2ir() to reflect that it is the inverse
-  of the Freeman-Tukey transformation of incidence rates.
-
-* New setting 'log.prefix' allows users to define the prefix for
-  log-transformed effect measures. The default prefix is now "log" instead
-  of "ln" in printouts and forest plots.
 
 ### User-visible changes
 
@@ -44,6 +49,8 @@
   - argument 'title' is used as default for argument 'main' in forest.meta()
 
 * forest.meta():
+  - column spacing has been improved for `layout = "meta8"`, including printing
+    tests for an overall effect before heterogeneity statistics
   - new arguments 'main', 'just.main', 'xpos.main', 'gap.main', 'fs.main',
     'ff.main', 'col.main', and 'lineheight.main' can be used to add and format
     a main title
@@ -126,6 +133,10 @@
 * metacor(), metamean(), metarate():
   - use summary-measure specific checks for argument 'null.effect'
     [(issue #103)](https://github.com/guido-s/meta/issues/103)
+
+* New setting 'log.prefix' allows users to define the prefix for
+  log-transformed effect measures. The default prefix is now "log" instead
+  of "ln" in printouts and forest plots.
 
 * print.meta():
   - print the type of meta-analysis in the details of the meta-analysis
@@ -344,7 +355,7 @@
 * New internal functions chknumeric_strict() and chkfontface() to check
   numeric arguments without missing or NULL values or font face arguments
 
-* New internal function warn_ignored() to provide consistent warnings for
+* New internal function warn_ignore_dots() to provide consistent warnings for
   ignored arguments supplied via '...'.
 
 * chkchar(), chkcolor(), chklevel(), chknumeric():

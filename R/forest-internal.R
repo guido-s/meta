@@ -1312,75 +1312,120 @@ make_hetstat <- function(hetlab,
                          print.Q, print.pval.Q, print.Rb,
                          bmj, jama, revman5,
                          miss.print.tau2, miss.print.tau) {
-  if (bmj) {
-    if (print.tau)
-      return(substitute(paste(hl, tau, ht, "; ", chi^2, hq,
-                              ", P", hp, "; ", I^2, hi),
-                        list(hl = hetlab, ht = hetstat.tau, hq = hetstat.Q,
-                             hp = hetstat.pval.Q, hi = hetstat.I2)))
-    else if (print.tau2)
-      return(substitute(paste(hl, tau^2, ht, "; ", chi^2, hq,
-                              ", P", hp, "; ", I^2, hi),
-                        list(hl = hetlab, ht = hetstat.tau2, hq = hetstat.Q,
-                             hp = hetstat.pval.Q, hi = hetstat.I2)))
+  
+  add_component <- function(parts, component, sep = NULL) {
+    if (length(parts) > 1L && !is.null(sep))
+      c(parts, list(sep), component)
     else
-      return(substitute(paste(hl, chi^2, hq, ", P", hp, "; ", I^2, hi),
-                        list(hl = hetlab, hq = hetstat.Q,
-                             hp = hetstat.pval.Q, hi = hetstat.I2)))
+      c(parts, component)
   }
-  else if (jama) {
-    if ((!miss.print.tau2 | !miss.print.tau) & print.tau)
-      return(substitute(paste(hl, chi[df]^2, hq, " (", italic(P), hp,
-                              "), ", italic(I)^2, hi, ", ", tau, ht),
-                        list(hl = hetlab, df = df.Q, hq = hetstat.Q,
-                             hp = hetstat.pval.Q, hi = hetstat.I2,
-                             ht = hetstat.tau)))
-    else if ((!miss.print.tau2 | !miss.print.tau) & print.tau2)
-      return(substitute(paste(hl, chi[df]^2, hq, " (", italic(P), hp,
-                              "), ", italic(I)^2, hi, ", ", tau^2, ht),
-                        list(hl = hetlab, df = df.Q, hq = hetstat.Q,
-                             hp = hetstat.pval.Q, hi = hetstat.I2,
-                             ht = hetstat.tau2)))
-    else
-      return(substitute(paste(hl, chi[df]^2, hq, " (", italic(P), hp,
-                              "), ", italic(I)^2, hi),
-                        list(hl = hetlab, df = df.Q, hq = hetstat.Q,
-                             hp = hetstat.pval.Q, hi = hetstat.I2)))
+  
+  parts <- list(hetlab)
+  #
+  if (bmj | jama | revman5) {
+    if (bmj) {
+      if (print.tau)
+        parts <- add_component(parts, list(quote(tau), hetstat.tau))
+      else if (print.tau2)
+        parts <- add_component(parts, list(quote(tau^2), hetstat.tau2))
+      #
+      if (print.Q)
+        parts <- add_component(
+          parts, list(quote(chi^2), hetstat.Q),
+          if (length(parts) > 1L) "; " else NULL)
+      #
+      if (print.pval.Q)
+        parts <- add_component(
+          parts,
+          if (print.Q) list(", P", hetstat.pval.Q)
+          else list(quote(P), hetstat.pval.Q))
+      #
+      if (print.I2)
+        parts <- add_component(
+          parts, list(quote(I^2), hetstat.I2),
+          if (length(parts) > 1L) "; " else NULL)
+    }
+    else if (jama) {
+      if (print.Q)
+        parts <- add_component(
+          parts, list(bquote(chi[.(df.Q)]^2), hetstat.Q))
+      #
+      if (print.pval.Q)
+        parts <- add_component(
+          parts,
+          if (print.Q)
+            list(" (", quote(italic(P)), hetstat.pval.Q, ")")
+          else
+            list(quote(italic(P)), hetstat.pval.Q))
+      #
+      if (print.I2)
+        parts <- add_component(
+          parts, list(quote(italic(I)^2), hetstat.I2),
+          if (length(parts) > 1L) ", " else NULL)
+      #
+      if (print.tau)
+        parts <- add_component(parts, list(quote(tau), hetstat.tau),
+                               if (length(parts) > 1L) ", " else NULL)
+      else if (print.tau2)
+        parts <- add_component(parts, list(quote(tau^2), hetstat.tau2),
+                               if (length(parts) > 1L) ", " else NULL)
+    }
+    else if (revman5) {
+      if (print.tau)
+        parts <- add_component(parts, list(quote("Tau"), hetstat.tau))
+      else if (print.tau2)
+        parts <- add_component(parts, list(quote("Tau"^2), hetstat.tau2))
+      
+      if (print.Q)
+        parts <- add_component(
+          parts, list(quote("Chi"^2), hetstat.Q),
+          if (length(parts) > 1L) "; " else NULL)
+      
+      if (print.pval.Q)
+        parts <- add_component(
+          parts,
+          if (print.Q) list(" (", quote(P), hetstat.pval.Q, ")")
+          else list(quote(P), hetstat.pval.Q))
+      
+      if (print.I2)
+        parts <- add_component(
+          parts, list(quote(I^2), hetstat.I2),
+          if (length(parts) > 1L) "; " else NULL)
+    }
   }
-  else if (revman5) {
-    if (print.tau)
-      return(substitute(paste(hl, "Tau", ht, "; ", "Chi"^2, hq,
-                              " (", P, hp, "); ", I^2, hi),
-                        list(hl = hetlab, ht = hetstat.tau, hq = hetstat.Q,
-                             hp = hetstat.pval.Q, hi = hetstat.I2)))
-    else
-      return(substitute(paste(hl, "Tau"^2, ht, "; ", "Chi"^2, hq,
-                              " (", P, hp, "); ", I^2, hi),
-                        list(hl = hetlab, ht = hetstat.tau2, hq = hetstat.Q,
-                             hp = hetstat.pval.Q, hi = hetstat.I2)))
+  else {
+    if (print.I2)
+      parts <- add_component(
+        parts, list(quote(italic(I)^2), hetstat.I2), ", ")
+    
+    if (print.tau2)
+      parts <- add_component(
+        parts, list(quote(tau^2), hetstat.tau2), ", ")
+    else if (print.tau)
+      parts <- add_component(
+        parts, list(quote(tau), hetstat.tau), ", ")
+    
+    if (print.Q & print.pval.Q)
+      parts <- add_component(
+        parts,
+        list(bquote(chi[.(df.Q)]^2), hetstat.Q,
+             " (", quote(italic(p)), hetstat.pval.Q, ")"),
+        ", ")
+    else if (print.Q)
+      parts <- add_component(
+        parts, list(bquote(chi[.(df.Q)]^2), hetstat.Q), ", ")
+    else if (print.pval.Q)
+      parts <- add_component(
+        parts, list(quote(italic(p)), hetstat.pval.Q), ", ")
+    
+    if (print.Rb)
+      parts <- add_component(
+        parts,
+        list(quote(italic(R)[italic(b)]), hetstat.Rb),
+        ", ")
   }
   #
-  parts <- list()
-  if (print.I2)
-    parts <- add_hetstat_part(parts, list(quote(italic(I)^2), hetstat.I2))
-  if (print.tau2)
-    parts <- add_hetstat_part(parts, list(quote(tau^2), hetstat.tau2))
-  else if (print.tau)
-    parts <- add_hetstat_part(parts, list(quote(tau), hetstat.tau))
-  if (print.Q & print.pval.Q)
-    parts <- add_hetstat_part(
-      parts,
-      list(bquote(chi[.(df.Q)]^2), hetstat.Q,
-           " (", quote(italic(p)), hetstat.pval.Q, ")"))
-  else if (print.Q)
-    parts <- add_hetstat_part(parts, list(bquote(chi[.(df.Q)]^2), hetstat.Q))
-  else if (print.pval.Q)
-    parts <- add_hetstat_part(parts, list(quote(italic(p)), hetstat.pval.Q))
-  if (print.Rb)
-    parts <- add_hetstat_part(
-      parts, list(quote(italic(R)[italic(b)]), hetstat.Rb))
-  #
-  as.call(c(list(quote(paste), hetlab), parts))
+  as.call(c(list(quote(paste)), parts))
 }
 
 set_rows <- function(x, rows) {
@@ -1528,3 +1573,104 @@ warn_only_subgroup <- function(x) {
 
 set_xpos <- function(x)
   c(left = 0, center = 0.5, right = 1)[[x]]
+
+label_effect.ci <- function(layout, sm, backtransf,
+                            #
+                            pscale, irscale, irunit,
+                            #
+                            big.mark,
+                            #
+                            func.backtransf,
+                            #
+                            forest,
+                            #
+                            common, random, method, method.random,
+                            #
+                            level) {
+    
+  # 1) Summary measure
+  #
+  if (layout == "RevMan5")
+    smlab <- xlab_meta(sm, backtransf,
+                       pscale = pscale,
+                       irscale = irscale, irunit = irunit,
+                       newline = FALSE, revman5 = TRUE,
+                       big.mark = big.mark)
+  else if (layout == "BMJ")
+    smlab <- xlab_meta(sm, backtransf,
+                       pscale = pscale,
+                       irscale = irscale, irunit = irunit,
+                       newline = FALSE, revman5 = TRUE,
+                       big.mark = big.mark)
+  else
+    smlab <- smlab(sm, backtransf, pscale, irscale,
+                   func.backtransf = func.backtransf,
+                   forest = forest)
+  
+  # 2) Meta-analysis model
+  #
+  meths <- unique(c(gs("meth4bin"), gs("meth4inc")))
+  #
+  if (random && !common)
+    sel.method <- pmatch(method.random, meths)
+  else
+    sel.method <- pmatch(method, meths)
+  #
+  lab.method <- gsub("Inverse", "IV", meths[sel.method])
+  #
+  if (layout == "RevMan5") {
+    if (common && random)
+      lab.model <- "Fixed + Random, "
+    else if (common)
+      lab.model <- "Fixed, "
+    else if (random)
+      lab.model <- "Random, "
+    else
+      lab.model <- ""
+    #
+    if (smlab != "")
+      smlab <- paste0(smlab, "\n")
+  }
+  else if (layout == "BMJ") {
+    if (common && random)
+      lab.model <- "common + random "
+    else if (common)
+      lab.model <- "common "
+    else if (random)
+      lab.model <- "random "
+    else
+      lab.model <- ""
+    #
+    if (smlab != "")
+      smlab <- paste0(smlab, ", ")
+  }
+  else
+    lab.model <- ""
+  
+  # 3) Confidence interval
+  #
+  ci.lab <-  paste0(100 * level, "% CI")
+  #
+  if (layout == "JAMA" || gs("CIbracket") == "(")
+    ci.lab.bracket <- paste0("(", ci.lab, ")")
+  else if (gs("CIbracket") == "[")
+    ci.lab.bracket <- paste0("[", ci.lab, "]")
+  else if (gs("CIbracket") == "{")
+    ci.lab.bracket <- paste0("{", ci.lab, "}")
+  else
+    ci.lab.bracket <- ci.lab
+  
+  # 4) Combine sm + model + ci
+  #
+  if (layout == "RevMan5") {
+    return(paste0(smlab, lab.method[1], ", ", lab.model, ci.lab))
+  }
+  else if (layout == "BMJ") {
+    return(paste0(smlab, lab.method[1], ",",
+                  if (smlab != "") "\n" else " ",
+                  lab.model, "(", ci.lab, ")"))
+  }
+  else {
+    return(paste(smlab, ci.lab.bracket))
+  }
+}

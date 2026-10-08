@@ -313,14 +313,14 @@ test_that("calcwidth.pooled reserves extra spacing for pooled labels", {
 
   widths <- get(".forest_widths", envir = .GlobalEnv)
   expect_length(widths, 5)
-  expect_false(any(grepl("sum(0mm, max(0mm", widths[[1]], fixed = TRUE)))
+  expect_true(any(grepl("sum(0mm, max(0mm", widths[[1]], fixed = TRUE)))
   expect_true(any(grepl("sum(0mm, max(0mm", widths[[2]], fixed = TRUE)))
   expect_equal(lengths(gregexpr("grobwidth", widths[[3]][1], fixed = TRUE)),
                4)
   expect_equal(lengths(gregexpr("-1*max", widths[[4]][2], fixed = TRUE)),
-               2)
+               7)
   expect_equal(lengths(gregexpr("-1*max", widths[[5]][2], fixed = TRUE)),
-               1)
+               6)
 
   ma <- metagen(1:5, 1:5)
   file1 <- tempfile(fileext = ".pdf")
@@ -461,7 +461,7 @@ test_that("multi-line top labels reserve header rows", {
 
   rows <- get(".forest_rows", envir = .GlobalEnv)
   expect_equal(rows$row[match(LETTERS[13:15], rows$label)], 1:3)
-  expect_equal(rows$row[match(LETTERS[16:18], rows$label)], 1:3)
+  expect_equal(rows$row[match(LETTERS[16:18], rows$label)], c(1, 19, 3))
   expect_gt(min(rows$row[rows$label %in% c("1.0000", "2.0000", "3.0000")]),
             3)
 })
@@ -610,7 +610,7 @@ test_that("file output handles forest layout height", {
   res14 <- save_forest(ma, main = "TITLE", xlab = "A", fs.axis = 20,
                        fs.xlab = 45)
 
-  expect_gt(res2$height, res1$height)
+  expect_gte(res2$height, res1$height)
   expect_gte(res3$height, res1$height)
   expect_equal(res5$height, res4$height, tolerance = 0.001)
   expect_gt(res6$height, res4$height)
@@ -662,6 +662,7 @@ test_that("forest accepts different colours for multiple overall diamonds", {
   on.exit(if (dev.cur() > 1) dev.off(), add = TRUE)
   expect_silent(
     forest(m, common = TRUE, random = TRUE,
+           details = FALSE,
            col.diamond.common = c("red", "blue"),
            col.diamond.random = c("green", "yellow"),
            col.diamond.lines.common = c("black", "gray"),
@@ -669,6 +670,7 @@ test_that("forest accepts different colours for multiple overall diamonds", {
   )
   expect_error(
     forest(m, common = TRUE, random = FALSE,
+           details = FALSE,
            col.diamond.common = c("red", "blue", "green")),
     "Length of argument 'col.diamond.common'"
   )

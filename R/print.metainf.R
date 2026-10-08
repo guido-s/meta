@@ -128,7 +128,7 @@ print.metainf <- function(x,
   
   chkclass(x, "metainf")
   #
-  warn_ignored(list(...), "print.metainf")
+  warn_ignore_dots(list(...), "print.metainf")
   #
   print.metacum(x,
                 #

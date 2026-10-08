@@ -66,7 +66,7 @@ barplot.rob <- function(height,
                 "\n  install.packages(\"robvis\")"),
          call. = FALSE)
   #
-  warn_ignored(list(...), "barplot.rob")
+  warn_ignore_dots(list(...), "barplot.rob")
   
   rob <- height
   #

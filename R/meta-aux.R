@@ -1076,7 +1076,7 @@ drop_from_dots <- function(x, old, new) {
   x
 }
 
-warn_ignored <- function(x, func = "") {
+warn_ignore_dots <- function(x, func = "") {
   if (length(x) > 0) {
     nam.args <- names(x)
     #

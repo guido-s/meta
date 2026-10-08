@@ -143,7 +143,7 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
     return(invisible(NULL))
   }
   #
-  warn_ignored(list(...), "metacum")
+  warn_ignore_dots(list(...), "metacum")
   
   
   #

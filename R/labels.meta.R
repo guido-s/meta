@@ -48,7 +48,7 @@ labels.meta <- function(object,
   
   chkclass(object, "meta")
   #
-  warn_ignored(list(...), "labels.meta")
+  warn_ignore_dots(list(...), "labels.meta")
   
   layout <- setchar(layout, c("JAMA", "Lancet"))
   

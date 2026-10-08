@@ -41,6 +41,7 @@ Examples) or use one of the following general settings:
 \item \code{settings.meta("IVhet")}
 \item \code{settings.meta("meta4")}
 \item \code{settings.meta("meta7")}
+\item \code{settings.meta("meta8")}
 }
 
 The first command can be used to reproduce meta-analyses from
@@ -131,23 +132,18 @@ BMJ settings:
 \code{test.effect.subgroup} \tab FALSE \tab print information on
   test for effect in subgroups \cr
 \code{forest.I2} \tab TRUE \tab show heterogeneity statistic I2 in
-  forest plots
-  \cr
+  forest plots \cr
 \code{forest.tau2} \tab TRUE \tab show between-study heterogeneity \cr
   \tab \tab variance in forest plots \cr
 \code{forest.tau} \tab FALSE \tab do not show between-study heterogeneity \cr
   \tab \tab standard deviation in forest plots \cr
 \code{forest.Q} \tab TRUE \tab show heterogeneity statistic Q in
-  forest plots
-  \cr
+  forest plots \cr
 \code{forest.pval.Q} \tab TRUE \tab show p-value of test for heterogeneity
-  in forest plots
-  \cr
+  in forest plots \cr
 \code{forest.Rb} \tab FALSE \tab do not show heterogeneity statistic Rb in
-  forest plots
-  \cr
-\code{digits.I2} \tab 0 \tab number of digits for I-squared measure
-  \cr
+  forest plots \cr
+\code{digits.I2} \tab 0 \tab number of digits for I-squared measure \cr
 \code{digits.pval} \tab 2 \tab number of digits for p-values \cr
 \code{CIbracket}, \tab "(" \tab \cr
 \code{CIseparator} \tab " to " \tab print confidence intervals as

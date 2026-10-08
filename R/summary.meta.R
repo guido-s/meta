@@ -61,7 +61,7 @@ summary.meta <- function(object, ...) {
   
   chkclass(object, "meta")
   #
-  warn_ignored(list(...), "summary.meta")
+  warn_ignore_dots(list(...), "summary.meta")
   #
   if (inherits(object, c("metacum", "metainf")))
     return(object)

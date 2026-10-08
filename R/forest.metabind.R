@@ -303,7 +303,7 @@ forest.metabind <- function(x,
       setchar(type.predict, c("square", "diamond", "predict", "circle"))
   }
   #
-  layout <- setchar(layout, c("meta", "BMJ", "RevMan5", "JAMA"))
+  layout <- setchar(layout, gs("layout4forest"))
   #
   # Colour schemes for layouts:
   # - colors[1] - vertical line for common effect or random effects model

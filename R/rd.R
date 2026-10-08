@@ -143,7 +143,7 @@ rd.meta <- function(x, p.c,
          "risk ratio, odds ratio, or hazard ratio as summary measure ",
          "(argument 'sm').")
   #
-  warn_ignored(list(...), "rd.meta")
+  warn_ignore_dots(list(...), "rd.meta")
   #
   pscale <- replaceNULL(pscale, 1)
   chknumeric_strict(pscale, min = 1, length = 1)
@@ -300,7 +300,7 @@ rd.default <- function(x, p.c, sm, lower, upper,
   if (missing(sm))
     stop("Argument 'sm' is mandatory.")
   #
-  warn_ignored(list(...), "rd.default")
+  warn_ignore_dots(list(...), "rd.default")
   #
   sm <- setchar(sm, c("RD", "RR", "OR", "HR"))
   #
@@ -438,7 +438,7 @@ print.rd.meta <- function(x,
   
   chkclass(x, "rd.meta")
   #
-  warn_ignored(list(...), "print.rd.meta")
+  warn_ignore_dots(list(...), "print.rd.meta")
   
   #
   # (2) Check arguments
@@ -750,7 +750,7 @@ print.rd.default <- function(x,
   
   chkclass(x, "rd.default")
   #
-  warn_ignored(list(...), "print.rd.default")
+  warn_ignore_dots(list(...), "print.rd.default")
   
   res <- vector("list")
   res$common <- x
