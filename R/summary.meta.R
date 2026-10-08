@@ -68,8 +68,8 @@ summary.meta <- function(object, ...) {
   #
   object <- updateversion(object)
   #
-  metaprop <- inherits(class(object), "metaprop")
-  metarate <- inherits(class(object), "metarate")
+  metaprop <- inherits(object, "metaprop")
+  metarate <- inherits(object, "metarate")
   
   #
   #
