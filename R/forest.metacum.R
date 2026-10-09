@@ -733,25 +733,43 @@ forest.metacum <- function(x,
   #
   dots_list <- drop_from_dots(list(...),
                               c("col.study", "col.square", "col.square.lines",
-                                "overall.hetstat", "overall.hetstat",
+                                "type.study", "weight.study",
+                                #
+                                "common", "random", "overall.hetstat",
+                                #
+                                "test.overall",
+                                "test.overall.common",
+                                "test.overall.random",
+                                #
                                 "data.pooled"),
                               c("col", "col.bg", "col.border",
-                                "col.bg.predict", "col.border.predict",
+                                "", "",
+                                #
+                                "", "", "",
+                                #
+                                "", "", "",
+                                #
                                 ""))
   #
   args_list <-
     list(x = m,
+         #
+         layout = layout,
+         #
          leftcols = leftcols, leftlabs = leftlabs,
          rightcols = rightcols, rightlabs = rightlabs,
+         #
+         test.overall = FALSE,
+         test.overall.common = FALSE, test.overall.random = FALSE,
          overall.hetstat = FALSE,
+         #
          type.study = type.study,
          weight.study = "same",
          lab.NA = lab.NA,
+         #
          main = main,
          data.pooled = data.p,
          just.addcols = just.addcols,
-         #
-         layout = layout,
          #
          backtransf = backtransf,
          #
