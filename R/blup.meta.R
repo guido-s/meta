@@ -571,7 +571,7 @@ print.estimates.blup.meta <- function(x,
   
   sm.lab <- smlab(meta$sm, backtransf, meta$pscale, meta$irscale)
   #
-  ci.lab <- percent_label(meta$level)
+  ci.lab <- percent_label(meta$level, "PI")
   #
   x$blup <- round(x$blup, digits = digits)
   x$lower <- round(x$lower, digits = digits)

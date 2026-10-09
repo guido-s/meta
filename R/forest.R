@@ -5124,7 +5124,7 @@ forest.meta <- function(x,
     #
     hetstat.I2 <-
       paste0(hetseparator,
-             percent_label(I2, "", digits.I2, formatN),
+             percent_label(I2, "", digits.I2, formatN, lab.NA = "NA%"),
              if (print.I2.ci && !(is.na(lowI2) | is.na(uppI2)))
                pasteCI(100 * lowI2, 100 * uppI2,
                        digits.I2, big.mark,
@@ -5215,7 +5215,7 @@ forest.meta <- function(x,
     #
     hetstat.I2.resid <-
       paste0(hetseparator,
-             percent_label(I2.resid, "", digits.I2, formatN),
+             percent_label(I2.resid, "", digits.I2, formatN, lab.NA = "NA%"),
              if (print.I2.ci && !(is.na(lowI2.resid) | is.na(uppI2.resid)))
                pasteCI(100 * lowI2.resid, 100 * uppI2.resid,
                        digits.I2, big.mark,
