@@ -458,7 +458,7 @@ print.rd.meta <- function(x,
   sm <- attributes(x)$sm
   sv <- attributes(x)$small.values
   #
-  ci.lab <- paste0(round(100 * replaceNULL(attributes(x)$level), 1), "% CI")
+  ci.lab <- percent_label(replaceNULL(attributes(x)$level))
   p.lab <- if (sm == "HR") "Surv.c" else "Risk.c"
   
   if (common) {

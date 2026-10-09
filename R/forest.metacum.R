@@ -375,22 +375,19 @@ forest.metacum <- function(x,
   pval <- formatPT(x$pval, digits = digits.pval, lab.NA = lab.NA)
   tau2 <- formatPT(x$tau2, digits = digits.tau2, lab.NA = lab.NA)
   tau <- formatPT(x$tau, digits = digits.tau2, lab.NA = lab.NA)
-  I2 <- ifelse(is.na(x$I2), lab.NA,
-               paste0(formatPT(100 * x$I2, digits = digits.I2,
-                               lab.NA = lab.NA), "%"))
+  #
+  I2 <- percent_label(x$I2, "", digits.I2, formatPT, lab.NA = lab.NA)
   #
   if (print.cidprop.below.null) {
     x$prop.cid.below.null <-
-      ifelse(is.na(x$prop.cid.below.null), lab.NA,
-             paste0(formatPT(100 * x$prop.cid.below.null,
-                             digits = digits.percent), "%"))
+      percent_label(x$prop.cid.below.null, "", digits.percent, formatPT,
+                    lab.NA = lab.NA)
   }
   #
   if (print.cidprop.above.null) {
     x$prop.cid.above.null <-
-      ifelse(is.na(x$prop.cid.above.null), lab.NA,
-             paste0(formatPT(100 * x$prop.cid.above.null,
-                             digits = digits.percent), "%"))
+      percent_label(x$prop.cid.above.null, "", digits.percent, formatPT,
+                    lab.NA = lab.NA)
   }
   #
   x.tmp <- x
@@ -715,23 +712,19 @@ forest.metacum <- function(x,
                                lab.NA = lab.NA),
                tau = formatPT(x$tau.pooled, digits = digits.tau,
                               lab.NA = lab.NA),
-               I2 = ifelse(is.na(x$I2.pooled), lab.NA,
-                           paste0(formatPT(100 * x$I2.pooled,
-                                           digits = digits.I2,
-                                           lab.NA = lab.NA), "%")))
+               I2 = percent_label(x$I2.pooled, "", digits.I2, formatPT,
+                                  lab.NA = lab.NA))
   #
   if (print.cidprop.below.null) {
     data.p$prop.cid.below.null <-
-      ifelse(is.na(x$prop.cid.below.null.pooled), lab.NA,
-             paste0(formatPT(100 * x$prop.cid.below.null.pooled,
-                             digits = digits.percent), "%"))
+      percent_label(x$prop.cid.below.null.pooled, "", digits.percent, formatPT,
+                    lab.NA = lab.NA)
   }
   #
   if (print.cidprop.above.null) {
     data.p$prop.cid.above.null <-
-      ifelse(is.na(x$prop.cid.above.null.pooled), lab.NA,
-             paste0(formatPT(100 * x$prop.cid.above.null.pooled,
-                             digits = digits.percent), "%"))
+      percent_label(x$prop.cid.above.null.pooled, "", digits.percent, formatPT,
+                    lab.NA = lab.NA)
   }
   
   

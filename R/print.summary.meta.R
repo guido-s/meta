@@ -399,7 +399,7 @@ print.summary.meta <- function(x,
   # (3) Some additional settings
   #
   #
-  ci.lab <- paste0(round(100 * level, 1), "% CI")
+  ci.lab <- percent_label(level)
   #
   sm <- x$sm
   #

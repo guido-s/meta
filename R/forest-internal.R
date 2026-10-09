@@ -1490,7 +1490,7 @@ newCol <- function(varname, label,
       fvar <- as.character(fvar)
     else if (notavail & all(is_wholenumber(fvar), na.rm = TRUE))
       fvar <-
-        formatN(fvar, digits = 0, text.NA = lab.NA, big.mark = big.mark)
+        formatN(fvar, digits = 0, lab.NA = lab.NA, big.mark = big.mark)
     else if (is.numeric(fvar)) {
       if (varname == "pval")
         fvar <- formatPT(fvar, digits = digits.pval,
@@ -1510,14 +1510,11 @@ newCol <- function(varname, label,
                          lab = FALSE, labval = "",
                          lab.NA = lab.NA)
       else if (varname == "I2") {
-        sel.r <- !is.na(fvar)
-        fvar[sel.r] <-
-          paste0(formatN(100 * fvar[sel.r], digits.I2), "%")
-        fvar[!sel.r] <- lab.NA
+        fvar <- percent_label(fvar, "", digits.I2, formatN, lab.NA = lab.NA)
       }
       else
         fvar <-
-          formatN(fvar, digits = digits, text.NA = lab.NA, big.mark = big.mark)
+          formatN(fvar, digits = digits, lab.NA = lab.NA, big.mark = big.mark)
     }
   }
   #
@@ -1649,7 +1646,7 @@ label_effect.ci <- function(layout, sm, backtransf,
   
   # 3) Confidence interval
   #
-  ci.lab <-  paste0(100 * level, "% CI")
+  ci.lab <-  percent_label(level)
   #
   if (layout == "JAMA" || gs("CIbracket") == "(")
     ci.lab.bracket <- paste0("(", ci.lab, ")")

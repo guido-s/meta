@@ -707,7 +707,7 @@ print.estimates.meta <- function(x,
   sm.lab <- smlab(meta$sm, backtransf, meta$pscale, meta$irscale)
   sm.lab.se <- smlab(meta$sm, FALSE)
   #
-  ci.lab <- paste0(round(100 * meta$level, 1), "% CI")
+  ci.lab <- percent_label(meta$level)
   #
   se <- attr(x, "se")
   ci <- attr(x, "ci")
@@ -777,12 +777,12 @@ print.estimates.meta <- function(x,
             text.tau = gs("text.tau"), text.tau2 = gs("text.tau2"))
     #
     if ((common | random) && meta$level != meta$level.ma)
-      cat(paste0("- ", round(100 * meta$level.ma, 1),
-                 "% CI calculated for meta-analysis results\n"))
+      cat(paste0("- ", percent_label(meta$level.ma),
+                 " calculated for meta-analysis results\n"))
     if (prediction && meta$level != meta$level.predict)
       if (meta$level != meta$level.ma)
-        cat(paste0("- ", round(100 * meta$level.predict, 1),
-                   "% PI calculated\n"))
+        cat(paste0("- ", percent_label(meta$level.predict, "PI"),
+                   " calculated\n"))
   }
   
   invisible(NULL)

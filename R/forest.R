@@ -4070,7 +4070,7 @@ forest.meta <- function(x,
   else
     level.ci <- level.ma
   #
-  ci.lab <- paste0(100 * level.ci, "% CI")
+  ci.lab <- percent_label(level.ci)
   #
   if (jama && miss.xlab) {
     if (!is_prop(sm) && !is_rate(sm)) {
@@ -5124,11 +5124,11 @@ forest.meta <- function(x,
     #
     hetstat.I2 <-
       paste0(hetseparator,
-             formatN(100 * I2, digits.I2, "NA"), "%",
+             percent_label(I2, "", digits.I2, formatN),
              if (print.I2.ci && !(is.na(lowI2) | is.na(uppI2)))
                pasteCI(100 * lowI2, 100 * uppI2,
                        digits.I2, big.mark,
-                       text.NA = lab.NA, unit = "%"))
+                       lab.NA = lab.NA, unit = "%"))
     #
     hetstat.tau2 <-
       paste0(formatPT(tau2, digits = digits.tau2, big.mark = big.mark,
@@ -5162,12 +5162,11 @@ forest.meta <- function(x,
     if (print.Rb)
       hetstat.Rb <-
       paste0(hetseparator,
-             formatN(100 * Rb, digits.I2, "NA", big.mark = big.mark),
-             "%",
+             percent_label(Rb, "", digits.I2, formatN, big.mark = big.mark),
              if (print.Rb.ci && !(is.na(lowRb) | is.na(uppRb)))
                pasteCI(100 * lowRb, 100 * uppRb,
                        digits.I2, big.mark,
-                       text.NA = lab.NA, unit = "%"))
+                       lab.NA = lab.NA, unit = "%"))
     #
     # Remove superfluous spaces
     #
@@ -5216,11 +5215,11 @@ forest.meta <- function(x,
     #
     hetstat.I2.resid <-
       paste0(hetseparator,
-             formatN(100 * I2.resid, digits.I2, "NA"), "%",
+             percent_label(I2.resid, "", digits.I2, formatN),
              if (print.I2.ci && !(is.na(lowI2.resid) | is.na(uppI2.resid)))
                pasteCI(100 * lowI2.resid, 100 * uppI2.resid,
                        digits.I2, big.mark,
-                       text.NA = lab.NA, unit = "%"))
+                       lab.NA = lab.NA, unit = "%"))
     #
     hetstat.tau2.resid <-
       paste0(formatPT(tau2.resid, digits = digits.tau2, big.mark = big.mark,
@@ -6125,7 +6124,7 @@ forest.meta <- function(x,
                  ifelse(!(is.na(lowI2.w) | is.na(uppI2.w)),
                         pasteCI(100 * lowI2.w, 100 * uppI2.w,
                                 digits.I2, big.mark,
-                                text.NA = lab.NA, unit = "%"),
+                                lab.NA = lab.NA, unit = "%"),
                         ""))
       #
       hetstat.tau2.w <-
@@ -6140,7 +6139,7 @@ forest.meta <- function(x,
         paste0(hetstat.tau2.w,
                ifelse(!(is.na(lower.tau2.w) | is.na(upper.tau2.w)),
                       pasteCI(lower.tau2.w, upper.tau2.w, digits.tau2, big.mark,
-                              text.NA = lab.NA),
+                              lab.NA = lab.NA),
                       ""))
       #
       hetstat.tau.w <-
@@ -6155,7 +6154,7 @@ forest.meta <- function(x,
         paste0(hetstat.tau.w,
                ifelse(!(is.na(lower.tau.w) | is.na(upper.tau.w)),
                       pasteCI(lower.tau.w, upper.tau.w, digits.tau, big.mark,
-                              text.NA = lab.NA),
+                              lab.NA = lab.NA),
                       ""))
       #
       hetstat.Q.w <-
@@ -6178,7 +6177,7 @@ forest.meta <- function(x,
                  ifelse(!(is.na(lowRb.w) | is.na(uppRb.w)),
                         pasteCI(100 * lowRb.w, 100 * uppRb.w,
                                 digits.I2, big.mark,
-                                text.NA = lab.NA, unit = "%"),
+                                lab.NA = lab.NA, unit = "%"),
                         ""))
       #
       # Remove superfluous spaces
@@ -7812,10 +7811,10 @@ forest.meta <- function(x,
                           w.random.p)
     #
     Wc.format <-
-      formatN(format.w.commons, digits.weight, text.NA = lab.NA.weight,
+      formatN(format.w.commons, digits.weight, lab.NA = lab.NA.weight,
               monospaced = monospaced)
     Wr.format <-
-      formatN(format.w.randoms, digits.weight, text.NA = lab.NA.weight,
+      formatN(format.w.randoms, digits.weight, lab.NA = lab.NA.weight,
               monospaced = monospaced)
     #
     sel.common <- Wc.format == lab.NA.weight
@@ -7964,10 +7963,10 @@ forest.meta <- function(x,
     ci.format <-
       ifelse(is.na(lowTEs) | is.na(uppTEs), lab.NA.effect,
              formatCI(formatN(scale * exp(lowTEs / scale),
-                              digits = digits, text.NA = lab.NA,
+                              digits = digits, lab.NA = lab.NA,
                               big.mark = big.mark),
                       formatN(scale * exp(uppTEs / scale),
-                              digits = digits, text.NA = lab.NA,
+                              digits = digits, lab.NA = lab.NA,
                               big.mark = big.mark)))
   }
   else {
@@ -7975,10 +7974,10 @@ forest.meta <- function(x,
                              monospaced = monospaced)
     ci.format <-
       ifelse(is.na(lowTEs) | is.na(uppTEs), lab.NA.effect,
-             formatCI(formatN(lowTEs, digits = digits, text.NA = lab.NA,
+             formatCI(formatN(lowTEs, digits = digits, lab.NA = lab.NA,
                               big.mark = big.mark,
                               monospaced = monospaced),
-                      formatN(uppTEs, digits = digits, text.NA = lab.NA,
+                      formatN(uppTEs, digits = digits, lab.NA = lab.NA,
                               big.mark = big.mark,
                               monospaced = monospaced)))
   }
@@ -8238,27 +8237,27 @@ forest.meta <- function(x,
                        Ne, notfirst))
   }
   Ne.format <-
-    formatN(Ne, digits = digits.n, text.NA = lab.NA, big.mark = big.mark,
+    formatN(Ne, digits = digits.n, lab.NA = lab.NA, big.mark = big.mark,
             monospaced = monospaced)
   Nc.format <-
-    formatN(Nc, digits = digits.n, text.NA = lab.NA, big.mark = big.mark,
+    formatN(Nc, digits = digits.n, lab.NA = lab.NA, big.mark = big.mark,
             monospaced = monospaced)
   Ee.format <-
-    formatN(Ee, digits = digits.event, text.NA = lab.NA, big.mark = big.mark,
+    formatN(Ee, digits = digits.event, lab.NA = lab.NA, big.mark = big.mark,
             monospaced = monospaced)
   Ec.format <-
-    formatN(Ec, digits = digits.event, text.NA = lab.NA, big.mark = big.mark,
+    formatN(Ec, digits = digits.event, lab.NA = lab.NA, big.mark = big.mark,
             monospaced = monospaced)
   #
   if (all(is_wholenumber(Te), na.rm = TRUE) & miss.digits.time)
     Te.format <-
-    formatN(Te, digits = 0, text.NA = lab.NA, big.mark = big.mark)
+    formatN(Te, digits = 0, lab.NA = lab.NA, big.mark = big.mark)
   else
     Te.format <- formatN(Te, digits.time, lab.NA, big.mark = big.mark)
   #
   if (all(is_wholenumber(Tc), na.rm = TRUE) & miss.digits.time)
     Tc.format <-
-    formatN(Tc, digits = 0, text.NA = lab.NA, big.mark = big.mark)
+    formatN(Tc, digits = 0, lab.NA = lab.NA, big.mark = big.mark)
   else
     Tc.format <- formatN(Tc, digits.time, lab.NA, big.mark = big.mark)
   #
@@ -8373,20 +8372,20 @@ forest.meta <- function(x,
   if (is.null(digits.mean)) {
     if (all(is_wholenumber(Me), na.rm = TRUE))
       Me.format <-
-        formatN(Me, digits = 0, text.NA = lab.NA, big.mark = big.mark,
+        formatN(Me, digits = 0, lab.NA = lab.NA, big.mark = big.mark,
                 monospaced = monospaced)
     else
       Me.format <-
-        formatN(Me, digits = digits.R, text.NA = lab.NA, big.mark = big.mark,
+        formatN(Me, digits = digits.R, lab.NA = lab.NA, big.mark = big.mark,
                 monospaced = monospaced)
     #
     if (all(is_wholenumber(Mc), na.rm = TRUE))
       Mc.format <-
-        formatN(Mc, digits = 0, text.NA = lab.NA, big.mark = big.mark,
+        formatN(Mc, digits = 0, lab.NA = lab.NA, big.mark = big.mark,
                 monospaced = monospaced)
     else
       Mc.format <-
-        formatN(Mc, digits = digits.R, text.NA = lab.NA, big.mark = big.mark,
+        formatN(Mc, digits = digits.R, lab.NA = lab.NA, big.mark = big.mark,
                 monospaced = monospaced)
   }
   else {
@@ -8399,20 +8398,20 @@ forest.meta <- function(x,
   if (is.null(digits.sd)) {
     if (all(is_wholenumber(Se), na.rm = TRUE))
       Se.format <-
-        formatN(Se, digits = 0, text.NA = lab.NA, big.mark = big.mark,
+        formatN(Se, digits = 0, lab.NA = lab.NA, big.mark = big.mark,
                 monospaced = monospaced)
     else
       Se.format <-
-        formatN(Se, digits = digits.R, text.NA = lab.NA, big.mark = big.mark,
+        formatN(Se, digits = digits.R, lab.NA = lab.NA, big.mark = big.mark,
                 monospaced = monospaced)
     #
     if (all(is_wholenumber(Sc), na.rm = TRUE))
       Sc.format <-
-        formatN(Sc, digits = 0, text.NA = lab.NA, big.mark = big.mark,
+        formatN(Sc, digits = 0, lab.NA = lab.NA, big.mark = big.mark,
                 monospaced = monospaced)
     else
       Sc.format <-
-        formatN(Sc, digits = digits.R, text.NA = lab.NA, big.mark = big.mark,
+        formatN(Sc, digits = digits.R, lab.NA = lab.NA, big.mark = big.mark,
                 monospaced = monospaced)
   }
   else {
@@ -8663,7 +8662,7 @@ forest.meta <- function(x,
     cor <- c(NAs, x$cor)
   #
   if (is.null(digits.cor))
-    cor.format <- formatN(cor, digits = digits.R, text.NA = lab.NA)
+    cor.format <- formatN(cor, digits = digits.R, lab.NA = lab.NA)
   else
     cor.format <- formatN(cor, digits.cor, lab.NA, big.mark = big.mark)
   #

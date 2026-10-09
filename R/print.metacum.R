@@ -310,15 +310,15 @@ print.metacum <- function(x,
   dat %<>% select(-harmonic.mean)
   #
   dat %<>%
-    mutate(TE = formatN(TE, digits = digits, text.NA = lab.NA, big.mark = big.mark),
+    mutate(TE = formatN(TE, digits = digits, lab.NA = lab.NA, big.mark = big.mark),
            lower = 
              if_else(is.na(lower) & is.na(upper), lab.NA,
-                     formatCI(formatN(lower, digits = digits, text.NA = lab.NA,
+                     formatCI(formatN(lower, digits = digits, lab.NA = lab.NA,
                                       big.mark = big.mark),
-                              formatN(upper, digits = digits, text.NA = lab.NA,
+                              formatN(upper, digits = digits, lab.NA = lab.NA,
                                       big.mark = big.mark))),
            #
-           statistic = formatN(statistic, digits = digits.stat, text.NA = lab.NA),
+           statistic = formatN(statistic, digits = digits.stat, lab.NA = lab.NA),
            #
            pval = formatPT(pval, digits = digits.pval, lab.NA = lab.NA,
                            scientific = scientific.pval,
@@ -342,19 +342,13 @@ print.metacum <- function(x,
                               formatPT(upper.tau, digits = digits,
                                        lab.NA = lab.NA, big.mark = big.mark))),
            #
-           I2 = if_else(is.na(I2), lab.NA,
-                        paste0(formatPT(100 * I2, digits = digits.I2,
-                                        lab.NA = lab.NA), "%")),
+           I2 = percent_label(I2, "", digits.I2, formatPT, lab.NA = lab.NA),
            #
            lower.I2 =
-             if_else(is.na(lower.I2), lab.NA,
-                     paste0(formatPT(100 * lower.I2, digits = digits.I2,
-                                     lab.NA = lab.NA), "%")),
+             percent_label(lower.I2, "", digits.I2, formatPT, lab.NA = lab.NA),
            #
            upper.I2 =
-             if_else(is.na(upper.I2), lab.NA,
-                     paste0(formatPT(100 * upper.I2, digits = digits.I2,
-                                     lab.NA = lab.NA), "%")),
+             percent_label(upper.I2, "", digits.I2, formatPT, lab.NA = lab.NA),
            #
            lower.I2 =
              if_else(lower.I2 == lab.NA & upper.I2 == lab.NA, lab.NA,
@@ -363,21 +357,17 @@ print.metacum <- function(x,
            lower.predict = 
              if_else(is.na(lower.predict) & is.na(upper.predict), lab.NA,
                      formatCI(formatN(lower.predict, digits = digits,
-                                      text.NA = lab.NA, big.mark = big.mark),
+                                      lab.NA = lab.NA, big.mark = big.mark),
                               formatN(upper.predict, digits = digits,
-                                      text.NA = lab.NA, big.mark = big.mark))),
+                                      lab.NA = lab.NA, big.mark = big.mark))),
            #
            prop.cid.below.null =
-             if_else(is.na(prop.cid.below.null), lab.NA,
-                     paste0(formatPT(100 * prop.cid.below.null,
-                                     digits = digits.percent,
-                                     lab.NA = lab.NA), "%")),
+             percent_label(prop.cid.below.null, "", digits.percent, formatPT,
+                           lab.NA = lab.NA),
            #
            prop.cid.above.null =
-             if_else(is.na(prop.cid.above.null), lab.NA,
-                     paste0(formatPT(100 * prop.cid.above.null,
-                                     digits = digits.percent,
-                                     lab.NA = lab.NA), "%"))
+             percent_label(prop.cid.above.null, "", digits.percent, formatPT,
+                           lab.NA = lab.NA)
     ) %>%
     select(-upper, -upper.predict, -upper.tau2, -upper.tau, -upper.I2)
   #
@@ -392,12 +382,12 @@ print.metacum <- function(x,
   #
   names(dat)[names(dat) == "TE"] <- smlab(sm, backtransf, x$pscale, x$irscale)
   #
-  names(dat)[names(dat) == "lower"] <-
-    paste0(round(100 * x$level.ma, 1), "% CI")
+  names(dat)[names(dat) == "lower"] <- percent_label(x$level.ma)
   #
-  if (prediction)
+  if (prediction) {
     names(dat)[names(dat) == "lower.predict"] <-
-    paste0(round(100 * x$level.predict, 1), "% PI")
+      percent_label(x$level.predict, "PI")
+  }
   else
     dat$lower.predict <- NULL
   #
@@ -424,8 +414,7 @@ print.metacum <- function(x,
   }
   #
   if (print.tau2.ci)
-    names(dat)[names(dat) == "lower.tau2"] <-
-    paste0(round(100 * x$level.hetstat, 1), "% CI")
+    names(dat)[names(dat) == "lower.tau2"] <- percent_label(x$level.hetstat)
   else
     dat$lower.tau2 <- NULL
   #
@@ -435,8 +424,7 @@ print.metacum <- function(x,
     dat$tau <- NULL
   #
   if (print.tau.ci)
-    names(dat)[names(dat) == "lower.tau"] <-
-    paste0(round(100 * x$level.hetstat, 1), "% CI")
+    names(dat)[names(dat) == "lower.tau"] <- percent_label(x$level.hetstat)
   else
     dat$lower.tau <- NULL
   #
@@ -446,8 +434,7 @@ print.metacum <- function(x,
     dat$I2 <- NULL
   #
   if (print.I2.ci)
-    names(dat)[names(dat) == "lower.I2"] <-
-    paste0(round(100 * x$level.hetstat, 1), "% CI")
+    names(dat)[names(dat) == "lower.I2"] <- percent_label(x$level.hetstat)
   else
     dat$lower.I2 <- NULL
   #

@@ -546,18 +546,15 @@ forest.metabind <- function(x,
   #
   I2.na <- is.na(x$data$I2)
   x$data$I2 <-
-    formatN(round(100 * x$data$I2, digits.I2), digits.I2, "")
+    percent_label(x$data$I2, "", digits.I2, formatN, lab.NA = "")
   x$data$lower.I2 <-
-    formatN(round(100 * x$data$lower.I2, digits.I2), digits.I2, "")
+    percent_label(x$data$lower.I2, "", digits.I2, formatN, lab.NA = "")
   x$data$upper.I2 <-
-    formatN(round(100 * x$data$upper.I2, digits.I2), digits.I2, "")
+    percent_label(x$data$upper.I2, "", digits.I2, formatN, lab.NA = "")
   #
-  x$data$I2 <-
-    rmSpace(paste0(x$data$I2, ifelse(I2.na, "", "%")))
-  x$data$lower.I2 <-
-    rmSpace(paste0(x$data$lower.I2, ifelse(I2.na, "", "%")))
-  x$data$upper.I2 <-
-    rmSpace(paste0(x$data$upper.I2, ifelse(I2.na, "", "%")))
+  x$data$I2 <- rmSpace(paste0(x$data$I2, ifelse(I2.na, "", "%")))
+  x$data$lower.I2 <- rmSpace(paste0(x$data$lower.I2, ifelse(I2.na, "", "%")))
+  x$data$upper.I2 <- rmSpace(paste0(x$data$upper.I2, ifelse(I2.na, "", "%")))
   #
   x$data$k <- as.character(x$data$k)
   #

@@ -497,16 +497,17 @@ plot.cidprop <- function(x,
   #
   dat.cid %<>%
     mutate(Threshold = formatN(Threshold, digits = digits.cid,
-                               big.mark = big.mark, text.NA = ""),
+                               big.mark = big.mark, lab.NA = ""),
            Threshold = if_else(category != "Not important effect",
                                paste0(sign, Threshold), within.cid),
-           prop = paste0(formatPT(100 * prop, digits = digits.percent), "%"),
+           prop = percent_label(prop, "", digits.percent, formatPT,
+                                lab.NA = "NA"),
            category =
              if_else(label == "", category, paste(category, label))) %>%
     column_to_rownames("category") %>%
     rename(Percent = prop) %>%
     select(-label, -sign)
-    
+  
   
   #
   #

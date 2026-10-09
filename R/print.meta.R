@@ -570,11 +570,11 @@ print.meta <- function(x,
     text.random.br <- text.random
   #
   if (common | random)
-    ci.lab <- paste0(round(100 * x$level.ma, 1), "% CI")
+    ci.lab <- percent_label(x$level.ma)
   else if (prediction)
-    ci.lab <- paste0(round(100 * x$level.predict, 1), "% PI")
+    ci.lab <- percent_label(x$level.predict, "PI")
   else if (all(k.all == 1))
-    ci.lab <- paste0(round(100 * x$level.ma, 1), "% CI")
+    ci.lab <- percent_label(x$level.ma)
   else
     ci.lab <- ""
   #
@@ -1107,13 +1107,13 @@ print.meta <- function(x,
         else
           zlab <- "z"
         #
-        if (prediction)
+        if (prediction) {
           if (x$level.ma == x$level.predict)
             lab.predict <- text.predict
           else
-            lab.predict <-
-              paste0(text.predict,
-                    " (", round(100 * x$level.predict, 1), "% PI)")
+            lab.predict <- paste0(text.predict, " (",
+                                  percent_label(x$level.predict, "PI"), ")")
+        }
         #
         dimnames(res) <- list(c(if (common) text.common,
                                 if (random) text.random,
@@ -1207,7 +1207,7 @@ print.meta <- function(x,
       cat(paste0("\nQuantifying heterogeneity",
                  if (!(is.null(x$level.hetstat) || is.na(x$level.hetstat)) &
                      (print.tau2.ci | print.tau.ci | print.I2.ci))
-                   paste0(" (with ", 100 * x$level.hetstat, "% CI",
+                   paste0(" (with ", percent_label(x$level.hetstat),
                           if (print.tau2.ci + print.tau.ci +
                               print.I2.ci + print.H * print.I2.ci > 1) "s",
                           ")"),
@@ -1269,7 +1269,7 @@ print.meta <- function(x,
           cat(paste0("\nQuantifying residual heterogeneity",
                      if (!(is.null(x$level.hetstat) || is.na(x$level.hetstat)) &
                          (print.tau2.ci | print.tau.ci | print.I2.ci))
-                       paste0(" (with ", 100 * x$level.hetstat, "% CI",
+                       paste0(" (with ", percent_label(x$level.hetstat),
                               if (print.tau2.ci + print.tau.ci +
                                   print.I2.ci + print.H * print.I2.ci > 1) "s",
                               ")"),
@@ -1637,7 +1637,7 @@ print.meta <- function(x,
             bylabel(subgroup.name, subgroup.levels,
                     print.subgroup.name, sep.subgroup,
                     big.mark = big.mark)
-          lab.predict <- paste0(round(100 * x$level.predict, 1), "% PI")
+          lab.predict <- percent_label(x$level.predict, "PI")
           dimnames(Pdata) <- list(bylab.txt, lab.predict)
           #
           Pdata <- Pdata[prediction.subgroup.logical, , drop = FALSE]

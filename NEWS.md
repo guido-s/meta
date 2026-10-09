@@ -360,6 +360,8 @@
 * New internal function warn_ignore_dots() to provide consistent warnings for
   ignored arguments supplied via '...'.
 
+* New internal function percent_label() to format percentage labels.
+
 * chkchar(), chkcolor(), chklevel(), chknumeric():
   - removed deprecated argument 'single'; replaced by argument 'length'
 
@@ -382,6 +384,9 @@
     transformed proportions (sm = "PFT") and ordinary square root
     transformation logic for Freeman-Tukey transformed rates (sm = "IRFT")
     because harmonic mean changes with filled studies
+
+* formatN(), pasteCI():
+  - argument 'text.NA' renamed to 'lab.NA'
 
 
 ## meta, version 8.5-0 (2026-05-25)

@@ -124,7 +124,7 @@ formatCI <- function(lower, upper,
   res
 }
 
-formatN <- function(x, digits = 2, text.NA = "--", big.mark = "",
+formatN <- function(x, digits = 2, lab.NA = "--", big.mark = "",
                     format.whole.numbers = TRUE,
                     monospaced = FALSE) {
   
@@ -133,7 +133,7 @@ formatN <- function(x, digits = 2, text.NA = "--", big.mark = "",
   if (!monospaced) {
     if (format.whole.numbers) {
       res <- format(ifelse(is.na(x),
-                           text.NA,
+                           lab.NA,
                            formatC(x, decimal.mark = outdec,
                                    format = "f", digits = digits,
                                    big.mark = big.mark)
@@ -142,7 +142,7 @@ formatN <- function(x, digits = 2, text.NA = "--", big.mark = "",
     }
     else {
       res <- format(ifelse(is.na(x),
-                           text.NA,
+                           lab.NA,
                     ifelse(is_wholenumber(x),
                            x,
                            formatC(x, decimal.mark = outdec,
@@ -156,7 +156,7 @@ formatN <- function(x, digits = 2, text.NA = "--", big.mark = "",
   else {
     x <- round(x, digits)
     res <- ifelse(is.na(x),
-                  text.NA,
+                  lab.NA,
                   format(x, decimal.mark = outdec, big.mark = big.mark))
   }
   #
@@ -369,15 +369,15 @@ p.ci <- function(lower, upper, rmspace = TRUE,
 }
 
 pasteCI <- function(lower, upper, digits, big.mark,
-                    sign.lower = "", sign.upper = "", text.NA = "NA",
+                    sign.lower = "", sign.upper = "", lab.NA = "NA",
                     unit = "")
   paste0(" ",
          formatCI(paste0(sign.lower,
                          formatN(lower, digits, big.mark = big.mark,
-                                 text.NA = text.NA), unit),
+                                 lab.NA = lab.NA), unit),
                   paste0(sign.upper,
                          formatN(upper, digits, big.mark = big.mark,
-                                 text.NA = text.NA), unit)))
+                                 lab.NA = lab.NA), unit)))
 
 rmSpace <- function(x, end = FALSE, pat = " ") {
   

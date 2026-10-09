@@ -578,7 +578,7 @@ print.cidprop <- function(x,
   #
   dat.cid %<>%
     mutate(Threshold = formatN(Threshold, digits = digits.cid,
-                               big.mark = big.mark, text.NA = ""))
+                               big.mark = big.mark, lab.NA = ""))
   #
   if (three.categories) {
     dat.cid %<>%
@@ -594,7 +594,7 @@ print.cidprop <- function(x,
   #
   dat.cid %<>%
     mutate(
-      prop = paste0(formatPT(100 * prop, digits = digits.percent), "%"),
+      prop = percent_label(prop, "", digits.percent, formatPT),
       category =
         if_else(label == "", category, paste(category, label)),
       category = paste0(category, " ")) %>%
