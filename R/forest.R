@@ -7760,18 +7760,36 @@ forest.meta <- function(x,
       hetstat <- FALSE
     }
     #
-    modlabs <- c(text.common, text.random, text.predict,
-                 hetstat.overall, hetstat.resid,
-                 text.overall.common, text.overall.random,
-                 text.subgroup.common, text.subgroup.random,
-                 text.addline1, text.addline2,
-                 if (details) text.details else NULL,
-                 if (RoB.legend) text.rob.legend else NULL,
-                 subgroup.name, text.common.w, text.random.w, text.predict.w,
-                 hetstat.w,
-                 unlist(text.effect.subgroup.common),
-                 unlist(text.effect.subgroup.random),
-                 studlab)
+    if (revman5) {
+      modlabs <- c(text.common, text.random, text.predict,
+                   hetstat.overall,
+                   hetstat.resid,
+                   text.overall.common, text.overall.random,
+                   text.subgroup.common, text.subgroup.random,
+                   text.addline1, text.addline2,
+                   if (details) text.details else NULL,
+                   if (RoB.legend) text.rob.legend else NULL,
+                   subgroup.name, text.common.w, text.random.w, text.predict.w,
+                   hetstat.w,
+                   unlist(text.effect.subgroup.common),
+                   unlist(text.effect.subgroup.random),
+                   studlab)
+      
+    }
+    else {
+      modlabs <- c(text.common, text.random, text.predict,
+                   hetstat.overall, hetstat.resid,
+                   text.overall.common, text.overall.random,
+                   text.subgroup.common, text.subgroup.random,
+                   text.addline1, text.addline2,
+                   if (details) text.details else NULL,
+                   if (RoB.legend) text.rob.legend else NULL,
+                   subgroup.name, text.common.w, text.random.w, text.predict.w,
+                   hetstat.w,
+                   unlist(text.effect.subgroup.common),
+                   unlist(text.effect.subgroup.random),
+                   studlab)
+    }
     #
     TEs    <- c(TE.common, TE.random, NAs.prd, TE.w, TE)
     lowTEs <- c(lowTE.common, lowTE.random, lowTE.predict, lowTE.w, lowTE)
@@ -7896,14 +7914,25 @@ forest.meta <- function(x,
     else if (hetstat.pooled == "random")
       text.random <- hetstat.overall
     #
-    modlabs <- c(text.common, text.random, text.predict,
-                 hetstat.overall, hetstat.resid,
-                 text.overall.common, text.overall.random,
-                 text.subgroup.common, text.subgroup.random,
-                 text.addline1, text.addline2,
-                 if (details) text.details else NULL,
-                 if (RoB.legend) text.rob.legend else NULL,
-                 studlab)
+    if (revman5)
+      modlabs <- c(text.common, text.random, text.predict,
+                   hetstat.overall,
+                   text.overall.common, text.overall.random,
+                   hetstat.resid,
+                   text.subgroup.common, text.subgroup.random,
+                   text.addline1, text.addline2,
+                   if (details) text.details else NULL,
+                   if (RoB.legend) text.rob.legend else NULL,
+                   studlab)
+    else
+      modlabs <- c(text.common, text.random, text.predict,
+                   hetstat.overall, hetstat.resid,
+                   text.overall.common, text.overall.random,
+                   text.subgroup.common, text.subgroup.random,
+                   text.addline1, text.addline2,
+                   if (details) text.details else NULL,
+                   if (RoB.legend) text.rob.legend else NULL,
+                   studlab)
     #
     TEs    <- c(TE.common, TE.random, NAs.prd, TE)
     lowTEs <- c(lowTE.common, lowTE.random, lowTE.predict, lowTE)
@@ -9068,24 +9097,47 @@ forest.meta <- function(x,
   #
   yNext <- yNext + addrows.below.overall
   #
-  if (test.overall.common) {
-    yOverall.common <- yNext
-    yNext <- yNext + 1
+  if (revman5) {
+    if (overall.hetstat) {
+      yHetstat <- yNext
+      yNext <- yNext + 1
+    }
+    #
+    if (resid.hetstat) {
+      yResidHetstat <- yNext
+      yNext <- yNext + 1
+    }
+    #
+    if (test.overall.common) {
+      yOverall.common <- yNext
+      yNext <- yNext + 1
+    }
+    #
+    if (test.overall.random) {
+      yOverall.random <- yNext
+      yNext <- yNext + 1
+    }
   }
-  #
-  if (test.overall.random) {
-    yOverall.random <- yNext
-    yNext <- yNext + 1
-  }
-  #
-  if (overall.hetstat) {
-    yHetstat <- yNext
-    yNext <- yNext + 1
-  }
-  #
-  if (resid.hetstat) {
-    yResidHetstat <- yNext
-    yNext <- yNext + 1
+  else {
+    if (test.overall.common) {
+      yOverall.common <- yNext
+      yNext <- yNext + 1
+    }
+    #
+    if (test.overall.random) {
+      yOverall.random <- yNext
+      yNext <- yNext + 1
+    }
+    #
+    if (overall.hetstat) {
+      yHetstat <- yNext
+      yNext <- yNext + 1
+    }
+    #
+    if (resid.hetstat) {
+      yResidHetstat <- yNext
+      yNext <- yNext + 1
+    }
   }
   #
   if (test.subgroup.common) {
@@ -9142,16 +9194,30 @@ forest.meta <- function(x,
   if (RoB.legend)
     yText.rob.legend <- yHead + yText.rob.legend + addrow
   #
-  yStats <- c(yOverall.common, yOverall.random,
-              yHetstat, yResidHetstat,
-              ySubgroup.common, ySubgroup.random,
-              yText.addline1, yText.addline2)
-  #
-  yStatsDetails <- c(yOverall.common, yOverall.random,
-                     yHetstat, yResidHetstat,
-                     ySubgroup.common, ySubgroup.random,
-                     yText.addline1, yText.addline2,
-                     yText.details, yText.rob.legend)
+  if (revman5) {
+    yStats <- c(yHetstat, yResidHetstat,
+                yOverall.common, yOverall.random,
+                ySubgroup.common, ySubgroup.random,
+                yText.addline1, yText.addline2)
+    #
+    yStatsDetails <- c(yHetstat, yResidHetstat,
+                       yOverall.common, yOverall.random,
+                       ySubgroup.common, ySubgroup.random,
+                       yText.addline1, yText.addline2,
+                       yText.details, yText.rob.legend)
+  }
+  else {
+    yStats <- c(yOverall.common, yOverall.random,
+                yHetstat, yResidHetstat,
+                ySubgroup.common, ySubgroup.random,
+                yText.addline1, yText.addline2)
+    #
+    yStatsDetails <- c(yOverall.common, yOverall.random,
+                       yHetstat, yResidHetstat,
+                       ySubgroup.common, ySubgroup.random,
+                       yText.addline1, yText.addline2,
+                       yText.details, yText.rob.legend)
+  }
   #
   if (by) {
     yBylab <- yHead + yBylab + addrow
@@ -9227,21 +9293,41 @@ forest.meta <- function(x,
       tg(text.predict[i], xpos.s, just.s,
          fs.predict.labels, ff.predict.labels, fontfamily)
   }
-  # Test for overall effect (common effect model):
+  #
   strt <- strt + i
-  col.studlab$labels[[strt + 1]] <-
-    tg(text.overall.common, xpos.s, just.s, fs.test.overall, ff.test.overall,
-       fontfamily)
-  # Test for overall effect (random effects model):
-  col.studlab$labels[[strt + 2]] <-
-    tg(text.overall.random, xpos.s, just.s, fs.test.overall, ff.test.overall,
-       fontfamily)
-  # Heterogeneity statistics:
-  col.studlab$labels[[strt + 3]] <-
-    tg(hetstat.overall, xpos.s, just.s, fs.hetstat, ff.hetstat, fontfamily)
-  # Statistic for residual heterogeneity:
-  col.studlab$labels[[strt + 4]] <-
-    tg(hetstat.resid, xpos.s, just.s, fs.hetstat, ff.hetstat, fontfamily)
+  #
+  if (revman5) {
+    # Heterogeneity statistics:
+    col.studlab$labels[[strt + 1]] <-
+      tg(hetstat.overall, xpos.s, just.s, fs.hetstat, ff.hetstat, fontfamily)
+    # Statistic for residual heterogeneity:
+    col.studlab$labels[[strt + 2]] <-
+      tg(hetstat.resid, xpos.s, just.s, fs.hetstat, ff.hetstat, fontfamily)
+    # Test for overall effect (common effect model):
+    col.studlab$labels[[strt + 3]] <-
+      tg(text.overall.common, xpos.s, just.s, fs.test.overall, ff.test.overall,
+         fontfamily)
+    # Test for overall effect (random effects model):
+    col.studlab$labels[[strt + 4]] <-
+      tg(text.overall.random, xpos.s, just.s, fs.test.overall, ff.test.overall,
+         fontfamily)
+  }
+  else {
+    # Test for overall effect (common effect model):
+    col.studlab$labels[[strt + 1]] <-
+      tg(text.overall.common, xpos.s, just.s, fs.test.overall, ff.test.overall,
+         fontfamily)
+    # Test for overall effect (random effects model):
+    col.studlab$labels[[strt + 2]] <-
+      tg(text.overall.random, xpos.s, just.s, fs.test.overall, ff.test.overall,
+         fontfamily)
+    # Heterogeneity statistics:
+    col.studlab$labels[[strt + 3]] <-
+      tg(hetstat.overall, xpos.s, just.s, fs.hetstat, ff.hetstat, fontfamily)
+    # Statistic for residual heterogeneity:
+    col.studlab$labels[[strt + 4]] <-
+      tg(hetstat.resid, xpos.s, just.s, fs.hetstat, ff.hetstat, fontfamily)
+  }
   # Test for subgroup differences (common effect model):
   col.studlab$labels[[strt + 5]] <-
     tg(text.subgroup.common, xpos.s, just.s, fs.test.subgroup, ff.test.subgroup,
