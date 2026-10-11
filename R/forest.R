@@ -10390,6 +10390,7 @@ forest.meta <- function(x,
   #
   del.lines <- NULL
   calcwidth.lines <- NULL
+  calcwidth.text.lines <- NULL
   calcwidth.details.line <- NULL
   pooled.data.cols <- c(
     if (pooled.events)
@@ -10441,14 +10442,18 @@ forest.meta <- function(x,
   #
   common.lines <- 1 + seq_len(n.com)
   del.lines <- c(del.lines, common.lines)
+  if (calcwidth.common)
+    calcwidth.text.lines <- c(calcwidth.text.lines, common.lines)
   #
   random.lines <- 1 + n.com + seq_len(n.ran)
   del.lines <- c(del.lines, random.lines)
+  if (calcwidth.random)
+    calcwidth.text.lines <- c(calcwidth.text.lines, random.lines)
   #
   predict.lines <- 1 + n.com + n.ran + seq_len(n.prd)
   del.lines <- c(del.lines, predict.lines)
   if (calcwidth.predict)
-    calcwidth.lines <- c(calcwidth.lines, predict.lines)
+    calcwidth.text.lines <- c(calcwidth.text.lines, predict.lines)
   #
   overall.tests.lines <- 1 + n.com + n.ran + n.prd + seq(2)
   hetstat.lines <- 1 + n.com + n.ran + n.prd + 2 + seq(2)
@@ -10614,10 +10619,48 @@ forest.meta <- function(x,
                  width.i)
     }
     #
+    extra.calcwidth.text <- unit(0, "mm")
+    if (!is.null(calcwidth.text.lines)) {
+      studlab.i <- match("col.studlab", leftcols)
+      for (line.i in calcwidth.text.lines) {
+        first.info.i <- NA_integer_
+        if (studlab.i < length(leftcols)) {
+          for (col.i in seq.int(studlab.i + 1, length(leftcols))) {
+            label.i <- cols.calc[[leftcols[col.i]]]$labels[[line.i]]
+            if (!is.null(label.i$label) && any(label.i$label != "")) {
+              first.info.i <- col.i
+              break
+            }
+          }
+        }
+        #
+        available.i <- width.left.cols[[studlab.i]]
+        if (!is.na(first.info.i) && first.info.i > studlab.i + 1) {
+          for (col.i in seq.int(studlab.i + 1, first.info.i - 1)) {
+            available.i <- available.i +
+              if (leftcols[col.i - 1] == "col.studlab")
+                colgap.studlab
+              else
+                colgap.left
+            available.i <- available.i + width.left.cols[[col.i]]
+          }
+        }
+        else if (is.na(first.info.i)) {
+          available.i <- sum(width.left.total)
+        }
+        #
+        width.i <- wcalc(cols[["col.studlab"]]$labels[line.i])
+        extra.calcwidth.text <-
+          unit.pmax(extra.calcwidth.text,
+                    unit.pmax(unit(0, "mm"), width.i - available.i))
+      }
+    }
+    #
     if (!is.null(calcwidth.lines) | !is.null(calcwidth.details.line)) {
       extra.calcwidth <-
         unit.pmax(unit(0, "mm"), width.calcwidth - sum(width.left.total))
     }
+    extra.calcwidth <- unit.pmax(extra.calcwidth, extra.calcwidth.text)
     extra.calcwidth.pooled <-
       unit.pmax(unit(0, "mm"), extra.calcwidth.pooled - extra.calcwidth)
     #

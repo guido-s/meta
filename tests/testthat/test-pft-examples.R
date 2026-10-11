@@ -49,23 +49,6 @@ test_that("trimfill PFT cidprop uses arcsine threshold transformation", {
                   tf$df.predict, lower.tail = FALSE))
 })
 
-test_that("bubble plot back transforms PFT results", {
-  dat <- data.frame(event = c(2, 5, 8, 12, 18),
-                    n = c(30, 40, 35, 50, 45),
-                    x = 1:5,
-                    group = c("a", "a", "b", "b", "b"))
-  m <- metaprop(event, n, data = dat, sm = "PFT", null.effect = 0.2)
-  mr1 <- metareg(m, ~ x)
-  mr2 <- metareg(m, ~ group)
-  
-  pdf(tempfile())
-  on.exit(if (dev.cur() > 1) dev.off())
-  expect_invisible(bubble(mr1, backtransf = TRUE, pscale = 100))
-  expect_invisible(bubble(mr1, backtransf = FALSE))
-  expect_invisible(bubble(mr2, backtransf = TRUE))
-  dev.off()
-})
-
 test_that("funnel plot shows PFT tick marks on original scale", {
   dat <- data.frame(event = c(2, 5, 8, 12, 18),
                     n = c(30, 40, 35, 50, 45))

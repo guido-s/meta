@@ -520,41 +520,35 @@ forest.metabind <- function(x,
                                 lab = FALSE,
                                 digits = digits.pval.Q,
                                 scientific = scientific.pval,
-                                lab.NA = lab.NA)
-    x$data$pval.Q.b <- rmSpace(x$data$pval.Q.b)
+                                lab.NA = lab.NA, trim = "left")
   }
   else {
     x$data$Q <- round(x$data$Q, digits.Q)
     x$Q <- round(x$Q, digits.Q)
     x$data$pval.Q <-
-      rmSpace(formatPT(x$data$pval.Q,
-                       lab = FALSE,
-                       digits = digits.pval.Q,
-                       scientific = scientific.pval,
-                       lab.NA = lab.NA))
+      formatPT(x$data$pval.Q,
+               lab = FALSE,
+               digits = digits.pval.Q,
+               scientific = scientific.pval,
+               lab.NA = lab.NA, trim = "left")
   }
   #
   x$data$tau2 <-
-    rmSpace(formatPT(x$data$tau2, digits = digits.tau2,
-                     big.mark = big.mark,
-                     lab = FALSE, lab.NA = lab.NA))
+    formatPT(x$data$tau2, digits = digits.tau2,
+             big.mark = big.mark,
+             lab = FALSE, lab.NA = lab.NA, trim = "left")
   #
   x$data$tau <-
-    rmSpace(formatPT(x$data$tau, digits = digits.tau,
-                     big.mark = big.mark,
-                     lab = FALSE, lab.NA = lab.NA))
+    formatPT(x$data$tau, digits = digits.tau,
+             big.mark = big.mark,
+             lab = FALSE, lab.NA = lab.NA, trim = "left")
   #
-  I2.na <- is.na(x$data$I2)
   x$data$I2 <-
     percent_label(x$data$I2, "", digits.I2, formatN, lab.NA = "")
   x$data$lower.I2 <-
     percent_label(x$data$lower.I2, "", digits.I2, formatN, lab.NA = "")
   x$data$upper.I2 <-
     percent_label(x$data$upper.I2, "", digits.I2, formatN, lab.NA = "")
-  #
-  x$data$I2 <- rmSpace(paste0(x$data$I2, ifelse(I2.na, "", "%")))
-  x$data$lower.I2 <- rmSpace(paste0(x$data$lower.I2, ifelse(I2.na, "", "%")))
-  x$data$upper.I2 <- rmSpace(paste0(x$data$upper.I2, ifelse(I2.na, "", "%")))
   #
   x$data$k <- as.character(x$data$k)
   #

@@ -48,7 +48,7 @@ test_that("drapery transforms original-scale x-limits for axis-only measures", {
   res.zcor <- drapery(m.zcor, xlim = c(0, 0.6))
   dev.off()
 
-  expect_equal(attr(res.irft, "xlim"),
-               transf(c(0.01, 0.5), "IRFT", time = m.irft$t.harmonic.mean))
+  expect_equal(attr(res.irft, "xlim"), transf(c(0.01, 0.5), "IRFT",
+    time = m.irft$t.harmonic.mean))
   expect_equal(attr(res.zcor, "xlim"), transf(c(0, 0.6), "ZCOR"))
 })

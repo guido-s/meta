@@ -213,7 +213,7 @@ formatN <- function(x, digits = 2, lab.NA = "--", big.mark = "",
 formatPT <- function(x, lab = FALSE, labval = "p", noblanks = FALSE,
                      digits = 4, zero = TRUE, scientific = FALSE,
                      lab.NA = "--", big.mark = "",
-                     JAMA = FALSE) {
+                     JAMA = FALSE, trim = NULL) {
   
   if (is.null(x))
     return("")
@@ -334,82 +334,24 @@ formatPT <- function(x, lab = FALSE, labval = "p", noblanks = FALSE,
       res <- formatC(x, decimal.mark = outdec,
                      big.mark = big.mark, format = "e", digits = digits)
   }
+  
+  # Remove any whitespace
   #
   if (noblanks)
     res <- gsub(" ", "", res)
   if (!zero)
     res <- gsub("0\\.", "\\.", res)
-  #
+  
   # Treat NaNs as NAs
   #
   res[grep("NaN", res)] <- lab.NA
   
-  res
-}
-
-p.ci <- function(lower, upper, rmspace = TRUE,
-                 bracket.left = gs("CIbracket"),
-                 separator = gs("CIseparator"),
-                 bracket.right = "]",
-                 justify.lower = "right",
-                 justify.upper = justify.lower,
-                 ...
-                 ) {
+  # Trim whitespace
+  #
+  if (!is.null(trim)) {
+    res <- trimws(res, which = trim)
+  }
   
-  warning("Use of function p.ci() from R package meta is deprecated; ",
-          "use instead formatCI().")
-  
-  # Change layout of CIs
-  #
-  ibracktype <- charmatch(gs("CIbracket"),
-                          c("[", "(", "{", ""), nomatch = NA)
-  if (is.na(ibracktype) | ibracktype == 0) {
-    warning("No valid bracket type specified globally for R package meta: ",
-            gs("CIbracket"),
-            "\n  Using default bracket type: '['. See help page on ",
-            "R command 'cilayout' for further information.")
-    bracktype <- "["
-  }
-  else
-    bracktype <- c("[", "(", "{", "")[ibracktype]
-  #
-  if (bracktype == "[") {
-    bracketLeft <- "["
-    bracketRight <- "]"
-  }
-  else if (bracktype == "(") {
-    bracketLeft <- "("
-    bracketRight <- ")"
-  }
-  else if (bracktype == "{") {
-    bracketLeft <- "{"
-    bracketRight <- "}"
-  }
-  else if (bracktype == "") {
-    bracketLeft <- ""
-    bracketRight <- ""
-  }
-  #
-  if (missing(bracket.left))
-    bracket.left <- bracketLeft
-  #
-  if (missing(bracket.right))
-    bracket.right <- bracketRight
-  #
-  
-  if (rmspace) {
-    lower <- rmSpace(lower)
-    upper <- rmSpace(upper)
-  }
-  #
-  res <- ifelse(lower != "NA" & upper != "NA",
-                paste0(bracket.left,
-                       format(lower, justify = justify.lower),
-                       separator,
-                       format(upper, justify = justify.upper),
-                       bracket.right),
-                "")
-  #
   res
 }
 
