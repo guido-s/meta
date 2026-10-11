@@ -879,13 +879,6 @@ settings.meta <- function(..., quietly = TRUE) {
                  #
                  "colgap.forest",
                  #
-                 "col.common", "col.random", "col.subgroup",
-                 "col.study", "col.study.text",
-                 "col.square", "col.square.lines",
-                 "col.diamond", "col.diamond.lines",
-                 #
-                 "col.lines",
-                 #
                  "lwd.square", "lwd.diamond",
                  #
                  "arrow.type",
