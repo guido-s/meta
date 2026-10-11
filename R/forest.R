@@ -2025,6 +2025,8 @@ forest.meta <- function(x,
   miss.label.test.subgroup.fixed <-
     is.na(argid(nam.args, "label.test.subgroup.fixed"))
   miss.label.test.subgroup.random <- missing(label.test.subgroup.random)
+  miss.colgap.forest.left <- missing(colgap.forest.left)
+  miss.colgap.forest.right <- missing(colgap.forest.right)
   miss.leftcols <- missing(leftcols)
   #
   avail.leftcols <-
@@ -10324,6 +10326,67 @@ forest.meta <- function(x,
   
   # Exclude lines with summary measures from calculation of column
   # width for study labels
+  #
+  axis <- axis_labels(xlim, at, label, log.xaxis, avail.xlim)
+  axis.widths <- unit(0, "mm")
+  if (axis$draw.labels) {
+    axis.grobs <- lapply(
+      as.list(axis$label), tg,
+      xpos = 0.5, just = "center", fs = fs.axis, ff = ff.axis,
+      fontfamily = fontfamily)
+    axis.widths <- do.call(unit.c, lapply(axis.grobs, wcalc))
+  }
+  #
+  text.width <- function(lines, fs, ff, just = "center") {
+    if (length(lines) == 0 || all(lines == ""))
+      return(unit(0, "mm"))
+    #
+    wcalc(tgl(lines, 0.5, just, fs, ff, fontfamily)$labels)
+  }
+  #
+  width.center <- unit.pmax(
+    text.width(lines.smlab, fs.smlab, ff.smlab),
+    text.width(lines.xlab, fs.xlab, ff.xlab))
+  extra.center <- unit.pmax(unit(0, "mm"),
+                            width.center - col.forestwidth)
+  if (miss.colgap.forest.left && miss.colgap.forest.right) {
+    colgap.forest.left <- colgap.forest.left + extra.center / 2
+    colgap.forest.right <- colgap.forest.right + extra.center / 2
+  }
+  else if (miss.colgap.forest.left)
+    colgap.forest.left <- colgap.forest.left + extra.center
+  else if (miss.colgap.forest.right)
+    colgap.forest.right <- colgap.forest.right + extra.center
+  #
+  if (length(axis.widths) > 0) {
+    if (miss.colgap.forest.left)
+      colgap.forest.left <- unit.pmax(
+        colgap.forest.left, axis.widths[1] / 2)
+    if (miss.colgap.forest.right)
+      colgap.forest.right <- unit.pmax(
+        colgap.forest.right, axis.widths[length(axis.widths)] / 2)
+  }
+  #
+  width.label.left <-
+    text.width(lines.label.left, fs.lr, ff.lr, just = "right")
+  width.label.right <-
+    text.width(lines.label.right, fs.lr, ff.lr, just = "left")
+  #
+  if (print.label && !is.na(ref) && diff(xlim) > 0) {
+    ref.pos <- (ref - xlim[1]) / diff(xlim)
+    left.pos <- ref.pos - 1 / 30
+    right.pos <- ref.pos + 1 / 30
+    #
+    available.left <- col.forestwidth * left.pos
+    available.right <- col.forestwidth * (1 - right.pos)
+    #
+    if (miss.colgap.forest.left)
+      colgap.forest.left <- colgap.forest.left +
+        unit.pmax(unit(0, "mm"), width.label.left - available.left)
+    if (miss.colgap.forest.right)
+      colgap.forest.right <- colgap.forest.right +
+        unit.pmax(unit(0, "mm"), width.label.right - available.right)
+  }
   #
   del.lines <- NULL
   calcwidth.lines <- NULL

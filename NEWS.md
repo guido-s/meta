@@ -229,6 +229,11 @@
     [(issue #98)](https://github.com/guido-s/meta/issues/98)
   - correctly clip diamonds for pooled estimates if argument 'xlim' excludes
     the pooled estimate but includes one confidence limit
+  - automatically accounts for the widths of x-axis tick labels, input to
+    arguments 'smlab', 'xlab', 'label.left', and 'label.right' when calculating
+    forest plot spacing. User-specified values for arguments
+    'colgap.forest.left' and 'colgap.forest.right' take precedence over the
+    automatic calculation
 
 * bubble(), forest.meta(), metabin(), metagen(), metainc(), metaprop(),
   metarate(), print.meta(), print.summary.meta(), rd(), trimfill(),

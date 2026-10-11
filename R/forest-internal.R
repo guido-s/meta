@@ -157,47 +157,22 @@ add.columns <- function(x, new = NULL) {
   res
 }
 
-draw.axis <- function(x, column, axis.row, axis.label.row,
-                      log.xaxis, at, label,
-                      fs.axis, ff.axis, fontfamily, lwd,
-                      xlim, notmiss.xlim,
-                      col.line, col.label) {
-  #
-  # Function to draw x-axis
-  #
-  pushViewport(
-    viewport(
-      layout.pos.row = axis.row,
-      layout.pos.col = column,
-      xscale = x$range,
-      clip = "off"))
-  #
-  # x-axis:
-  #
-  draw_axis_ticks <- function(at) {
-    grid.lines(x = unit(range(at), "native"),
-               y = unit(0, "npc"),
-               gp = gpar(lwd = lwd, col = col.line))
-    grid::grid.segments(x0 = unit(at, "native"), y0 = unit(0, "npc"),
-                        x1 = unit(at, "native"),
-                        y1 = unit(-0.25, "lines"),
-                        gp = gpar(lwd = lwd, col = col.line))
-  }
+axis_labels <- function(xlim, at, label, log.xaxis, notmiss.xlim) {
   draw.labels <- FALSE
   #
   if (log.xaxis) {
     if (is.null(at)) {
-      x1000 <- c(0.001, 0.1, 1,  10, 1000)
-      x100  <- c(0.01 , 0.1, 1,  10, 100)
-      x10   <- c(0.1  , 0.5, 1,   2, 10)
-      x5    <- c(0.2  , 0.5, 1,   2, 5)
-      x2    <- c(0.5  , 1, 2)
-      x1.5  <- c(0.75 , 1, 1.5)
-      x1.25 <- c(0.8  , 1, 1.25)
-      x1    <- c(0.9  , 1, 1.1)
+      x1000 <- c(0.001, 0.1, 1, 10, 1000)
+      x100 <- c(0.01, 0.1, 1, 10, 100)
+      x10 <- c(0.1, 0.5, 1, 2, 10)
+      x5 <- c(0.2, 0.5, 1, 2, 5)
+      x2 <- c(0.5, 1, 2)
+      x1.5 <- c(0.75, 1, 1.5)
+      x1.25 <- c(0.8, 1, 1.25)
+      x1 <- c(0.9, 1, 1.1)
       #
-      min.x <- min(exp(x$range[1]), 1)
-      max.x <- max(exp(x$range[2]), 1)
+      min.x <- min(exp(xlim[1]), 1)
+      max.x <- max(exp(xlim[2]), 1)
       #
       if (all(x1000 >= min.x) & all(x1000 <= max.x))
         label <- x1000
@@ -232,27 +207,56 @@ draw.axis <- function(x, column, axis.row, axis.label.row,
         label <- at
       at <- log(at)
     }
-    draw_axis_ticks(at)
     draw.labels <- TRUE
   }
   else {
     if (is.null(at)) {
-      at <- grid::grid.pretty(x$range)
+      at <- grid::grid.pretty(xlim)
       label <- at
-      draw_axis_ticks(at)
       draw.labels <- TRUE
     }
     else if ((length(label) == 1 && is.logical(label) && label) |
              (length(label) >= 1 & !is.logical(label))) {
-      draw_axis_ticks(at)
       if (length(label) == 1 && is.logical(label) && label)
         label <- at
       draw.labels <- TRUE
     }
-    else {
-      draw_axis_ticks(at)
-    }
   }
+  #
+  list(at = at, label = label, draw.labels = draw.labels)
+}
+
+draw.axis <- function(x, column, axis.row, axis.label.row,
+                      log.xaxis, at, label,
+                      fs.axis, ff.axis, fontfamily, lwd,
+                      xlim, notmiss.xlim,
+                      col.line, col.label) {
+  #
+  # Function to draw x-axis
+  #
+  pushViewport(
+    viewport(
+      layout.pos.row = axis.row,
+      layout.pos.col = column,
+      xscale = x$range,
+      clip = "off"))
+  #
+  # x-axis:
+  #
+  draw_axis_ticks <- function(at) {
+    grid.lines(x = unit(range(at), "native"),
+               y = unit(0, "npc"),
+               gp = gpar(lwd = lwd, col = col.line))
+    grid::grid.segments(x0 = unit(at, "native"), y0 = unit(0, "npc"),
+                        x1 = unit(at, "native"),
+                        y1 = unit(-0.25, "lines"),
+                        gp = gpar(lwd = lwd, col = col.line))
+  }
+  axis <- axis_labels(x$range, at, label, log.xaxis, notmiss.xlim)
+  at <- axis$at
+  label <- axis$label
+  draw.labels <- axis$draw.labels
+  draw_axis_ticks(at)
   #
   popViewport()
   #
