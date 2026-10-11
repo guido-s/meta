@@ -83,20 +83,22 @@ meta-analysis results.}
 value of the I-squared statistic.}
 
 \item{print.I2.ci}{A logical value indicating whether to print the
-confidence interval of the I-squared statistic.}
+confidence interval for the I-squared statistic (only printed
+if the I-squared statistic is printed).}
 
 \item{print.tau2}{A logical value indicating whether to print the
 value of the between-study variance \eqn{\tau^2}.}
 
 \item{print.tau2.ci}{A logical value indicating whether to print
-the confidence interval of \eqn{\tau^2}.}
+the confidence interval for \eqn{\tau^2} (only printed if \eqn{\tau^2} is
+printed).}
 
 \item{print.tau}{A logical value indicating whether to print
 \eqn{\tau}, the square root of the between-study variance
 \eqn{\tau^2}.}
 
 \item{print.tau.ci}{A logical value indicating whether to print the
-confidence interval of \eqn{\tau}.}
+confidence interval for \eqn{\tau} (only printed if \eqn{\tau} is printed).}
 
 \item{print.Q}{A logical value indicating whether to print the
 value of the heterogeneity statistic Q.}

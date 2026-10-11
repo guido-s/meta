@@ -101,6 +101,12 @@
     [(related to issue #106)](https://github.com/guido-s/meta/issues/106)
 
 * forest.metacum():
+  - new arguments 'layout' and 'main' to select the forest plot layout and
+    specify its title
+  - new arguments to control printing of heterogeneity statistics, their
+    confidence intervals, and CID probabilities:
+    'print.I2', 'print.I2.ci', 'print.tau2', 'print.tau2.ci',
+    'print.tau', 'print.tau.ci', 'print.Q', 'print.pval.Q', and 'print.cidprop'
   - use default colours for squares regardless of layout
     [(issue #96)](https://github.com/guido-s/meta/issues/96)
   - print the title "Cumulative Meta-Analysis"

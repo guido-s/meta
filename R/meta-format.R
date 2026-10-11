@@ -64,15 +64,19 @@ formatCI <- function(lower, upper,
                      justify.upper = justify.lower,
                      lower.blank = gs("CIlower.blank"),
                      upper.blank = gs("CIupper.blank"),
-                     ...
-                     ) {
+                     #
+                     digits = NULL,
+                     lab.NA = gs("lab.NA"),
+                     big.mark = "",
+                     scale = 1,
+                     suffix = "",
+                     na.lab = FALSE,
+                     ...) {
   
   # Change layout of CIs
   #
   chkchar(bracket.left, length = 1)
   chkchar(separator, length = 1)
-  if (!missing(bracket.right))
-    chkchar(bracket.right, length = 1)
   #
   if (missing(bracket.left)) {
     bracktype <- setchar(bracket.left, c("[", "(", "{", ""))
@@ -89,37 +93,78 @@ formatCI <- function(lower, upper,
       bracketLeft <- "{"
       bracketRight <- "}"
     }
-    else if (bracktype == "") {
+    else {
       bracketLeft <- ""
       bracketRight <- ""
     }
     #
     bracket.left <- bracketLeft
   }
+  else {
+    bracketRight <- switch(bracket.left,
+                           "[" = "]",
+                           "(" = ")",
+                           "{" = "}",
+                           "")
+  }
   #
-  if (missing(bracket.right))
+  if (!missing(bracket.right))
+    chkchar(bracket.right, length = 1)
+  else
     bracket.right <- bracketRight
   
-  format.lower <- format(lower, justify = justify.lower)
-  format.upper <- format(upper, justify = justify.upper)
+  # Identify missing limits before formatting
+  #
+  missing.lower <- is.na(lower)
+  missing.upper <- is.na(upper)
+  #
+  if (is.character(lower))
+    missing.lower <- missing.lower | lower == "NA"
+  #
+  if (is.character(upper))
+    missing.upper <- missing.upper | upper == "NA"
+  #
+  missing.ci <- missing.lower | missing.upper
+  
+  # Format limits
+  #
+  if (is.null(digits)) {
+    format.lower <- format(lower, justify = justify.lower)
+    format.upper <- format(upper, justify = justify.upper)
+  }
+  else {
+    format.lower <-
+      formatN(scale * lower, digits = digits, lab.NA = lab.NA,
+              big.mark = big.mark)
+    format.upper <-
+      formatN(scale * upper, digits = digits, lab.NA = lab.NA,
+              big.mark = big.mark)
+    #
+    format.lower <- paste0(format.lower, suffix)
+    format.upper <- paste0(format.upper, suffix)
+  }
+  
+  # Change layout of CIs
   #
   if (!lower.blank)
     format.lower <- rmSpace(format.lower)
   if (!upper.blank)
     format.upper <- rmSpace(format.upper)
   #
-  if (separator == "-")
+  if (separator == "-") {
     format.upper <-
       paste0(ifelse(substring(format.upper, 1, 1) == "-", " ", ""),
              format.upper)
+  }
+  
+  res <- paste0(bracket.left, format.lower,
+                separator,
+                format.upper, bracket.right)
   #
-  res <- ifelse(lower != "NA" & upper != "NA",
-                paste0(bracket.left,
-                       format.lower,
-                       separator,
-                       format.upper,
-                       bracket.right),
-                "")
+  if (na.lab)
+    res[missing.ci] <- lab.NA
+  else
+    res[missing.ci] <- ""
   #
   res
 }
