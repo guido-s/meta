@@ -849,8 +849,9 @@ formatcol <- function(x, y, rows, just = "right", settings,
     }
   }
   #
-  n.study <- min(length(settings$col.study.text), length(res$labels) - j)
-  study.labels <- seq.int(j + 1, length.out = n.study)
+  n.study <- min(length(settings$col.study.text), length(res$labels) - 1)
+  study.labels <- seq.int(length(res$labels) - n.study + 1,
+                          length.out = n.study)
   for (i in seq_along(study.labels))
     res$labels[[study.labels[i]]]$gp$col <- settings$col.study.text[i]
   #
