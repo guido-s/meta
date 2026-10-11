@@ -5296,9 +5296,9 @@ forest.meta <- function(x,
                             digits = digits.pval,
                             zero = zero.pval, JAMA = JAMA.pval,
                             scientific = scientific.pval,
-                            lab.NA = lab.NA)
+                            lab.NA = "NA")
   statistics.overall <- formatN(c(x$statistic.common, x$statistic.random),
-                                digits.stat, lab.NA, big.mark = big.mark)
+                                digits.stat, "NA", big.mark = big.mark)
   #
   # Remove superfluous spaces
   #
@@ -6235,10 +6235,10 @@ forest.meta <- function(x,
                digits = digits.pval,
                zero = zero.pval, JAMA = JAMA.pval,
                scientific = scientific.pval,
-               lab.NA = lab.NA)
+               lab.NA = "NA")
     statistics.effect.w <-
       formatN(c(statistic.common.w, statistic.random.w),
-              digits.stat, lab.NA, big.mark = big.mark)
+              digits.stat, "NA", big.mark = big.mark)
     #
     # Remove superfluous spaces
     #
