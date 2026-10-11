@@ -49,8 +49,9 @@
   - argument 'title' is used as default for argument 'main' in forest.meta()
 
 * forest.meta():
-  - column spacing has been improved for `layout = "meta8"`, including printing
-    tests for an overall effect before heterogeneity statistics
+  - column spacing has been improved for `layout = "meta8"`
+  - for all layouts but `layout = "Revman5"`, information on tests for an
+    overall effect are printed before heterogeneity statistics
   - new arguments 'main', 'just.main', 'xpos.main', 'gap.main', 'fs.main',
     'ff.main', 'col.main', and 'lineheight.main' can be used to add and format
     a main title
