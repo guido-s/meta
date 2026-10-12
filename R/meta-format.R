@@ -20,40 +20,54 @@ bylabel <- function(subgroup.name, subgroup.levels, print.subgroup.name,
   res
 }
 
-crtitle <- function(x) {
-  tl <- options()$width - 12
-  newline <- FALSE
-  #  
-  if (!is.null(x$title)) {
-    if (x$title != "") {
-      newline <- TRUE
-      if (nchar(x$title) <= tl)
-        cat(paste0("Review:     ", x$title, "\n"))
-      else
-        cat(paste0("Review:     ", substring(x$title, 1, tl - 4), " ...\n"))
-    }
-  }
-  if (!is.null(x$complab)) {
-    if (x$complab != "") {
-      newline <- TRUE
-      if (nchar(x$complab) <= tl)
-        cat(paste0("Comparison: ", x$complab, "\n"))
-      else
-        cat(paste0("Comparison: ", substring(x$complab, 1, tl - 4), " ...\n"))
-    }
-  }
-  if (!is.null(x$outclab)) {
-    if (x$outclab != "") {
-      newline <- TRUE
-      if (nchar(x$outclab) <= tl)
-        cat(paste0("Outcome:    ", x$outclab, "\n"))
-      else
-        cat(paste0("Outcome:    ", substring(x$outclab, 1, tl - 4), " ...\n"))
-    }
-  }
+crtitle <- function(x, prefix = NULL, forest = FALSE) {
+  avail <- function(value)
+    !(is.null(value) || identical(value, ""))
   #
-  if (newline)
-    cat("\n")
+  title_line <- function(value, prefix = NULL, gap = 0) {
+    if (!avail(value))
+      return(character(0))
+    #
+    if (nchar(value) > tl)
+      value <- paste0(substring(value, 1, max(1, tl - 4)), " ...")
+    #
+    paste0(prefix, if (!is.null(prefix)) strrep(" ", gap), value)
+  }
+  
+  tl <- if (forest) 666 else getOption("width") - 12
+  
+  # Define prefixes and gaps
+  #
+  prefix <- replaceNULL(prefix, avail(x$complab) || avail(x$outclab))
+  #
+  if (!prefix) {
+    prefixes <- rep(NULL, 3)
+    gaps <- rep(0, 3)
+  }
+  else {
+    prefixes <- c("Review:", "Comparison:", "Outcome:")
+    #
+    gaps <- if (forest)
+      rep(1, 3)
+    else {
+      c(max(1, 5 * avail(x$complab), 2 * avail(x$outclab)),
+        1,
+        max(1, 4 * avail(x$complab)))
+    }
+  }
+  
+  # Title lines
+  #
+  lines <- c(title_line(x$title, prefixes[1], gaps[1]),
+             title_line(x$complab, prefixes[2], gaps[2]),
+             title_line(x$outclab, prefixes[3], gaps[3]))
+  #
+  text <- paste(lines, collapse = "\n")
+  #
+  if (forest)
+    text
+  else if (length(lines) > 0)
+    cat(text, "\n\n", sep = "")
 }
 
 formatCI <- function(lower, upper,

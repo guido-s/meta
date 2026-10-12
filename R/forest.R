@@ -93,8 +93,9 @@
 #'   units using \code{pscale} or \code{irscale}.
 #' @param xlab.pos A numeric specifying the center of the label on the
 #'   x-axis.
-#' @param main A title for the forest plot; by default using list element
-#'   'title' from the meta-analysis object \code{x}.
+#' @param main A title for the forest plot (see Details).
+#' @param main.prefix A logical indicating whether to add a pre-defined prefix
+#'   to title lines (see Details).
 #' @param col.main The colour of the main title.
 #' @param xpos.main Horizontal position of title.
 #' @param gap.main Number of empty rows between title and column headings.
@@ -735,7 +736,7 @@
 #' the argument \code{device.args}.
 #' }
 #' 
-#' \subsection{Default forest plot layout (layout = "meta")}{
+#' \subsection{Default forest plot layout}{
 #' 
 #' By default, treatment estimates and confidence intervals are
 #' plotted in the following way:
@@ -767,99 +768,101 @@
 #' graphical presentation of prediction intervals the approach by
 #' Guddat et al. (2012) is used.
 #' }
-#' 
-#' \subsection{Spacing below forest plot results}{
-#'
-#' Information on heterogeneity measures and statistical tests is printed
-#' below the meta-analysis results. Argument
-#' \code{addrows.below.overall} can be used to specify the number of
-#' empty rows between these results and the information below them.
-#' By default, \code{addrows.below.overall = NULL}; the function determines
-#' the required spacing automatically.
-#'
-#' The width of information printed in the leftmost column is considered
-#' automatically when calculating the width of the forest plot. Therefore,
-#' this information does not overlap with the forest plot or x-axis by
-#' default. The automatic calculation can be disabled with the relevant
-#' \code{calcwidth.*} arguments.
-#'
-#' Very wide text supplied to \code{xlab}, \code{label.left}, or
-#' \code{label.right} can extend beyond the graphics area. Such text is
-#' not covered by the width calculation for the leftmost column and may
-#' need to be shortened or formatted over multiple lines.
-#' }
-#' 
+#'   
 #' \subsection{Columns printed on left side of forest plot}{
 #'
-#' Argument \code{leftcols} can be used to specify columns which are
-#' printed on the left side of the forest plot. By default, i.e. if
-#' argument \code{leftcols} is \code{NULL} and \code{layout = "meta"},
-#' and depending on the class of the meta-analysis object (which is
-#' defined by the R function used to generate the object) a different
-#' set of \emph{\bold{columns}} is printed \emph{\bold{on the left
-#' side of the forest plot}}:
+#' Argument \code{leftcols} can be used to specify columns printed on the
+#' left side of the forest plot. By default, if \code{leftcols} is \code{NULL}
+#' and \code{layout = "meta"}, the following columns are printed on the
+#' left side of the forest plot. These column names can also be used
+#' in argument \code{leftcols} or \code{rightcols}:
+#' 
 #' \tabular{ll}{
-#' \bold{Function} \tab \bold{Value of argument leftcols} \cr
-#' \code{\link{metabin}} \tab \code{c("studlab", "event.e", "n.e",
-#'   "event.c", "n.c")} \cr
-#' \code{\link{metacont}} \tab \code{c("studlab", "n.e", "mean.e",
-#'   "sd.e", "n.c", "mean.c", "sd.c")} \cr
-#' \code{\link{metacor}} \tab \code{c("studlab", "n")} \cr
-#' \code{\link{metagen}} \tab \code{c("studlab", "TE", "seTE")} \cr
-#' \code{\link{metainc}} \tab \code{c("studlab", "event.e", "time.e",
-#'   "event.c", "time.c")} \cr
-#' \code{\link{metamean}} \tab \code{c("studlab", "n", "mean", "sd")}
-#'   \cr
-#' \code{\link{metaprop}} \tab \code{c("studlab", "event", "n")} \cr
-#' \code{\link{metarate}} \tab \code{c("studlab", "event", "time", "n")}
+#' \bold{Column} \tab \bold{Description} \cr
+#' \code{"studlab"} \tab study labels \cr
+#' \ldots \tab outcome-specific columns \cr
+#' \code{"w.common"} \tab weights from the common effect model, if applicable \cr
+#' \code{"w.random"} \tab weights from the random-effects model, if applicable \cr
+#' \code{"effect"} \tab estimated effect in the study \cr
+#' \code{"ci"} \tab confidence interval for the estimated effect
+#' }
+#'
+#' Depending on the outcome, i.e., the class of the meta-analysis object
+#' determined by the function used to create it, the following
+#' outcome-specific columns are printed:
+#'
+#' \tabular{ll}{
+#' \bold{Function} \tab \bold{Default outcome-specific columns} \cr
+#' \code{\link{metabin}} \tab \code{"event.e"}, \code{"n.e"},
+#'   \code{"event.c"}, \code{"n.c"} \cr
+#' \code{\link{metacont}} \tab \code{"n.e"}, \code{"mean.e"}, \code{"sd.e"},
+#'   \code{"n.c"}, \code{"mean.c"}, \code{"sd.c"} \cr
+#' \code{\link{metacor}} \tab \code{"n"} \cr
+#' \code{\link{metagen}} \tab \code{"TE"}, \code{"seTE"} \cr
+#' \code{\link{metainc}} \tab \code{"event.e"}, \code{"time.e"},
+#'   \code{"event.c"}, \code{"time.c"} \cr
+#' \code{\link{metamean}} \tab \code{"n"}, \code{"mean"}, \code{"sd"} \cr
+#' \code{\link{metaprop}} \tab \code{"event"}, \code{"n"} \cr
+#' \code{\link{metarate}} \tab \code{"event"}, \code{"time"}, \code{"n"}
 #' }
 #'
 #' For three-level models, the cluster variable is printed next to the
-#' study labels (value \code{"cluster"} in argument \code{leftcols}).
-#'
+#' study labels. It is specified using \code{"cluster"} in argument
+#' \code{leftcols}.
+#' 
 #' By default, study labels and labels for pooled estimates and
 #' heterogeneity statistics will be printed in the first column on the
 #' left side of the forest plot. The character string \code{"studlab"}
 #' is used to identify study labels as this is the name of the list
 #' element of a meta-analysis object.
 #'
-#' If the character string \code{"studlab"} is not provided in
-#' \code{leftcols} and \code{rightcols}, the first \emph{additional}
-#' variable specified by the user is used as study labels (and labels
-#' for pooled estimates are printed in this column). Additional
-#' variables are any variables not mentioned in the section on
-#' predefined column names below. For example, \code{leftcols =
-#' "studlab"} and \code{leftcols = "study"} would result in the same
-#' forest plot if the variable \code{"study"} was used in the command
-#' to conduct the meta-analysis. If no additional variable is provided
-#' by the user, no study labels will be printed.
+#' If the character string \code{"studlab"} is not provided in either
+#' \code{leftcols} or \code{rightcols}, the first \emph{additional}
+#' variable specified by the user is used as the study labels. Labels
+#' for pooled estimates are also printed in this column. Additional
+#' variables are variables not listed among the predefined column names
+#' below. For example, \code{leftcols = "studlab"} and
+#' \code{leftcols = "study"} produce the same forest plot if
+#' \code{"study"} contains the study labels used in the meta-analysis.
+#' If no additional variable is provided, no study labels are printed.
 #' }
 #' 
 #' \subsection{Columns printed on right side of forest plot}{
 #' 
-#' Argument \code{rightcols} can be used to
-#' specify columns which are printed on the right side of the
-#' forest plot. If argument \code{rightcols} is
-#' \code{FALSE}, no columns will be printed on the right side. By
-#' default, i.e. if argument \code{rightcols} is
-#' \code{NULL} and \code{layout = "meta"}, the following
-#' \emph{\bold{columns}} will be printed \emph{\bold{on the right side
-#' of the forest plot}}:
-#' \tabular{ll}{
-#' \bold{Meta-analysis results} \tab \bold{Value of argument
-#'   rightcols} \cr
-#' No summary \tab \code{c("effect", "ci")} \cr
-#' Only common effect model \tab \code{c("effect", "ci", "w.common")}
-#'   \cr
-#' Only random effects model \tab \code{c("effect", "ci", "w.random")}
-#'   \cr
-#' Both models \tab \code{c("effect", "ci", "w.common", "w.random")}
+#' Argument \code{rightcols} can be used to specify columns printed on the
+#' right side of the forest plot. By default, if \code{rightcols} is
+#' \code{NULL} and \code{layout = "meta"}, no columns are printed on the
+#' right side; internally, \code{rightcols} is set to \code{FALSE}.
 #' }
 #'
-#' By default, estimated treatment effect and corresponding confidence
-#' interval will be printed. Depending on arguments \code{common} and
-#' \code{random}, weights of the common effect and/or random effects
-#' model will be given too.
+#' \subsection{Previous default forest plot layout (\code{layout = "meta8"})}{
+#'
+#' If \code{layout = "meta8"} is specified and both \code{leftcols} and
+#' \code{rightcols} are \code{NULL}, the previous default forest plot layout
+#' is used.
+#' 
+#' The following columns are printed on the left side of the forest plot.
+#' These column names can also be used in argument \code{leftcols} or
+#' \code{rightcols}:
+#' 
+#' \tabular{ll}{
+#' \bold{Column} \tab \bold{Description} \cr
+#' \code{"studlab"} \tab study labels \cr
+#' \ldots \tab outcome-specific columns
+#' }
+#' 
+#' See the section on the default forest plot layout (\code{layout = "meta"})
+#' for the outcome-specific columns.
+#' 
+#' The following columns are printed on the right side of the forest plot:
+#'
+#' \tabular{ll}{
+#' \bold{Column} \tab \bold{Description} \cr
+#' \code{"effect"} \tab estimated effect in the study \cr
+#' \code{"ci"} \tab confidence interval for the estimated effect \cr
+#' \code{"w.common"} \tab weights from the common effect model, if applicable \cr
+#' \code{"w.random"} \tab weights from the random effects model, if applicable
+#' }
 #' }
 #'
 #' \subsection{Predefined columns and column labels}{
@@ -914,6 +917,41 @@
 #' labels defined in the meta-analysis object are used. The columns
 #' where treatment labels are attached can be changed using arguments
 #' \code{label.e.attach} and \code{label.c.attach}.
+#' }
+#'
+#' \subsection{Spacing and width calculation}{
+#'
+#' Information on heterogeneity measures and statistical tests is printed
+#' below the meta-analysis results. Argument \code{addrows.below.overall} can
+#' be used to specify the number of empty rows between these results and the
+#' information below them. By default, no extra space is added.
+#'
+#' The width of information printed in the leftmost column is considered
+#' automatically when calculating the width of the forest plot. Therefore,
+#' this information does not overlap with the forest plot or x-axis by
+#' default. The automatic calculation can be disabled with the relevant
+#' \code{calcwidth.*} arguments.
+#'
+#' The widths of x-axis tick labels, \code{smlab}, \code{xlab},
+#' \code{label.left}, and \code{label.right} are also considered
+#' automatically. Additional space is allocated through the corresponding
+#' forest-plot gaps to avoid overlap with columns, statistics, details, or
+#' other plot elements. User-specified values for
+#' \code{colgap.forest.left} and \code{colgap.forest.right} take precedence
+#' over the automatic calculation.
+#' }
+#' 
+#' \subsection{Title of forest plot}{
+#' A title for the forest plot can be provided via argument \code{main}.
+#' If \code{main} is not specified, the title is generated from the general
+#' title, comparison label, and outcome label, i.e., the \code{title},
+#' \code{complab}, and \code{outclab} components of meta-analysis object
+#' \code{x}.
+#'
+#' If \code{main.prefix = TRUE} (the default), the prefixes
+#' \code{"Review:"}, \code{"Comparison:"}, and \code{"Outcome:"} are added
+#' automatically to the corresponding title lines. This can be prevented by
+#' setting \code{title.prefixes = FALSE}.
 #' }
 #'
 #' \subsection{Risk of bias assessment}{
@@ -1107,7 +1145,7 @@
 #' \enumerate{
 #' \item All columns are printed on the left side of the forest plot
 #'   (see arguments \code{leftcols} and \code{rightcols})
-#' \item The main title is center aligned (\code{just.main})
+#' \item The main title is left aligned (\code{just.main})
 #' \item Graph labels on right and left side are printed in bold font
 #'   at top of forest plot (see arguments \code{bottom.lr} and
 #'   \code{ff.lr})
@@ -1448,7 +1486,7 @@ forest.meta <- function(x,
                         #
                         xlab = NULL, xlab.pos,
                         #
-                        main = x$title,
+                        main, main.prefix = gs("main.prefix"),
                         col.main = gs("col.main"),
                         xpos.main = gs("xpos.main"),
                         gap.main = gs("gap.main"),
@@ -2099,7 +2137,7 @@ forest.meta <- function(x,
   #
   # Font sizes
   #
-  fs.main <- replaceNULL(fs.main, 1.1 * fontsize)
+  fs.main <- replaceNULL(fs.main, 1.25 * fontsize)
   fs.heading <- replaceNULL(fs.heading, fontsize)
   #
   if (!miss.fs.fixed) {
@@ -2377,6 +2415,12 @@ forest.meta <- function(x,
   chkcolor(col.label.left, length = 1)
   col.label.right <- replaceNULL(col.label.right, "black")
   chkcolor(col.label.right, length = 1)
+  #
+  main.prefix <-
+    replaceNULL(main.prefix,
+                !(is.null(x$complab) || identical(x$complab, "")) ||
+                  !(is.null(x$outclab) || identical(x$outclab, "")))
+  chklogical(main.prefix)
   
   
   #
@@ -3213,9 +3257,15 @@ forest.meta <- function(x,
   #
   chklogical(details)
   #
-  if (!is.null(main))
-    chkchar(main, length = 1)
+  # Title
+  #
+  missing.main <- missing(main)
+  if (missing.main || is.null(main))
+    main <- crtitle(x, prefix = main.prefix, forest = TRUE)
+  #
+  chkchar(main, length = 1)
   main <- replaceNULL(main, "")
+  #
   chknumeric(gap.main, min = 0, length = 1, integer = TRUE)
   chknumeric(lineheight.main, min = 0, zero = FALSE, length = 1)
   #
@@ -3309,7 +3359,8 @@ forest.meta <- function(x,
   #
   just <- setchar(just, gs("just"))
   just.cols <- just
-  just.main <- replaceNULL(just.main, if (revman5) "left" else "center")
+  just.main <-
+    replaceNULL(just.main, if (revman5.jama.meta9) "left" else "center")
   just.main <- setchar(just.main, gs("just"))
   just.studlab <- setchar(just.studlab, gs("just"))
   just.addcols <- setchar(just.addcols, gs("just"))
@@ -3914,8 +3965,7 @@ forest.meta <- function(x,
     smlab <- xlab_meta(sm, backtransf,
                        pscale = pscale,
                        irscale = irscale, irunit = irunit,
-                       newline = !bmj.revman5.jama.meta9,
-                       revman5 = bmj.revman5,
+                       newline = !bmj.revman5, revman5 = bmj.revman5,
                        big.mark = big.mark)
   }
   #

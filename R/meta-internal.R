@@ -694,6 +694,7 @@ argslist <-
     "bottom.lr",
     "lab.NA", "lab.NA.effect", "lab.NA.weight",
     "lwd", "lwd.square", "lwd.diamond",
+    "main.prefix",
     "arrow.type", "arrow.length",
     "type.study", "type.common",
     "col.study", "col.study.text", "col.square", "col.square.lines",
@@ -948,6 +949,8 @@ setOption("lab.NA.weight", ".")
 setOption("lwd", 1)
 setOption("lwd.square", 1)
 setOption("lwd.diamond", 1)
+#
+setOption("main.prefix", NULL)
 #
 setOption("arrow.type", "open")
 setOption("arrow.length", 0.05)

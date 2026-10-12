@@ -736,6 +736,8 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("lwd.square", 1)
     setOption("lwd.diamond", 1)
     #
+    setOption("main.prefix", NULL)
+    #
     setOption("arrow.type", "open")
     setOption("arrow.length", 0.05)
     #
@@ -1331,6 +1333,8 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("lwd.square             ")
     catarg("lwd.diamond            ")
     #
+    catarg("main.prefix            ")
+    #
     catarg("arrow.type             ")
     catarg("arrow.length           ")
     #
@@ -1676,6 +1680,8 @@ settings.meta <- function(..., quietly = TRUE) {
     setnumeric("lwd.square", args)
     setnumeric("lwd.diamond", args)
     #
+    setlogical("main.prefix", args, NULL.ok = TRUE)
+    #
     setcharacter("arrow.type", args)
     setnumeric("arrow.length", args)
     #
@@ -1785,7 +1791,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setlogical("calcwidth.addline", args)
     setlogical("calcwidth.details", args)
     #
-    setcharacter("just.main", args, gs("just"))
+    setcharacter("just.main", args, gs("just"), NULL.ok = TRUE)
     setcharacter("just.studlab", args, gs("just"))
     setcharacter("just.addcols", args, gs("just"))
     #

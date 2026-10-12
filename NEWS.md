@@ -40,7 +40,7 @@
   results when prediction intervals are requested and both common effect and
   random effects analyses are available.
 
-* R package meta now requires R (>= 4.1.0).
+* R package **meta* now requires R (>= 4.1.0).
 
 ### User-visible changes
 
@@ -197,9 +197,9 @@
     matching the argument order of backtransf()
 
 * settings.meta():
-  - new arguments 'col.main', 'just.main', 'xpos.main', 'gap.main',
-    'lineheight.main', 'fs.main', 'ff.main' to define defaults for the main
-    title of a forest plot
+  - new arguments 'main.prefix', 'col.main', 'just.main', 'xpos.main',
+    'gap.main', 'lineheight.main', 'fs.main', and 'ff.main' to define defaults
+    for the main title of a forest plot
 
 * forest.meta(), settings.meta():
   - font face arguments 'ff.xyz' are checked against values accepted by
@@ -398,6 +398,9 @@
     transformed proportions (sm = "PFT") and ordinary square root
     transformation logic for Freeman-Tukey transformed rates (sm = "IRFT")
     because harmonic mean changes with filled studies
+
+* crtitle():
+  - new arguments 'prefix' and 'forest'
 
 * formatN(), pasteCI():
   - argument 'text.NA' renamed to 'lab.NA'
