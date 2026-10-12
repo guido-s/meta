@@ -1043,7 +1043,7 @@ setOption("ff.addline", NULL)
 setOption("ff.axis", "plain")
 setOption("ff.smlab", "bold")
 setOption("ff.xlab", "plain")
-setOption("ff.lr", "plain")
+setOption("ff.lr", NULL)
 #
 setOption("colgap", "2mm")
 setOption("colgap.forest", "2mm")

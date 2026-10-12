@@ -2175,8 +2175,7 @@ forest.meta <- function(x,
     replaceNULL(ff.test.effect.subgroup, ff.hetstat)
   ff.addline <- replaceNULL(ff.addline, ff.hetstat)
   #
-  if (jama && (missing(ff.lr) || is.null(ff.lr)))
-    ff.lr <- "bold"
+  ff.lr <- replaceNULL(ff.lr, if (jama || bmj) "bold" else "plain")
   
   
   #
@@ -3908,34 +3907,16 @@ forest.meta <- function(x,
   if (backtransf && is_rate(sm))
     ref <- irscale * ref
   #
-  if (miss.xlab) {
-    if ((is_prop(sm) || sm == "RD") && pscale != 1)
-      xlab <- xlab_meta("PRAW", backtransf,
-                        pscale = pscale,
-                        newline = FALSE, revman5 = revman5,
-                        big.mark = big.mark)
-    else if ((is_rate(sm) || sm == "IRD") && irscale != 1)
-      xlab <- xlab_meta("IR", backtransf,
-                        irscale = irscale, irunit = irunit,
-                        newline = FALSE, revman5 = revman5,
-                        big.mark = big.mark)
-    else
-      xlab <- ""
-  }
+  if (miss.xlab && !jama)
+    xlab <- ""
   #
   if (!avail.smlab) {
-    if ((is_prop(sm) && pscale != 1) || (is_rate(sm) && irscale != 1))
-      smlab <- ""
-    else if (jama)
-      smlab <- xlab_meta(sm, backtransf,
-                         pscale = pscale,
-                         irscale = irscale, irunit = irunit,
-                         newline = TRUE, revman5 = FALSE,
-                         big.mark = big.mark)
-    else
-      smlab <- xlab_meta(sm, backtransf,
-                         newline = !bmj.revman5, revman5 = bmj.revman5,
-                         big.mark = big.mark)
+    smlab <- xlab_meta(sm, backtransf,
+                       pscale = pscale,
+                       irscale = irscale, irunit = irunit,
+                       newline = !bmj.revman5.jama.meta9,
+                       revman5 = bmj.revman5,
+                       big.mark = big.mark)
   }
   #
   print.label <- (label.left != "" | label.right != "") & !is.na(ref)
@@ -4056,9 +4037,6 @@ forest.meta <- function(x,
   sm.lab <- smlab(sm, backtransf, pscale, irscale,
                   func.backtransf = fbt, forest = TRUE)
   #
-  if (!avail.smlab && smlab == sm.lab)
-    smlab <- ""
-  #
   sel.studlab <-
     pmatch(layout, c("meta", "meta8", "BMJ", "RevMan5", "JAMA", "subgroup"))
   lab.studlab <-
@@ -4074,11 +4052,12 @@ forest.meta <- function(x,
   #
   ci.lab <- percent_label(level.ci)
   #
+  # Update smlab
+  #
   if (jama && miss.xlab) {
-    if (!is_prop(sm) && !is_rate(sm)) {
-      xlab <- smlab
-      smlab <- ""
-    }
+    xlab <- smlab
+    smlab <- ""
+    #
     bottom.lr <- FALSE
   }
   else {

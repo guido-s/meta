@@ -333,12 +333,12 @@ forest.metacum <- function(x,
       if (print.cidprop.above.null)
         leftcols <- c(leftcols, "prop.cid.above.null")
       #
-      if (layout %in% c("RevMan5", "JAMA", "BMJ"))
+      if (layout == "RevMan5" || layout == "JAMA")
         leftcols <- c(leftcols, "effect.ci")
-      else
+      else if (layout != "BMJ")
         leftcols <- c(leftcols, "effect", "ci")
       #
-      if (!pvalNA)
+      if (!pvalNA && layout != "BMJ")
         leftcols <- c(leftcols, "pval")
     }
   }
@@ -375,7 +375,13 @@ forest.metacum <- function(x,
   # Columns and labels on the right side
   #
   if (missing.rightcols) {
-    if (layout == "meta8") {
+    if (layout == "BMJ") {
+      rightcols <- c("effect.ci")
+      #
+      if (!pvalNA)
+        rightcols <- c(rightcols, "pval")
+    }
+    else if (layout == "meta8") {
       rightcols <- c("effect", "ci")
       #
       if (!pvalNA)

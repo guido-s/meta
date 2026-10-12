@@ -830,7 +830,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("ff.axis", "plain")
     setOption("ff.smlab", "bold")
     setOption("ff.xlab", "plain")
-    setOption("ff.lr", "plain")
+    setOption("ff.lr", NULL)
     #
     setOption("colgap", "2mm")
     setOption("colgap.forest", "2mm")
@@ -883,7 +883,7 @@ settings.meta <- function(..., quietly = TRUE) {
                  #
                  "arrow.type",
                  #
-                 "ff.lr", "zero.pval", "JAMA.pval",
+                 "zero.pval", "JAMA.pval",
                  #
                  "hetlab", "header.line"),
         new = list("BMJ",
@@ -917,7 +917,6 @@ settings.meta <- function(..., quietly = TRUE) {
                    #
                    replaceNULL(args[["arrow.type"]], "closed"),
                    #
-                   replaceNULL(args[["ff.lr"]], "bold"),
                    replaceNULL(args[["zero.pval"]], TRUE),
                    replaceNULL(args[["JAMA.pval"]], TRUE),
                    #

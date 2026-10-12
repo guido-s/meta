@@ -40,6 +40,8 @@
   results when prediction intervals are requested and both common effect and
   random effects analyses are available.
 
+* R package meta now requires R (>= 4.1.0).
+
 ### User-visible changes
 
 * metabin(), metacont(), metacor(), metagen(), metainc(), metamean(),
@@ -2069,7 +2071,7 @@ Revise web links
   - list elements 'method' and 'sm' had been encoded as a factor
     instead of character under R-versions below 4.0 which resulted in
     an error using metacr()
-   
+
 
 ### User-visible changes
 
