@@ -543,10 +543,15 @@ the argument \code{device.args}.
 \subsection{Default forest plot layout}{
 
 By default, treatment estimates and confidence intervals are
-plotted in the following way:
+plotted in the following way. The plot types can be specified with the
+named list \code{type}; see \code{\link{forest-formatting}} for the
+available list elements. The individual arguments \code{type.study},
+\code{type.common}, \code{type.random}, \code{type.subgroup},
+\code{type.subgroup.common}, and \code{type.subgroup.random} are also
+supported.
 \itemize{
 \item For an individual study, a square with treatment estimate in
-  the center and confidence interval as line extending either side
+  the center and confidence interval as a line extending either side
   of the square (\code{type.study = "square"})
 \item For overall meta-analysis results, a diamond is used by default
   (\code{type.common = "diamond"} and \code{type.random = "diamond"}).
@@ -677,27 +682,16 @@ the forest plot. For certain columns predefined labels exist which
 are used by default, i.e., if arguments \code{leftlabs} and
 \code{rightlabs} are \code{NULL}:
 \tabular{rccc}{
-Column: \tab \code{n.e}, \code{n.c}, \code{n} \tab
-  \code{mean.e}, \code{mean.c}, \code{mean} \tab
-  \code{sd.e}, \code{sd.c}, \code{sd} \cr 
-Label: \tab \code{gs("label.n")} \tab
-  \code{gs("label.mean")} \tab \code{gs("label.sd")} \cr
-\cr
-Column: \tab \code{event.e}, \code{event.c}, \code{event} \tab
-  \code{time.e}, \code{time.c}, \code{time} \tab \code{cor} \cr
-Label: \tab \code{gs("label.events")} \tab \code{gs("label.time")} \tab
-  \code{gs("label.cor")} \cr
-\cr
+Column: \tab \code{n.e}, \code{n.c}, \code{n} \tab \code{mean.e}, \code{mean.c}, \code{mean} \tab \code{sd.e}, \code{sd.c}, \code{sd} \cr
+Label: \tab \code{gs("label.n")} \tab \code{gs("label.mean")} \tab \code{gs("label.sd")} \cr
+Column: \tab \code{event.e}, \code{event.c}, \code{event} \tab \code{time.e}, \code{time.c}, \code{time} \tab \code{cor} \cr
+Label: \tab \code{gs("label.events")} \tab \code{gs("label.time")} \tab \code{gs("label.cor")} \cr
 Column: \tab \code{effect} \tab \code{ci} \tab \code{effect.ci} \cr
 Label: \tab \code{x$sm} \tab \code{x$level}"\% CI" \tab \emph{effect+ci} \cr
-\cr
 Column: \tab \code{cluster} \tab \code{cycles} \tab \code{pval} \cr
-Label: \tab \code{gs("label.cluster")} \tab \code{gs("label.cycles")} \tab
-  \code{gs("label.pval")} \cr
-\cr
+Label: \tab \code{gs("label.cluster")} \tab \code{gs("label.cycles")} \tab \code{gs("label.pval")} \cr
 Column: \tab \code{tau2} \tab \code{tau} \tab \code{I2} \cr
-Label: \tab \code{gs("label.tau2")} \tab \code{gs("label.tau")} \tab
-  \code{gs("label.I2")}
+Label: \tab \code{gs("label.tau2")} \tab \code{gs("label.tau")} \tab \code{gs("label.I2")} \cr
 }
 
 For the columns \code{studlab} (study labels), \code{TE}
@@ -724,25 +718,27 @@ where treatment labels are attached can be changed using arguments
 }
 
 \subsection{Spacing and width calculation}{
-
 Information on heterogeneity measures and statistical tests is printed
 below the meta-analysis results. Argument \code{addrows.below.overall} can
 be used to specify the number of empty rows between these results and the
 information below them. By default, no extra space is added.
 
-The width of information printed in the leftmost column is considered
-automatically when calculating the width of the forest plot. Therefore,
-this information does not overlap with the forest plot or x-axis by
-default. The automatic calculation can be disabled with the relevant
-\code{calcwidth.*} arguments.
+The width of information printed in the leftmost column is automatically
+included when calculating the width of the forest plot. Consequently, this
+information does not overlap with the forest plot or x-axis by default. The
+automatic calculation can be disabled using the relevant elements of
+\code{calcwidth}; see \code{\link{forest-formatting}}. Gaps between
+columns and plot elements can be adjusted with the named list
+\code{colgap} or the corresponding individual arguments.
 
 The widths of x-axis tick labels, \code{smlab}, \code{xlab},
 \code{label.left}, and \code{label.right} are also considered
 automatically. Additional space is allocated through the corresponding
 forest-plot gaps to avoid overlap with columns, statistics, details, or
-other plot elements. User-specified values for
-\code{colgap.forest.left} and \code{colgap.forest.right} take precedence
-over the automatic calculation.
+other plot elements. User-specified values supplied through either the
+\code{colgap} list elements \code{forest.left} and \code{forest.right} or
+the individual arguments \code{colgap.forest.left} and
+\code{colgap.forest.right} take precedence over the automatic calculation.
 }
 
 \subsection{Title of forest plot}{
@@ -794,8 +790,14 @@ the meta-analysis results if argument \code{overall.hetstat = TRUE}
 (default). The heterogeneity measures to print can be specified
 (see list of arguments following \code{overall.hetstat}).
 
-In addition, the following arguments can be used to print results
-for various statistical tests:
+In addition, results for various statistical tests can be printed using
+the named list \code{test}; see \code{\link{forest-formatting}} for the
+available list elements. The individual arguments \code{test.overall},
+\code{test.overall.common}, \code{test.overall.random},
+\code{test.subgroup}, \code{test.subgroup.common},
+\code{test.subgroup.random}, \code{test.effect.subgroup},
+\code{test.effect.subgroup.common}, and
+\code{test.effect.subgroup.random} are also supported:
 \tabular{ll}{
 \bold{Argument} \tab \bold{Statistical test} \cr
 \code{test.overall.common} \tab Test for overall effect (common
@@ -824,9 +826,10 @@ differences}{
 
 Regions corresponding to minimal clinically important differences can be
 added to the forest plot using either argument \code{cid} or
-\code{cid.below.null} and \code{cid.above.null}. Input for the later arguments will
-be ignored if argument \code{cid} was specified. In this case, the values
-of \code{cid.below.null} and \code{cid.above.null} will be equal to
+\code{cid.below.null} and \code{cid.above.null}. Input for the later
+arguments will be ignored if argument \code{cid} was specified. In this case,
+the values of \code{cid.below.null} and \code{cid.above.null} will be equal
+to
 \itemize{
 \item \code{cid} and \code{1 / cid} for ratio measures,
 \item \code{cid} and \code{-cid} for difference measures.
@@ -888,10 +891,12 @@ order for subgroup results is the same as see in the forest plot.
 
 \subsection{Additional general settings}{
 
-Arguments \code{text.common}, \code{text.random}, and
-\code{text.predict} can be used to change the label to identify
-overall results (common effect and random effects model as well as
-prediction interval). By default the following text is printed:
+The named list \code{text} can be used to change labels identifying
+overall results (common-effect and random-effects models) and prediction
+intervals; see \code{\link{forest-formatting}} for the available list
+elements. The individual arguments \code{text.common},
+\code{text.random}, and \code{text.predict} are also supported. By
+default, the following text is printed:
 \itemize{
 \item "Common effect model" (argument \code{text.common})
 \item "Random effects model" (\code{text.random})
@@ -1029,8 +1034,8 @@ forest(ma1)
 # a prediction interval
 #
 forest(ma1, layout = "RevMan5", common = FALSE,
-  label.left = "Favours experimental", col.label.left = "green",
-  label.right = "Favours control", col.label.right = "red",
+  label.left = "Favours experimental", label.right = "Favours control",
+  col = list(label.left = "green", label.right = "red"),
   prediction = TRUE)
 
 \dontrun{
@@ -1064,13 +1069,14 @@ forest(ma1, filename = "forest-ma1-3.pdf", width = 10, height = 3)
 # Define equivalence limits: 0.75 and 1 / 0.75
 #
 forest(ma1, layout = "RevMan5", common = FALSE,
-  cid = 0.75, fill = "lightgray", fill.cid = "white")
+  cid = 0.75, fill = list(fill = "lightgray", cid = "white"))
 
 # Fill regions with beneficial and detrimental effects
 #
 forest(ma1, layout = "RevMan5", common = FALSE,
-  cid = 0.75, fill = "lightgray", fill.cid = "white",
-  fill.cid.below.null = "green", fill.cid.above.null = "red")
+  cid = 0.75,
+  fill = list(fill = "lightgray", cid = "white",
+    cid.below.null = "green", cid.above.null = "red"))
 
 # Define thresholds for small, moderate and large effects
 # and use hcl.colors() to define colours to fill regions
@@ -1081,10 +1087,10 @@ forest(ma1, layout = "RevMan5", common = FALSE,
   label.left = "Desirable effect", label.right = "Undesirable effect",
   lty.cid = 3, col.cid = "darkgray",
   cid.below.null = thresholds, cid.above.null = 1 / rev(thresholds),
-  fill.cid.below.null =
-    hcl.colors(n.cols, palette = "Blues 2", alpha = 0.6),
-  fill.cid.above.null =
-    hcl.colors(n.cols, palette = "Oranges", alpha = 0.6, rev = TRUE))
+  fill = list(
+    cid.below.null = hcl.colors(n.cols, palette = "Blues 2", alpha = 0.6),
+    cid.above.null = hcl.colors(n.cols, palette = "Oranges", alpha = 0.6,
+      rev = TRUE))
 
 # Conduct subgroup meta-analysis
 #
@@ -1183,9 +1189,9 @@ forest(ma1,
 # Change some colours
 #
 forest(ma1,
-  col.diamond = "green", col.diamond.lines = "red",
-  col.study = c("green", "blue", "red", "orange"),
-  col.square = "pink", col.square.lines = "black")
+  col = list(diamond = "green", diamond.lines = "red",
+    study = c("green", "blue", "red", "orange"),
+    square = "pink", square.lines = "black"))
 
 # Sort by weight in common effect model
 #

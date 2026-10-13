@@ -1101,7 +1101,8 @@ warn_ignore_dots <- function(x, func = "") {
   invisible(NULL)
 }
 
-merge_legacy <- function(x, args, default, prefix, warn = FALSE) {
+merge_legacy <- function(x, args, default, prefix, inherit = NULL,
+                         warn = FALSE) {
   nam.x <- deparse(substitute(x))
   #
   if (is.null(x))
@@ -1139,6 +1140,35 @@ merge_legacy <- function(x, args, default, prefix, warn = FALSE) {
     miss[name] <- FALSE
     null[[name]] <- is.null(res[[name]])
     args[[old]] <- NULL
+  }
+
+  if (!is.null(inherit)) {
+    if (is.null(names(inherit)))
+      stop("Argument 'inherit' must be a named character vector.",
+           call. = FALSE)
+
+    for (pass in seq_len(length(inherit) + 1L)) {
+      changed <- FALSE
+
+      for (child in names(inherit)) {
+        parent <- inherit[[child]]
+
+        if (!(child %in% names(res)) || !(parent %in% names(res)))
+          stop("Unknown child or parent in argument 'inherit'.",
+               call. = FALSE)
+
+        if ((miss[[child]] || null[[child]]) && !is.null(res[[parent]])) {
+          changed <- changed ||
+            !identical(res[[child]], res[[parent]]) ||
+            null[[child]]
+          res[[child]] <- res[[parent]]
+          null[[child]] <- FALSE
+        }
+      }
+
+      if (!changed)
+        break
+    }
   }
   
   list(res = res, args = args, miss = miss, null = null)

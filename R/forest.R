@@ -318,10 +318,15 @@
 #' \subsection{Default forest plot layout}{
 #' 
 #' By default, treatment estimates and confidence intervals are
-#' plotted in the following way:
+#' plotted in the following way. The plot types can be specified with the
+#' named list \code{type}; see \code{\link{forest-formatting}} for the
+#' available list elements. The individual arguments \code{type.study},
+#' \code{type.common}, \code{type.random}, \code{type.subgroup},
+#' \code{type.subgroup.common}, and \code{type.subgroup.random} are also
+#' supported.
 #' \itemize{
 #' \item For an individual study, a square with treatment estimate in
-#'   the center and confidence interval as line extending either side
+#'   the center and confidence interval as a line extending either side
 #'   of the square (\code{type.study = "square"})
 #' \item For overall meta-analysis results, a diamond is used by default
 #'   (\code{type.common = "diamond"} and \code{type.random = "diamond"}).
@@ -452,27 +457,16 @@
 #' are used by default, i.e., if arguments \code{leftlabs} and
 #' \code{rightlabs} are \code{NULL}:
 #' \tabular{rccc}{
-#' Column: \tab \code{n.e}, \code{n.c}, \code{n} \tab
-#'   \code{mean.e}, \code{mean.c}, \code{mean} \tab
-#'   \code{sd.e}, \code{sd.c}, \code{sd} \cr 
-#' Label: \tab \code{gs("label.n")} \tab
-#'   \code{gs("label.mean")} \tab \code{gs("label.sd")} \cr
-#' \cr
-#' Column: \tab \code{event.e}, \code{event.c}, \code{event} \tab
-#'   \code{time.e}, \code{time.c}, \code{time} \tab \code{cor} \cr
-#' Label: \tab \code{gs("label.events")} \tab \code{gs("label.time")} \tab
-#'   \code{gs("label.cor")} \cr
-#' \cr
+#' Column: \tab \code{n.e}, \code{n.c}, \code{n} \tab \code{mean.e}, \code{mean.c}, \code{mean} \tab \code{sd.e}, \code{sd.c}, \code{sd} \cr
+#' Label: \tab \code{gs("label.n")} \tab \code{gs("label.mean")} \tab \code{gs("label.sd")} \cr
+#' Column: \tab \code{event.e}, \code{event.c}, \code{event} \tab \code{time.e}, \code{time.c}, \code{time} \tab \code{cor} \cr
+#' Label: \tab \code{gs("label.events")} \tab \code{gs("label.time")} \tab \code{gs("label.cor")} \cr
 #' Column: \tab \code{effect} \tab \code{ci} \tab \code{effect.ci} \cr
 #' Label: \tab \code{x$sm} \tab \code{x$level}"\% CI" \tab \emph{effect+ci} \cr
-#' \cr
 #' Column: \tab \code{cluster} \tab \code{cycles} \tab \code{pval} \cr
-#' Label: \tab \code{gs("label.cluster")} \tab \code{gs("label.cycles")} \tab
-#'   \code{gs("label.pval")} \cr
-#' \cr
+#' Label: \tab \code{gs("label.cluster")} \tab \code{gs("label.cycles")} \tab \code{gs("label.pval")} \cr
 #' Column: \tab \code{tau2} \tab \code{tau} \tab \code{I2} \cr
-#' Label: \tab \code{gs("label.tau2")} \tab \code{gs("label.tau")} \tab
-#'   \code{gs("label.I2")}
+#' Label: \tab \code{gs("label.tau2")} \tab \code{gs("label.tau")} \tab \code{gs("label.I2")} \cr
 #' }
 #'
 #' For the columns \code{studlab} (study labels), \code{TE}
@@ -499,25 +493,27 @@
 #' }
 #'
 #' \subsection{Spacing and width calculation}{
-#'
 #' Information on heterogeneity measures and statistical tests is printed
 #' below the meta-analysis results. Argument \code{addrows.below.overall} can
 #' be used to specify the number of empty rows between these results and the
 #' information below them. By default, no extra space is added.
 #'
-#' The width of information printed in the leftmost column is considered
-#' automatically when calculating the width of the forest plot. Therefore,
-#' this information does not overlap with the forest plot or x-axis by
-#' default. The automatic calculation can be disabled with the relevant
-#' \code{calcwidth.*} arguments.
+#' The width of information printed in the leftmost column is automatically
+#' included when calculating the width of the forest plot. Consequently, this
+#' information does not overlap with the forest plot or x-axis by default. The
+#' automatic calculation can be disabled using the relevant elements of
+#' \code{calcwidth}; see \code{\link{forest-formatting}}. Gaps between
+#' columns and plot elements can be adjusted with the named list
+#' \code{colgap} or the corresponding individual arguments.
 #'
 #' The widths of x-axis tick labels, \code{smlab}, \code{xlab},
 #' \code{label.left}, and \code{label.right} are also considered
 #' automatically. Additional space is allocated through the corresponding
 #' forest-plot gaps to avoid overlap with columns, statistics, details, or
-#' other plot elements. User-specified values for
-#' \code{colgap.forest.left} and \code{colgap.forest.right} take precedence
-#' over the automatic calculation.
+#' other plot elements. User-specified values supplied through either the
+#' \code{colgap} list elements \code{forest.left} and \code{forest.right} or
+#' the individual arguments \code{colgap.forest.left} and
+#' \code{colgap.forest.right} take precedence over the automatic calculation.
 #' }
 #' 
 #' \subsection{Title of forest plot}{
@@ -569,8 +565,14 @@
 #' (default). The heterogeneity measures to print can be specified
 #' (see list of arguments following \code{overall.hetstat}).
 #' 
-#' In addition, the following arguments can be used to print results
-#' for various statistical tests:
+#' In addition, results for various statistical tests can be printed using
+#' the named list \code{test}; see \code{\link{forest-formatting}} for the
+#' available list elements. The individual arguments \code{test.overall},
+#' \code{test.overall.common}, \code{test.overall.random},
+#' \code{test.subgroup}, \code{test.subgroup.common},
+#' \code{test.subgroup.random}, \code{test.effect.subgroup},
+#' \code{test.effect.subgroup.common}, and
+#' \code{test.effect.subgroup.random} are also supported:
 #' \tabular{ll}{
 #' \bold{Argument} \tab \bold{Statistical test} \cr
 #' \code{test.overall.common} \tab Test for overall effect (common
@@ -599,9 +601,10 @@
 #'
 #' Regions corresponding to minimal clinically important differences can be
 #' added to the forest plot using either argument \code{cid} or
-#' \code{cid.below.null} and \code{cid.above.null}. Input for the later arguments will
-#' be ignored if argument \code{cid} was specified. In this case, the values
-#' of \code{cid.below.null} and \code{cid.above.null} will be equal to
+#' \code{cid.below.null} and \code{cid.above.null}. Input for the later
+#' arguments will be ignored if argument \code{cid} was specified. In this case,
+#' the values of \code{cid.below.null} and \code{cid.above.null} will be equal
+#' to
 #' \itemize{
 #' \item \code{cid} and \code{1 / cid} for ratio measures,
 #' \item \code{cid} and \code{-cid} for difference measures.
@@ -663,10 +666,12 @@
 #' 
 #' \subsection{Additional general settings}{
 #' 
-#' Arguments \code{text.common}, \code{text.random}, and
-#' \code{text.predict} can be used to change the label to identify
-#' overall results (common effect and random effects model as well as
-#' prediction interval). By default the following text is printed:
+#' The named list \code{text} can be used to change labels identifying
+#' overall results (common-effect and random-effects models) and prediction
+#' intervals; see \code{\link{forest-formatting}} for the available list
+#' elements. The individual arguments \code{text.common},
+#' \code{text.random}, and \code{text.predict} are also supported. By
+#' default, the following text is printed:
 #' \itemize{
 #' \item "Common effect model" (argument \code{text.common})
 #' \item "Random effects model" (\code{text.random})
@@ -825,8 +830,8 @@
 #' # a prediction interval
 #' #
 #' forest(ma1, layout = "RevMan5", common = FALSE,
-#'   label.left = "Favours experimental", col.label.left = "green",
-#'   label.right = "Favours control", col.label.right = "red",
+#'   label.left = "Favours experimental", label.right = "Favours control",
+#'   col = list(label.left = "green", label.right = "red"),
 #'   prediction = TRUE)
 #' 
 #' \dontrun{
@@ -860,13 +865,14 @@
 #' # Define equivalence limits: 0.75 and 1 / 0.75
 #' #
 #' forest(ma1, layout = "RevMan5", common = FALSE,
-#'   cid = 0.75, fill = "lightgray", fill.cid = "white")
+#'   cid = 0.75, fill = list(fill = "lightgray", cid = "white"))
 #' 
 #' # Fill regions with beneficial and detrimental effects
 #' #
 #' forest(ma1, layout = "RevMan5", common = FALSE,
-#'   cid = 0.75, fill = "lightgray", fill.cid = "white",
-#'   fill.cid.below.null = "green", fill.cid.above.null = "red")
+#'   cid = 0.75,
+#'   fill = list(fill = "lightgray", cid = "white",
+#'     cid.below.null = "green", cid.above.null = "red"))
 #' 
 #' # Define thresholds for small, moderate and large effects
 #' # and use hcl.colors() to define colours to fill regions
@@ -877,10 +883,10 @@
 #'   label.left = "Desirable effect", label.right = "Undesirable effect",
 #'   lty.cid = 3, col.cid = "darkgray",
 #'   cid.below.null = thresholds, cid.above.null = 1 / rev(thresholds),
-#'   fill.cid.below.null =
-#'     hcl.colors(n.cols, palette = "Blues 2", alpha = 0.6),
-#'   fill.cid.above.null =
-#'     hcl.colors(n.cols, palette = "Oranges", alpha = 0.6, rev = TRUE))
+#'   fill = list(
+#'     cid.below.null = hcl.colors(n.cols, palette = "Blues 2", alpha = 0.6),
+#'     cid.above.null = hcl.colors(n.cols, palette = "Oranges", alpha = 0.6,
+#'       rev = TRUE))
 #' 
 #' # Conduct subgroup meta-analysis
 #' #
@@ -979,9 +985,9 @@
 #' # Change some colours
 #' #
 #' forest(ma1,
-#'   col.diamond = "green", col.diamond.lines = "red",
-#'   col.study = c("green", "blue", "red", "orange"),
-#'   col.square = "pink", col.square.lines = "black")
+#'   col = list(diamond = "green", diamond.lines = "red",
+#'     study = c("green", "blue", "red", "orange"),
+#'     square = "pink", square.lines = "black"))
 #' 
 #' # Sort by weight in common effect model
 #' #
@@ -1093,12 +1099,12 @@ forest.meta <- function(x,
                         resid.hetstat = gs("resid.hetstat"),
                         resid.hetlab = gs("resid.hetlab"),
                         #
-                         just = NULL,
-                         fill = NULL,
-                         col = NULL,
-                         print = NULL,
-                         type = NULL,
-                         pooled = NULL,
+                        just = NULL,
+                        fill = NULL,
+                        col = NULL,
+                        print = NULL,
+                        type = NULL,
+                        pooled = NULL,
                         text = NULL,
                         lty = NULL,
                         lwd = NULL,
@@ -1129,12 +1135,12 @@ forest.meta <- function(x,
                         arrow.type = gs("arrow.type"),
                         arrow.length = gs("arrow.length"),
                         #
-                         plotwidth =
-                           if (layout %in% c("BMJ", "JAMA")) "8cm" else "6cm",
-                         #
-                         calcwidth = NULL,
-                         #
-                         colgap = NULL,
+                        plotwidth =
+                          if (layout %in% c("BMJ", "JAMA")) "8cm" else "6cm",
+                        #
+                        calcwidth = NULL,
+                        #
+                        colgap = NULL,
                         #
                         bmj.text = NULL,
                         bmj.sep = " / ",
@@ -1146,10 +1152,10 @@ forest.meta <- function(x,
                         addrows.below.overall = gs("addrows.below.overall"),
                         #
                         new = TRUE,
-                         #
-                         backtransf = x$backtransf,
-                         digits = NULL,
-                         #
+                        #
+                        backtransf = x$backtransf,
+                        digits = NULL,
+                        #
                         scientific.pval = gs("scientific.pval"),
                         big.mark = gs("big.mark"),
                         zero.pval =
@@ -1314,6 +1320,14 @@ forest.meta <- function(x,
   miss.hetstat <- missing(hetstat)
   miss.irscale <- missing(irscale)
   miss.label <- missing(label)
+  if (is.list(label)) {
+    if (!is.null(labels))
+      stop("Arguments 'label' and 'labels' cannot both be named lists.",
+           call. = FALSE)
+    labels <- label
+    label <- TRUE
+    miss.label <- FALSE
+  }
   #
   miss.leftcols <- missing(leftcols)
   avail.leftcols <-
@@ -1357,6 +1371,7 @@ forest.meta <- function(x,
   digits <- as_named_list(digits)
   fill <- as_named_list(fill)
   just <- as_named_list(just)
+  lwd <- as_named_list(lwd)
   #
   # Font sizes
   #
@@ -1603,68 +1618,6 @@ forest.meta <- function(x,
   #
   miss.col.cid <- miss.col$cid || null.col$cid
   #
-  if (miss.col.diamond.common && !is.null(col.diamond)) {
-    col.diamond.common <- col.diamond
-    miss.col.diamond.common <- FALSE
-  }
-  if (miss.col.diamond.random && !is.null(col.diamond)) {
-    col.diamond.random <- col.diamond
-    miss.col.diamond.random <- FALSE
-  }
-  if (miss.col.diamond.common.subgroup && !is.null(col.diamond.common)) {
-    col.diamond.common.subgroup <- col.diamond.common
-    miss.col.diamond.common.subgroup <- FALSE
-  }
-  if (miss.col.diamond.random.subgroup && !is.null(col.diamond.random)) {
-    col.diamond.random.subgroup <- col.diamond.random
-    miss.col.diamond.random.subgroup <- FALSE
-  }
-  if (miss.col.diamond.lines.common && !is.null(col.diamond.lines)) {
-    col.diamond.lines.common <- col.diamond.lines
-    miss.col.diamond.lines.common <- FALSE
-  }
-  if (miss.col.diamond.lines.common.subgroup &&
-      !is.null(col.diamond.lines.common)) {
-    col.diamond.lines.common.subgroup <- col.diamond.lines.common
-    miss.col.diamond.lines.common.subgroup <- FALSE
-  }
-  if (miss.col.diamond.lines.random && !is.null(col.diamond.lines)) {
-    col.diamond.lines.random <- col.diamond.lines
-    miss.col.diamond.lines.random <- FALSE
-  }
-  if (miss.col.diamond.lines.random.subgroup &&
-      !is.null(col.diamond.lines.random)) {
-    col.diamond.lines.random.subgroup <- col.diamond.lines.random
-    miss.col.diamond.lines.random.subgroup <- FALSE
-  }
-  if (miss.col.circle.lines && !is.null(col.circle)) {
-    col.circle.lines <- col.circle
-    miss.col.circle.lines <- FALSE
-  }
-  if (miss.col.inside.common && !is.null(col.inside)) {
-    col.inside.common <- col.inside
-    miss.col.inside.common <- FALSE
-  }
-  if (miss.col.inside.random && !is.null(col.inside)) {
-    col.inside.random <- col.inside
-    miss.col.inside.random <- FALSE
-  }
-  if (miss.col.predict.subgroup && !is.null(col.predict)) {
-    col.predict.subgroup <- col.predict
-    miss.col.predict.subgroup <- FALSE
-  }
-  if (miss.col.predict.lines.subgroup && !is.null(col.predict.lines)) {
-    col.predict.lines.subgroup <- col.predict.lines
-    miss.col.predict.lines.subgroup <- FALSE
-  }
-  if (miss.col.header.line && !is.null(col.lines)) {
-    col.header.line <- col.lines
-    miss.col.header.line <- FALSE
-  }
-  if (miss.col.jama.line && !is.null(col.subgroup)) {
-    col.jama.line <- col.subgroup
-    miss.col.jama.line <- FALSE
-  }
   #
   # Define labels
   #
@@ -1718,7 +1671,8 @@ forest.meta <- function(x,
   calcwidth.list <-
     merge_legacy(calcwidth, args,
                  calcwidth_defaults(common, random, overall, x$subgroup),
-                 "calcwidth")
+                 "calcwidth",
+                 inherit = c(common = "pooled", random = "pooled"))
   #
   calcwidth <- calcwidth.list$res
   args <- calcwidth.list$args
@@ -1737,7 +1691,12 @@ forest.meta <- function(x,
   #
   # colgap
   #
-  colgap.list <- merge_legacy(colgap, args, colgap_defaults(), "colgap")
+  colgap.list <-
+    merge_legacy(colgap, args, colgap_defaults(), "colgap",
+                 inherit = c(
+                   left = "colgap", right = "colgap",
+                   studlab = "colgap",
+                   forest.left = "forest", forest.right = "forest"))
   #
   colgaps <- colgap.list$res
   args <- colgap.list$args
@@ -1763,7 +1722,12 @@ forest.meta <- function(x,
   #
   # Justification
   #
-  just.list <- merge_legacy(just, args, just_defaults(layout), "just")
+  just.list <-
+    merge_legacy(
+      just, args, just_defaults(layout), "just",
+      inherit = c(
+        label.e = "just", label.c = "just",
+        addcols.left = "addcols", addcols.right = "addcols"))
   #
   justs <- just.list$res
   args <- just.list$args
@@ -1783,7 +1747,11 @@ forest.meta <- function(x,
   #
   # Digits
   #
-  digits.list <- merge_legacy(digits, args, digits_defaults(), "digits")
+  digits.list <-
+    merge_legacy(digits, args, digits_defaults(), "digits",
+                 inherit = c(
+                   cor = "digits", time = "digits", addcols = "digits",
+                   addcols.right = "addcols", addcols.left = "addcols"))
   #
   digitss <- digits.list$res
   args <- digits.list$args
@@ -1827,9 +1795,18 @@ forest.meta <- function(x,
   #
   # Print information on statistical tests
   #
-  test.list <- merge_legacy(test, args,
-                            test_defaults(x, common, random, overall,
-                                          bmj.revman5.jama.meta9), "test")
+  test.list <-
+    merge_legacy(test, args,
+                 test_defaults(x, common, random, overall,
+                               bmj.revman5.jama.meta9),
+                 "test",
+                 inherit =
+                   c(overall.common = "overall",
+                     overall.random = "overall",
+                     subgroup.common = "subgroup",
+                     subgroup.random = "subgroup",
+                     effect.subgroup.common = "effect.subgroup",
+                     effect.subgroup.random = "effect.subgroup"))
   #
   test <- test.list$res
   args <- test.list$args
@@ -1838,9 +1815,11 @@ forest.meta <- function(x,
   test.overall <- test$overall
   test.overall.common <- test$overall.common
   test.overall.random <- test$overall.random
+  #
   test.subgroup <- test$subgroup
   test.subgroup.common <- test$subgroup.common
   test.subgroup.random <- test$subgroup.random
+  #
   test.effect.subgroup <- test$effect.subgroup
   test.effect.subgroup.common <- test$effect.subgroup.common
   test.effect.subgroup.random <- test$effect.subgroup.random
@@ -1853,7 +1832,12 @@ forest.meta <- function(x,
   #
   # type
   #
-  type.list <- merge_legacy(type, args, type_defaults(study.results), "type")
+  type.list <-
+    merge_legacy(type, args, type_defaults(study.results), "type",
+                 inherit =
+                   c(random = "common",
+                     subgroup.common = "subgroup",
+                     subgroup.random = "subgroup"))
   #
   type <- type.list$res
   args <- type.list$args
@@ -1873,7 +1857,11 @@ forest.meta <- function(x,
   #
   # fill
   #
-  fill.list <- merge_legacy(fill, args, fill_defaults(), "fill")
+  fill.list <-
+    merge_legacy(
+      fill, args, fill_defaults(), "fill",
+      inherit = c(cid.below.null = "cid", cid.above.null = "cid",
+                  lower.equi = "equi", upper.equi = "equi"))
   #
   fills <- fill.list$res
   args <- fill.list$args
@@ -1913,7 +1901,11 @@ forest.meta <- function(x,
   #
   # text
   #
-  text.list <- merge_legacy(text, args, text_defaults(x), "text")
+  text.list <-
+    merge_legacy(
+      text, args, text_defaults(x), "text",
+      inherit =
+        c(common.w = "common", random.w = "random", predict.w = "predict"))
   #
   text <- text.list$res
   args <- text.list$args
@@ -2000,10 +1992,10 @@ forest.meta <- function(x,
   #
   col.diamond.common <-
     chksetVar(col.diamond.common, miss.col.diamond.common,
-              colors[2], func = chkcolor)
+              col.diamond, func = chkcolor)
   col.diamond.random <-
     chksetVar(col.diamond.random, miss.col.diamond.random,
-              colors[2], func = chkcolor)
+              col.diamond, func = chkcolor)
   col.diamond.common.subgroup <-
     chksetVar(col.diamond.common.subgroup, miss.col.diamond.common.subgroup,
               col.diamond.common, func = chkcolor)
@@ -2089,17 +2081,9 @@ forest.meta <- function(x,
                 n = K.all, one = TRUE)
   }
   #
-  if (miss.col.circle.lines) {
-    col.circle.lines <- colors[11]
-    #
-    if (length(col.circle.lines) == 1)
-      col.circle.lines <- rep(col.circle.lines, K.all)
-  }
-  else {
-    col.circle.lines <-
-      chksetVar(col.circle.lines, miss.col.circle.lines, colors[11],
-                func = chkcolor, n = K.all, one = TRUE)
-  }
+  col.circle.lines <-
+    chksetVar(col.circle.lines, miss.col.circle.lines, col.circle,
+              func = chkcolor, n = K.all, one = TRUE)
   #
   col.lines <-
     chksetVar(col.lines, miss.col.lines, colors[6], func = chkcolor, n = 1)
@@ -3401,6 +3385,23 @@ forest.meta <- function(x,
     label.left <- ""
   else
     chkchar(label.left, length = 1)
+  #
+  # Only print requested results
+  #
+  test.overall.common <- test.overall.common && common && overall
+  test.overall.random <- test.overall.random && random && overall
+  #
+  test.subgroup.common <- test.subgroup.common && test.subgroup && common
+  test.subgroup.random <- test.subgroup.random && test.subgroup && random
+  #
+  test.effect.subgroup.common <- test.effect.subgroup.common &&
+    test.effect.subgroup && common
+  test.effect.subgroup.random <-test.effect.subgroup.random &&
+    test.effect.subgroup && random
+  #
+  pooled.totals <- pooled.totals && (common || random)
+  #
+  # Additional settings
   #
   subgroup <- x$subgroup
   #
@@ -10005,16 +10006,11 @@ forest.meta <- function(x,
   calcwidth.common <- calcwidth.common && common
   calcwidth.random <- calcwidth.random && random
   calcwidth.predict <- calcwidth.predict && prediction
-  calcwidth.hetstat <-
-    calcwidth.hetstat &&
-    any(!is.na(c(yHetstat, yResidHetstat,
-                 if (by) yTE.hetstat.w else NA)))
-  calcwidth.tests <-
-    calcwidth.tests &&
+  calcwidth.hetstat <- calcwidth.hetstat &&
+    any(!is.na(c(yHetstat, yResidHetstat, if (by) yTE.hetstat.w else NA)))
+  calcwidth.tests <- calcwidth.tests &&
     any(!is.na(c(yOverall.common, yOverall.random,
-                 ySubgroup.common, ySubgroup.random,
-                 if (by) c(yTE.effect.common.w,
-                           yTE.effect.random.w) else NA)))
+                 ySubgroup.common, ySubgroup.random)))
   calcwidth.subgroup <- calcwidth.subgroup && by && any(!is.na(yBylab))
   calcwidth.addline <-
     calcwidth.addline && any(!is.na(c(yText.addline1, yText.addline2)))
@@ -10095,6 +10091,7 @@ forest.meta <- function(x,
   calcwidth.lines <- NULL
   calcwidth.text.lines <- NULL
   calcwidth.details.line <- NULL
+  #
   pooled.data.cols <- c(
     if (pooled.events)
       c("col.event.e", "col.event.c")
@@ -10144,34 +10141,45 @@ forest.meta <- function(x,
     any(leftcols %in% pooled.random.cols)
   #
   common.lines <- 1 + seq_len(n.com)
+  #
   del.lines <- c(del.lines, common.lines)
+  #
   if (calcwidth.common)
     calcwidth.text.lines <- c(calcwidth.text.lines, common.lines)
   #
   random.lines <- 1 + n.com + seq_len(n.ran)
+  #
   del.lines <- c(del.lines, random.lines)
+  #
   if (calcwidth.random)
     calcwidth.text.lines <- c(calcwidth.text.lines, random.lines)
   #
   predict.lines <- 1 + n.com + n.ran + seq_len(n.prd)
+  #
   del.lines <- c(del.lines, predict.lines)
+  #
   if (calcwidth.predict)
     calcwidth.text.lines <- c(calcwidth.text.lines, predict.lines)
   #
   overall.tests.lines <- 1 + n.com + n.ran + n.prd + seq(2)
   hetstat.lines <- 1 + n.com + n.ran + n.prd + 2 + seq(2)
+  #
   del.lines <- c(del.lines, hetstat.lines)
+  #
   if (calcwidth.hetstat)
     calcwidth.lines <- c(calcwidth.lines, hetstat.lines)
   #
-  tests.lines <- c(overall.tests.lines,
-                   1 + n.com + n.ran + n.prd + 4 + seq(2))
+  tests.lines <- c(overall.tests.lines, 1 + n.com + n.ran + n.prd + 4 + seq(2))
+  #
   del.lines <- c(del.lines, tests.lines)
+  #
   if (calcwidth.tests)
     calcwidth.lines <- c(calcwidth.lines, tests.lines)
   #
   addline.lines <- 1 + n.com + n.ran + n.prd + 2 + 4 + seq(2)
+  #
   del.lines <- c(del.lines, addline.lines)
+  #
   if (calcwidth.addline)
     calcwidth.lines <- c(calcwidth.lines, addline.lines)
   #
@@ -10179,8 +10187,7 @@ forest.meta <- function(x,
     details.lines <-
       1 + n.com + n.ran + n.prd + 2 + 4 + 2 + seq_along(text.details)
     #
-    del.lines <-
-      c(del.lines, details.lines)
+    del.lines <- c(del.lines, details.lines)
     #
     if (calcwidth.details)
       calcwidth.details.line <- details.lines[1]
@@ -10200,37 +10207,74 @@ forest.meta <- function(x,
   #
   if (by) {
     subgroup.lines <- nd + seq_len(n.by)
+    #
     del.lines <- c(del.lines, subgroup.lines)
+    #
     if (calcwidth.subgroup)
       calcwidth.lines <- c(calcwidth.lines, subgroup.lines)
     #
     common.lines.w <- nd + n.by + seq_len(n.by * n.com)
+    #
     del.lines <- c(del.lines, common.lines.w)
+    #
     if (calcwidth.common)
       calcwidth.lines <- c(calcwidth.lines, common.lines.w)
     #
     random.lines.w <- nd + n.by + n.by * n.com + seq_len(n.by * n.ran)
+    #
     del.lines <- c(del.lines, random.lines.w)
+    #
     if (calcwidth.random)
       calcwidth.lines <- c(calcwidth.lines, random.lines.w)
     #
     predict.lines.w <-
       nd + n.by + n.by * n.com + n.by * n.ran + seq_len(n.by * n.prd)
+    #
     del.lines <- c(del.lines, predict.lines.w)
+    #
     if (calcwidth.predict)
       calcwidth.lines <- c(calcwidth.lines, predict.lines.w)
     #
-    # test for effect (CE)
+    # Test for effect (CE)
+    #
     tests.lines.common.w <-
       nd + n.by + n.by * n.com + n.by * n.ran + n.by * n.prd +
       seq_len(n.by)
+    #
     del.lines <- c(del.lines, tests.lines.common.w)
-    # test for effect (RE)
+    #
+    # Test for effect (RE)
+    #
     tests.lines.random.w <-
       nd + n.by + n.by * n.com + n.by * n.ran + n.by * n.prd +
-      n.by + n.by + seq_len(n.by)
+      n.by + seq_len(n.by)
+    #
+    if (FALSE) {
+      cat("common.lines.w\n")
+      print(common.lines.w)
+      cat("random.lines.w\n")
+      print(random.lines.w)
+      cat("tests.lines.common.w\n")
+      print(tests.lines.common.w)
+      cat("tests.lines.random.w\n")
+      print(tests.lines.random.w)
+      #
+      cat("yTE.common.w\n")
+      print(yTE.common.w)
+      cat("yTE.random.w\n")
+      print(yTE.random.w)
+      cat("yTE.effect.common.w\n")
+      print(yTE.effect.common.w)
+      cat("yTE.effect.random.w\n")
+      print(yTE.effect.random.w)
+      cat("yTE.hetstat.w\n")
+      print(yTE.hetstat.w)
+    }
+    #
     del.lines <- c(del.lines, tests.lines.random.w)
+    #
     # Heterogeneity statistics
+    #
     hetstat.lines.w <-
       nd + n.by + n.by * n.com + n.by * n.ran + n.by * n.prd +
       n.by + n.by + seq_len(n.by)
@@ -10258,6 +10302,37 @@ forest.meta <- function(x,
                       c(pooled.data.cols, pooled.random.cols))
   #
   if (lsel) {
+    effect.lines <- integer()
+    if (by) {
+      effect.lines <- c(
+        yHead + yTE.effect.common.w[!is.na(yTE.effect.common.w)] + addrow,
+        yHead + yTE.effect.random.w[!is.na(yTE.effect.random.w)] + addrow
+      )
+      effect.lines <- unique(effect.lines)
+      del.lines <- c(del.lines, effect.lines)
+      del.lines <- unique(del.lines)
+      for (line.i in effect.lines)
+        cols.calc[["col.studlab"]]$labels[[line.i]]$label <- ""
+      calcwidth.lines <- setdiff(calcwidth.lines, effect.lines)
+      calcwidth.text.lines <- setdiff(calcwidth.text.lines, effect.lines)
+      del.lines <- c(
+        del.lines,
+        yOverall.common[!is.na(yOverall.common)],
+        yOverall.random[!is.na(yOverall.random)],
+        yHetstat[!is.na(yHetstat)],
+        yResidHetstat[!is.na(yResidHetstat)],
+        ySubgroup.common[!is.na(ySubgroup.common)],
+        ySubgroup.random[!is.na(ySubgroup.random)],
+        yBylab[!is.na(yBylab)],
+        yTE.common.w[!is.na(yTE.common.w)],
+        yTE.random.w[!is.na(yTE.random.w)],
+        yTE.predict.w[!is.na(yTE.predict.w)],
+        yHead + yTE.effect.common.w[!is.na(yTE.effect.common.w)] + addrow,
+        yHead + yTE.effect.random.w[!is.na(yTE.effect.random.w)] + addrow,
+        yHead + yTE.hetstat.w[!is.na(yTE.hetstat.w)] + addrow
+      )
+      del.lines <- unique(del.lines)
+    }
     width.left <- NULL
     width.left.cols <- vector("list", length(leftcols))
     width.calcwidth <- unit(0, "mm")

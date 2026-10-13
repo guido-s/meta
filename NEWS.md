@@ -3,12 +3,12 @@
 ### Major changes
 
 * The exact Mantel-Haenszel method is the new default for common effect
-  meta-analysis with a binary outcome; argument 'MH.exact' in metabin() is now
-  TRUE. Thus, continuity corrections are no longer added to cell frequencies
+  meta-analysis with a binary outcome; argument `MH.exact` in `metabin()` is now
+  `TRUE`. Thus, continuity corrections are no longer added to cell frequencies
   when calculating Mantel-Haenszel pooled estimates for studies with zero cells.
   For a single-study meta-analysis, a continuity correction is still used.
   Use `settings.meta("meta8")` to restore the previous behaviour.
-  
+
 * Defaults for forest plots have been revised. In the default layout
   (`layout = "meta"`), all default study-level columns are now printed on
   the left side of the forest plot. Details of the meta-analysis methods,
@@ -21,16 +21,21 @@
   forest plot. Columns specified in `rightcols` are removed from the left
   side if they would otherwise be printed on both sides.
 
-* metagen() now always stores 'null.effect' on the transformed analysis
+  Forest-plot formatting arguments can now also be supplied as named lists,
+  including `fs`, `ff`, `col`, `calcwidth`, `print`, `label`, `colgap`, `just`,
+  `digits`, `test`, `type`, `fill`, `pooled`, `text`, `lty`, and `lwd`. The
+  corresponding individual `list.element` arguments remain supported.
+
+* `metagen()` now always stores `null.effect` on the transformed analysis
   scale. If argument `transf = FALSE`, the supplied value is transformed
   before being stored.
 
-* Function asin2ir() renamed to ft2ir() to reflect that it is the inverse
+* Function `asin2ir()` renamed to `ft2ir()` to reflect that it is the inverse
   of the Freeman-Tukey transformation of incidence rates.
 
 * Forest plots can now include a customisable main title, using the
   meta-analysis title by default.
-  
+
 * Cluster-robust variance estimators are now available for univariate random
   effects meta-analysis and three-level models.
   ([Tipton and Pustejovsky, 2015](https://doi.org/10.3102/1076998615606099);
@@ -40,35 +45,35 @@
   results when prediction intervals are requested and both common effect and
   random effects analyses are available.
 
-* R package **meta* now requires R (>= 4.1.0).
+* R package **meta** now requires R (>= 4.1.0).
 
 ### User-visible changes
 
-* metabin(), metacont(), metacor(), metagen(), metainc(), metamean(),
-  metaprop(), metarate(), metareg(), update.meta():
-  - argument 'method.random.ci' can be equal to "CR0", "CR1", or "CR2" for
+* `metabin()`, `metacont()`, `metacor()`, `metagen()`, `metainc()`,
+  `metamean()`, `metaprop()`, `metarate()`, `metareg()`, `update.meta()`:
+  - argument `method.random.ci` can be equal to "CR0", "CR1", or "CR2" for
     cluster-robust variance estimators
-  - argument 'title' is used as default for argument 'main' in forest.meta()
+  - argument `title` is used as default for argument `main` in `forest.meta()`
 
-* forest.meta():
+* `forest.meta()`:
   - column spacing has been improved for `layout = "meta8"`
-  - for all layouts but `layout = "Revman5"`, information on tests for an
+  - for all layouts but `layout = "RevMan5"`, information on tests for an
     overall effect are printed before heterogeneity statistics
-  - new arguments 'main', 'just.main', 'xpos.main', 'gap.main', 'fs.main',
-    'ff.main', 'col.main', and 'lineheight.main' can be used to add and format
+  - new arguments `main`, `just.main`, `xpos.main`, `gap.main`, `fs.main`,
+    `ff.main`, `col.main`, and `lineheight.main` can be used to add and format
     a main title
-  - arguments 'smlab', 'xlab', 'label.left', and 'label.right' can contain
+  - arguments `smlab`, `xlab`, `label.left`, and `label.right` can contain
     more than two lines
   - visible labels for pooled estimates, heterogeneity statistics, tests,
     subgroup results, additional lines, and details are considered when
     calculating horizontal spacing; new defaults for arguments:
-    'calcwidth.predict', 'calcwidth.hetstat', 'calcwidth.tests',
-    'calcwidth.subgroup', 'calcwidth.addline', and 'calcwidth.details' are
-    TRUE
-  - argument 'calcwidth.pooled' prevents pooled labels from overlapping columns
+    `calcwidth.predict`, `calcwidth.hetstat`, `calcwidth.tests`,
+    `calcwidth.subgroup`, `calcwidth.addline`, and `calcwidth.details` are
+    `TRUE`
+  - argument `calcwidth.pooled` prevents pooled labels from overlapping columns
     containing pooled-row information by reserving additional space
-  - consider the width of treatment group labels (arguments 'label.e' and
-    'label.c' in meta-analysis functions) attached to columns when calculating
+  - consider the width of treatment group labels (arguments `label.e` and
+    `label.c` in meta-analysis functions) attached to columns when calculating
     column widths, and suppress these labels if the attached column already has
     a two-line heading
   - the default font size for x-axis tick labels matches the font size of
@@ -77,143 +82,143 @@
   - less vertical space is added below overall results in JAMA layout
   - allow different colours for multiple overall common effect and
     random effects diamonds, prediction intervals, and their outlines
-  - new argument 'col.study.text' to specify colours for text in individual
+  - new argument `col.study.text` to specify colours for text in individual
     study rows; excluded studies are printed in lightgrey by default
   - allow different colours for subgroup diamonds and prediction intervals
-    compared with overall results; new arguments 'col.diamond.common.subgroup',
-    'col.diamond.random.subgroup', 'col.diamond.lines.common.subgroup',
-    'col.diamond.lines.random.subgroup', 'col.predict.subgroup', and
-    'col.predict.lines.subgroup'
-  - arguments 'random.subgroup' and 'prediction.subgroup' can be logical
+    compared with overall results; new arguments `col.diamond.common.subgroup`,
+    `col.diamond.random.subgroup`, `col.diamond.lines.common.subgroup`,
+    `col.diamond.lines.random.subgroup`, `col.predict.subgroup`, and
+    `col.predict.lines.subgroup`
+  - arguments `random.subgroup` and `prediction.subgroup` can be logical
     matrices to select subgroup random effects estimates or prediction intervals
     separately for each available confidence- or prediction-interval method,
-    e.g., 'random.subgroup = df.random.w > 1'
+    e.g., `random.subgroup = df.random.w > 1`
   - center combined treatment-group headers over both columns in BMJ layout for
     meta-analyses of binary outcomes, continuous outcomes, or incidence rates
   - left-align the risk-of-bias table header
-  - new argument 'just.rob' to specify the justification of the risk-of-bias
+  - new argument `just.rob` to specify the justification of the risk-of-bias
     table heading; the heading now spans all risk-of-bias columns
-  - print labels for pooled estimates and heterogeneity or details on the left
-    side if study labels are printed on the right side, and suppress these
-    labels if argument 'leftcols' is FALSE
+  - print labels for pooled estimates and heterogeneity statistics or details on
+    the left side if study labels are printed on the right side, and suppress
+    these labels if argument `leftcols` is `FALSE`
   - the reporting base for event frequencies is printed in the forest plot using
     the JAMA layout for the meta-analysis of single proportions or rates
     [(issue #104)](https://github.com/guido-s/meta/issues/104)
   - print number of events per number of observations or person-time below
-    x-axis (argument 'xlab') instead of above the forest plot (argument 'smlab')
+    x-axis (argument `xlab`) instead of above the forest plot (argument `smlab`)
     [(related to issue #106)](https://github.com/guido-s/meta/issues/106)
-  - deprecated arguments '\*.fixed' and '\*.fixed.\*' have been removed. Use
-    the corresponding elements '\*.common' and '\*.common.\*' of the
-    'fs', 'ff', 'col', and 'label' lists instead.
+  - deprecated arguments `*.fixed` and `*.fixed.*` have been removed. Use
+    the corresponding elements `*.common` and `*.common.*` of the
+    `fs`, `ff`, `col`, and `label` lists instead.
 
-* forest.metacum():
-  - new arguments 'layout' and 'main' to select the forest plot layout and
+* `forest.metacum()`:
+  - new arguments `layout` and `main` to select the forest plot layout and
     specify its title
   - new arguments to control printing of heterogeneity statistics, their
     confidence intervals, and CID probabilities:
-    'print.I2', 'print.I2.ci', 'print.tau2', 'print.tau2.ci',
-    'print.tau', 'print.tau.ci', 'print.Q', 'print.pval.Q', and 'print.cidprop'
+    `print.I2`, `print.I2.ci`, `print.tau2`, `print.tau2.ci`,
+    `print.tau`, `print.tau.ci`, `print.Q`, `print.pval.Q`, and `print.cidprop`
   - use default colours for squares regardless of layout
     [(issue #96)](https://github.com/guido-s/meta/issues/96)
   - print the title "Cumulative Meta-Analysis"
 
-* forest.metainf():
+* `forest.metainf()`:
   - print the title "Leave-One-Out Meta-Analysis"
 
-* metagen():
-  - study-level confidence limits supplied in arguments 'lower' and 'upper'
-    are now retained only if arguments 'level' and 'level.ci' agree
+* `metagen()`:
+  - study-level confidence limits supplied in arguments `lower` and `upper`
+    are now retained only if arguments `level` and `level.ci` agree
     [(issue #99)](https://github.com/guido-s/meta/issues/99)
   - if they differ, confidence limits are recalculated using a normal
     approximation and a warning identifies the affected studies
     [(issue #99)](https://github.com/guido-s/meta/issues/99)
-  - print a warning if supplied values for 'TE', 'lower', and 'upper'
+  - print a warning if supplied values for `TE`, `lower`, and `upper`
     suggest that the treatment estimate is not approximately halfway between
     the confidence limits
     [(issue #99)](https://github.com/guido-s/meta/issues/99)
-  - correctly transform proportions supplied in arguments 'TE', 'lower', and
-    'upper' for Freeman-Tukey double arcsine transformed proportions
-    (sm = "PFT") if argument 'transf = FALSE'; sample sizes must be supplied
-    in argument 'n.e'
-  - stop with an error if argument 'n.c' is provided for meta-analysis of
+  - correctly transform proportions supplied in arguments `TE`, `lower`, and
+    `upper` for Freeman-Tukey double arcsine transformed proportions
+    (`sm = "PFT"`) if argument `transf = FALSE`; sample sizes must be supplied
+    in argument `n.e`
+  - stop with an error if argument `n.c` is provided for meta-analysis of
     single proportions, incidence rates, means, or correlations
-  - check argument 'null.effect' on the original scale for meta-analyses of
+  - check argument `null.effect` on the original scale for meta-analyses of
     single proportions, incidence rates, means, or correlations if argument
-    'transf = FALSE'
+    `transf = FALSE`
     [(issue #103)](https://github.com/guido-s/meta/issues/103)
 
-* metacor(), metamean(), metarate():
-  - use summary-measure specific checks for argument 'null.effect'
+* `metacor()`, `metamean()`, `metarate()`:
+  - use summary-measure specific checks for argument `null.effect`
     [(issue #103)](https://github.com/guido-s/meta/issues/103)
 
-* New setting 'log.prefix' allows users to define the prefix for
+* New setting `log.prefix` allows users to define the prefix for
   log-transformed effect measures. The default prefix is now "log" instead
   of "ln" in printouts and forest plots.
 
-* print.meta():
+* `print.meta()`:
   - print the type of meta-analysis in the details of the meta-analysis
-  - always print the null hypothesis if argument 'null.effect' is not NA
+  - always print the null hypothesis if argument `null.effect` is not `NA`
 
-* metabias():
+* `metabias()`:
   - report the response variable used in meta-regression for linear regression
     tests
-  - radial plot can be created for Deeks' test (arguments 'method = "Deeks"'
-    and 'plotit = TRUE')
+  - radial plot can be created for Deeks' test (arguments `method = "Deeks"`
+    and `plotit = TRUE`)
     [(pull #92)](https://github.com/guido-s/meta/pull/92)
 
-* drapery(), funnel.meta():
+* `drapery()`, `funnel.meta()`:
   - draw plots on the analysis scale but show back-transformed tick marks
     for transformed proportions, incidence rates, means, or correlations if
-    argument 'backtransf = TRUE'
+    argument `backtransf = TRUE`
     [(issue #102)](https://github.com/guido-s/meta/issues/102)
   - for these transformed summary measures, user-supplied x-limits in argument
-    'xlim' are interpreted on the original scale if argument 'backtransf = TRUE'
-  - new argument 'at' can be used in funnel.meta() to specify tick marks on the
-    x-axis
-  - new argument 'axes' can be used in drapery() to suppress axes and the plot
+    `xlim` are interpreted on the original scale if argument `backtransf = TRUE`
+  - new argument `at` can be used in `funnel.meta()` to specify tick marks on
+    the x-axis
+  - new argument `axes` can be used in `drapery()` to suppress axes and the plot
     box
 
-* bubble(), funnel.meta():
+* `bubble()`, `funnel.meta()`:
   - use the null effect stored in the meta-analysis object as default for the
     reference line in meta-analyses of single proportions, incidence rates,
     means, or correlations
     [(issue #102)](https://github.com/guido-s/meta/issues/102)
 
-* metaadd():
+* `metaadd()`:
   - function no longer available for Freeman-Tukey transformed
-    proportions (sm = "PFT") or rates (sm = "IRFT")
+    proportions (`sm = "PFT"`) or rates (`sm = "IRFT"`)
 
-* Functions that ignore additional arguments in argument '...' now print a
+* Functions that ignore additional arguments in argument `...` now print a
   warning if such arguments are supplied.
 
-* New function ir2ft() to calculate the Freeman-Tukey transformation of
-  incidence rates. If argument 'time' is not provided, the ordinary
+* New function `ir2ft()` to calculate the Freeman-Tukey transformation of
+  incidence rates. If argument `time` is not provided, the ordinary
   square-root transformation is calculated.
 
-* p2asin():
-  - new argument 'n' to calculate Freeman-Tukey double arcsine transformation
+* `p2asin()`:
+  - new argument `n` to calculate Freeman-Tukey double arcsine transformation
 
-* transf():
-  - new arguments 'n' and 'time' to pass these argument to p2asin() or ir2ft()
-    for summary measure "PFT" or "IRFT"
-  - new arguments 'n' and 'time' precede arguments 'func' and 'args',
-    matching the argument order of backtransf()
+* `transf()`:
+  - new arguments `n` and `time` to pass these argument to `p2asin()` or
+    `ir2ft()` for `sm = "PFT"` or `sm = "IRFT"`
+  - new arguments `n` and `time` precede arguments `func` and `args`,
+    matching the argument order of `backtransf()`
 
-* settings.meta():
-  - new arguments 'main.prefix', 'col.main', 'just.main', 'xpos.main',
-    'gap.main', 'lineheight.main', 'fs.main', and 'ff.main' to define defaults
+* `settings.meta()`:
+  - new arguments `main.prefix`, `col.main`, `just.main`, `xpos.main`,
+    `gap.main`, `lineheight.main`, `fs.main`, and `ff.main` to define defaults
     for the main title of a forest plot
 
-* forest.meta(), settings.meta():
-  - font face arguments 'ff.xyz' are checked against values accepted by
-    grid::gpar() and also allow integer values 1 to 4
+* `forest.meta()`, `settings.meta()`:
+  - font face arguments `ff.xyz` are checked against values accepted by
+    `grid::gpar()` and also allow integer values 1 to 4
 
 ### Bug fixes
 
-* forest.meta():
-  - do not automatically attach 'label.e' to the column 'n.e' with
-    sample sizes for meta-analysis objects created with metagen() if
-    sample sizes in control group ('n.c') are not provided
+* `forest.meta()`:
+  - do not automatically attach `label.e` to the column `n.e` with
+    sample sizes for meta-analysis objects created with `metagen()` if
+    sample sizes in control group (`n.c`) are not provided
   - print "IV" instead of "MH" for meta-analysis with binary outcome
     using the Mantel-Haenszel method, but only printing the results for the
     random effects model
@@ -222,142 +227,141 @@
     using the sample size method or a logistic regression with penalised
     likelihood
     [(issue #93)](https://github.com/guido-s/meta/issues/93)
-  - print labels defined in metarate() for meta-analysis of single incidence
+  - print labels defined in `metarate()` for meta-analysis of single incidence
     rates [(issue #97)](https://github.com/guido-s/meta/issues/97)
-  - show labels on the correct positions if argument 'backtransf = FALSE' for
-    meta-analyses conducted with metamean(), metaprop(), or metarate()
-  - show labels on the correct positions if argument 'backtransf = TRUE' and
-    argument 'pscale' or 'irscale' is used for meta-analyses conducted with
-    metaprop() or metarate()
+  - show labels on the correct positions if argument `backtransf = FALSE` for
+    meta-analyses conducted with `metamean()`, `metaprop()`, or `metarate()`
+  - show labels on the correct positions if argument `backtransf = TRUE` and
+    argument `pscale` or `irscale` is used for meta-analyses conducted with
+    `metaprop()` or `metarate()`
   - print "lnVR" and "SE(lnVR)" instead of "VE" and "SE(VE)" in forest plots
-    for meta-analysis objects created with metagen(sm = "VE")
+    for meta-analysis objects created with `metagen(sm = "VE")`
     [(issue #98)](https://github.com/guido-s/meta/issues/98)
-  - correctly clip diamonds for pooled estimates if argument 'xlim' excludes
+  - correctly clip diamonds for pooled estimates if argument `xlim` excludes
     the pooled estimate but includes one confidence limit
   - automatically accounts for the widths of x-axis tick labels, input to
-    arguments 'smlab', 'xlab', 'label.left', and 'label.right' when calculating
+    arguments `smlab`, `xlab`, `label.left`, and `label.right` when calculating
     forest plot spacing. User-specified values for arguments
-    'colgap.forest.left' and 'colgap.forest.right' take precedence over the
+    `colgap.forest.left` and `colgap.forest.right` take precedence over the
     automatic calculation
 
-* bubble(), forest.meta(), metabin(), metagen(), metainc(), metaprop(),
-  metarate(), print.meta(), print.summary.meta(), rd(), trimfill(),
-  update.meta():
-  - reject missing values in arguments 'pscale' and 'irscale'
+* `bubble()`, `forest.meta()`, `metabin()`, `metagen()`, `metainc()`,
+  `metaprop()`, `metarate()`, `print.meta()`, `print.summary.meta()`, `rd()`,
+   `trimfill()`, `update.meta()`:
+  - reject missing values in arguments `pscale` and `irscale`
 
-* forest.metacum(), forest.metainf():
-  - show prediction intervals if argument 'layout = "BMJ"'
+* `forest.metacum()`, `forest.metainf()`:
+  - show prediction intervals if argument `layout = "BMJ"`
     [(issue #96)](https://github.com/guido-s/meta/issues/96)
   - print number of events per number of observations or person-time instead of
     proportions or rates
     [(issue #106)](https://github.com/guido-s/meta/issues/106)
 
-* metaprop(), metarate():
+* `metaprop()`, `metarate()`:
   - use the harmonic mean of sample sizes or times to transform the null effect
-    for Freeman-Tukey transformed proportions (sm = "PFT") or rates
-    (sm = "IRFT")
+    for Freeman-Tukey transformed proportions (`sm = "PFT"`) or rates
+    (`sm = "IRFT"`)
     [(issue #102)](https://github.com/guido-s/meta/issues/102)
-  - respect argument 'exclude' when calculating the harmonic mean used to back
-    transform Freeman-Tukey transformed proportions (sm = "PFT") or rates
-    (sm = "IRFT")
+  - respect argument `exclude` when calculating the harmonic mean used to back
+    transform Freeman-Tukey transformed proportions (`sm = "PFT"`) or rates
+    (`sm = "IRFT"`)
   - calculate harmonic means for Freeman-Tukey transformed proportions
-    (sm = "PFT") or rates (sm = "IRFT") using only non-excluded studies with
+    (`sm = "PFT"`) or rates (`sm = "IRFT"`) using only non-excluded studies with
     both event counts and sample sizes or exposure times available
     [(pull #107)](https://github.com/guido-s/meta/pull/107)
 
-* metacont(), metamean():
+* `metacont()`, `metamean()`:
   - correctly identify studies with non-positive sample sizes or means
     [(issue #103)](https://github.com/guido-s/meta/issues/103)
 
-* metagen():
-  - correctly transform 'null.effect' when argument 'transf = FALSE'
+* `metagen()`:
+  - correctly transform `null.effect` when argument `transf = FALSE`
   - do not consider studies with infinite treatment estimates or standard
     errors in meta-analysis calculations
     [(issue #103)](https://github.com/guido-s/meta/issues/103)
 
-* print.meta(), forest.meta():
-  - correctly back-transform 'null.effect' from metagen() objects when
-    argument 'backtransf = TRUE'
+* `print.meta()`, `forest.meta()`:
+  - correctly back-transform `null.effect` from `metagen()` objects when
+    argument `backtransf = TRUE`
 
-* metacum(), metainf(), subgroup():
+* `metacum()`, `metainf()`, `subgroup()`:
   - correctly preserve all user-specified analysis settings and study-level
     information when reconstructing analyses for binary, continuous,
     incidence rate, proportion, rate, and generic meta-analyses
 
-* metacum(), metainf():
-  - preserve method details supplied to metacont() for standardized mean
-    differences, including 'method.smd', 'sd.glass', 'exact.smd', and
-    'pooledvar'
-  - preserve the value of 'irunit' supplied to metarate()
+* `metacum()`, `metainf()`:
+  - preserve method details supplied to `metacont()` for standardized mean
+    differences, including `method.smd`, `sd.glass`, `exact.smd`, and
+    `pooledvar`
+  - preserve the value of `irunit` supplied to `metarate()`
 
-* subgroup():
+* `subgroup()`:
   - correctly use subgroup harmonic exposure times for back-transformation
     of IRFT common-effect, random-effects, and prediction results
     [(pull #107)](https://github.com/guido-s/meta/pull/107)
   - preserve user-specified common-effect and random-effects weights
   - preserve the specified null effect for all supported meta-analysis types
 
-* summary.meta():
+* `summary.meta()`:
   - correctly identify PFT and IRFT meta-analysis objects and use the
     corresponding summary branches
     [(pull #107)](https://github.com/guido-s/meta/pull/107)
 
-* settings.meta():
-  - reject 'NULL' for numeric settings where 'NULL' is not an admissible value
+* `settings.meta()`:
+  - reject `NULL` for numeric settings where `NULL` is not an admissible value
 
-* pairwise():
-  - consider continuity correction in binary outcomes with summary measure "DOR"
-    or "VE" [(issue #94)](https://github.com/guido-s/meta/issues/94)
+* `pairwise()`:
+  - consider continuity correction in binary outcomes with summary measure
+    `"DOR"` or `"VE"` [(issue #94)](https://github.com/guido-s/meta/issues/94)
 
-* labbe():
-  - show common effect / random effects lines for summary measure "VE"
+* `labbe()`:
+  - show common effect / random effects lines for `sm = "VE"`
     [(issue #94)](https://github.com/guido-s/meta/issues/94)
 
-* drapery():
+* `drapery()`:
   - bug fix for erratic prediction region if the x-limits are too narrow
-  - back transform results for vaccine efficacy (sm = "VE")
+  - back transform results for vaccine efficacy (`sm = "VE"`)
     [(issue #94)](https://github.com/guido-s/meta/issues/94)
 
-* bubble():
-  - back transform results for vaccine efficacy (sm = "VE")
+* `bubble()`:
+  - back transform results for vaccine efficacy (`sm = "VE"`)
     [(issue #94)](https://github.com/guido-s/meta/issues/94)
   - back transform results for Freeman-Tukey transformed proportions
-    (sm = "PFT") or rates (sm = "IRFT") using study-specific sample
+    (`sm = "PFT"`) or rates (`sm = "IRFT"`) using study-specific sample
     sizes or times for individual studies and the corresponding harmonic mean
     for the meta-regression line
     [(issue #102)](https://github.com/guido-s/meta/issues/102)
-  - print the correct y-axis label if 'pscale' or 'irscale' differs from 1
+  - print the correct y-axis label if `pscale` or `irscale` differs from 1
     [(issue #105)](https://github.com/guido-s/meta/issues/105)
 
-* metabias():
+* `metabias()`:
   - use efficient score for risk ratio instead of odds ratio in meta-analysis
-    with binary outcome and vaccine efficacy (sm = "VE")
+    with binary outcome and vaccine efficacy (`sm = "VE"`)
     [(issue #94)](https://github.com/guido-s/meta/issues/94)
 
-* cidprop():
+* `cidprop()`:
   - transform decision thresholds for Freeman-Tukey transformed proportions
-    (sm = "PFT") or rates (sm = "IRFT") using the harmonic mean of sample sizes
-    or times
+    (`sm = "PFT"`) or rates (`sm = "IRFT"`) using the harmonic mean of sample
+    sizes or times
     [(issue #102)](https://github.com/guido-s/meta/issues/102)
 
-* plot.cidprop():
-  - back transform results for vaccine efficacy (sm = "VE")
+* `plot.cidprop()`:
+  - back transform results for vaccine efficacy (`sm = "VE"`)
     [(issue #94)](https://github.com/guido-s/meta/issues/94)
-  - input to arguments 'random' and 'prediction' was ignored
-  - input to argument 'xlim' determines the limits of the x-axis
+  - input to arguments `random` and `prediction` was ignored
+  - input to argument `xlim` determines the limits of the x-axis
     [(issue #94)](https://github.com/guido-s/meta/issues/94)
 
-* estimates():
+* `estimates()`:
   - return correct order of lower and upper confidence limits for
-    summary measure "VE" and 'backtransf = TRUE'
+    `sm = "VE"` and `backtransf = TRUE`
     [(issue #94)](https://github.com/guido-s/meta/issues/94)
 
-* blup.meta(), print.blup.meta():
-  - return correct order of lower and upper confidence limits for
-    summary measure "VE"
+* `blup.meta()`, `print.blup.meta()`:
+  - return correct order of lower and upper confidence limits for `sm = "VE"`
     [(issue #94)](https://github.com/guido-s/meta/issues/94)
 
-* ciClopperPearson(), ciPoisson():
+* `ciClopperPearson()`, `ciPoisson()`:
   - calculate confidence intervals only when both event counts and sample sizes
     or exposures times are available; otherwise return missing intervals
     [(pull #107)](https://github.com/guido-s/meta/pull/107)
@@ -368,45 +372,45 @@
 
 * R package **testthat** added to Suggests.
 
-* New internal function layout_colors() to define default colours for forest
+* New internal function `layout_colors()` to define default colours for forest
   plots.
 
-* New internal functions chknumeric_strict() and chkfontface() to check
+* New internal functions `chknumeric_strict()` and `chkfontface()` to check
   numeric arguments without missing or NULL values or font face arguments
 
-* New internal function warn_ignore_dots() to provide consistent warnings for
-  ignored arguments supplied via '...'.
+* New internal function `warn_ignore_dots()` to provide consistent warnings for
+  ignored arguments supplied via `...`.
 
-* New internal function percent_label() to format percentage labels.
+* New internal function `percent_label()` to format percentage labels.
 
-* chkchar(), chkcolor(), chklevel(), chknumeric():
-  - removed deprecated argument 'single'; replaced by argument 'length'
+* `chkchar()`, `chkcolor()`, `chklevel()`, `chknumeric()`:
+  - removed deprecated argument `single`; replaced by argument `length`
 
-* forest.meta():
-  - removed obsolete arguments 'bmj.xpos' and 'rob.xpos'; a warning is printed
-    if either is used and argument 'warn.deprecated = TRUE'
+* `forest.meta()`:
+  - removed obsolete arguments `bmj.xpos` and `rob.xpos`; a warning is printed
+    if either is used and argument `warn.deprecated = TRUE`
 
-* cidprop():
-  - for vaccine efficacy (sm = "VE"), defaults for 'cid.below.null' and
-    'cid.above.null' calculated from 'cid' are based on relative instead of
+* `cidprop()`:
+  - for vaccine efficacy (`sm = "VE"`), defaults for `cid.below.null` and
+    `cid.above.null` calculated from `cid` are based on relative instead of
     absolute distances from the null effect
     [(issue #94)](https://github.com/guido-s/meta/issues/94)
 
-* metaprop(), metarate():
+* `metaprop()`, `metarate()`:
   - store harmonic mean of sample sizes or times for Freeman-Tukey transformed
-    proportions (sm = "PFT") or rates (sm = "IRFT")
+    proportions (`sm = "PFT"`) or rates (`sm = "IRFT"`)
 
-* trimfill():
+* `trimfill()`:
   - use ordinary arcsine transformation logic for Freeman-Tukey double arcsine
-    transformed proportions (sm = "PFT") and ordinary square root
-    transformation logic for Freeman-Tukey transformed rates (sm = "IRFT")
+    transformed proportions (`sm = "PFT"`) and ordinary square root
+    transformation logic for Freeman-Tukey transformed rates (`sm = "IRFT"`)
     because harmonic mean changes with filled studies
 
-* crtitle():
-  - new arguments 'prefix' and 'forest'
+* `crtitle()`:
+  - new arguments `prefix` and `forest`
 
-* formatN(), pasteCI():
-  - argument 'text.NA' renamed to 'lab.NA'
+* `formatN()`, `pasteCI()`:
+  - argument `text.NA` renamed to `lab.NA`
 
 
 ## meta, version 8.5-0 (2026-05-25)

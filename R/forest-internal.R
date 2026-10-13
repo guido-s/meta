@@ -1563,7 +1563,8 @@ newCol <- function(varname, label,
 }
 
 warn_only_subgroup <- function(x) {
-  x.name <- gsub("missing.", "", deparse(substitute(x)))
+  x.name <- gsub("^missing.", "", deparse(substitute(x)))
+  x.name <- gsub("^miss.", "", deparse(substitute(x)))
   #
   if (!x)
     warning("Argument '", x.name, "' only considered for ",
