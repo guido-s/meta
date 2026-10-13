@@ -22,22 +22,8 @@
 #'   should be plotted. This argument is useful in a meta-analysis
 #'   with subgroups if summaries should only be plotted on group
 #'   level.
-#' @param text.common A character string used in the plot to label the
-#'   pooled common effect estimate.
-#' @param text.random A character string used in the plot to label the
-#'   pooled random effects estimate.
-#' @param lty.common Line type of pooled common effect estimate.
-#' @param lty.random Line type of pooled random effects estimate.
-#' @param col.common Line colour of pooled common effect estimate.
-#' @param col.random Line colour of pooled random effects estimate.
-#' @param text.w.common A character string used to label weights of
-#'   common effect model.
-#' @param text.w.random A character string used to label weights of
-#'   random effects model.
 #' @param prediction A logical indicating whether a prediction
 #'   interval should be printed.
-#' @param text.predict A character string used in the plot to label
-#'   the prediction interval.
 #' @param subgroup A single logical or logical vector indicating
 #'   whether / which subgroup results should be shown in forest
 #'   plot. This argument is useful in a meta-analysis with subgroups
@@ -47,35 +33,12 @@
 #'   subgroups should be shown in forest plot. This argument is useful
 #'   in a meta-analysis with subgroups if heterogeneity statistics
 #'   should not be printed for (some) subgroups.
-#' @param print.subgroup.labels A logical indicating whether subgroup
-#'   label should be printed.
 #' @param subgroup.name A character string with a label for the
 #'   grouping variable.
-#' @param print.subgroup.name A logical indicating whether the name of
-#'   the grouping variable should be printed in front of the group
-#'   labels.
 #' @param sep.subgroup A character string defining the separator
 #'   between label and levels of grouping variable.
-#' @param text.subgroup A character vector or expression to label the subgroups.
-#'   The vector must be of the same length as the number of subgroups. Labels
-#'   are printed from top to bottom in the forest plot.
-#' @param text.common.w A character string to label the pooled common
-#'   effect estimate within subgroups, or a character vector of same
-#'   length as number of subgroups with corresponging labels.
-#' @param text.random.w A character string to label the pooled random
-#'   effect estimate within subgroups, or a character vector of same
-#'   length as number of subgroups with corresponging labels.
-#' @param text.predict.w A character string to label the prediction
-#'   interval within subgroups, or a character vector of same length
-#'   as number of subgroups with corresponging labels.
 #' @param sort.subgroup A logical indicating whether groups should be
 #'   ordered alphabetically.
-#' @param pooled.totals A logical indicating whether total number of
-#'   observations should be given in the figure.
-#' @param pooled.events A logical indicating whether total number of
-#'   events should be given in the figure.
-#' @param pooled.times A logical indicating whether total person time
-#'   at risk should be given in the figure.
 #' @param study.results A logical indicating whether results for
 #'   individual studies should be shown in the figure (useful to only
 #'   plot subgroup results).
@@ -96,7 +59,6 @@
 #' @param main A title for the forest plot (see Details).
 #' @param main.prefix A logical indicating whether to add a pre-defined prefix
 #'   to title lines (see Details).
-#' @param col.main The colour of the main title.
 #' @param xpos.main Horizontal position of title.
 #' @param gap.main Number of empty rows between title and column headings.
 #' @param lineheight.main Line height for the main title,
@@ -160,32 +122,8 @@
 #'   the null effect (see Details).
 #' @param cid.above.null A numeric value or vector specifying CID limits above
 #'   the null effect (see Details).
-#' @param lty.cid Line type for CID lines.
-#' @param col.cid Line colour for CID lines.
-#' @param fill.cid Colour(s) for regions below or above CID limits.
-#' @param fill.cid.below.null Colour of CID regions below null effect /
-#'   reference value. Can be equal to the number of lower limits or
-#'   the number of limits plus 1 (in this case the region between
-#'   minimum and smallest limit is also filled).
-#' @param fill.cid.above.null Colour of CID regions above null effect /
-#'   reference value. Can be equal to the number of upper limits or the
-#'   number of limits plus 1 (in this case the region between largest
-#'   limit and maximum is also filled).
 #' @param cid.pooled.only A logical indicating whether CID regions should only
 #'   be visible for pooled estimates or also individual studies.
-#' @param fill Colour for background of confidence interval plot (also used
-#'   as colour for region between CID limits if argument \code{fill.equi} was
-#'   not provided).
-#' @param fill.equi Colour(s) for region between limits of equivalence defined
-#'   by arguments \code{cid}, \code{cid.below.null} or \code{cid.above.null}.
-#' @param fill.lower.equi Colour of region between lower limit(s) and
-#'   reference value. Can be equal to the number of lower limits or
-#'   the number of limits plus 1 (in this case the the region between
-#'   minimum and smallest limit is also filled).
-#' @param fill.upper.equi Colour of region between reference value and
-#'   upper limit(s). Can be equal to the number of upper limits or the
-#'   number of limits plus 1 (in this case the region between largest
-#'   limit and maximum is also filled).
 #' @param leftcols A character vector specifying (additional) columns
 #'   to be printed on the left side of the forest plot or a logical
 #'   value (see Details).
@@ -198,15 +136,6 @@
 #' @param rightlabs A character vector specifying labels for
 #'   (additional) columns on right side of the forest plot (see
 #'   Details).
-#' @param label.e Label to be used for experimental group in table
-#'   heading.
-#' @param label.c Label to be used for control group in table heading.
-#' @param label.e.attach A character string or vector specifying the column
-#'   name(s) where label \code{label.e} should be attached to in table heading.
-#' @param label.c.attach A character string or vector specifying the column
-#'   name(s) where label \code{label.c} should be attached to in table heading.
-#' @param label.left Graph label on left side of null effect.
-#' @param label.right Graph label on right side of null effect.
 #' @param bottom.lr A logical indicating whether labels on right and
 #'   left side should be printed at bottom or top of forest plot.
 #' @param lab.NA A character string to label missing values.
@@ -219,78 +148,8 @@
 #' @param label A logical value indicating whether to draw the labels
 #'   on the tick marks, or an expression or character vector which
 #'   specify the labels to use. See \code{\link{grid.xaxis}}.
-#' @param col.label The colour of labels on the x-axis.
-#' @param type.study A character string or vector specifying how to
-#'   plot treatment effects and confidence intervals for individual
-#'   studies (see Details).
-#' @param type.common A character string specifying how to plot
-#'   treatment effect and confidence interval for common effect
-#'   meta-analysis (see Details).
-#' @param type.random A character string specifying how to plot
-#'   treatment effect and confidence interval for random effects
-#'   meta-analysis (see Details).
-#' @param type.subgroup A character string specifying how to plot
-#'   treatment effect and confidence interval for subgroup results
-#'   (see Details).
-#' @param type.subgroup.common A character string specifying how to
-#'   plot treatment effect and confidence interval for subgroup
-#'   results (common effect model).
-#' @param type.subgroup.random A character string specifying how to
-#'   plot treatment effect and confidence interval for subgroup
-#'   results (random effects model).
-#' @param col.study The colour for individual study results and
-#'   confidence limits.
-#' @param col.study.text Colour(s) for text in individual study rows,
-#'   including study labels and study results; excluded studies are printed
-#'   in lightgrey by default unless the argument is provided.
-#' @param col.square The colour for squares reflecting study's weight
-#'   in the meta-analysis.
-#' @param col.square.lines The colour for the outer lines of squares
-#'   reflecting study's weight in the meta-analysis.
-#' @param col.circle The colour for circles reflecting study weights
-#'   in the meta-analysis.
-#' @param col.circle.lines The colour for the outer lines of circles
-#'   reflecting study's weight in the meta-analysis.
-#' @param col.inside The colour for individual study results and
-#'   confidence limits if confidence limits are completely within
-#'   squares.
-#' @param col.inside.common The colour for result of common effect
-#'   meta-analysis if confidence limit lies completely within square.
-#' @param col.inside.random The colour for result of random effects
-#'   meta-analysis if confidence limit lies completely within square.
-#' @param col.diamond The colour of diamonds representing the results
-#'   for common effect and random effects models.
-#' @param col.diamond.common The colour(s) of diamonds for common effect
-#'   estimates.
-#' @param col.diamond.common.subgroup The colour(s) of diamonds for common
-#'   effect estimates in subgroups.
-#' @param col.diamond.random The colour(s) of diamonds for random effects
-#'   estimates.
-#' @param col.diamond.random.subgroup The colour(s) of diamonds for random
-#'   effects estimates in subgroups.
-#' @param col.diamond.lines The colour of the outer lines of diamonds
-#'   representing the results for common effect and random effects
-#'   models.
-#' @param col.diamond.lines.common The colour(s) of the outer lines of
-#'   diamond for common effect estimate.
-#' @param col.diamond.lines.common.subgroup The colour(s) of the outer lines
-#'   of diamonds for common effect estimates in subgroups.
-#' @param col.diamond.lines.random The colour(s) of the outer lines of
-#'   diamond for random effects estimate.
-#' @param col.diamond.lines.random.subgroup The colour(s) of the outer lines
-#'   of diamonds for random effects estimates in subgroups.
-#' @param col.predict Background colour(s) of prediction intervals.
-#' @param col.predict.subgroup Background colour(s) of prediction intervals
-#'   in subgroups.
-#' @param col.predict.lines Colour(s) of outer lines of prediction
-#'   intervals.
-#' @param col.predict.lines.subgroup Colour(s) of outer lines of prediction
-#'   intervals in subgroups.
-#' @param col.subgroup The colour to print information on subgroups.
-#' @param col.label.left The colour of the label on the left side of the null
-#'   effect.
-#' @param col.label.right The colour of the label on the right side of the null
-#'   effect.
+#' @param col A named list specifying colours used in the forest
+#'   plot; see \code{\link{forest-formatting}}.
 #' @param hetstat Either a logical value indicating whether to print
 #'   results for heterogeneity measures at all or a character string
 #'   (see Details).
@@ -306,79 +165,25 @@
 #'   subgroups.
 #' @param resid.hetlab Label printed in front of results for residual
 #'   heterogeneity measures.
-#' @param print.I2 A logical value indicating whether to print the
-#'   value of the I-squared statistic.
-#' @param print.I2.ci A logical value indicating whether to print the
-#'   confidence interval of the I-squared statistic.
-#' @param print.tau2 A logical value indicating whether to print the
-#'   value of the between-study variance \eqn{\tau^2}.
-#' @param print.tau2.ci A logical value indicating whether to print
-#'   the confidence interval of \eqn{\tau^2}.
-#' @param print.tau A logical value indicating whether to print
-#'   \eqn{\tau}, the square root of the between-study variance
-#'   \eqn{\tau^2}.
-#' @param print.tau.ci A logical value indicating whether to print the
-#'   confidence interval of \eqn{\tau}.
-#' @param print.Q A logical value indicating whether to print the
-#'   value of the heterogeneity statistic Q.
-#' @param print.pval.Q A logical value indicating whether to print the
-#'   p-value of the heterogeneity statistic Q.
-#' @param print.Rb A logical value indicating whether to print the
-#'   value of the Rb statistic.
-#' @param print.Rb.ci A logical value indicating whether to print the
-#'   confidence interval of the Rb statistic.
-#' @param label.n A character string specifying the column label for
-#'   the sample size.
-#' @param label.events A character string specifying the column label for
-#'   the number of events.
-#' @param label.mean A character string specifying the column label for
-#'   means.
-#' @param label.sd A character string specifying the column label for
-#'   standard deviations.
-#' @param label.cor A character string specifying the column label for
-#'   correlations.
-#' @param label.time A character string specifying the column label for
-#'   times.
-#' @param label.pval A character string specifying the column label for
-#'   p-values.
-#' @param label.tau2 A character string specifying the column label for
-#'   the between-study variance.
-#' @param label.tau A character string specifying the column label for
-#'   the between-study standard deviation.
-#' @param label.I2 A character string specifying the column label for
-#'   the heterogeneity statistic I2.
-#' @param label.cluster A character string specifying the column label for
-#'   the cluster variable.
-#' @param label.cycles A character string specifying the column label for
-#'   the number of cycles.
-#' @param text.subgroup.nohet A logical value or character string
-#'   which is printed to indicate subgroups with less than two studies
-#'   contributing to meta-analysis (and thus without
-#'   heterogeneity). If FALSE, heterogeneity statistics are printed
-#'   (with NAs).
+#' @param just A named list specifying justification settings; a character
+#'   string is also accepted for the common justification.
+#' @param fill A named list specifying fill settings; a scalar value is also
+#'   accepted.
+#' @param print A named list specifying which information to print in the forest
+#'   plot; see \code{\link{forest-formatting}}.
+#' @param type A named list specifying graphical types for study, pooled, and
+#'   subgroup results.
+#' @param pooled A named list specifying pooled totals and event/time settings.
+#' @param text A named list specifying text for pooled results, subgroup
+#'   results, and additional lines.
+#' @param lty A named list specifying line types.
+#' @param lwd A named list specifying line widths.
 #' @param LRT A logical value indicating whether to report
 #'   Likelihood-Ratio or Wald-type test of heterogeneity for
 #'   generalised linear mixed models.
-#' @param test.overall A logical value indicating whether to print
-#'   results of test for overall effect.
-#' @param test.overall.common A logical value indicating whether to
-#'   print results of test for overall effect (common effect model).
-#' @param test.overall.random A logical value indicating whether to
-#'   print results of test for overall effect (random effects model).
-#' @param label.test.overall.common Label printed in front of results
-#'   of test for overall effect (common effect model).
-#' @param label.test.overall.random Label printed in front of results
-#'   of test for overall effect (random effects model).
-#' @param print.stat A logical value indicating whether z- or t-value
-#'   for test of treatment effect should be printed.
-#' @param test.subgroup A logical value indicating whether to print
-#'   results of test for subgroup differences.
-#' @param test.subgroup.common A logical value indicating whether to
-#'   print results of test for subgroup differences (common effect
-#'   model).
-#' @param test.subgroup.random A logical value indicating whether to
-#'   print results of test for subgroup differences (random effects
-#'   model).
+#' @param test A named list specifying which results of statistical tests
+#'   should be printed; see \code{\link{forest-formatting}}.
+#' @param labels A named list specifying graph, column, and test labels.
 #' @param common.subgroup A single logical or logical vector
 #'   indicating whether / which common effect estimates should be
 #'   printed for subgroups.
@@ -388,138 +193,20 @@
 #' @param prediction.subgroup A single logical, logical vector, or logical
 #'   matrix indicating whether / which prediction intervals should be printed
 #'   for subgroups.
-#' @param print.tau2.ci.subgroup A single logical or logical vector
-#'   indicating whether / which confidence intervals for between-study
-#'   variances should be printed for subgroups.
-#' @param print.tau.ci.subgroup A single logical or logical vector
-#'   indicating whether / which confidence intervals for between-study
-#'   standard deviations should be printed for subgroups.
-#' @param print.Q.subgroup A logical value indicating whether to print
-#'   the value of the heterogeneity statistic Q (test for subgroup
-#'   differences).
-#' @param label.test.subgroup.common Label printed in front of results
-#'   of test for subgroup differences (common effect model).
-#' @param label.test.subgroup.random Label printed in front of results
-#'   of test for subgroup differences (random effects model).
-#' @param test.effect.subgroup A single logical or logical vector
-#'   indicating whether / which tests for effect in subgroups should
-#'   be printed.
-#' @param test.effect.subgroup.common A single logical or logical
-#'   vector indicating whether / which tests for effect in subgroups
-#'   should be printed (common effect model).
-#' @param test.effect.subgroup.random A single logical or logical
-#'   vector indicating whether / which tests for effect in subgroups
-#'   should be printed (random effects model).
-#' @param label.test.effect.subgroup.common Label printed in front of
-#'   results of test for effect in subgroups (common effect model).
-#' @param label.test.effect.subgroup.random Label printed in front of
-#'   results of test for effect in subgroups (random effects model).
-#' @param text.addline1 Text for first additional line (below
-#'   meta-analysis results).
-#' @param text.addline2 Text for second additional line (below
-#'   meta-analysis results).
 #' @param details A logical specifying whether details on statistical
 #'   methods should be printed.
-#' @param col.lines The colour of lines.
 #' @param header.line A logical value indicating whether to print a
 #'   header line or a character string ("both", "below", "").
-#' @param col.header.line Colour of the header line(s).
-#' @param col.jama.line Colour of the additional JAMA lines.
 #' @param data.pooled Data set with information for line(s) with pooled
 #'   results (see Details).
-#' @param fontsize The size of text (in points), see
-#'   \code{\link{gpar}}.
 #' @param fontfamily The font family, see \code{\link{gpar}}.
-#' @param fs.main The size of text for the main title, see \code{\link{gpar}}.
-#' @param fs.heading The size of text for column headings, see
-#'   \code{\link{gpar}}.
-#' @param fs.common The size of text for results of common effect
-#'   model, see \code{\link{gpar}}.
-#' @param fs.random The size of text for results of random effects
-#'   model, see \code{\link{gpar}}.
-#' @param fs.predict The size of text for results of prediction
-#'   interval, see \code{\link{gpar}}.
-#' @param fs.common.labels The size of text for label of common effect
-#'   model, see \code{\link{gpar}}.
-#' @param fs.random.labels The size of text for label of random
-#'   effects model, see \code{\link{gpar}}.
-#' @param fs.predict.labels The size of text for label of prediction
-#'   interval, see \code{\link{gpar}}.
-#' @param fs.study The size of text for results of individual studies,
-#'   see \code{\link{gpar}}.
-#' @param fs.study.labels The size of text for labels of individual
-#'   studies, see \code{\link{gpar}}.
-#' @param fs.hetstat The size of text for heterogeneity measures, see
-#'   \code{\link{gpar}}.
-#' @param fs.test.overall The size of text of test for overall effect,
-#'   see \code{\link{gpar}}.
-#' @param fs.test.subgroup The size of text of test of subgroup
-#'   differences, see \code{\link{gpar}}.
-#' @param fs.test.effect.subgroup The size of text of test of effect
-#'   in subgroups, see \code{\link{gpar}}.
-#' @param fs.addline The size of text for additional lines, see
-#'   \code{\link{gpar}}.
-#' @param fs.axis The size of text on x-axis, see \code{\link{gpar}}.
-#' @param fs.smlab The size of text of label for summary measure, see
-#'   \code{\link{gpar}}.
-#' @param fs.xlab The size of text of label on x-axis, see
-#'   \code{\link{gpar}}.
-#' @param fs.lr The size of text of label on left and right side of
-#'   forest plot, see \code{\link{gpar}}.
-#' @param fs.rob The size of text of risk of bias items in the legend,
-#'   see \code{\link{gpar}}.
-#' @param fs.rob.symbols The size of risk of bias symbols, see
-#'   \code{\link{gpar}}.
-#' @param fs.details The size of text for details on (meta-analysis)
-#'   methods, see \code{\link{gpar}}.
-#' @param ff.main The fontface of text for the main title,
-#'   see \code{\link{gpar}}.
-#' @param ff.heading The fontface for column headings, see
-#'   \code{\link{gpar}}.
-#' @param ff.common The fontface of text for results of common effect
-#'   model, see \code{\link{gpar}}.
-#' @param ff.random The fontface of text for results of random effects
-#'   model, see \code{\link{gpar}}.
-#' @param ff.predict The fontface of text for results of prediction
-#'   interval, see \code{\link{gpar}}.
-#' @param ff.common.labels The fontface of text for label of common
-#'   effect model, see \code{\link{gpar}}.
-#' @param ff.random.labels The fontface of text for label of random
-#'   effects model, see \code{\link{gpar}}.
-#' @param ff.predict.labels The fontface of text for label of
-#'   prediction interval, see \code{\link{gpar}}.
-#' @param ff.study The fontface of text for results of individual
-#'   studies, see \code{\link{gpar}}.
-#' @param ff.study.labels The fontface of text for labels of
-#'   individual studies, see \code{\link{gpar}}.
-#' @param ff.hetstat The fontface of text for heterogeneity measures,
-#'   see \code{\link{gpar}}.
-#' @param ff.test.overall The fontface of text of test for overall
-#'   effect, see \code{\link{gpar}}.
-#' @param ff.test.subgroup The fontface of text for test of subgroup
-#'   differences, see \code{\link{gpar}}.
-#' @param ff.test.effect.subgroup The fontface of text for test of
-#'   effect in subgroups, see \code{\link{gpar}}.
-#' @param ff.addline The fontface of text for additional lines, see
-#'   \code{\link{gpar}}.
-#' @param ff.axis The fontface of text on x-axis, see
-#'   \code{\link{gpar}}.
-#' @param ff.smlab The fontface of text of label for summary measure,
-#'   see \code{\link{gpar}}.
-#' @param ff.xlab The fontface of text of label on x-axis, see
-#'   \code{\link{gpar}}.
-#' @param ff.lr The fontface of text of label on left and right side
-#'   of forest plot, see \code{\link{gpar}}.
-#' @param ff.rob The fontface of text of risk of bias items, see
-#'   \code{\link{gpar}}.
-#' @param ff.rob.symbols The fontface of risk of bias symbols, see
-#'   \code{\link{gpar}}.
-#' @param ff.details The fontface for details on (meta-analysis)
-#'   methods, see \code{\link{gpar}}.
+#' @param fontsize The size of text (in points), see \code{\link{gpar}}.
+#' @param fs A named list specifying font sizes for elements of the forest
+#'   plot; see \code{\link{forest-formatting}}.
+#' @param ff A named list specifying fontfaces for elements of the forest
+#'   plot; see \code{\link{forest-formatting}}.
 #' @param squaresize A numeric used to increase or decrease the size
 #'   of squares in the forest plot.
-#' @param lwd.square The line width of the border around squares.
-#' @param lwd.diamond The line width of the border around diamonds.
 #' @param arrow.type A character string indicating whether arrows
 #'   printed for results outside the forest plot should be
 #'   \code{"open"}, or \code{"closed"}, can be abbreviated.
@@ -527,77 +214,10 @@
 #' @param plotwidth Either a character string, e.g., "8cm", "60mm", or
 #'   "3inch", or a \code{\link[grid]{unit}} object specifying width of
 #'   the forest plot.
-#' @param colgap Either a character string or a
-#'   \code{\link[grid]{unit}} object specifying gap between columns
-#'   printed on left and right side of forest plot.
-#' @param colgap.left Either a character string or a
-#'   \code{\link[grid]{unit}} object specifying gap between columns
-#'   printed on left side of forest plot.
-#' @param colgap.right Either a character string or a
-#'   \code{\link[grid]{unit}} object specifying gap between columns
-#'   printed on right side of forest plot.
-#' @param colgap.studlab Either a character string or a
-#'   \code{\link[grid]{unit}} object specifying gap between column
-#'   with study labels and subsequent column.
-#' @param colgap.forest Either a character string or a
-#'   \code{\link[grid]{unit}} object specifying gap between column
-#'   adjacent to forest plot and the forest plot.
-#' @param colgap.forest.left Either a character string or a
-#'   \code{\link[grid]{unit}} object specifying gap between column on
-#'   the left side of forest plot and the forest plot.
-#' @param colgap.forest.right Either a character string or a
-#'   \code{\link[grid]{unit}} object specifying gap between column on
-#'   the right side of forest plot and the forest plot.
-#' @param colgap.rob Either a character string or a
-#'   \code{\link[grid]{unit}} object specifying gap between risk of
-#'   bias columns.
-#' @param colgap.rob.overall Either a character string or a
-#'   \code{\link[grid]{unit}} object specifying gap before column with
-#'   overall risk of bias assessment.
-#' @param calcwidth.pooled A logical indicating whether text for
-#'   common effect and random effects model should be considered to
-#'   calculate width of the column with study labels.
-#' @param calcwidth.common A logical indicating whether text given in
-#'   arguments \code{text.common} and \code{text.common.w} should be
-#'   considered to calculate width of the column with study labels.
-#' @param calcwidth.random A logical indicating whether text given in
-#'   arguments \code{text.random} and \code{text.random.w} should be
-#'   considered to calculate width of the column with study labels.
-#' @param calcwidth.predict A logical indicating whether text given in
-#'   argument \code{text.predict} and \code{text.predict.w} should be
-#'   considered to calculate width of the column with study labels.
-#' @param calcwidth.hetstat A logical indicating whether text for
-#'   heterogeneity statistics should be considered to calculate width
-#'   of the column with study labels.
-#' @param calcwidth.tests A logical indicating whether text for tests
-#'   of overall effect or subgroup differences should be considered to
-#'   calculate width of the column with study labels.
-#' @param calcwidth.subgroup A logical indicating whether text with
-#'   subgroup labels should be considered to calculate width of the
-#'   column with study labels.
-#' @param calcwidth.addline A logical indicating whether text for
-#'   additional lines should be considered to calculate width of the
-#'   column with study labels.
-#' @param calcwidth.details A logical indicating whether the first line
-#'   of meta-analysis details should be considered to calculate width
-#'   of columns on the left side of the forest plot.
-#' @param just Justification of text in all columns but columns with
-#'   study labels and additional variables (admissible values: "left",
-#'   "right", "center").
-#' @param just.main Justification of title.
-#' @param just.studlab Justification of text for study labels.
-#' @param just.addcols Justification of text for additional columns.
-#' @param just.addcols.left Justification of text for additional
-#'   columns on left side of forest plot; can be of same length as number of
-#'   additional columns on left side of forest plot.
-#' @param just.addcols.right Justification of text for additional
-#'   columns on right side of forest plot; can be of same length as number of
-#'   additional columns on right side of forest plot.
-#' @param just.label.e Justification of text for experimental group in table
-#'   heading.
-#' @param just.label.c Justification of text for control group in table
-#'   heading.
-#' @param just.rob Justification of text for the risk of bias table heading.
+#' @param calcwidth A named list specifying which text is considered when
+#'   calculating column widths.
+#' @param colgap A named list specifying gaps between columns; a scalar value
+#'   is also accepted.
 #' @param bmj.text A character string used in the plot with BMJ layout
 #'   to label the group specific information.
 #' @param bmj.sep A character string used to separate sample sizes
@@ -620,49 +240,8 @@
 #'   than log odds ratios and results for \code{sm = "ZCOR"} are
 #'   presented as correlations rather than Fisher's z transformed
 #'   correlations, for example.
-#' @param digits Minimal number of significant digits for treatment
-#'   effects, see \code{print.default}.
-#' @param digits.se Minimal number of significant digits for standard
-#'   errors.
-#' @param digits.stat Minimal number of significant digits for z- or
-#'   t-statistic for test of overall effect.
-#' @param digits.pval Minimal number of significant digits for p-value
-#'   of overall treatment effect.
-#' @param digits.pval.Q Minimal number of significant digits for
-#'   p-value of heterogeneity test.
-#' @param digits.Q Minimal number of significant digits for
-#'   heterogeneity statistic Q.
-#' @param digits.tau2 Minimal number of significant digits for
-#'   between-study variance.
-#' @param digits.tau Minimal number of significant digits for square
-#'   root of between-study variance.
-#' @param digits.I2 Minimal number of significant digits for I-squared
-#'   statistic.
-#' @param digits.weight Minimal number of significant digits for
-#'   weights.
-#' @param digits.mean Minimal number of significant digits for means;
-#'   only applies to \code{\link{metacont}} objects.
-#' @param digits.sd Minimal number of significant digits for standard
-#'   deviations; only applies to \code{\link{metacont}} objects.
-#' @param digits.cor Minimal number of significant digits for
-#'   correlations; only applies to \code{\link{metacor}} objects.
-#' @param digits.time Minimal number of significant digits for times;
-#'   only applies to \code{\link{metainc}} and \code{\link{metarate}}
-#'   objects.
-#' @param digits.n Minimal number of significant digits for sample
-#'   sizes.
-#' @param digits.event Minimal number of significant digits for event
-#'   numbers.
-#' @param digits.TE Minimal number of significant digits for list
-#'   element 'TE'.
-#' @param digits.addcols A vector or scalar with minimal number of
-#'   significant digits for additional columns.
-#' @param digits.addcols.right A vector or scalar with minimal number
-#'   of significant digits for additional columns on right side of
-#'   forest plot.
-#' @param digits.addcols.left A vector or scalar with minimal number
-#'   of significant digits for additional columns on left side of
-#'   forest plot.
+#' @param digits A named list specifying digits used for displayed results; a
+#'   scalar value is also accepted.
 #' @param scientific.pval A logical specifying whether p-values should
 #'   be printed in scientific notation, e.g., 1.2345e-01 instead of
 #'   0.12345.
@@ -1392,11 +971,10 @@
 #' # Change some fontsizes and fontfaces
 #' #
 #' forest(ma1,
-#'   fs.study = 10, ff.study = "italic",
-#'   fs.study.label = 11, ff.study.label = "bold",
-#'   fs.axis = 5, ff.axis = "italic",
-#'   ff.smlab = "bold.italic",
-#'   ff.common = "plain", ff.hetstat = "plain")
+#'   fs = list(study = 10, study.label = 11, axis = 5), 
+#'   ff = list(study = "italic", study.label = "bold",
+#'     axis = "italic", smlab = "bold.italic",
+#'     common = "plain", hetstat = "plain"))
 #' 
 #' # Change some colours
 #' #
@@ -1447,35 +1025,15 @@ forest.meta <- function(x,
                         common = x$common,
                         random = x$random,
                         overall = x$overall,
-                        text.common = x$text.common,
-                        text.random = x$text.random,
-                        lty.common = gs("lty.common"),
-                        lty.random = gs("lty.random"),
-                        col.common = gs("col.common"),
-                        col.random = gs("col.random"),
-                        text.w.common = x$text.w.common,
-                        text.w.random = x$text.w.random,
-                        #
                         prediction = x$prediction,
-                        text.predict = x$text.predict,
                         #
                         subgroup = TRUE,
                         subgroup.hetstat =
                           subgroup & (is.character(hetstat) || hetstat),
-                        print.subgroup.labels = TRUE,
                         #
                         subgroup.name = x$subgroup.name,
-                        print.subgroup.name = x$print.subgroup.name,
                         sep.subgroup = x$sep.subgroup,
-                        text.subgroup = NULL,
-                        text.common.w = text.common,
-                        text.random.w = text.random,
-                        text.predict.w = text.predict,
                         sort.subgroup = gs("sort.subgroup"),
-                        #
-                        pooled.totals = common | random,
-                        pooled.events = gs("pooled.events"),
-                        pooled.times = gs("pooled.times"),
                         #
                         study.results = gs("study.results"),
                         #
@@ -1487,7 +1045,6 @@ forest.meta <- function(x,
                         xlab = NULL, xlab.pos,
                         #
                         main, main.prefix = gs("main.prefix"),
-                        col.main = gs("col.main"),
                         xpos.main = gs("xpos.main"),
                         gap.main = gs("gap.main"),
                         lineheight.main = gs("lineheight.main"),
@@ -1513,85 +1070,21 @@ forest.meta <- function(x,
                         cid = gs("cid"),
                         cid.below.null = gs("cid.below.null"),
                         cid.above.null = gs("cid.above.null"),
-                        lty.cid = gs("lty.cid"),
-                        col.cid = gs("col.cid"),
-                        fill.cid = gs("fill.cid"),
-                        fill.cid.below.null = fill.cid,
-                        fill.cid.above.null = rev(fill.cid),
                         cid.pooled.only = gs("cid.pooled.only"),
-                        #
-                        fill = gs("fill"),
-                        #
-                        fill.equi = gs("fill.equi"),
-                        fill.lower.equi = fill.equi,
-                        fill.upper.equi = rev(fill.equi),
                         #
                         leftcols = gs("leftcols"),
                         rightcols = gs("rightcols"),
                         leftlabs = gs("leftlabs"),
                         rightlabs = gs("rightlabs"),
                         #
-                        label.e = x$label.e,
-                        label.c = x$label.c,
-                        #
-                        label.e.attach = gs("label.e.attach"),
-                        label.c.attach = gs("label.c.attach"),
-                        #
-                        label.left = x$label.left,
-                        label.right = x$label.right,
                         bottom.lr = gs("bottom.lr"),
                         #
                         lab.NA = gs("lab.NA"),
                         lab.NA.effect = gs("lab.NA.effect"),
                         lab.NA.weight = gs("lab.NA.weight"),
                         #
-                        lwd = gs("lwd"),
-                        #
                         at = NULL,
                         label = TRUE,
-                        col.label = gs("col.label"),
-                        #
-                        type.study = gs("type.study"),
-                        type.common = gs("type.common"),
-                        type.random = type.common,
-                        type.subgroup =
-                          ifelse(study.results, "diamond", "square"),
-                        type.subgroup.common = type.subgroup,
-                        type.subgroup.random = type.subgroup,
-                        #
-                        col.study = gs("col.study"),
-                        col.study.text = gs("col.study.text"),
-                        col.square = gs("col.square"),
-                        col.square.lines = gs("col.square.lines"),
-                        col.circle = gs("col.circle"),
-                        col.circle.lines = col.circle,
-                        #
-                        col.inside = gs("col.inside"),
-                        col.inside.common = col.inside,
-                        col.inside.random = col.inside,
-                        #
-                        col.diamond = gs("col.diamond"),
-                        col.diamond.common = col.diamond,
-                        col.diamond.common.subgroup = col.diamond.common,
-                        col.diamond.random = col.diamond,
-                        col.diamond.random.subgroup = col.diamond.random,
-                        col.diamond.lines = gs("col.diamond.lines"),
-                        col.diamond.lines.common = col.diamond.lines,
-                        col.diamond.lines.common.subgroup =
-                          col.diamond.lines.common,
-                        col.diamond.lines.random = col.diamond.lines,
-                        col.diamond.lines.random.subgroup =
-                          col.diamond.lines.random,
-                        #
-                        col.predict = gs("col.predict"),
-                        col.predict.subgroup = col.predict,
-                        col.predict.lines = gs("col.predict.lines"),
-                        col.predict.lines.subgroup = col.predict.lines,
-                        #
-                        col.subgroup = gs("col.subgroup"),
-                        #
-                        col.label.left = x$col.label.left,
-                        col.label.right = x$col.label.right,
                         #
                         hetstat = common | random | overall.hetstat,
                         overall.hetstat =
@@ -1600,164 +1093,48 @@ forest.meta <- function(x,
                         resid.hetstat = gs("resid.hetstat"),
                         resid.hetlab = gs("resid.hetlab"),
                         #
-                        print.I2 = gs("forest.I2"),
-                        print.I2.ci = gs("forest.I2.ci"),
-                        print.tau2 = gs("forest.tau2"),
-                        print.tau2.ci = gs("forest.tau2.ci"),
-                        print.tau = gs("forest.tau"),
-                        print.tau.ci = gs("forest.tau.ci"),
-                        print.Q = gs("forest.Q"),
-                        print.pval.Q = gs("forest.pval.Q"),
-                        print.Rb = gs("forest.Rb"),
-                        print.Rb.ci = gs("forest.Rb.ci"),
-                        #
-                        label.n = gs("label.n"),
-                        label.events = gs("label.events"),
-                        label.mean = gs("label.mean"),
-                        label.sd = gs("label.sd"),
-                        label.cor = gs("label.cor"),
-                        label.time = gs("label.time"),
-                        label.pval = gs("label.pval"),
-                        label.tau2 = gs("label.tau2"),
-                        label.tau = gs("label.tau"),
-                        label.I2 = gs("label.I2"),
-                        label.cluster = gs("label.cluster"),
-                        label.cycles = gs("label.cycles"),
-                        #
-                        text.subgroup.nohet = gs("text.subgroup.nohet"),
+                         just = NULL,
+                         fill = NULL,
+                         col = NULL,
+                         print = NULL,
+                         type = NULL,
+                         pooled = NULL,
+                        text = NULL,
+                        lty = NULL,
+                        lwd = NULL,
+                        test = NULL,
+                        labels = NULL,
                         #
                         LRT = gs("LRT"),
-                        #
-                        test.overall = gs("test.overall"),
-                        test.overall.common = common & overall & test.overall,
-                        test.overall.random = random & overall & test.overall,
-                        label.test.overall.common,
-                        label.test.overall.random,
-                        #
-                        print.stat = gs("forest.stat"),
-                        #
-                        test.subgroup = x$test.subgroup,
-                        test.subgroup.common = test.subgroup & common,
-                        test.subgroup.random = test.subgroup & random,
                         #
                         common.subgroup = common,
                         random.subgroup = random,
                         prediction.subgroup = x$prediction.subgroup,
-                        print.tau2.ci.subgroup = gs("print.tau2.ci.subgroup"),
-                        print.tau.ci.subgroup = gs("print.tau.ci.subgroup"),
-                        #
-                        print.Q.subgroup = gs("forest.Q.subgroup"),
-                        label.test.subgroup.common,
-                        label.test.subgroup.random,
-                        #
-                        test.effect.subgroup = gs("test.effect.subgroup"),
-                        test.effect.subgroup.common,
-                        test.effect.subgroup.random,
-                        label.test.effect.subgroup.common,
-                        label.test.effect.subgroup.random,
-                        #
-                        text.addline1,
-                        text.addline2,
                         #
                         details = gs("forest.details"),
                         #
-                        col.lines = gs("col.lines"),
                         header.line,
-                        col.header.line = col.lines,
-                        col.jama.line = col.subgroup,
                         #
                         data.pooled = NULL,
                         #
                         fontsize = gs("fontsize"),
                         fontfamily = gs("fontfamily"),
                         #
-                        fs.main = gs("fs.main"),
-                        fs.heading = fontsize,
-                        fs.common = gs("fs.common"),
-                        fs.random = gs("fs.random"),
-                        fs.predict = gs("fs.predict"),
-                        fs.common.labels = gs("fs.common.labels"),
-                        fs.random.labels = gs("fs.random.labels"),
-                        fs.predict.labels = gs("fs.predict.labels"),
-                        fs.study = fontsize,
-                        fs.study.labels = fs.study,
-                        fs.hetstat = gs("fs.hetstat"),
-                        fs.test.overall = gs("fs.test.overall"),
-                        fs.test.subgroup = gs("fs.test.subgroup"),
-                        fs.test.effect.subgroup = gs("fs.test.effect.subgroup"),
-                        fs.addline = gs("fs.addline"),
-                        fs.axis = fontsize - 1,
-                        fs.smlab = fontsize,
-                        fs.xlab = fontsize,
-                        fs.lr = fontsize,
-                        fs.rob = gs("fs.rob"),
-                        fs.rob.symbols = gs("fs.rob.symbols"),
-                        fs.details = fontsize - 1,
-                        #
-                        ff.main = gs("ff.main"),
-                        ff.heading = "bold",
-                        ff.common = gs("ff.common"),
-                        ff.random = gs("ff.random"),
-                        ff.predict = gs("ff.predict"),
-                        ff.common.labels = gs("ff.common.labels"),
-                        ff.random.labels = gs("ff.random.labels"),
-                        ff.predict.labels = gs("ff.predict.labels"),
-                        ff.study = "plain",
-                        ff.study.labels = ff.study,
-                        ff.hetstat = gs("ff.hetstat"),
-                        ff.test.overall = gs("ff.test.overall"),
-                        ff.test.subgroup = gs("ff.test.subgroup"),
-                        ff.test.effect.subgroup = gs("ff.test.effect.subgroup"),
-                        ff.addline = gs("ff.addline"),
-                        ff.axis = gs("ff.axis"),
-                        ff.smlab = gs("ff.smlab"),
-                        ff.xlab = gs("ff.xlab"),
-                        ff.lr = gs("ff.lr"),
-                        ff.rob = "plain",
-                        ff.rob.symbols = "bold",
-                        ff.details = "plain",
+                        fs = NULL,
+                        ff = NULL,
                         #
                         squaresize =
                           if (layout == "BMJ") 0.9 / spacing else 0.8 / spacing,
-                        lwd.square = gs("lwd.square"),
-                        lwd.diamond = gs("lwd.diamond"),
                         #
                         arrow.type = gs("arrow.type"),
                         arrow.length = gs("arrow.length"),
                         #
-                        plotwidth =
-                          if (layout %in% c("BMJ", "JAMA")) "8cm" else "6cm",
-                        colgap = gs("colgap"),
-                        colgap.left = colgap,
-                        colgap.right = colgap,
-                        colgap.studlab = colgap.left,
-                        colgap.forest = gs("colgap.forest"),
-                        colgap.forest.left = colgap.forest,
-                        colgap.forest.right = colgap.forest,
-                        colgap.rob = "1mm",
-                        colgap.rob.overall = "2mm",
-                        #
-                        calcwidth.pooled =
-                          (common | random) &
-                          (overall | !is.null(x$subgroup)),
-                        calcwidth.common = calcwidth.pooled,
-                        calcwidth.random = calcwidth.pooled,
-                        calcwidth.predict = gs("calcwidth.predict"),
-                        calcwidth.hetstat = gs("calcwidth.hetstat"),
-                        calcwidth.tests  = gs("calcwidth.tests"),
-                        calcwidth.subgroup = gs("calcwidth.subgroup"),
-                        calcwidth.addline = gs("calcwidth.addline"),
-                        calcwidth.details = gs("calcwidth.details"),
-                        #
-                        just = if (layout == "JAMA") "left" else "right",
-                        just.main = gs("just.main"),
-                        just.studlab = gs("just.studlab"),
-                        just.addcols = gs("just.addcols"),
-                        just.addcols.left = just.addcols,
-                        just.addcols.right = just.addcols,
-                        just.label.e = just,
-                        just.label.c = just,
-                        just.rob = "left",
+                         plotwidth =
+                           if (layout %in% c("BMJ", "JAMA")) "8cm" else "6cm",
+                         #
+                         calcwidth = NULL,
+                         #
+                         colgap = NULL,
                         #
                         bmj.text = NULL,
                         bmj.sep = " / ",
@@ -1769,33 +1146,10 @@ forest.meta <- function(x,
                         addrows.below.overall = gs("addrows.below.overall"),
                         #
                         new = TRUE,
-                        #
-                        backtransf = x$backtransf,
-                        digits = gs("digits.forest"),
-                        digits.se = gs("digits.se"),
-                        digits.stat = gs("digits.stat"),
-                        digits.pval = gs("digits.pval"),
-                        digits.pval.Q = gs("digits.pval.Q"),
-                        digits.Q = gs("digits.Q"),
-                        digits.tau2 = gs("digits.tau2"),
-                        digits.tau = gs("digits.tau"),
-                        digits.I2 = gs("digits.I2"),
-                        digits.weight = gs("digits.weight"),
-                        #
-                        digits.mean = gs("digits.mean"),
-                        digits.sd = gs("digits.sd"),
-                        digits.cor = digits,
-                        digits.time = digits,
-                        #
-                        digits.n = 0,
-                        digits.event = 0,
-                        #
-                        digits.TE = gs("digits.TE.forest"),
-                        #
-                        digits.addcols = digits,
-                        digits.addcols.right = digits.addcols,
-                        digits.addcols.left = digits.addcols,
-                        #
+                         #
+                         backtransf = x$backtransf,
+                         digits = NULL,
+                         #
                         scientific.pval = gs("scientific.pval"),
                         big.mark = gs("big.mark"),
                         zero.pval =
@@ -1952,140 +1306,25 @@ forest.meta <- function(x,
   #
   # Logical variables for missing arguments
   #
-  miss.col.common <- missing(col.common) || is.null(col.common)
-  miss.col.random <- missing(col.random) || is.null(col.random)
-  #
-  miss.col.diamond <- missing(col.diamond) || is.null(col.diamond)
-  #
-  miss.col.diamond.common <-
-    missing(col.diamond.common) || is.null(col.diamond.common)
-  miss.col.diamond.common.subgroup <-
-    missing(col.diamond.common.subgroup) || is.null(col.diamond.common.subgroup)
-  miss.col.diamond.fixed <- is.na(argid(nam.args, "col.diamond.fixed"))
-  miss.col.diamond.random.subgroup <-
-    missing(col.diamond.random.subgroup) || is.null(col.diamond.random.subgroup)
-  #
-  miss.col.diamond.lines <- missing(col.diamond.lines) ||
-    is.null(col.diamond.lines)
-  #
-  miss.col.diamond.fixed.lines <-
-    is.na(argid(nam.args, "col.diamond.fixed.lines"))
-  miss.col.diamond.lines.common <- missing(col.diamond.lines.common) ||
-    is.null(col.diamond.lines.common)
-  miss.col.diamond.lines.common.subgroup <-
-    missing(col.diamond.lines.common.subgroup) ||
-    is.null(col.diamond.lines.common.subgroup)
-  miss.col.diamond.lines.fixed <-
-    is.na(argid(nam.args, "col.diamond.lines.fixed"))
-  #
-  miss.col.diamond.lines.random <- missing(col.diamond.lines.random) ||
-    is.null(col.diamond.lines.random)
-  miss.col.diamond.lines.random.subgroup <-
-    missing(col.diamond.lines.random.subgroup) ||
-    is.null(col.diamond.lines.random.subgroup)
-  #
-  miss.col.study <- missing(col.study) || is.null(col.study)
-  miss.col.study.text <- missing(col.study.text) || is.null(col.study.text)
-  miss.col.circle <- missing(col.circle) || is.null(col.circle)
-  miss.col.circle.lines <-
-    missing(col.circle.lines) || is.null(col.circle.lines)
-  #
-  miss.col.square <- missing(col.square) || is.null(col.square)
-  miss.col.square.lines <-
-    missing(col.square.lines) || is.null(col.square.lines)
-  #
-  miss.col.inside <- missing(col.inside) || is.null(col.inside)
-  miss.col.inside.common <-
-    missing(col.inside.common) || is.null(col.inside.common)
-  miss.col.inside.random <-
-    missing(col.inside.random) || is.null(col.inside.random)
-  miss.col.subgroup <- missing(col.subgroup) || is.null(col.subgroup)
-  miss.col.jama.line <- missing(col.jama.line) || is.null(col.jama.line)
-  #
-  miss.col.lines <- missing(col.lines) || is.null(col.lines)
-  miss.col.header.line <- missing(col.header.line) || is.null(col.header.line)
-  #
-  miss.col.predict <- missing(col.predict) || is.null(col.predict)
-  miss.col.predict.subgroup <-
-    missing(col.predict.subgroup) || is.null(col.predict.subgroup)
-  miss.col.predict.lines <-
-    missing(col.predict.lines) || is.null(col.predict.lines)
-  miss.col.predict.lines.subgroup <-
-    missing(col.predict.lines.subgroup) || is.null(col.predict.lines.subgroup)
-  #
-  miss.col.cid <- missing(col.cid) || is.null(col.cid)
-  #
-  miss.calcwidth.common <- missing(calcwidth.common)
   #
   miss.common <- missing(common)
   miss.common.subgroup <- missing(common.subgroup)
   #
-  miss.fs.common <- missing(fs.common)
-  miss.fs.common.labels <- missing(fs.common.labels)
-  miss.fs.fixed <- is.na(argid(nam.args, "fs.fixed"))
-  miss.fs.fixed.labels <- is.na(argid(nam.args, "fs.fixed.labels"))
-  #
-  miss.ff.common <- missing(ff.common)
-  miss.ff.common.labels <- missing(ff.common.labels)
-  miss.ff.fixed <- is.na(argid(nam.args, "ff.fixed"))
-  miss.ff.fixed.labels <- is.na(argid(nam.args, "ff.fixed.labels"))
-  #
-  miss.digits.TE <- missing(digits.TE)
-  miss.digits.addcols <- missing(digits.addcols)
-  miss.digits.addcols.left <- missing(digits.addcols.left)
-  miss.digits.addcols.right <- missing(digits.addcols.right)
-  miss.digits.cor <- missing(digits.cor)
-  miss.digits.mean <- missing(digits.mean)
-  miss.digits.sd <- missing(digits.sd)
-  miss.digits.stat <- missing(digits.stat)
-  miss.digits.time <- missing(digits.time)
-  #
   miss.header.line <- missing(header.line)
   miss.hetstat <- missing(hetstat)
   miss.irscale <- missing(irscale)
-  miss.just <- missing(just)
   miss.label <- missing(label)
-  miss.label.c <- missing(label.c)
-  miss.label.c.attach <- missing(label.c.attach)
-  miss.label.e <- missing(label.e)
-  miss.label.e.attach <- missing(label.e.attach)
-  miss.label.test.effect.subgroup.common <-
-    missing(label.test.effect.subgroup.common)
-  miss.label.test.effect.subgroup.fixed <-
-    is.na(argid(nam.args, "label.test.effect.subgroup.fixed"))
-  miss.label.test.effect.subgroup.random <-
-    missing(label.test.effect.subgroup.random)
-  miss.label.test.overall.common <- missing(label.test.overall.common)
-  miss.label.test.overall.fixed <-
-    is.na(argid(nam.args, "label.test.overall.fixed"))
-  miss.label.test.overall.random <- missing(label.test.overall.random)
-  miss.label.test.subgroup.common <- missing(label.test.subgroup.common)
-  miss.label.test.subgroup.fixed <-
-    is.na(argid(nam.args, "label.test.subgroup.fixed"))
-  miss.label.test.subgroup.random <- missing(label.test.subgroup.random)
-  miss.colgap.forest.left <- missing(colgap.forest.left)
-  miss.colgap.forest.right <- missing(colgap.forest.right)
-  miss.leftcols <- missing(leftcols)
   #
+  miss.leftcols <- missing(leftcols)
   avail.leftcols <-
     !is.null(leftcols) && length(leftcols) > 0 &&
     !(is.logical(leftcols) && length(leftcols) == 1 && !leftcols)
   #
   avail.leftlabs <- !missing(leftlabs) && !is.null(leftlabs)
   #
-  miss.lty.common <- missing(lty.common)
   miss.overall.hetstat <- missing(overall.hetstat)
-  miss.pooled.totals <- missing(pooled.totals)
   miss.prediction.subgroup <- missing(prediction.subgroup)
-  miss.print.tau2.ci.subgroup <- missing(print.tau2.ci.subgroup)
-  miss.print.tau.ci.subgroup <- missing(print.tau.ci.subgroup)
-  miss.print.I2 <- missing(print.I2)
-  miss.print.Q <- missing(print.Q)
-  miss.print.Rb <- missing(print.Rb)
-  miss.print.pval.Q <- missing(print.pval.Q)
-  miss.print.stat <- missing(print.stat)
-  miss.print.tau <- missing(print.tau)
-  miss.print.tau2 <- missing(print.tau2)
+  #
   miss.pscale <- missing(pscale)
   miss.random.subgroup <- missing(random.subgroup)
   miss.ref <- missing(ref)
@@ -2104,60 +1343,57 @@ forest.meta <- function(x,
   miss.study.results <- missing(study.results)
   miss.subgroup <- missing(subgroup)
   miss.subgroup.hetstat <- missing(subgroup.hetstat)
-  miss.test.effect.subgroup <- missing(test.effect.subgroup)
-  miss.test.effect.subgroup.common <- missing(test.effect.subgroup.common)
-  miss.test.effect.subgroup.random <- missing(test.effect.subgroup.random)
-  miss.test.overall.common <- missing(test.overall.common)
-  miss.test.subgroup.common <- missing(test.subgroup.common)
-  miss.text.addline1 <- missing(text.addline1)
-  miss.text.addline2 <- missing(text.addline2)
-  miss.text.common <- missing(text.common)
-  miss.text.common.w <- is.na(argid(nam.args, "text.common.w"))
-  miss.text.common.w <- missing(text.common.w)
-  miss.text.fixed <- is.na(argid(nam.args, "text.fixed"))
-  miss.text.predict <- missing(text.predict)
-  miss.text.random <- missing(text.random)
-  miss.text.w.common <- missing(text.w.common)
-  miss.type.common <- missing(type.common)
-  miss.type.subgroup <- missing(type.subgroup)
-  miss.type.subgroup.common <- missing(type.subgroup.common)
-  miss.type.subgroup.random <- missing(type.subgroup.random)
+  #
   miss.weight.study <- missing(weight.study)
   avail.smlab <- !missing(smlab) && !is.null(smlab)
   miss.xlab <- missing(xlab) || is.null(xlab)
   miss.xlab.pos <- missing(xlab.pos)
   #
-  notavail.digits.addcols.left <-
-    miss.digits.addcols & miss.digits.addcols.left
-  notavail.digits.addcols.right <-
-    miss.digits.addcols & miss.digits.addcols.right
-  #
   avail.xlim <- !missing(xlim)
-  avail.fill.equi <- !missing(fill.equi) & !is.null(fill.equi)
+  #
+  # Scalar is possible input
+  #
+  colgap <- as_named_list(colgap)
+  digits <- as_named_list(digits)
+  fill <- as_named_list(fill)
+  just <- as_named_list(just)
   #
   # Font sizes
+  #
+  fs.list <- merge_legacy(fs, args, fs_defaults(fontsize), "fs")
+  #
+  fs <- fs.list$res
+  args <- fs.list$args
+  #
+  fs.main <- fs$main
+  fs.heading <- fs$heading
+  fs.common <- fs$common
+  fs.random <- fs$random
+  fs.predict <- fs$predict
+  fs.common.labels <- fs$common.labels
+  fs.random.labels <- fs$random.labels
+  fs.predict.labels <- fs$predict.labels
+  fs.study <- fs$study
+  fs.study.labels <- fs$study.labels
+  fs.hetstat <- fs$hetstat
+  fs.test.overall <- fs$test.overall
+  fs.test.subgroup <- fs$test.subgroup
+  fs.test.effect.subgroup <- fs$test.effect.subgroup
+  fs.addline <- fs$addline
+  fs.axis <- fs$axis
+  fs.smlab <- fs$smlab
+  fs.xlab <- fs$xlab
+  fs.lr <- fs$lr
+  fs.rob <- fs$rob
+  fs.rob.symbols <- fs$rob.symbols
+  fs.details <- fs$details
   #
   fs.main <- replaceNULL(fs.main, 1.25 * fontsize)
   fs.heading <- replaceNULL(fs.heading, fontsize)
   #
-  if (!miss.fs.fixed) {
-    fs.common <-
-      deprecated(fs.common, miss.fs.common, args, "fs.fixed",
-                 warn.deprecated)
-    miss.fs.common <- FALSE
-  }
   fs.common <- replaceNULL(fs.common, fontsize)
-  #
   fs.random <- replaceNULL(fs.random, fs.common)
   fs.predict <- replaceNULL(fs.predict, fs.common)
-  #
-  if (!miss.fs.fixed.labels) {
-    fs.common.labels <-
-      deprecated(fs.common.labels, miss.fs.common.labels,
-                 args, "fs.fixed.labels",
-                 warn.deprecated)
-    miss.fs.common.labels <- FALSE
-  }
   fs.common.labels <- replaceNULL(fs.common.labels, fs.common)
   #
   fs.random.labels <- replaceNULL(fs.random.labels, fs.random)
@@ -2184,18 +1420,33 @@ forest.meta <- function(x,
   #
   # Font faces
   #
-  if (!miss.ff.fixed) {
-    ff.common <-
-      deprecated(ff.common, miss.ff.common, args, "ff.fixed",
-                 warn.deprecated)
-  }
+  ff.list <- merge_legacy(ff, args, ff_defaults(), "ff")
   #
-  if (!miss.ff.fixed.labels) {
-    ff.common.labels <-
-      deprecated(ff.common.labels, miss.ff.common.labels,
-                 args, "ff.fixed.labels",
-                 warn.deprecated)
-  }
+  ff <- ff.list$res
+  args <- ff.list$args
+  #
+  ff.main <- ff$main
+  ff.heading <- ff$heading
+  ff.common <- ff$common
+  ff.random <- ff$random
+  ff.predict <- ff$predict
+  ff.common.labels <- ff$common.labels
+  ff.random.labels <- ff$random.labels
+  ff.predict.labels <- ff$predict.labels
+  ff.study <- ff$study
+  ff.study.labels <- ff$study.labels
+  ff.hetstat <- ff$hetstat
+  ff.test.overall <- ff$test.overall
+  ff.test.subgroup <- ff$test.subgroup
+  ff.test.effect.subgroup <- ff$test.effect.subgroup
+  ff.addline <- ff$addline
+  ff.axis <- ff$axis
+  ff.smlab <- ff$smlab
+  ff.xlab <- ff$xlab
+  ff.lr <- ff$lr
+  ff.rob <- ff$rob
+  ff.rob.symbols <- ff$rob.symbols
+  ff.details <- ff$details
   #
   ff.common <- replaceNULL(ff.common, if (bmj || jama) "plain" else "bold")
   #
@@ -2214,8 +1465,507 @@ forest.meta <- function(x,
   ff.addline <- replaceNULL(ff.addline, ff.hetstat)
   #
   ff.lr <- replaceNULL(ff.lr, if (jama || bmj) "bold" else "plain")
+  #
+  # Print information
+  #
+  print.list <- merge_legacy(print, args, print_defaults(x), "print")
+  #
+  print <- print.list$res
+  args <- print.list$args
+  miss.print <- print.list$miss
+  #
+  print.subgroup.labels <- print$subgroup.labels
+  print.subgroup.name <- print$subgroup.name
+  print.I2 <- print$I2
+  print.I2.ci <- print$I2.ci
+  print.tau2 <- print$tau2
+  print.tau2.ci <- print$tau2.ci
+  print.tau <- print$tau
+  print.tau.ci <- print$tau.ci
+  print.Q <- print$Q
+  print.pval.Q <- print$pval.Q
+  print.Rb <- print$Rb
+  print.Rb.ci <- print$Rb.ci
+  print.stat <- print$stat
+  print.tau2.ci.subgroup <- print$tau2.ci.subgroup
+  print.tau.ci.subgroup <- print$tau.ci.subgroup
+  print.Q.subgroup <- print$Q.subgroup
+  #
+  miss.print.tau2.ci.subgroup <- miss.print$tau2.ci.subgroup
+  miss.print.tau.ci.subgroup <- miss.print$tau.ci.subgroup
+  miss.print.I2 <- miss.print$I2
+  miss.print.Q <- miss.print$Q
+  miss.print.Rb <- miss.print$Rb
+  miss.print.pval.Q <- miss.print$pval.Q
+  miss.print.stat <- miss.print$stat
+  miss.print.tau <- miss.print$tau
+  miss.print.tau2 <- miss.print$tau2
+  #
+  # Define colours
+  #
+  col.list <- merge_legacy(col, args, col_defaults(x), "col")
+  #
+  col <- col.list$res
+  args <- col.list$args
+  miss.col <- col.list$miss
+  null.col <- col.list$null
+  #
+  col.main <- col$main
+  col.common <- col$common
+  col.random <- col$random
+  col.label <- col$label
+  col.study <- col$study
+  col.study.text <- col$study.text
+  col.square <- col$square
+  col.square.lines <- col$square.lines
+  col.circle <- col$circle
+  col.circle.lines <- col$circle.lines
+  col.inside <- col$inside
+  col.inside.common <- col$inside.common
+  col.inside.random <- col$inside.random
+  col.diamond <- col$diamond
+  col.diamond.common <- col$diamond.common
+  col.diamond.common.subgroup <- col$diamond.common.subgroup
+  col.diamond.random <- col$diamond.random
+  col.diamond.random.subgroup <- col$diamond.random.subgroup
+  col.diamond.lines <- col$diamond.lines
+  col.diamond.lines.common <- col$diamond.lines.common
+  col.diamond.lines.common.subgroup <- col$diamond.lines.common.subgroup
+  col.diamond.lines.random <- col$diamond.lines.random
+  col.diamond.lines.random.subgroup <- col$diamond.lines.random.subgroup
+  col.predict <- col$predict
+  col.predict.subgroup <- col$predict.subgroup
+  col.predict.lines <- col$predict.lines
+  col.predict.lines.subgroup <- col$predict.lines.subgroup
+  col.subgroup <- col$subgroup
+  col.label.left <- col$label.left
+  col.label.right <- col$label.right
+  col.lines <- col$lines
+  col.header.line <- col$header.line
+  col.jama.line <- col$jama.line
+  col.cid <- col$cid
+  #
+  miss.col.common <- miss.col$common || null.col$common
+  miss.col.random <- miss.col$random || null.col$random
+  #
+  miss.col.diamond <- miss.col$diamond || null.col$diamond
+  #
+  miss.col.diamond.common <- miss.col$diamond.common || null.col$diamond.common
+  miss.col.diamond.common.subgroup <-
+    miss.col$diamond.common.subgroup || null.col$diamond.common.subgroup
+  #
+  miss.col.diamond.random <- miss.col$diamond.random || null.col$diamond.random
+  miss.col.diamond.random.subgroup <-
+    miss.col$diamond.random.subgroup || null.col$diamond.random.subgroup
+  #
+  miss.col.diamond.lines <- miss.col$diamond.lines || null.col$diamond.lines
+  #
+  miss.col.diamond.lines.common <-
+    miss.col$diamond.lines.common || null.col$diamond.lines.common
+  miss.col.diamond.lines.common.subgroup <-
+    miss.col$diamond.lines.common.subgroup ||
+    null.col$diamond.lines.common.subgroup
+  #
+  miss.col.diamond.lines.random <-
+    miss.col$diamond.lines.random || null.col$diamond.lines.random
+  miss.col.diamond.lines.random.subgroup <-
+    miss.col$diamond.lines.random.subgroup ||
+    null.col$diamond.lines.random.subgroup
+  #
+  miss.col.study <- miss.col$study || null.col$study
+  miss.col.study.text <- miss.col$study.text || null.col$study.text
+  miss.col.circle <- miss.col$circle || null.col$circle
+  miss.col.circle.lines <-
+    miss.col$circle.lines || null.col$circle.lines
+  #
+  miss.col.square <- miss.col$square || null.col$square
+  miss.col.square.lines <-
+    miss.col$square.lines || null.col$square.lines
+  #
+  miss.col.inside <- miss.col$inside || null.col$inside
+  miss.col.inside.common <-
+    miss.col$inside.common || null.col$inside.common
+  miss.col.inside.random <-
+    miss.col$inside.random || null.col$inside.random
+  miss.col.subgroup <- miss.col$subgroup || null.col$subgroup
+  miss.col.jama.line <- miss.col$jama.line || null.col$jama.line
+  #
+  miss.col.lines <- miss.col$lines || null.col$lines
+  miss.col.header.line <- miss.col$header.line || null.col$header.line
+  #
+  miss.col.predict <- miss.col$predict || null.col$predict
+  miss.col.predict.subgroup <-
+    miss.col$predict.subgroup || null.col$predict.subgroup
+  miss.col.predict.lines <-
+    miss.col$predict.lines || null.col$predict.lines
+  miss.col.predict.lines.subgroup <-
+    miss.col$predict.lines.subgroup || null.col$predict.lines.subgroup
+  #
+  miss.col.cid <- miss.col$cid || null.col$cid
+  #
+  if (miss.col.diamond.common && !is.null(col.diamond)) {
+    col.diamond.common <- col.diamond
+    miss.col.diamond.common <- FALSE
+  }
+  if (miss.col.diamond.random && !is.null(col.diamond)) {
+    col.diamond.random <- col.diamond
+    miss.col.diamond.random <- FALSE
+  }
+  if (miss.col.diamond.common.subgroup && !is.null(col.diamond.common)) {
+    col.diamond.common.subgroup <- col.diamond.common
+    miss.col.diamond.common.subgroup <- FALSE
+  }
+  if (miss.col.diamond.random.subgroup && !is.null(col.diamond.random)) {
+    col.diamond.random.subgroup <- col.diamond.random
+    miss.col.diamond.random.subgroup <- FALSE
+  }
+  if (miss.col.diamond.lines.common && !is.null(col.diamond.lines)) {
+    col.diamond.lines.common <- col.diamond.lines
+    miss.col.diamond.lines.common <- FALSE
+  }
+  if (miss.col.diamond.lines.common.subgroup &&
+      !is.null(col.diamond.lines.common)) {
+    col.diamond.lines.common.subgroup <- col.diamond.lines.common
+    miss.col.diamond.lines.common.subgroup <- FALSE
+  }
+  if (miss.col.diamond.lines.random && !is.null(col.diamond.lines)) {
+    col.diamond.lines.random <- col.diamond.lines
+    miss.col.diamond.lines.random <- FALSE
+  }
+  if (miss.col.diamond.lines.random.subgroup &&
+      !is.null(col.diamond.lines.random)) {
+    col.diamond.lines.random.subgroup <- col.diamond.lines.random
+    miss.col.diamond.lines.random.subgroup <- FALSE
+  }
+  if (miss.col.circle.lines && !is.null(col.circle)) {
+    col.circle.lines <- col.circle
+    miss.col.circle.lines <- FALSE
+  }
+  if (miss.col.inside.common && !is.null(col.inside)) {
+    col.inside.common <- col.inside
+    miss.col.inside.common <- FALSE
+  }
+  if (miss.col.inside.random && !is.null(col.inside)) {
+    col.inside.random <- col.inside
+    miss.col.inside.random <- FALSE
+  }
+  if (miss.col.predict.subgroup && !is.null(col.predict)) {
+    col.predict.subgroup <- col.predict
+    miss.col.predict.subgroup <- FALSE
+  }
+  if (miss.col.predict.lines.subgroup && !is.null(col.predict.lines)) {
+    col.predict.lines.subgroup <- col.predict.lines
+    miss.col.predict.lines.subgroup <- FALSE
+  }
+  if (miss.col.header.line && !is.null(col.lines)) {
+    col.header.line <- col.lines
+    miss.col.header.line <- FALSE
+  }
+  if (miss.col.jama.line && !is.null(col.subgroup)) {
+    col.jama.line <- col.subgroup
+    miss.col.jama.line <- FALSE
+  }
+  #
+  # Define labels
+  #
+  labels.list <- merge_legacy(labels, args, label_defaults(x), "label")
+  #
+  labels <- labels.list$res
+  args <- labels.list$args
+  miss.labels <- labels.list$miss
+  null.labels <- labels.list$null
+  #
+  label.e <- labels$e
+  label.c <- labels$c
+  label.e.attach <- labels$e.attach
+  label.c.attach <- labels$c.attach
+  label.left <- labels$left
+  label.right <- labels$right
+  label.n <- labels$n
+  label.events <- labels$events
+  label.mean <- labels$mean
+  label.sd <- labels$sd
+  label.cor <- labels$cor
+  label.time <- labels$time
+  label.pval <- labels$pval
+  label.tau2 <- labels$tau2
+  label.tau <- labels$tau
+  label.I2 <- labels$I2
+  label.cluster <- labels$cluster
+  label.cycles <- labels$cycles
+  label.test.overall.common <- labels$test.overall.common
+  label.test.overall.random <- labels$test.overall.random
+  label.test.subgroup.common <- labels$test.subgroup.common
+  label.test.subgroup.random <- labels$test.subgroup.random
+  label.test.effect.subgroup.common <- labels$test.effect.subgroup.common
+  label.test.effect.subgroup.random <- labels$test.effect.subgroup.random
+  #
+  miss.label.c <- miss.labels$c
+  miss.label.e <- miss.labels$e
+  miss.label.c.attach <- miss.labels$c.attach
+  miss.label.e.attach <- miss.labels$e.attach
+  miss.label.test.effect.subgroup.common <-
+    miss.labels$test.effect.subgroup.common
+  miss.label.test.effect.subgroup.random <-
+    miss.labels$test.effect.subgroup.random
+  miss.label.test.overall.common <- miss.labels$test.overall.common
+  miss.label.test.overall.random <- miss.labels$test.overall.random
+  miss.label.test.subgroup.common <- miss.labels$test.subgroup.common
+  miss.label.test.subgroup.random <- miss.labels$test.subgroup.random
+  #
+  # calcwidth.*
+  #
+  calcwidth.list <-
+    merge_legacy(calcwidth, args,
+                 calcwidth_defaults(common, random, overall, x$subgroup),
+                 "calcwidth")
+  #
+  calcwidth <- calcwidth.list$res
+  args <- calcwidth.list$args
+  miss.calcwidth <- calcwidth.list$miss
+  null.calcwidth <- calcwidth.list$null
+  #
+  calcwidth.pooled <- calcwidth$pooled
+  calcwidth.common <- calcwidth$common
+  calcwidth.random <- calcwidth$random
+  calcwidth.predict <- calcwidth$predict
+  calcwidth.hetstat <- calcwidth$hetstat
+  calcwidth.tests <- calcwidth$tests
+  calcwidth.subgroup <- calcwidth$subgroup
+  calcwidth.addline <- calcwidth$addline
+  calcwidth.details <- calcwidth$details
+  #
+  # colgap
+  #
+  colgap.list <- merge_legacy(colgap, args, colgap_defaults(), "colgap")
+  #
+  colgaps <- colgap.list$res
+  args <- colgap.list$args
+  miss.colgap <- colgap.list$miss
+  #
+  colgap <- colgaps$colgap
+  colgap.left <- colgaps$left
+  colgap.right <- colgaps$right
+  colgap.studlab <- colgaps$studlab
+  colgap.forest <- colgaps$forest
+  colgap.forest.left <- colgaps$forest.left
+  colgap.forest.right <- colgaps$forest.right
+  colgap.rob <- colgaps$rob
+  colgap.rob.overall <- colgaps$rob.overall
+  #
+  miss.colgap.studlab <- miss.colgap$studlab
+  miss.colgap.left <- miss.colgap$left
+  miss.colgap.forest.left <- miss.colgap$forest.left
+  miss.colgap.forest.right <- miss.colgap$forest.right
+  #
+  if (miss.colgap.studlab && !miss.colgap.left)
+    colgap.studlab <- colgap.left  
+  #
+  # Justification
+  #
+  just.list <- merge_legacy(just, args, just_defaults(layout), "just")
+  #
+  justs <- just.list$res
+  args <- just.list$args
+  miss.just <- just.list$miss
+  #
+  just <- justs$just
+  just.main <- justs$main
+  just.studlab <- justs$studlab
+  just.addcols <- justs$addcols
+  just.addcols.left <- justs$addcols.left
+  just.addcols.right <- justs$addcols.right
+  just.label.e <- justs$label.e
+  just.label.c <- justs$label.c
+  just.rob <- justs$rob
+  #
+  miss.just <- miss.just$just
+  #
+  # Digits
+  #
+  digits.list <- merge_legacy(digits, args, digits_defaults(), "digits")
+  #
+  digitss <- digits.list$res
+  args <- digits.list$args
+  miss.digits <- digits.list$miss
+  #
+  digits <- digitss$digits
+  digits.se <- digitss$se
+  digits.stat <- digitss$stat
+  digits.pval <- digitss$pval
+  digits.pval.Q <- digitss$pval.Q
+  digits.Q <- digitss$Q
+  digits.tau2 <- digitss$tau2
+  digits.tau <- digitss$tau
+  digits.I2 <- digitss$I2
+  digits.weight <- digitss$weight
+  digits.mean <- digitss$mean
+  digits.sd <- digitss$sd
+  digits.cor <- digitss$cor
+  digits.time <- digitss$time
+  digits.n <- digitss$n
+  digits.event <- digitss$event
+  digits.TE <- digitss$TE
+  digits.addcols <- digitss$addcols
+  digits.addcols.right <- digitss$addcols.right
+  digits.addcols.left <- digitss$addcols.left
+  #
+  miss.digits.TE <- miss.digits$TE
+  miss.digits.addcols <- miss.digits$addcols
+  miss.digits.addcols.left <- miss.digits$addcols.left
+  miss.digits.addcols.right <- miss.digits$addcols.right
+  miss.digits.cor <- miss.digits$cor
+  miss.digits.mean <- miss.digits$mean
+  miss.digits.sd <- miss.digits$sd
+  miss.digits.stat <- miss.digits$stat
+  miss.digits.time <- miss.digits$time
+  #
+  notavail.digits.addcols.left <-
+    miss.digits.addcols & miss.digits.addcols.left
+  notavail.digits.addcols.right <-
+    miss.digits.addcols & miss.digits.addcols.right
+  #
+  # Print information on statistical tests
+  #
+  test.list <- merge_legacy(test, args,
+                            test_defaults(x, common, random, overall,
+                                          bmj.revman5.jama.meta9), "test")
+  #
+  test <- test.list$res
+  args <- test.list$args
+  miss.test <- test.list$miss
+  #
+  test.overall <- test$overall
+  test.overall.common <- test$overall.common
+  test.overall.random <- test$overall.random
+  test.subgroup <- test$subgroup
+  test.subgroup.common <- test$subgroup.common
+  test.subgroup.random <- test$subgroup.random
+  test.effect.subgroup <- test$effect.subgroup
+  test.effect.subgroup.common <- test$effect.subgroup.common
+  test.effect.subgroup.random <- test$effect.subgroup.random
+  #
+  miss.test.effect.subgroup <- miss.test$effect.subgroup
+  miss.test.effect.subgroup.common <- miss.test$effect.subgroup.common
+  miss.test.effect.subgroup.random <- miss.test$effect.subgroup.random
+  miss.test.overall.common <- miss.test$overall.common
+  miss.test.subgroup.common <- miss.test$subgroup.common
+  #
+  # type
+  #
+  type.list <- merge_legacy(type, args, type_defaults(study.results), "type")
+  #
+  type <- type.list$res
+  args <- type.list$args
+  miss.type <- type.list$miss
+  #
+  type.study <- type$study
+  type.common <- type$common
+  type.random <- type$random
+  type.subgroup <- type$subgroup
+  type.subgroup.common <- type$subgroup.common
+  type.subgroup.random <- type$subgroup.random
+  #
+  miss.type.common <- miss.type$common
+  miss.type.subgroup <- miss.type$subgroup
+  miss.type.subgroup.common <- miss.type$subgroup.common
+  miss.type.subgroup.random <- miss.type$subgroup.random
+  #
+  # fill
+  #
+  fill.list <- merge_legacy(fill, args, fill_defaults(), "fill")
+  #
+  fills <- fill.list$res
+  args <- fill.list$args
+  miss.fill <- fill.list$miss
+  null.fill <- fill.list$null
+  #
+  fill <- fills$fill
+  fill.equi <- fills$equi
+  fill.cid <- fills$cid
+  fill.cid.below.null <- fills$cid.below.null
+  fill.cid.above.null <- fills$cid.above.null
+  fill.lower.equi <- fills$lower.equi
+  fill.upper.equi <- fills$upper.equi
+  #
+  miss.fill.cid <- miss.fill$cid
+  miss.fill.cid.below.null <- miss.fill$cid.below.null
+  miss.fill.cid.above.null <- miss.fill$cid.above.null
+  miss.fill.lower.equi <- miss.fill$lower.equi
+  miss.fill.upper.equi <- miss.fill$upper.equi
+  #
+  avail.fill.equi <-  !miss.fill$equi & !null.fill$equi
+  #
+  # pooled
+  #
+  pooled.list <-
+    merge_legacy(pooled, args, pooled_defaults(common, random), "pooled")
+  #
+  pooled <- pooled.list$res
+  args <- pooled.list$args
+  miss.pooled <- pooled.list$miss
+  #
+  pooled.totals <- pooled$totals
+  pooled.events <- pooled$events
+  pooled.times <- pooled$times
+  #
+  miss.pooled.totals <- miss.pooled$totals
+  #
+  # text
+  #
+  text.list <- merge_legacy(text, args, text_defaults(x), "text")
+  #
+  text <- text.list$res
+  args <- text.list$args
+  miss.text <- text.list$miss
+  #
+  text.common <- text$common
+  text.random <- text$random
+  text.w.common <- text$w.common
+  text.w.random <- text$w.random
+  text.predict <- text$predict
+  text.subgroup <- text$subgroup
+  text.common.w <- text$common.w
+  text.random.w <- text$random.w
+  text.predict.w <- text$predict.w
+  text.subgroup.nohet <- text$subgroup.nohet
+  text.addline1 <- text$addline1
+  text.addline2 <- text$addline2
+  #
+  miss.text.addline1 <- miss.text$addline1
+  miss.text.addline2 <- miss.text$addline2
+  miss.text.common <- miss.text$common
+  miss.text.common.w <- miss.text$common.w
+  miss.text.predict <- miss.text$predict
+  miss.text.random <- miss.text$random
+  #
+  # lty
+  #
+  lty.list <- merge_legacy(lty, args, lty_defaults(), "lty")
+  #
+  lty <- lty.list$res
+  args <- lty.list$args
+  #
+  lty.common <- lty$common
+  lty.random <- lty$random
+  lty.cid <- lty$cid
+  #
+  # lwd
+  #
+  lwd.list <- merge_legacy(lwd, args, lwd_defaults(), "lwd")
+  #
+  lwds <- lwd.list$res
+  args <- lwd.list$args
+  #
+  lwd <- lwds$lwd
+  lwd.square <- lwds$square
+  lwd.diamond <- lwds$diamond
+  #
+  nam.args <- names(args)
   
   
+  #
+  #
   #
   #
   # (4) Define colours
@@ -2248,17 +1998,12 @@ forest.meta <- function(x,
   col.diamond <-
     chksetVar(col.diamond, miss.col.diamond, colors[2], func = chkcolor, n = 1)
   #
-  if (!miss.col.diamond.fixed) {
-    col.diamond.common <-
-      deprecated(col.diamond.common, miss.col.diamond.common,
-                 args, "col.diamond.fixed",
-                 warn.deprecated)
-  }
-  #
   col.diamond.common <-
-    chksetVar(col.diamond.common, FALSE, colors[2], func = chkcolor)
+    chksetVar(col.diamond.common, miss.col.diamond.common,
+              colors[2], func = chkcolor)
   col.diamond.random <-
-    chksetVar(col.diamond.random, FALSE, colors[2], func = chkcolor)
+    chksetVar(col.diamond.random, miss.col.diamond.random,
+              colors[2], func = chkcolor)
   col.diamond.common.subgroup <-
     chksetVar(col.diamond.common.subgroup, miss.col.diamond.common.subgroup,
               col.diamond.common, func = chkcolor)
@@ -2270,30 +2015,12 @@ forest.meta <- function(x,
     chksetVar(col.diamond.lines, miss.col.diamond.lines, colors[3],
               func = chkcolor, n = 1)
   #
-  if (!miss.col.diamond.lines.fixed) {
-    col.diamond.lines.common <-
-      deprecated(col.diamond.lines.common, miss.col.diamond.lines.common,
-                 args, "col.diamond.lines.fixed",
-                 warn.deprecated)
-  }
-  else if (!miss.col.diamond.fixed.lines) {
-    col.diamond.lines.common <-
-      deprecated(col.diamond.lines.common, miss.col.diamond.lines.common,
-                 args, "col.diamond.fixed.lines",
-                 warn.deprecated)
-  }
-  #
-  col.diamond.lines.random <-
-    deprecated(col.diamond.lines.random, miss.col.diamond.lines.random,
-               args, "col.diamond.random.lines",
-               warn.deprecated)
-  #
   col.diamond.lines.common <-
-    chksetVar(col.diamond.lines.common, FALSE, col.diamond.lines,
-              func = chkcolor)
+    chksetVar(col.diamond.lines.common, miss.col.diamond.lines.common,
+              col.diamond.lines, func = chkcolor)
   col.diamond.lines.random <-
-    chksetVar(col.diamond.lines.random, FALSE, col.diamond.lines,
-              func = chkcolor)
+    chksetVar(col.diamond.lines.random, miss.col.diamond.lines.random,
+              col.diamond.lines, func = chkcolor)
   col.diamond.lines.common.subgroup <-
     chksetVar(col.diamond.lines.common.subgroup,
               miss.col.diamond.lines.common.subgroup,
@@ -2746,8 +2473,6 @@ forest.meta <- function(x,
   overall <- replaceNULL(overall, common | random)
   chklogical(overall)
   #
-  lty.common <- deprecated(lty.common, miss.lty.common, args, "lty.fixed",
-                           warn.deprecated)
   if (!is.null(lty.common))
     chknumeric(lty.common, min = 0, length = 1)
   if (!is.null(lty.random))
@@ -2966,10 +2691,6 @@ forest.meta <- function(x,
   #
   # Define colours for CID regions
   #
-  miss.fill.cid <- missing(fill.cid)
-  miss.fill.cid.below.null <- missing(fill.cid.below.null)
-  miss.fill.cid.above.null <- missing(fill.cid.above.null)
-  #
   if (n.cid.below.null > 0) {
     if (length(fill.cid.below.null) == 1 & n.cid.below.null > 1)
       fill.cid.below.null <- rep(fill.cid.below.null, n.cid.below.null)
@@ -2995,9 +2716,6 @@ forest.meta <- function(x,
     c(if (avail.fill.equi) fill.equi else fill, fill.cid.above.null)
   #
   # Define colours based on equivalence limits
-  #
-  miss.fill.lower.equi <- missing(fill.lower.equi)
-  miss.fill.upper.equi <- missing(fill.upper.equi)
   #
   if (!miss.fill.lower.equi | !miss.fill.upper.equi) {
     if (!miss.fill.cid |
@@ -3218,19 +2936,11 @@ forest.meta <- function(x,
   #
   test.overall <- replaceNULL(test.overall, bmj.revman5.jama.meta9)
   #
-  test.overall.common <-
-    deprecated(test.overall.common, miss.test.overall.common,
-               args, "test.overall.fixed",
-               warn.deprecated)
   chklogical(test.overall.common)
   chklogical(test.overall.random)
   #
   test.subgroup <- replaceNULL(test.subgroup, TRUE)
   chklogical(test.subgroup)
-  test.subgroup.common <-
-    deprecated(test.subgroup.common, miss.test.subgroup.common,
-               args, "test.subgroup.fixed",
-               warn.deprecated)
   chklogical(test.subgroup.common)
   chklogical(test.subgroup.random)
   #
@@ -3341,10 +3051,6 @@ forest.meta <- function(x,
   chknumeric(arrow.length, min = 0, zero = FALSE)
   #
   chklogical(calcwidth.pooled)
-  calcwidth.common <-
-    deprecated(calcwidth.common, miss.calcwidth.common,
-               args, "calcwidth.fixed",
-               warn.deprecated)
   chklogical(calcwidth.common)
   chklogical(calcwidth.random)
   chklogical(calcwidth.predict)
@@ -3719,13 +3425,6 @@ forest.meta <- function(x,
     study.results <- FALSE
   }
   #
-  if (!miss.text.fixed) {
-    text.common <-
-      deprecated(text.common, miss.text.common, args, "text.fixed",
-                 warn.deprecated)
-    miss.text.common <- FALSE
-  }
-  #
   if (miss.text.common || is.null(text.common)) {
     if (is.null(text.common) || length(text.common) == 1) {
       if (study.results & (level != level.ma | bmj.revman5)) {
@@ -4001,13 +3700,6 @@ forest.meta <- function(x,
   colgap.rob <- setunit(colgap.rob)
   colgap.rob.overall <- setunit(colgap.rob.overall)
   #
-  if (!miss.label.test.overall.fixed) {
-    label.test.overall.common <-
-      deprecated(label.test.overall.common, miss.label.test.overall.common,
-                 args, "label.test.overall.fixed",
-                 warn.deprecated)
-    miss.label.test.overall.common <- FALSE
-  }
   if (miss.label.test.overall.common)
     label.test.overall.common <-
     paste0("Test for overall effect",
@@ -4021,20 +3713,14 @@ forest.meta <- function(x,
              paste0(" (", gs("text.w.random"), " effects)"),
            ": ")
   #
-  if (!miss.label.test.subgroup.fixed) {
+  if (miss.label.test.subgroup.common) {
     label.test.subgroup.common <-
-      deprecated(label.test.subgroup.common,
-                 miss.label.test.subgroup.common,
-                 args, "label.test.subgroup.fixed",
-                 warn.deprecated)
-    miss.label.test.subgroup.common <- FALSE
+      paste0("Test for subgroup differences",
+             if (common.random)
+               paste0(" (", gs("text.w.common"), " effect)"),
+             ": ")
   }
-  if (miss.label.test.subgroup.common)
-    label.test.subgroup.common <-
-    paste0("Test for subgroup differences",
-           if (common.random)
-             paste0(" (", gs("text.w.common"), " effect)"),
-           ": ")
+  #
   if (miss.label.test.subgroup.random)
     label.test.subgroup.random <-
     paste0("Test for subgroup differences",
@@ -4042,14 +3728,6 @@ forest.meta <- function(x,
              paste0(" (", gs("text.w.random"), " effects)"),
            ": ")
   #
-  if (!miss.label.test.effect.subgroup.fixed) {
-    label.test.effect.subgroup.common <-
-      deprecated(label.test.effect.subgroup.common,
-                 miss.label.test.effect.subgroup.common,
-                 args, "label.test.effect.subgroup.fixed",
-                 warn.deprecated)
-    miss.label.test.effect.subgroup.common <- FALSE
-  }
   if (miss.label.test.effect.subgroup.common)
     label.test.effect.subgroup.common <-
     paste0(if (bmj.revman5.jama.meta9)
@@ -4176,10 +3854,6 @@ forest.meta <- function(x,
     text.w.random <- paste0("Weight", if (bmj) "\n(%)")
   }
   else {
-    text.w.common <-
-      deprecated(text.w.common, miss.text.w.common, args, "text.w.fixed",
-                 warn.deprecated)
-    #
     if (bmj) {
       if (is.null(text.w.common))
         text.w.common <- paste0("Weight (%),\n", gs("text.w.common"))

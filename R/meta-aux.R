@@ -1100,3 +1100,62 @@ warn_ignore_dots <- function(x, func = "") {
   #
   invisible(NULL)
 }
+
+merge_legacy <- function(x, args, default, prefix, warn = FALSE) {
+  nam.x <- deparse(substitute(x))
+  #
+  if (is.null(x))
+    x <- list()
+  #
+  if (!is.list(x) || (length(x) > 0 && is.null(names(x))))
+    stop("Argument '", nam.x, "' must be a named list or NULL.", call. = FALSE)
+  #
+  if (!is.list(default) || is.null(names(default)))
+    stop("Bug: argument 'default' must be a named list.", call. = FALSE)
+  
+  supplied <- names(x)
+  #
+  res <- modifyList(default, x)
+  miss <- setNames(as.list(!(names(default) %in% supplied)), names(default))
+  null <- lapply(res, is.null)
+  #
+  old.names <- intersect(names(args), paste0(prefix, ".", names(default)))
+  #
+  for (old in old.names) {
+    name <- sub(paste0("^", prefix, "\\."), "", old)
+    #
+    if (name %in% supplied)
+      stop("Argument '", old, "' and element '",
+           prefix, "[['", name, "']] cannot both be specified.",
+           call. = FALSE)
+    #
+    if (warn)
+      warning("Use element '", prefix,
+              "[['", name, "']]' instead of argument '", old,
+              "' (deprecated).",
+        call. = FALSE)
+    #
+    res[[name]] <- args[[old]]
+    miss[name] <- FALSE
+    null[[name]] <- is.null(res[[name]])
+    args[[old]] <- NULL
+  }
+  
+  list(res = res, args = args, miss = miss, null = null)
+}
+
+as_named_list <- function(x) {
+  name <- deparse(substitute(x))
+  #
+  if (is.null(x))
+    return(x)
+  #
+  if (is.list(x)) {
+    if (is.null(names(x)))
+      stop("Argument '", name, "' must be a named list.", call. = FALSE)
+    #
+    return(x)
+  }
+  #
+  setNames(list(x), name)
+}

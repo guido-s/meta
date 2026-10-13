@@ -102,6 +102,9 @@
   - print number of events per number of observations or person-time below
     x-axis (argument 'xlab') instead of above the forest plot (argument 'smlab')
     [(related to issue #106)](https://github.com/guido-s/meta/issues/106)
+  - deprecated arguments '\*.fixed' and '\*.fixed.\*' have been removed. Use
+    the corresponding elements '\*.common' and '\*.common.\*' of the
+    'fs', 'ff', 'col', and 'label' lists instead.
 
 * forest.metacum():
   - new arguments 'layout' and 'main' to select the forest plot layout and
