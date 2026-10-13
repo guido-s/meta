@@ -43,10 +43,7 @@
   lab.NA = gs("lab.NA"),
   lab.NA.effect = gs("lab.NA.effect"),
   lab.NA.weight = gs("lab.NA.weight"),
-  rob = x$rob,
-  rob.text = "Risk of Bias",
-  rob.legend = TRUE,
-  rob.only = FALSE,
+  rob = NULL,
   fontfamily = gs("fontfamily"),
   fontsize = gs("fontsize"),
   fs = NULL,
@@ -64,10 +61,7 @@
   calcwidth = NULL,
   colgap = NULL,
   ref,
-  cid = gs("cid"),
-  cid.below.null = gs("cid.below.null"),
-  cid.above.null = gs("cid.above.null"),
-  cid.pooled.only = gs("cid.pooled.only"),
+  cid = NULL,
   xlab = NULL,
   xlab.pos,
   smlab = NULL,
@@ -77,6 +71,8 @@
   bottom.lr = gs("bottom.lr"),
   details = gs("forest.details"),
   header.line,
+  addrow = NULL,
+  addrows.below.overall = gs("addrows.below.overall"),
   arrow.type = gs("arrow.type"),
   arrow.length = gs("arrow.length"),
   spacing = gs("spacing"),
@@ -92,10 +88,6 @@
   scientific.pval = gs("scientific.pval"),
   zero.pval = if (layout == "JAMA") FALSE else gs("zero.pval"),
   JAMA.pval = if (layout == "JAMA") TRUE else gs("JAMA.pval"),
-  addrow = gs("addrow"),
-  addrow.overall = gs("addrow.overall"),
-  addrow.subgroups = gs("addrow.subgroups"),
-  addrows.below.overall = gs("addrows.below.overall"),
   main,
   main.prefix = gs("main.prefix"),
   xpos.main = gs("xpos.main"),
@@ -254,16 +246,9 @@ individual treatment estimates and confidence intervals.}
 
 \item{lab.NA.weight}{A character string to label missing weights.}
 
-\item{rob}{Risk of bias (RoB) assessment.}
-
-\item{rob.text}{Column heading for RoB table.}
-
-\item{rob.legend}{A logical specifying whether a legend with RoB
-domains should be printed.}
-
-\item{rob.only}{A logical indicating whether the risk of bias
-assessment is the only information printed on the right side of
-the forest plot.}
+\item{rob}{Risk-of-bias (RoB) assessment, or a named list specifying the
+assessment, table heading, legend, and right-side display; see
+\code{\link{forest-formatting}}.}
 
 \item{fontfamily}{The font family, see \code{\link{gpar}}.}
 
@@ -276,10 +261,11 @@ plot; see \code{\link{forest-formatting}}.}
 plot; see \code{\link{forest-formatting}}.}
 
 \item{just}{A named list specifying justification settings; a character
-string is also accepted for the common justification.}
+string is also accepted for the common justification. See
+\code{\link{forest-formatting}}.}
 
 \item{fill}{A named list specifying fill settings; a scalar value is also
-accepted.}
+accepted. See \code{\link{forest-formatting}}.}
 
 \item{col}{A named list specifying colours used in the forest
 plot; see \code{\link{forest-formatting}}.}
@@ -288,44 +274,37 @@ plot; see \code{\link{forest-formatting}}.}
 plot; see \code{\link{forest-formatting}}.}
 
 \item{type}{A named list specifying graphical types for study, pooled, and
-subgroup results.}
+subgroup results; see \code{\link{forest-formatting}}.}
 
-\item{pooled}{A named list specifying pooled totals and event/time settings.}
+\item{pooled}{A named list specifying pooled totals and event/time settings;
+see \code{\link{forest-formatting}}.}
 
 \item{text}{A named list specifying text for pooled results, subgroup
-results, and additional lines.}
+results, and additional lines; see \code{\link{forest-formatting}}.}
 
-\item{lty}{A named list specifying line types.}
+\item{lty}{A named list specifying line types; see
+\code{\link{forest-formatting}}.}
 
 \item{lwd}{The line width, see \code{\link{par}}, or a named list
 specifying line widths; see \code{\link{forest-formatting}}.}
 
 \item{digits}{A named list specifying digits used for displayed results; a
-scalar value is also accepted.}
+scalar value is also accepted. See \code{\link{forest-formatting}}.}
 
 \item{calcwidth}{A named list specifying which text is considered when
-calculating column widths.}
+calculating column widths; see \code{\link{forest-formatting}}.}
 
 \item{colgap}{A named list specifying gaps between columns; a scalar value
-is also accepted.}
+is also accepted. See \code{\link{forest-formatting}}.}
 
 \item{ref}{A numerical giving the reference value to be plotted as
 a line in the forest plot. No reference line is plotted if
 argument \code{ref} is equal to \code{NA}.}
 
-\item{cid}{A numeric value or vector specifying clinically important
+\item{cid}{A numeric value or vector, or a named list specifying clinically important
 differences (CID) / decision thresholds used to calculate probabilities
 of clinically important benefit or harm, or not important effects
-(see Details).}
-
-\item{cid.below.null}{A numeric value or vector specifying CID limits below
-the null effect (see Details).}
-
-\item{cid.above.null}{A numeric value or vector specifying CID limits above
-the null effect (see Details).}
-
-\item{cid.pooled.only}{A logical indicating whether CID regions should only
-be visible for pooled estimates or also individual studies.}
+(see Details); see \code{\link{forest-formatting}}.}
 
 \item{xlab}{A label for the x-axis. By default, no label is printed,
 except for meta-analyses of single proportions, incidence rates,
@@ -357,6 +336,14 @@ methods should be printed.}
 
 \item{header.line}{A logical value indicating whether to print a
 header line or a character string ("both", "below", "").}
+
+\item{addrow}{A logical value indicating whether an empty row is
+printed above study results, or a named list specifying row-spacing
+settings; see \code{\link{forest-formatting}}.}
+
+\item{addrows.below.overall}{A numeric value indicating how many
+empty rows are printed between meta-analysis results and
+heterogeneity statistics and test results.}
 
 \item{arrow.type}{A character string indicating whether arrows
 printed for results outside the forest plot should be
@@ -411,19 +398,6 @@ printed with a leading zero.}
 \item{JAMA.pval}{A logical specifying whether p-values for test of
 overall effect should be printed according to JAMA reporting
 standards.}
-
-\item{addrow}{A logical value indicating whether an empty row is
-printed above study results.}
-
-\item{addrow.overall}{A logical value indicating whether an empty
-row is printed above overall meta-analysis results.}
-
-\item{addrow.subgroups}{A logical value indicating whether an empty
-row is printed between results for subgroups.}
-
-\item{addrows.below.overall}{A numeric value indicating how many
-empty rows are printed between meta-analysis results and
-heterogeneity statistics and test results.}
 
 \item{main}{A title for the forest plot (see Details).}
 
@@ -1237,7 +1211,8 @@ A re-evaluation of random-effects meta-analysis.
 \bold{172}, 137-59
 }
 \seealso{
-\code{\link{metabin}}, \code{\link{metacont}},
+\code{\link{forest-formatting}},
+  \code{\link{metabin}}, \code{\link{metacont}},
   \code{\link{metagen}}, \code{\link{forest.metabind}},
   \code{\link{settings.meta}}, \code{\link{labels.meta}}
 }

@@ -104,13 +104,9 @@
 #' @param lab.NA.effect A character string to label missing values in
 #'   individual treatment estimates and confidence intervals.
 #' @param lab.NA.weight A character string to label missing weights.
-#' @param rob Risk of bias (RoB) assessment.
-#' @param rob.text Column heading for RoB table.
-#' @param rob.legend A logical specifying whether a legend with RoB
-#'   domains should be printed.
-#' @param rob.only A logical indicating whether the risk of bias
-#'   assessment is the only information printed on the right side of
-#'   the forest plot.
+#' @param rob Risk-of-bias (RoB) assessment, or a named list specifying the
+#'   assessment, table heading, legend, and right-side display; see
+#'   \code{\link{forest-formatting}}.
 #' @param fontfamily The font family, see \code{\link{gpar}}.
 #' @param fontsize The size of text (in points), see \code{\link{gpar}}.
 #' @param fs A named list specifying font sizes for elements of the forest
@@ -118,40 +114,37 @@
 #' @param ff A named list specifying fontfaces for elements of the forest
 #'   plot; see \code{\link{forest-formatting}}.
 #' @param just A named list specifying justification settings; a character
-#'   string is also accepted for the common justification.
+#'   string is also accepted for the common justification. See
+#'   \code{\link{forest-formatting}}.
 #' @param fill A named list specifying fill settings; a scalar value is also
-#'   accepted.
+#'   accepted. See \code{\link{forest-formatting}}.
 #' @param col A named list specifying colours used in the forest
 #'   plot; see \code{\link{forest-formatting}}.
 #' @param print A named list specifying which information to print in the forest
 #'   plot; see \code{\link{forest-formatting}}.
 #' @param type A named list specifying graphical types for study, pooled, and
-#'   subgroup results.
-#' @param pooled A named list specifying pooled totals and event/time settings.
+#'   subgroup results; see \code{\link{forest-formatting}}.
+#' @param pooled A named list specifying pooled totals and event/time settings;
+#'   see \code{\link{forest-formatting}}.
 #' @param text A named list specifying text for pooled results, subgroup
-#'   results, and additional lines.
-#' @param lty A named list specifying line types.
+#'   results, and additional lines; see \code{\link{forest-formatting}}.
+#' @param lty A named list specifying line types; see
+#'   \code{\link{forest-formatting}}.
 #' @param lwd The line width, see \code{\link{par}}, or a named list
 #'   specifying line widths; see \code{\link{forest-formatting}}.
 #' @param digits A named list specifying digits used for displayed results; a
-#'   scalar value is also accepted.
+#'   scalar value is also accepted. See \code{\link{forest-formatting}}.
 #' @param calcwidth A named list specifying which text is considered when
-#'   calculating column widths.
+#'   calculating column widths; see \code{\link{forest-formatting}}.
 #' @param colgap A named list specifying gaps between columns; a scalar value
-#'   is also accepted.
+#'   is also accepted. See \code{\link{forest-formatting}}.
 #' @param ref A numerical giving the reference value to be plotted as
 #'   a line in the forest plot. No reference line is plotted if
 #'   argument \code{ref} is equal to \code{NA}.
-#' @param cid A numeric value or vector specifying clinically important
+#' @param cid A numeric value or vector, or a named list specifying clinically important
 #'   differences (CID) / decision thresholds used to calculate probabilities
 #'   of clinically important benefit or harm, or not important effects
-#'   (see Details).
-#' @param cid.below.null A numeric value or vector specifying CID limits below
-#'   the null effect (see Details).
-#' @param cid.above.null A numeric value or vector specifying CID limits above
-#'   the null effect (see Details).
-#' @param cid.pooled.only A logical indicating whether CID regions should only
-#'   be visible for pooled estimates or also individual studies.
+#'   (see Details); see \code{\link{forest-formatting}}.
 #' @param xlab A label for the x-axis. By default, no label is printed,
 #'   except for meta-analyses of single proportions, incidence rates,
 #'   risk differences, or rate differences if proportions or rates are
@@ -174,6 +167,12 @@
 #'   methods should be printed.
 #' @param header.line A logical value indicating whether to print a
 #'   header line or a character string ("both", "below", "").
+#' @param addrow A logical value indicating whether an empty row is
+#'   printed above study results, or a named list specifying row-spacing
+#'   settings; see \code{\link{forest-formatting}}.
+#' @param addrows.below.overall A numeric value indicating how many
+#'   empty rows are printed between meta-analysis results and
+#'   heterogeneity statistics and test results.
 #' @param arrow.type A character string indicating whether arrows
 #'   printed for results outside the forest plot should be
 #'   \code{"open"}, or \code{"closed"}, can be abbreviated.
@@ -213,15 +212,6 @@
 #' @param JAMA.pval A logical specifying whether p-values for test of
 #'   overall effect should be printed according to JAMA reporting
 #'   standards.
-#' @param addrow A logical value indicating whether an empty row is
-#'   printed above study results.
-#' @param addrow.overall A logical value indicating whether an empty
-#'   row is printed above overall meta-analysis results.
-#' @param addrow.subgroups A logical value indicating whether an empty
-#'   row is printed between results for subgroups.
-#' @param addrows.below.overall A numeric value indicating how many
-#'   empty rows are printed between meta-analysis results and
-#'   heterogeneity statistics and test results.
 #' @param main A title for the forest plot (see Details).
 #' @param main.prefix A logical indicating whether to add a pre-defined prefix
 #'   to title lines (see Details).
@@ -793,7 +783,8 @@
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de},
 #'   Nour Edin Darwish \email{nouredindarwish@gmail.com}
 #' 
-#' @seealso \code{\link{metabin}}, \code{\link{metacont}},
+#' @seealso \code{\link{forest-formatting}},
+#'   \code{\link{metabin}}, \code{\link{metacont}},
 #'   \code{\link{metagen}}, \code{\link{forest.metabind}},
 #'   \code{\link{settings.meta}}, \code{\link{labels.meta}}
 #' 
@@ -1075,10 +1066,7 @@ forest.meta <- function(x,
                         lab.NA.effect = gs("lab.NA.effect"),
                         lab.NA.weight = gs("lab.NA.weight"),
                         #
-                        rob = x$rob,
-                        rob.text = "Risk of Bias",
-                        rob.legend = TRUE,
-                        rob.only = FALSE,
+                        rob = NULL,
                         #
                         # Forest formatting
                         #
@@ -1103,10 +1091,7 @@ forest.meta <- function(x,
                         # Plot content and geometry
                         #
                         ref,
-                        cid = gs("cid"),
-                        cid.below.null = gs("cid.below.null"),
-                        cid.above.null = gs("cid.above.null"),
-                        cid.pooled.only = gs("cid.pooled.only"),
+                        cid = NULL,
                         #
                         xlab = NULL, xlab.pos,
                         smlab = NULL, smlab.pos, xlim,
@@ -1115,13 +1100,15 @@ forest.meta <- function(x,
                         bottom.lr = gs("bottom.lr"),
                         #
                         details = gs("forest.details"),
+                        #
                         header.line,
+                        addrow = NULL,
+                        addrows.below.overall = gs("addrows.below.overall"),
                         #
                         arrow.type = gs("arrow.type"),
                         arrow.length = gs("arrow.length"),
                         #
                         spacing = gs("spacing"),
-                        #
                         squaresize =
                           if (layout == "BMJ") 0.9 / spacing else 0.8 / spacing,
                         plotwidth =
@@ -1144,10 +1131,6 @@ forest.meta <- function(x,
                         #
                         # Row spacing
                         #
-                        addrow = gs("addrow"),
-                        addrow.overall = gs("addrow.overall"),
-                        addrow.subgroups = gs("addrow.subgroups"),
-                        addrows.below.overall = gs("addrows.below.overall"),
                         #
                         # Title
                         #
@@ -1375,11 +1358,18 @@ forest.meta <- function(x,
   #
   # Scalar is possible input
   #
+  addrow <- as_named_list(addrow)
+  cid <- as_named_list(cid)
   colgap <- as_named_list(colgap)
   digits <- as_named_list(digits)
   fill <- as_named_list(fill)
   just <- as_named_list(just)
   lwd <- as_named_list(lwd)
+  #
+  # Data frame is possible input
+  #
+  if (is.data.frame(rob))
+    rob <- list(rob = rob)
   #
   # Font sizes
   #
@@ -1961,6 +1951,43 @@ forest.meta <- function(x,
   lwd.square <- lwds$square
   lwd.diamond <- lwds$diamond
   #
+  # Risk of Bias
+  #
+  rob.list <- merge_legacy(rob, args, rob_defaults(x), "rob")
+  #
+  robs <- rob.list$res
+  args <- rob.list$args
+  #
+  rob <- robs$rob
+  rob.text <- robs$text
+  rob.legend <- robs$legend
+  rob.only <- robs$only
+  #
+  # CID
+  #
+  cid.list <- merge_legacy(cid, args, cid_defaults(x), "cid")
+  #
+  cids <- cid.list$res
+  args <- cid.list$args
+  #
+  cid <- cids$cid
+  cid.below.null <- cids$below.null
+  cid.above.null <- cids$above.null
+  cid.pooled.only <- cids$pooled.only
+  #
+  # addrow
+  #
+  addrow.list <- merge_legacy(addrow, args, addrow_defaults(), "addrow")
+  #
+  addrows <- addrow.list$res
+  args <- addrow.list$args
+  #
+  addrow <- addrows$addrow
+  addrow.overall <- addrows$overall
+  addrow.subgroups <- addrows$subgroup
+  #
+  # Names of all remaining arguments in '...'
+  #
   nam.args <- names(args)
   
   
@@ -2140,7 +2167,7 @@ forest.meta <- function(x,
                 !(is.null(x$complab) || identical(x$complab, "")) ||
                   !(is.null(x$outclab) || identical(x$outclab, "")))
   chklogical(main.prefix)
-  
+
   
   #
   #

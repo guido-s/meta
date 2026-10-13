@@ -1954,6 +1954,23 @@ fill_defaults <- function() {
   )
 }
 
+cid_defaults <- function(x = NULL) {
+  list(
+    cid = gs("cid"),
+    below.null = gs("cid.below.null"),
+    above.null = gs("cid.above.null"),
+    pooled.only = gs("cid.pooled.only")
+  )
+}
+
+addrow_defaults <- function() {
+  list(
+    addrow = gs("addrow"),
+    overall = gs("addrow.overall"),
+    subgroup = gs("addrow.subgroups")
+  )
+}
+
 pooled_defaults <- function(common, random) {
   list(
     totals = common | random,
@@ -1992,5 +2009,14 @@ lwd_defaults <- function() {
     lwd = gs("lwd"),
     square = gs("lwd.square"),
     diamond = gs("lwd.diamond")
+  )
+}
+
+rob_defaults <- function(x) {
+  list(
+    rob = x$rob,
+    text = "Risk of Bias",
+    legend = TRUE,
+    only = FALSE
   )
 }

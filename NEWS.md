@@ -6,8 +6,8 @@
   meta-analysis with a binary outcome; argument `MH.exact` in `metabin()` is now
   `TRUE`. Thus, continuity corrections are no longer added to cell frequencies
   when calculating Mantel-Haenszel pooled estimates for studies with zero cells.
-  For a single-study meta-analysis, a continuity correction is still used.
-  Use `settings.meta("meta8")` to restore the previous behaviour.
+  For a single-study meta-analysis with a zero cell, a continuity correction
+  is still used. Use `settings.meta("meta8")` to restore the previous behaviour.
 
 * Defaults for forest plots have been revised. In the default layout
   (`layout = "meta"`), all default study-level columns are now printed on
@@ -1015,7 +1015,7 @@ Revise web links
   - default for argument 'details.methods' can be defined using
     settings.meta()
   - do not print degrees of freedom for Hartung-Knapp or Kenward-Rogers
-    intervals if argument \code{overall = FALSE}
+    intervals if argument 'overall = FALSE'
 
 * gs():
   - first argument can be a character vector instead of a character string
@@ -1192,9 +1192,9 @@ Revise web links
     functions)
 
 * read.rm5():
-  - fix bug for error message *"In gsub("\x80", "EUR", txt) : unable
-    to translate '<80>' to a wide string"* due to change in default
-    settings in R function gsub()
+  - fix bug for error message
+    In `gsub("\x80", "EUR", txt)` : unable to translate '<80>' to a wide string
+    due to a change in the default settings of R function gsub()
 
 ### User-visible changes
 
