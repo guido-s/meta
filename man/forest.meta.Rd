@@ -12,65 +12,45 @@
   sortvar,
   studlab = TRUE,
   layout = gs("layout"),
+  data.pooled = NULL,
   common = x$common,
   random = x$random,
-  overall = x$overall,
   prediction = x$prediction,
+  overall = x$overall,
+  overall.hetstat = x$overall.hetstat & !inherits(x, "metamerge"),
+  hetstat = common | random | overall.hetstat,
+  resid.hetstat = gs("resid.hetstat"),
   subgroup = TRUE,
   subgroup.hetstat = subgroup & (is.character(hetstat) || hetstat),
+  common.subgroup = common,
+  random.subgroup = random,
+  prediction.subgroup = x$prediction.subgroup,
   subgroup.name = x$subgroup.name,
   sep.subgroup = x$sep.subgroup,
   sort.subgroup = gs("sort.subgroup"),
   study.results = gs("study.results"),
-  rob = x$rob,
-  rob.text = "Risk of Bias",
-  rob.legend = TRUE,
-  rob.only = FALSE,
-  xlab = NULL,
-  xlab.pos,
-  main,
-  main.prefix = gs("main.prefix"),
-  xpos.main = gs("xpos.main"),
-  gap.main = gs("gap.main"),
-  lineheight.main = gs("lineheight.main"),
-  smlab = NULL,
-  smlab.pos,
-  xlim,
   allstudies = TRUE,
   weight.study = NULL,
-  pscale = x$pscale,
-  irscale = x$irscale,
-  irunit = x$irunit,
-  filename = NULL,
-  path = NULL,
-  device = NULL,
-  device.args = NULL,
-  units = "in",
-  height = NULL,
-  width = NULL,
-  dpi = 300,
-  dev.off = NULL,
-  rows.gr = NULL,
-  ref,
-  cid = gs("cid"),
-  cid.below.null = gs("cid.below.null"),
-  cid.above.null = gs("cid.above.null"),
-  cid.pooled.only = gs("cid.pooled.only"),
+  test = NULL,
+  LRT = gs("LRT"),
   leftcols = gs("leftcols"),
   rightcols = gs("rightcols"),
   leftlabs = gs("leftlabs"),
   rightlabs = gs("rightlabs"),
-  bottom.lr = gs("bottom.lr"),
+  label,
+  hetlab = gs("hetlab"),
+  resid.hetlab = gs("resid.hetlab"),
   lab.NA = gs("lab.NA"),
   lab.NA.effect = gs("lab.NA.effect"),
   lab.NA.weight = gs("lab.NA.weight"),
-  at = NULL,
-  label = TRUE,
-  hetstat = common | random | overall.hetstat,
-  overall.hetstat = x$overall.hetstat & !inherits(x, "metamerge"),
-  hetlab = gs("hetlab"),
-  resid.hetstat = gs("resid.hetstat"),
-  resid.hetlab = gs("resid.hetlab"),
+  rob = x$rob,
+  rob.text = "Risk of Bias",
+  rob.legend = TRUE,
+  rob.only = FALSE,
+  fontfamily = gs("fontfamily"),
+  fontsize = gs("fontsize"),
+  fs = NULL,
+  ff = NULL,
   just = NULL,
   fill = NULL,
   col = NULL,
@@ -80,39 +60,58 @@
   text = NULL,
   lty = NULL,
   lwd = NULL,
-  test = NULL,
-  labels = NULL,
-  LRT = gs("LRT"),
-  common.subgroup = common,
-  random.subgroup = random,
-  prediction.subgroup = x$prediction.subgroup,
-  details = gs("forest.details"),
-  header.line,
-  data.pooled = NULL,
-  fontsize = gs("fontsize"),
-  fontfamily = gs("fontfamily"),
-  fs = NULL,
-  ff = NULL,
-  squaresize = if (layout == "BMJ") 0.9/spacing else 0.8/spacing,
-  arrow.type = gs("arrow.type"),
-  arrow.length = gs("arrow.length"),
-  plotwidth = if (layout \%in\% c("BMJ", "JAMA")) "8cm" else "6cm",
+  digits = NULL,
   calcwidth = NULL,
   colgap = NULL,
+  ref,
+  cid = gs("cid"),
+  cid.below.null = gs("cid.below.null"),
+  cid.above.null = gs("cid.above.null"),
+  cid.pooled.only = gs("cid.pooled.only"),
+  xlab = NULL,
+  xlab.pos,
+  smlab = NULL,
+  smlab.pos,
+  xlim,
+  at = NULL,
+  bottom.lr = gs("bottom.lr"),
+  details = gs("forest.details"),
+  header.line,
+  arrow.type = gs("arrow.type"),
+  arrow.length = gs("arrow.length"),
+  spacing = gs("spacing"),
+  squaresize = if (layout == "BMJ") 0.9/spacing else 0.8/spacing,
+  plotwidth = if (layout \%in\% c("BMJ", "JAMA")) "8cm" else "6cm",
   bmj.text = NULL,
   bmj.sep = " / ",
-  spacing = gs("spacing"),
+  backtransf = x$backtransf,
+  big.mark = gs("big.mark"),
+  pscale = x$pscale,
+  irscale = x$irscale,
+  irunit = x$irunit,
+  scientific.pval = gs("scientific.pval"),
+  zero.pval = if (layout == "JAMA") FALSE else gs("zero.pval"),
+  JAMA.pval = if (layout == "JAMA") TRUE else gs("JAMA.pval"),
   addrow = gs("addrow"),
   addrow.overall = gs("addrow.overall"),
   addrow.subgroups = gs("addrow.subgroups"),
   addrows.below.overall = gs("addrows.below.overall"),
+  main,
+  main.prefix = gs("main.prefix"),
+  xpos.main = gs("xpos.main"),
+  gap.main = gs("gap.main"),
+  lineheight.main = gs("lineheight.main"),
+  filename = NULL,
+  path = NULL,
+  device = NULL,
+  device.args = NULL,
+  units = "in",
+  height = NULL,
+  width = NULL,
+  dpi = 300,
+  dev.off = NULL,
   new = TRUE,
-  backtransf = x$backtransf,
-  digits = NULL,
-  scientific.pval = gs("scientific.pval"),
-  big.mark = gs("big.mark"),
-  zero.pval = if (layout == "JAMA") FALSE else gs("zero.pval"),
-  JAMA.pval = if (layout == "JAMA") TRUE else gs("JAMA.pval"),
+  rows.gr = NULL,
   warn.deprecated = gs("warn.deprecated"),
   ...
 )
@@ -134,19 +133,36 @@ provided (must be of same length as the vector with estimates \code{x$TE}).}
 \item{layout}{A character string specifying the layout of the
 forest plot (see Details).}
 
+\item{data.pooled}{Data set with information for line(s) with pooled
+results (see Details).}
+
 \item{common}{A logical indicating whether common effect estimate
 should be plotted.}
 
 \item{random}{A logical indicating whether random effects estimate
 should be plotted.}
 
+\item{prediction}{A logical indicating whether a prediction
+interval should be printed.}
+
 \item{overall}{A logical indicating whether overall summaries
 should be plotted. This argument is useful in a meta-analysis
 with subgroups if summaries should only be plotted on group
 level.}
 
-\item{prediction}{A logical indicating whether a prediction
-interval should be printed.}
+\item{overall.hetstat}{A logical value indicating whether to print
+heterogeneity measures for overall treatment comparisons. This
+argument is useful in a meta-analysis with subgroups if
+heterogeneity statistics should only be printed on subgroup
+level.}
+
+\item{hetstat}{Either a logical value indicating whether to print
+results for heterogeneity measures at all or a character string
+(see Details).}
+
+\item{resid.hetstat}{A logical value indicating whether to print
+measures of residual heterogeneity in a meta-analysis with
+subgroups.}
 
 \item{subgroup}{A single logical or logical vector indicating
 whether / which subgroup results should be shown in forest
@@ -158,6 +174,18 @@ indicating whether / which information on heterogeneity in
 subgroups should be shown in forest plot. This argument is useful
 in a meta-analysis with subgroups if heterogeneity statistics
 should not be printed for (some) subgroups.}
+
+\item{common.subgroup}{A single logical or logical vector
+indicating whether / which common effect estimates should be
+printed for subgroups.}
+
+\item{random.subgroup}{A single logical, logical vector, or logical matrix
+indicating whether / which random effects estimates should be printed for
+subgroups.}
+
+\item{prediction.subgroup}{A single logical, logical vector, or logical
+matrix indicating whether / which prediction intervals should be printed
+for subgroups.}
 
 \item{subgroup.name}{A character string with a label for the
 grouping variable.}
@@ -172,48 +200,6 @@ ordered alphabetically.}
 individual studies should be shown in the figure (useful to only
 plot subgroup results).}
 
-\item{rob}{Risk of bias (RoB) assessment.}
-
-\item{rob.text}{Column heading for RoB table.}
-
-\item{rob.legend}{A logical specifying whether a legend with RoB
-domains should be printed.}
-
-\item{rob.only}{A logical indicating whether the risk of bias
-assessment is the only information printed on the right side of
-the forest plot.}
-
-\item{xlab}{A label for the x-axis. By default, no label is printed,
-except for meta-analyses of single proportions, incidence rates,
-risk differences, or rate differences if proportions or rates are
-expressed as events per a specified number of observations or time
-units using \code{pscale} or \code{irscale}.}
-
-\item{xlab.pos}{A numeric specifying the center of the label on the
-x-axis.}
-
-\item{main}{A title for the forest plot (see Details).}
-
-\item{main.prefix}{A logical indicating whether to add a pre-defined prefix
-to title lines (see Details).}
-
-\item{xpos.main}{Horizontal position of title.}
-
-\item{gap.main}{Number of empty rows between title and column headings.}
-
-\item{lineheight.main}{Line height for the main title,
-see \code{\link{gpar}}.}
-
-\item{smlab}{A label for the summary measure (printed at top of
-figure). By default, no label is printed for single proportions or
-incidence rates.}
-
-\item{smlab.pos}{A numeric specifying the center of the label for
-the summary measure.}
-
-\item{xlim}{The x limits (min,max) of the plot, or the character
-string "symmetric" to produce symmetric forest plots.}
-
 \item{allstudies}{A logical indicating whether studies with
 inestimable treatment effects should be included in the forest
 plot.}
@@ -225,6 +211,182 @@ missing, \code{"same"}, \code{"common"}, or \code{"random"}, can
 be abbreviated. Plot symbols have the same size for all studies
 or represent study weights from common effect or random effects
 model.}
+
+\item{test}{A named list specifying which results of statistical tests
+should be printed; see \code{\link{forest-formatting}}.}
+
+\item{LRT}{A logical value indicating whether to report
+Likelihood-Ratio or Wald-type test of heterogeneity for
+generalised linear mixed models.}
+
+\item{leftcols}{A character vector specifying (additional) columns
+to be printed on the left side of the forest plot or a logical
+value (see Details).}
+
+\item{rightcols}{A character vector specifying (additional) columns
+to be printed on the right side of the forest plot or a logical
+value (see Details).}
+
+\item{leftlabs}{A character vector specifying labels for
+(additional) columns on left side of the forest plot (see
+Details).}
+
+\item{rightlabs}{A character vector specifying labels for
+(additional) columns on right side of the forest plot (see
+Details).}
+
+\item{label}{A logical value indicating whether to draw the labels
+on the tick marks, or an expression or character vector which
+specify the labels to use. See \code{\link{grid.xaxis}}. A named list
+can also be supplied to specify column labels; see
+\code{\link{forest-formatting}}.}
+
+\item{hetlab}{Label printed in front of results for heterogeneity
+measures.}
+
+\item{resid.hetlab}{Label printed in front of results for residual
+heterogeneity measures.}
+
+\item{lab.NA}{A character string to label missing values.}
+
+\item{lab.NA.effect}{A character string to label missing values in
+individual treatment estimates and confidence intervals.}
+
+\item{lab.NA.weight}{A character string to label missing weights.}
+
+\item{rob}{Risk of bias (RoB) assessment.}
+
+\item{rob.text}{Column heading for RoB table.}
+
+\item{rob.legend}{A logical specifying whether a legend with RoB
+domains should be printed.}
+
+\item{rob.only}{A logical indicating whether the risk of bias
+assessment is the only information printed on the right side of
+the forest plot.}
+
+\item{fontfamily}{The font family, see \code{\link{gpar}}.}
+
+\item{fontsize}{The size of text (in points), see \code{\link{gpar}}.}
+
+\item{fs}{A named list specifying font sizes for elements of the forest
+plot; see \code{\link{forest-formatting}}.}
+
+\item{ff}{A named list specifying fontfaces for elements of the forest
+plot; see \code{\link{forest-formatting}}.}
+
+\item{just}{A named list specifying justification settings; a character
+string is also accepted for the common justification.}
+
+\item{fill}{A named list specifying fill settings; a scalar value is also
+accepted.}
+
+\item{col}{A named list specifying colours used in the forest
+plot; see \code{\link{forest-formatting}}.}
+
+\item{print}{A named list specifying which information to print in the forest
+plot; see \code{\link{forest-formatting}}.}
+
+\item{type}{A named list specifying graphical types for study, pooled, and
+subgroup results.}
+
+\item{pooled}{A named list specifying pooled totals and event/time settings.}
+
+\item{text}{A named list specifying text for pooled results, subgroup
+results, and additional lines.}
+
+\item{lty}{A named list specifying line types.}
+
+\item{lwd}{The line width, see \code{\link{par}}, or a named list
+specifying line widths; see \code{\link{forest-formatting}}.}
+
+\item{digits}{A named list specifying digits used for displayed results; a
+scalar value is also accepted.}
+
+\item{calcwidth}{A named list specifying which text is considered when
+calculating column widths.}
+
+\item{colgap}{A named list specifying gaps between columns; a scalar value
+is also accepted.}
+
+\item{ref}{A numerical giving the reference value to be plotted as
+a line in the forest plot. No reference line is plotted if
+argument \code{ref} is equal to \code{NA}.}
+
+\item{cid}{A numeric value or vector specifying clinically important
+differences (CID) / decision thresholds used to calculate probabilities
+of clinically important benefit or harm, or not important effects
+(see Details).}
+
+\item{cid.below.null}{A numeric value or vector specifying CID limits below
+the null effect (see Details).}
+
+\item{cid.above.null}{A numeric value or vector specifying CID limits above
+the null effect (see Details).}
+
+\item{cid.pooled.only}{A logical indicating whether CID regions should only
+be visible for pooled estimates or also individual studies.}
+
+\item{xlab}{A label for the x-axis. By default, no label is printed,
+except for meta-analyses of single proportions, incidence rates,
+risk differences, or rate differences if proportions or rates are
+expressed as events per a specified number of observations or time
+units using \code{pscale} or \code{irscale}.}
+
+\item{xlab.pos}{A numeric specifying the center of the label on the
+x-axis.}
+
+\item{smlab}{A label for the summary measure (printed at top of
+figure). By default, no label is printed for single proportions or
+incidence rates.}
+
+\item{smlab.pos}{A numeric specifying the center of the label for
+the summary measure.}
+
+\item{xlim}{The x limits (min,max) of the plot, or the character
+string "symmetric" to produce symmetric forest plots.}
+
+\item{at}{The points at which tick-marks are to be drawn, see
+\code{grid.xaxis}.}
+
+\item{bottom.lr}{A logical indicating whether labels on right and
+left side should be printed at bottom or top of forest plot.}
+
+\item{details}{A logical specifying whether details on statistical
+methods should be printed.}
+
+\item{header.line}{A logical value indicating whether to print a
+header line or a character string ("both", "below", "").}
+
+\item{arrow.type}{A character string indicating whether arrows
+printed for results outside the forest plot should be
+\code{"open"}, or \code{"closed"}, can be abbreviated.}
+
+\item{arrow.length}{The length of arrows in inches.}
+
+\item{spacing}{A numeric determining line spacing in a forest plot.}
+
+\item{squaresize}{A numeric used to increase or decrease the size
+of squares in the forest plot.}
+
+\item{plotwidth}{Either a character string, e.g., "8cm", "60mm", or
+"3inch", or a \code{\link[grid]{unit}} object specifying width of
+the forest plot.}
+
+\item{bmj.text}{A character string used in the plot with BMJ layout
+to label the group specific information.}
+
+\item{bmj.sep}{A character string used to separate sample sizes
+from number of events or means / standard deviations.}
+
+\item{backtransf}{A logical indicating whether results should be
+back transformed in forest plots. If \code{backtransf = TRUE},
+results for \code{sm = "OR"} are presented as odds ratios rather
+than log odds ratios and results for \code{sm = "ZCOR"} are
+presented as correlations rather than Fisher's z transformed
+correlations, for example.}
+
+\item{big.mark}{A character used as thousands separator.}
 
 \item{pscale}{A numeric giving scaling factor for printing of
 single event probabilities or risk differences, i.e. if argument
@@ -238,6 +400,42 @@ argument \code{sm} is equal to \code{"IR"}, \code{"IRLN"},
 
 \item{irunit}{A character specifying the time unit used to
 calculate rates, e.g., person-years.}
+
+\item{scientific.pval}{A logical specifying whether p-values should
+be printed in scientific notation, e.g., 1.2345e-01 instead of
+0.12345.}
+
+\item{zero.pval}{A logical specifying whether p-values should be
+printed with a leading zero.}
+
+\item{JAMA.pval}{A logical specifying whether p-values for test of
+overall effect should be printed according to JAMA reporting
+standards.}
+
+\item{addrow}{A logical value indicating whether an empty row is
+printed above study results.}
+
+\item{addrow.overall}{A logical value indicating whether an empty
+row is printed above overall meta-analysis results.}
+
+\item{addrow.subgroups}{A logical value indicating whether an empty
+row is printed between results for subgroups.}
+
+\item{addrows.below.overall}{A numeric value indicating how many
+empty rows are printed between meta-analysis results and
+heterogeneity statistics and test results.}
+
+\item{main}{A title for the forest plot (see Details).}
+
+\item{main.prefix}{A logical indicating whether to add a pre-defined prefix
+to title lines (see Details).}
+
+\item{xpos.main}{Horizontal position of title.}
+
+\item{gap.main}{Number of empty rows between title and column headings.}
+
+\item{lineheight.main}{Line height for the main title,
+see \code{\link{gpar}}.}
 
 \item{filename}{File name to store forest plot.}
 
@@ -267,209 +465,11 @@ forest plot. One of \code{"in"} (for inches, default), \code{"cm"},
 \item{dev.off}{A logical to specify whether current graphics device
 should be shut down.}
 
-\item{rows.gr}{Deprecated argument to add rows to the forest plot to change
-the height of the graphics file; only provided for backward compatibility.}
-
-\item{ref}{A numerical giving the reference value to be plotted as
-a line in the forest plot. No reference line is plotted if
-argument \code{ref} is equal to \code{NA}.}
-
-\item{cid}{A numeric value or vector specifying clinically important
-differences (CID) / decision thresholds used to calculate probabilities
-of clinically important benefit or harm, or not important effects
-(see Details).}
-
-\item{cid.below.null}{A numeric value or vector specifying CID limits below
-the null effect (see Details).}
-
-\item{cid.above.null}{A numeric value or vector specifying CID limits above
-the null effect (see Details).}
-
-\item{cid.pooled.only}{A logical indicating whether CID regions should only
-be visible for pooled estimates or also individual studies.}
-
-\item{leftcols}{A character vector specifying (additional) columns
-to be printed on the left side of the forest plot or a logical
-value (see Details).}
-
-\item{rightcols}{A character vector specifying (additional) columns
-to be printed on the right side of the forest plot or a logical
-value (see Details).}
-
-\item{leftlabs}{A character vector specifying labels for
-(additional) columns on left side of the forest plot (see
-Details).}
-
-\item{rightlabs}{A character vector specifying labels for
-(additional) columns on right side of the forest plot (see
-Details).}
-
-\item{bottom.lr}{A logical indicating whether labels on right and
-left side should be printed at bottom or top of forest plot.}
-
-\item{lab.NA}{A character string to label missing values.}
-
-\item{lab.NA.effect}{A character string to label missing values in
-individual treatment estimates and confidence intervals.}
-
-\item{lab.NA.weight}{A character string to label missing weights.}
-
-\item{at}{The points at which tick-marks are to be drawn, see
-\code{grid.xaxis}.}
-
-\item{label}{A logical value indicating whether to draw the labels
-on the tick marks, or an expression or character vector which
-specify the labels to use. See \code{\link{grid.xaxis}}.}
-
-\item{hetstat}{Either a logical value indicating whether to print
-results for heterogeneity measures at all or a character string
-(see Details).}
-
-\item{overall.hetstat}{A logical value indicating whether to print
-heterogeneity measures for overall treatment comparisons. This
-argument is useful in a meta-analysis with subgroups if
-heterogeneity statistics should only be printed on subgroup
-level.}
-
-\item{hetlab}{Label printed in front of results for heterogeneity
-measures.}
-
-\item{resid.hetstat}{A logical value indicating whether to print
-measures of residual heterogeneity in a meta-analysis with
-subgroups.}
-
-\item{resid.hetlab}{Label printed in front of results for residual
-heterogeneity measures.}
-
-\item{just}{A named list specifying justification settings; a character
-string is also accepted for the common justification.}
-
-\item{fill}{A named list specifying fill settings; a scalar value is also
-accepted.}
-
-\item{col}{A named list specifying colours used in the forest
-plot; see \code{\link{forest-formatting}}.}
-
-\item{print}{A named list specifying which information to print in the forest
-plot; see \code{\link{forest-formatting}}.}
-
-\item{type}{A named list specifying graphical types for study, pooled, and
-subgroup results.}
-
-\item{pooled}{A named list specifying pooled totals and event/time settings.}
-
-\item{text}{A named list specifying text for pooled results, subgroup
-results, and additional lines.}
-
-\item{lty}{A named list specifying line types.}
-
-\item{lwd}{A named list specifying line widths.}
-
-\item{test}{A named list specifying which results of statistical tests
-should be printed; see \code{\link{forest-formatting}}.}
-
-\item{labels}{A named list specifying graph, column, and test labels.}
-
-\item{LRT}{A logical value indicating whether to report
-Likelihood-Ratio or Wald-type test of heterogeneity for
-generalised linear mixed models.}
-
-\item{common.subgroup}{A single logical or logical vector
-indicating whether / which common effect estimates should be
-printed for subgroups.}
-
-\item{random.subgroup}{A single logical, logical vector, or logical matrix
-indicating whether / which random effects estimates should be printed for
-subgroups.}
-
-\item{prediction.subgroup}{A single logical, logical vector, or logical
-matrix indicating whether / which prediction intervals should be printed
-for subgroups.}
-
-\item{details}{A logical specifying whether details on statistical
-methods should be printed.}
-
-\item{header.line}{A logical value indicating whether to print a
-header line or a character string ("both", "below", "").}
-
-\item{data.pooled}{Data set with information for line(s) with pooled
-results (see Details).}
-
-\item{fontsize}{The size of text (in points), see \code{\link{gpar}}.}
-
-\item{fontfamily}{The font family, see \code{\link{gpar}}.}
-
-\item{fs}{A named list specifying font sizes for elements of the forest
-plot; see \code{\link{forest-formatting}}.}
-
-\item{ff}{A named list specifying fontfaces for elements of the forest
-plot; see \code{\link{forest-formatting}}.}
-
-\item{squaresize}{A numeric used to increase or decrease the size
-of squares in the forest plot.}
-
-\item{arrow.type}{A character string indicating whether arrows
-printed for results outside the forest plot should be
-\code{"open"}, or \code{"closed"}, can be abbreviated.}
-
-\item{arrow.length}{The length of arrows in inches.}
-
-\item{plotwidth}{Either a character string, e.g., "8cm", "60mm", or
-"3inch", or a \code{\link[grid]{unit}} object specifying width of
-the forest plot.}
-
-\item{calcwidth}{A named list specifying which text is considered when
-calculating column widths.}
-
-\item{colgap}{A named list specifying gaps between columns; a scalar value
-is also accepted.}
-
-\item{bmj.text}{A character string used in the plot with BMJ layout
-to label the group specific information.}
-
-\item{bmj.sep}{A character string used to separate sample sizes
-from number of events or means / standard deviations.}
-
-\item{spacing}{A numeric determining line spacing in a forest plot.}
-
-\item{addrow}{A logical value indicating whether an empty row is
-printed above study results.}
-
-\item{addrow.overall}{A logical value indicating whether an empty
-row is printed above overall meta-analysis results.}
-
-\item{addrow.subgroups}{A logical value indicating whether an empty
-row is printed between results for subgroups.}
-
-\item{addrows.below.overall}{A numeric value indicating how many
-empty rows are printed between meta-analysis results and
-heterogeneity statistics and test results.}
-
 \item{new}{A logical value indicating whether a new figure should
 be printed in an existing graphics window.}
 
-\item{backtransf}{A logical indicating whether results should be
-back transformed in forest plots. If \code{backtransf = TRUE},
-results for \code{sm = "OR"} are presented as odds ratios rather
-than log odds ratios and results for \code{sm = "ZCOR"} are
-presented as correlations rather than Fisher's z transformed
-correlations, for example.}
-
-\item{digits}{A named list specifying digits used for displayed results; a
-scalar value is also accepted.}
-
-\item{scientific.pval}{A logical specifying whether p-values should
-be printed in scientific notation, e.g., 1.2345e-01 instead of
-0.12345.}
-
-\item{big.mark}{A character used as thousands separator.}
-
-\item{zero.pval}{A logical specifying whether p-values should be
-printed with a leading zero.}
-
-\item{JAMA.pval}{A logical specifying whether p-values for test of
-overall effect should be printed according to JAMA reporting
-standards.}
+\item{rows.gr}{Deprecated argument to add rows to the forest plot to change
+the height of the graphics file; only provided for backward compatibility.}
 
 \item{warn.deprecated}{A logical indicating whether warnings should
 be printed if deprecated arguments are used.}

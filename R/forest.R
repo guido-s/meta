@@ -14,16 +14,29 @@
 #'   provided (must be of same length as the vector with estimates \code{x$TE}).
 #' @param layout A character string specifying the layout of the
 #'   forest plot (see Details).
+#' @param data.pooled Data set with information for line(s) with pooled
+#'   results (see Details).
 #' @param common A logical indicating whether common effect estimate
 #'   should be plotted.
 #' @param random A logical indicating whether random effects estimate
 #'   should be plotted.
+#' @param prediction A logical indicating whether a prediction
+#'   interval should be printed.
 #' @param overall A logical indicating whether overall summaries
 #'   should be plotted. This argument is useful in a meta-analysis
 #'   with subgroups if summaries should only be plotted on group
 #'   level.
-#' @param prediction A logical indicating whether a prediction
-#'   interval should be printed.
+#' @param overall.hetstat A logical value indicating whether to print
+#'   heterogeneity measures for overall treatment comparisons. This
+#'   argument is useful in a meta-analysis with subgroups if
+#'   heterogeneity statistics should only be printed on subgroup
+#'   level.
+#' @param hetstat Either a logical value indicating whether to print
+#'   results for heterogeneity measures at all or a character string
+#'   (see Details).
+#' @param resid.hetstat A logical value indicating whether to print
+#'   measures of residual heterogeneity in a meta-analysis with
+#'   subgroups.
 #' @param subgroup A single logical or logical vector indicating
 #'   whether / which subgroup results should be shown in forest
 #'   plot. This argument is useful in a meta-analysis with subgroups
@@ -33,6 +46,15 @@
 #'   subgroups should be shown in forest plot. This argument is useful
 #'   in a meta-analysis with subgroups if heterogeneity statistics
 #'   should not be printed for (some) subgroups.
+#' @param common.subgroup A single logical or logical vector
+#'   indicating whether / which common effect estimates should be
+#'   printed for subgroups.
+#' @param random.subgroup A single logical, logical vector, or logical matrix
+#'   indicating whether / which random effects estimates should be printed for
+#'   subgroups.
+#' @param prediction.subgroup A single logical, logical vector, or logical
+#'   matrix indicating whether / which prediction intervals should be printed
+#'   for subgroups.
 #' @param subgroup.name A character string with a label for the
 #'   grouping variable.
 #' @param sep.subgroup A character string defining the separator
@@ -42,34 +64,6 @@
 #' @param study.results A logical indicating whether results for
 #'   individual studies should be shown in the figure (useful to only
 #'   plot subgroup results).
-#' @param rob Risk of bias (RoB) assessment.
-#' @param rob.text Column heading for RoB table.
-#' @param rob.legend A logical specifying whether a legend with RoB
-#'   domains should be printed.
-#' @param rob.only A logical indicating whether the risk of bias
-#'   assessment is the only information printed on the right side of
-#'   the forest plot.
-#' @param xlab A label for the x-axis. By default, no label is printed,
-#'   except for meta-analyses of single proportions, incidence rates,
-#'   risk differences, or rate differences if proportions or rates are
-#'   expressed as events per a specified number of observations or time
-#'   units using \code{pscale} or \code{irscale}.
-#' @param xlab.pos A numeric specifying the center of the label on the
-#'   x-axis.
-#' @param main A title for the forest plot (see Details).
-#' @param main.prefix A logical indicating whether to add a pre-defined prefix
-#'   to title lines (see Details).
-#' @param xpos.main Horizontal position of title.
-#' @param gap.main Number of empty rows between title and column headings.
-#' @param lineheight.main Line height for the main title,
-#'   see \code{\link{gpar}}.
-#' @param smlab A label for the summary measure (printed at top of
-#'   figure). By default, no label is printed for single proportions or
-#'   incidence rates.
-#' @param smlab.pos A numeric specifying the center of the label for
-#'   the summary measure.
-#' @param xlim The x limits (min,max) of the plot, or the character
-#'   string "symmetric" to produce symmetric forest plots.
 #' @param allstudies A logical indicating whether studies with
 #'   inestimable treatment effects should be included in the forest
 #'   plot.
@@ -80,6 +74,127 @@
 #'   be abbreviated. Plot symbols have the same size for all studies
 #'   or represent study weights from common effect or random effects
 #'   model.
+#' @param test A named list specifying which results of statistical tests
+#'   should be printed; see \code{\link{forest-formatting}}.
+#' @param LRT A logical value indicating whether to report
+#'   Likelihood-Ratio or Wald-type test of heterogeneity for
+#'   generalised linear mixed models.
+#' @param leftcols A character vector specifying (additional) columns
+#'   to be printed on the left side of the forest plot or a logical
+#'   value (see Details).
+#' @param rightcols A character vector specifying (additional) columns
+#'   to be printed on the right side of the forest plot or a logical
+#'   value (see Details).
+#' @param leftlabs A character vector specifying labels for
+#'   (additional) columns on left side of the forest plot (see
+#'   Details).
+#' @param rightlabs A character vector specifying labels for
+#'   (additional) columns on right side of the forest plot (see
+#'   Details).
+#' @param label A logical value indicating whether to draw the labels
+#'   on the tick marks, or an expression or character vector which
+#'   specify the labels to use. See \code{\link{grid.xaxis}}. A named list
+#'   can also be supplied to specify column labels; see
+#'   \code{\link{forest-formatting}}.
+#' @param hetlab Label printed in front of results for heterogeneity
+#'   measures.
+#' @param resid.hetlab Label printed in front of results for residual
+#'   heterogeneity measures.
+#' @param lab.NA A character string to label missing values.
+#' @param lab.NA.effect A character string to label missing values in
+#'   individual treatment estimates and confidence intervals.
+#' @param lab.NA.weight A character string to label missing weights.
+#' @param rob Risk of bias (RoB) assessment.
+#' @param rob.text Column heading for RoB table.
+#' @param rob.legend A logical specifying whether a legend with RoB
+#'   domains should be printed.
+#' @param rob.only A logical indicating whether the risk of bias
+#'   assessment is the only information printed on the right side of
+#'   the forest plot.
+#' @param fontfamily The font family, see \code{\link{gpar}}.
+#' @param fontsize The size of text (in points), see \code{\link{gpar}}.
+#' @param fs A named list specifying font sizes for elements of the forest
+#'   plot; see \code{\link{forest-formatting}}.
+#' @param ff A named list specifying fontfaces for elements of the forest
+#'   plot; see \code{\link{forest-formatting}}.
+#' @param just A named list specifying justification settings; a character
+#'   string is also accepted for the common justification.
+#' @param fill A named list specifying fill settings; a scalar value is also
+#'   accepted.
+#' @param col A named list specifying colours used in the forest
+#'   plot; see \code{\link{forest-formatting}}.
+#' @param print A named list specifying which information to print in the forest
+#'   plot; see \code{\link{forest-formatting}}.
+#' @param type A named list specifying graphical types for study, pooled, and
+#'   subgroup results.
+#' @param pooled A named list specifying pooled totals and event/time settings.
+#' @param text A named list specifying text for pooled results, subgroup
+#'   results, and additional lines.
+#' @param lty A named list specifying line types.
+#' @param lwd The line width, see \code{\link{par}}, or a named list
+#'   specifying line widths; see \code{\link{forest-formatting}}.
+#' @param digits A named list specifying digits used for displayed results; a
+#'   scalar value is also accepted.
+#' @param calcwidth A named list specifying which text is considered when
+#'   calculating column widths.
+#' @param colgap A named list specifying gaps between columns; a scalar value
+#'   is also accepted.
+#' @param ref A numerical giving the reference value to be plotted as
+#'   a line in the forest plot. No reference line is plotted if
+#'   argument \code{ref} is equal to \code{NA}.
+#' @param cid A numeric value or vector specifying clinically important
+#'   differences (CID) / decision thresholds used to calculate probabilities
+#'   of clinically important benefit or harm, or not important effects
+#'   (see Details).
+#' @param cid.below.null A numeric value or vector specifying CID limits below
+#'   the null effect (see Details).
+#' @param cid.above.null A numeric value or vector specifying CID limits above
+#'   the null effect (see Details).
+#' @param cid.pooled.only A logical indicating whether CID regions should only
+#'   be visible for pooled estimates or also individual studies.
+#' @param xlab A label for the x-axis. By default, no label is printed,
+#'   except for meta-analyses of single proportions, incidence rates,
+#'   risk differences, or rate differences if proportions or rates are
+#'   expressed as events per a specified number of observations or time
+#'   units using \code{pscale} or \code{irscale}.
+#' @param xlab.pos A numeric specifying the center of the label on the
+#'   x-axis.
+#' @param smlab A label for the summary measure (printed at top of
+#'   figure). By default, no label is printed for single proportions or
+#'   incidence rates.
+#' @param smlab.pos A numeric specifying the center of the label for
+#'   the summary measure.
+#' @param xlim The x limits (min,max) of the plot, or the character
+#'   string "symmetric" to produce symmetric forest plots.
+#' @param at The points at which tick-marks are to be drawn, see
+#'   \code{grid.xaxis}.
+#' @param bottom.lr A logical indicating whether labels on right and
+#'   left side should be printed at bottom or top of forest plot.
+#' @param details A logical specifying whether details on statistical
+#'   methods should be printed.
+#' @param header.line A logical value indicating whether to print a
+#'   header line or a character string ("both", "below", "").
+#' @param arrow.type A character string indicating whether arrows
+#'   printed for results outside the forest plot should be
+#'   \code{"open"}, or \code{"closed"}, can be abbreviated.
+#' @param arrow.length The length of arrows in inches.
+#' @param spacing A numeric determining line spacing in a forest plot.
+#' @param squaresize A numeric used to increase or decrease the size
+#'   of squares in the forest plot.
+#' @param plotwidth Either a character string, e.g., "8cm", "60mm", or
+#'   "3inch", or a \code{\link[grid]{unit}} object specifying width of
+#'   the forest plot.
+#' @param bmj.text A character string used in the plot with BMJ layout
+#'   to label the group specific information.
+#' @param bmj.sep A character string used to separate sample sizes
+#'   from number of events or means / standard deviations.
+#' @param backtransf A logical indicating whether results should be
+#'   back transformed in forest plots. If \code{backtransf = TRUE},
+#'   results for \code{sm = "OR"} are presented as odds ratios rather
+#'   than log odds ratios and results for \code{sm = "ZCOR"} are
+#'   presented as correlations rather than Fisher's z transformed
+#'   correlations, for example.
+#' @param big.mark A character used as thousands separator.
 #' @param pscale A numeric giving scaling factor for printing of
 #'   single event probabilities or risk differences, i.e. if argument
 #'   \code{sm} is equal to \code{"PLOGIT"}, \code{"PLN"},
@@ -90,6 +205,30 @@
 #'   \code{"IRS"}, \code{"IRFT"}, or \code{"IRD"}.
 #' @param irunit A character specifying the time unit used to
 #'   calculate rates, e.g., person-years.
+#' @param scientific.pval A logical specifying whether p-values should
+#'   be printed in scientific notation, e.g., 1.2345e-01 instead of
+#'   0.12345.
+#' @param zero.pval A logical specifying whether p-values should be
+#'   printed with a leading zero.
+#' @param JAMA.pval A logical specifying whether p-values for test of
+#'   overall effect should be printed according to JAMA reporting
+#'   standards.
+#' @param addrow A logical value indicating whether an empty row is
+#'   printed above study results.
+#' @param addrow.overall A logical value indicating whether an empty
+#'   row is printed above overall meta-analysis results.
+#' @param addrow.subgroups A logical value indicating whether an empty
+#'   row is printed between results for subgroups.
+#' @param addrows.below.overall A numeric value indicating how many
+#'   empty rows are printed between meta-analysis results and
+#'   heterogeneity statistics and test results.
+#' @param main A title for the forest plot (see Details).
+#' @param main.prefix A logical indicating whether to add a pre-defined prefix
+#'   to title lines (see Details).
+#' @param xpos.main Horizontal position of title.
+#' @param gap.main Number of empty rows between title and column headings.
+#' @param lineheight.main Line height for the main title,
+#'   see \code{\link{gpar}}.
 #' @param filename File name to store forest plot.
 #' @param path Path of the directory to save plot to: `path` and `filename` are
 #'   combined to create the fully qualified file name. Defaults to the working
@@ -109,148 +248,10 @@
 #' @param dpi Plot resolution.
 #' @param dev.off A logical to specify whether current graphics device
 #'   should be shut down.
-#' @param rows.gr Deprecated argument to add rows to the forest plot to change
-#'   the height of the graphics file; only provided for backward compatibility.
-#' @param ref A numerical giving the reference value to be plotted as
-#'   a line in the forest plot. No reference line is plotted if
-#'   argument \code{ref} is equal to \code{NA}.
-#' @param cid A numeric value or vector specifying clinically important
-#'   differences (CID) / decision thresholds used to calculate probabilities
-#'   of clinically important benefit or harm, or not important effects
-#'   (see Details).
-#' @param cid.below.null A numeric value or vector specifying CID limits below
-#'   the null effect (see Details).
-#' @param cid.above.null A numeric value or vector specifying CID limits above
-#'   the null effect (see Details).
-#' @param cid.pooled.only A logical indicating whether CID regions should only
-#'   be visible for pooled estimates or also individual studies.
-#' @param leftcols A character vector specifying (additional) columns
-#'   to be printed on the left side of the forest plot or a logical
-#'   value (see Details).
-#' @param rightcols A character vector specifying (additional) columns
-#'   to be printed on the right side of the forest plot or a logical
-#'   value (see Details).
-#' @param leftlabs A character vector specifying labels for
-#'   (additional) columns on left side of the forest plot (see
-#'   Details).
-#' @param rightlabs A character vector specifying labels for
-#'   (additional) columns on right side of the forest plot (see
-#'   Details).
-#' @param bottom.lr A logical indicating whether labels on right and
-#'   left side should be printed at bottom or top of forest plot.
-#' @param lab.NA A character string to label missing values.
-#' @param lab.NA.effect A character string to label missing values in
-#'   individual treatment estimates and confidence intervals.
-#' @param lab.NA.weight A character string to label missing weights.
-#' @param lwd The line width, see \code{\link{par}}.
-#' @param at The points at which tick-marks are to be drawn, see
-#'   \code{grid.xaxis}.
-#' @param label A logical value indicating whether to draw the labels
-#'   on the tick marks, or an expression or character vector which
-#'   specify the labels to use. See \code{\link{grid.xaxis}}.
-#' @param col A named list specifying colours used in the forest
-#'   plot; see \code{\link{forest-formatting}}.
-#' @param hetstat Either a logical value indicating whether to print
-#'   results for heterogeneity measures at all or a character string
-#'   (see Details).
-#' @param overall.hetstat A logical value indicating whether to print
-#'   heterogeneity measures for overall treatment comparisons. This
-#'   argument is useful in a meta-analysis with subgroups if
-#'   heterogeneity statistics should only be printed on subgroup
-#'   level.
-#' @param hetlab Label printed in front of results for heterogeneity
-#'   measures.
-#' @param resid.hetstat A logical value indicating whether to print
-#'   measures of residual heterogeneity in a meta-analysis with
-#'   subgroups.
-#' @param resid.hetlab Label printed in front of results for residual
-#'   heterogeneity measures.
-#' @param just A named list specifying justification settings; a character
-#'   string is also accepted for the common justification.
-#' @param fill A named list specifying fill settings; a scalar value is also
-#'   accepted.
-#' @param print A named list specifying which information to print in the forest
-#'   plot; see \code{\link{forest-formatting}}.
-#' @param type A named list specifying graphical types for study, pooled, and
-#'   subgroup results.
-#' @param pooled A named list specifying pooled totals and event/time settings.
-#' @param text A named list specifying text for pooled results, subgroup
-#'   results, and additional lines.
-#' @param lty A named list specifying line types.
-#' @param lwd A named list specifying line widths.
-#' @param LRT A logical value indicating whether to report
-#'   Likelihood-Ratio or Wald-type test of heterogeneity for
-#'   generalised linear mixed models.
-#' @param test A named list specifying which results of statistical tests
-#'   should be printed; see \code{\link{forest-formatting}}.
-#' @param labels A named list specifying graph, column, and test labels.
-#' @param common.subgroup A single logical or logical vector
-#'   indicating whether / which common effect estimates should be
-#'   printed for subgroups.
-#' @param random.subgroup A single logical, logical vector, or logical matrix
-#'   indicating whether / which random effects estimates should be printed for
-#'   subgroups.
-#' @param prediction.subgroup A single logical, logical vector, or logical
-#'   matrix indicating whether / which prediction intervals should be printed
-#'   for subgroups.
-#' @param details A logical specifying whether details on statistical
-#'   methods should be printed.
-#' @param header.line A logical value indicating whether to print a
-#'   header line or a character string ("both", "below", "").
-#' @param data.pooled Data set with information for line(s) with pooled
-#'   results (see Details).
-#' @param fontfamily The font family, see \code{\link{gpar}}.
-#' @param fontsize The size of text (in points), see \code{\link{gpar}}.
-#' @param fs A named list specifying font sizes for elements of the forest
-#'   plot; see \code{\link{forest-formatting}}.
-#' @param ff A named list specifying fontfaces for elements of the forest
-#'   plot; see \code{\link{forest-formatting}}.
-#' @param squaresize A numeric used to increase or decrease the size
-#'   of squares in the forest plot.
-#' @param arrow.type A character string indicating whether arrows
-#'   printed for results outside the forest plot should be
-#'   \code{"open"}, or \code{"closed"}, can be abbreviated.
-#' @param arrow.length The length of arrows in inches.
-#' @param plotwidth Either a character string, e.g., "8cm", "60mm", or
-#'   "3inch", or a \code{\link[grid]{unit}} object specifying width of
-#'   the forest plot.
-#' @param calcwidth A named list specifying which text is considered when
-#'   calculating column widths.
-#' @param colgap A named list specifying gaps between columns; a scalar value
-#'   is also accepted.
-#' @param bmj.text A character string used in the plot with BMJ layout
-#'   to label the group specific information.
-#' @param bmj.sep A character string used to separate sample sizes
-#'   from number of events or means / standard deviations.
-#' @param spacing A numeric determining line spacing in a forest plot.
-#' @param addrow A logical value indicating whether an empty row is
-#'   printed above study results.
-#' @param addrow.overall A logical value indicating whether an empty
-#'   row is printed above overall meta-analysis results.
-#' @param addrow.subgroups A logical value indicating whether an empty
-#'   row is printed between results for subgroups.
-#' @param addrows.below.overall A numeric value indicating how many
-#'   empty rows are printed between meta-analysis results and
-#'   heterogeneity statistics and test results.
 #' @param new A logical value indicating whether a new figure should
 #'   be printed in an existing graphics window.
-#' @param backtransf A logical indicating whether results should be
-#'   back transformed in forest plots. If \code{backtransf = TRUE},
-#'   results for \code{sm = "OR"} are presented as odds ratios rather
-#'   than log odds ratios and results for \code{sm = "ZCOR"} are
-#'   presented as correlations rather than Fisher's z transformed
-#'   correlations, for example.
-#' @param digits A named list specifying digits used for displayed results; a
-#'   scalar value is also accepted.
-#' @param scientific.pval A logical specifying whether p-values should
-#'   be printed in scientific notation, e.g., 1.2345e-01 instead of
-#'   0.12345.
-#' @param big.mark A character used as thousands separator.
-#' @param zero.pval A logical specifying whether p-values should be
-#'   printed with a leading zero.
-#' @param JAMA.pval A logical specifying whether p-values for test of
-#'   overall effect should be printed according to JAMA reporting
-#'   standards.
+#' @param rows.gr Deprecated argument to add rows to the forest plot to change
+#'   the height of the graphics file; only provided for backward compatibility.
 #' @param warn.deprecated A logical indicating whether warnings should
 #'   be printed if deprecated arguments are used.
 #' @param \dots Additional graphical arguments.
@@ -1025,80 +1026,67 @@
 forest.meta <- function(x,
                         sortvar,
                         studlab = TRUE,
-                        #
                         layout = gs("layout"),
+                        data.pooled = NULL,
+                        #
+                        # Analysis selection
                         #
                         common = x$common,
                         random = x$random,
-                        overall = x$overall,
                         prediction = x$prediction,
-                        #
+                        overall = x$overall,
+                        overall.hetstat =
+                          x$overall.hetstat & !inherits(x, "metamerge"),
+                        hetstat = common | random | overall.hetstat,
+                        resid.hetstat = gs("resid.hetstat"),
                         subgroup = TRUE,
+                        #
                         subgroup.hetstat =
                           subgroup & (is.character(hetstat) || hetstat),
-                        #
+                        common.subgroup = common,
+                        random.subgroup = random,
+                        prediction.subgroup = x$prediction.subgroup,
                         subgroup.name = x$subgroup.name,
                         sep.subgroup = x$sep.subgroup,
                         sort.subgroup = gs("sort.subgroup"),
                         #
                         study.results = gs("study.results"),
-                        #
-                        rob = x$rob,
-                        rob.text = "Risk of Bias",
-                        rob.legend = TRUE,
-                        rob.only = FALSE,
-                        #
-                        xlab = NULL, xlab.pos,
-                        #
-                        main, main.prefix = gs("main.prefix"),
-                        xpos.main = gs("xpos.main"),
-                        gap.main = gs("gap.main"),
-                        lineheight.main = gs("lineheight.main"),
-                        #
-                        smlab = NULL, smlab.pos, xlim,
-                        #
                         allstudies = TRUE,
                         weight.study = NULL,
-                        pscale = x$pscale,
-                        irscale = x$irscale, irunit = x$irunit,
                         #
-                        filename = NULL,
-                        path = NULL,
-                        device = NULL, device.args = NULL,
-                        units = "in",
-                        height = NULL, width = NULL,
-                        dpi = 300,
+                        # Results and tests
                         #
-                        dev.off = NULL, rows.gr = NULL,
+                        test = NULL,
+                        LRT = gs("LRT"),
                         #
-                        ref,
-                        #
-                        cid = gs("cid"),
-                        cid.below.null = gs("cid.below.null"),
-                        cid.above.null = gs("cid.above.null"),
-                        cid.pooled.only = gs("cid.pooled.only"),
+                        # Columns and labels
                         #
                         leftcols = gs("leftcols"),
                         rightcols = gs("rightcols"),
                         leftlabs = gs("leftlabs"),
                         rightlabs = gs("rightlabs"),
                         #
-                        bottom.lr = gs("bottom.lr"),
+                        label,
+                        #
+                        hetlab = gs("hetlab"),
+                        resid.hetlab = gs("resid.hetlab"),
                         #
                         lab.NA = gs("lab.NA"),
                         lab.NA.effect = gs("lab.NA.effect"),
                         lab.NA.weight = gs("lab.NA.weight"),
                         #
-                        at = NULL,
-                        label = TRUE,
+                        rob = x$rob,
+                        rob.text = "Risk of Bias",
+                        rob.legend = TRUE,
+                        rob.only = FALSE,
                         #
-                        hetstat = common | random | overall.hetstat,
-                        overall.hetstat =
-                          x$overall.hetstat & !inherits(x, "metamerge"),
-                        hetlab = gs("hetlab"),
-                        resid.hetstat = gs("resid.hetstat"),
-                        resid.hetlab = gs("resid.hetlab"),
+                        # Forest formatting
                         #
+                        fontfamily = gs("fontfamily"),
+                        fontsize = gs("fontsize"),
+                        #
+                        fs = NULL,
+                        ff = NULL,
                         just = NULL,
                         fill = NULL,
                         col = NULL,
@@ -1108,60 +1096,79 @@ forest.meta <- function(x,
                         text = NULL,
                         lty = NULL,
                         lwd = NULL,
-                        test = NULL,
-                        labels = NULL,
+                        digits = NULL,
+                        calcwidth = NULL,
+                        colgap = NULL,
                         #
-                        LRT = gs("LRT"),
+                        # Plot content and geometry
                         #
-                        common.subgroup = common,
-                        random.subgroup = random,
-                        prediction.subgroup = x$prediction.subgroup,
+                        ref,
+                        cid = gs("cid"),
+                        cid.below.null = gs("cid.below.null"),
+                        cid.above.null = gs("cid.above.null"),
+                        cid.pooled.only = gs("cid.pooled.only"),
+                        #
+                        xlab = NULL, xlab.pos,
+                        smlab = NULL, smlab.pos, xlim,
+                        #
+                        at = NULL,
+                        bottom.lr = gs("bottom.lr"),
                         #
                         details = gs("forest.details"),
-                        #
                         header.line,
-                        #
-                        data.pooled = NULL,
-                        #
-                        fontsize = gs("fontsize"),
-                        fontfamily = gs("fontfamily"),
-                        #
-                        fs = NULL,
-                        ff = NULL,
-                        #
-                        squaresize =
-                          if (layout == "BMJ") 0.9 / spacing else 0.8 / spacing,
                         #
                         arrow.type = gs("arrow.type"),
                         arrow.length = gs("arrow.length"),
                         #
+                        spacing = gs("spacing"),
+                        #
+                        squaresize =
+                          if (layout == "BMJ") 0.9 / spacing else 0.8 / spacing,
                         plotwidth =
                           if (layout %in% c("BMJ", "JAMA")) "8cm" else "6cm",
-                        #
-                        calcwidth = NULL,
-                        #
-                        colgap = NULL,
                         #
                         bmj.text = NULL,
                         bmj.sep = " / ",
                         #
-                        spacing = gs("spacing"),
+                        # Analysis-scale formatting
+                        #
+                        backtransf = x$backtransf,
+                        big.mark = gs("big.mark"),
+                        pscale = x$pscale,
+                        irscale = x$irscale, irunit = x$irunit,
+                        scientific.pval = gs("scientific.pval"),
+                        zero.pval =
+                          if (layout == "JAMA") FALSE else gs("zero.pval"),
+                        JAMA.pval =
+                          if (layout == "JAMA") TRUE else gs("JAMA.pval"),
+                        #
+                        # Row spacing
+                        #
                         addrow = gs("addrow"),
                         addrow.overall = gs("addrow.overall"),
                         addrow.subgroups = gs("addrow.subgroups"),
                         addrows.below.overall = gs("addrows.below.overall"),
                         #
+                        # Title
+                        #
+                        main, main.prefix = gs("main.prefix"),
+                        xpos.main = gs("xpos.main"),
+                        gap.main = gs("gap.main"),
+                        lineheight.main = gs("lineheight.main"),
+                        #
+                        # Output
+                        #
+                        filename = NULL,
+                        path = NULL,
+                        device = NULL, device.args = NULL,
+                        units = "in",
+                        height = NULL, width = NULL,
+                        dpi = 300,
+                        dev.off = NULL,
                         new = TRUE,
+                        rows.gr = NULL,
                         #
-                        backtransf = x$backtransf,
-                        digits = NULL,
-                        #
-                        scientific.pval = gs("scientific.pval"),
-                        big.mark = gs("big.mark"),
-                        zero.pval =
-                          if (layout == "JAMA") FALSE else gs("zero.pval"),
-                        JAMA.pval =
-                          if (layout == "JAMA") TRUE else gs("JAMA.pval"),
+                        # Compatibility
                         #
                         warn.deprecated = gs("warn.deprecated"),
                         ...) {
@@ -1320,14 +1327,15 @@ forest.meta <- function(x,
   miss.hetstat <- missing(hetstat)
   miss.irscale <- missing(irscale)
   miss.label <- missing(label)
+  if (miss.label)
+    label <- TRUE
+  labels <- NULL
   if (is.list(label)) {
-    if (!is.null(labels))
-      stop("Arguments 'label' and 'labels' cannot both be named lists.",
-           call. = FALSE)
     labels <- label
     label <- TRUE
     miss.label <- FALSE
   }
+  #
   #
   miss.leftcols <- missing(leftcols)
   avail.leftcols <-
