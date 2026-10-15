@@ -146,7 +146,7 @@ chklength <- function(x, k.all, fun = "", text, name = NULL, internal = TRUE) {
   }
   #
   if (!internal && length(x) != k.all) {
-    stop("Argument '", name, "' must be of length", k.all, ".",
+    stop("Argument '", name, "' must be of length ", k.all, ".",
          call. = FALSE)
   }
   #
@@ -195,18 +195,31 @@ chklist <- function(x, name = NULL) {
   invisible(NULL)
 }
 
-chklogical <- function(x, name = NULL, text = "") {
+chklogical <- function(x, name = NULL, text = "", length = 1) {
   #
   # Check whether argument is logical
   #
   if (is.null(name))
     name <- deparse(substitute(x))
   #
+  length <- sort(unique(length))
+  #
   if (is.numeric(x))
     x <- as.logical(x)
   #
-  if (length(x) !=  1 || !is.logical(x) || is.na(x))
-    stop("Argument '", name, "' must be a logical",
+  if (length(length) == 1 && length == 1) {
+    txt.length <- "logical"
+  }
+  else {
+    txt.length <-
+      paste("logical vector",
+            if (length(length) == 1) "of length" else "whose length is",
+            collapse_choices(length))
+  }
+  #
+  if (!(length(x) %in% length) || !is.logical(x) || anyNA(x))
+    stop("Argument '", name, "' must be a ",
+         txt.length,
          if (text != "") " ", text, ".", call. = FALSE)
   #
   invisible(NULL)

@@ -917,6 +917,7 @@ Cochrane reviews (which were generated with Review Manager 5) is reproduced:
   printed above the forest plot (\code{smlab})
 \item Label "Study or Subgroup" is printed for meta-analysis with
   subgroups (\code{leftlabs})
+\item Details on meta-analysis methods are not printed (\code{details})
 }
 }
 
@@ -946,6 +947,7 @@ If argument \code{layout = "JAMA"} (and arguments \code{leftcols} and
 \item P-values are printed without leading zeros (\code{zero.pval})
 \item P-values are rounded to three digits (for 0.001 < p \eqn{\le}
   0.01) or two digits (p > 0.01) (\code{JAMA.pval})
+\item Details on meta-analysis methods are not printed (\code{details})
 }
 Study labels according to JAMA guidelines can be generated using
 \code{\link{labels.meta}}.
@@ -965,6 +967,7 @@ for the \emph{British Medical Journal} are taken into account:
 \item Prediction intervals are shown if requested (\code{prediction})
 \item Tests for overall effect and subgroup differences are printed
   (\code{test.overall}, \code{test.subgroup})
+\item Details on meta-analysis methods are not printed (\code{details})
 }
 }
 

@@ -32,12 +32,16 @@ setchar <- function(x, val, text, list = FALSE, name = NULL,
                     stop.at.error = TRUE, addtext = "",
                     return.NULL = TRUE, nchar.equal = FALSE,
                     setNA = FALSE, pre = "",
-                    unique = FALSE) {
+                    unique = FALSE, length = 0) {
   
   val <- unique(val)
   #
   if (is.null(name))
     name <- deparse(substitute(x))
+  #
+  if (any(length > 0))
+    chklength(x, length, name = name, internal = FALSE)
+  #
   nval <- length(val)
   #
   if (is.numeric(x)) {

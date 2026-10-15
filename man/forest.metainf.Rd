@@ -6,33 +6,38 @@
 \usage{
 \method{forest}{metainf}(
   x,
+  layout = gs("layout"),
   prediction = x$prediction,
   overall = x$overall,
-  just.addcols = "right",
-  main = "Leave-One-Out Meta-Analysis",
-  type = "square",
-  layout = gs("layout"),
+  leftlabs = NULL,
+  rightlabs = NULL,
   lab.NA = gs("lab.NA"),
+  col = NULL,
+  print = NULL,
+  type = "square",
+  digits = NULL,
+  details = gs("forest.details"),
   backtransf = x$backtransf,
   big.mark = gs("big.mark"),
-  digits = gs("digits.forest"),
-  digits.pval = gs("digits.pval"),
-  digits.tau2 = gs("digits.tau2"),
-  digits.tau = gs("digits.tau"),
-  digits.I2 = gs("digits.I2"),
-  digits.cid = gs("digits.cid"),
-  digits.percent = 1,
-  col,
-  col.bg,
-  col.border,
-  col.bg.predict,
-  col.border.predict,
-  details = gs("forest.details"),
+  main = "Leave-One-Out Meta-Analysis",
+  filename = NULL,
+  path = NULL,
+  device = NULL,
+  device.args = NULL,
+  units = "in",
+  height = NULL,
+  width = NULL,
+  dpi = 300,
+  dev.off = NULL,
+  new = TRUE,
   ...
 )
 }
 \arguments{
 \item{x}{An object of class \code{\link{metainf}}.}
+
+\item{layout}{A character string specifying the layout of the
+forest plot (see \code{\link{forest.meta}}).}
 
 \item{prediction}{A logical indicating whether prediction
 intervals should be printed.}
@@ -40,19 +45,28 @@ intervals should be printed.}
 \item{overall}{A logical indicating whether overall results should be
 shown.}
 
-\item{just.addcols}{Justification of text for additional columns
-(possible values: "left", "right", "center").}
+\item{leftlabs}{A character vector specifying labels for columns on left
+side of the forest plot (see Details).}
 
-\item{main}{A title for the forest plot.}
-
-\item{type}{A character string or vector specifying how to
-plot treatment effects and confidence intervals for cumulative
-meta-analysis results.}
-
-\item{layout}{A character string specifying the layout of the
-forest plot (see \code{\link{forest.meta}}).}
+\item{rightlabs}{A character vector specifying labels for columns on right
+side of the forest plot (see Details).}
 
 \item{lab.NA}{A character string to label missing values.}
+
+\item{col}{A named list specifying colours used in the forest
+plot; see \code{\link{forest-formatting}}.}
+
+\item{print}{A named list specifying which information to print in the forest
+plot; see \code{\link{forest-formatting}}.}
+
+\item{type}{A character string or vector specifying how to
+plot treatment effects and confidence intervals for meta-analysis results.}
+
+\item{digits}{A named list specifying digits used for displayed results; a
+scalar value is also accepted. See \code{\link{forest-formatting}}.}
+
+\item{details}{A logical specifying whether details on statistical
+methods should be printed.}
 
 \item{backtransf}{A logical indicating whether results should be
 back transformed in forest plots. If \code{backtransf = TRUE},
@@ -61,51 +75,45 @@ than log odds ratios, for example.}
 
 \item{big.mark}{A character used as thousands separator.}
 
-\item{digits}{Minimal number of significant digits for treatment
-effects, see \code{print.default}.}
+\item{main}{A title for the forest plot.}
 
-\item{digits.pval}{Minimal number of significant digits for
-p-values.}
+\item{filename}{File name to store forest plot.}
 
-\item{digits.tau2}{Minimal number of significant digits for
-between-study variance.}
+\item{path}{Path of the directory to save plot to: `path` and `filename` are
+combined to create the fully qualified file name. Defaults to the working
+directory.}
 
-\item{digits.tau}{Minimal number of significant digits for square
-root of between-study variance.}
+\item{device}{Device to use. Can either be a device function (e.g.,
+\code{\link{png}}), or one of \code{"eps"}, \code{"ps"},
+\code{"tex"} (pictex), \code{"pdf"}, \code{"jpeg"}, \code{"tiff"},
+\code{"png"}, \code{"bmp"}, \code{"svg"} or \code{"wmf"} (Windows only).
+By default, the device is guessed based on the `filename` extension.}
 
-\item{digits.I2}{Minimal number of significant digits for I-squared
-statistic.}
+\item{device.args}{List with additional graphical parameters passed on
+to graphics function.}
 
-\item{digits.cid}{Minimal number of significant digits for
-CID / decision thresholds, see \code{print.default}.}
+\item{units}{Units of the `width` and `height` of the file containing the
+forest plot. One of \code{"in"} (for inches, default), \code{"cm"},
+\code{"mm"}, or \code{"px"} (for pixels), can be abbreviated.}
 
-\item{digits.percent}{Minimal number of significant digits for
-probabilities, printed as percentages, see \code{print.default}.}
+\item{height}{Height of the graphics file.}
 
-\item{col}{The colour for cumulative meta-analysis results (only considered
-if \code{type = "square"}).}
+\item{width}{Width of the graphics file.}
 
-\item{col.bg}{The background colour for squares and diamonds of
-cumulative meta-analysis results.}
+\item{dpi}{Plot resolution.}
 
-\item{col.border}{The colour for the outer lines of squares and diamonds of
-cumulative meta-analysis results.}
+\item{dev.off}{A logical to specify whether current graphics device
+should be shut down.}
 
-\item{col.bg.predict}{The background colour for prediction intervals of
-cumulative meta-analysis results.}
-
-\item{col.border.predict}{The colour for the outer lines of prediction
-intervals of cumulative meta-analysis results.}
-
-\item{details}{A logical specifying whether details on statistical
-methods should be printed.}
+\item{new}{A logical value indicating whether a new figure should
+be printed in an existing graphics window.}
 
 \item{\dots}{Additional graphical arguments (passed on to
 \code{\link{forest.meta}}).}
 }
 \description{
-Draws a forest plot in the active graphics window (using grid
-graphics system).
+Draws a forest plot showing the results of omitting each study in turn,
+using the grid graphics system.
 }
 \details{
 A forest plot, also called confidence interval plot, is drawn in

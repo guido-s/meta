@@ -709,6 +709,7 @@
 #'   printed above the forest plot (\code{smlab})
 #' \item Label "Study or Subgroup" is printed for meta-analysis with
 #'   subgroups (\code{leftlabs})
+#' \item Details on meta-analysis methods are not printed (\code{details})
 #' }
 #' }
 #'
@@ -738,6 +739,7 @@
 #' \item P-values are printed without leading zeros (\code{zero.pval})
 #' \item P-values are rounded to three digits (for 0.001 < p \eqn{\le}
 #'   0.01) or two digits (p > 0.01) (\code{JAMA.pval})
+#' \item Details on meta-analysis methods are not printed (\code{details})
 #' }
 #' Study labels according to JAMA guidelines can be generated using
 #' \code{\link{labels.meta}}.
@@ -757,6 +759,7 @@
 #' \item Prediction intervals are shown if requested (\code{prediction})
 #' \item Tests for overall effect and subgroup differences are printed
 #'   (\code{test.overall}, \code{test.subgroup})
+#' \item Details on meta-analysis methods are not printed (\code{details})
 #' }
 #' }
 #'
@@ -1176,7 +1179,7 @@ forest.meta <- function(x,
   #
   chknumeric(fontsize, min = 0, zero = TRUE, length = 1)
   #
-  layout <- setchar(layout, c(gs("layout4forest"), "subgroup"))
+  layout <- setchar(layout, c(gs("layout4forest"), "subgroup"), length = 1)
   #
   if (layout == "subgroup" & is.null(x$subgroup)) {
     warning("Argument 'layout' set to \"meta\" (default) as ",
@@ -2984,6 +2987,7 @@ forest.meta <- function(x,
       header.line.pos <- ""
   }
   #
+  details <- replaceNULL(details, layout == "meta")
   chklogical(details)
   #
   # Title

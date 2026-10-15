@@ -1,113 +1,87 @@
 #' Forest plot to display the result of a cumulative meta-analysis
 #' 
 #' @description
-#' Draws a forest plot in the active graphics window (using grid
-#' graphics system).
+#' Draws a forest plot showing the results as studies are cumulatively added,
+#' using the grid graphics system.
 #' 
 #' @aliases forest.metacum
 #' 
 #' @param x An object of class \code{\link{metacum}}.
 #' @param layout A character string specifying the layout of the
 #'   forest plot (see \code{\link{forest.meta}}).
-#' @param leftcols A character vector specifying columns to be plotted on the
-#'   left side of the forest plot or a logical value.
-#' @param leftlabs A character vector specifying labels for columns on the left
-#'   side of the forest plot.
-#' @param rightcols A character vector specifying columns to be plotted on the
-#'   right side of the forest plot or a logical value.
-#' @param rightlabs A character vector specifying labels for columns on the
-#'   right side of the forest plot.
 #' @param prediction A logical indicating whether prediction
 #'   intervals should be printed.
 #' @param overall A logical indicating whether overall results should be
 #'   shown.
-#' @param just.addcols Justification of text for additional columns
-#'   (possible values: "left", "right", "center").
-#' @param main A title for the forest plot.
+#' @param leftlabs A character vector specifying labels for columns on left
+#'   side of the forest plot (see Details).
+#' @param rightlabs A character vector specifying labels for columns on right
+#'   side of the forest plot (see Details).
+#' @param lab.NA A character string to label missing values.
+#' @param col A named list specifying colours used in the forest
+#'   plot; see \code{\link{forest-formatting}}.
+#' @param print A named list specifying which information to print in the forest
+#'   plot; see \code{\link{forest-formatting}}.
 #' @param type A character string or vector specifying how to
 #'   plot treatment effects and confidence intervals for cumulative
 #'   meta-analysis results.
-#' @param lab.NA A character string to label missing values.
-#' @param print.I2 A logical value indicating whether to print the
-#'   value of the I-squared statistic.
-#' @param print.I2.ci A logical value indicating whether to print the
-#'   confidence interval for the I-squared statistic (only printed
-#'   if the I-squared statistic is printed).
-#' @param print.tau2 A logical value indicating whether to print the
-#'   value of the between-study variance \eqn{\tau^2}.
-#' @param print.tau2.ci A logical value indicating whether to print
-#'   the confidence interval for \eqn{\tau^2} (only printed if \eqn{\tau^2} is
-#'   printed).
-#' @param print.tau A logical value indicating whether to print
-#'   \eqn{\tau}, the square root of the between-study variance
-#'   \eqn{\tau^2}.
-#' @param print.tau.ci A logical value indicating whether to print the
-#'   confidence interval for \eqn{\tau} (only printed if \eqn{\tau} is printed).
-#' @param print.Q A logical value indicating whether to print the
-#'   value of the heterogeneity statistic Q.
-#' @param print.pval.Q A logical value indicating whether to print the
-#'   p-value of the heterogeneity statistic Q.
-#' @param print.cidprop A logical value indicating whether to print the
-#'   expected proportion of comparable studies with clinically important
-#'   benefit or harm.
+#' @param digits A named list specifying digits used for displayed results; a
+#'   scalar value is also accepted. See \code{\link{forest-formatting}}.
+#' @param details A logical specifying whether details on statistical
+#'   methods should be printed.
 #' @param backtransf A logical indicating whether results should be
 #'   back transformed in forest plots. If \code{backtransf = TRUE},
 #'   results for \code{sm = "OR"} are presented as odds ratios rather
 #'   than log odds ratios, for example.
 #' @param big.mark A character used as thousands separator.
-#' @param digits Minimal number of significant digits for treatment
-#'   effects, see \code{print.default}.
-#' @param digits.pval Minimal number of significant digits for
-#'   p-values.
-#' @param digits.tau2 Minimal number of significant digits for
-#'   between-study variance.
-#' @param digits.tau Minimal number of significant digits for square
-#'   root of between-study variance.
-#' @param digits.I2 Minimal number of significant digits for I-squared
-#'   statistic.
-#' @param digits.cid Minimal number of significant digits for
-#'   CID / decision thresholds, see \code{print.default}.
-#' @param digits.percent Minimal number of significant digits for
-#'   probabilities, printed as percentages, see \code{print.default}.
-#' @param col The colour for cumulative meta-analysis results (only considered
-#'   if \code{type = "square"}).
-#' @param col.bg The background colour for squares and diamonds of
-#'   cumulative meta-analysis results.
-#' @param col.border The colour for the outer lines of squares and diamonds of
-#'   cumulative meta-analysis results.
-#' @param col.bg.predict The background colour for prediction intervals of
-#'   cumulative meta-analysis results.
-#' @param col.border.predict The colour for the outer lines of prediction
-#'   intervals of cumulative meta-analysis results.
-#' @param details A logical specifying whether details on statistical
-#'   methods should be printed.
+#' @param main A title for the forest plot.
+#' @param filename File name to store forest plot.
+#' @param path Path of the directory to save plot to: `path` and `filename` are
+#'   combined to create the fully qualified file name. Defaults to the working
+#'   directory.
+#' @param device Device to use. Can either be a device function (e.g.,
+#'   \code{\link{png}}), or one of \code{"eps"}, \code{"ps"},
+#'   \code{"tex"} (pictex), \code{"pdf"}, \code{"jpeg"}, \code{"tiff"},
+#'   \code{"png"}, \code{"bmp"}, \code{"svg"} or \code{"wmf"} (Windows only).
+#'   By default, the device is guessed based on the `filename` extension.
+#' @param device.args List with additional graphical parameters passed on
+#'   to graphics function.
+#' @param units Units of the `width` and `height` of the file containing the
+#'   forest plot. One of \code{"in"} (for inches, default), \code{"cm"},
+#'   \code{"mm"}, or \code{"px"} (for pixels), can be abbreviated.
+#' @param height Height of the graphics file.
+#' @param width Width of the graphics file.
+#' @param dpi Plot resolution.
+#' @param dev.off A logical to specify whether current graphics device
+#'   should be shut down.
+#' @param new A logical value indicating whether a new figure should
+#'   be printed in an existing graphics window.
 #' @param \dots Additional graphical arguments (passed on to
 #'   \code{\link{forest.meta}}).
 #' 
 #' @details
-#' A forest plot, also called confidence interval plot, is drawn in
-#' the active graphics window. The forest functions in R package
-#' \bold{meta} are based on the grid graphics system. In order to
-#' print the forest plot, resize the graphics window and either use
-#' \code{\link{dev.copy2eps}} or \code{\link{dev.copy2pdf}}. Another
-#' possibility is to create a file using \code{\link{pdf}},
-#' \code{\link{png}}, or \code{\link{svg}} and to specify the width
-#' and height of the graphic (see \code{\link{forest.meta}} examples).
+#' Each row of the forest plot represents a meta-analysis based on the first
+#' \code{k} studies in the cumulative sequence. Results are shown in the order
+#' in which studies were added to the cumulative meta-analysis. Common-effect
+#' or random-effects estimates, prediction intervals, heterogeneity statistics,
+#' and study-level information can be selected with the corresponding
+#' arguments.
+#'
+#' A forest plot, also called a confidence interval plot, is drawn in the
+#' active graphics window using the grid graphics system. To save the plot,
+#' specify a file name with argument \code{filename}; the graphics device is
+#' selected from the file extension by default (see \code{\link{forest.meta}}
+#' for examples).
 #' 
-#' The arguments \code{leftcols} and \code{rightcols} can be used to
-#' specify columns which are plotted on the left and right side of the
-#' forest plot, respectively.
-#' 
-#' The arguments \code{leftlabs} and \code{rightlabs} can be used to
-#' specify column headings which are plotted on left and right side of
-#' the forest plot, respectively. For certain columns predefined
-#' labels exist. For other columns, the column name will be used as a
-#' label. It is possible to only provide labels for new columns (see
-#' \code{\link{forest.meta}} examples). Otherwise the length of
-#' \code{leftlabs} and \code{rightlabs} must be the same as the number
-#' of printed columns, respectively. The value \code{NA} can be used
-#' to specify columns which should use default labels.
-#' 
+#' The named list \code{print} determines which result columns are shown in
+#' the forest plot. The argument \code{layout} determines the default
+#' placement of these columns on the left or right side. The columns and their
+#' placement are determined internally and cannot be changed by the user.
+#'
+#' Arguments \code{leftlabs} and \code{rightlabs} can be used to provide
+#' headings for the columns printed on the left and right side, respectively.
+#' Use \code{NA} for a column heading to retain its default label.
+#'
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
 #' @seealso \code{\link{forest.meta}}, \code{\link{metacum}},
@@ -134,46 +108,36 @@ forest.metacum <- function(x,
                            #
                            layout = gs("layout"),
                            #
-                           leftcols, leftlabs, rightcols, rightlabs,
-                           #
                            prediction = x$prediction,
                            overall = x$overall,
-                           just.addcols = "right",
                            #
-                           main = "Cumulative Meta-Analysis",
-                           #
-                           type = "square",
+                           leftlabs = NULL, rightlabs = NULL,
                            #
                            lab.NA = gs("lab.NA"),
                            #
-                           print.I2 = TRUE,
-                           print.I2.ci = FALSE,
-                           print.tau2 = TRUE,
-                           print.tau2.ci = FALSE,
-                           print.tau = TRUE,
-                           print.tau.ci = FALSE,
-                           print.Q = FALSE,
-                           print.pval.Q = FALSE,
-                           print.cidprop = FALSE,
-                           #
-                           backtransf = x$backtransf,
-                           #
-                           big.mark = gs("big.mark"),
-                           digits = gs("digits.forest"),
-                           digits.pval = gs("digits.pval"),
-                           digits.tau2 = gs("digits.tau2"),
-                           digits.tau = gs("digits.tau"),
-                           digits.I2 = gs("digits.I2"),
-                           digits.cid = gs("digits.cid"),
-                           digits.percent = 1,
-                           #
-                           col,
-                           col.bg,
-                           col.border,
-                           col.bg.predict,
-                           col.border.predict,
+                           col = NULL,
+                           print = NULL,
+                           type = "square",
+                           digits = NULL,
                            #
                            details = gs("forest.details"),
+                           #
+                           backtransf = x$backtransf,
+                           big.mark = gs("big.mark"),
+                           #
+                           main = "Cumulative Meta-Analysis",
+                           #
+                           # Output
+                           #
+                           filename = NULL,
+                           path = NULL,
+                           device = NULL, device.args = NULL,
+                           units = "in",
+                           height = NULL, width = NULL,
+                           dpi = 300,
+                           dev.off = NULL,
+                           new = TRUE,
+                           #
                            ...) {
   
   #
@@ -185,29 +149,35 @@ forest.metacum <- function(x,
   chkclass(x, c("metacum", "metainf"))
   x <- updateversion(x)
   #
-  layout <- setchar(layout, c(gs("layout4forest"), "subgroup"))
+  layout <- setchar(layout, c(gs("layout4forest"), "subgroup"), length = 1)
   #
-  type <- setchar(type, c("square", "diamond", "circle", "squarediamond"))
+  common <- x$pooled == "common"
   #
-  just.addcols <- setchar(just.addcols, c("left", "center", "right"))
+  k.all <- length(x$TE)
+  #
+  # Drop internally used arguments from '...'
+  #
+  drop_args <- c(
+    "leftcols", "rightcols", "just.addcols",
+    "col.study", "col.square", "col.square.lines", "type.study",
+    "weight.study", "common", "random", "overall.hetstat",
+    "test.overall", "test.overall.common", "test.overall.random",
+    "data.pooled")
+  #
+  replace_args <- list(col.study = "col", col.square = "col.bg",
+                       col.square.lines = "col.border")
+  #
+  args <- list(...)
+  #
+  args <- drop_from_dots(args, drop_args, replace_args)
   #
   sfsp <- sys.frame(sys.parent())
   mc <- match.call()
   #
-  common <- x$pooled == "common"
-  #
   if (!missing(prediction))
     prediction <- catch("prediction", mc, x, sfsp)
   #
-  k.all <- length(x$TE)
-  #
-  if (length(prediction) > 1 && length(prediction) != k.all)
-    stop("Argument 'prediction' must be of length 1 or number of studies.",
-         call. = FALSE)
-  #
-  if (!is.logical(prediction))
-    stop("Argument 'prediction' must be of type logical.",
-         call. = FALSE)
+  chklogical(prediction, length = c(1, k.all))
   #
   if (length(prediction) == 1)
     prediction <- rep(prediction, k.all)
@@ -216,7 +186,25 @@ forest.metacum <- function(x,
   #
   chklogical(overall)
   #
-  layout <- setchar(layout, gs("layout4forest"))
+  just.addcols <- "right"
+  #
+  type <- setchar(type, c("square", "diamond", "circle", "squarediamond"))
+  #
+  # Define colours
+  #
+  col <- as_named_list(col)
+  col.list <- merge_legacy(col, args, col_defaults(x, "metacum"), "col")
+  #
+  col <- col.list$res
+  args <- col.list$args
+  #
+  cols <- col.list$res
+  #
+  col <- cols$col
+  col.bg <- cols$col.bg
+  col.border <- cols$col.border
+  col.bg.predict <- cols$bg.predict
+  col.border.predict <- cols$col.border.predict
   #
   # Colour schemes for layouts:
   # - colors[1] - vertical line for common effect or random effects model
@@ -233,21 +221,39 @@ forest.metacum <- function(x,
   #
   colors <- layout_colors(layout)
   #
-  if (missing(col))
-    col <- colors[1]
+  col <- replaceNULL(col, colors[1])
   #
-  if (missing(col.bg))
+  if (missing(col.bg) || is.null(col.bg))
     col.bg <- ifelse(type == "diamond", colors[2],
                      ifelse(type == "circle", colors[11], colors[4]))
   #
-  if (missing(col.border))
+  if (missing(col.border) || is.null(col.border))
     col.border <- ifelse(type == "diamond", colors[3],
                          ifelse(type == "circle", colors[11], colors[5]))
   #
-  if (missing(col.bg.predict))
+  if (missing(col.bg.predict) || is.null(col.bg.predict))
     col.bg.predict <- colors[7]
-  if (missing(col.border.predict))
+  #
+  if (missing(col.border.predict) || is.null(col.border.predict))
     col.border.predict = colors[8]
+  #
+  # Print information
+  #
+  print.list <-
+    merge_legacy(print, args, print_defaults(x, "metacum"), "print")
+  #
+  print <- print.list$res
+  args <- print$args
+  #
+  print.I2 <- print$I2
+  print.I2.ci <- print$I2.ci
+  print.tau2 <- print$tau2
+  print.tau2.ci <- print$tau2.ci
+  print.tau <- print$tau
+  print.tau.ci <- print$tau.ci
+  print.Q <- print$Q
+  print.pval.Q <- print$pval.Q
+  print.cidprop <- print$cidprop
   #
   chklogical(print.I2)
   chklogical(print.I2.ci)
@@ -258,24 +264,6 @@ forest.metacum <- function(x,
   chklogical(print.Q)
   chklogical(print.pval.Q)
   chklogical(print.cidprop)
-  #
-  chklogical(backtransf)
-  #
-  chknumeric(digits, min = 0, length = 1)
-  chknumeric(digits.pval, min = 0, length = 1)
-  chknumeric(digits.tau2, min = 0, length = 1)
-  chknumeric(digits.tau, min = 0, length = 1)
-  chknumeric(digits.I2, min = 0, length = 1)
-  chknumeric(digits.cid, min = 0, length = 1)
-  chknumeric(digits.percent, min = 0, length = 1)
-  #
-  chklogical(details)
-  #
-  missing.leftcols <- missing(leftcols)
-  missing.rightcols <- missing(rightcols)
-  #
-  missing.col.bg <- missing(col.bg)
-  missing.col.border <- missing(col.border)
   #
   print.tau2.ci <- print.tau2.ci && print.tau2
   print.tau.ci <- print.tau.ci && print.tau
@@ -288,9 +276,39 @@ forest.metacum <- function(x,
   #
   print.cidprop <- print.cidprop.below.null || print.cidprop.above.null
   #
+  chklogical(backtransf)
+  #
+  # Digits
+  #
+  digits <- as_named_list(digits)
+  digits.list <-
+    merge_legacy(digits, args, digits_defaults("metacum"), "digits")
+  #
+  digitss <- digits.list$res
+  args <- digits.list$args
+  #
+  digits <- digitss$digits
+  digits.pval <- digitss$pval
+  digits.tau2 <- digitss$tau2
+  digits.tau <- digitss$tau
+  digits.I2 <- digitss$I2
+  digits.cid <- digitss$cid
+  digits.percent <- digitss$percent
+  #
+  chknumeric(digits, min = 0, length = 1)
+  chknumeric(digits.pval, min = 0, length = 1)
+  chknumeric(digits.tau2, min = 0, length = 1)
+  chknumeric(digits.tau, min = 0, length = 1)
+  chknumeric(digits.I2, min = 0, length = 1)
+  chknumeric(digits.cid, min = 0, length = 1)
+  chknumeric(digits.percent, min = 0, length = 1)
+  #
+  details <- replaceNULL(details, layout == "meta")
+  chklogical(details)
+  #
   pvalNA <- all(is.na(x$pval))
-    
-  
+
+
   #
   #
   # (2) Columns and labels shown in forest plot
@@ -299,69 +317,66 @@ forest.metacum <- function(x,
   
   # Columns and labels on the left side
   #
-  if (missing.leftcols) {
-    leftcols <- "studlab"
+  leftcols <- "studlab"
+  #
+  if (layout != "meta8") {
+    if (print.tau2)
+      leftcols <- c(leftcols, "tau2")
     #
-    if (layout != "meta8") {
-      if (print.tau2)
-        leftcols <- c(leftcols, "tau2")
-      #
-      if (print.tau2.ci)
-        leftcols <- c(leftcols, "tau2.ci")
-      #
-      if (print.tau)
-        leftcols <- c(leftcols, "tau")
-      #
-      if (print.tau.ci)
-        leftcols <- c(leftcols, "tau.ci")
-      #
-      if (print.I2)
-        leftcols <- c(leftcols, "I2")
-      #
-      if (print.I2.ci)
-        leftcols <- c(leftcols, "I2.ci")
-      #
-      if (print.Q)
-        leftcols <- c(leftcols, "Q")
-      #
-      if (print.pval.Q)
-        leftcols <- c(leftcols, "pval.Q")
-      #
-      if (print.cidprop.below.null)
-        leftcols <- c(leftcols, "prop.cid.below.null")
-      #
-      if (print.cidprop.above.null)
-        leftcols <- c(leftcols, "prop.cid.above.null")
-      #
-      if (layout == "RevMan5" || layout == "JAMA")
-        leftcols <- c(leftcols, "effect.ci")
-      else if (layout != "BMJ")
-        leftcols <- c(leftcols, "effect", "ci")
-      #
-      if (!pvalNA && layout != "BMJ")
-        leftcols <- c(leftcols, "pval")
-    }
+    if (print.tau2.ci)
+      leftcols <- c(leftcols, "tau2.ci")
+    #
+    if (print.tau)
+      leftcols <- c(leftcols, "tau")
+    #
+    if (print.tau.ci)
+      leftcols <- c(leftcols, "tau.ci")
+    #
+    if (print.I2)
+      leftcols <- c(leftcols, "I2")
+    #
+    if (print.I2.ci)
+      leftcols <- c(leftcols, "I2.ci")
+    #
+    if (print.Q)
+      leftcols <- c(leftcols, "Q")
+    #
+    if (print.pval.Q)
+      leftcols <- c(leftcols, "pval.Q")
+    #
+    if (print.cidprop.below.null)
+      leftcols <- c(leftcols, "prop.cid.below.null")
+    #
+    if (print.cidprop.above.null)
+      leftcols <- c(leftcols, "prop.cid.above.null")
+    #
+    if (layout == "RevMan5" || layout == "JAMA")
+      leftcols <- c(leftcols, "effect.ci")
+    else if (layout != "BMJ")
+      leftcols <- c(leftcols, "effect", "ci")
+    #
+    if (!pvalNA && layout != "BMJ")
+      leftcols <- c(leftcols, "pval")
   }
   #
-  avail.leftlabs <- !missing(leftlabs) && !is.null(leftlabs)
+  leftlabs <- args$leftlabs
+  args[["leftlabs"]] <- NULL
   #
-  if (!avail.leftlabs) {
+  # Argument leftlabs
+  #
+  if (is.null(leftlabs))
     leftlabs <- rep_len(NA, length(leftcols))
-  }
-  else if (length(leftcols) != length(leftlabs)) {
-    stop(
-      "Different numbers of columns and labels are specified ",
-      "for the left side of the forest plot. Check argument 'leftlabs'.",
-      paste0(
-        "\n- number of columns: ", length(leftcols),
-        " (leftcols: ", paste(leftcols, collapse = ", "), ")",
-        "\n- number of labels:  ", length(leftlabs)),
-      call. = FALSE)
+  else {
+    if (length(leftlabs) != length(leftcols))
+      stop("Argument 'leftlabs' must provide ", length(leftcols),
+           " labels (leftcols: ",
+           paste(leftcols, collapse = ", "), ")",
+           call. = FALSE)
   }
   #
   if (print.tau2.ci && "tau2.ci" %in% leftcols &&
       is.na(leftlabs[leftcols == "tau2.ci"]))
-      leftlabs[leftcols == "tau2.ci"] <- percent_label(x$level.hetstat)
+    leftlabs[leftcols == "tau2.ci"] <- percent_label(x$level.hetstat)
   #
   if (print.tau.ci && "tau.ci" %in% leftcols &&
       is.na(leftlabs[leftcols == "tau.ci"]))
@@ -374,61 +389,58 @@ forest.metacum <- function(x,
   
   # Columns and labels on the right side
   #
-  if (missing.rightcols) {
-    if (layout == "BMJ") {
-      rightcols <- c("effect.ci")
-      #
-      if (!pvalNA)
-        rightcols <- c(rightcols, "pval")
-    }
-    else if (layout == "meta8") {
-      rightcols <- c("effect", "ci")
-      #
-      if (!pvalNA)
-        rightcols <- c(rightcols, "pval")
-      #
-      if (print.tau2)
-        rightcols <- c(rightcols, "tau2")
-      #
-      if (print.tau2.ci)
-        leftcols <- c(leftcols, "tau2.ci")
-      #
-      if (print.tau)
-        rightcols <- c(rightcols, "tau")
-      #
-      if (print.tau.ci)
-        leftcols <- c(leftcols, "tau.ci")
-      #
-      if (print.I2)
-        rightcols <- c(rightcols, "I2")
-      #
-      if (print.I2.ci)
-        leftcols <- c(leftcols, "I2.ci")
-      #
-      if (print.cidprop.below.null)
-        rightcols <- c(rightcols, "prop.cid.below.null")
-      #
-      if (print.cidprop.above.null)
-        rightcols <- c(rightcols, "prop.cid.above.null")
-    }
-    else
-      rightcols <- FALSE
+  if (layout == "BMJ") {
+    rightcols <- c("effect.ci")
+    #
+    if (!pvalNA)
+      rightcols <- c(rightcols, "pval")
   }
+  else if (layout == "meta8") {
+    rightcols <- c("effect", "ci")
+    #
+    if (!pvalNA)
+      rightcols <- c(rightcols, "pval")
+    #
+    if (print.tau2)
+      rightcols <- c(rightcols, "tau2")
+    #
+    if (print.tau2.ci)
+      leftcols <- c(leftcols, "tau2.ci")
+    #
+    if (print.tau)
+      rightcols <- c(rightcols, "tau")
+    #
+    if (print.tau.ci)
+      leftcols <- c(leftcols, "tau.ci")
+    #
+    if (print.I2)
+      rightcols <- c(rightcols, "I2")
+    #
+    if (print.I2.ci)
+      leftcols <- c(leftcols, "I2.ci")
+    #
+    if (print.cidprop.below.null)
+      rightcols <- c(rightcols, "prop.cid.below.null")
+    #
+    if (print.cidprop.above.null)
+      rightcols <- c(rightcols, "prop.cid.above.null")
+  }
+  else
+    rightcols <- FALSE
   #
-  avail.rightlabs <- !missing(rightlabs) && !is.null(rightlabs)
+  rightlabs <- args$rightlabs
+  args[["rightlabs"]] <- NULL
   #
-  if (!avail.rightlabs) {
+  # Argument rightlabs
+  #
+  if (is.null(rightlabs))
     rightlabs <- rep_len(NA, length(rightcols))
-  }
-  else if (length(rightcols) != length(rightlabs)) {
-    stop(
-      "Different numbers of columns and labels are specified ",
-      "for the right side of the forest plot. Check argument 'rightlabs'.",
-      paste0(
-        "\n- number of columns: ", length(rightcols),
-        " (rightcols: ", paste(rightcols, collapse = ", "), ")",
-        "\n- number of labels:  ", length(rightlabs)),
-      call. = FALSE)
+  else {
+    if (length(rightlabs) != length(rightcols))
+      stop("Argument 'rightlabs' must provide ", length(rightcols),
+           " labels (rightcols: ",
+           paste(rightcols, collapse = ", "), ")",
+           call. = FALSE)
   }
   #
   if (print.tau2.ci && "tau2.ci" %in% rightcols &&
@@ -707,7 +719,6 @@ forest.metacum <- function(x,
     m$tau2 <- tau2
     m$tau <- tau
     #
-    #
     if (print.tau2.ci)
       m$tau2.ci <- tau2.ci
     #
@@ -765,7 +776,7 @@ forest.metacum <- function(x,
   #
   m$.text.details.methods <- text.details
   
-  
+    
   data.p <-
     data.frame(pval = formatPT(x$pval.pooled, digits = digits.pval,
                                lab.NA = lab.NA),
@@ -810,27 +821,7 @@ forest.metacum <- function(x,
   class(m) <- c(class(m), class(x))
   m$classes <- x$classes
   #
-  dots_list <- drop_from_dots(list(...),
-                              c("col.study", "col.square", "col.square.lines",
-                                "type.study", "weight.study",
-                                #
-                                "common", "random", "overall.hetstat",
-                                #
-                                "test.overall",
-                                "test.overall.common",
-                                "test.overall.random",
-                                #
-                                "data.pooled"),
-                              c("col", "col.bg", "col.border",
-                                "", "",
-                                #
-                                "", "", "",
-                                #
-                                "", "", "",
-                                #
-                                ""))
-  #
-  args_list <-
+  forest_args <-
     list(x = m,
          #
          layout = layout,
@@ -864,7 +855,7 @@ forest.metacum <- function(x,
          #
          details = details)
   #
-  res <- do.call("forest.meta", c(args_list, dots_list))
+  res <- do.call("forest.meta", c(forest_args, args))
   #
   invisible(res)
 }

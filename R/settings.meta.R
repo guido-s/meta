@@ -690,7 +690,7 @@ settings.meta <- function(..., quietly = TRUE) {
     # R function forest.meta
     #
     setOption("layout", "meta")
-    setOption("forest.details", TRUE)
+    setOption("forest.details", NULL)
     setOption("test.overall", NULL)
     setOption("test.effect.subgroup", FALSE)
     setOption("digits.forest", 2)
@@ -1057,7 +1057,6 @@ settings.meta <- function(..., quietly = TRUE) {
                                 #
                                 "text.common", "text.w.common",
                                 #
-                                "forest.details",
                                 "header.line",
                                 #
                                 "warn.deprecated"),
@@ -1077,7 +1076,6 @@ settings.meta <- function(..., quietly = TRUE) {
                                   replaceNULL(args[["text.w.common"]],
                                               "fixed"),
                                   #
-                                  replaceNULL(args[["forest.details"]], FALSE),
                                   replaceNULL(args[["header.line"]], FALSE),
                                   #
                                   replaceNULL(args[["warn.deprecated"]],
@@ -1637,7 +1635,7 @@ settings.meta <- function(..., quietly = TRUE) {
     # R function forest.meta
     #
     setcharacter("layout", args, layouts)
-    setlogical("forest.details", args)
+    setlogical("forest.details", args, NULL.ok = TRUE)
     setlogical("test.overall", args, NULL.ok = TRUE)
     setlogical("test.subgroup", args)
     setlogical("prediction.subgroup", args)

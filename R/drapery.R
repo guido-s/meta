@@ -267,7 +267,7 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
   #
   types <- c("zvalue", "pvalue", "surprisal")
   type <- setchar(type, types)
-  layout <- setchar(layout, c("grayscale", "linewidth", "equal"))
+  layout <- setchar(layout, c("grayscale", "linewidth", "equal"), length = 1)
   #
   chklogical(study.results)
   chklogical(axes)

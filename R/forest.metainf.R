@@ -1,56 +1,60 @@
 #' Forest plot to display the result of a leave-one-out meta-analysis
 #' 
 #' @description
-#' Draws a forest plot in the active graphics window (using grid
-#' graphics system).
+#' Draws a forest plot showing the results of omitting each study in turn,
+#' using the grid graphics system.
 #' 
 #' @aliases forest.metainf
 #' 
 #' @param x An object of class \code{\link{metainf}}.
+#' @param layout A character string specifying the layout of the
+#'   forest plot (see \code{\link{forest.meta}}).
 #' @param prediction A logical indicating whether prediction
 #'   intervals should be printed.
 #' @param overall A logical indicating whether overall results should be
 #'   shown.
-#' @param just.addcols Justification of text for additional columns
-#'   (possible values: "left", "right", "center").
-#' @param main A title for the forest plot.
-#' @param type A character string or vector specifying how to
-#'   plot treatment effects and confidence intervals for cumulative
-#'   meta-analysis results.
+#' @param leftlabs A character vector specifying labels for columns on left
+#'   side of the forest plot (see Details).
+#' @param rightlabs A character vector specifying labels for columns on right
+#'   side of the forest plot (see Details).
 #' @param lab.NA A character string to label missing values.
-#' @param layout A character string specifying the layout of the
-#'   forest plot (see \code{\link{forest.meta}}).
+#' @param col A named list specifying colours used in the forest
+#'   plot; see \code{\link{forest-formatting}}.
+#' @param print A named list specifying which information to print in the forest
+#'   plot; see \code{\link{forest-formatting}}.
+#' @param type A character string or vector specifying how to
+#'   plot treatment effects and confidence intervals for meta-analysis results.
+#' @param digits A named list specifying digits used for displayed results; a
+#'   scalar value is also accepted. See \code{\link{forest-formatting}}.
+#' @param details A logical specifying whether details on statistical
+#'   methods should be printed.
 #' @param backtransf A logical indicating whether results should be
 #'   back transformed in forest plots. If \code{backtransf = TRUE},
 #'   results for \code{sm = "OR"} are presented as odds ratios rather
 #'   than log odds ratios, for example.
 #' @param big.mark A character used as thousands separator.
-#' @param digits Minimal number of significant digits for treatment
-#'   effects, see \code{print.default}.
-#' @param digits.pval Minimal number of significant digits for
-#'   p-values.
-#' @param digits.tau2 Minimal number of significant digits for
-#'   between-study variance.
-#' @param digits.tau Minimal number of significant digits for square
-#'   root of between-study variance.
-#' @param digits.I2 Minimal number of significant digits for I-squared
-#'   statistic.
-#' @param digits.cid Minimal number of significant digits for
-#'   CID / decision thresholds, see \code{print.default}.
-#' @param digits.percent Minimal number of significant digits for
-#'   probabilities, printed as percentages, see \code{print.default}.
-#' @param col The colour for cumulative meta-analysis results (only considered
-#'   if \code{type = "square"}).
-#' @param col.bg The background colour for squares and diamonds of
-#'   cumulative meta-analysis results.
-#' @param col.border The colour for the outer lines of squares and diamonds of
-#'   cumulative meta-analysis results.
-#' @param col.bg.predict The background colour for prediction intervals of
-#'   cumulative meta-analysis results.
-#' @param col.border.predict The colour for the outer lines of prediction
-#'   intervals of cumulative meta-analysis results.
-#' @param details A logical specifying whether details on statistical
-#'   methods should be printed.
+#' @param main A title for the forest plot.
+#' @param filename File name to store forest plot.
+#' @param path Path of the directory to save plot to: `path` and `filename` are
+#'   combined to create the fully qualified file name. Defaults to the working
+#'   directory.
+#' @param device Device to use. Can either be a device function (e.g.,
+#'   \code{\link{png}}), or one of \code{"eps"}, \code{"ps"},
+#'   \code{"tex"} (pictex), \code{"pdf"}, \code{"jpeg"}, \code{"tiff"},
+#'   \code{"png"}, \code{"bmp"}, \code{"svg"} or \code{"wmf"} (Windows only).
+#'   By default, the device is guessed based on the `filename` extension.
+#' @param device.args List with additional graphical parameters passed on
+#'   to graphics function.
+#' @param units Units of the `width` and `height` of the file containing the
+#'   forest plot. One of \code{"in"} (for inches, default), \code{"cm"},
+#'   \code{"mm"}, or \code{"px"} (for pixels), can be abbreviated.
+#' @param height Height of the graphics file.
+#' @param width Width of the graphics file.
+#' @param dpi Plot resolution.
+#' @param dev.off A logical to specify whether current graphics device
+#'   should be shut down.
+#' @param new A logical value indicating whether a new figure should
+#'   be printed in an existing graphics window.
 #' @param \dots Additional graphical arguments (passed on to
 #'   \code{\link{forest.meta}}).
 #' 
@@ -83,106 +87,78 @@
 
 forest.metainf <- function(x,
                            #
+                           layout = gs("layout"),
+                           #
                            prediction = x$prediction,
                            overall = x$overall,
-                           just.addcols = "right",
+                           #
+                           leftlabs = NULL, rightlabs = NULL,
+                           #
+                           lab.NA = gs("lab.NA"),
+                           #
+                           col = NULL,
+                           print = NULL,
+                           type = "square",
+                           digits = NULL,
+                           #
+                           details = gs("forest.details"),
+                           #
+                           backtransf = x$backtransf,
+                           big.mark = gs("big.mark"),
                            #
                            main = "Leave-One-Out Meta-Analysis",
                            #
-                           type = "square",
+                           # Output
                            #
-                           layout = gs("layout"),
-                           lab.NA = gs("lab.NA"),
+                           filename = NULL,
+                           path = NULL,
+                           device = NULL, device.args = NULL,
+                           units = "in",
+                           height = NULL, width = NULL,
+                           dpi = 300,
+                           dev.off = NULL,
+                           new = TRUE,
                            #
-                           backtransf = x$backtransf,
-                           #
-                           big.mark = gs("big.mark"),
-                           digits = gs("digits.forest"),
-                           digits.pval = gs("digits.pval"),
-                           digits.tau2 = gs("digits.tau2"),
-                           digits.tau = gs("digits.tau"),
-                           digits.I2 = gs("digits.I2"),
-                           digits.cid = gs("digits.cid"),
-                           digits.percent = 1,
-                           #
-                           col,
-                           col.bg,
-                           col.border,
-                           col.bg.predict,
-                           col.border.predict,
-                           #
-                           details = gs("forest.details"),
                            ...) {
   
   chkclass(x, "metainf")
   x <- updateversion(x)
-  #
-  type <- setchar(type, c("square", "diamond", "circle", "squarediamond"))
-  #
-  x$prediction <- prediction
-  x$overall <- overall
-  x$backtransf <- backtransf
-  #
-  layout <- setchar(layout, gs("layout4forest"))
-  #
-  # Colour schemes for layouts:
-  # - colors[1] - vertical line for common effect or random effects model
-  # - colors[2] - diamond for meta-analysis results
-  # - colors[3] - outer lines of diamonds
-  # - colors[4] - square  colour
-  # - colors[5] - outer lines of squares
-  # - colors[6] - line color (axes, reference line, header lines)
-  # - colors[7] - prediction interval
-  # - colors[8] - outer lines of prediction intervals
-  # - colors[9] - subgroups
-  # - colors[10] - color within squares or circles
-  # - colors[11] - color of circles and outer lines of circles
-  #
-  colors <- layout_colors(layout)
-  #
-  if (missing(col))
-    col <- colors[1]
-  #
-  if (missing(col.bg))
-    col.bg <- ifelse(type == "diamond", colors[2],
-                     ifelse(type == "circle", colors[11], colors[4]))
-  #
-  if (missing(col.border))
-    col.border <- ifelse(type == "diamond", colors[3],
-                         ifelse(type == "circle", colors[11], colors[5]))
-  #
-  if (missing(col.bg.predict))
-    col.bg.predict <- colors[7]
-  if (missing(col.border.predict))
-    col.border.predict = colors[8]
-  #
-  res <- forest.metacum(x,
-                        #
-                        just.addcols = just.addcols,
-                        #
-                        main = main,
-                        #
-                        type = type,
-                        layout = layout,
-                        lab.NA = lab.NA,
-                        #
-                        big.mark = big.mark,
-                        digits = digits,
-                        digits.pval = digits.pval,
-                        digits.tau2 = digits.tau2,
-                        digits.tau = digits.tau,
-                        digits.I2 = digits.I2,
-                        digits.cid = digits.cid,
-                        digits.percent = digits.percent,
-                        #
-                        col = col,
-                        col.bg = col.bg,
-                        col.border = col.border,
-                        col.bg.predict = col.bg.predict,
-                        col.border.predict = col.border.predict,
-                        #
-                        details = details,
-                        ...)
-  #
-  return(invisible(res))
+  
+  invisible(
+    forest.metacum(x,
+                   #
+                   layout = layout,
+                   #
+                   prediction = prediction,
+                   overall = overall,
+                   #
+                   leftlabs = leftlabs, rightlabs = rightlabs,
+                   #
+                   lab.NA = lab.NA,
+                   #
+                   col = col,
+                   print = print,
+                   type = type,
+                   digits = digits,
+                   #
+                   details = details,
+                   #
+                   backtransf = backtransf,
+                   big.mark = big.mark,
+                   #
+                   main = main,
+                   #
+                   # Output
+                   #
+                   filename = filename,
+                   path = path,
+                   device = device, device.args = device.args,
+                   units = units,
+                   height = height, width = width,
+                   dpi = dpi,
+                   dev.off = dev.off,
+                   new = new,
+                   #
+                   ...)
+  )
 }

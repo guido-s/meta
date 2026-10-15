@@ -265,6 +265,8 @@ forest.metabind <- function(x,
   #
   chkchar(lab.NA)
   #
+  types <- c("square", "diamond", "predict", "circle")
+  #
   if (missing(type))
     type <- x$data$type
   else {
@@ -276,34 +278,16 @@ forest.metabind <- function(x,
            call. = FALSE)
   }
   #
-  if (!is.null(type.common)) {
-    if (length(type.common) != 1)
-      stop("Argument 'type.common' must be of length 1.",
-           call. = FALSE)
-    #
-    type.common <-
-      setchar(type.common, c("square", "diamond", "predict", "circle"))
-  }
+  if (!is.null(type.common))
+    type.common <- setchar(type.common, types, length = 1)
   #
-  if (!is.null(type.random)) {
-    if (length(type.random) != 1)
-      stop("Argument 'type.random' must be of length 1.",
-           call. = FALSE)
-    #
-    type.random <-
-      setchar(type.random, c("square", "diamond", "predict", "circle"))
-  }
+  if (!is.null(type.random))
+    type.random <- setchar(type.random, types, length = 1)
   #
-  if (!is.null(type.predict)) {
-    if (length(type.predict) != 1)
-      stop("Argument 'type.predict' must be of length 1.",
-           call. = FALSE)
-    #
-    type.predict <-
-      setchar(type.predict, c("square", "diamond", "predict", "circle"))
-  }
+  if (!is.null(type.predict))
+    type.predict <- setchar(type.predict, types, length = 1)
   #
-  layout <- setchar(layout, gs("layout4forest"))
+  layout <- setchar(layout, gs("layout4forest"), length = 1)
   #
   # Colour schemes for layouts:
   # - colors[1] - vertical line for common effect or random effects model

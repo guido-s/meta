@@ -899,7 +899,7 @@ setOption("label.right", "")
 # Settings for R function forest.meta
 #
 setOption("layout", "meta")
-setOption("forest.details", TRUE)
+setOption("forest.details", NULL)
 setOption("test.overall", NULL)
 setOption("test.effect.subgroup", FALSE)
 setOption("digits.forest", 2)

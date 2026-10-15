@@ -1732,52 +1732,64 @@ ff_defaults <- function() {
   )
 }
 
-col_defaults <- function(x) {
-  col.inside <- gs("col.inside")
-  col.diamond <- gs("col.diamond")
-  col.diamond.lines <- gs("col.diamond.lines")
-  col.predict <- gs("col.predict")
-  col.predict.lines <- gs("col.predict.lines")
-  col.subgroup <- gs("col.subgroup")
-  col.lines <- gs("col.lines")
-  col.circle <- gs("col.circle")
+col_defaults <- function(x, class = "meta") {
+  if (class == "meta") {
+    col.inside <- gs("col.inside")
+    col.diamond <- gs("col.diamond")
+    col.diamond.lines <- gs("col.diamond.lines")
+    col.predict <- gs("col.predict")
+    col.predict.lines <- gs("col.predict.lines")
+    col.subgroup <- gs("col.subgroup")
+    col.lines <- gs("col.lines")
+    col.circle <- gs("col.circle")
+    #
+    res <- list(
+      main = gs("col.main"),
+      common = gs("col.common"),
+      random = gs("col.random"),
+      label = gs("col.label"),
+      study = gs("col.study"),
+      study.text = gs("col.study.text"),
+      square = gs("col.square"),
+      square.lines = gs("col.square.lines"),
+      circle = col.circle,
+      circle.lines = col.circle,
+      inside = col.inside,
+      inside.common = col.inside,
+      inside.random = col.inside,
+      diamond = col.diamond,
+      diamond.common = col.diamond,
+      diamond.common.subgroup = col.diamond,
+      diamond.random = col.diamond,
+      diamond.random.subgroup = col.diamond,
+      diamond.lines = col.diamond.lines,
+      diamond.lines.common = col.diamond.lines,
+      diamond.lines.common.subgroup = col.diamond.lines,
+      diamond.lines.random = col.diamond.lines,
+      diamond.lines.random.subgroup = col.diamond.lines,
+      predict = col.predict,
+      predict.subgroup = col.predict,
+      predict.lines = col.predict.lines,
+      predict.lines.subgroup = col.predict.lines,
+      subgroup = col.subgroup,
+      label.left = x$col.label.left,
+      label.right = x$col.label.right,
+      lines = col.lines,
+      header.line = col.lines,
+      jama.line = col.subgroup,
+      cid = gs("col.cid")
+    )
+  }
+  else if (class == "metacum" || class == "metainf") {
+    res <- list(
+      col = NULL,
+      col.bg = NULL,
+      col.border = NULL,
+      col.bg.predict = NULL,
+      col.border.predict = NULL)
+  }
   #
-  list(
-    main = gs("col.main"),
-    common = gs("col.common"),
-    random = gs("col.random"),
-    label = gs("col.label"),
-    study = gs("col.study"),
-    study.text = gs("col.study.text"),
-    square = gs("col.square"),
-    square.lines = gs("col.square.lines"),
-    circle = col.circle,
-    circle.lines = col.circle,
-    inside = col.inside,
-    inside.common = col.inside,
-    inside.random = col.inside,
-    diamond = col.diamond,
-    diamond.common = col.diamond,
-    diamond.common.subgroup = col.diamond,
-    diamond.random = col.diamond,
-    diamond.random.subgroup = col.diamond,
-    diamond.lines = col.diamond.lines,
-    diamond.lines.common = col.diamond.lines,
-    diamond.lines.common.subgroup = col.diamond.lines,
-    diamond.lines.random = col.diamond.lines,
-    diamond.lines.random.subgroup = col.diamond.lines,
-    predict = col.predict,
-    predict.subgroup = col.predict,
-    predict.lines = col.predict.lines,
-    predict.lines.subgroup = col.predict.lines,
-    subgroup = col.subgroup,
-    label.left = x$col.label.left,
-    label.right = x$col.label.right,
-    lines = col.lines,
-    header.line = col.lines,
-    jama.line = col.subgroup,
-    cid = gs("col.cid")
-  )
+  res
 }
 
 calcwidth_defaults <- function(common, random, overall, subgroup) {
@@ -1797,25 +1809,40 @@ calcwidth_defaults <- function(common, random, overall, subgroup) {
   )
 }
 
-print_defaults <- function(x) {
-  list(
-    subgroup.labels = TRUE,
-    subgroup.name = x$print.subgroup.name,
-    I2 = gs("forest.I2"),
-    I2.ci = gs("forest.I2.ci"),
-    tau2 = gs("forest.tau2"),
-    tau2.ci = gs("forest.tau2.ci"),
-    tau = gs("forest.tau"),
-    tau.ci = gs("forest.tau.ci"),
-    Q = gs("forest.Q"),
-    pval.Q = gs("forest.pval.Q"),
-    Rb = gs("forest.Rb"),
-    Rb.ci = gs("forest.Rb.ci"),
-    stat = gs("forest.stat"),
-    tau2.ci.subgroup = gs("print.tau2.ci.subgroup"),
-    tau.ci.subgroup = gs("print.tau.ci.subgroup"),
-    Q.subgroup = gs("forest.Q.subgroup")
-  )
+print_defaults <- function(x, class = "meta") {
+  if (class == "meta") {
+    res <- list(
+      subgroup.labels = TRUE,
+      subgroup.name = x$print.subgroup.name,
+      I2 = gs("forest.I2"),
+      I2.ci = gs("forest.I2.ci"),
+      tau2 = gs("forest.tau2"),
+      tau2.ci = gs("forest.tau2.ci"),
+      tau = gs("forest.tau"),
+      tau.ci = gs("forest.tau.ci"),
+      Q = gs("forest.Q"),
+      pval.Q = gs("forest.pval.Q"),
+      Rb = gs("forest.Rb"),
+      Rb.ci = gs("forest.Rb.ci"),
+      stat = gs("forest.stat"),
+      tau2.ci.subgroup = gs("print.tau2.ci.subgroup"),
+      tau.ci.subgroup = gs("print.tau.ci.subgroup"),
+      Q.subgroup = gs("forest.Q.subgroup"))
+  }
+  else if (class == "metacum" || class == "metainf") {
+    res <- list(
+      I2 = TRUE,
+      I2.ci = FALSE,
+      tau2 = TRUE,
+      tau2.ci = FALSE,
+      tau = TRUE,
+      tau.ci = FALSE,
+      Q = FALSE,
+      pval.Q = FALSE,
+      cidprop = FALSE)
+  }
+  #
+  res
 }
 
 label_defaults <- function(x) {
@@ -1881,31 +1908,43 @@ just_defaults <- function(layout) {
   )
 }
 
-digits_defaults <- function() {
-  digits <- gs("digits.forest")
+digits_defaults <- function(class = "meta") {
+  if (class == "meta") {
+    digits <- gs("digits.forest")
+    #
+    res <- list(
+      digits = digits,
+      se = gs("digits.se"),
+      stat = gs("digits.stat"),
+      pval = gs("digits.pval"),
+      pval.Q = gs("digits.pval.Q"),
+      Q = gs("digits.Q"),
+      tau2 = gs("digits.tau2"),
+      tau = gs("digits.tau"),
+      I2 = gs("digits.I2"),
+      weight = gs("digits.weight"),
+      mean = gs("digits.mean"),
+      sd = gs("digits.sd"),
+      cor = digits,
+      time = digits,
+      n = 0,
+      event = 0,
+      TE = gs("digits.TE.forest"),
+      addcols = digits,
+      addcols.right = digits,
+      addcols.left = digits)    
+  }
+  else if (class == "metacum" || class == "metainf") {
+    res <- list(digits = gs("digits.forest"),
+                pval = gs("digits.pval"),
+                tau2 = gs("digits.tau2"),
+                tau = gs("digits.tau"),
+                I2 = gs("digits.I2"),
+                cid = gs("digits.cid"),
+                percent = 1)
+  }
   #
-  list(
-    digits = digits,
-    se = gs("digits.se"),
-    stat = gs("digits.stat"),
-    pval = gs("digits.pval"),
-    pval.Q = gs("digits.pval.Q"),
-    Q = gs("digits.Q"),
-    tau2 = gs("digits.tau2"),
-    tau = gs("digits.tau"),
-    I2 = gs("digits.I2"),
-    weight = gs("digits.weight"),
-    mean = gs("digits.mean"),
-    sd = gs("digits.sd"),
-    cor = digits,
-    time = digits,
-    n = 0,
-    event = 0,
-    TE = gs("digits.TE.forest"),
-    addcols = digits,
-    addcols.right = digits,
-    addcols.left = digits
-  )
+  res
 }
 
 test_defaults <- function(x, common, random, overall,

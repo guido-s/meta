@@ -1,11 +1,11 @@
 #' Formatting arguments for forest plots
 #'
 #' @description
-#' Formatting arguments for forest plots created with \code{\link{forest.meta}}.
+#' Formatting arguments for forest plots created with R package \bold{meta}.
 #'
 #' @details
-#' In \code{\link{forest.meta}}, the preferred interfaces for specifying related
-#' formatting arguments are the following named lists:
+#' In R package \bold{meta}, formatting arguments for forest plots can be
+#' provided in the following named lists:
 #' 
 #' \code{test}, \code{label}, \code{rob}, \code{fs}, \code{ff},
 #' \code{just}, \code{fill}, \code{col}, \code{print}, \code{type},
@@ -19,17 +19,22 @@
 #' formed by combining the list name and element name, such as \code{fs.main}
 #' or \code{col.diamond}.
 #'
-#' For \code{addrow}, \code{cid}, \code{colgap}, \code{digits}, \code{fill},
-#' \code{just}, and \code{lwd}, the primary value can also be supplied directly
-#' without wrapping it in a named list; see \code{\link{forest.meta}}.
+#' In \code{\link{forest.meta}}, the primary value can also be supplied directly
+#' without wrapping it in a named list for \code{addrow}, \code{cid},
+#' \code{colgap}, \code{digits}, \code{fill}, \code{just}, and \code{lwd}.
 #' The \code{rob} argument also accepts a risk-of-bias assessment directly.
+#'
+#' In \code{\link{forest.metacum}} or \code{\link{forest.metacum}}, the primary
+#' value can also be supplied directly without wrapping it in a named list for
+#' \code{col} and \code{digits}.
 #'
 #' Most individual arguments can also be set globally through
 #' \code{\link{settings.meta}}. The corresponding defaults are then used by
 #' the named lists.
 #' 
 #' \subsection{Tests (test.*)}{
-#' Logical values control whether the corresponding tests are printed.
+#' In \code{\link{forest.meta}}, logical values control whether the
+#' corresponding tests are printed.
 #'
 #' \tabular{ll}{
 #' \bold{List element} \tab \bold{Description} \cr
@@ -46,8 +51,9 @@
 #' }
 #'
 #' \subsection{Labels (label.*)}{
-#' Label arguments set group labels, attached study-data columns, graph labels,
-#' column headings, and labels preceding test results.
+#' In \code{\link{forest.meta}}, label arguments set group labels, attached
+#' study-data columns, graph labels, column headings, and labels preceding test
+#' results.
 #'
 #' \tabular{ll}{
 #' \bold{List element} \tab \bold{Description} \cr
@@ -79,8 +85,8 @@
 #' }
 #'
 #' \subsection{Risk-of-bias settings (rob.*)}{
-#' Settings for risk-of-bias assessments can be supplied in the named list
-#' \code{rob}.
+#' In \code{\link{forest.meta}}, settings for risk-of-bias assessments can be
+#' supplied in the named list \code{rob}.
 #'
 #' \tabular{ll}{
 #' \bold{List element} \tab \bold{Description} \cr
@@ -192,6 +198,18 @@
 #' \code{subgroup} \tab Subgroup text colour. \cr
 #' \code{lines}, \code{header.line}, \code{jama.line} \tab Plot-line colours.
 #' }
+#'
+#' In \code{\link{forest.metacum}} and \code{\link{forest.metainf}}, the
+#' following elements are available in the named list \code{col}:
+#'
+#' \tabular{ll}{
+#' \bold{List element} \tab \bold{Description} \cr
+#' \code{col} \tab Colour for results (only used if \code{type = "square"}). \cr
+#' \code{col.bg} \tab Background colour for squares and diamonds. \cr
+#' \code{col.border} \tab Colour of outer lines of squares and diamonds. \cr
+#' \code{col.bg.predict} \tab Background colour for prediction intervals. \cr
+#' \code{col.border.predict} \tab Colour of outer lines of prediction intervals.
+#' }
 #' }
 #'
 #' \subsection{Printing results (print.*)}{
@@ -199,8 +217,6 @@
 #'
 #' \tabular{ll}{
 #' \bold{List element} \tab \bold{Description} \cr
-#' \code{subgroup.labels} \tab Subgroup labels. \cr
-#' \code{subgroup.name} \tab Subgroup variable name. \cr
 #' \code{I2} \tab I-squared. \cr
 #' \code{I2.ci} \tab Confidence interval for I-squared. \cr
 #' \code{tau2} \tab Tau-squared. \cr
@@ -214,7 +230,17 @@
 #' \code{stat} \tab The z- or t-statistic for treatment effect. \cr
 #' \code{Q.subgroup} \tab Q for subgroup differences. \cr
 #' \code{tau2.ci.subgroup} \tab Subgroup confidence interval for tau-squared. \cr
-#' \code{tau.ci.subgroup} \tab Subgroup confidence interval for tau.
+#' \code{tau.ci.subgroup} \tab Subgroup confidence interval for tau. \cr
+#' \code{cidprop} \tab Expected proportion of comparable studies with \cr
+#'   \tab clinically important benefit or harm.
+#' }
+#' 
+#' Furthermore, the following labels are controlled by elements of the named
+#' list \code{print}:
+#' \tabular{ll}{
+#' \bold{List element} \tab \bold{Description} \cr
+#' \code{subgroup.labels} \tab Subgroup labels. \cr
+#' \code{subgroup.name} \tab Subgroup variable name.
 #' }
 #' }
 #'
@@ -305,7 +331,8 @@
 #' \code{TE} \tab Treatment estimates in additional data. \cr
 #' \code{addcols} \tab Additional columns. \cr
 #' \code{addcols.left} \tab Left additional columns. \cr
-#' \code{addcols.right} \tab Right additional columns.
+#' \code{addcols.right} \tab Right additional columns. \cr
+#' \code{percent} \tab Percentages.
 #' }
 #' }
 #'

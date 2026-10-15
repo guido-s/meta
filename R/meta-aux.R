@@ -1057,22 +1057,24 @@ warn_set_input <- function(x, cond = TRUE, set, text = "") {
   invisible(NULL)
 }
 
-drop_from_dots <- function(x, old, new) {
-  for (i in seq_along(old)) {
-    if (!is.null(x[[old[i]]])) {
-      if (new[i] != "")
-        warning("Argument '", old[i],
+drop_from_dots <- function(x, drop, replace = list()) {
+  for (old in drop) {
+    if (!is.null(x[[old]])) {
+      new <- replace[[old]]
+      if (!is.null(new) && length(new) == 1 && nzchar(new))
+        warning("Argument '", old,
                 "' ignored; please use argument '",
-                new[i], "' instead.",
+                new, "' instead.",
                 call. = FALSE)
       else
-        warning("Argument '", old[i],
+        warning("Argument '", old,
                 "' ignored as it is used internally.",
                 call. = FALSE)
       #
-      x[[old[i]]] <- NULL
+      x[[old]] <- NULL
     }
   }
+  #
   x
 }
 
@@ -1188,4 +1190,20 @@ as_named_list <- function(x) {
   }
   #
   setNames(list(x), name)
+}
+
+collapse_choices <- function(x) {
+  if (is.numeric(x) && length(x) > 2 && all(diff(x) == 1)) {
+    paste("from", x[1], "to", x[length(x)])
+  }
+  else if (length(x) == 1) {
+    x
+  }
+  else if (length(x) == 2) {
+    paste(x, collapse = " or ")
+  }
+  else {
+    paste0(
+      paste(x[-length(x)], collapse = ", "), ", or ", x[length(x)])
+  }
 }
