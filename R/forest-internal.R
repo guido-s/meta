@@ -1839,7 +1839,7 @@ print_defaults <- function(x, class = "meta") {
   else if (class == "metacum" || class == "metainf") {
     res <- list(
       pval = TRUE,
-      stat = TRUE,
+      stat = FALSE,
       I2 = TRUE,
       I2.ci = FALSE,
       tau2 = TRUE,
