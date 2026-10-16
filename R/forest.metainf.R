@@ -13,10 +13,16 @@
 #'   intervals should be printed.
 #' @param overall A logical indicating whether overall results should be
 #'   shown.
-#' @param leftlabs A character vector specifying labels for columns on left
+#' @param leftcols A character vector specifying columns to be printed on the
+#'   left side of the forest plot or a logical value; see
+#'   \code{\link{forest.meta}}.
+#' @param rightcols A character vector specifying columns to be printed on the
+#'   right side of the forest plot or a logical value; see
+#'   \code{\link{forest.meta}}.
+#' @param leftlabs A character vector specifying labels for columns on the left
 #'   side of the forest plot (see Details).
-#' @param rightlabs A character vector specifying labels for columns on right
-#'   side of the forest plot (see Details).
+#' @param rightlabs A character vector specifying labels for columns on the
+#'   right side of the forest plot (see Details).
 #' @param lab.NA A character string to label missing values.
 #' @param col A named list specifying colours used in the forest
 #'   plot; see \code{\link{forest-formatting}}.
@@ -59,9 +65,28 @@
 #'   \code{\link{forest.meta}}).
 #' 
 #' @details
-#' A forest plot, also called confidence interval plot, is drawn in
-#' the active graphics window. Internally, R function
-#' \code{\link{forest.metacum}} is called to produce the forest plot.
+#' Each row of the forest plot represents a meta-analysis after omitting one
+#' study from the original meta-analysis. Results are shown in the order of
+#' the omitted studies. Common-effect or random-effects estimates, prediction
+#' intervals, heterogeneity statistics, and study-level information can be
+#' selected with the corresponding arguments.
+#'
+#' A forest plot, also called a confidence interval plot, is drawn in the
+#' active graphics window using the grid graphics system. To save the plot,
+#' specify a file name with argument \code{filename}; the graphics device is
+#' selected from the file extension by default (see \code{\link{forest.meta}}
+#' for examples).
+#' 
+#' The named list \code{print} determines which result columns are shown in
+#' the forest plot. The argument \code{layout} determines the default
+#' placement of these columns on the left or right side. The columns and their
+#' placement are determined internally and cannot be changed by the user.
+#'
+#' Arguments \code{leftcols} and \code{rightcols} can be used to specify
+#' columns printed on the left or right side, respectively. Arguments
+#' \code{leftlabs} and \code{rightlabs} can be used to provide headings for
+#' these columns. Use \code{NA} for a column heading to retain its default
+#' label.
 #' 
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
@@ -92,6 +117,7 @@ forest.metainf <- function(x,
                            prediction = x$prediction,
                            overall = x$overall,
                            #
+                           leftcols = NULL, rightcols = NULL,
                            leftlabs = NULL, rightlabs = NULL,
                            #
                            lab.NA = gs("lab.NA"),
@@ -132,6 +158,7 @@ forest.metainf <- function(x,
                    prediction = prediction,
                    overall = overall,
                    #
+                   leftcols = leftcols, rightcols = rightcols,
                    leftlabs = leftlabs, rightlabs = rightlabs,
                    #
                    lab.NA = lab.NA,

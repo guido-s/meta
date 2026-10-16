@@ -9,6 +9,8 @@
   layout = gs("layout"),
   prediction = x$prediction,
   overall = x$overall,
+  leftcols = NULL,
+  rightcols = NULL,
   leftlabs = NULL,
   rightlabs = NULL,
   lab.NA = gs("lab.NA"),
@@ -45,11 +47,19 @@ intervals should be printed.}
 \item{overall}{A logical indicating whether overall results should be
 shown.}
 
-\item{leftlabs}{A character vector specifying labels for columns on left
+\item{leftcols}{A character vector specifying columns to be printed on the
+left side of the forest plot or a logical value; see
+\code{\link{forest.meta}}.}
+
+\item{rightcols}{A character vector specifying columns to be printed on the
+right side of the forest plot or a logical value; see
+\code{\link{forest.meta}}.}
+
+\item{leftlabs}{A character vector specifying labels for columns on the left
 side of the forest plot (see Details).}
 
-\item{rightlabs}{A character vector specifying labels for columns on right
-side of the forest plot (see Details).}
+\item{rightlabs}{A character vector specifying labels for columns on the
+right side of the forest plot (see Details).}
 
 \item{lab.NA}{A character string to label missing values.}
 
@@ -135,9 +145,11 @@ the forest plot. The argument \code{layout} determines the default
 placement of these columns on the left or right side. The columns and their
 placement are determined internally and cannot be changed by the user.
 
-Arguments \code{leftlabs} and \code{rightlabs} can be used to provide
-headings for the columns printed on the left and right side, respectively.
-Use \code{NA} for a column heading to retain its default label.
+Arguments \code{leftcols} and \code{rightcols} can be used to specify
+columns printed on the left or right side, respectively. Arguments
+\code{leftlabs} and \code{rightlabs} can be used to provide headings for
+these columns. Use \code{NA} for a column heading to retain its default
+label.
 }
 \examples{
 data(Fleiss1993bin)

@@ -19,38 +19,15 @@
   prediction = x$prediction,
   layout = gs("layout"),
   lab.NA = "",
-  col.square,
-  col.square.lines,
-  col.circle,
-  col.circle.lines,
-  col.diamond,
-  col.diamond.common,
-  col.diamond.random,
-  col.diamond.lines,
-  col.diamond.lines.common,
-  col.diamond.lines.random,
-  col.predict,
-  col.predict.lines,
+  col = NULL,
   type = NULL,
-  type.common = NULL,
-  type.random = NULL,
-  type.predict = NULL,
-  digits = gs("digits.forest"),
-  digits.se = gs("digits.se"),
-  digits.stat = gs("digits.stat"),
-  digits.pval = max(gs("digits.pval") - 2, 2),
-  digits.pval.Q = max(gs("digits.pval.Q") - 2, 2),
-  digits.Q = gs("digits.Q"),
-  digits.tau2 = gs("digits.tau2"),
-  digits.tau = gs("digits.tau"),
-  digits.I2 = max(gs("digits.I2") - 1, 0),
+  digits = NULL,
   scientific.pval = gs("scientific.pval"),
   big.mark = gs("big.mark"),
   print.subgroup.labels = x$with.subgroups,
   addrow.subgroups = print.subgroup.labels,
   smlab = NULL,
   calcwidth.pooled = overall,
-  warn.deprecated = gs("warn.deprecated"),
   ...
 )
 }
@@ -107,80 +84,15 @@ forest plot (see \code{\link{forest.meta}}).}
 
 \item{lab.NA}{A character string to label missing values.}
 
-\item{col.square}{The colour for squares reflecting study's weight
-in the meta-analysis.}
+\item{col}{A named list specifying colours used in the forest
+plot; see \code{\link{forest-formatting}}.}
 
-\item{col.square.lines}{The colour for the outer lines of squares
-reflecting study's weight in the meta-analysis.}
+\item{type}{A named list specifying graphical types for estimates, common
+effect estimates, random effect estimates, and prediction intervals;
+see \code{\link{forest-formatting}}.}
 
-\item{col.circle}{The colour for circles reflecting study weights
-in the meta-analysis.}
-
-\item{col.circle.lines}{The colour for the outer lines of circles
-reflecting study's weight in the meta-analysis.}
-
-\item{col.diamond}{The colour of diamonds representing the results
-for common effect and random effects models.}
-
-\item{col.diamond.common}{The colour of diamonds for common effect
-estimates.}
-
-\item{col.diamond.random}{The colour of diamonds for random effects
-estimates.}
-
-\item{col.diamond.lines}{The colour of the outer lines of diamonds
-representing the results for common effect and random effects
-models.}
-
-\item{col.diamond.lines.common}{The colour of the outer lines of
-diamond for common effect estimates.}
-
-\item{col.diamond.lines.random}{The colour of the outer lines of
-diamond for random effects estimates.}
-
-\item{col.predict}{Background colour of prediction intervals.}
-
-\item{col.predict.lines}{Colour of outer lines of prediction
-intervals.}
-
-\item{type}{A character string or vector specifying how to
-plot estimates.}
-
-\item{type.common}{A single character string specifying how to
-plot common effect estimates.}
-
-\item{type.random}{A single character string specifying how to
-plot random effects estimates.}
-
-\item{type.predict}{A single character string specifying how to
-plot prediction intervals.}
-
-\item{digits}{Minimal number of significant digits for treatment
-effects, see \code{print.default}.}
-
-\item{digits.se}{Minimal number of significant digits for standard
-errors, see \code{print.default}.}
-
-\item{digits.stat}{Minimal number of significant digits for z- or
-t-statistic for test of overall effect, see \code{print.default}.}
-
-\item{digits.pval}{Minimal number of significant digits for p-value
-of overall treatment effect, see \code{print.default}.}
-
-\item{digits.pval.Q}{Minimal number of significant digits for
-p-value of heterogeneity test, see \code{print.default}.}
-
-\item{digits.Q}{Minimal number of significant digits for
-heterogeneity statistic Q, see \code{print.default}.}
-
-\item{digits.tau2}{Minimal number of significant digits for
-between-study variance, see \code{print.default}.}
-
-\item{digits.tau}{Minimal number of significant digits for square
-root of between-study variance, see \code{print.default}.}
-
-\item{digits.I2}{Minimal number of significant digits for I-squared
-statistic, see \code{print.default}.}
+\item{digits}{A named list specifying digits used for displayed results; a
+scalar value is also accepted. See \code{\link{forest-formatting}}.}
 
 \item{scientific.pval}{A logical specifying whether p-values should
 be printed in scientific notation, e.g., 1.2345e-01 instead of
@@ -200,9 +112,6 @@ figure).}
 \item{calcwidth.pooled}{A logical indicating whether text for
 common effect and random effects model should be considered to
 calculate width of the column with study labels.}
-
-\item{warn.deprecated}{A logical indicating whether warnings should
-be printed if deprecated arguments are used.}
 
 \item{\dots}{Additional graphical arguments (passed on to
 \code{\link{forest.meta}}).}

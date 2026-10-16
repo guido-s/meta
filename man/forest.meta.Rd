@@ -662,8 +662,10 @@ Column: \tab \code{event.e}, \code{event.c}, \code{event} \tab \code{time.e}, \c
 Label: \tab \code{gs("label.events")} \tab \code{gs("label.time")} \tab \code{gs("label.cor")} \cr
 Column: \tab \code{effect} \tab \code{ci} \tab \code{effect.ci} \cr
 Label: \tab \code{x$sm} \tab \code{x$level}"\% CI" \tab \emph{effect+ci} \cr
-Column: \tab \code{cluster} \tab \code{cycles} \tab \code{pval} \cr
-Label: \tab \code{gs("label.cluster")} \tab \code{gs("label.cycles")} \tab \code{gs("label.pval")} \cr
+Column: \tab \code{cluster} \tab \code{cycles} \cr
+Label: \tab \code{gs("label.cluster")} \tab \code{gs("label.cycles")} \cr
+Column: \tab \code{pval} \tab \code{statistic} \cr
+Label: \tab \code{gs("label.pval")} \tab "z", "t", or "z|t" \cr
 Column: \tab \code{tau2} \tab \code{tau} \tab \code{I2} \cr
 Label: \tab \code{gs("label.tau2")} \tab \code{gs("label.tau")} \tab \code{gs("label.I2")} \cr
 }

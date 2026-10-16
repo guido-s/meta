@@ -1057,18 +1057,16 @@ warn_set_input <- function(x, cond = TRUE, set, text = "") {
   invisible(NULL)
 }
 
-drop_from_dots <- function(x, drop, replace = list()) {
+drop_from_dots <- function(x, drop = NULL, replace = list()) {
   for (old in drop) {
     if (!is.null(x[[old]])) {
       new <- replace[[old]]
       if (!is.null(new) && length(new) == 1 && nzchar(new))
-        warning("Argument '", old,
-                "' ignored; please use argument '",
+        warning("Argument '", old, "' ignored; please use argument '",
                 new, "' instead.",
                 call. = FALSE)
       else
-        warning("Argument '", old,
-                "' ignored as it is used internally.",
+        warning("Argument '", old, "' ignored as it is set internally.",
                 call. = FALSE)
       #
       x[[old]] <- NULL

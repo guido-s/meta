@@ -1443,8 +1443,7 @@ newCol <- function(varname, label,
                    rob, data1, data2, datap,
                    n.com, n.ran, n.prd,
                    notavail, lab.NA, big.mark,
-                   zero.pval, JAMA.pval, scientific.pval,
-                   digits, digits.pval, digits.tau2, digits.tau, digits.I2,
+                   digits, digits.tau2, digits.tau, digits.I2,
                    sel.prd,
                    n.com.w = 0, n.ran.w = 0, n.prd.w = 0, n.stat.w = 0) {
   
@@ -1497,14 +1496,7 @@ newCol <- function(varname, label,
       fvar <-
         formatN(fvar, digits = 0, lab.NA = lab.NA, big.mark = big.mark)
     else if (is.numeric(fvar)) {
-      if (varname == "pval")
-        fvar <- formatPT(fvar, digits = digits.pval,
-                         big.mark = big.mark,
-                         lab = FALSE, labval = "",
-                         zero = zero.pval, JAMA = JAMA.pval,
-                         scientific = scientific.pval,
-                         lab.NA = lab.NA)
-      else if (varname == "tau2")
+      if (varname == "tau2")
         fvar <- formatPT(fvar, digits = digits.tau2,
                          big.mark = big.mark,
                          lab = FALSE, labval = "",
@@ -1788,6 +1780,21 @@ col_defaults <- function(x, class = "meta") {
       col.bg.predict = NULL,
       col.border.predict = NULL)
   }
+  else if (class == "metabind") {
+    res <- list(
+      col.square = NULL,
+      col.square.lines = NULL,
+      col.circle = NULL,
+      col.circle.lines = NULL,
+      col.diamond = NULL,
+      col.diamond.common = NULL,
+      col.diamond.random = NULL,
+      col.diamond.lines = NULL,
+      col.diamond.lines.common = NULL,
+      col.diamond.lines.random = NULL,
+      col.predict = NULL,
+      col.predict.lines = NULL)
+  }
   #
   res
 }
@@ -1831,6 +1838,8 @@ print_defaults <- function(x, class = "meta") {
   }
   else if (class == "metacum" || class == "metainf") {
     res <- list(
+      pval = TRUE,
+      stat = TRUE,
       I2 = TRUE,
       I2.ci = FALSE,
       tau2 = TRUE,
@@ -1937,11 +1946,24 @@ digits_defaults <- function(class = "meta") {
   else if (class == "metacum" || class == "metainf") {
     res <- list(digits = gs("digits.forest"),
                 pval = gs("digits.pval"),
+                stat = gs("digits.stat"),
                 tau2 = gs("digits.tau2"),
                 tau = gs("digits.tau"),
                 I2 = gs("digits.I2"),
                 cid = gs("digits.cid"),
                 percent = 1)
+  }
+  else if (class == "metabind") {
+    res <- list(
+      digits = gs("digits.forest"),
+      se = gs("digits.se"),
+      stat = gs("digits.stat"),
+      pval = max(gs("digits.pval") - 2, 2),
+      pval.Q = max(gs("digits.pval.Q") - 2, 2),
+      Q = gs("digits.Q"),
+      tau2 = gs("digits.tau2"),
+      tau = gs("digits.tau"),
+      I2 = max(gs("digits.I2") - 1, 0))
   }
   #
   res
@@ -1965,17 +1987,28 @@ test_defaults <- function(x, common, random, overall,
   )
 }
 
-type_defaults <- function(study.results) {
-  type.subgroup <- ifelse(study.results, "diamond", "square")
+type_defaults <- function(study.results, class = "meta") {
+  if (class == "meta") {
+    type.subgroup <- ifelse(study.results, "diamond", "square")
+    #
+    res <- list(
+      study = gs("type.study"),
+      common = gs("type.common"),
+      random = gs("type.common"),
+      subgroup = type.subgroup,
+      subgroup.common = type.subgroup,
+      subgroup.random = type.subgroup
+    )
+  }
+  else if (class == "metabind") {
+    res <- list(
+      type = NULL,
+      common = NULL,
+      random = NULL,
+      predict = NULL)
+  }
   #
-  list(
-    study = gs("type.study"),
-    common = gs("type.common"),
-    random = gs("type.common"),
-    subgroup = type.subgroup,
-    subgroup.common = type.subgroup,
-    subgroup.random = type.subgroup
-  )
+  res
 }
 
 fill_defaults <- function() {

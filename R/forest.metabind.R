@@ -41,59 +41,16 @@
 #'   level.
 #' @param prediction A logical indicating whether prediction
 #'   interval(s) should be printed.
-#' @param type A character string or vector specifying how to
-#'   plot estimates.
-#' @param type.common A single character string specifying how to
-#'   plot common effect estimates.
-#' @param type.random A single character string specifying how to
-#'   plot random effects estimates.
-#' @param type.predict A single character string specifying how to
-#'   plot prediction intervals.
+#' @param type A named list specifying graphical types for estimates, common
+#'   effect estimates, random effect estimates, and prediction intervals;
+#'   see \code{\link{forest-formatting}}.
 #' @param layout A character string specifying the layout of the
 #'   forest plot (see \code{\link{forest.meta}}).
 #' @param lab.NA A character string to label missing values.
-#' @param col.square The colour for squares reflecting study's weight
-#'   in the meta-analysis.
-#' @param col.square.lines The colour for the outer lines of squares
-#'   reflecting study's weight in the meta-analysis.
-#' @param col.circle The colour for circles reflecting study weights
-#'   in the meta-analysis.
-#' @param col.circle.lines The colour for the outer lines of circles
-#'   reflecting study's weight in the meta-analysis.
-#' @param col.diamond The colour of diamonds representing the results
-#'   for common effect and random effects models.
-#' @param col.diamond.common The colour of diamonds for common effect
-#'   estimates.
-#' @param col.diamond.random The colour of diamonds for random effects
-#'   estimates.
-#' @param col.diamond.lines The colour of the outer lines of diamonds
-#'   representing the results for common effect and random effects
-#'   models.
-#' @param col.diamond.lines.common The colour of the outer lines of
-#'   diamond for common effect estimates.
-#' @param col.diamond.lines.random The colour of the outer lines of
-#'   diamond for random effects estimates.
-#' @param col.predict Background colour of prediction intervals.
-#' @param col.predict.lines Colour of outer lines of prediction
-#'   intervals.
-#' @param digits Minimal number of significant digits for treatment
-#'   effects, see \code{print.default}.
-#' @param digits.se Minimal number of significant digits for standard
-#'   errors, see \code{print.default}.
-#' @param digits.stat Minimal number of significant digits for z- or
-#'   t-statistic for test of overall effect, see \code{print.default}.
-#' @param digits.pval Minimal number of significant digits for p-value
-#'   of overall treatment effect, see \code{print.default}.
-#' @param digits.pval.Q Minimal number of significant digits for
-#'   p-value of heterogeneity test, see \code{print.default}.
-#' @param digits.Q Minimal number of significant digits for
-#'   heterogeneity statistic Q, see \code{print.default}.
-#' @param digits.tau2 Minimal number of significant digits for
-#'   between-study variance, see \code{print.default}.
-#' @param digits.tau Minimal number of significant digits for square
-#'   root of between-study variance, see \code{print.default}.
-#' @param digits.I2 Minimal number of significant digits for I-squared
-#'   statistic, see \code{print.default}.
+#' @param col A named list specifying colours used in the forest
+#'   plot; see \code{\link{forest-formatting}}.
+#' @param digits A named list specifying digits used for displayed results; a
+#'   scalar value is also accepted. See \code{\link{forest-formatting}}.
 #' @param scientific.pval A logical specifying whether p-values should
 #'   be printed in scientific notation, e.g., 1.2345e-01 instead of
 #'   0.12345.
@@ -107,8 +64,6 @@
 #' @param calcwidth.pooled A logical indicating whether text for
 #'   common effect and random effects model should be considered to
 #'   calculate width of the column with study labels.
-#' @param warn.deprecated A logical indicating whether warnings should
-#'   be printed if deprecated arguments are used.
 #' @param \dots Additional graphical arguments (passed on to
 #'   \code{\link{forest.meta}}).
 #' 
@@ -196,35 +151,9 @@ forest.metabind <- function(x,
                             layout = gs("layout"),
                             lab.NA = "",
                             #
-                            col.square,
-                            col.square.lines,
-                            col.circle,
-                            col.circle.lines,
-                            #
-                            col.diamond,
-                            col.diamond.common,
-                            col.diamond.random,
-                            col.diamond.lines,
-                            col.diamond.lines.common,
-                            col.diamond.lines.random,
-                            #
-                            col.predict,
-                            col.predict.lines,
-                            #
+                            col = NULL,
                             type = NULL,
-                            type.common = NULL,
-                            type.random = NULL,
-                            type.predict = NULL,
-                            #
-                            digits = gs("digits.forest"),
-                            digits.se = gs("digits.se"),
-                            digits.stat = gs("digits.stat"),
-                            digits.pval = max(gs("digits.pval") - 2, 2),
-                            digits.pval.Q = max(gs("digits.pval.Q") - 2, 2),
-                            digits.Q = gs("digits.Q"),
-                            digits.tau2 = gs("digits.tau2"),
-                            digits.tau = gs("digits.tau"),
-                            digits.I2 = max(gs("digits.I2") - 1, 0),
+                            digits = NULL,
                             #
                             scientific.pval = gs("scientific.pval"),
                             big.mark = gs("big.mark"),
@@ -234,8 +163,6 @@ forest.metabind <- function(x,
                             #
                             smlab = NULL,
                             calcwidth.pooled = overall,
-                            #
-                            warn.deprecated = gs("warn.deprecated"),
                             #
                             ...) {
   
@@ -247,6 +174,18 @@ forest.metabind <- function(x,
   #
   chkclass(x, "metabind")
   x <- updateversion(x)
+  #
+  layout <- setchar(layout, gs("layout4forest"), length = 1)
+  #
+  # Drop internally used arguments from '...'
+  #
+  drop_args <- NULL
+  #
+  replace_args <- list(type.study = "type")
+  #
+  replace_args <- list()
+  #
+  args <- drop_from_dots(list(...), drop_args, replace_args)
   #
   missing.overall <- missing(overall)
   missing.overall.hetstat <- missing(overall.hetstat)
@@ -265,9 +204,28 @@ forest.metabind <- function(x,
   #
   chkchar(lab.NA)
   #
-  types <- c("square", "diamond", "predict", "circle")
+  # Types
   #
-  if (missing(type))
+  type <- as_named_list(type)
+  type.list <-
+    merge_legacy(type, args, type_defaults(class = "metabind"), "type")
+  #
+  types <- type.list$res
+  args <- type.list$args
+  miss.type <- type.list$miss
+  #
+  types <- type.list$res
+  #
+  type <- types$type
+  type.common <- types$common
+  type.random <- types$random
+  type.predict <- types$predict
+  #
+  miss.type.common <- miss.type$common
+  miss.type.random <- miss.type$random
+  miss.type.predict <- miss.type$predict
+  #
+  if (is.null(type))
     type <- x$data$type
   else {
     if (length(type) == 1 & nrow(x$data) > 1)
@@ -278,103 +236,105 @@ forest.metabind <- function(x,
            call. = FALSE)
   }
   #
-  if (!is.null(type.common))
-    type.common <- setchar(type.common, types, length = 1)
+  valid_types <- c("square", "diamond", "predict", "circle")
   #
-  if (!is.null(type.random))
-    type.random <- setchar(type.random, types, length = 1)
+  type <- setchar(type, valid_types)
   #
-  if (!is.null(type.predict))
-    type.predict <- setchar(type.predict, types, length = 1)
+  if (!miss.type.common)
+    type.common <- setchar(type.common, valid_types, length = 1)
   #
-  layout <- setchar(layout, gs("layout4forest"), length = 1)
+  if (!miss.type.random)
+    type.random <- setchar(type.random, valid_types, length = 1)
+  #
+  if (!miss.type.predict)
+    type.predict <- setchar(type.predict, valid_types, length = 1)
+  #
+  # Define colours
+  #
+  col <- as_named_list(col)
+  col.list <- merge_legacy(col, args, col_defaults(x, "metabind"), "col")
+  #
+  col <- col.list$res
+  args <- col.list$args
+  #
+  cols <- col.list$res
+  #
+  col <- cols$col
+  col.square <- cols$square
+  col.square.lines <- cols$square.lines
+  col.circle <- cols$circle
+  col.circle.lines <- cols$circle.lines
+  col.diamond <- cols$diamond
+  col.diamond.common <- cols$diamond.common
+  col.diamond.random <- cols$diamond.random
+  col.diamond.lines <- cols$diamond.lines
+  col.diamond.lines.common <- cols$diamond.lines.common
+  col.diamond.lines.random <- cols$diamond.lines.random
+  col.predict <- cols$predict
+  col.predict.lines <- cols$predict.lines
   #
   # Colour schemes for layouts:
   # - colors[1] - vertical line for common effect or random effects model
   # - colors[2] - diamond for meta-analysis results
   # - colors[3] - outer lines of diamonds
-  # - colors[4] - square or circle colour
-  # - colors[5] - outer lines of squares or circles
+  # - colors[4] - square  colour
+  # - colors[5] - outer lines of squares
   # - colors[6] - line color (axes, reference line, header lines)
   # - colors[7] - prediction interval
   # - colors[8] - outer lines of prediction intervals
   # - colors[9] - subgroups
   # - colors[10] - color within squares or circles
+  # - colors[11] - color of circles and outer lines of circles
   #
   colors <- layout_colors(layout)
   #
-  if (missing(col.square))
+  if (is.null(col.square))
     col.square <- colors[4]
-  else
-    chkcolor(col.square, 1)
-  #
-  if (missing(col.square.lines))
+  if (is.null(col.square.lines))
     col.square.lines <- col.square
-  else
-    chkcolor(col.square.lines, 1)
-  #
-  if (missing(col.circle))
+  if (is.null(col.circle))
     col.circle <- colors[4]
-  else
-    chkcolor(col.circle, 1)
-  #
-  if (missing(col.circle.lines))
+  if (is.null(col.circle.lines))
     col.circle.lines <- col.circle
-  else
-    chkcolor(col.circle.lines, 1)
-  #
-  if (missing(col.diamond))
+  if (is.null(col.diamond))
     col.diamond <- colors[2]
-  else
-    chkcolor(col.diamond, 1)
-  #
-  if (missing(col.diamond.common))
+  if (is.null(col.diamond.common))
     col.diamond.common <- col.diamond
-  else
-    chkcolor(col.diamond.common, 1)
-  #
-  if (missing(col.diamond.common))
-    col.diamond.common <- col.diamond
-  else
-    chkcolor(col.diamond.common, 1)
-  #
-  if (missing(col.diamond.random))
+  if (is.null(col.diamond.random))
     col.diamond.random <- col.diamond
-  else
-    chkcolor(col.diamond.random, 1)
-  #
-  if (missing(col.diamond.lines))
+  if (is.null(col.diamond.lines))
     col.diamond.lines <- colors[3]
-  else
-    chkcolor(col.diamond.lines, 1)
-  #
-  if (missing(col.diamond.lines.common))
+  if (is.null(col.diamond.lines.common))
     col.diamond.lines.common <- col.diamond.lines
-  else
-    chkcolor(col.diamond.lines.common, 1)
-  #
-  if (missing(col.diamond.lines.common))
-    col.diamond.lines.common <- col.diamond.lines
-  else
-    chkcolor(col.diamond.lines.common, 1)
-  #
-  if (missing(col.diamond.lines.random))
+  if (is.null(col.diamond.lines.random))
     col.diamond.lines.random <- col.diamond.lines
-  else
-    chkcolor(col.diamond.lines.random, 1)
-  #
-  if (missing(col.predict))
+  if (is.null(col.predict))
     col.predict <- colors[7]
-  else
-    chkcolor(col.predict, 1)
-  #
-  if (missing(col.predict.lines))
+  if (is.null(col.predict.lines))
     col.predict.lines <- colors[8]
-  else
-    chkcolor(col.predict.lines, 1)
+  #
+  # Digits
+  #
+  digits <- as_named_list(digits)
+  digits.list <-
+    merge_legacy(digits, args, digits_defaults("metabind"), "digits")
+  #
+  digitss <- digits.list$res
+  args <- digits.list$args
+  #
+  digits <- digitss$digits
+  digits.se <- digitss$se
+  digits.stat <- digitss$stat
+  digits.pval <- digitss$pval
+  digits.pval.Q <- digitss$pval.Q
+  digits.Q <- digitss$Q
+  digits.tau2 <- digitss$tau2
+  digits.tau <- digitss$tau
+  digits.I2 <- digitss$I2
   #
   chknumeric(digits, min = 0, length = 1)
   chknumeric(digits.se, min = 0, length = 1)
+  chknumeric(digits.stat, min = 0, length = 1)
   chknumeric(digits.pval, min = 1, length = 1)
   chknumeric(digits.pval.Q, min = 1, length = 1)
   chknumeric(digits.Q, min = 0, length = 1)
@@ -384,34 +344,6 @@ forest.metabind <- function(x,
   #
   chklogical(scientific.pval)
   chklogical(calcwidth.pooled)
-  #
-  addargs <- names(list(...))
-  #
-  idx <- charmatch(tolower(addargs), "hetstat", nomatch = NA)
-  if (any(!is.na(idx)) && length(idx) > 0)
-    if (list(...)[["hetstat"]])
-      stop("Argument 'hetstat' must be FALSE for metabind objects.",
-           call. = TRUE)
-  #
-  for (i in addargs) {
-    if (!is.null(setchar(i, "type.study", stop.at.error = FALSE)))
-      stop("Use argument 'type' as argument 'type.study' is set internally.",
-           call. = TRUE)
-    if (!is.null(setchar(i, "fixed", stop.at.error = FALSE)))
-      stop("Argument 'fixed' cannot be used with metabind objects.",
-           call. = TRUE)
-  }
-  #
-  # Check for deprecated arguments in '...'
-  #
-  args  <- list(...)
-  chklogical(warn.deprecated)
-  #
-  digits.stat <-
-    deprecated(digits.stat, missing(digits.stat), args, "digits.zval",
-               warn.deprecated)
-  digits.stat <- replaceNULL(digits.stat, gs("digits.stat"))
-  chknumeric(digits.stat, min = 0, length = 1)
   
   
   x$k.w.orig <- x$k.w
@@ -588,7 +520,7 @@ forest.metabind <- function(x,
   x.forest <- x
   #
   if (x$with.subgroups) {
-    m.forest <- metagen(x.forest$TE,
+    m.forest <- metagen(x.forest$TE, x.forest$seTE,
                         lower = x.forest$lower,
                         upper = x.forest$upper,
                         subgroup = x.forest$subgroup,
@@ -662,7 +594,8 @@ forest.metabind <- function(x,
              calcwidth.pooled = calcwidth.pooled,
              lab.NA = lab.NA, smlab = smlab,
              #
-             type.study = type, col.square = cols.square,
+             type = list(study = type),
+             col.square = cols.square,
              col.square.lines = cols.square.lines,
              #
              pooled.totals = FALSE,
@@ -673,15 +606,15 @@ forest.metabind <- function(x,
              #
              weight.study = "same",
              #
-             digits = digits,
-             digits.se = digits.se,
-             digits.stat = digits.stat,
-             digits.pval = digits.pval,
-             digits.pval.Q = digits.pval.Q,
-             digits.Q = digits.Q,
-             digits.tau2 = digits.tau2,
-             digits.tau = digits.tau,
-             digits.I2 = digits.I2,
+             digits = list(digits = digits,
+                           se = digits.se,
+                           stat = digits.stat,
+                           pval = digits.pval,
+                           pval.Q = digits.pval.Q,
+                           Q = digits.Q,
+                           tau2 = digits.tau2,
+                           tau = digits.tau,
+                           I2 = digits.I2),
              #
              scientific.pval = scientific.pval,
              big.mark = big.mark,

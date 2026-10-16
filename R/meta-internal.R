@@ -1113,6 +1113,8 @@ setOption("forest.default.cols",
             "effect", "ci",
             "effect.ci",
             #
-            "w.fixed", "w.common", "w.random"))
+            "w.fixed", "w.common", "w.random",
+            #
+            "pval", "statistic"))
 #
 setOption("layout4forest", c("meta", "meta8", "BMJ", "JAMA", "RevMan5"))

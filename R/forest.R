@@ -454,8 +454,10 @@
 #' Label: \tab \code{gs("label.events")} \tab \code{gs("label.time")} \tab \code{gs("label.cor")} \cr
 #' Column: \tab \code{effect} \tab \code{ci} \tab \code{effect.ci} \cr
 #' Label: \tab \code{x$sm} \tab \code{x$level}"\% CI" \tab \emph{effect+ci} \cr
-#' Column: \tab \code{cluster} \tab \code{cycles} \tab \code{pval} \cr
-#' Label: \tab \code{gs("label.cluster")} \tab \code{gs("label.cycles")} \tab \code{gs("label.pval")} \cr
+#' Column: \tab \code{cluster} \tab \code{cycles} \cr
+#' Label: \tab \code{gs("label.cluster")} \tab \code{gs("label.cycles")} \cr
+#' Column: \tab \code{pval} \tab \code{statistic} \cr
+#' Label: \tab \code{gs("label.pval")} \tab "z", "t", or "z|t" \cr
 #' Column: \tab \code{tau2} \tab \code{tau} \tab \code{I2} \cr
 #' Label: \tab \code{gs("label.tau2")} \tab \code{gs("label.tau")} \tab \code{gs("label.I2")} \cr
 #' }
@@ -2402,6 +2404,10 @@ forest.meta <- function(x,
         x$studlab <- studlab.new
         switch.l <- leftcols == firstvar
         switch.r <- rightcols == firstvar
+        if (any(switch.l) && !avail.leftlabs) {
+          leftlabs <- leftcols
+          avail.leftlabs <- TRUE
+        }
         if (any(switch.l))
           leftcols[switch.l] <- "studlab"
         if (any(switch.r))
@@ -3951,6 +3957,19 @@ forest.meta <- function(x,
   #
   # Must be of same length as colnames!!!
   #
+  methci.t <- x$method.random.ci %in% c("HK", "KR", "CR0", "CR1", "CR2")
+  #
+  if (any(methci.t)) {
+    if ((common & random) | any(!methci.t))
+      zlab <- "z|t"
+    else if (common & !random)
+      zlab <- "z"
+    else if (!common & random)
+      zlab <- "t"
+  }
+  else
+    zlab <- "z"
+  #
   labnames <- c(lab.studlab,
                 lab.TE,
                 if (revman5) "SE" else paste0("SE(", lab.TE, ")"),
@@ -3974,11 +3993,11 @@ forest.meta <- function(x,
                 text.w.common,
                 text.w.random,
                 #
-                label.pval)
+                label.pval, zlab)
   #
   if (newcols) {
     #
-    # Use default labels for n, mean, sd, time, pval, tau2, tau, I2,
+    # Use default labels for n, mean, sd, time, tau2, tau, I2,
     # cluster, and cycles
     #
     default_labs <- c(
@@ -3986,7 +4005,6 @@ forest.meta <- function(x,
       mean = if (metamean) label.mean else NA,
       sd = if (metamean) label.sd else NA,
       time = if (metarate) label.time else NA,
-      pval = label.pval,
       tau2 = label.tau2,
       tau = label.tau,
       I2 = label.I2,
@@ -4039,9 +4057,7 @@ forest.meta <- function(x,
                 match2.i <- match(rightcols.new[i], colnames)
                 if (!is.na(match2.i))
                   rightlabs.new[i] <- labnames[match2.i]
-                else if (rightcols.new[i] == "pval")
-                  rightlabs.new[i] <- label.pval
-                else if (rightcols.new[i] == "tau2")
+                 else if (rightcols.new[i] == "tau2")
                   rightlabs.new[i] <- label.tau2
                 else if (rightcols.new[i] == "tau")
                   rightlabs.new[i] <- label.tau
@@ -4098,9 +4114,7 @@ forest.meta <- function(x,
               match2.i <- match(leftcols.new[i], colnames)
               if (!is.na(match2.i))
                 leftlabs.new[i] <- labnames[match2.i]
-              else if (leftcols.new[i] == "pval")
-                leftlabs.new[i] <- label.pval
-              else if (leftcols.new[i] == "tau2")
+                 else if (leftcols.new[i] == "tau2")
                 leftlabs.new[i] <- label.tau2
               else if (leftcols.new[i] == "tau")
                 leftlabs.new[i] <- label.tau
@@ -4432,12 +4446,58 @@ forest.meta <- function(x,
   studlab.right <- rsel && "studlab" %in% rightcols
   add.left.studlab <- lsel && !studlab.left
   #
-  leftcols.return <- if (length(leftcols) == 0) character(0) else
-    paste0("col.", leftcols)
-  rightcols.return <- if (length(rightcols) == 0) character(0) else
-    paste0("col.", rightcols)
-  leftlabs.return <- leftlabs
-  rightlabs.return <- rightlabs
+  leftcols.return <- if (length(leftcols) == 0) character(0) else leftcols
+  rightcols.return <- if (length(rightcols) == 0) character(0) else rightcols
+  
+  leftlabs.return <- leftcols
+  for (i in seq_along(leftcols)) {
+    new.i <- match(leftcols[i], leftcols.new)
+    if (!is.na(new.i) && !is.null(leftlabs) &&
+        length(leftlabs) <= length(leftcols.new) &&
+        new.i <= length(leftlabs) && !is.na(leftlabs[new.i])) {
+      leftlabs.return[i] <- leftlabs[new.i]
+    }
+    else if (!is.na(new.i) && !is.null(leftlabs.new) &&
+             !is.na(leftlabs.new[new.i])) {
+      leftlabs.return[i] <- leftlabs.new[new.i]
+    }
+    else if (!is.null(leftlabs) && length(leftlabs) == length(leftcols) &&
+             !is.na(leftlabs[i])) {
+      leftlabs.return[i] <- leftlabs[i]
+    }
+    else {
+      col.i <- match(leftcols[i], colnames)
+      if (!is.na(col.i))
+        leftlabs.return[i] <- labnames[col.i]
+      else if (!is.null(leftlabs) && length(leftlabs) < length(leftcols) &&
+               !length(leftcols.new) && i <= length(leftlabs) &&
+               !is.na(leftlabs[i]))
+        leftlabs.return[i] <- leftlabs[i]
+    }
+  }
+  #
+  rightlabs.return <- rightcols
+  for (i in seq_along(rightcols)) {
+    new.i <- match(rightcols[i], rightcols.new)
+    if (!is.na(new.i) && !is.null(rightlabs) &&
+        length(rightlabs) <= length(rightcols.new) &&
+        new.i <= length(rightlabs) && !is.na(rightlabs[new.i])) {
+      rightlabs.return[i] <- rightlabs[new.i]
+    }
+    else if (!is.na(new.i) && !is.null(rightlabs.new) &&
+             !is.na(rightlabs.new[new.i])) {
+      rightlabs.return[i] <- rightlabs.new[new.i]
+    }
+    else if (!is.null(rightlabs) && length(rightlabs) == length(rightcols) &&
+             !is.na(rightlabs[i])) {
+      rightlabs.return[i] <- rightlabs[i]
+    }
+    else {
+      col.i <- match(rightcols[i], colnames)
+      if (!is.na(col.i))
+        rightlabs.return[i] <- labnames[col.i]
+    }
+  }
   
   
   #
@@ -4603,6 +4663,8 @@ forest.meta <- function(x,
   #
   x$pval <- x$pval[sel]
   #
+  x$statistic <- x$statistic[sel]
+  #
   x$cluster <- x$cluster[sel]
   #
   x$cycles <- x$cycles[sel]
@@ -4676,6 +4738,7 @@ forest.meta <- function(x,
     }
     #
     x$pval <- x$pval[o]
+    x$statistic <- x$statistic[o]
     #
     subgroup <- subgroup[o]
     sortvar <- sortvar[o]
@@ -5032,7 +5095,6 @@ forest.meta <- function(x,
   }
   #
   # Label of test for overall effect
-  #
   #
   pvals.overall <- formatPT(c(x$pval.common, x$pval.random),
                             lab = TRUE, labval = "",
@@ -7273,6 +7335,21 @@ forest.meta <- function(x,
     longer.pval <- labs[["lab.pval"]]
   }
   #
+  # Check for "\n" in label of column 'statistic'
+  #
+  clines <- twolines(labs[["lab.statistic"]], "statistic")
+  #
+  if (clines$newline) {
+    newline.statistic <- TRUE
+    labs[["lab.statistic"]] <- clines$bottom
+    add.statistic <- clines$top
+    longer.statistic <- clines$longer
+  }
+  else {
+    newline.statistic <- FALSE
+    longer.statistic <- labs[["lab.statistic"]]
+  }
+  #
   # Check for "\n" in label of column 'tau2'
   #
   clines <- twolines(labs[["lab.tau2"]], "tau2")
@@ -7362,7 +7439,7 @@ forest.meta <- function(x,
     newline.event.time.n.e | newline.event.time.n.c |
     newline.mean.e | newline.mean.c | newline.sd.e | newline.sd.c |
     newline.cor | newline.time.e | newline.time.c |
-    newline.pval | newline.tau2 | newline.tau | newline.I2 |
+    newline.pval | newline.statistic | newline.tau2 | newline.tau | newline.I2 |
     rows.smlab > 1 | newline.addcol.left | newline.addcol.right
   #
   newline.all <- newline | (!newline & rows.lr > 1 & !addrow)
@@ -8449,17 +8526,42 @@ forest.meta <- function(x,
   #
   # P-value of effect
   #
-  
-  pval.format <-
-    formatPT(c(x$pval.common, x$pval.random, NAs.prd,
-               if (is.numeric(x$pval)) x$pval else rep(NA, length(x$pval))),
-             digits = digits.pval,
-             big.mark = big.mark,
-             lab = FALSE, labval = "",
-             zero = zero.pval, JAMA = JAMA.pval,
-             scientific = scientific.pval,
-             lab.NA = lab.NA)
+  if (is.character(x$pval.common) &&
+      is.character(x$pval.random) &&
+      is.character(x$pval))
+    pval.format <- c(x$pval.common, x$pval.random, NAs.prd, x$pval)
+  else {
+    pval.format <-
+      formatPT(c(x$pval.common, x$pval.random, NAs.prd,
+                 if (is.numeric(x$pval)) x$pval else rep(NA, length(x$pval))),
+               digits = digits.pval,
+               big.mark = big.mark,
+               lab = FALSE, labval = "",
+               zero = zero.pval, JAMA = JAMA.pval,
+               scientific = scientific.pval,
+               lab.NA = lab.NA)
+  }
+  #
   pval.format[all.prd] <- ""
+  #
+  # Test statistic
+  #
+  if (is.character(x$statistic.common) &&
+      is.character(x$statistic.random) &&
+      is.character(x$statistic))
+    statistic.format <-
+    c(x$statistic.common, x$statistic.random, NAs.prd, x$statistic)
+  else {
+    statistic.format <-
+      formatN(
+        c(x$statistic.common, x$statistic.random, NAs.prd,
+          if (is.numeric(x$statistic)) x$statistic else rep(NA, length(x$statistic))),
+        digits = digits.stat,
+        big.mark = big.mark,
+        lab.NA = lab.NA)
+  }
+  #
+  statistic.format[all.prd] <- ""
   #
   # Cluster variable
   #
@@ -9342,6 +9444,10 @@ forest.meta <- function(x,
                         fontfamily,
                         n.com, n.ran, n.prd)
   #
+  col.statistic <- formatcol(labs[["lab.statistic"]], statistic.format,
+                             yS, just.c, fcs, fontfamily,
+                             n.com, n.ran, n.prd)
+  #
   col.effect.calc <- formatcol(longer.effect, effect.format, yS, just.c, fcs,
                                fontfamily,
                                n.com, n.ran, n.prd)
@@ -9465,6 +9571,10 @@ forest.meta <- function(x,
   col.pval.calc <- formatcol(longer.pval, pval.format, yS, just.c, fcs,
                              fontfamily,
                              n.com, n.ran, n.prd)
+  #
+  col.statistic.calc <- formatcol(longer.statistic, statistic.format,
+                                  yS, just.c, fcs, fontfamily,
+                                  n.com, n.ran, n.prd)
   #
   col.forest <- list(eff = TEs.exclude,
                      low = lowTEs.exclude,
@@ -9617,6 +9727,7 @@ forest.meta <- function(x,
   cols[["col.time.c"]] <- col.time.c
   #
   cols[["col.pval"]] <- col.pval
+  cols[["col.statistic"]] <- col.statistic
   #
   # Calculate
   #
@@ -9640,6 +9751,7 @@ forest.meta <- function(x,
   cols.calc[["col.time.c"]] <- col.time.c.calc
   #
   cols.calc[["col.pval"]] <- col.pval.calc
+  cols.calc[["col.statistic"]] <- col.statistic.calc
   #
   if (newcols) {
     #
@@ -9690,9 +9802,7 @@ forest.meta <- function(x,
                  rob, dataset1, dataset2, data.pooled,
                  n.com, n.ran, n.prd,
                  notavail.digits.addcols.right, lab.NA, big.mark,
-                 zero.pval, JAMA.pval, scientific.pval,
-                 digits.addcols.right[i],
-                 digits.pval, digits.tau2, digits.tau, digits.I2,
+                 digits.addcols.right[i], digits.tau2, digits.tau, digits.I2,
                  all.prd,
                  n.com.w, n.ran.w, n.prd.w, n.stat.w)
         #
@@ -9724,9 +9834,7 @@ forest.meta <- function(x,
                  rob, dataset1, dataset2, data.pooled,
                  n.com, n.ran, n.prd,
                  notavail.digits.addcols.left, lab.NA, big.mark,
-                 zero.pval, JAMA.pval, scientific.pval,
-                 digits.addcols.left[i],
-                 digits.pval, digits.tau2, digits.tau, digits.I2,
+                 digits.addcols.left[i], digits.tau2, digits.tau, digits.I2,
                  all.prd,
                  n.com.w, n.ran.w, n.prd.w, n.stat.w)
         #
@@ -9759,9 +9867,7 @@ forest.meta <- function(x,
                  rob, dataset1, dataset2, data.pooled,
                  n.com, n.ran, n.prd,
                  notavail.digits.addcols.right, lab.NA, big.mark,
-                 zero.pval, JAMA.pval, scientific.pval,
-                 digits.addcols.right[i],
-                 digits.pval, digits.tau2, digits.tau, digits.I2,
+                 digits.addcols.right[i], digits.tau2, digits.tau, digits.I2,
                  all.prd)
         #
         cols.new[[col.i$colname]] <- col.i$format_var
@@ -9792,9 +9898,7 @@ forest.meta <- function(x,
                  rob, dataset1, dataset2, data.pooled,
                  n.com, n.ran, n.prd,
                  notavail.digits.addcols.left, lab.NA, big.mark,
-                 zero.pval, JAMA.pval, scientific.pval,
-                 digits.addcols.left[i],
-                 digits.pval, digits.tau2, digits.tau, digits.I2,
+                 digits.addcols.left[i], digits.tau2, digits.tau, digits.I2,
                  all.prd)
         #
         cols.new[[col.i$colname]] <- col.i$format_var

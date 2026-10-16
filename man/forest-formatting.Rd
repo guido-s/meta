@@ -257,6 +257,7 @@ are plotted, such as \code{"square"}, \code{"diamond"}, or
 \code{study} \tab Individual study results. \cr
 \code{common} \tab Overall common-effect results. \cr
 \code{random} \tab Overall random-effects results. \cr
+\code{prediction} \tab Prediction interval (only \code{\link{forest.metabind}}). \cr
 \code{subgroup} \tab Subgroup results. \cr
 \code{subgroup.common} \tab Common-effect subgroup results. \cr
 \code{subgroup.random} \tab Random-effects subgroup results.
