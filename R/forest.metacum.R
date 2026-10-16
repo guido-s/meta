@@ -33,8 +33,6 @@
 #'   meta-analysis results.
 #' @param digits A named list specifying digits used for displayed results; a
 #'   scalar value is also accepted. See \code{\link{forest-formatting}}.
-#' @param details A logical specifying whether details on statistical
-#'   methods should be printed.
 #' @param backtransf A logical indicating whether results should be
 #'   back transformed in forest plots. If \code{backtransf = TRUE},
 #'   results for \code{sm = "OR"} are presented as odds ratios rather
@@ -128,8 +126,6 @@ forest.metacum <- function(x,
                            print = NULL,
                            type = "square",
                            digits = NULL,
-                           #
-                           details = gs("forest.details"),
                            #
                            backtransf = x$backtransf,
                            big.mark = gs("big.mark"),
@@ -229,18 +225,18 @@ forest.metacum <- function(x,
   #
   col <- replaceNULL(col, colors[1])
   #
-  if (missing(col.bg) || is.null(col.bg))
+  if (is.null(col.bg))
     col.bg <- ifelse(type == "diamond", colors[2],
                      ifelse(type == "circle", colors[11], colors[4]))
   #
-  if (missing(col.border) || is.null(col.border))
+  if (is.null(col.border))
     col.border <- ifelse(type == "diamond", colors[3],
                          ifelse(type == "circle", colors[11], colors[5]))
   #
-  if (missing(col.bg.predict) || is.null(col.bg.predict))
+  if (is.null(col.bg.predict))
     col.bg.predict <- colors[7]
   #
-  if (missing(col.border.predict) || is.null(col.border.predict))
+  if (is.null(col.border.predict))
     col.border.predict = colors[8]
   #
   # Print information
@@ -314,9 +310,6 @@ forest.metacum <- function(x,
   chknumeric(digits.I2, min = 0, length = 1)
   chknumeric(digits.cid, min = 0, length = 1)
   chknumeric(digits.percent, min = 0, length = 1)
-  #
-  details <- replaceNULL(details, layout == "meta")
-  chklogical(details)
   #
   print.pval <- print.pval && ! all(is.na(x$pval))
   print.stat <- print.stat && !all(is.na(x$statistic))
@@ -404,7 +397,7 @@ forest.metacum <- function(x,
   
   # Columns and labels on the right side
   #
-  if (is.null(leftcols)) {
+  if (is.null(rightcols)) {
     if (layout == "BMJ") {
       rightcols <- c("effect.ci")
       #
@@ -604,14 +597,12 @@ forest.metacum <- function(x,
     #
     if (!is.null(col.bg))
       col.bg <- as.vector(
-        matrix(c(rep(col.bg, k.all),
-                 rep(col.bg.predict, k.all)),
+        matrix(c(rep(col.bg, k.all), rep(col.bg.predict, k.all)),
                ncol = k.all, byrow = TRUE))
     #
     if (!is.null(col.border))
       col.border <- as.vector(
-        matrix(c(rep(col.border, k.all),
-                 rep(col.border.predict, k.all)),
+        matrix(c(rep(col.border, k.all), rep(col.border.predict, k.all)),
                ncol = k.all, byrow = TRUE))
     #
     sel.pred <- as.vector(
@@ -686,10 +677,8 @@ forest.metacum <- function(x,
     #
     type.study <- rep(c(type, "predict"), k.all)[sel.pred]
     #
-    if (!is.null(col.bg))
-      col.bg <- col.bg[sel.pred]
-    if (!is.null(col.border))
-      col.border <- col.border[sel.pred]
+    col.bg <- col.bg[sel.pred]
+    col.border <- col.border[sel.pred]
   }
   #
   else {
@@ -873,14 +862,12 @@ forest.metacum <- function(x,
          #
          big.mark = big.mark,
          #
+         col = list(study = col, square = col.bg, square.lines = col.border),
+         #
          digits = list(digits = digits,
                        pval = digits.pval, stat = digits.stat,
                        tau2 = digits.tau2, tau = digits.tau,
                        I2 = digits.I2),
-         #
-         col = list(study = col, square = col.bg, square.lines = col.border),
-         #
-         details = details,
          #
          # Output
          #

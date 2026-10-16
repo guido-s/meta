@@ -1782,18 +1782,18 @@ col_defaults <- function(x, class = "meta") {
   }
   else if (class == "metabind") {
     res <- list(
-      col.square = NULL,
-      col.square.lines = NULL,
-      col.circle = NULL,
-      col.circle.lines = NULL,
-      col.diamond = NULL,
-      col.diamond.common = NULL,
-      col.diamond.random = NULL,
-      col.diamond.lines = NULL,
-      col.diamond.lines.common = NULL,
-      col.diamond.lines.random = NULL,
-      col.predict = NULL,
-      col.predict.lines = NULL)
+      square = NULL,
+      square.lines = NULL,
+      circle = NULL,
+      circle.lines = NULL,
+      diamond = NULL,
+      diamond.common = NULL,
+      diamond.random = NULL,
+      diamond.lines = NULL,
+      diamond.lines.common = NULL,
+      diamond.lines.random = NULL,
+      predict = NULL,
+      predict.lines = NULL)
   }
   #
   res

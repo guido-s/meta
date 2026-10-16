@@ -7,18 +7,8 @@
 #' @aliases forest.metabind
 #' 
 #' @param x An object of class \code{\link{metabind}}.
-#' @param leftcols A character vector specifying (additional) columns
-#'   to be plotted on the left side of the forest plot or a logical
-#'   value (see Details).
-#' @param leftlabs A character vector specifying labels for
-#'   (additional) columns on left side of the forest plot (see
-#'   Details).
-#' @param rightcols A character vector specifying (additional) columns
-#'   to be plotted on the right side of the forest plot or a logical
-#'   value (see Details).
-#' @param rightlabs A character vector specifying labels for
-#'   (additional) columns on right side of the forest plot (see
-#'   Details).
+#' @param layout A character string specifying the layout of the
+#'   forest plot (see \code{\link{forest.meta}}).
 #' @param common A logical indicating whether common effect estimates
 #'   should be plotted.
 #' @param random A logical indicating whether random effects estimates
@@ -41,16 +31,24 @@
 #'   level.
 #' @param prediction A logical indicating whether prediction
 #'   interval(s) should be printed.
+#' @param col A named list specifying colours used in the forest
+#'   plot; see \code{\link{forest-formatting}}.
 #' @param type A named list specifying graphical types for estimates, common
 #'   effect estimates, random effect estimates, and prediction intervals;
 #'   see \code{\link{forest-formatting}}.
-#' @param layout A character string specifying the layout of the
-#'   forest plot (see \code{\link{forest.meta}}).
-#' @param lab.NA A character string to label missing values.
-#' @param col A named list specifying colours used in the forest
-#'   plot; see \code{\link{forest-formatting}}.
 #' @param digits A named list specifying digits used for displayed results; a
 #'   scalar value is also accepted. See \code{\link{forest-formatting}}.
+#' @param leftcols A character vector specifying columns to be printed on the
+#'   left side of the forest plot or a logical value; see
+#'   \code{\link{forest.meta}}.
+#' @param rightcols A character vector specifying columns to be printed on the
+#'   right side of the forest plot or a logical value; see
+#'   \code{\link{forest.meta}}.
+#' @param leftlabs A character vector specifying labels for columns on the left
+#'   side of the forest plot (see Details).
+#' @param rightlabs A character vector specifying labels for columns on the
+#'   right side of the forest plot (see Details).
+#' @param lab.NA A character string to label missing values.
 #' @param scientific.pval A logical specifying whether p-values should
 #'   be printed in scientific notation, e.g., 1.2345e-01 instead of
 #'   0.12345.
@@ -59,11 +57,6 @@
 #'   label should be printed.
 #' @param addrow.subgroups A logical value indicating whether an empty
 #'   row is printed between results for subgroups.
-#' @param smlab A label for the summary measurex (printed at top of
-#'   figure).
-#' @param calcwidth.pooled A logical indicating whether text for
-#'   common effect and random effects model should be considered to
-#'   calculate width of the column with study labels.
 #' @param \dots Additional graphical arguments (passed on to
 #'   \code{\link{forest.meta}}).
 #' 
@@ -76,20 +69,12 @@
 #' possibility is to create a file using \code{\link{pdf}},
 #' \code{\link{png}}, or \code{\link{svg}} and to specify the width
 #' and height of the graphic (see \code{\link{forest.meta}} examples).
-#' 
-#' The arguments \code{leftcols} and \code{rightcols} can be used to
-#' specify columns which are plotted on the left and right side of the
-#' forest plot, respectively.
-#' 
-#' The arguments \code{leftlabs} and \code{rightlabs} can be used to
-#' specify column headings which are plotted on left and right side of
-#' the forest plot, respectively. For certain columns predefined
-#' labels exist. For other columns, the column name will be used as a
-#' label. It is possible to only provide labels for new columns (see
-#' \code{\link{forest.meta}} examples). Otherwise the length of
-#' \code{leftlabs} and \code{rightlabs} must be the same as the number
-#' of printed columns, respectively. The value \code{NA} can be used
-#' to specify columns which should use default labels.
+#'
+#' Arguments \code{leftcols} and \code{rightcols} can be used to specify
+#' columns printed on the left or right side, respectively. Arguments
+#' \code{leftlabs} and \code{rightlabs} can be used to provide headings for
+#' these columns. Use \code{NA} for a column heading to retain its default
+#' label.
 #' 
 #' Argument \code{hetstat} can be a character string to specify where
 #' to print heterogeneity information:
@@ -137,8 +122,8 @@
 #' @export
 
 forest.metabind <- function(x,
-                            leftcols, leftlabs,
-                            rightcols = c("effect", "ci"), rightlabs,
+                            #
+                            layout = gs("layout"),
                             #
                             common = x$common,
                             random = x$random,
@@ -148,21 +133,20 @@ forest.metabind <- function(x,
                             overall.hetstat = x$overall.hetstat,
                             prediction = x$prediction,
                             #
-                            layout = gs("layout"),
-                            lab.NA = "",
-                            #
                             col = NULL,
                             type = NULL,
                             digits = NULL,
+                            #
+                            leftcols = NULL, leftlabs = NULL,
+                            rightcols = NULL, rightlabs = NULL,
+                            #
+                            lab.NA = "",
                             #
                             scientific.pval = gs("scientific.pval"),
                             big.mark = gs("big.mark"),
                             #
                             print.subgroup.labels = x$with.subgroups,
                             addrow.subgroups = print.subgroup.labels,
-                            #
-                            smlab = NULL,
-                            calcwidth.pooled = overall,
                             #
                             ...) {
   
@@ -179,16 +163,11 @@ forest.metabind <- function(x,
   #
   # Drop internally used arguments from '...'
   #
-  drop_args <- NULL
-  #
-  replace_args <- list(type.study = "type")
+  drop_args <- "details"
   #
   replace_args <- list()
   #
   args <- drop_from_dots(list(...), drop_args, replace_args)
-  #
-  missing.overall <- missing(overall)
-  missing.overall.hetstat <- missing(overall.hetstat)
   #
   overall <- replaceNULL(overall, FALSE)
   overall.hetstat <- replaceNULL(overall.hetstat, FALSE)
@@ -213,6 +192,7 @@ forest.metabind <- function(x,
   types <- type.list$res
   args <- type.list$args
   miss.type <- type.list$miss
+  null.type <- type.list$null
   #
   types <- type.list$res
   #
@@ -343,7 +323,6 @@ forest.metabind <- function(x,
   chknumeric(digits.I2, min = 0, length = 1)
   #
   chklogical(scientific.pval)
-  chklogical(calcwidth.pooled)
   
   
   x$k.w.orig <- x$k.w
@@ -591,8 +570,7 @@ forest.metabind <- function(x,
              addrow.subgroups = addrow.subgroups,
              #
              hetstat = hetstat, overall.hetstat = overall.hetstat,
-             calcwidth.pooled = calcwidth.pooled,
-             lab.NA = lab.NA, smlab = smlab,
+             lab.NA = lab.NA,
              #
              type = list(study = type),
              col.square = cols.square,
@@ -620,7 +598,6 @@ forest.metabind <- function(x,
              big.mark = big.mark,
              #
              test.subgroup = FALSE,
-             details = FALSE,
              ...)
   }
   else {
@@ -663,8 +640,7 @@ forest.metabind <- function(x,
              rightcols = rightcols, rightlabs = rightlabs,
              #
              hetstat = hetstat, overall.hetstat = overall.hetstat,
-             calcwidth.pooled = calcwidth.pooled,
-             lab.NA = lab.NA, smlab = smlab,
+             lab.NA = lab.NA,
              #
              type.study = type, col.square = cols.square,
              col.square.lines = cols.square.lines,
@@ -689,7 +665,9 @@ forest.metabind <- function(x,
              big.mark = big.mark,
              #
              test.subgroup = FALSE,
+             #
              details = FALSE,
+             #
              ...)
   }
   #

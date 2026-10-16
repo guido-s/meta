@@ -32,8 +32,6 @@
 #'   plot treatment effects and confidence intervals for meta-analysis results.
 #' @param digits A named list specifying digits used for displayed results; a
 #'   scalar value is also accepted. See \code{\link{forest-formatting}}.
-#' @param details A logical specifying whether details on statistical
-#'   methods should be printed.
 #' @param backtransf A logical indicating whether results should be
 #'   back transformed in forest plots. If \code{backtransf = TRUE},
 #'   results for \code{sm = "OR"} are presented as odds ratios rather
@@ -127,8 +125,6 @@ forest.metainf <- function(x,
                            type = "square",
                            digits = NULL,
                            #
-                           details = gs("forest.details"),
-                           #
                            backtransf = x$backtransf,
                            big.mark = gs("big.mark"),
                            #
@@ -167,8 +163,6 @@ forest.metainf <- function(x,
                    print = print,
                    type = type,
                    digits = digits,
-                   #
-                   details = details,
                    #
                    backtransf = backtransf,
                    big.mark = big.mark,

@@ -14,7 +14,11 @@
   the left side of the forest plot. Details of the meta-analysis methods,
   tests for an overall effect, and a header line are printed by default.
   The previous default layout remains available via
-  `settings.meta("meta8")` or `forest(..., layout = "meta8")`.
+  `settings.meta("meta8")` or `forest(..., layout = "meta8")`. The R function
+  `settings.meta()` can also be used to activate
+  (`forest.details = TRUE`) or deactivate (`forest.details = FALSE`) the
+  printing of details on meta-analysis methods for the current R session,
+  independently of the forest-plot layout.
 
   Furthermore, the arguments `leftcols` and `rightcols` are now honored for
   all layouts, allowing users to customize the columns on either side of the

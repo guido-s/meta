@@ -18,7 +18,6 @@
   print = NULL,
   type = "square",
   digits = NULL,
-  details = gs("forest.details"),
   backtransf = x$backtransf,
   big.mark = gs("big.mark"),
   main = "Cumulative Meta-Analysis",
@@ -75,9 +74,6 @@ meta-analysis results.}
 
 \item{digits}{A named list specifying digits used for displayed results; a
 scalar value is also accepted. See \code{\link{forest-formatting}}.}
-
-\item{details}{A logical specifying whether details on statistical
-methods should be printed.}
 
 \item{backtransf}{A logical indicating whether results should be
 back transformed in forest plots. If \code{backtransf = TRUE},
