@@ -3211,8 +3211,8 @@ Revise web links
   percent within each subgroup if no overall estimates are requested,
   i.e., argument 'overall = FALSE' (like before, by default, weights
   are not printed if argument 'overall = FALSE' and have to be
-  explicitely requested using argument 'leftcols' or 'rightcols')
-  
+  explicitly requested using argument 'leftcols' or 'rightcols')
+
 ### User-visible changes
 
 * forest.meta():

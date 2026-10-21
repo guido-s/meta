@@ -2146,8 +2146,8 @@ forest.meta <- function(x,
               col.predict.lines, func = chkcolor)
   #
   col.subgroup <-
-    chksetVar(col.subgroup, miss.col.subgroup, colors[9], func = chkcolor, n = 1,
-              args = args, oldname = "col.by", warn = warn.deprecated)
+    chksetVar(col.subgroup, miss.col.subgroup, colors[9], func = chkcolor,
+              n = 1, args = args, oldname = "col.by", warn = warn.deprecated)
   #
   col.jama.line <-
     chksetVar(col.jama.line, miss.col.jama.line, col.subgroup, func = chkcolor,
@@ -2173,7 +2173,7 @@ forest.meta <- function(x,
                   !(is.null(x$outclab) || identical(x$outclab, "")))
   chklogical(main.prefix)
 
-  
+
   #
   #
   # (5) Extract data on subgroup analysis
@@ -3096,14 +3096,14 @@ forest.meta <- function(x,
   just.cols <- just
   just.main <-
     replaceNULL(just.main, if (revman5.jama.meta9) "left" else "center")
-  just.main <- setchar(just.main, gs("just"))
-  just.studlab <- setchar(just.studlab, gs("just"))
+  just.main <- setchar(just.main, gs("just"), length = 1)
+  just.studlab <- setchar(just.studlab, gs("just"), length = 1)
   just.addcols <- setchar(just.addcols, gs("just"))
   just.addcols.left <- setchar(just.addcols.left, gs("just"))
   just.addcols.right <- setchar(just.addcols.right, gs("just"))
-  just.label.e <- setchar(just.label.e, gs("just"))
-  just.label.c <- setchar(just.label.c, gs("just"))
-  just.rob <- setchar(just.rob, gs("just"))
+  just.label.e <- setchar(just.label.e, gs("just"), length = 1)
+  just.label.c <- setchar(just.label.c, gs("just"), length = 1)
+  just.rob <- setchar(just.rob, gs("just"), length = 1)
   #
   xpos.main <- replaceNULL(xpos.main, set_xpos(just.main))
   chknumeric(xpos.main, min = 0, max = 1, length = 1)
@@ -3226,9 +3226,13 @@ forest.meta <- function(x,
   n.com <- max(length(x$TE.common), 1)
   n.ran <- max(length(x$lower.random), 1)
   n.prd <- max(length(x$lower.predict), 1)
-  #
   prediction <- prediction &
     any(!is.na(x$lower.predict) & !is.na(x$upper.predict))
+  #
+  if (metabind || !overall)
+    n.pooled <- 0L
+  else
+    n.pooled <- n.com * common + n.ran * random + n.prd * prediction
   #
   if (by) {
     if (!miss.subgroup & !metabind)
@@ -4057,7 +4061,7 @@ forest.meta <- function(x,
                 match2.i <- match(rightcols.new[i], colnames)
                 if (!is.na(match2.i))
                   rightlabs.new[i] <- labnames[match2.i]
-                 else if (rightcols.new[i] == "tau2")
+                else if (rightcols.new[i] == "tau2")
                   rightlabs.new[i] <- label.tau2
                 else if (rightcols.new[i] == "tau")
                   rightlabs.new[i] <- label.tau
@@ -4114,7 +4118,7 @@ forest.meta <- function(x,
               match2.i <- match(leftcols.new[i], colnames)
               if (!is.na(match2.i))
                 leftlabs.new[i] <- labnames[match2.i]
-                 else if (leftcols.new[i] == "tau2")
+              else if (leftcols.new[i] == "tau2")
                 leftlabs.new[i] <- label.tau2
               else if (leftcols.new[i] == "tau")
                 leftlabs.new[i] <- label.tau
@@ -4429,7 +4433,6 @@ forest.meta <- function(x,
            paste("\n  Note, columns names for risk of bias domains cannot be",
                  "changed with argument 'rightlabs'."),
          call. = FALSE)
-  
   #
   # Validate left-side labels against the final left-side columns
   #
@@ -4448,8 +4451,9 @@ forest.meta <- function(x,
   #
   leftcols.return <- if (length(leftcols) == 0) character(0) else leftcols
   rightcols.return <- if (length(rightcols) == 0) character(0) else rightcols
-  
+  #
   leftlabs.return <- leftcols
+  #
   for (i in seq_along(leftcols)) {
     new.i <- match(leftcols[i], leftcols.new)
     if (!is.na(new.i) && !is.null(leftlabs) &&
@@ -4477,6 +4481,7 @@ forest.meta <- function(x,
   }
   #
   rightlabs.return <- rightcols
+  #
   for (i in seq_along(rightcols)) {
     new.i <- match(rightcols[i], rightcols.new)
     if (!is.na(new.i) && !is.null(rightlabs) &&
@@ -4498,6 +4503,21 @@ forest.meta <- function(x,
         rightlabs.return[i] <- labnames[col.i]
     }
   }
+  #
+  just.left.new <-
+    column_just(leftcols.new, leftlabs.new, just.addcols.left, just)
+  just.right.new <-
+    column_just(rightcols.new, rightlabs.new, just.addcols.right, just)
+  #
+  leftjust.return <- rep_len(just.c, length(leftcols))
+  leftjust.return[leftcols == "studlab"] <- just.s
+  for (i in seq_along(leftcols.new))
+    leftjust.return[match(leftcols.new[i], leftcols)] <- just.left.new[i]
+  #
+  rightjust.return <- rep_len(just.c, length(rightcols))
+  rightjust.return[rightcols == "studlab"] <- just.s
+  for (i in seq_along(rightcols.new))
+    rightjust.return[match(rightcols.new[i], rightcols)] <- just.right.new[i]
   
   
   #
@@ -9811,11 +9831,7 @@ forest.meta <- function(x,
         cols[[col.i$colname]] <-
           formatcol(col.i$label, col.i$format_var,
                     if (!col.i$rob) yS else yS.noma,
-                    if (rightcols.new[i] %in%
-                        c("pval", "tau2", "tau", "I2", "Q", "pval.Q"))
-                      just
-                    else
-                      just.addcols.right[i],
+                    just.right.new[i],
                     fcs, fontfamily,
                     n.com, n.ran, n.prd,
                     rightcols.new[i] %in% colnames(rob))
@@ -9843,11 +9859,7 @@ forest.meta <- function(x,
         cols[[col.i$colname]] <-
           formatcol(col.i$label, col.i$format_var,
                     if (!col.i$rob) yS else yS.noma,
-                    if (leftcols.new[i] %in%
-                        c("pval", "tau2", "tau", "I2", "Q", "pval.Q"))
-                      just
-                    else
-                      just.addcols.left[i],
+                    just.left.new[i],
                     fcs, fontfamily,
                     n.com, n.ran, n.prd,
                     leftcols.new[i] %in% colnames(rob))
@@ -9875,11 +9887,7 @@ forest.meta <- function(x,
         cols[[col.i$colname]] <-
           formatcol(col.i$label, col.i$format_var,
                     if (!col.i$rob) yS else yS.noma,
-                    if (rightcols.new[i] %in%
-                        c("pval", "tau2", "tau", "I2", "Q", "pval.Q"))
-                      just
-                    else
-                      just.addcols.right[i],
+                    just.right.new[i],
                     fcs, fontfamily,
                     n.com, n.ran, n.prd,
                     rightcols.new[i] %in% colnames(rob))
@@ -9906,11 +9914,7 @@ forest.meta <- function(x,
         cols[[col.i$colname]] <-
           formatcol(col.i$label, col.i$format_var,
                     if (!col.i$rob) yS else yS.noma,
-                    if (leftcols.new[i] %in%
-                        c("pval", "tau2", "tau", "I2", "Q", "pval.Q"))
-                      just
-                    else
-                      just.addcols.left[i],
+                    just.left.new[i],
                     fcs, fontfamily,
                     n.com, n.ran, n.prd,
                     leftcols.new[i] %in% colnames(rob))
@@ -10222,12 +10226,14 @@ forest.meta <- function(x,
     available.left <- col.forestwidth * left.pos
     available.right <- col.forestwidth * (1 - right.pos)
     #
-    if (miss.colgap.forest.left)
+    if (miss.colgap.forest.left) {
       colgap.forest.left <- colgap.forest.left +
         unit.pmax(unit(0, "mm"), width.label.left - available.left)
-    if (miss.colgap.forest.right)
+    }
+    if (miss.colgap.forest.right) {
       colgap.forest.right <- colgap.forest.right +
         unit.pmax(unit(0, "mm"), width.label.right - available.right)
+    }
   }
   #
   del.lines <- NULL
@@ -10561,8 +10567,8 @@ forest.meta <- function(x,
             available.i <- available.i +
               if (leftcols[col.i - 1] == "col.studlab")
                 colgap.studlab
-              else
-                colgap.left
+            else
+              colgap.left
             available.i <- available.i + width.left.cols[[col.i]]
           }
         }
@@ -10912,7 +10918,7 @@ forest.meta <- function(x,
     overall = overall, common = common, random = random,
     prediction = prediction,
     #
-    k.all = k.all, n.com = n.com, n.ran = n.ran, n.prd = n.prd,
+    k.all = k.all, n.pooled = n.pooled,
     #
     ymin.common = ymin.common, ymin.random = ymin.random,
     ymin.ref = ymin.ref, ymax = ymax, ymax.ref = ymax.ref,
@@ -11029,8 +11035,10 @@ forest.meta <- function(x,
     res <- c(res, dims, autosize = autosize)
     res$leftcols <- leftcols.return
     res$leftlabs <- leftlabs.return
+    res$leftjust <- leftjust.return
     res$rightcols <- rightcols.return
     res$rightlabs <- rightlabs.return
+    res$rightjust <- rightjust.return
     #
     class(res) <- "forest.meta"
     #
@@ -11143,10 +11151,15 @@ forest.meta <- function(x,
   res$rows.gr <- rows.gr
   res$leftcols <- leftcols.return
   res$leftlabs <- leftlabs.return
+  res$leftjust <- leftjust.return
   res$rightcols <- rightcols.return
   res$rightlabs <- rightlabs.return
+  res$rightjust <- rightjust.return
   #
   res$autosize <- autosize
+  #
+  if (!is.null(data.pooled))
+    res$data.pooled <- data.pooled
   #
   class(res) <- "forest.meta"
   #

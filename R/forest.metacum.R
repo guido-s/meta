@@ -394,7 +394,6 @@ forest.metacum <- function(x,
       is.na(leftlabs[leftcols == "I2.ci"]))
     leftlabs[leftcols == "I2.ci"] <- percent_label(x$level.hetstat)
   
-  
   # Columns and labels on the right side
   #
   if (is.null(rightcols)) {
@@ -467,44 +466,115 @@ forest.metacum <- function(x,
   if (print.I2.ci && "I2.ci" %in% rightcols &&
       is.na(rightlabs[rightcols == "I2.ci"]))
     rightlabs[rightcols == "I2.ci"] <- percent_label(x$level.hetstat)
-  
-    
-  pval <- formatPT(x$pval, digits = digits.pval, lab.NA = lab.NA)
-  statistic <- formatN(x$statistic, digits = digits.stat, lab.NA = lab.NA,
-                       big.mark = big.mark)
-  tau2 <- formatPT(x$tau2, digits = digits.tau2, lab.NA = lab.NA)
-  tau <- formatPT(x$tau, digits = digits.tau2, lab.NA = lab.NA)
+
+
   #
-  I2 <- percent_label(x$I2, "", digits.I2, formatPT, lab.NA = lab.NA)
+  #
+  # (3) Round and format results
+  #
+  #
+  
+  pval <- c(x$pval, if (overall) x$pval.pooled)
+  statistic <- c(x$statistic, if (overall) x$statistic.pooled)
+  #
+  tau2 <- c(x$tau2, if (overall) x$tau2.pooled)
+  tau <- c(x$tau, if (overall) x$tau.pooled)
+  I2 <- c(x$I2, if (overall) x$I2.pooled)
+  #
+  lower.tau2 <- c(x$lower.tau2, if (overall) x$lower.tau2.pooled)
+  upper.tau2 <- c(x$upper.tau2, if (overall) x$upper.tau2.pooled)
+  lower.tau <- c(x$lower.tau, if (overall) x$lower.tau.pooled)
+  upper.tau <- c(x$upper.tau, if (overall) x$upper.tau.pooled)
+  lower.I2 <- c(x$lower.I2, if (overall) x$lower.I2.pooled)
+  upper.I2 <- c(x$upper.I2, if (overall) x$upper.I2.pooled)
+  #
+  prop.cid.below.null <-
+    c(x$prop.cid.below.null, if (overall) x$prop.cid.below.null.pooled)
+  prop.cid.above.null <-
+    c(x$prop.cid.above.null, if (overall) x$prop.cid.above.null.pooled)
+  #
+  # Format statistics
+  #
+  pval <- formatPT(pval, digits = digits.pval, lab.NA = lab.NA)
+  statistic <- formatN(statistic, digits = digits.stat, lab.NA = lab.NA,
+                       big.mark = big.mark)
+  tau2 <- formatPT(tau2, digits = digits.tau2, lab.NA = lab.NA)
+  tau <- formatPT(tau, digits = digits.tau2, lab.NA = lab.NA)
+  #
+  I2 <- percent_label(I2, "", digits.I2, formatPT, lab.NA = lab.NA)
   #
   if (print.tau2.ci) {
     tau2.ci <-
-      formatCI(x$lower.tau2, x$upper.tau2,
+      formatCI(lower.tau2, upper.tau2,
                digits = digits.tau2, lab.NA = lab.NA, na.lab = TRUE)
   }
   #
   if (print.tau.ci) {
     tau.ci <-
-      formatCI(x$lower.tau, x$upper.tau,
+      formatCI(lower.tau, upper.tau,
                digits = digits.tau, lab.NA = lab.NA, na.lab = TRUE)
   }
   #
   if (print.I2.ci) {
     I2.ci <-
-      formatCI(x$lower.I2, x$upper.I2, scale = 100, suffix = "%",
+      formatCI(lower.I2, upper.I2, scale = 100, suffix = "%",
                digits = digits.I2, lab.NA = lab.NA, na.lab = TRUE)
   }
   #
   if (print.cidprop.below.null) {
-    x$prop.cid.below.null <-
-      percent_label(x$prop.cid.below.null, "", digits.percent, formatPT,
+    prop.cid.below.null <-
+      percent_label(prop.cid.below.null, "", digits.percent, formatPT,
                     lab.NA = lab.NA)
   }
   #
   if (print.cidprop.above.null) {
-    x$prop.cid.above.null <-
-      percent_label(x$prop.cid.above.null, "", digits.percent, formatPT,
+    prop.cid.above.null <-
+      percent_label(prop.cid.above.null, "", digits.percent, formatPT,
                     lab.NA = lab.NA)
+  }
+  #
+  if (overall) {
+    pval.pooled <- pval[length(pval)]
+    pval <- pval[-length(pval)]
+    #
+    statistic.pooled <- statistic[length(statistic)]
+    statistic <- statistic[-length(statistic)]
+    #
+    tau2.pooled <- tau2[length(tau2)]
+    tau2 <- tau2[-length(tau2)]
+    #
+    tau.pooled <- tau[length(tau)]
+    tau <- tau[-length(tau)]
+    #
+    I2.pooled <- I2[length(I2)]
+    I2 <- I2[-length(I2)]
+    #
+    if (print.tau2.ci) {
+      tau2.ci.pooled <- tau2.ci[length(tau2.ci)]
+      tau2.ci <- tau2.ci[-length(tau2.ci)]
+    }
+    #
+    if (print.tau.ci) {
+      tau.ci.pooled <- tau.ci[length(tau.ci)]
+      tau.ci <- tau.ci[-length(tau.ci)]
+    }
+    #
+    if (print.I2.ci) {
+      I2.ci.pooled <- I2.ci[length(I2.ci)]
+      I2.ci <- I2.ci[-length(I2.ci)]
+    }
+    #
+    if (print.cidprop.above.null) {
+      prop.cid.below.null.pooled <-
+        prop.cid.below.null[length(prop.cid.below.null)]
+      prop.cid.below.null <- prop.cid.below.null[-length(prop.cid.below.null)]
+    }
+    #
+    if (print.cidprop.above.null) {
+      prop.cid.above.null.pooled <-
+        prop.cid.above.null[length(prop.cid.above.null)]
+      prop.cid.above.null <- prop.cid.above.null[-length(prop.cid.above.null)]
+    }
   }
   #
   x.tmp <- x
@@ -753,10 +823,6 @@ forest.metacum <- function(x,
     type.study <- type
   }
   #
-  pval.pooled <- formatPT(x$pval.pooled, digits = digits.pval, lab.NA = lab.NA)
-  statistic.pooled <- formatN(x$statistic.pooled, digits = digits.stat,
-                              lab.NA = lab.NA, big.mark = big.mark)
-  #
   m$TE.common <- x$TE.pooled
   m$lower.common <- x$lower.pooled
   m$upper.common <- x$upper.pooled
@@ -796,45 +862,36 @@ forest.metacum <- function(x,
   #
   m$.text.details.methods <- text.details
   
-    
-  data.p <-
-    data.frame(
-      tau2 = formatPT(x$tau2.pooled, digits = digits.tau2, lab.NA = lab.NA),
-      tau = formatPT(x$tau.pooled, digits = digits.tau, lab.NA = lab.NA),
-      I2 = percent_label(x$I2.pooled, "", digits.I2, formatPT, lab.NA = lab.NA)
-      )
+  # Row with overall results
   #
-  if (print.tau2.ci) {
-    data.p$tau2.ci <-
-      formatCI(x$lower.tau2.pooled, x$upper.tau2.pooled,
-               digits = digits.tau2, lab.NA = lab.NA, na.lab = TRUE)
+  if (overall) {
+    data.p <- data.frame(tau2 = tau2.pooled, tau = tau.pooled, I2 = I2.pooled)
+    #
+    if (print.tau2.ci)
+      data.p$tau2.ci <- tau2.ci.pooled
+    #
+    if (print.tau.ci)
+      data.p$tau.ci <- tau.ci.pooled
+    #
+    if (print.I2.ci)
+      data.p$I2.ci <- I2.ci.pooled
+    #
+    if (print.cidprop.below.null)
+      data.p$prop.cid.below.null <- prop.cid.below.null.pooled
+    #
+    if (print.cidprop.above.null)
+      data.p$prop.cid.above.null <- prop.cid.above.null.pooled
   }
+  else
+    data.p <- NULL
+
+
   #
-  if (print.tau.ci) {
-    data.p$tau.ci <-
-      formatCI(x$lower.tau.pooled, x$upper.tau.pooled,
-               digits = digits.tau, lab.NA = lab.NA, na.lab = TRUE)
-  }
   #
-  if (print.I2.ci) {
-    data.p$I2.ci <-
-      formatCI(x$lower.I2.pooled, x$upper.I2.pooled,
-               digits = digits.I2, lab.NA = lab.NA, na.lab = TRUE)
-  }
+  # (4) Create forest plot
   #
-  if (print.cidprop.below.null) {
-    data.p$prop.cid.below.null <-
-      percent_label(x$prop.cid.below.null.pooled, "", digits.percent, formatPT,
-                    lab.NA = lab.NA)
-  }
   #
-  if (print.cidprop.above.null) {
-    data.p$prop.cid.above.null <-
-      percent_label(x$prop.cid.above.null.pooled, "", digits.percent, formatPT,
-                    lab.NA = lab.NA)
-  }
-  
-  
+
   class(m) <- c(class(m), class(x))
   m$classes <- x$classes
   #

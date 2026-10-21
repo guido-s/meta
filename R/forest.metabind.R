@@ -33,6 +33,8 @@
 #'   interval(s) should be printed.
 #' @param col A named list specifying colours used in the forest
 #'   plot; see \code{\link{forest-formatting}}.
+#' @param print A named list specifying which information to print in the forest
+#'   plot; see \code{\link{forest-formatting}}.
 #' @param type A named list specifying graphical types for estimates, common
 #'   effect estimates, random effect estimates, and prediction intervals;
 #'   see \code{\link{forest-formatting}}.
@@ -53,8 +55,6 @@
 #'   be printed in scientific notation, e.g., 1.2345e-01 instead of
 #'   0.12345.
 #' @param big.mark A character used as thousands separator.
-#' @param print.subgroup.labels A logical indicating whether subgroup
-#'   label should be printed.
 #' @param addrow.subgroups A logical value indicating whether an empty
 #'   row is printed between results for subgroups.
 #' @param \dots Additional graphical arguments (passed on to
@@ -134,6 +134,7 @@ forest.metabind <- function(x,
                             prediction = x$prediction,
                             #
                             col = NULL,
+                            print = NULL,
                             type = NULL,
                             digits = NULL,
                             #
@@ -145,29 +146,38 @@ forest.metabind <- function(x,
                             scientific.pval = gs("scientific.pval"),
                             big.mark = gs("big.mark"),
                             #
-                            print.subgroup.labels = x$with.subgroups,
-                            addrow.subgroups = print.subgroup.labels,
+                            addrow.subgroups = NULL,
                             #
                             ...) {
-  
   
   #
   #
   # (1) Check and set arguments
   #
   #
+
   chkclass(x, "metabind")
   x <- updateversion(x)
+  #
+  x$k.w.orig <- x$k.w
+  #
+  x$k.w <- x$k.study.w <- x$k.all.w <- x$k.TE.w <-
+    as.vector(table(x$data$subgroup)[unique(x$data$subgroup)])
   #
   layout <- setchar(layout, gs("layout4forest"), length = 1)
   #
   # Drop internally used arguments from '...'
   #
-  drop_args <- "details"
+  drop_args <- NULL
   #
   replace_args <- list()
   #
   args <- drop_from_dots(list(...), drop_args, replace_args)
+  #
+  if (!x$with.subgroups) {
+    overall <- FALSE
+    overall.hetstat <- FALSE
+  }
   #
   overall <- replaceNULL(overall, FALSE)
   overall.hetstat <- replaceNULL(overall.hetstat, FALSE)
@@ -177,9 +187,6 @@ forest.metabind <- function(x,
   chklogical(overall)
   chklogical(subgroup)
   chklogical(overall.hetstat)
-  #
-  chklogical(print.subgroup.labels)
-  chklogical(addrow.subgroups)
   #
   chkchar(lab.NA)
   #
@@ -293,6 +300,40 @@ forest.metabind <- function(x,
   if (is.null(col.predict.lines))
     col.predict.lines <- colors[8]
   #
+  # Print information
+  #
+  print.list <-
+    merge_legacy(print, args, print_defaults(x, "metabind"), "print")
+  #
+  print <- print.list$res
+  args <- print.list$args
+  #
+  print.k <- print$k
+  print.pval <- print$pval
+  print.stat <- print$stat
+  print.I2 <- print$I2
+  print.tau2 <- print$tau2
+  print.tau <- print$tau
+  print.Q <- print$Q
+  print.pval.Q <- print$pval.Q
+  print.pval.Q.b <- print$pval.Q.b
+  print.subgroup.labels <- print$subgroup.labels
+  #
+  print.pval.Q.b <- replaceNULL(print.pval.Q.b, x$with.subgroups)
+  print.tau2 <- replaceNULL(print.tau2, !x$with.subgroups && random)
+  print.subgroup.labels <- replaceNULL(print.subgroup.labels, x$with.subgroups)
+  #
+  chklogical(print.k)
+  chklogical(print.pval)
+  chklogical(print.stat)
+  chklogical(print.I2)
+  chklogical(print.tau2)
+  chklogical(print.tau)
+  chklogical(print.Q)
+  chklogical(print.pval.Q)
+  chklogical(print.pval.Q.b)
+  chklogical(print.subgroup.labels)
+  #
   # Digits
   #
   digits <- as_named_list(digits)
@@ -323,56 +364,70 @@ forest.metabind <- function(x,
   chknumeric(digits.I2, min = 0, length = 1)
   #
   chklogical(scientific.pval)
-  
-  
-  x$k.w.orig <- x$k.w
-  
-  x$k.w <- x$k.study.w <- x$k.all.w <- x$k.TE.w <-
-    as.vector(table(x$data$subgroup)[unique(x$data$subgroup)])
-  #as.vector(table(x$data$name)[unique(x$data$name)])
-  
-  
-  missing.leftcols <- missing(leftcols)
   #
-  if (missing.leftcols) {
-    leftcols <- c("studlab", "k")
-    if (x$with.subgroups)
+  addrow.subgroups <- replaceNULL(addrow.subgroups, print.subgroup.labels)
+  chklogical(addrow.subgroups)
+  
+  #
+  #
+  # (2) Columns and labels shown in forest plot
+  #
+  #
+  
+  # Columns and labels on the left side
+  #
+  if (is.null(leftcols)) {
+    leftcols <- "studlab"
+    #
+    if (print.k)
+      leftcols <- c(leftcols, "k")
+    #
+    if (print.pval.Q.b)
       leftcols <- c(leftcols, "pval.Q.b")
-    else {
+    #
+    if (print.tau2)
       leftcols <- c(leftcols, "tau2")
+    #
+    if (print.tau)
+      leftcols <- c(leftcols, "tau")
+    #
+    if (print.I2)
+      leftcols <- c(leftcols, "I2")
+    #
+    if (print.Q)
+      leftcols <- c(leftcols, "Q")
+    #
+    if (print.pval.Q)
+      leftcols <- c(leftcols, "pval.Q")
+    #
+    if (layout != "meta8") {
+      if (layout == "RevMan5" || layout == "JAMA")
+        leftcols <- c(leftcols, "effect.ci")
+      else if (layout != "BMJ")
+        leftcols <- c(leftcols, "effect", "ci")
+      #
+      if (print.stat && !(layout == "BMJ" || layout == "meta8"))
+        leftcols <- c(leftcols, "statistic")
+      #
+      if (print.pval && !(layout == "BMJ" || layout == "meta8"))
+        leftcols <- c(leftcols, "pval")
     }
   }
   #
-  if (!is.logical(rightcols)) {
-    if ("pval.Q.b" %in% rightcols & "pval.Q.b" %in% leftcols)
-      leftcols <- leftcols[leftcols != "pval.Q.b"]
-    #
-    if ("k" %in% rightcols & "k" %in% leftcols)
-      leftcols <- leftcols[leftcols != "k"]
-    #
-    if ("tau2" %in% rightcols & "tau2" %in% leftcols)
-      leftcols <- leftcols[leftcols != "tau2"]
-    #
-    if ("Q" %in% rightcols & "Q" %in% leftcols)
-      leftcols <- leftcols[leftcols != "Q"]
-    #
-    if ("pval.Q" %in% rightcols & "pval.Q" %in% leftcols)
-      leftcols <- leftcols[leftcols != "pval.Q"]
+  # Argument leftlabs
+  #
+  if (is.null(leftlabs))
+    leftlabs <- rep_len(NA, length(leftcols))
+  else {
+    if (length(leftlabs) != length(leftcols))
+      stop("Argument 'leftlabs' must provide ", length(leftcols),
+           " labels (leftcols: ",
+           paste(leftcols, collapse = ", "), ")",
+           call. = FALSE)
   }
   #
   label.studlab <- ifelse(x$with.subgroups, "Subgroup", "Method")
   #
-  newlab <- function(col, lab, varname, value) {
-    sel <- col == varname
-    if (!any(sel) || !is.na(lab[sel]))
-      return(lab)
-    else
-      lab[sel] <- value
-    lab
-  }
-  #
-  if (missing(leftlabs))
-    leftlabs <- rep(NA, length(leftcols))
   if (any(is.na(leftlabs))) {
     leftlabs <-
       newlab(leftcols, leftlabs, "studlab", label.studlab)
@@ -387,9 +442,50 @@ forest.metabind <- function(x,
     leftlabs <-
       newlab(leftcols, leftlabs, "pval.Q", "P-value")
   }
+
+  # Columns and labels on the right side
   #
-  if (missing(rightlabs))
-    rightlabs <- rep(NA, length(rightcols))
+  if (is.null(rightcols)) {
+    if (layout == "BMJ") {
+      rightcols <- c("effect.ci")
+      #
+      if (print.stat)
+        rightcols <- c(rightcols, "statistic")
+      #
+      if (print.pval)
+        rightcols <- c(rightcols, "pval")
+    }
+    else if (layout == "meta8") {
+      rightcols <- c("effect", "ci")
+      #
+      if (print.stat)
+        rightcols <- c(rightcols, "statistic")
+      #
+      if (print.pval)
+        rightcols <- c(rightcols, "pval")
+      #
+      if (print.tau)
+        rightcols <- c(rightcols, "tau")
+      #
+      if (print.I2)
+        rightcols <- c(rightcols, "I2")
+    }
+    else
+      rightcols <- FALSE
+  }
+  #
+  # Argument rightlabs
+  #
+  if (is.null(rightlabs))
+    rightlabs <- rep_len(NA, length(rightcols))
+  else {
+    if (length(rightlabs) != length(rightcols))
+      stop("Argument 'rightlabs' must provide ", length(rightcols),
+           " labels (rightcols: ",
+           paste(rightcols, collapse = ", "), ")",
+           call. = FALSE)
+  }
+  #
   if (any(is.na(rightlabs))) {
     rightlabs <-
       newlab(rightcols, rightlabs, "studlab", label.studlab)
@@ -405,10 +501,13 @@ forest.metabind <- function(x,
       newlab(rightcols, rightlabs, "pval.Q", "P-value")
   }
   
-  
+
   #
-  # Round and round ...
   #
+  # (3) Round and format results
+  #
+  #
+
   if (x$with.subgroups) {
     x$data$Q.b <- round(x$data$Q.b, digits.Q)
     x$data$pval.Q.b <- formatPT(x$data$pval.Q.b,
@@ -418,7 +517,8 @@ forest.metabind <- function(x,
                                 lab.NA = lab.NA, trim = "left")
   }
   else {
-    x$data$Q <- round(x$data$Q, digits.Q)
+    x$data$Q <- formatN(x$data$Q, digits = digits.Q, lab.NA = lab.NA,
+                        big.mark = big.mark)
     x$Q <- round(x$Q, digits.Q)
     x$data$pval.Q <-
       formatPT(x$data$pval.Q,
@@ -439,11 +539,7 @@ forest.metabind <- function(x,
              lab = FALSE, lab.NA = lab.NA, trim = "left")
   #
   x$data$I2 <-
-    percent_label(x$data$I2, "", digits.I2, formatN, lab.NA = "")
-  x$data$lower.I2 <-
-    percent_label(x$data$lower.I2, "", digits.I2, formatN, lab.NA = "")
-  x$data$upper.I2 <-
-    percent_label(x$data$upper.I2, "", digits.I2, formatN, lab.NA = "")
+    percent_label(x$data$I2, "", digits.I2, formatN, lab.NA = lab.NA)
   #
   x$data$k <- as.character(x$data$k)
   #
@@ -494,115 +590,130 @@ forest.metabind <- function(x,
     overall <- FALSE
     overall.hetstat <- FALSE
   }
-  
+
+  #
+  #
+  #
+  # (4) Create forest plot
+  #
+  #
   
   x.forest <- x
   #
   if (x$with.subgroups) {
-    m.forest <- metagen(x.forest$TE, x.forest$seTE,
-                        lower = x.forest$lower,
-                        upper = x.forest$upper,
-                        subgroup = x.forest$subgroup,
-                        studlab = x.forest$studlab,
-                        data = x.forest,
-                        common = common,
-                        random = random,
-                        prediction = prediction,
-                        overall = overall,
-                        print.subgroup.name = FALSE)
+    ma <- metagen(x.forest$TE, x.forest$seTE,
+                  lower = x.forest$lower,
+                  upper = x.forest$upper,
+                  subgroup = x.forest$subgroup,
+                  studlab = x.forest$studlab,
+                  data = x.forest,
+                  common = common,
+                  random = random,
+                  prediction = prediction,
+                  overall = overall,
+                  print.subgroup.name = FALSE,
+                  transf = TRUE)
     #
-    class(m.forest) <- c(class(m.forest), "is.metabind")
-    m.forest$sm <- x.forest$sm
+    class(ma) <- c(class(ma), "is.metabind")
+    ma$classes <- x$classes
+    ma$MH.exact <- x$list$meth$MH.exact
     #
-    m.forest$TE[m.forest$data$type == "predict"] <- NA
-    m.forest$statistic <- x.forest$statistic
-    m.forest$pval <- x.forest$pval
+    ma$sm <- x.forest$sm
     #
-    m.forest$n.harmonic.mean <- x.forest$n.harmonic.mean
-    m.forest$t.harmonic.mean <- x.forest$t.harmonic.mean
-    m.forest$n.harmonic.mean.ma <- x.forest$n.harmonic.mean.ma
-    m.forest$t.harmonic.mean.ma <- x.forest$t.harmonic.mean.ma
-    m.forest$n.harmonic.mean.w <- x.forest$n.harmonic.mean.w
-    m.forest$t.harmonic.mean.w <- x.forest$t.harmonic.mean.w
+    ma$TE[ma$data$type == "predict"] <- NA
+    ma$statistic <- x.forest$statistic
+    ma$pval <- x.forest$pval
+    #
+    ma$n.harmonic.mean <- x.forest$n.harmonic.mean
+    ma$t.harmonic.mean <- x.forest$t.harmonic.mean
+    ma$n.harmonic.mean.ma <- x.forest$n.harmonic.mean.ma
+    ma$t.harmonic.mean.ma <- x.forest$t.harmonic.mean.ma
+    ma$n.harmonic.mean.w <- x.forest$n.harmonic.mean.w
+    ma$t.harmonic.mean.w <- x.forest$t.harmonic.mean.w
     #
     if (x$samedata) {
-      m.forest$method <- x.forest$method
-      m.forest$method.random <- x.forest$method.random
-      m.forest$method.predict <- x.forest$method.predict
-      m.forest$method.tau <- x.forest$method.tau
+      ma$method <- x.forest$method
+      ma$method.random <- x.forest$method.random
+      ma$method.predict <- x.forest$method.predict
+      ma$method.tau <- x.forest$method.tau
       #
-      m.forest$TE.common <- x.forest$TE.common
-      m.forest$seTE.common <- x.forest$seTE.common
-      m.forest$lower.common <- x.forest$lower.common
-      m.forest$upper.common <- x.forest$upper.common
-      m.forest$statistic.common <- x.forest$statistic.common
-      m.forest$pval.common <- x.forest$pval.common
-      m.forest$zval.common <- x.forest$zval.common
-      m.forest$text.common <- x.forest$text.common
+      ma$TE.common <- x.forest$TE.common
+      ma$seTE.common <- x.forest$seTE.common
+      ma$lower.common <- x.forest$lower.common
+      ma$upper.common <- x.forest$upper.common
+      ma$statistic.common <- x.forest$statistic.common
+      ma$pval.common <- x.forest$pval.common
+      ma$zval.common <- x.forest$zval.common
+      ma$text.common <- x.forest$text.common
       #
-      m.forest$w.common <-
-        ifelse(is.na(m.forest$w.common), m.forest$w.common, NA)
+      ma$w.common <- ifelse(is.na(ma$w.common), ma$w.common, NA)
       #
-      m.forest$TE.random <- x.forest$TE.random
-      m.forest$seTE.random <- x.forest$seTE.random
-      m.forest$lower.random <- x.forest$lower.random
-      m.forest$upper.random <- x.forest$upper.random
-      m.forest$statistic.random <- x.forest$statistic.random
-      m.forest$pval.random <- x.forest$pval.random
-      m.forest$zval.random <- x.forest$zval.random
-      m.forest$df.random <- x.forest$df.random
-      m.forest$text.random <- x.forest$text.random
+      ma$TE.random <- x.forest$TE.random
+      ma$seTE.random <- x.forest$seTE.random
+      ma$lower.random <- x.forest$lower.random
+      ma$upper.random <- x.forest$upper.random
+      ma$statistic.random <- x.forest$statistic.random
+      ma$pval.random <- x.forest$pval.random
+      ma$zval.random <- x.forest$zval.random
+      ma$df.random <- x.forest$df.random
+      ma$text.random <- x.forest$text.random
       #
-      m.forest$w.random <-
-        ifelse(is.na(m.forest$w.random), m.forest$w.random, NA)
+      ma$w.random <- ifelse(is.na(ma$w.random), ma$w.random, NA)
       #
-      m.forest$lower.predict <- x.forest$lower.predict
-      m.forest$upper.predict <- x.forest$upper.predict
-      m.forest$text.predict <-
-        replaceNULL(x.forest$text.predict, gs("text.predict"))
+      ma$lower.predict <- x.forest$lower.predict
+      ma$upper.predict <- x.forest$upper.predict
+      ma$text.predict <- replaceNULL(x.forest$text.predict, gs("text.predict"))
+      #
+      ma$backtransf <- x.forest$backtransf
+      #
+      ma$null.effect <- x.forest$null.effect
     }
     #
-    res <-
-      forest(m.forest,
-             leftcols = leftcols, leftlabs = leftlabs,
-             rightcols = rightcols, rightlabs = rightlabs,
-             print.subgroup.labels = print.subgroup.labels,
-             addrow.subgroups = addrow.subgroups,
-             #
-             hetstat = hetstat, overall.hetstat = overall.hetstat,
-             lab.NA = lab.NA,
-             #
-             type = list(study = type),
-             col.square = cols.square,
-             col.square.lines = cols.square.lines,
-             #
-             pooled.totals = FALSE,
-             common.subgroup = FALSE, random.subgroup = FALSE,
-             prediction.subgroup = FALSE,
-             #
-             col.predict = col.predict,
-             #
-             weight.study = "same",
-             #
-             digits = list(digits = digits,
-                           se = digits.se,
-                           stat = digits.stat,
-                           pval = digits.pval,
-                           pval.Q = digits.pval.Q,
-                           Q = digits.Q,
-                           tau2 = digits.tau2,
-                           tau = digits.tau,
-                           I2 = digits.I2),
-             #
-             scientific.pval = scientific.pval,
-             big.mark = big.mark,
-             #
-             test.subgroup = FALSE,
-             ...)
+    forest_args <-
+      list(
+        x = ma,
+        #
+        layout = layout,
+        #
+        leftcols = leftcols, leftlabs = leftlabs,
+        rightcols = rightcols, rightlabs = rightlabs,
+        #
+        print.subgroup.labels = print.subgroup.labels,
+        addrow.subgroups = addrow.subgroups,
+        #
+        hetstat = hetstat, overall.hetstat = overall.hetstat,
+        lab.NA = lab.NA,
+        #
+        type = list(study = type),
+        col.square = cols.square,
+        col.square.lines = cols.square.lines,
+        #
+        pooled.totals = FALSE,
+        common.subgroup = FALSE, random.subgroup = FALSE,
+        prediction.subgroup = FALSE,
+        #
+        col.predict = col.predict,
+        #
+        weight.study = "same",
+        #
+        digits = list(digits = digits,
+                      se = digits.se,
+                      stat = digits.stat,
+                      pval = digits.pval,
+                      pval.Q = digits.pval.Q,
+                      Q = digits.Q,
+                      tau2 = digits.tau2,
+                      tau = digits.tau,
+                      I2 = digits.I2),
+        #
+        scientific.pval = scientific.pval,
+        big.mark = big.mark,
+        #
+        test.subgroup = FALSE)
   }
   else {
     if (isCol(x.forest$data, "subgroup"))
-      m.forest <- metagen(x.forest$data$TE,
+      ma <- metagen(x.forest$data$TE, x.forest$data$seTE,
                           lower = x.forest$data$lower,
                           upper = x.forest$data$upper,
                           studlab = x.forest$data$studlab,
@@ -613,63 +724,92 @@ forest.metabind <- function(x,
                           random = FALSE,
                           prediction = FALSE,
                           overall = FALSE,
-                          method.tau = "DL", method.tau.ci = "")
+                          method.tau = "DL", method.tau.ci = "",
+                          transf = TRUE)
     else
-      m.forest <- metagen(x.forest$data$TE,
-                          lower = x.forest$data$lower,
-                          upper = x.forest$data$upper,
-                          studlab = x.forest$data$studlab,
-                          data = x.forest,
-                          common = common,
-                          random = random,
-                          prediction = prediction,
-                          overall = overall)
+      ma <- metagen(x.forest$data$TE, x.forest$data$seTE,
+                    lower = x.forest$data$lower,
+                    upper = x.forest$data$upper,
+                    studlab = x.forest$data$studlab,
+                    data = x.forest,
+                    common = common,
+                    random = random,
+                    prediction = prediction,
+                    overall = overall,
+                    transf = TRUE)
     #
-    class(m.forest) <- c(class(m.forest), "is.metabind")
-    m.forest$sm <- x.forest$sm
-    m.forest$with.subgroups <- TRUE
+    class(ma) <- c(class(ma), "is.metabind")
+    ma$classes <- x$classes
+    ma$MH.exact <- x$list$meth$MH.exact
     #
-    m.forest$n.harmonic.mean <- x.forest$n.harmonic.mean
-    m.forest$t.harmonic.mean <- x.forest$t.harmonic.mean
+    ma$sm <- x.forest$sm
+    ma$with.subgroups <- TRUE
     #
-    m.forest$TE[m.forest$data$type == "predict"] <- NA
+    ma$n.harmonic.mean <- x.forest$n.harmonic.mean
+    ma$t.harmonic.mean <- x.forest$t.harmonic.mean
     #
-    res <-
-      forest(m.forest,
-             leftcols = leftcols, leftlabs = leftlabs,
-             rightcols = rightcols, rightlabs = rightlabs,
-             #
-             hetstat = hetstat, overall.hetstat = overall.hetstat,
-             lab.NA = lab.NA,
-             #
-             type.study = type, col.square = cols.square,
-             col.square.lines = cols.square.lines,
-             #
-             pooled.totals = FALSE,
-             #
-             col.predict = col.predict,
-             #
-             weight.study = "same",
-             #
-             digits = digits,
-             digits.se = digits.se,
-             digits.stat = digits.stat,
-             digits.pval = digits.pval,
-             digits.pval.Q = digits.pval.Q,
-             digits.Q = digits.Q,
-             digits.tau2 = digits.tau2,
-             digits.tau = digits.tau,
-             digits.I2 = digits.I2,
-             #
-             scientific.pval = scientific.pval,
-             big.mark = big.mark,
-             #
-             test.subgroup = FALSE,
-             #
-             details = FALSE,
-             #
-             ...)
+    ma$TE[ma$data$type == "predict"] <- NA
+    #
+    forest_args <-
+      list(
+        x = ma,
+        #
+        layout = layout,
+        #
+        leftcols = leftcols, leftlabs = leftlabs,
+        rightcols = rightcols, rightlabs = rightlabs,
+        #
+        hetstat = hetstat, overall.hetstat = overall.hetstat,
+        lab.NA = lab.NA,
+        #
+        type.study = type, col.square = cols.square,
+        col.square.lines = cols.square.lines,
+        #
+        pooled.totals = FALSE,
+        #
+        col.predict = col.predict,
+        #
+        weight.study = "same",
+        #
+        digits = list(digits = digits,
+                      se = digits.se,
+                      stat = digits.stat,
+                      pval = digits.pval,
+                      pval.Q = digits.pval.Q,
+                      Q = digits.Q,
+                      tau2 = digits.tau2,
+                      tau = digits.tau,
+                      I2 = digits.I2),
+        #
+        scientific.pval = scientific.pval,
+        big.mark = big.mark,
+        #
+        test.subgroup = FALSE)
   }
+  #
+  text.details <-
+    catmeth(ma,
+            common, random, ma$prediction, overall || print.pval, TRUE,
+            #
+            func.transf = x$func.transf,
+            backtransf = x$backtransf, func.backtransf = x$func.backtransf,
+            #
+            big.mark = big.mark, digits = digits,
+            digits.tau = digits.tau,
+            text.tau = gs("text.tau"), text.tau2 = gs("text.tau2"),
+            #
+            print.tau2 = print.tau2, print.tau2.ci = FALSE,
+            print.tau = print.tau, print.tau.ci = FALSE,
+            #
+            print.I2 = print.I2, text.I2 = gs("text.I2"),
+            #
+            print.df = TRUE, prediction.subgroup = FALSE,
+            #
+            forest = TRUE)
+  #
+  forest_args$x$.text.details.methods <- text.details
+  #
+  res <- do.call("forest.meta", c(forest_args, args))
   #
   return(invisible(res))
 }

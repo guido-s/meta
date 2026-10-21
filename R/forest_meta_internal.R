@@ -98,7 +98,7 @@ forest_meta_internal <- function(
     ref, TE.common, TE.random,
     overall, common, random, prediction,
     #
-    k.all, n.com, n.ran, n.prd,
+    k.all, n.pooled,
     #
     ymin.common, ymin.random, ymin.ref, ymax, ymax.ref,
     #
@@ -741,8 +741,7 @@ forest_meta_internal <- function(
           layout.pos.col = i,
           xscale = col.forest$range))
       #
-      for (j in seq_len(k.all + n.com * common + n.ran * random +
-                        n.prd * prediction))
+      for (j in seq_len(k.all + n.pooled))
         grid.lines(x = unit(0:1, "npc"),
                    y = unit(ymax + 0.5 * addrow - j, "lines"),
                    gp = gpar(lwd = 0.5 * lwd, col = col.jama.line))

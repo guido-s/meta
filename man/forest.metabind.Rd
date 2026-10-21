@@ -15,6 +15,7 @@
   overall.hetstat = x$overall.hetstat,
   prediction = x$prediction,
   col = NULL,
+  print = NULL,
   type = NULL,
   digits = NULL,
   leftcols = NULL,
@@ -24,8 +25,7 @@
   lab.NA = "",
   scientific.pval = gs("scientific.pval"),
   big.mark = gs("big.mark"),
-  print.subgroup.labels = x$with.subgroups,
-  addrow.subgroups = print.subgroup.labels,
+  addrow.subgroups = NULL,
   ...
 )
 }
@@ -67,6 +67,9 @@ interval(s) should be printed.}
 \item{col}{A named list specifying colours used in the forest
 plot; see \code{\link{forest-formatting}}.}
 
+\item{print}{A named list specifying which information to print in the forest
+plot; see \code{\link{forest-formatting}}.}
+
 \item{type}{A named list specifying graphical types for estimates, common
 effect estimates, random effect estimates, and prediction intervals;
 see \code{\link{forest-formatting}}.}
@@ -95,9 +98,6 @@ be printed in scientific notation, e.g., 1.2345e-01 instead of
 0.12345.}
 
 \item{big.mark}{A character used as thousands separator.}
-
-\item{print.subgroup.labels}{A logical indicating whether subgroup
-label should be printed.}
 
 \item{addrow.subgroups}{A logical value indicating whether an empty
 row is printed between results for subgroups.}

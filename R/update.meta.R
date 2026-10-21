@@ -1075,13 +1075,15 @@ update.meta <- function(object,
   #
   avail.cycles <- !is.null(cycles)
   #
-  # Catch argument 'incr'
+  # Catch arguments 'incr', 'incr.e', and 'incr.c'
   #
   missing.incr <- missing(incr)
-  #
-  # Catch argument 'incr.e'
-  #
   missing.incr.e <- missing(incr.e)
+  missing.incr.c <- missing(incr.c)
+  #
+  if (missing.incr.e != missing.incr.c)
+    stop("Arguments 'incr.e' and 'incr.c' are required together.",
+         call. = FALSE)
   #
   if (!missing.incr.e)
     incr.e <- catch("incr.e", mc, data, sfsp)
@@ -1092,14 +1094,23 @@ update.meta <- function(object,
   #
   # Catch argument 'incr.c'
   #
-  missing.incr.c <- missing(incr.c)
-  #
   if (!missing.incr.c)
     incr.c <- catch("incr.c", mc, data, sfsp)
   else
     incr.c <- catch2(object, "incr.c", gs("incr"))
   #
   avail.incr.c <- !missing.incr.c & !is.null(incr.c)
+  #
+  # A vector-valued 'incr' supplies arm-specific user corrections.
+  #
+  if (!missing.incr && length(incr) > 1 &&
+      missing.incr.e && missing.incr.c) {
+    incr.e <- incr
+    incr.c <- incr
+    #
+    avail.incr.e <- TRUE
+    avail.incr.c <- TRUE
+  }
   #
   # Catch argument 'n.e'
   #
@@ -1298,8 +1309,10 @@ update.meta <- function(object,
     if (!missing.method.incr)
       method.incr <- setchar(method.incr, gs("meth4incr"))
     else {
-      if (!missing.incr & missing.incr.e & missing.incr.c)
-        method.incr <- gs("method.incr")
+      if (avail.incr.e && avail.incr.c)
+        method.incr <- "user"
+      else if (!missing.incr & missing.incr.e & missing.incr.c)
+        method.incr <- if (length(incr) > 1) "user" else gs("method.incr")
     }
     #
     if (method.incr == "user") {

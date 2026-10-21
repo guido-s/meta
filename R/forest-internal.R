@@ -1569,6 +1569,24 @@ warn_only_subgroup <- function(x) {
 set_xpos <- function(x)
   c(left = 0, center = 0.5, right = 1)[[x]]
 
+# Return the justification used for each displayed column
+#
+column_just <- function(cols, labs, just.addcols, just) {
+  res <- rep_len(just.addcols, length(cols))
+  special <- c("pval", "tau2", "tau", "I2", "Q", "pval.Q")
+  #
+  for (i in seq_along(cols)) {
+    if (cols[i] %in% special)
+      res[i] <- just
+    if (cols[i] %in% c("tau2", "tau") &&
+        length(labs) >= i && !is.na(labs[i]) &&
+        grepl("Between-study", labs[i], fixed = TRUE))
+      res[i] <- "center"
+  }
+  #
+  res
+}
+
 label_effect.ci <- function(layout, sm, backtransf,
                             #
                             pscale, irscale, irunit,
@@ -1668,6 +1686,15 @@ label_effect.ci <- function(layout, sm, backtransf,
   else {
     return(paste(smlab, ci.lab.bracket))
   }
+}
+
+newlab <- function(col, lab, varname, value) {
+  sel <- col == varname
+  if (!any(sel) || !is.na(lab[sel]))
+    return(lab)
+  else
+    lab[sel] <- value
+  lab
 }
 
 fs_defaults <- function(fontsize) {
@@ -1850,6 +1877,19 @@ print_defaults <- function(x, class = "meta") {
       pval.Q = FALSE,
       cidprop = FALSE)
   }
+  else if (class == "metabind") {
+    res <- list(
+      k = TRUE,
+      pval = FALSE,
+      stat = FALSE,
+      I2 = FALSE,
+      tau2 = NULL,
+      tau = FALSE,
+      Q = FALSE,
+      pval.Q = FALSE,
+      pval.Q.b = NULL,
+      subgroup.labels = NULL)
+  }
   #
   res
 }
@@ -1963,7 +2003,7 @@ digits_defaults <- function(class = "meta") {
       Q = gs("digits.Q"),
       tau2 = gs("digits.tau2"),
       tau = gs("digits.tau"),
-      I2 = max(gs("digits.I2") - 1, 0))
+      I2 = gs("digits.I2"))
   }
   #
   res

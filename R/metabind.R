@@ -361,7 +361,7 @@ metabind <- function(..., subgroup = NULL,
   meth$overall.hetstat <- with.subgroups & samedata
   #
   if (missing.pooled & all(meth$common) & all(!meth$random))
-    meth$common <- pooled == "onlycommon"
+    meth$common <- TRUE
   else
     meth$common <- any(meth$common)
   #
@@ -585,7 +585,6 @@ metabind <- function(..., subgroup = NULL,
   # (6) Generate meta-analysis object
   #
   #
-  
   res <- c(meta, meth, subgroup)
   #
   res$data <- data

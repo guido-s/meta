@@ -23,21 +23,32 @@ catmeth <- function(x,
   
   sm <- x$sm
   #
-  metacum.metainf <- inherits(x, "metacum") | inherits(x, "metainf")
   metabind <- inherits(x, "metabind")
   #
-  metabin  <- inherits(x, "metabin") && !metacum.metainf
-  metacont <- inherits(x, "metacont") && !metacum.metainf
-  metainc  <- inherits(x, "metainc") && !metacum.metainf
+  metacum.metainf <- inherits(x, "metacum") || inherits(x, "metainf")
+  metacum.metainf.metabind <- metacum.metainf || metabind
   #
-  metagen  <- inherits(x, "metagen") && !metacum.metainf
+  metabin  <- inherits(x, "metabin") && !metacum.metainf.metabind
+  metacont <- inherits(x, "metacont") && !metacum.metainf.metabind
+  metainc  <- inherits(x, "metainc") && !metacum.metainf.metabind
   #
-  metacor  <- inherits(x, "metacor") && !metacum.metainf
-  metamean <- inherits(x, "metamean") && !metacum.metainf
-  metaprop <- inherits(x, "metaprop") && !metacum.metainf
-  metarate <- inherits(x, "metarate") && !metacum.metainf
+  metagen  <- inherits(x, "metagen") && !metacum.metainf.metabind
   #
-  classes <- if (metacum.metainf) x$classes else character()
+  metacor  <- inherits(x, "metacor") && !metacum.metainf.metabind
+  metamean <- inherits(x, "metamean") && !metacum.metainf.metabind
+  metaprop <- inherits(x, "metaprop") && !metacum.metainf.metabind
+  metarate <- inherits(x, "metarate") && !metacum.metainf.metabind
+  #
+  classes <-
+    if (metacum.metainf)
+      unique(unlist(x$classes, use.names = FALSE))
+    else
+      character()
+  type.classes <-
+    if (metacum.metainf || metabind || inherits(x, "is.metabind"))
+      unique(unlist(x$classes, use.names = FALSE))
+    else
+      character()
   #
   metabin.cc <- metabin || "metabin" %in% classes
   metacont.cc <- metacont || "metacont" %in% classes
@@ -45,18 +56,38 @@ catmeth <- function(x,
   metaprop.cc <- metaprop || "metaprop" %in% classes
   metarate.cc <- metarate || "metarate" %in% classes
   #
-  trimfill <- inherits(x, "trimfill") & !metacum.metainf
-  metamiss <- inherits(x, "metamiss") & !metacum.metainf
+  trimfill <- inherits(x, "trimfill") & !metacum.metainf.metabind
+  metamiss <- inherits(x, "metamiss") & !metacum.metainf.metabind
   #
   bin.cont.inc <- metabin || metacont || metainc ||
     any(classes %in% c("metabin", "metacont", "metainc"))
+  #
+  type.bin.cont.inc <- metabin || metacont || metainc ||
+    any(type.classes %in% c("metabin", "metacont", "metainc"))
+  #
   single <- is_single(sm) ||
     any(classes %in% c("metacor", "metamean", "metaprop", "metarate"))
+  #
+  type.single <- is_single(sm) ||
+    any(type.classes %in% c("metacor", "metamean", "metaprop", "metarate"))
   #
   by <- !is.null(x$subgroup)
   #
   gm <- gm(x)
   meth <- gm$meth
+  mh.exact <-
+    if (metabind && !is.null(x$list$meth$MH.exact))
+      x$list$meth$MH.exact
+    else if (inherits(x, "is.metabind"))
+      x$MH.exact
+    else
+      NULL
+  #
+  if ("metabin" %in% type.classes && !is.null(mh.exact) &&
+      !"MH.exact" %in% names(meth))
+    meth$MH.exact <- rep(mh.exact,
+                         each = nrow(meth) / length(mh.exact))
+  #
   pred <- gm$pred
   #
   # Preserve binary-outcome method details for cumulative and influence results
@@ -79,7 +110,15 @@ catmeth <- function(x,
   #
   width <- options()$width
   #
-  if (metabin)
+  if (metacum.metainf.metabind || inherits(x, "is.metabind")) {
+    type.meta <- type.classes[
+      type.classes %in%
+        c("metabin", "metacont", "metainc", "metacor", "metamean",
+          "metaprop", "metarate", "metagen")
+    ]
+    type.meta <- if (length(type.meta) > 0) type.meta[1] else NULL
+  }
+  else if (metabin)
     type.meta <- "metabin"
   else if (metacont)
     type.meta <- "metacont"
@@ -95,8 +134,6 @@ catmeth <- function(x,
     type.meta <- "metarate"
   else if (metagen)
     type.meta <- "metagen"
-  else if (metacum.metainf | metabind)
-    type.meta <- x$classes
   else
     type.meta <- NULL
   #
@@ -109,7 +146,7 @@ catmeth <- function(x,
   #
   text.t <- ""
   #
-  if (print.tau2 | metabind | metacum.metainf)
+  if (print.tau2 | metacum.metainf.metabind)
     text.t <- text.tau2
   else if (print.tau)
     text.t <- text.tau
@@ -131,8 +168,8 @@ catmeth <- function(x,
     # Other types of meta-analysis
     details <-
       paste0("\n- Meta-analysis ",
-             if (bin.cont.inc) "comparing two groups with ",
-             if (single) "of single ",
+             if (type.bin.cont.inc) "comparing two groups with ",
+             if (type.single) "of single ",
              recode(type.meta,
                     metabin = "binary outcomes",
                     metacont = "continuous outcomes",
@@ -153,13 +190,13 @@ catmeth <- function(x,
   #
   #
     
-  if (overall | metabind | metacum.metainf | by) {
+  if (overall | metacum.metainf.metabind | by) {
         
     meth.ma <- meth[meth$model %in% selmod, , drop = FALSE]
     #
     vars.ma <- c("model", "method")
     #
-    if ("metabin" %in% classes)
+    if ("metabin" %in% type.classes)
       vars.ma <- c(vars.ma, "MH.exact")
     #
     if ((metabin | metainc) & any(meth.ma$method == "GLMM"))
@@ -1001,7 +1038,7 @@ catmeth <- function(x,
                    args = x$args.backtransf)
   }
   #
-  if (!is.na(null.effect) && overall) {
+  if (!is.na(null.effect) && (overall || metabind)) {
     details <- paste0(details, "\n- Null hypothesis: ")
     #
     if (!is.null(pscale) && pscale != 1)
