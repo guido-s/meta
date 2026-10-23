@@ -1086,15 +1086,7 @@ metamerge <- function(meta1, meta2,
   
   #
   #
-  # (8) Backward compatibility
-  #
-  #
-  res <- backward(res)
-  
-  
-  #
-  #
-  # (9) Set class
+  # (8) Set class
   #
   #
   #  

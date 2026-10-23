@@ -484,11 +484,11 @@ metarate <- function(event, time, studlab,
   missing.method.tau <- missing(method.tau)
   if (missing.method.tau)
     method.tau <- if (method == "GLMM") "ML" else gs("method.tau")
-  method.tau <- setchar(method.tau, gs("meth4tau"))
+  method.tau <- setchar(method.tau, gs("meth4tau"), length = 1)
   #
   if (is.null(method.tau.ci))
     method.tau.ci <- if (method.tau == "DL") "J" else "QP"
-  method.tau.ci <- setchar(method.tau.ci, gs("meth4tau.ci"))
+  method.tau.ci <- setchar(method.tau.ci, gs("meth4tau.ci"), length = 1)
   missing.tau.common <- missing(tau.common)
   tau.common <- replaceNULL(tau.common, FALSE)
   chklogical(tau.common)
@@ -548,7 +548,7 @@ metarate <- function(event, time, studlab,
   is.glmm <- method == "GLMM"
   #
   missing.method.common.ci <- missing(method.common.ci)
-  method.common.ci <- setchar(method.common.ci, gs("meth4common.ci"))
+  method.common.ci <- setchar(method.common.ci, gs("meth4common.ci"), length = 1)
   #
   if (method != "Inverse" & method.common.ci == "IVhet") {
     if (!missing.method.common.ci)
@@ -1357,10 +1357,6 @@ metarate <- function(event, time, studlab,
     #
     res <- setNAwithin(res, res$three.level | is.glmm)
   }
-  #
-  # Backward compatibility
-  #
-  res <- backward(res)
   #
   class(res) <- c(fun, "meta")
 

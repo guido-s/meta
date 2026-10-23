@@ -752,9 +752,9 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   sm <- setchar(sm, gs("sm4cont"))
   chklevel(level)
   #
-  method.common.ci <- setchar(method.common.ci, gs("meth4common.ci"))
+  method.common.ci <- setchar(method.common.ci, gs("meth4common.ci"), length = 1)
   #
-  method.tau <- setchar(method.tau, gs("meth4tau"))
+  method.tau <- setchar(method.tau, gs("meth4tau"), length = 1)
   #
   tau.common <- replaceNULL(tau.common, FALSE)
   chklogical(tau.common)
@@ -1079,7 +1079,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
      else
       method.tau.ci <- "QP"
   #
-  method.tau.ci <- setchar(method.tau.ci, gs("meth4tau.ci"))
+  method.tau.ci <- setchar(method.tau.ci, gs("meth4tau.ci"), length = 1)
   #
   # Catch 'weights', 'weights.common', and 'weights.random' from data:
   #
@@ -2239,10 +2239,6 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   #
   if (is.null(res$approx.sd.e) & is.null(res$approx.sd.c))
     res$method.sd <- ""
-  #
-  # Backward compatibility
-  #
-  res <- backward(res)
   #
   class(res) <- c(fun, "meta")
 

@@ -308,6 +308,55 @@ backward <- function(x) {
   res
 }
 
+drop_backward <- function(x) {
+  res <- x
+  #
+  res$w.fixed <- NULL
+  res$TE.fixed <- NULL
+  res$seTE.fixed <- NULL
+  res$lower.fixed <- NULL
+  res$upper.fixed <- NULL
+  res$statistic.fixed <- NULL
+  res$pval.fixed <- NULL
+  res$zval.fixed <- NULL
+  #
+  res$text.fixed <- NULL
+  res$text.w.fixed <- NULL
+  #
+  res$zval <- NULL
+  res$zval.common <- NULL
+  res$zval.random <- NULL
+  #
+  res$hakn <- NULL
+  #
+  res$df.hakn <- NULL
+  res$seTE.hakn <- NULL
+  res$seTE.hakn.adhoc <- NULL
+  #
+  res$byvar <- NULL
+  res$bylab <- NULL
+  res$print.byvar <- NULL
+  res$byseparator <- NULL
+  #
+  res$TE.fixed.w <- NULL
+  res$seTE.fixed.w <- NULL
+  res$lower.fixed.w <- NULL
+  res$upper.fixed.w <- NULL
+  res$statistic.fixed.w <- NULL
+  res$pval.fixed.w <- NULL
+  res$zval.fixed.w <- NULL
+  res$w.fixed.w <- NULL
+  #
+  res$Q.w.fixed <- NULL
+  res$pval.Q.w.fixed <- NULL
+  res$Q.b.fixed <- NULL
+  res$pval.Q.b.fixed <- NULL
+  #
+  res$id <- NULL
+  #
+  res
+}
+
 ci2meta <- function(x, ci.c = NULL, ci.r = NULL) {
   res <- x
   #
@@ -1057,13 +1106,19 @@ warn_set_input <- function(x, cond = TRUE, set, text = "") {
   invisible(NULL)
 }
 
-drop_from_dots <- function(x, drop = NULL, replace = list()) {
+drop_from_dots <- function(x, drop = NULL, replace = list(),
+                           deprecated = FALSE, text.deprecated = NULL) {
   for (old in drop) {
     if (!is.null(x[[old]])) {
       new <- replace[[old]]
       if (!is.null(new) && length(new) == 1 && nzchar(new))
         warning("Argument '", old, "' ignored; please use argument '",
                 new, "' instead.",
+                call. = FALSE)
+      else if (deprecated)
+        warning("Argument '", old, "' is deprecated and ignored.",
+                if (!is.null(text.deprecated))
+                  paste0(" ", text.deprecated),
                 call. = FALSE)
       else
         warning("Argument '", old, "' ignored as it is set internally.",
@@ -1204,4 +1259,21 @@ collapse_choices <- function(x) {
     paste0(
       paste(x[-length(x)], collapse = ", "), ", or ", x[length(x)])
   }
+}
+
+format_seq <- function(x, exclude = NULL, digits = NULL) {
+  if (!is.null(exclude))
+    x <- x[x != exclude]
+  #
+  if (!is.null(digits) && is.numeric(x))
+    x <- round(x, digits)
+  #
+  x <- sort(unique(x))
+  #
+  if (length(x) == 1)
+    as.character(x)
+  else if (!is.null(exclude) && length(x) == 0)
+    as.character(exclude)
+  else
+    paste0("{", paste(x, collapse = ", "), "}")
 }

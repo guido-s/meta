@@ -283,7 +283,7 @@ metareg.meta <- function(x, formula, method.tau = x$method.tau,
   if (is.null(method.tau))
     method.tau <- "DL"
   #
-  method.tau <- setchar(method.tau, c(gs("meth4tau"), "FE"))
+  method.tau <- setchar(method.tau, c(gs("meth4tau"), "FE"), length = 1)
   #
   method.random.ci <-
     deprecated2(method.random.ci, missing.method.random.ci,

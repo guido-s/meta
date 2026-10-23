@@ -811,16 +811,26 @@ update.meta <- function(object,
     #
     # Changes for meta objects with version < 9.0
     #
+    if (inherits(object, "metabind")) {
+      stop("Update not possible for metabind() objects before version 9.0.",
+           call. = FALSE)
+    }
+    #
     if (inherits(object, "metaprop") && object$sm == "PFT") {
       exclude <- replaceNULL(object$exclude, rep(FALSE, length(object$n)))
       sel.harmonic <- !exclude & !is.na(object$event) & !is.na(object$n)
       object$n.harmonic.mean <- 1 / mean(1 / object$n[sel.harmonic])
     }
+    #
     if (inherits(object, "metarate") && object$sm == "IRFT") {
       exclude <- replaceNULL(object$exclude, rep(FALSE, length(object$time)))
       sel.harmonic <- !exclude & !is.na(object$event) & !is.na(object$time)
       object$t.harmonic.mean <- 1 / mean(1 / object$time[sel.harmonic])
     }
+    #
+    # Drop list elements stored for backward compatability
+    #
+    object <- drop_backward(object)
   }
   
   
@@ -874,7 +884,7 @@ update.meta <- function(object,
                        warn.deprecated)
   chklogical(random)
   #
-  method.common.ci <- setchar(method.common.ci, gs("meth4common.ci"))
+  method.common.ci <- setchar(method.common.ci, gs("meth4common.ci"), length = 1)
   #
   method.random.ci <-
     deprecated(method.random.ci, missing.method.random.ci,

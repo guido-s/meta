@@ -3,6 +3,7 @@
 S3method("[",longarm)
 S3method("[",pairwise)
 S3method(as.data.frame,meta)
+S3method(as.data.frame,metabind)
 S3method(barplot,rob)
 S3method(baujat,meta)
 S3method(blup,meta)
@@ -145,6 +146,7 @@ importFrom(dplyr,
   group_by,
   group_map,
   if_else,
+  left_join,
   mutate,
   recode,
   relocate,

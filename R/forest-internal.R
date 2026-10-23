@@ -1888,7 +1888,7 @@ print_defaults <- function(x, class = "meta") {
       Q = FALSE,
       pval.Q = FALSE,
       pval.Q.b = NULL,
-      subgroup.labels = NULL)
+      subgroup.name = FALSE)
   }
   #
   res

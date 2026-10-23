@@ -866,9 +866,9 @@ metagen <- function(TE, seTE, studlab,
   if (length(method.common.ci) != 1)
     stop("Argument 'method.common.ci' must be of length 1.",
          call. = FALSE)
-  method.common.ci <- setchar(method.common.ci, gs("meth4common.ci"))
+  method.common.ci <- setchar(method.common.ci, gs("meth4common.ci"), length = 1)
   #
-  method.tau <- setchar(method.tau, gs("meth4tau"))
+  method.tau <- setchar(method.tau, gs("meth4tau"), length = 1)
   #
   tau.common <- replaceNULL(tau.common, FALSE)
   chklogical(tau.common)
@@ -2132,7 +2132,7 @@ metagen <- function(TE, seTE, studlab,
     else
       method.tau.ci <- "QP"
   #
-  method.tau.ci <- setchar(method.tau.ci, gs("meth4tau.ci"))
+  method.tau.ci <- setchar(method.tau.ci, gs("meth4tau.ci"), length = 1)
   #
   if (!three.level & method.tau.ci == "PL") {
     if (method.tau == "DL")
@@ -3204,10 +3204,6 @@ metagen <- function(TE, seTE, studlab,
   res$adhoc.hakn.pi <-
     ifelse(is.na(res$lower.predict) & is.na(res$upper.predict),
            "", res$adhoc.hakn.pi)
-  #
-  # Backward compatibility
-  #
-  res <- backward(res)
   #
   class(res) <- c(fun, "meta")
 

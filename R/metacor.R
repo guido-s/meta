@@ -368,10 +368,10 @@ metacor <- function(cor, n, studlab,
   chknull(sm)
   chklevel(level)
   #
-  method.common.ci <- setchar(method.common.ci, gs("meth4common.ci"))
+  method.common.ci <- setchar(method.common.ci, gs("meth4common.ci"), length = 1)
   #
   missing.method.tau <- missing(method.tau)
-  method.tau <- setchar(method.tau, gs("meth4tau"))
+  method.tau <- setchar(method.tau, gs("meth4tau"), length = 1)
   #
   missing.tau.common <- missing(tau.common)
   tau.common <- replaceNULL(tau.common, FALSE)
@@ -917,10 +917,6 @@ metacor <- function(cor, n, studlab,
     #
     res <- setNAwithin(res, res$three.level)
   }
-  #
-  # Backward compatibility
-  #
-  res <- backward(res)
   #
   class(res) <- c(fun, "meta")
   

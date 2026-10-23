@@ -6,23 +6,17 @@
 \usage{
 metabind(
   ...,
-  subgroup = NULL,
   name = NULL,
   common = NULL,
   random = NULL,
   prediction = NULL,
   backtransf = NULL,
-  outclab = NULL,
-  pooled = NULL,
-  warn.deprecated = gs("warn.deprecated")
+  outclab = NULL
 )
 }
 \arguments{
 \item{...}{Any number of meta-analysis objects or a single list
 with meta-analyses.}
-
-\item{subgroup}{An optional variable to generate a forest plot with
-subgroups.}
 
 \item{name}{An optional character vector providing descriptive
 names for the meta-analysis objects.}
@@ -37,17 +31,11 @@ effects model should be considered.}
 prediction intervals should be considered.}
 
 \item{backtransf}{A logical indicating whether results should be
-back transformed in printouts and plots. If
-\code{backtransf=TRUE} (default), results for \code{sm="OR"} are
-printed as odds ratios rather than log odds ratios, for example.}
+back transformed in printouts and plots. If \code{backtransf=TRUE}
+(default), results for \code{sm="OR"} are printed as odds ratios rather
+than log odds ratios, for example.}
 
-\item{outclab}{Outcome label for all meta-analyis objects.}
-
-\item{pooled}{Deprecated argument (replaced by \code{common} and
-\code{random}.}
-
-\item{warn.deprecated}{A logical indicating whether warnings should
-be printed if deprecated arguments are used.}
+\item{outclab}{Outcome label for all meta-analysis objects.}
 }
 \value{
 An object of class \code{c("metabind", "meta")} with corresponding
@@ -124,7 +112,7 @@ forest(ma.taus)
 
 }
 \seealso{
-\code{\link{metagen}}, \code{\link{forest.metabind}},
+\code{\link{forest.metabind}}, \code{\link{as.data.frame.metabind}}, 
   \code{\link{metamerge}}
 }
 \author{

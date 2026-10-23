@@ -7,13 +7,13 @@
 \method{forest}{metabind}(
   x,
   layout = gs("layout"),
-  common = x$common,
-  random = x$random,
-  overall = x$overall,
-  subgroup = FALSE,
+  common = !is.null(x$common),
+  random = !is.null(x$random),
+  overall = common || random,
+  prediction = !is.null(x$predict),
+  subgroup = NULL,
   hetstat = FALSE,
   overall.hetstat = x$overall.hetstat,
-  prediction = x$prediction,
   col = NULL,
   print = NULL,
   type = NULL,
@@ -46,6 +46,9 @@ should be plotted. This argument is useful in a meta-analysis
 with subgroups if summaries should only be plotted on group
 level.}
 
+\item{prediction}{A logical indicating whether prediction
+interval(s) should be printed.}
+
 \item{subgroup}{A logical indicating whether subgroup results
 should be shown in forest plot. This argument is useful in a
 meta-analysis with subgroups if summaries should not be plotted
@@ -60,9 +63,6 @@ heterogeneity measures for overall treatment comparisons. This
 argument is useful in a meta-analysis with subgroups if
 heterogeneity statistics should only be printed on subgroup
 level.}
-
-\item{prediction}{A logical indicating whether prediction
-interval(s) should be printed.}
 
 \item{col}{A named list specifying colours used in the forest
 plot; see \code{\link{forest-formatting}}.}

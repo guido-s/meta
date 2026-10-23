@@ -10,8 +10,6 @@
 #'   with meta-analyses.
 #' @param name An optional character vector providing descriptive
 #'   names for the meta-analysis objects.
-#' @param subgroup An optional variable to generate a forest plot with
-#'   subgroups.
 #' @param common A logical vector indicating whether results of common
 #'   effect model should be considered.
 #' @param random A logical vector indicating whether results of random
@@ -19,14 +17,10 @@
 #' @param prediction A logical vector indicating whether results of
 #'   prediction intervals should be considered.
 #' @param backtransf A logical indicating whether results should be
-#'   back transformed in printouts and plots. If
-#'   \code{backtransf=TRUE} (default), results for \code{sm="OR"} are
-#'   printed as odds ratios rather than log odds ratios, for example.
-#' @param outclab Outcome label for all meta-analyis objects.
-#' @param pooled Deprecated argument (replaced by \code{common} and
-#'   \code{random}.
-#' @param warn.deprecated A logical indicating whether warnings should
-#'   be printed if deprecated arguments are used.
+#'   back transformed in printouts and plots. If \code{backtransf=TRUE}
+#'   (default), results for \code{sm="OR"} are printed as odds ratios rather
+#'   than log odds ratios, for example.
+#' @param outclab Outcome label for all meta-analysis objects.
 #' 
 #' @details
 #' This function can be used to combine any number of meta-analysis
@@ -47,7 +41,7 @@
 #' 
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
-#' @seealso \code{\link{metagen}}, \code{\link{forest.metabind}},
+#' @seealso \code{\link{forest.metabind}}, \code{\link{as.data.frame.metabind}}, 
 #'   \code{\link{metamerge}}
 #' 
 #' @examples
@@ -102,12 +96,10 @@
 #' 
 #' @export metabind
 
-metabind <- function(..., subgroup = NULL,
+metabind <- function(...,
                      name = NULL,
                      common = NULL, random = NULL, prediction = NULL,
-                     backtransf = NULL, outclab = NULL,
-                     pooled = NULL,
-                     warn.deprecated = gs("warn.deprecated")) {
+                     backtransf = NULL, outclab = NULL) {
   
   
   #
@@ -116,15 +108,38 @@ metabind <- function(..., subgroup = NULL,
   #
   #
   
-  missing.subgroup <- missing(subgroup)
-  subgroup.meta <- subgroup
   missing.name <- missing(name)
-  missing.pooled <- missing(pooled)
   missing.backtransf <- missing(backtransf)
   #
-  chklogical(warn.deprecated)
-  #
   args <- list(...)
+  #
+  # Extract and drop list element 'pooled'
+  #
+  pooled <- args$pooled
+  args$pooled <- NULL
+  #
+  if (!is.null(pooled)) {
+    pooled <- setchar(pooled, c("common", "random", "fixed"))
+    #
+    if (pooled == "fixed")
+      pooled <- "common"
+    #
+    if (!is.null(common) || !is.null(random)) {
+      warning("Deprecated argument 'pooled' ignored; input considered for ",
+              "arguments 'common' and 'random'.", call. = FALSE)
+    }
+    else {
+      common <- pooled == "common"
+      random <- pooled == "random"
+    }
+  }
+  #
+  args <- drop_from_dots(args, "warn.deprecated", deprecated = TRUE)
+  #
+  args <-
+    drop_from_dots(
+      args, "subgroup", deprecated = TRUE,
+      text.deprecated = "Use argument 'subgroup' in forest.metabind().")
   #
   n.meta <- length(args)
   seq.meta <- seq_len(n.meta)
@@ -167,60 +182,6 @@ metabind <- function(..., subgroup = NULL,
       args <- args2
     }
   }
-  #
-  if (!missing.pooled) {
-    pooled <- setchar(pooled, c("common", "random", "fixed"))
-    pooled[pooled == "fixed"] <- "common"
-    #
-    pooled.common <- pooled == "common"
-    pooled.random <- pooled == "random"
-  }
-  #
-  common <-
-    deprecated2(common, missing(common), pooled.common, missing.pooled,
-                warn.deprecated, "pooled")
-  #
-  if (!is.null(common)) {
-    chklogical(common[1], "common")
-    #
-    if (length(common) == 1)
-      common <- rep_len(common, n.meta)
-    else
-      chklength(common, n.meta,
-                text = paste("Length of argument 'common' differs from",
-                             "number of meta-analyses."))
-  }
-  #
-  random <-
-    deprecated2(random, missing(random), pooled.random, missing.pooled,
-                warn.deprecated, "pooled")
-  #
-  if (!is.null(random)) {
-    chklogical(random[1], "random")
-    #
-    if (length(random) == 1)
-      random <- rep_len(random, n.meta)
-    else
-      chklength(random, n.meta,
-                text = paste("Length of argument 'random' differs from",
-                             "number of meta-analyses."))
-  }
-  #
-  if (!missing(prediction)) {
-    if (length(prediction) == 1)
-      prediction <- rep_len(prediction, n.meta)
-    #
-    if (!is.logical(prediction))
-      stop("Argument 'prediction' must contain logical values.",
-           call. = TRUE)
-    #
-    chklength(prediction, n.meta,
-              text = paste("Length of argument 'prediction' differs from",
-                           "number of meta-analyses."))
-  }
-  #
-  if (!missing.backtransf)
-    chklogical(backtransf)
   #  
   # Act on limitmeta and copas objects
   #
@@ -232,6 +193,14 @@ metabind <- function(..., subgroup = NULL,
   for (i in seq.meta) {
     if (inherits(args[[i]], "metabind"))
       stop("Elements of argument '...' may not be of class 'metabind'.",
+           call. = FALSE)
+    #
+    if (inherits(args[[i]], "metacum"))
+      stop("Elements of argument '...' may not be of class 'metacum'.",
+           call. = FALSE)
+    #
+    if (inherits(args[[i]], "metainf"))
+      stop("Elements of argument '...' may not be of class 'metainf'.",
            call. = FALSE)
     #
     if (inherits(args[[i]], "netpairwise"))
@@ -303,122 +272,58 @@ metabind <- function(..., subgroup = NULL,
   #
   samedata[is.limit.copas] <- TRUE
   samedata <- all(samedata)
-  
-  
   #
-  #
-  # (2) Extract meta-analytical methods
-  #
-  #
-  
-  meth.list <- vector("list", n.meta)
-  #
-  for (i in seq.meta)
-    meth.list[[i]] <-
-      meta2meth(args[[i]], outclab)
-  #
-  meth <- list()
-  #
-  for (i in names(meth.list[[1]]))
-    meth[[i]] <- condense(meth.list, i)
-  #
-  meth$common <- replaceNULL(common, meth$common)
-  meth$common[is.limit.copas] <- FALSE
-  meth$random <- replaceNULL(random, meth$random)
-  meth$prediction <- replaceNULL(prediction, meth$prediction)
-  #
-  # Use common effect estimate if no result is selected
-  #
-  meth$common[!(meth$common | meth$random | meth$prediction)] <- TRUE
-  #
-  # Check whether settings are unique
-  #
-  meth2 <- meth[c("sm", "level.ma", "level.predict", "null.effect")]
-  n.meth <- lapply(meth2, function(x) length(unique(x)))
-  #
-  if (any(n.meth != 1))
-    stop("Setting for the following argument",
-         if (sum(n.meth != 1) > 1) "s",
-         " must be the same for all meta-analyses: ",
-         paste0(paste0("'", names(meth2)[n.meth != 1], "'"),
-                collapse = " - "))
-  #
-  # Unify settings
-  #
-  meth$sm <- makeunique(meth$sm)
-  meth$method <- unique(meth$method)
-  meth$method.random <- unique(meth$method.random)
-  meth$three.level <- makeunique(meth$three.level, FALSE)
-  #
-  meth$level <- meth$level.ma <- makeunique(meth$level.ma)
-  meth$level.predict <- makeunique(meth$level.predict)
-  #
-  common <- meth$common
-  random <- meth$random
-  prediction <- meth$prediction
-  #
-  meth$overall <- with.subgroups & samedata
-  meth$overall.hetstat <- with.subgroups & samedata
-  #
-  if (missing.pooled & all(meth$common) & all(!meth$random))
-    meth$common <- TRUE
-  else
-    meth$common <- any(meth$common)
-  #
-  meth$random <- any(meth$random)
-  #
-  meth$prediction <- any(meth$prediction)
-  #
-  meth$method.common.ci <- unique(meth$method.common.ci)
-  meth$method.random.ci <- unique(meth$method.random.ci)
-  meth$adhoc.hakn.ci <- unique(meth$adhoc.hakn.ci)
-  meth$method.tau <- unique(meth$method.tau)
-  meth$tau.preset <- unique(meth$tau.preset)
-  meth$TE.tau <- unique(meth$TE.tau)
-  meth$tau.common <-
-    if (!with.subgroups)
-      FALSE
+  if (!is.null(common)) {
+    chklogical(common[1], "common")
+    #
+    if (length(common) == 1)
+      common <- rep_len(common, n.meta)
     else
-      unique(meth$tau.common)
+      chklength(common, n.meta,
+                text = paste("Length of argument 'common' differs from",
+                             "number of meta-analyses."))
+  }
+  else {
+    for (i in seq.meta)
+      common <- c(common, replaceNULL(args[[i]]$common, FALSE))
+  }
   #
-  meth$method.I2 <- unique(meth$method.I2)
-  #
-  meth$prediction.subgroup <-
-    if (!with.subgroups)
-      FALSE
+  if (!is.null(random)) {
+    chklogical(random[1], "random")
+    #
+    if (length(random) == 1)
+      random <- rep_len(random, n.meta)
     else
-      unique(meth$prediction.subgroup)
-  meth$method.predict <- unique(meth$method.predict)
-  meth$adhoc.hakn.pi <- unique(meth$adhoc.hakn.pi)
+      chklength(random, n.meta,
+                text = paste("Length of argument 'random' differs from",
+                             "number of meta-analyses."))
+  }
+  else {
+    for (i in seq.meta)
+      random <- c(random, replaceNULL(args[[i]]$random, FALSE))
+  }
   #
-  meth$method.bias <- unique(meth$method.bias)
-  meth$null.effect <- makeunique(meth$null.effect) 
+  if (!missing(prediction)) {
+    if (length(prediction) == 1)
+      prediction <- rep_len(prediction, n.meta)
+    #
+    if (!is.logical(prediction))
+      stop("Argument 'prediction' must contain logical values.",
+           call. = TRUE)
+    #
+    chklength(prediction, n.meta,
+              text = paste("Length of argument 'prediction' differs from",
+                           "number of meta-analyses."))
+  }
+  else {
+    for (i in seq.meta)
+      prediction <- c(prediction, replaceNULL(args[[i]]$prediction, FALSE))
+  }
   #
-  meth$title <- makeunique(meth$title, "")
-  meth$complab <- makeunique(meth$complab, "")
-  meth$outclab <- makeunique(meth$outclab, "")
-  #
-  meth$label.e <- makeunique(meth$label.e, "")
-  meth$label.c <- makeunique(meth$label.c, "")
-  meth$label.left <- makeunique(meth$label.left, "")
-  meth$label.right <- makeunique(meth$label.right, "")
-  #
-  meth$print.subgroup.name <- makeunique(meth$print.subgroup.name, FALSE)
-  meth$sep.subgroup <- makeunique(meth$sep.subgroup, "")
-  meth$warn <- makeunique(meth$warn, FALSE)
-  #
-  meth$backtransf <-
-    if (missing.backtransf)
-      any(meth$backtransf)
-    else
-      backtransf
-  meth$pscale <- makeunique(meth$pscale, 1)
-  meth$irscale <- makeunique(meth$irscale, 1)
-  meth$irunit <- makeunique(meth$irunit, "")
-  #
-  if (!(any(common) | any(random) | any(prediction))) {
-    warning("No results to bind.", call. = FALSE)
-    return(NULL)
+  for (i in seq.meta) {
+    args[[i]]$common <- common[i]
+    args[[i]]$random <- random[i]
+    args[[i]]$prediction <- prediction[i]
   }
   #
   # Name of meta-analysis object
@@ -435,332 +340,134 @@ metabind <- function(..., subgroup = NULL,
   #
   # Names for meta-analyses must be unique
   #
-  if (length(unique(name)) != length(name) & missing.subgroup) {
+  if (length(unique(name)) != length(name)) {
     for (i in seq.meta)
       if (name[i] %in% c("metabin", "metainc", "metaprop", "metarate") &
           !is.trimfill[i])
         name[i] <- paste(name[i], args[[i]]$method, sep = ".")
   }
   #
-  if (length(unique(name)) != length(name) & missing.subgroup) {
+  if (length(unique(name)) != length(name)) {
     for (i in seq.meta)
       if (random[i])
         name[i] <- paste(name[i], args[[i]]$method.tau, sep = ".")
   }
   #
-  if (length(unique(name)) != length(name) & missing.subgroup)
+  if (length(unique(name)) != length(name))
     name <- paste0("meta", seq.meta)
   #
-  # Check if more than one common effect / random effects CI or PI is
-  # provided
+  # Back-transformation
   #
-  for (i in seq.meta) {
-    if (length(args[[i]]$lower.common) > 1) {
-      ith <- min(i, 4)
-      stop("More than one result for common effect model provided in ",
-           i, switch(ith, "st", "nd", "rd", "th"),
-           " meta-analysis.",
-           call. = FALSE)
-    }
-  }
-  #
-  for (i in seq.meta) {
-    if (length(args[[i]]$lower.random) > 1) {
-      ith <- min(i, 4)
-      stop("More than one result for random effects model provided in ",
-           i, switch(ith, "st", "nd", "rd", "th"),
-           " meta-analysis.",
-           call. = FALSE)
-    }
-  }
-  #
-  for (i in seq.meta) {
-    if (length(args[[i]]$lower.predict) > 1) {
-      ith <- min(i, 4)
-      stop("More than one prediction interval provided in ",
-           i, switch(ith, "st", "nd", "rd", "th"),
-           " meta-analysis.",
-           call. = FALSE)
-    }
-  }
-  
-  
-  # #
-  # # Show individual results
-  # #
-  show.studies <- TRUE
-  overall.hetstat <- TRUE
-  # #
-  # if (length(unique(meth$method)) != 1 |
-  #     length(unique(meth$method.tau)) != 1) {
-  #   show.studies <- FALSE
-  #   overall.hetstat <- FALSE
-  # }
-  
-  
+  if (missing.backtransf)
+    backtransf <- any(condense(args, "backtransf"))
+  else
+    chklogical(backtransf)
+
+
   #
   #
-  # (3) Extract meta-analysis data
+  # (2) Extract meta-analytical methods
   #
   #
-  
-  meta.list <- vector("list", n.meta)
-  #
-  if (with.subgroups)
-    for (i in seq.meta)
-      meta.list[[i]] <-
-        subgr2meta(args[[i]], common[i], random[i], prediction[i], name[i])
-  else {
-    for (i in seq.meta)
-      meta.list[[i]] <-
-        overall2meta(args[[i]], common[i], random[i], prediction[i], name[i])
-  }
-  #
-  meta <- list()
-  #
-  for (i in names(meta.list[[1]]))
-    meta[[i]] <- condense(meta.list, i)
-  
-  
-  #
-  #
-  # (4) Extract meta-analysis results and store them in subgroups
-  #
-  #
-  
-  subgroup.list <- vector("list", n.meta)
-  #
-  for (i in seq.meta)
-    subgroup.list[[i]] <- overall2subgr(args[[i]])
-  #
-  subgroup <- list()
-  #
-  for (i in names(subgroup.list[[1]]))
-    subgroup[[i]] <- condense(subgroup.list, i)
-  #
-  if (!with.subgroups) {
-    subgroup$subgroup.levels <- name
-  }
-  
-  
-  #
-  #
-  # (5) Extract study data
-  #
-  #
-  
-  data.list <- vector("list", n.meta)
-  #
+
   if (with.subgroups) {
-    for (i in seq.meta)
-      data.list[[i]] <-
-        subgr2data(args[[i]], common[i], random[i], prediction[i], name[i])
+    # TODO
+    warning("Not yet implemented.")
+    return(invisible(metagen(1, 1)))
   }
   else {
-    if (!is.null(subgroup.meta)) {
-      if (length(subgroup.meta == 1))
-        subgroup.meta <- rep_len(subgroup.meta, n.meta)
-      else if (length(subgroup.meta) != n.meta)
-        stop("Argument 'subgroup' must be of same length as ",
-             "number of meta-analysis results.",
-             call. = FALSE)
-    }
-    else
-      subgroup.meta <- rep("", n.meta)
     #
-    for (i in seq.meta)
-      data.list[[i]] <-
-        overall2data(args[[i]], common[i], random[i], prediction[i], name[i],
-                     subgroup.meta[[i]])
-  }
-  #
-  data <- do.call("rbind", data.list)
-  #
-  if (!with.subgroups & all(subgroup.meta == ""))
-    data <- data[, names(data) != "subgroup"]
-  
-  
-  #
-  #
-  # (6) Generate meta-analysis object
-  #
-  #
-  res <- c(meta, meth, subgroup)
-  #
-  res$data <- data
-  #
-  res$common.meta <- common
-  res$random.meta <- random
-  res$prediction.meta <- prediction
-  #
-  if (!with.subgroups) {
-    res$n.harmonic.mean <- res$n.harmonic.mean.ma
-    res$t.harmonic.mean <- res$t.harmonic.mean.ma
-  }
-  else {
-    res$n.harmonic.mean.ma <- unique(res$n.harmonic.mean.ma)
-    res$t.harmonic.mean.ma <- unique(res$t.harmonic.mean.ma)
-  }
-  #
-  res$call <- match.call()
-  res$version <- packageDescription("meta")$Version
-  #
-  res$show.studies <- show.studies
-  #
-  res$with.subgroups <- with.subgroups
-  res$samedata <- samedata
-  #
-  res$method <- unique(res$method)
-  res$method.random <- unique(res$method.random)
-  res$method.common.ci <- unique(res$method.common.ci)
-  res$method.random.ci <- unique(res$method.random.ci)
-  res$three.level <- unique(res$three.level)
-  res$adhoc.hakn.ci <- unique(res$adhoc.hakn.ci)
-  res$tau.common <- unique(res$tau.common)
-  #
-  if (with.subgroups & samedata) {
-    sel.c <-
-      !duplicated(
-         data.frame(res$TE.common,
-                    res$lower.common,
-                    res$upper.common))
+    # Extract overall results
     #
-    res$TE.common <- res$TE.common[sel.c]
-    res$seTE.common <- res$seTE.common[sel.c]
-    res$lower.common <- res$lower.common[sel.c]
-    res$upper.common <- res$upper.common[sel.c]
-    res$statistic.common <- res$statistic.common[sel.c]
-    res$pval.common <- res$pval.common[sel.c]
+    res.overall <- res.common <- res.random <- res.predict <- NULL
     #
-    res$text.common <-
-      if (is.null(res$text.common))
-        gs("text.common")
-      else
-        res$text.common <- res$text.common[sel.c]
-    #
-    sel.r <-
-      !duplicated(
-         data.frame(res$TE.random,
-                    res$lower.random,
-                    res$upper.random))
-    #
-    res$TE.random <- res$TE.random[sel.r]
-    res$seTE.random <- res$seTE.random[sel.r]
-    res$lower.random <- res$lower.random[sel.r]
-    res$upper.random <- res$upper.random[sel.r]
-    res$statistic.random <- res$statistic.random[sel.r]
-    res$pval.random <- res$pval.random[sel.r]
-    #
-    res$text.random <-
-      if (is.null(res$text.random))
-        gs("text.random")
-      else
-        res$text.random <- res$text.random[sel.r]
-    #
-    res$df.random <- unique(res$df.random)
-    res$df.hakn <- unique(res$df.hakn)
-    res$df.kero <- unique(res$df.kero)
-    #
-    sel.p <-
-      !duplicated(
-         data.frame(res$lower.predict,
-                    res$upper.predict))
-    #
-    res$lower.predict <- res$lower.predict[sel.p]
-    res$upper.predict <- res$upper.predict[sel.p]
-    #
-    res$text.predict <- 
-      if (is.null(res$text.predict))
-        gs("text.predict")
-      else
-        res$text.predict[sel.p]
-    #
-    res$n.e <- unique(res$n.e)
-    res$n.c <- unique(res$n.c)
-    #
-    res$k <- unique(res$k)
-    res$k.study <- unique(res$k.study)
-    res$k.all <- unique(res$k.all)
-    res$k.TE <- unique(res$k.TE)
-    #
-    res$tau2 <- unique(res$tau2)
-    res$tau <- unique(res$tau)
-    #
-    res$detail.tau <- NULL
-    #
-    res$H <- unique(res$H)
-    res$lower.H <- unique(res$lower.H)
-    res$upper.H <- unique(res$upper.H)
-    #
-    res$I2 <- unique(res$I2)
-    res$lower.I2 <- unique(res$lower.I2)
-    res$upper.I2 <- unique(res$upper.I2)
-    #
-    res$Rb <- unique(res$Rb)
-    res$lower.Rb <- unique(res$lower.Rb)
-    res$upper.Rb <- unique(res$upper.Rb)
-    #
-    res$subgroup.name <- "meta-analysis"
-    res$w.common <- res$w.random <- rep(0, length(res$TE))
-    res$w.common.w <- rep(0, length(res$TE.common.w))
-    res$w.random.w <- rep(0, length(res$TE.random.w))
-    res$lower.predict.w <- rep(NA, length(res$w.random.w))
-    res$upper.predict.w <- rep(NA, length(res$w.random.w))
-    #
-    res$Q.b.common <- unique(res$Q.b.common)
-    res$Q.b.random <- unique(res$Q.b.random)
-    res$df.Q.b <- unique(res$df.Q.b)
-    res$pval.Q.b.common <- unique(res$pval.Q.b.common)
-    res$pval.Q.b.random <- unique(res$pval.Q.b.random)
-  }
-  else {
-    res$TE.common <- res$seTE.common <-
-      res$lower.common <- res$upper.common <-
-        res$statistic.common <- res$pval.common <- NA
-    #
-    res$TE.random <- res$seTE.random <-
-      res$lower.random <- res$upper.random <-
-        res$statistic.random <- res$pval.random <- NA
-    #
-    res$lower.predict <- res$upper.predict <- NA
-    #
-    if (!with.subgroups) {
-      res$studlab <- res$data$studlab
-      res$TE <- res$data$TE
-      res$seTE <- res$data$seTE
-      res$lower <- res$data$lower
-      res$upper <- res$data$upper
-      res$statistic <- res$data$statistic
-      res$pval <- res$data$pval
-      res$zval <- res$data$statistic
+    for (i in seq.meta) {
+      res.overall <-
+        bind_rows(res.overall,
+                  extrMA(i, args, name, "overall", outclab))
       #
-      res$w.common <- res$w.random <- rep_len(NA, length(res$studlab))
+      if (args[[i]]$common) {
+        res.common <-
+          bind_rows(res.common,
+                    extrMA(i, args, name, "common", outclab))
+      }
       #
-      res$text.w.common <- res$text.w.random <- ""
+      if (args[[i]]$random) {
+        res.random <-
+          bind_rows(res.random,
+                    extrMA(i, args, name, "random", outclab))
+      }
+      #
+      if (args[[i]]$prediction) {
+        res.predict <-
+          bind_rows(res.predict,
+                    extrMA(i, args, name, "prediction", outclab))
+      }
     }
+    #
+    # Check whether IDs are unique and consecutive
+    #
+    ids <- res.overall$id
+    #
+    if (is.null(ids) || anyDuplicated(ids) ||
+        !identical(sort(unique(ids)), seq_len(nrow(res.overall)))) {
+      stop(
+        "Internal error in metabind(): invalid IDs in element 'overall'. ",
+        "Please report this issue with a reproducible example and ",
+        "session information at ",
+        "https://github.com/guido-s/meta/issues.",
+        call. = FALSE
+      )
+    }
+    #
+    if (!is.null(res.common))
+      rownames(res.common) <- seq_len(nrow(res.common))
+    #
+    if (!is.null(res.random))
+      rownames(res.random) <- seq_len(nrow(res.random))
+    #
+    if (!is.null(res.predict))
+      rownames(res.predict) <- seq_len(nrow(res.predict))
+    #
+    # Cleanup
+    #
+    res.overall <- drop_allNAs(res.overall)
+    #
+    if (!is.null(res.common))
+      res.common <- drop_allNAs(res.common)
+    #
+    if (!is.null(res.random)) {
+      res.random <- drop_allNAs(res.random)
+      #
+      res.random$df.hakn[res.random$method.interval != "HK"] <- NA
+      res.random$df.kero[res.random$method.interval != "KR"] <- NA
+    }
+    #
+    if (!is.null(res.predict)) {
+      res.predict <- drop_allNAs(res.predict)
+      #
+      res.predict$df.hakn[!grepl("HK", res.predict$method.interval)] <- NA
+      res.predict$df.kero[!grepl("KR", res.predict$method.interval)] <- NA
+    }
+    #
+    # Return results
+    #
+    res <- list(
+      overall = res.overall,
+      #
+      common = res.common,
+      random = res.random,
+      predict = res.predict,
+      #
+      with.subgroups = with.subgroups,
+      #
+      backtransf = backtransf,
+      #
+      version = packageDescription("meta")$Version,
+      call = match.call())
+    #
+    class(res) <- "metabind"
+    #
+    return(res)
   }
-  #
-  if (all(is.na(res$tau.preset)))
-    res$tau.preset <- NULL
-  #
-  res$Q.w.common <- NA
-  res$Q.w.random <- NA
-  res$df.Q.w <- NA
-  res$pval.Q.w.common <- NA
-  res$pval.Q.w.random <- NA
-  #
-  res$is.limit.copas <- is.limit.copas
-  #
-  res$classes <- unique(as.vector(sapply(args, function(x) class(x))))
-  res$classes <- res$classes[res$classes != "meta"]
-  #
-  # Backward compatibility
-  #
-  res <- backward(res)
-  #  
-  class(res) <- c("metabind", "meta")
-  
-  res$list <- list(meth = meth, meta = meta, subgroup = subgroup, data = data)
-  
-  res
 }

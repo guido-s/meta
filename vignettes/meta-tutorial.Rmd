@@ -187,9 +187,10 @@ Create Figure 4 (file 'figure4.pdf').
 forest(mbr, xlim = c(0.5, 4),
   leftcols = c("studlab", "I2", "tau2", "Q", "pval.Q"),
   leftlab = c("Meta-Analysis Method", "I2", "Tau2", "Q", "P-value"),
+  layout = "meta8",
   type = "diamond",
-  digits.addcols = c(4, 2, 2, 2), just.addcols = "right",
-  file = "figure4.pdf", width = 10)
+  digits.I2 = 0, details = TRUE,
+  file = "figure4.pdf")
 ```
 
 ```{r, echo = FALSE, out.width = "95%"}

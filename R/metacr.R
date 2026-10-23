@@ -312,12 +312,12 @@ metacr <- function(x, comp.no = 1, outcome.no = 1,
   chklevel(level)
   chklevel(level.ma)
   #
-  method.common.ci <- setchar(method.common.ci, gs("meth4common.ci"))
+  method.common.ci <- setchar(method.common.ci, gs("meth4common.ci"), length = 1)
   #
-  method.tau <- setchar(method.tau, gs("meth4tau"))
+  method.tau <- setchar(method.tau, gs("meth4tau"), length = 1)
   if (is.null(method.tau.ci))
     method.tau.ci <- if (method.tau == "DL") "J" else "QP"
-  method.tau.ci <- setchar(method.tau.ci, gs("meth4tau.ci"))
+  method.tau.ci <- setchar(method.tau.ci, gs("meth4tau.ci"), length = 1)
   chklogical(tau.common)
   #
   method.I2 <- setchar(method.I2, gs("meth4i2"))

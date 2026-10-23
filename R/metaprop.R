@@ -710,7 +710,7 @@ metaprop <- function(event, n, studlab,
   is.glmm <- method == "GLMM"
   #
   missing.method.common.ci <- missing(method.common.ci)
-  method.common.ci <- setchar(method.common.ci, gs("meth4common.ci"))
+  method.common.ci <- setchar(method.common.ci, gs("meth4common.ci"), length = 1)
   #
   if (method != "Inverse" & method.common.ci == "IVhet") {
     if (!missing.method.common.ci)
@@ -728,7 +728,7 @@ metaprop <- function(event, n, studlab,
   missing.method.tau <- missing(method.tau)
   if (missing.method.tau)
     method.tau <- if (method == "GLMM") "ML" else gs("method.tau")
-  method.tau <- setchar(method.tau, gs("meth4tau"))
+  method.tau <- setchar(method.tau, gs("meth4tau"), length = 1)
   #
   missing.tau.common <- missing(tau.common)
   tau.common <- replaceNULL(tau.common, FALSE)
@@ -1606,10 +1606,6 @@ metaprop <- function(event, n, studlab,
     #
     res <- setNAwithin(res, res$three.level | is.glmm)
   }
-  #
-  # Backward compatibility
-  #
-  res <- backward(res)
   #
   class(res) <- c(fun, "meta")
 

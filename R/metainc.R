@@ -585,11 +585,11 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   #
   chklevel(level)
   #
-  method.tau <- setchar(method.tau, gs("meth4tau"))
+  method.tau <- setchar(method.tau, gs("meth4tau"), length = 1)
   #
   if (is.null(method.tau.ci))
     method.tau.ci <- if (method.tau == "DL") "J" else "QP"
-  method.tau.ci <- setchar(method.tau.ci, gs("meth4tau.ci"))
+  method.tau.ci <- setchar(method.tau.ci, gs("meth4tau.ci"), length = 1)
   #
   tau.common <- replaceNULL(tau.common, FALSE)
   chklogical(tau.common)
@@ -643,7 +643,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   #
   method <- setchar(method, gs("meth4inc"))
   #
-  method.common.ci <- setchar(method.common.ci, gs("meth4common.ci"))
+  method.common.ci <- setchar(method.common.ci, gs("meth4common.ci"), length = 1)
   #
   if (method != "Inverse" & method.common.ci == "IVhet") {
     if (!missing.method.common.ci)
@@ -1722,10 +1722,6 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   #
   if (res$method.random %in% c("MH", "Cochran"))
     res$method.random <- "Inverse"
-  #
-  # Backward compatibility
-  #
-  res <- backward(res)
   #
   class(res) <- c(fun, "meta")
 

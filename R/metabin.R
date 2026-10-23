@@ -828,7 +828,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   is.glmm <- method == "GLMM"
   is.lrp <- method == "LRP"
   #
-  method.common.ci <- setchar(method.common.ci, gs("meth4common.ci"))
+  method.common.ci <- setchar(method.common.ci, gs("meth4common.ci"), length = 1)
   #
   if (method != "Inverse" & method.common.ci == "IVhet") {
     if (!missing.method.common.ci)
@@ -847,7 +847,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
       method.tau <- gs("method.tau")
   }
   #
-  method.tau <- setchar(method.tau, c(gs("meth4tau"), "KD"))
+  method.tau <- setchar(method.tau, c(gs("meth4tau"), "KD"), length = 1)
   #
   tau.common <- replaceNULL(tau.common, FALSE)
   chklogical(tau.common)
@@ -2349,10 +2349,6 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     #
     res$version.brglm2 <- packageDescription("brglm2")$Version
   }
-  #
-  # Backward compatibility
-  #
-  res <- backward(res)
   #
   class(res) <- c(fun, "meta")
 

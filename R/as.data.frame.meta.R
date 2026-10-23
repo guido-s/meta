@@ -8,9 +8,8 @@
 #' @param x An object of class \code{meta}.
 #' @param row.names \code{NULL} or a character vector giving the row
 #'   names for the data frame.
-#' @param optional logical. If \code{TRUE}, setting row names and
-#'   converting column names (to syntactic names) is optional.
-#' @param \dots other arguments
+#' @param optional Argument is ignored.
+#' @param \dots Other arguments (ignored).
 #' 
 #' @return A data frame is returned by the function \code{as.data.frame}.
 #' 
