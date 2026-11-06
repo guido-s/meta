@@ -4016,6 +4016,7 @@ forest.meta <- function(x,
       tau2 = label.tau2,
       tau = label.tau,
       I2 = label.I2,
+      pval.Q = label.pval,
       cluster = if (three.level) label.cluster else NA,
       cycles  = if (n_of_1) label.cycles else NA)
     #
@@ -4065,12 +4066,6 @@ forest.meta <- function(x,
                 match2.i <- match(rightcols.new[i], colnames)
                 if (!is.na(match2.i))
                   rightlabs.new[i] <- labnames[match2.i]
-                else if (rightcols.new[i] == "tau2")
-                  rightlabs.new[i] <- label.tau2
-                else if (rightcols.new[i] == "tau")
-                  rightlabs.new[i] <- label.tau
-                else if (rightcols.new[i] == "I2")
-                  rightlabs.new[i] <- label.I2
               }
             }
           }
@@ -4122,12 +4117,6 @@ forest.meta <- function(x,
               match2.i <- match(leftcols.new[i], colnames)
               if (!is.na(match2.i))
                 leftlabs.new[i] <- labnames[match2.i]
-              else if (leftcols.new[i] == "tau2")
-                leftlabs.new[i] <- label.tau2
-              else if (leftcols.new[i] == "tau")
-                leftlabs.new[i] <- label.tau
-              else if (leftcols.new[i] == "I2")
-                leftlabs.new[i] <- label.I2
             }
           }
         }

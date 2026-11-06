@@ -692,16 +692,17 @@ forest.metabind <- function(x,
   #
   label.studlab <- ifelse(with.subgroups, "Subgroup", "Method")
   #
-  cols <- c("studlab", "model", "k",
+  cols <- c("studlab", "model",
+            "k",
             "sm",
             "tau2", "tau",
-            "pval.Q.b", "pval.Q",
-            "null.effect")
-  labs <- c(label.studlab, "Model", "Number of\nStudies",
+            "pval.Q.b", "null.effect")
+  labs <- c(label.studlab, "Model",
+            if (with.subgroups) "Number of\nStudies" else NA,
             "Effect\nmeasure",
-            "Between-study\nvariance", "Between-study\nSD",
-            "P-value\nInteraction", "P-value\nQ-test",
-            "Null\neffect")
+            if (with.subgroups) "Between-study\nvariance" else NA,
+            if (with.subgroups) "Between-study\nSD" else NA,
+            "Interaction\nP-value", "Null\neffect")
   #
   if (any(is.na(leftlabs))) {
     for (i in seq_along(cols))
