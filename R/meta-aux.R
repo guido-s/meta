@@ -60,9 +60,10 @@ int2num <- function(x) {
 npn <- function(x)
   is.na(x) | x <= 0
 
-replaceNULL <- function(x, replace = NA) {
-  if (is.null(x))
+replaceNULL <- function(x, replace = NA, chklength = FALSE) {
+  if (is.null(x) || (chklength && length(x) == 0))
     return(replace)
+  #
   x
 }
 
@@ -1276,4 +1277,11 @@ format_seq <- function(x, exclude = NULL, digits = NULL) {
     as.character(exclude)
   else
     paste0("{", paste(x, collapse = ", "), "}")
+}
+
+sum_or_na <- function(x) {
+  if (is.null(x) || length(x) == 0 || all(is.na(x)))
+    return(NA)
+  #
+  sum(x, na.rm = TRUE)
 }

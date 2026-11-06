@@ -31,9 +31,10 @@ smlab <- function(sm, backtransf, pscale, irscale,
   else {
     if (sm == "VE")
       res <- paste0(gs("log.prefix"), "VR")
-    else if (is_relative_effect(sm) ||
-             (!is.null(func.backtransf) && func.backtransf == "exp"))
+    else if (is_relative_effect(sm))
       res <- paste0(gs("log.prefix"), sm)
+    else if (!is.null(func.backtransf) && func.backtransf == "exp")
+      res <- paste0(gs("log.prefix"), "(", sm, ")")
   }
   #
   res

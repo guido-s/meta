@@ -2,17 +2,19 @@ extrMA <- function(id, x, name, type = "overall", outclab = NULL) {
   x <- x[[id]]
   #
   type <-
-    setchar(type, c("overall", "prediction", "common", "random"), length = 1)
+    setchar(type, c("overall", "common", "random", "prediction"), length = 1)
   #
   common <- type == "common"
   random <- type == "random"
   #
-  metamiss <- inherits(x, "metamiss")
+  metagen <- inherits(x, "metagen")
   metabin <- inherits(x, "metabin")
   metacont <- inherits(x, "metacont")
   metainc <- inherits(x, "metainc")
   metaprop <- inherits(x, "metaprop")
   metarate <- inherits(x, "metarate")
+  trimfill <- inherits(x, "trimfill")
+  metamiss <- inherits(x, "metamiss")
   #
   if (type == "overall") {
     res <- data.frame(
@@ -54,7 +56,13 @@ extrMA <- function(id, x, name, type = "overall", outclab = NULL) {
       tau.common = replaceNULL(x$tau.common)
     )
     #
-    if (metabin) {
+    if (metagen) {
+      res$func.transf <- replaceNULL(x$func.transf)
+      res$args.transf <- replaceNULL(x$args.transf)
+      res$func.backtransf <- replaceNULL(x$func.backtransf)
+      res$args.backtransf <- replaceNULL(x$args.backtransf)
+    }
+    else if (metabin) {
       res$MH.exact <- x$MH.exact
       #
       res$RR.Cochrane <- x$RR.Cochrane
@@ -66,6 +74,8 @@ extrMA <- function(id, x, name, type = "overall", outclab = NULL) {
       res$allstudies <- x$allstudies
       res$sparse <- x$sparse
       res$doublezeros <- x$doublezeros
+      #
+      res$phi <- replaceNULL(x$phi)
     }
     #
     else if (metacont) {
@@ -90,6 +100,7 @@ extrMA <- function(id, x, name, type = "overall", outclab = NULL) {
       #
       res$incr <- format_seq(x$incr, exclude = 0, digits = 4)
       res$method.incr <- x$method.incr
+      res$sparse <- x$sparse
     }
     #
     else if (metarate || is_rate(x$sm)) {
@@ -113,13 +124,26 @@ extrMA <- function(id, x, name, type = "overall", outclab = NULL) {
     res$k.all <- x$k.all
     res$k.TE <- x$k.TE
     res$k.MH <- replaceNULL(x$k.MH)
-    res$k0 <- replaceNULL(x$k0)
+    #
+    if (trimfill) {
+      res$k0 <- replaceNULL(x$k0)
+      res$type.tf <- replaceNULL(x$type, "")
+    }
     #
     res$n.harmonic.mean <- replaceNULL(x$n.harmonic.mean)
     res$t.harmonic.mean <- replaceNULL(x$t.harmonic.mean)
     #
-    res$n.e <- sum(replaceNULL(x$n.e), na.rm = TRUE)
-    res$n.c <- sum(replaceNULL(x$n.c), na.rm = TRUE)
+    res$n.e <- sum_or_na(x$n.e)
+    res$n.c <- sum_or_na(x$n.c)
+    res$n <- sum_or_na(x$n)
+    #
+    res$event.e <- sum_or_na(x$event.e)
+    res$event.c <- sum_or_na(x$event.c)
+    res$event <- sum_or_na(x$event)
+    #
+    res$time.e <- sum_or_na(x$time.e)
+    res$time.c <- sum_or_na(x$time.c)
+    res$time <- sum_or_na(x$time)
     #
     res$Q <- x$Q[1]
     res$df.Q <- x$df.Q[1]
@@ -143,62 +167,163 @@ extrMA <- function(id, x, name, type = "overall", outclab = NULL) {
     res$lower.Rb <- x$lower.Rb
     res$upper.Rb <- x$upper.Rb
   }
-  else if (common || random) {
+  else if (common) {
     res <- data.frame(
       id,
+      model = "Common effect model",
+      method = x$method,
       #
-      model = if (common) "common" else "random",
-      method = if (common) x$method else x$method.random,
+      method.interval = x$method.common.ci,
+      adhoc.hakn = NA,
       #
-      method.interval = if (common) x$method.common.ci else x$method.random.ci,
-      adhoc.hakn = if (common) NA else x$adhoc.hakn.ci
-      )
-    #
-    if (common) {
-      res$adhoc.hakn <- NULL
+      df = NA,
+      df.hakn = NA,
+      df.kero = NA,
       #
-      res$TE <- x$TE.common
-      res$seTE <- x$seTE.common
-      res$lower <- x$lower.common
-      res$upper <- x$upper.common
-      res$statistic <- x$statistic.common
-      res$pval <- x$pval.common
-      res$text <- x$text.common
-    }
-    else {
-      res$TE <- x$TE.random
-      res$seTE <- x$seTE.random
-      res$lower <- x$lower.random
-      res$upper <- x$upper.random
-      res$statistic <- x$statistic.random
-      res$pval <- x$pval.random
-      res$text <- x$text.random
+      TE = x$TE.common,
+      seTE = x$seTE.common,
+      lower = x$lower.common,
+      upper = x$upper.common,
+      statistic = x$statistic.common,
+      pval = x$pval.common,
       #
-      res$df <- replaceNULL(x$df.random)
-      res$df.hakn <- replaceNULL(x$df.hakn.ci)
-      res$df.kero <- replaceNULL(x$df.kero)
-    }
+      text = x$text.common
+    )
+  }
+  else if (random) {
+    res <- data.frame(
+      id,
+      model = "Random effects model",
+      method = x$method.random,
+      #
+      method.interval = x$method.random.ci,
+      adhoc.hakn = x$adhoc.hakn.ci,
+      #
+      df = replaceNULL(x$df.random),
+      df.hakn = replaceNULL(x$df.hakn.ci),
+      df.kero = replaceNULL(x$df.kero),
+      #
+      TE = x$TE.random,
+      seTE = x$seTE.random,
+      lower = x$lower.random,
+      upper = x$upper.random,
+      statistic = x$statistic.random,
+      pval = x$pval.random,
+      #
+      text = x$text.random
+    )
   }
   else if (type == "prediction") {
     res <- data.frame(
       id,
-      model = "predict",
+      model = "Prediction interval",
+      method = x$method.random,
       #
       method.interval = x$method.predict,
       adhoc.hakn = x$adhoc.hakn.pi,
+      #
+      df = x$df.predict,
+      df.hakn = replaceNULL(x$df.hakn.pi),
+      df.kero = replaceNULL(x$df.kero),
       #
       seTE = x$seTE.predict,
       lower = x$lower.predict,
       upper = x$upper.predict,
       #
-      df = x$df.predict,
-      df.hakn = replaceNULL(x$df.hakn.pi),
-      df.kero = replaceNULL(x$df.kero)
+      text = x$text.predict
     )
   }
   #
   res
 }
+
+extrSub <- function(id, x, type = "common") {
+  x <- x[[id]]
+  #
+  n.by <- length(x$subgroup.levels)
+  #
+  type <- setchar(type, c("common", "random", "prediction"), length = 1)
+  #
+  if (is.numeric(x$subgroup.levels))
+    x$subgroup.levels <- as.character(x$subgroup.levels)
+  #
+  if (type == "common") {
+    res <- data.frame(
+      id = id,
+      #
+      subgroup.name = x$subgroup.name,
+      subgroup.levels = x$subgroup.levels,
+      k.w = x$k.w,
+      #
+      TE = matrix(list2mat(x$TE.common.w), ncol = 1),
+      seTE = matrix(list2mat(x$seTE.common.w), ncol = 1),
+      lower = matrix(list2mat(x$lower.common.w), ncol = 1),
+      upper = matrix(list2mat(x$upper.common.w), ncol = 1),
+      statistic = matrix(list2mat(x$statistic.common.w), ncol = 1),
+      pval = matrix(list2mat(x$pval.common.w), ncol = 1),
+      #
+      Q.b = x$Q.b.common,
+      df.Q.b = x$df.Q.b.common,
+      pval.Q.b = x$pval.Q.b.common
+    )
+  }
+  else if (type == "random") {
+    method <- rep(colnames(x$lower.random.w),
+                  rep(nrow(x$lower.random.w),
+                      ncol(x$lower.random.w)))
+    method <- replaceNULL(method, x$method.random.ci)
+    #
+    res <- data.frame(
+      id = id,
+      #
+      method.interval = method,
+      adhoc.hakn = x$adhoc.hakn.ci,
+      #
+      subgroup.name = x$subgroup.name,
+      subgroup.levels = x$subgroup.levels,
+      k.w = x$k.w,
+      #
+      TE = matrix(list2mat(x$TE.random.w), ncol = 1),
+      seTE = matrix(list2mat(x$seTE.random.w), ncol = 1),
+      lower = matrix(list2mat(x$lower.random.w), ncol = 1),
+      upper = matrix(list2mat(x$upper.random.w), ncol = 1),
+      df = matrix(list2mat(x$df.random.w), ncol = 1),
+      statistic = matrix(list2mat(x$statistic.random.w), ncol = 1),
+      pval = matrix(list2mat(x$pval.random.w), ncol = 1),
+      #
+      Q.b = x$Q.b.random,
+      df.Q.b = x$df.Q.b.random,
+      pval.Q.b = x$pval.Q.b.random
+    )
+  }
+  else if (type == "prediction") {
+    method <- rep(colnames(x$lower.predict.w),
+                  rep(nrow(x$lower.predict.w),
+                      ncol(x$lower.predict.w)))
+    method <- replaceNULL(method, x$method.predict)
+    #
+    res <- data.frame(
+      id = id,
+      #
+      method.interval = method,
+      adhoc.hakn = x$adhoc.hakn.pi,
+      #
+      subgroup.name = x$subgroup.name,
+      subgroup.levels = x$subgroup.levels,
+      k.w = x$k.w,
+      #
+      lower = matrix(list2mat(x$lower.predict.w), ncol = 1),
+      upper = matrix(list2mat(x$upper.predict.w), ncol = 1),
+      df = matrix(list2mat(x$df.predict.w), ncol = 1)
+    )
+  }
+  #
+  res$n.harmonic.mean <- replaceNULL(x$n.harmonic.mean.w)
+  res$t.harmonic.mean <- replaceNULL(x$t.harmonic.mean.w)
+  #
+  res
+}
+
 
 subgr2meta <- function(x, common, random, prediction, name) {
   n.subgr <- length(x$subgroup.levels)
@@ -275,6 +400,15 @@ subgr2meta <- function(x, common, random, prediction, name) {
     #
     n.e = replaceNULL(x$n.e),
     n.c = replaceNULL(x$n.c),
+    n = replaceNULL(x$n),
+    #
+    event.e = replaceNULL(x$event.e),
+    event.c = replaceNULL(x$event.c),
+    event = replaceNULL(x$event),
+    #
+    time.e = replaceNULL(x$time.e),
+    time.c = replaceNULL(x$time.c),
+    time = replaceNULL(x$time),
     #
     Q = x$Q[1],
     df.Q = x$df.Q[1],
@@ -303,11 +437,15 @@ subgr2meta <- function(x, common, random, prediction, name) {
   res
 }
 
-makeunique <- function(x, val = NA) {
+makeunique <- function(x, val = NA, orig = FALSE) {
   res <- unique(x)
   #
-  if (length(res) != 1)
-    res <- val
+  if (length(res) != 1) {
+    if (orig)
+      return(res)
+    else
+      res <- val
+  }
   #
   res
 }

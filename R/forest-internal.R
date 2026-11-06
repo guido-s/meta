@@ -1530,8 +1530,8 @@ newCol <- function(varname, label,
   #
   if (by) {
     is_NA <- fvar == lab.NA
-    is_w <- rep(TRUE, length(fvar))
-    is_w[seq_len(n.com + n.ran + n.prd)] <- FALSE
+    is_w <- rep(FALSE, length(fvar))
+    is_w[n.com + n.ran + n.prd + seq_len(n.subgroup)] <- TRUE
     #
     fvar[is_NA & is_w] <- ""
   }
@@ -1879,12 +1879,18 @@ print_defaults <- function(x, class = "meta") {
   }
   else if (class == "metabind") {
     res <- list(
+      studlab = TRUE,
+      model = NULL,
       k = TRUE,
+      sm = NULL,
       pval = FALSE,
       stat = FALSE,
+      null.effect = FALSE,
       I2 = FALSE,
-      tau2 = NULL,
-      tau = FALSE,
+      tau2 = gs("forest.tau2"),
+      tau2.ci = gs("forest.tau2.ci"),
+      tau = gs("forest.tau"),
+      tau.ci = gs("forest.tau.ci"),
       Q = FALSE,
       pval.Q = FALSE,
       pval.Q.b = NULL,

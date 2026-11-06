@@ -179,11 +179,11 @@ subgroups.}
 matrix indicating whether / which prediction intervals should be printed
 for subgroups.}
 
-\item{subgroup.name}{A character string with a label for the
-grouping variable.}
+\item{subgroup.name}{A character string with a label for the grouping
+variable.}
 
-\item{sep.subgroup}{A character string defining the separator
-between label and levels of grouping variable.}
+\item{sep.subgroup}{A character string defining the separator between label
+and levels of grouping variable.}
 
 \item{sort.subgroup}{A logical indicating whether groups should be
 ordered alphabetically.}

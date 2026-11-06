@@ -248,6 +248,12 @@
     forest plot spacing. User-specified values for arguments
     `colgap.forest.left` and `colgap.forest.right` take precedence over the
     automatic calculation
+  - correctly align p-value and test-statistic columns in forest plots with
+    subgroups, including subgroup estimates; previously, these columns could
+    cause a plotting error
+  - preserve `lab.NA` for missing values in additional columns on individual
+    result rows when subgroups are displayed; previously, these labels were
+    incorrectly replaced by empty strings
 
 * `bubble()`, `forest.meta()`, `metabin()`, `metagen()`, `metainc()`,
   `metaprop()`, `metarate()`, `print.meta()`, `print.summary.meta()`, `rd()`,

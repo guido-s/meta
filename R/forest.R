@@ -55,10 +55,10 @@
 #' @param prediction.subgroup A single logical, logical vector, or logical
 #'   matrix indicating whether / which prediction intervals should be printed
 #'   for subgroups.
-#' @param subgroup.name A character string with a label for the
-#'   grouping variable.
-#' @param sep.subgroup A character string defining the separator
-#'   between label and levels of grouping variable.
+#' @param subgroup.name A character string with a label for the grouping
+#'   variable.
+#' @param sep.subgroup A character string defining the separator between label
+#'   and levels of grouping variable.
 #' @param sort.subgroup A logical indicating whether groups should be
 #'   ordered alphabetically.
 #' @param study.results A logical indicating whether results for
@@ -2514,7 +2514,10 @@ forest.meta <- function(x,
     chklogical(print.subgroup.name)
   #
   if (!is.null(sep.subgroup))
-    chkchar(sep.subgroup)
+    chkchar(sep.subgroup, length = 1)
+  #
+  if (!is.null(subgroup.name))
+    chkchar(subgroup.name, length = 1)
   #
   sort.subgroup <- deprecated(sort.subgroup, miss.sort.subgroup,
                               args, "bysort", warn.deprecated)
@@ -3715,7 +3718,8 @@ forest.meta <- function(x,
                        pscale = pscale,
                        irscale = irscale, irunit = irunit,
                        newline = !bmj.revman5, revman5 = bmj.revman5,
-                       big.mark = big.mark)
+                       big.mark = big.mark,
+                       func.backtransf = fbt)
   }
   #
   print.label <- (label.left != "" | label.right != "") & !is.na(ref)
@@ -8546,7 +8550,30 @@ forest.meta <- function(x,
   #
   # P-value of effect
   #
-  if (is.character(x$pval.common) &&
+  if (by) {
+    if (is.character(pval.common.w) &&
+        is.character(pval.random.w) &&
+        is.character(x$pval.common) &&
+        is.character(x$pval.random) &&
+        is.character(x$pval))
+      pval.format <-
+        c(x$pval.common, x$pval.random, NAs.prd,
+          pval.common.w, pval.random.w, blanks.prd.w, blanks.stat.w,
+          x$pval)
+    else
+      pval.format <-
+        formatPT(
+          c(x$pval.common, x$pval.random, NAs.prd,
+            pval.common.w, pval.random.w, NAs.prd.w, NAs.stat.w,
+            if (is.numeric(x$pval)) x$pval else rep(NA, length(x$pval))),
+          digits = digits.pval,
+          big.mark = big.mark,
+          lab = FALSE, labval = "",
+          zero = zero.pval, JAMA = JAMA.pval,
+          scientific = scientific.pval,
+          lab.NA = lab.NA)
+  }
+  else if (is.character(x$pval.common) &&
       is.character(x$pval.random) &&
       is.character(x$pval))
     pval.format <- c(x$pval.common, x$pval.random, NAs.prd, x$pval)
@@ -8563,10 +8590,32 @@ forest.meta <- function(x,
   }
   #
   pval.format[all.prd] <- ""
+  if (by)
+    pval.format[c(all.prd.w, all.stat.w)] <- ""
   #
   # Test statistic
   #
-  if (is.character(x$statistic.common) &&
+  if (by) {
+    if (is.character(statistic.common.w) &&
+        is.character(statistic.random.w) &&
+        is.character(x$statistic.common) &&
+        is.character(x$statistic.random) &&
+        is.character(x$statistic))
+      statistic.format <-
+        c(x$statistic.common, x$statistic.random, NAs.prd,
+          statistic.common.w, statistic.random.w, blanks.prd.w, blanks.stat.w,
+          x$statistic)
+    else
+      statistic.format <-
+        formatN(
+          c(x$statistic.common, x$statistic.random, NAs.prd,
+            statistic.common.w, statistic.random.w, NAs.prd.w, NAs.stat.w,
+            if (is.numeric(x$statistic)) x$statistic else rep(NA, length(x$statistic))),
+          digits = digits.stat,
+          big.mark = big.mark,
+          lab.NA = lab.NA)
+  }
+  else if (is.character(x$statistic.common) &&
       is.character(x$statistic.random) &&
       is.character(x$statistic))
     statistic.format <-
@@ -8582,6 +8631,8 @@ forest.meta <- function(x,
   }
   #
   statistic.format[all.prd] <- ""
+  if (by)
+    statistic.format[c(all.prd.w, all.stat.w)] <- ""
   #
   # Cluster variable
   #

@@ -9,8 +9,9 @@
   layout = gs("layout"),
   common = !is.null(x$common),
   random = !is.null(x$random),
-  overall = common || random,
   prediction = !is.null(x$predict),
+  overall = common || random,
+  studlab = NULL,
   subgroup = NULL,
   hetstat = FALSE,
   overall.hetstat = x$overall.hetstat,
@@ -22,10 +23,11 @@
   leftlabs = NULL,
   rightcols = NULL,
   rightlabs = NULL,
-  lab.NA = "",
+  lab.NA = gs("lab.NA"),
   scientific.pval = gs("scientific.pval"),
   big.mark = gs("big.mark"),
   addrow.subgroups = NULL,
+  details = FALSE,
   ...
 )
 }
@@ -41,13 +43,15 @@ should be plotted.}
 \item{random}{A logical indicating whether random effects estimates
 should be plotted.}
 
+\item{prediction}{A logical indicating whether prediction intervals
+should be plotted.}
+
 \item{overall}{A logical indicating whether overall summaries
 should be plotted. This argument is useful in a meta-analysis
 with subgroups if summaries should only be plotted on group
 level.}
 
-\item{prediction}{A logical indicating whether prediction
-interval(s) should be printed.}
+\item{studlab}{A  variable containing labels for individual results.}
 
 \item{subgroup}{A logical indicating whether subgroup results
 should be shown in forest plot. This argument is useful in a
@@ -101,6 +105,9 @@ be printed in scientific notation, e.g., 1.2345e-01 instead of
 
 \item{addrow.subgroups}{A logical value indicating whether an empty
 row is printed between results for subgroups.}
+
+\item{details}{A logical specifying whether details on statistical
+methods should be printed.}
 
 \item{\dots}{Additional graphical arguments (passed on to
 \code{\link{forest.meta}}).}

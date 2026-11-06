@@ -4,7 +4,16 @@
 \alias{as.data.frame.metabind}
 \title{Coerce to a data frame}
 \usage{
-\method{as.data.frame}{metabind}(x, row.names = NULL, optional = FALSE, ...)
+\method{as.data.frame}{metabind}(
+  x,
+  row.names = NULL,
+  optional = FALSE,
+  common = !is.null(x$common),
+  random = !is.null(x$random),
+  prediction = !is.null(x$predict),
+  subgroup = !is.null(x$subgroup),
+  ...
+)
 }
 \arguments{
 \item{x}{An object of class \code{metabind}.}
@@ -13,6 +22,18 @@
 names for the data frame.}
 
 \item{optional}{Argument is ignored.}
+
+\item{common}{A logical indicating whether to return results for the common
+effect model.}
+
+\item{random}{A logical indicating whether to return results for the random
+effects model.}
+
+\item{prediction}{A logical indicating whether to return prediction
+intervals.}
+
+\item{subgroup}{A logical indicating whether to return subgroup results in
+addition to the overall results.}
 
 \item{\dots}{Other arguments (ignored).}
 }

@@ -2506,8 +2506,10 @@ metagen <- function(TE, seTE, studlab,
                            seTE = res.uni$seTE.random[j.cr],
                            lower = res.uni$lower.random[j.cr],
                            upper = res.uni$upper.random[j.cr],
-                           statistic = res.uni$statistic.random[j.cr],
-                           p = res.uni$pval.random[j.cr],
+                            statistic = if (is.na(transf.null.effect)) NA else
+                              res.uni$statistic.random[j.cr],
+                            p = if (is.na(transf.null.effect)) NA else
+                              res.uni$pval.random[j.cr],
                            level = level.ma,
                            df = res.uni$df.random[j.cr],
                            null.effect = transf.null.effect)

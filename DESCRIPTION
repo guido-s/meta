@@ -1,7 +1,7 @@
 Package: meta
 Title: General Package for Meta-Analysis
 Version: 9.0-0
-Date: 2026-10-21
+Date: 2026-11-06
 Depends: R (>= 4.1.0), metabook (>= 0.2-0)
 Imports: metafor (>= 3.0-0), grid, ggplot2, lme4, CompQuadForm, xml2,
   methods, readr, dplyr, magrittr, purrr, stringr, rlang, tibble, scales,
@@ -37,4 +37,4 @@ Description: User-friendly general package providing standard methods for meta-a
 License: GPL (>= 2)
 Encoding: UTF-8
 VignetteBuilder: knitr
-Config/roxygen2/version: 8.1.0
+Config/roxygen2/version: 8.1.1

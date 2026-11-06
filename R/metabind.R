@@ -21,6 +21,10 @@
 #'   (default), results for \code{sm="OR"} are printed as odds ratios rather
 #'   than log odds ratios, for example.
 #' @param outclab Outcome label for all meta-analysis objects.
+#' @param keepdata A logical vector indicating whether to store the
+#'   element `data` from meta-analysis objects provided in `\dots`.
+#' @param keepmeta A logical vector indicating whether to store the
+#'   meta-analysis objects provided in `\dots`.
 #' 
 #' @details
 #' This function can be used to combine any number of meta-analysis
@@ -36,8 +40,7 @@
 #' same dataset.
 #' 
 #' @return
-#' An object of class \code{c("metabind", "meta")} with corresponding
-#' generic functions (see \code{\link{meta-object}}).
+#' An object of class \code{"metabind"}.
 #' 
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
@@ -99,8 +102,8 @@
 metabind <- function(...,
                      name = NULL,
                      common = NULL, random = NULL, prediction = NULL,
-                     backtransf = NULL, outclab = NULL) {
-  
+                     backtransf = NULL, outclab = NULL,
+                     keepdata = TRUE, keepmeta = FALSE) {
   
   #
   #
@@ -187,8 +190,7 @@ metabind <- function(...,
   #
   name.i <- vector("character", n.meta)
   #
-  is.limit <- is.copas <- is.trimfill <- is.subgroup <- rep(FALSE, n.meta)
-  samedata <- rep(NA, n.meta)
+  is.trimfill <- is.subgroup <- rep(FALSE, n.meta)
   #
   for (i in seq.meta) {
     if (inherits(args[[i]], "metabind"))
@@ -235,8 +237,6 @@ metabind <- function(...,
         metamerge(update(args[[i]]$x, common = FALSE, random = FALSE),
                   args[[i]], label2 = "copas")
       #
-      is.copas[i] <- TRUE
-      #
       if (missing.name)
         name.i[i] <- "copas"
     }
@@ -245,8 +245,6 @@ metabind <- function(...,
       args[[i]] <-
         metamerge(update(args[[i]]$x, common = FALSE, random = FALSE),
                   args[[i]], label2 = "limit")
-      #
-      is.limit[i] <- TRUE
       #
       if (missing.name)
         name.i[i] <- "limitmeta"
@@ -258,7 +256,6 @@ metabind <- function(...,
            call. = FALSE)
     #
     is.subgroup[i] <- !is.null(args[[i]]$subgroup)
-    samedata[i] <- !samedata(args[[1]], args[[i]], stop = FALSE)
   }
   #
   # Meta-analyses must all contain subgroups or none
@@ -268,10 +265,6 @@ metabind <- function(...,
          call. = FALSE)
   #
   with.subgroups <- any(is.subgroup)
-  is.limit.copas <- is.limit | is.copas
-  #
-  samedata[is.limit.copas] <- TRUE
-  samedata <- all(samedata)
   #
   if (!is.null(common)) {
     chklogical(common[1], "common")
@@ -362,112 +355,302 @@ metabind <- function(...,
     backtransf <- any(condense(args, "backtransf"))
   else
     chklogical(backtransf)
-
-
+  #
+  chklogical(keepdata)
+  chklogical(keepmeta)
+  #
+  chkchar(outclab, NULL.ok = TRUE, length = 1)
+  
   #
   #
-  # (2) Extract meta-analytical methods
+  # (2) Extract meta-analysis methods and overall results
   #
   #
-
-  if (with.subgroups) {
-    # TODO
-    warning("Not yet implemented.")
-    return(invisible(metagen(1, 1)))
+  
+  res.overall <- res.common <- res.random <- res.predict <- NULL
+  #
+  for (i in seq.meta) {
+    res.overall <-
+      bind_rows(res.overall, extrMA(i, args, name, "overall", outclab))
+    #
+    if (args[[i]]$common) {
+      res.common <-
+        bind_rows(res.common, extrMA(i, args, name, "common", outclab))
+    }
+    #
+    if (args[[i]]$random) {
+      res.random <-
+        bind_rows(res.random, extrMA(i, args, name, "random", outclab))
+    }
+    #
+    if (args[[i]]$prediction) {
+      res.predict <-
+        bind_rows(res.predict, extrMA(i, args, name, "prediction", outclab))
+    }
   }
-  else {
+  #
+  # Check whether IDs are unique and consecutive
+  #
+  ids <- res.overall$id
+  #
+  if (is.null(ids) || anyDuplicated(ids) ||
+      !identical(sort(unique(ids)), seq_len(nrow(res.overall)))) {
+    stop(
+      "Internal error in metabind(): invalid IDs in element 'overall'. ",
+      "Please report this issue with a reproducible example and ",
+      "session information at ",
+      "https://github.com/guido-s/meta/issues.",
+      call. = FALSE
+    )
+  }
+  #
+  # Check whether summary measures fit
+  #
+  sm <- sort(unique(res.overall$sm))
+  #
+  if (length(sm) == 0 || anyNA(sm))
+    stop("Summary measures are missing.", call. = FALSE)
+  #
+  same.sm <- FALSE
+  sm.family <- ""
+  #
+  if (length(sm) == 1)
+    same.sm <- TRUE
+  else if (all(is_relative_effect(sm)))
+    sm.family <- "relative"
+  else if (all(is_cor(sm)))
+    sm.family <- "correlation"
+  else if (all(is_mean(sm)))
+    sm.family <- "mean"
+  else if (all(is_prop(sm)))
+    sm.family <- "proportion"
+  else if (all(is_rate(sm)))
+    sm.family <- "rate"
+  else
+    stop("Summary measures are incompatible: ",
+         paste0("'", sm, "'", collapse = ", "),
+         call. = FALSE)
+  #
+  if (!same.sm && !backtransf) {
+    if (!missing.backtransf)
+      warning("Argument 'backtransf' set to TRUE as summary measures differ.",
+              call. = FALSE)
     #
-    # Extract overall results
+    backtransf <- TRUE
+  }
+  #
+  # Set row names
+  #
+  if (!is.null(res.common))
+    rownames(res.common) <- seq_len(nrow(res.common))
+  #
+  if (!is.null(res.random))
+    rownames(res.random) <- seq_len(nrow(res.random))
+  #
+  if (!is.null(res.predict))
+    rownames(res.predict) <- seq_len(nrow(res.predict))
+  #
+  # Cleanup
+  #
+  res.overall <- drop_allNAs(res.overall)
+  #
+  if (!is.null(res.common))
+    res.common <- drop_allNAs(res.common)
+  #
+  if (!is.null(res.random)) {
+    res.random <- drop_allNAs(res.random)
     #
-    res.overall <- res.common <- res.random <- res.predict <- NULL
+    if (!is.null(res.random$df.hakn))
+      res.random$df.hakn[res.random$method.interval != "HK"] <- NA
+    #
+    if (!is.null(res.random$df.kero))
+      res.random$df.kero[res.random$method.interval != "KR"] <- NA
+  }
+  #
+  if (!is.null(res.predict)) {
+    res.predict <- drop_allNAs(res.predict)
+    #
+    if (!is.null(res.predict$df.hakn))
+      res.predict$df.hakn[!grepl("HK", res.predict$method.interval)] <- NA
+    if (!is.null(res.predict$df.kero))
+      res.predict$df.kero[!grepl("KR", res.predict$method.interval)] <- NA
+  }
+  
+  #
+  #
+  # (3) Keep meta-analysis objects / datasets
+  #
+  #
+  
+  list.meta <- list.data <- vector("list", n.meta)
+  #
+  if (keepmeta) {
+    for (i in seq.meta)
+      list.meta[[i]] <- args[[i]]
+  }
+  #
+  for (i in seq.meta) {
+    list.data[[i]] <-
+      replaceNULL(args[[i]]$data, data.frame(.not_a_dataset = 1))
+  }
+  #
+  same.data <- vector(length = n.meta - 1)
+  #
+  for (i in seq.meta[-length(seq.meta)]) {
+    dat1 <- list.data[[i]]
+    dat2 <- list.data[[i + 1]]
+    #
+    if (with.subgroups) {
+      dat1$.subgroup <- NULL
+      dat2$.subgroup <- NULL
+    }
+    #
+    same.data[i] <- isTRUE(all.equal(dat1, dat2))
+  }
+  #
+  same.data <- all(same.data)
+  #
+  if (same.data) {
+    if (with.subgroups) {
+      dat_s <- list.data[[1]]
+      #
+      dat_s[[paste0(".subgroup", 1)]] <- dat_s$.subgroup
+      dat_s$.subgroup <- NULL
+      #
+      for (i in seq(2, n.meta)) {
+        dat_s[[paste0(".subgroup", i)]] <- list.data[[n.meta]]$.subgroup
+      }
+      #
+      list.data <- dat_s
+    }
+    else {
+      list.data <- list.data[[1]]
+    }
+  }
+  #
+  if (!keepdata)
+    list.data <- NULL
+  
+  #
+  #
+  # (4) Extract subgroup results
+  #
+  #
+  
+  list.subgroup <- NULL
+  #
+  if (with.subgroups) {
+    res.subgroup.common <- res.subgroup.random <- res.subgroup.predict <- NULL
     #
     for (i in seq.meta) {
-      res.overall <-
-        bind_rows(res.overall,
-                  extrMA(i, args, name, "overall", outclab))
-      #
       if (args[[i]]$common) {
-        res.common <-
-          bind_rows(res.common,
-                    extrMA(i, args, name, "common", outclab))
+        res.subgroup.common <-
+          bind_rows(res.subgroup.common, extrSub(i, args, "common"))
       }
-      #
+    }
+    #
+    for (i in seq.meta) {
       if (args[[i]]$random) {
-        res.random <-
-          bind_rows(res.random,
-                    extrMA(i, args, name, "random", outclab))
+        res.subgroup.random <-
+          bind_rows(res.subgroup.random, extrSub(i, args, "random"))
       }
-      #
+    }
+    #
+    for (i in seq.meta) {
       if (args[[i]]$prediction) {
-        res.predict <-
-          bind_rows(res.predict,
-                    extrMA(i, args, name, "prediction", outclab))
+        res.subgroup.predict <-
+          bind_rows(res.subgroup.predict, extrSub(i, args, "prediction"))
       }
     }
     #
-    # Check whether IDs are unique and consecutive
+    if (!is.null(res.subgroup.common))
+      rownames(res.subgroup.common) <- seq_len(nrow(res.subgroup.common))
     #
-    ids <- res.overall$id
+    if (!is.null(res.subgroup.random))
+      rownames(res.subgroup.random) <- seq_len(nrow(res.subgroup.random))
     #
-    if (is.null(ids) || anyDuplicated(ids) ||
-        !identical(sort(unique(ids)), seq_len(nrow(res.overall)))) {
-      stop(
-        "Internal error in metabind(): invalid IDs in element 'overall'. ",
-        "Please report this issue with a reproducible example and ",
-        "session information at ",
-        "https://github.com/guido-s/meta/issues.",
-        call. = FALSE
-      )
+    if (!is.null(res.subgroup.predict))
+      rownames(res.subgroup.predict) <- seq_len(nrow(res.subgroup.predict))
+    #
+    list.subgroup <- list(
+      common = res.subgroup.common,
+      random = res.subgroup.random,
+      predict = res.subgroup.predict)
+  }
+  #
+  # Check for unique methods and results
+  #
+  same.overall <- FALSE
+  same.common <- if (!is.null(res.common)) FALSE else NA
+  same.random <- if (!is.null(res.random)) FALSE else NA
+  same.predict <- if (!is.null(res.predict)) FALSE else NA
+  #
+  if (same.data) {
+    overall.subgroup <- res.overall %>% select(-id, -name)
+    #
+    same.overall <- sum(!duplicated(overall.subgroup)) == 1
+    #
+    if (!is.null(res.common)) {
+      common.subgroup <- res.common %>% select(-id)
+      same.common <- sum(!duplicated(common.subgroup)) == 1
     }
-    #
-    if (!is.null(res.common))
-      rownames(res.common) <- seq_len(nrow(res.common))
-    #
-    if (!is.null(res.random))
-      rownames(res.random) <- seq_len(nrow(res.random))
-    #
-    if (!is.null(res.predict))
-      rownames(res.predict) <- seq_len(nrow(res.predict))
-    #
-    # Cleanup
-    #
-    res.overall <- drop_allNAs(res.overall)
-    #
-    if (!is.null(res.common))
-      res.common <- drop_allNAs(res.common)
     #
     if (!is.null(res.random)) {
-      res.random <- drop_allNAs(res.random)
-      #
-      res.random$df.hakn[res.random$method.interval != "HK"] <- NA
-      res.random$df.kero[res.random$method.interval != "KR"] <- NA
+      random.subgroup <- res.random %>% select(-id)
+      same.random <- sum(!duplicated(random.subgroup)) == 1
     }
     #
     if (!is.null(res.predict)) {
-      res.predict <- drop_allNAs(res.predict)
-      #
-      res.predict$df.hakn[!grepl("HK", res.predict$method.interval)] <- NA
-      res.predict$df.kero[!grepl("KR", res.predict$method.interval)] <- NA
+      predict.subgroup <- res.predict %>% select(-id)
+      same.predict <- sum(!duplicated(predict.subgroup)) == 1
     }
-    #
-    # Return results
-    #
-    res <- list(
-      overall = res.overall,
-      #
-      common = res.common,
-      random = res.random,
-      predict = res.predict,
-      #
-      with.subgroups = with.subgroups,
-      #
-      backtransf = backtransf,
-      #
-      version = packageDescription("meta")$Version,
-      call = match.call())
-    #
-    class(res) <- "metabind"
-    #
-    return(res)
   }
+  
+  #
+  #
+  # (5)  Return results
+  #
+  #
+  
+  res <- list(
+    overall = res.overall,
+    #
+    common = res.common,
+    random = res.random,
+    predict = res.predict,
+    #
+    subgroup = list.subgroup,
+    #
+    same.sm = same.sm,
+    sm = sm,
+    sm.family = sm.family,
+    #
+    backtransf = backtransf,
+    #
+    same.data = same.data,
+    data = list.data,
+    #
+    same.overall = same.overall,
+    same.common = same.common,
+    same.random = same.random,
+    same.predict = same.predict,
+    #
+    meta = list.meta,
+    #
+    version = packageDescription("meta")$Version,
+    call = match.call())
+  #
+  if (!with.subgroups)
+    res$subgroup <- NULL
+  #
+  if (!keepmeta)
+    res$meta <- NULL
+  #
+  if (!keepdata)
+    res$data <- NULL
+  #
+  #
+  class(res) <- "metabind"
+  #
+  return(res)
 }

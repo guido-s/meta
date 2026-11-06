@@ -11,7 +11,9 @@ metabind(
   random = NULL,
   prediction = NULL,
   backtransf = NULL,
-  outclab = NULL
+  outclab = NULL,
+  keepdata = TRUE,
+  keepmeta = FALSE
 )
 }
 \arguments{
@@ -36,10 +38,15 @@ back transformed in printouts and plots. If \code{backtransf=TRUE}
 than log odds ratios, for example.}
 
 \item{outclab}{Outcome label for all meta-analysis objects.}
+
+\item{keepdata}{A logical vector indicating whether to store the
+element `data` from meta-analysis objects provided in `\dots`.}
+
+\item{keepmeta}{A logical vector indicating whether to store the
+meta-analysis objects provided in `\dots`.}
 }
 \value{
-An object of class \code{c("metabind", "meta")} with corresponding
-generic functions (see \code{\link{meta-object}}).
+An object of class \code{"metabind"}.
 }
 \description{
 This function can be used to combine meta-analysis objects and is,
