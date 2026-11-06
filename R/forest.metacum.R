@@ -25,14 +25,14 @@
 #'   right side of the forest plot (see Details).
 #' @param lab.NA A character string to label missing values.
 #' @param col A named list specifying colours used in the forest
-#'   plot; see \code{\link{forest-formatting}}.
+#'   plot; see \code{\link{meta-formatting}}.
 #' @param print A named list specifying which information to print in the forest
-#'   plot; see \code{\link{forest-formatting}}.
+#'   plot; see \code{\link{meta-formatting}}.
 #' @param type A character string or vector specifying how to
 #'   plot treatment effects and confidence intervals for cumulative
 #'   meta-analysis results.
 #' @param digits A named list specifying digits used for displayed results; a
-#'   scalar value is also accepted. See \code{\link{forest-formatting}}.
+#'   scalar value is also accepted. See \code{\link{meta-formatting}}.
 #' @param backtransf A logical indicating whether results should be
 #'   back transformed in forest plots. If \code{backtransf = TRUE},
 #'   results for \code{sm = "OR"} are presented as odds ratios rather
@@ -195,7 +195,7 @@ forest.metacum <- function(x,
   # Define colours
   #
   col <- as_named_list(col)
-  col.list <- merge_legacy(col, args, col_defaults(x, "metacum"), "col")
+  col.list <- merge_legacy(col, args, col_defaults(x, "metacum"))
   #
   col <- col.list$res
   args <- col.list$args
@@ -241,8 +241,7 @@ forest.metacum <- function(x,
   #
   # Print information
   #
-  print.list <-
-    merge_legacy(print, args, print_defaults(x, "metacum"), "print")
+  print.list <- merge_legacy(print, args, print_defaults(x, "metacum"))
   #
   print <- print.list$res
   args <- print.list$args
@@ -287,8 +286,7 @@ forest.metacum <- function(x,
   # Digits
   #
   digits <- as_named_list(digits)
-  digits.list <-
-    merge_legacy(digits, args, digits_defaults("metacum"), "digits")
+  digits.list <- merge_legacy(digits, args, digits_defaults("metacum"))
   #
   digitss <- digits.list$res
   args <- digits.list$args
@@ -501,7 +499,7 @@ forest.metacum <- function(x,
   tau2 <- formatPT(tau2, digits = digits.tau2, lab.NA = lab.NA)
   tau <- formatPT(tau, digits = digits.tau2, lab.NA = lab.NA)
   #
-  I2 <- percent_label(I2, "", digits.I2, formatPT, lab.NA = lab.NA)
+  I2 <- percent_label(I2, "", digits.I2, formatN, lab.NA = lab.NA)
   #
   if (print.tau2.ci) {
     tau2.ci <-

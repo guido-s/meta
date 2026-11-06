@@ -454,12 +454,7 @@ metabind <- function(...,
   #
   res.overall <- drop_allNAs(res.overall)
   #
-  if (!is.null(res.common))
-    res.common <- drop_allNAs(res.common)
-  #
   if (!is.null(res.random)) {
-    res.random <- drop_allNAs(res.random)
-    #
     if (!is.null(res.random$df.hakn))
       res.random$df.hakn[res.random$method.interval != "HK"] <- NA
     #
@@ -468,8 +463,6 @@ metabind <- function(...,
   }
   #
   if (!is.null(res.predict)) {
-    res.predict <- drop_allNAs(res.predict)
-    #
     if (!is.null(res.predict$df.hakn))
       res.predict$df.hakn[!grepl("HK", res.predict$method.interval)] <- NA
     if (!is.null(res.predict$df.kero))

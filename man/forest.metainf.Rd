@@ -63,16 +63,16 @@ right side of the forest plot (see Details).}
 \item{lab.NA}{A character string to label missing values.}
 
 \item{col}{A named list specifying colours used in the forest
-plot; see \code{\link{forest-formatting}}.}
+plot; see \code{\link{meta-formatting}}.}
 
 \item{print}{A named list specifying which information to print in the forest
-plot; see \code{\link{forest-formatting}}.}
+plot; see \code{\link{meta-formatting}}.}
 
 \item{type}{A character string or vector specifying how to
 plot treatment effects and confidence intervals for meta-analysis results.}
 
 \item{digits}{A named list specifying digits used for displayed results; a
-scalar value is also accepted. See \code{\link{forest-formatting}}.}
+scalar value is also accepted. See \code{\link{meta-formatting}}.}
 
 \item{backtransf}{A logical indicating whether results should be
 back transformed in forest plots. If \code{backtransf = TRUE},

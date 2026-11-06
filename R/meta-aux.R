@@ -1157,8 +1157,9 @@ warn_ignore_dots <- function(x, func = "") {
   invisible(NULL)
 }
 
-merge_legacy <- function(x, args, default, prefix, inherit = NULL,
-                         warn = FALSE) {
+merge_legacy <- function(x, args, default,
+                         prefix = deparse(substitute(x)),
+                         inherit = NULL, warn = FALSE) {
   nam.x <- deparse(substitute(x))
   #
   if (is.null(x))

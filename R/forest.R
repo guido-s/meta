@@ -75,7 +75,7 @@
 #'   or represent study weights from common effect or random effects
 #'   model.
 #' @param test A named list specifying which results of statistical tests
-#'   should be printed; see \code{\link{forest-formatting}}.
+#'   should be printed; see \code{\link{meta-formatting}}.
 #' @param LRT A logical value indicating whether to report
 #'   Likelihood-Ratio or Wald-type test of heterogeneity for
 #'   generalised linear mixed models.
@@ -95,7 +95,7 @@
 #'   on the tick marks, or an expression or character vector which
 #'   specify the labels to use. See \code{\link{grid.xaxis}}. A named list
 #'   can also be supplied to specify column labels; see
-#'   \code{\link{forest-formatting}}.
+#'   \code{\link{meta-formatting}}.
 #' @param hetlab Label printed in front of results for heterogeneity
 #'   measures.
 #' @param resid.hetlab Label printed in front of results for residual
@@ -106,45 +106,45 @@
 #' @param lab.NA.weight A character string to label missing weights.
 #' @param rob Risk-of-bias (RoB) assessment, or a named list specifying the
 #'   assessment, table heading, legend, and right-side display; see
-#'   \code{\link{forest-formatting}}.
+#'   \code{\link{meta-formatting}}.
 #' @param fontfamily The font family, see \code{\link{gpar}}.
 #' @param fontsize The size of text (in points), see \code{\link{gpar}}.
 #' @param fs A named list specifying font sizes for elements of the forest
-#'   plot; see \code{\link{forest-formatting}}.
+#'   plot; see \code{\link{meta-formatting}}.
 #' @param ff A named list specifying fontfaces for elements of the forest
-#'   plot; see \code{\link{forest-formatting}}.
+#'   plot; see \code{\link{meta-formatting}}.
 #' @param just A named list specifying justification settings; a character
 #'   string is also accepted for the common justification. See
-#'   \code{\link{forest-formatting}}.
+#'   \code{\link{meta-formatting}}.
 #' @param fill A named list specifying fill settings; a scalar value is also
-#'   accepted. See \code{\link{forest-formatting}}.
+#'   accepted. See \code{\link{meta-formatting}}.
 #' @param col A named list specifying colours used in the forest
-#'   plot; see \code{\link{forest-formatting}}.
+#'   plot; see \code{\link{meta-formatting}}.
 #' @param print A named list specifying which information to print in the forest
-#'   plot; see \code{\link{forest-formatting}}.
+#'   plot; see \code{\link{meta-formatting}}.
 #' @param type A named list specifying graphical types for study, pooled, and
-#'   subgroup results; see \code{\link{forest-formatting}}.
+#'   subgroup results; see \code{\link{meta-formatting}}.
 #' @param pooled A named list specifying pooled totals and event/time settings;
-#'   see \code{\link{forest-formatting}}.
+#'   see \code{\link{meta-formatting}}.
 #' @param text A named list specifying text for pooled results, subgroup
-#'   results, and additional lines; see \code{\link{forest-formatting}}.
+#'   results, and additional lines; see \code{\link{meta-formatting}}.
 #' @param lty A named list specifying line types; see
-#'   \code{\link{forest-formatting}}.
+#'   \code{\link{meta-formatting}}.
 #' @param lwd The line width, see \code{\link{par}}, or a named list
-#'   specifying line widths; see \code{\link{forest-formatting}}.
+#'   specifying line widths; see \code{\link{meta-formatting}}.
 #' @param digits A named list specifying digits used for displayed results; a
-#'   scalar value is also accepted. See \code{\link{forest-formatting}}.
+#'   scalar value is also accepted. See \code{\link{meta-formatting}}.
 #' @param calcwidth A named list specifying which text is considered when
-#'   calculating column widths; see \code{\link{forest-formatting}}.
+#'   calculating column widths; see \code{\link{meta-formatting}}.
 #' @param colgap A named list specifying gaps between columns; a scalar value
-#'   is also accepted. See \code{\link{forest-formatting}}.
+#'   is also accepted. See \code{\link{meta-formatting}}.
 #' @param ref A numerical giving the reference value to be plotted as
 #'   a line in the forest plot. No reference line is plotted if
 #'   argument \code{ref} is equal to \code{NA}.
 #' @param cid A numeric value or vector, or a named list specifying clinically important
 #'   differences (CID) / decision thresholds used to calculate probabilities
 #'   of clinically important benefit or harm, or not important effects
-#'   (see Details); see \code{\link{forest-formatting}}.
+#'   (see Details); see \code{\link{meta-formatting}}.
 #' @param xlab A label for the x-axis. By default, no label is printed,
 #'   except for meta-analyses of single proportions, incidence rates,
 #'   risk differences, or rate differences if proportions or rates are
@@ -169,7 +169,7 @@
 #'   header line or a character string ("both", "below", "").
 #' @param addrow A logical value indicating whether an empty row is
 #'   printed above study results, or a named list specifying row-spacing
-#'   settings; see \code{\link{forest-formatting}}.
+#'   settings; see \code{\link{meta-formatting}}.
 #' @param addrows.below.overall A numeric value indicating how many
 #'   empty rows are printed between meta-analysis results and
 #'   heterogeneity statistics and test results.
@@ -310,7 +310,7 @@
 #' 
 #' By default, treatment estimates and confidence intervals are
 #' plotted in the following way. The plot types can be specified with the
-#' named list \code{type}; see \code{\link{forest-formatting}} for the
+#' named list \code{type}; see \code{\link{meta-formatting}} for the
 #' available list elements. The individual arguments \code{type.study},
 #' \code{type.common}, \code{type.random}, \code{type.subgroup},
 #' \code{type.subgroup.common}, and \code{type.subgroup.random} are also
@@ -495,7 +495,7 @@
 #' included when calculating the width of the forest plot. Consequently, this
 #' information does not overlap with the forest plot or x-axis by default. The
 #' automatic calculation can be disabled using the relevant elements of
-#' \code{calcwidth}; see \code{\link{forest-formatting}}. Gaps between
+#' \code{calcwidth}; see \code{\link{meta-formatting}}. Gaps between
 #' columns and plot elements can be adjusted with the named list
 #' \code{colgap} or the corresponding individual arguments.
 #'
@@ -559,7 +559,7 @@
 #' (see list of arguments following \code{overall.hetstat}).
 #' 
 #' In addition, results for various statistical tests can be printed using
-#' the named list \code{test}; see \code{\link{forest-formatting}} for the
+#' the named list \code{test}; see \code{\link{meta-formatting}} for the
 #' available list elements. The individual arguments \code{test.overall},
 #' \code{test.overall.common}, \code{test.overall.random},
 #' \code{test.subgroup}, \code{test.subgroup.common},
@@ -661,7 +661,7 @@
 #' 
 #' The named list \code{text} can be used to change labels identifying
 #' overall results (common-effect and random-effects models) and prediction
-#' intervals; see \code{\link{forest-formatting}} for the available list
+#' intervals; see \code{\link{meta-formatting}} for the available list
 #' elements. The individual arguments \code{text.common},
 #' \code{text.random}, and \code{text.predict} are also supported. By
 #' default, the following text is printed:
@@ -788,7 +788,7 @@
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de},
 #'   Nour Edin Darwish \email{nouredindarwish@gmail.com}
 #' 
-#' @seealso \code{\link{forest-formatting}},
+#' @seealso \code{\link{meta-formatting}},
 #'   \code{\link{metabin}}, \code{\link{metacont}},
 #'   \code{\link{metagen}}, \code{\link{forest.metabind}},
 #'   \code{\link{settings.meta}}, \code{\link{labels.meta}}
@@ -1378,7 +1378,7 @@ forest.meta <- function(x,
   #
   # Font sizes
   #
-  fs.list <- merge_legacy(fs, args, fs_defaults(fontsize), "fs")
+  fs.list <- merge_legacy(fs, args, fs_defaults(fontsize))
   #
   fs <- fs.list$res
   args <- fs.list$args
@@ -1438,7 +1438,7 @@ forest.meta <- function(x,
   #
   # Font faces
   #
-  ff.list <- merge_legacy(ff, args, ff_defaults(), "ff")
+  ff.list <- merge_legacy(ff, args, ff_defaults())
   #
   ff <- ff.list$res
   args <- ff.list$args
@@ -1486,7 +1486,7 @@ forest.meta <- function(x,
   #
   # Print information
   #
-  print.list <- merge_legacy(print, args, print_defaults(x), "print")
+  print.list <- merge_legacy(print, args, print_defaults(x))
   #
   print <- print.list$res
   args <- print.list$args
@@ -1521,7 +1521,7 @@ forest.meta <- function(x,
   #
   # Define colours
   #
-  col.list <- merge_legacy(col, args, col_defaults(x), "col")
+  col.list <- merge_legacy(col, args, col_defaults(x))
   #
   col <- col.list$res
   args <- col.list$args
@@ -1674,7 +1674,6 @@ forest.meta <- function(x,
   calcwidth.list <-
     merge_legacy(calcwidth, args,
                  calcwidth_defaults(common, random, overall, x$subgroup),
-                 "calcwidth",
                  inherit = c(common = "pooled", random = "pooled"))
   #
   calcwidth <- calcwidth.list$res
@@ -1695,7 +1694,7 @@ forest.meta <- function(x,
   # colgap
   #
   colgap.list <-
-    merge_legacy(colgap, args, colgap_defaults(), "colgap",
+    merge_legacy(colgap, args, colgap_defaults(),
                  inherit = c(
                    left = "colgap", right = "colgap",
                    studlab = "colgap",
@@ -1726,11 +1725,10 @@ forest.meta <- function(x,
   # Justification
   #
   just.list <-
-    merge_legacy(
-      just, args, just_defaults(layout), "just",
-      inherit = c(
-        label.e = "just", label.c = "just",
-        addcols.left = "addcols", addcols.right = "addcols"))
+    merge_legacy(just, args, just_defaults(layout),
+                 inherit = c(
+                   label.e = "just", label.c = "just",
+                   addcols.left = "addcols", addcols.right = "addcols"))
   #
   justs <- just.list$res
   args <- just.list$args
@@ -1751,7 +1749,7 @@ forest.meta <- function(x,
   # Digits
   #
   digits.list <-
-    merge_legacy(digits, args, digits_defaults(), "digits",
+    merge_legacy(digits, args, digits_defaults(),
                  inherit = c(
                    cor = "digits", time = "digits", addcols = "digits",
                    addcols.right = "addcols", addcols.left = "addcols"))
@@ -1802,7 +1800,6 @@ forest.meta <- function(x,
     merge_legacy(test, args,
                  test_defaults(x, common, random, overall,
                                bmj.revman5.jama.meta9),
-                 "test",
                  inherit =
                    c(overall.common = "overall",
                      overall.random = "overall",
@@ -1836,7 +1833,7 @@ forest.meta <- function(x,
   # type
   #
   type.list <-
-    merge_legacy(type, args, type_defaults(study.results), "type",
+    merge_legacy(type, args, type_defaults(study.results),
                  inherit =
                    c(random = "common",
                      subgroup.common = "subgroup",
@@ -1861,10 +1858,9 @@ forest.meta <- function(x,
   # fill
   #
   fill.list <-
-    merge_legacy(
-      fill, args, fill_defaults(), "fill",
-      inherit = c(cid.below.null = "cid", cid.above.null = "cid",
-                  lower.equi = "equi", upper.equi = "equi"))
+    merge_legacy(fill, args, fill_defaults(),
+                 inherit = c(cid.below.null = "cid", cid.above.null = "cid",
+                             lower.equi = "equi", upper.equi = "equi"))
   #
   fills <- fill.list$res
   args <- fill.list$args
@@ -1890,7 +1886,7 @@ forest.meta <- function(x,
   # pooled
   #
   pooled.list <-
-    merge_legacy(pooled, args, pooled_defaults(common, random), "pooled")
+    merge_legacy(pooled, args, pooled_defaults(common, random))
   #
   pooled <- pooled.list$res
   args <- pooled.list$args
@@ -1905,10 +1901,10 @@ forest.meta <- function(x,
   # text
   #
   text.list <-
-    merge_legacy(
-      text, args, text_defaults(x), "text",
-      inherit =
-        c(common.w = "common", random.w = "random", predict.w = "predict"))
+    merge_legacy(text, args, text_defaults(x),
+                 inherit =
+                   c(common.w = "common", random.w = "random",
+                     predict.w = "predict"))
   #
   text <- text.list$res
   args <- text.list$args
@@ -1936,7 +1932,7 @@ forest.meta <- function(x,
   #
   # lty
   #
-  lty.list <- merge_legacy(lty, args, lty_defaults(), "lty")
+  lty.list <- merge_legacy(lty, args, lty_defaults())
   #
   lty <- lty.list$res
   args <- lty.list$args
@@ -1947,7 +1943,7 @@ forest.meta <- function(x,
   #
   # lwd
   #
-  lwd.list <- merge_legacy(lwd, args, lwd_defaults(), "lwd")
+  lwd.list <- merge_legacy(lwd, args, lwd_defaults())
   #
   lwds <- lwd.list$res
   args <- lwd.list$args
@@ -1958,7 +1954,7 @@ forest.meta <- function(x,
   #
   # Risk of Bias
   #
-  rob.list <- merge_legacy(rob, args, rob_defaults(x), "rob")
+  rob.list <- merge_legacy(rob, args, rob_defaults(x))
   #
   robs <- rob.list$res
   args <- rob.list$args
@@ -1970,7 +1966,7 @@ forest.meta <- function(x,
   #
   # CID
   #
-  cid.list <- merge_legacy(cid, args, cid_defaults(x), "cid")
+  cid.list <- merge_legacy(cid, args, cid_defaults(x))
   #
   cids <- cid.list$res
   args <- cid.list$args
@@ -1982,7 +1978,7 @@ forest.meta <- function(x,
   #
   # addrow
   #
-  addrow.list <- merge_legacy(addrow, args, addrow_defaults(), "addrow")
+  addrow.list <- merge_legacy(addrow, args, addrow_defaults())
   #
   addrows <- addrow.list$res
   args <- addrow.list$args
@@ -10697,10 +10693,12 @@ forest.meta <- function(x,
       #
       x1 <- unit.c(x1,
                    if (i == 1) colgap.forest.right else colgap.right.i,
-                   width.right.cols[[i]]
-      )
+                    width.right.cols[[i]]
+       )
     }
   }
+  else
+    x1 <- unit.c(x1, colgap.forest.right)
   
   
   #

@@ -16,6 +16,8 @@
 #'   intervals.
 #' @param subgroup A logical indicating whether to return subgroup results in
 #'   addition to the overall results.
+#' @param drop_all_NA A logical indicating whether to drop variables containing
+#'   only missing values.
 #' @param \dots Other arguments (ignored).
 #' 
 #' @return A data frame is returned by the function \code{as.data.frame}.
@@ -46,7 +48,9 @@ as.data.frame.metabind <- function(x, row.names = NULL, optional = FALSE,
                                    common = !is.null(x$common),
                                    random = !is.null(x$random),
                                    prediction = !is.null(x$predict),
-                                   subgroup = !is.null(x$subgroup), ...) {
+                                   subgroup = !is.null(x$subgroup),
+                                   drop_all_NA = TRUE,
+                                   ...) {
   
   chkclass(x, "metabind")
   x <- updateversion(x)
@@ -55,6 +59,7 @@ as.data.frame.metabind <- function(x, row.names = NULL, optional = FALSE,
   chklogical(random)
   chklogical(prediction)
   chklogical(subgroup)
+  chklogical(drop_all_NA)
   #
   common <- common && !is.null(x$common)
   random <- random && !is.null(x$random)
@@ -102,7 +107,8 @@ as.data.frame.metabind <- function(x, row.names = NULL, optional = FALSE,
       full.results <- bind_rows(x$common, x$random, x$predict)
   }
   #
-  res <- left_join(full.results, x$overall, by = "id")
+  res <- left_join(full.results, x$overall, by = "id") %>%
+    relocate(name, .after = id)
   #
   if (!is.null(row.names)) {
     if (length(row.names) != nrow(res))
@@ -126,6 +132,9 @@ as.data.frame.metabind <- function(x, row.names = NULL, optional = FALSE,
   #
   if (!is.null(res$rho))
     res$rho[res$model == "Common effect model"] <- NA
+  #
+  if (drop_all_NA)
+    res <- drop_allNAs(res)
   #
   attr(res, "version") <- packageDescription("meta")$Version
   

@@ -205,7 +205,7 @@ or represent study weights from common effect or random effects
 model.}
 
 \item{test}{A named list specifying which results of statistical tests
-should be printed; see \code{\link{forest-formatting}}.}
+should be printed; see \code{\link{meta-formatting}}.}
 
 \item{LRT}{A logical value indicating whether to report
 Likelihood-Ratio or Wald-type test of heterogeneity for
@@ -231,7 +231,7 @@ Details).}
 on the tick marks, or an expression or character vector which
 specify the labels to use. See \code{\link{grid.xaxis}}. A named list
 can also be supplied to specify column labels; see
-\code{\link{forest-formatting}}.}
+\code{\link{meta-formatting}}.}
 
 \item{hetlab}{Label printed in front of results for heterogeneity
 measures.}
@@ -248,54 +248,54 @@ individual treatment estimates and confidence intervals.}
 
 \item{rob}{Risk-of-bias (RoB) assessment, or a named list specifying the
 assessment, table heading, legend, and right-side display; see
-\code{\link{forest-formatting}}.}
+\code{\link{meta-formatting}}.}
 
 \item{fontfamily}{The font family, see \code{\link{gpar}}.}
 
 \item{fontsize}{The size of text (in points), see \code{\link{gpar}}.}
 
 \item{fs}{A named list specifying font sizes for elements of the forest
-plot; see \code{\link{forest-formatting}}.}
+plot; see \code{\link{meta-formatting}}.}
 
 \item{ff}{A named list specifying fontfaces for elements of the forest
-plot; see \code{\link{forest-formatting}}.}
+plot; see \code{\link{meta-formatting}}.}
 
 \item{just}{A named list specifying justification settings; a character
 string is also accepted for the common justification. See
-\code{\link{forest-formatting}}.}
+\code{\link{meta-formatting}}.}
 
 \item{fill}{A named list specifying fill settings; a scalar value is also
-accepted. See \code{\link{forest-formatting}}.}
+accepted. See \code{\link{meta-formatting}}.}
 
 \item{col}{A named list specifying colours used in the forest
-plot; see \code{\link{forest-formatting}}.}
+plot; see \code{\link{meta-formatting}}.}
 
 \item{print}{A named list specifying which information to print in the forest
-plot; see \code{\link{forest-formatting}}.}
+plot; see \code{\link{meta-formatting}}.}
 
 \item{type}{A named list specifying graphical types for study, pooled, and
-subgroup results; see \code{\link{forest-formatting}}.}
+subgroup results; see \code{\link{meta-formatting}}.}
 
 \item{pooled}{A named list specifying pooled totals and event/time settings;
-see \code{\link{forest-formatting}}.}
+see \code{\link{meta-formatting}}.}
 
 \item{text}{A named list specifying text for pooled results, subgroup
-results, and additional lines; see \code{\link{forest-formatting}}.}
+results, and additional lines; see \code{\link{meta-formatting}}.}
 
 \item{lty}{A named list specifying line types; see
-\code{\link{forest-formatting}}.}
+\code{\link{meta-formatting}}.}
 
 \item{lwd}{The line width, see \code{\link{par}}, or a named list
-specifying line widths; see \code{\link{forest-formatting}}.}
+specifying line widths; see \code{\link{meta-formatting}}.}
 
 \item{digits}{A named list specifying digits used for displayed results; a
-scalar value is also accepted. See \code{\link{forest-formatting}}.}
+scalar value is also accepted. See \code{\link{meta-formatting}}.}
 
 \item{calcwidth}{A named list specifying which text is considered when
-calculating column widths; see \code{\link{forest-formatting}}.}
+calculating column widths; see \code{\link{meta-formatting}}.}
 
 \item{colgap}{A named list specifying gaps between columns; a scalar value
-is also accepted. See \code{\link{forest-formatting}}.}
+is also accepted. See \code{\link{meta-formatting}}.}
 
 \item{ref}{A numerical giving the reference value to be plotted as
 a line in the forest plot. No reference line is plotted if
@@ -304,7 +304,7 @@ argument \code{ref} is equal to \code{NA}.}
 \item{cid}{A numeric value or vector, or a named list specifying clinically important
 differences (CID) / decision thresholds used to calculate probabilities
 of clinically important benefit or harm, or not important effects
-(see Details); see \code{\link{forest-formatting}}.}
+(see Details); see \code{\link{meta-formatting}}.}
 
 \item{xlab}{A label for the x-axis. By default, no label is printed,
 except for meta-analyses of single proportions, incidence rates,
@@ -339,7 +339,7 @@ header line or a character string ("both", "below", "").}
 
 \item{addrow}{A logical value indicating whether an empty row is
 printed above study results, or a named list specifying row-spacing
-settings; see \code{\link{forest-formatting}}.}
+settings; see \code{\link{meta-formatting}}.}
 
 \item{addrows.below.overall}{A numeric value indicating how many
 empty rows are printed between meta-analysis results and
@@ -518,7 +518,7 @@ the argument \code{device.args}.
 
 By default, treatment estimates and confidence intervals are
 plotted in the following way. The plot types can be specified with the
-named list \code{type}; see \code{\link{forest-formatting}} for the
+named list \code{type}; see \code{\link{meta-formatting}} for the
 available list elements. The individual arguments \code{type.study},
 \code{type.common}, \code{type.random}, \code{type.subgroup},
 \code{type.subgroup.common}, and \code{type.subgroup.random} are also
@@ -703,7 +703,7 @@ The width of information printed in the leftmost column is automatically
 included when calculating the width of the forest plot. Consequently, this
 information does not overlap with the forest plot or x-axis by default. The
 automatic calculation can be disabled using the relevant elements of
-\code{calcwidth}; see \code{\link{forest-formatting}}. Gaps between
+\code{calcwidth}; see \code{\link{meta-formatting}}. Gaps between
 columns and plot elements can be adjusted with the named list
 \code{colgap} or the corresponding individual arguments.
 
@@ -767,7 +767,7 @@ the meta-analysis results if argument \code{overall.hetstat = TRUE}
 (see list of arguments following \code{overall.hetstat}).
 
 In addition, results for various statistical tests can be printed using
-the named list \code{test}; see \code{\link{forest-formatting}} for the
+the named list \code{test}; see \code{\link{meta-formatting}} for the
 available list elements. The individual arguments \code{test.overall},
 \code{test.overall.common}, \code{test.overall.random},
 \code{test.subgroup}, \code{test.subgroup.common},
@@ -869,7 +869,7 @@ order for subgroup results is the same as see in the forest plot.
 
 The named list \code{text} can be used to change labels identifying
 overall results (common-effect and random-effects models) and prediction
-intervals; see \code{\link{forest-formatting}} for the available list
+intervals; see \code{\link{meta-formatting}} for the available list
 elements. The individual arguments \code{text.common},
 \code{text.random}, and \code{text.predict} are also supported. By
 default, the following text is printed:
@@ -1216,7 +1216,7 @@ A re-evaluation of random-effects meta-analysis.
 \bold{172}, 137-59
 }
 \seealso{
-\code{\link{forest-formatting}},
+\code{\link{meta-formatting}},
   \code{\link{metabin}}, \code{\link{metacont}},
   \code{\link{metagen}}, \code{\link{forest.metabind}},
   \code{\link{settings.meta}}, \code{\link{labels.meta}}

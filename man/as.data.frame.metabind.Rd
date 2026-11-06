@@ -12,6 +12,7 @@
   random = !is.null(x$random),
   prediction = !is.null(x$predict),
   subgroup = !is.null(x$subgroup),
+  drop_all_NA = TRUE,
   ...
 )
 }
@@ -34,6 +35,9 @@ intervals.}
 
 \item{subgroup}{A logical indicating whether to return subgroup results in
 addition to the overall results.}
+
+\item{drop_all_NA}{A logical indicating whether to drop variables containing
+only missing values.}
 
 \item{\dots}{Other arguments (ignored).}
 }

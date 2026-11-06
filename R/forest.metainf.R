@@ -25,13 +25,13 @@
 #'   right side of the forest plot (see Details).
 #' @param lab.NA A character string to label missing values.
 #' @param col A named list specifying colours used in the forest
-#'   plot; see \code{\link{forest-formatting}}.
+#'   plot; see \code{\link{meta-formatting}}.
 #' @param print A named list specifying which information to print in the forest
-#'   plot; see \code{\link{forest-formatting}}.
+#'   plot; see \code{\link{meta-formatting}}.
 #' @param type A character string or vector specifying how to
 #'   plot treatment effects and confidence intervals for meta-analysis results.
 #' @param digits A named list specifying digits used for displayed results; a
-#'   scalar value is also accepted. See \code{\link{forest-formatting}}.
+#'   scalar value is also accepted. See \code{\link{meta-formatting}}.
 #' @param backtransf A logical indicating whether results should be
 #'   back transformed in forest plots. If \code{backtransf = TRUE},
 #'   results for \code{sm = "OR"} are presented as odds ratios rather

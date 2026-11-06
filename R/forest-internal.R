@@ -1843,7 +1843,7 @@ calcwidth_defaults <- function(common, random, overall, subgroup) {
   )
 }
 
-print_defaults <- function(x, class = "meta") {
+print_defaults <- function(x, class = "meta", func = "forest") {
   if (class == "meta") {
     res <- list(
       subgroup.labels = TRUE,
@@ -1878,23 +1878,48 @@ print_defaults <- function(x, class = "meta") {
       cidprop = FALSE)
   }
   else if (class == "metabind") {
-    res <- list(
-      studlab = TRUE,
-      model = NULL,
-      k = TRUE,
-      sm = NULL,
-      pval = FALSE,
-      stat = FALSE,
-      null.effect = FALSE,
-      I2 = FALSE,
-      tau2 = gs("forest.tau2"),
-      tau2.ci = gs("forest.tau2.ci"),
-      tau = gs("forest.tau"),
-      tau.ci = gs("forest.tau.ci"),
-      Q = FALSE,
-      pval.Q = FALSE,
-      pval.Q.b = NULL,
-      subgroup.name = FALSE)
+    func <- setchar(func, c("forest", "print"), length = 1)
+    #
+    if (func == "forest") {
+      res <- list(
+        studlab = TRUE,
+        model = NULL,
+        k = TRUE,
+        sm = NULL,
+        pval = FALSE,
+        stat = FALSE,
+        null.effect = FALSE,
+        I2 = FALSE,
+        tau2 = gs("forest.tau2"),
+        tau2.ci = gs("forest.tau2.ci"),
+        tau = gs("forest.tau"),
+        tau.ci = gs("forest.tau.ci"),
+        Q = FALSE,
+        pval.Q = FALSE,
+        pval.Q.b = NULL,
+        subgroup.name = FALSE)
+    }
+    else {
+      res <- list(
+        k = TRUE,
+        sm = NULL,
+        se = FALSE,
+        pval = TRUE,
+        stat = TRUE,
+        null.effect = FALSE,
+        I2 = gs("print.I2"),
+        I2.ci = FALSE,
+        tau2 = gs("print.tau2"),
+        tau2.ci = FALSE,
+        tau = gs("print.tau"),
+        tau.ci = FALSE,
+        Q = gs("print.Q"),
+        pval.Q = NULL,
+        H = FALSE,
+        H.ci = FALSE,
+        pval.Q.b = NULL,
+        subgroup.name = FALSE)
+    }
   }
   #
   res
@@ -1963,7 +1988,7 @@ just_defaults <- function(layout) {
   )
 }
 
-digits_defaults <- function(class = "meta") {
+digits_defaults <- function(class = "meta", func = "forest") {
   if (class == "meta") {
     digits <- gs("digits.forest")
     #
@@ -2000,16 +2025,32 @@ digits_defaults <- function(class = "meta") {
                 percent = 1)
   }
   else if (class == "metabind") {
-    res <- list(
-      digits = gs("digits.forest"),
-      se = gs("digits.se"),
-      stat = gs("digits.stat"),
-      pval = max(gs("digits.pval") - 2, 2),
-      pval.Q = max(gs("digits.pval.Q") - 2, 2),
-      Q = gs("digits.Q"),
-      tau2 = gs("digits.tau2"),
-      tau = gs("digits.tau"),
-      I2 = gs("digits.I2"))
+    func <- setchar(func, c("forest", "print"), length = 1)
+    #
+    if (func == "forest") {
+      res <- list(
+        digits = gs("digits.forest"),
+        se = gs("digits.se"),
+        stat = gs("digits.stat"),
+        pval = max(gs("digits.pval") - 2, 2),
+        pval.Q = max(gs("digits.pval.Q") - 2, 2),
+        Q = gs("digits.Q"),
+        tau2 = gs("digits.tau2"),
+        tau = gs("digits.tau"),
+        I2 = gs("digits.I2"))
+    }
+    else {
+      res <- list(
+        digits = gs("digits.forest"),
+        se = gs("digits.se"),
+        stat = gs("digits.stat"),
+        pval = gs("digits.pval"),
+        pval.Q = gs("digits.pval.Q"),
+        Q = gs("digits.Q"),
+        tau2 = gs("digits.tau2"),
+        tau = gs("digits.tau"),
+        I2 = gs("digits.I2"))
+    }
   }
   #
   res

@@ -1,10 +1,15 @@
-#' Formatting arguments for forest plots
+#' Formatting arguments for printouts and forest plots
 #'
 #' @description
-#' Formatting arguments for forest plots created with R package \bold{meta}.
+#' Formatting arguments for printouts and forest plots.
 #'
 #' @details
-#' In R package \bold{meta}, formatting arguments for forest plots can be
+#' In R package \bold{meta}, formatting arguments for printouts can be
+#' provided in the following named lists:
+#' 
+#' \code{print}, \code{digits}.
+#' 
+#' Furthermore, formatting arguments for forest plots can be
 #' provided in the following named lists:
 #' 
 #' \code{test}, \code{label}, \code{rob}, \code{fs}, \code{ff},
@@ -391,7 +396,7 @@
 #' }
 #' }
 #'
-#' @name forest-formatting
+#' @name meta-formatting
 #' @seealso \code{\link{forest.meta}}, \code{\link{settings.meta}},
 #'   \code{\link[grid]{gpar}}
 #' 

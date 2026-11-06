@@ -1,24 +1,26 @@
 catmeth_metabind <- function(x,
                              #
-                             common = !is.null(x$common),
-                             random = !is.null(x$random),
-                             prediction = !is.null(x$predict),
+                             common, random, prediction,
                              #
-                             print.tau2 = random, print.tau2.ci = FALSE,
-                             print.tau = FALSE, print.tau.ci = FALSE,
-                             print.I2 = FALSE,
-                             #
-                             print.df = TRUE,
+                             print.tau2,
+                             print.tau2.ci,
+                             print.tau,
+                             print.tau.ci,
+                             print.I2,
+                             print.pval,
                              #
                              backtransf,
-                             pscale = 1, irscale = 1, irunit = "units",
                              #
-                             digits = gs("digits"),
-                             digits.tau2 = gs("digits.tau2"),
-                             digits.tau = gs("digits.tau"),
-                             big.mark = gs("big.mark"),
+                             digits,
+                             digits.tau2,
+                             digits.tau,
                              #
-                             forest = FALSE) {
+                             pscale,
+                             irscale, irunit,
+                             #
+                             big.mark,
+                             #
+                             forest) {
   
   #
   #
@@ -27,6 +29,8 @@ catmeth_metabind <- function(x,
   #
   
   chkclass(x, "metabind")
+  #
+  print.df <- TRUE
   #
   if (!(common || random || prediction))
     return(invisible(""))
@@ -845,115 +849,117 @@ catmeth_metabind <- function(x,
   #
   #
   
-  details.null <- NULL
-  dat.null <- NULL
-  #
-  for (i in seq_len(nrow(meth))) {
-    null.effect <- meth$null.effect[i]
+  if (print.pval) {
+    details.null <- NULL
+    dat.null <- NULL
     #
-    if (is.null(null.effect) || is.na(null.effect))
-      next
-    #
-    sm.i <- meth$sm[i]
-    null.effect.original <-
-      meth$class[i] %in% c("metacor", "metamean", "metaprop", "metarate")
-    #
-    # Use [[i]] for scalar columns and transformation-argument list-columns.
-    #
-    func.transf.i <- meth$func.transf[[i]]
-    func.backtransf.i <- meth$func.backtransf[[i]]
-    args.transf.i <- meth$args.transf[[i]]
-    args.backtransf.i <- meth$args.backtransf[[i]]
-    #
-    # bind_rows() can introduce NA for absent transformation names.
-    #
-    if (is.character(func.transf.i) && anyNA(func.transf.i))
-      func.transf.i <- NULL
-    #
-    if (is.character(func.backtransf.i) && anyNA(func.backtransf.i))
-      func.backtransf.i <- NULL
-    #
-    n.i <- if (sm.i == "PFT") meth$n.harmonic.mean[[i]] else NULL
-    time.i <- if (sm.i == "IRFT") meth$t.harmonic.mean[[i]] else NULL
-    #
-    if (!backtransf && null.effect.original)
-      null.effect <-
-      transf(
-        null.effect, sm.i,
-        n = n.i,
-        time = time.i,
-        func = func.transf.i,
-        args = args.transf.i
-      )
-    else if (backtransf && !null.effect.original)
-      null.effect <-
-      backtransf(
-        null.effect, sm.i,
-        n = n.i,
-        time = time.i,
-        func = func.backtransf.i,
-        args = args.backtransf.i
-      )
-    #
-    if (is.na(null.effect))
-      next
-    #
-    if (!is.null(pscale) && pscale != 1) {
-      prefix <- "\n- Null hypothesis: "
-      null.effect <- null.effect * pscale
-      suffix <- paste0(
-        " events per ",
-        format(pscale, scientific = FALSE, big.mark = big.mark),
-        " observations")
-    }
-    else if (!is.null(irscale) && irscale != 1) {
-      prefix <- "\n- Null hypothesis: "
-      null.effect <- null.effect * irscale
-      suffix <- paste0(
-        " events per ",
-        format(irscale, scientific = FALSE, big.mark = big.mark),
-        " ", irunit)
-    }
-    else {
-      sm.lab <- smlab(
-        sm.i,
-        backtransf = backtransf,
-        pscale = 1,
-        irscale = 1,
-        forest = forest,
-        func.backtransf = func.backtransf.i
-      )
+    for (i in seq_len(nrow(meth))) {
+      null.effect <- meth$null.effect[i]
       #
-      if (sm.lab == "")
-        sm.lab <- "effect"
+      if (is.null(null.effect) || is.na(null.effect))
+        next
       #
-      prefix <- paste0("\n- Null hypothesis: ", sm.lab, " = ")
-      suffix <- ""
-    }
-    #
-    dat.null <- bind_rows(
-      dat.null,
-      data.frame(prefix = prefix, value = null.effect, suffix = suffix)
-    )
-  }
-  #
-  if (!is.null(dat.null)) {
-    labels.null <- unique(dat.null[, c("prefix", "suffix"), drop = FALSE])
-    #
-    for (i in seq_len(nrow(labels.null))) {
-      sel.null <- dat.null$prefix == labels.null$prefix[i] &
-        dat.null$suffix == labels.null$suffix[i]
-      details.null <- c(
-        details.null,
-        paste0(labels.null$prefix[i],
-               cond(dat.null$value[sel.null], only.finite = FALSE,
-                    digits = digits, big.mark = big.mark),
-               labels.null$suffix[i])
+      sm.i <- meth$sm[i]
+      null.effect.original <-
+        meth$class[i] %in% c("metacor", "metamean", "metaprop", "metarate")
+      #
+      # Use [[i]] for scalar columns and transformation-argument list-columns
+      #
+      func.transf.i <- meth$func.transf[[i]]
+      func.backtransf.i <- meth$func.backtransf[[i]]
+      args.transf.i <- meth$args.transf[[i]]
+      args.backtransf.i <- meth$args.backtransf[[i]]
+      #
+      # bind_rows() can introduce NA for absent transformation names.
+      #
+      if (is.character(func.transf.i) && anyNA(func.transf.i))
+        func.transf.i <- NULL
+      #
+      if (is.character(func.backtransf.i) && anyNA(func.backtransf.i))
+        func.backtransf.i <- NULL
+      #
+      n.i <- if (sm.i == "PFT") meth$n.harmonic.mean[[i]] else NULL
+      time.i <- if (sm.i == "IRFT") meth$t.harmonic.mean[[i]] else NULL
+      #
+      if (!backtransf && null.effect.original)
+        null.effect <-
+        transf(
+          null.effect, sm.i,
+          n = n.i,
+          time = time.i,
+          func = func.transf.i,
+          args = args.transf.i
+        )
+      else if (backtransf && !null.effect.original)
+        null.effect <-
+        backtransf(
+          null.effect, sm.i,
+          n = n.i,
+          time = time.i,
+          func = func.backtransf.i,
+          args = args.backtransf.i
+        )
+      #
+      if (is.na(null.effect))
+        next
+      #
+      if (!is.null(pscale) && pscale != 1) {
+        prefix <- "\n- Null hypothesis: "
+        null.effect <- null.effect * pscale
+        suffix <- paste0(
+          " events per ",
+          format(pscale, scientific = FALSE, big.mark = big.mark),
+          " observations")
+      }
+      else if (!is.null(irscale) && irscale != 1) {
+        prefix <- "\n- Null hypothesis: "
+        null.effect <- null.effect * irscale
+        suffix <- paste0(
+          " events per ",
+          format(irscale, scientific = FALSE, big.mark = big.mark),
+          " ", irunit)
+      }
+      else {
+        sm.lab <- smlab(
+          sm.i,
+          backtransf = backtransf,
+          pscale = 1,
+          irscale = 1,
+          forest = forest,
+          func.backtransf = func.backtransf.i
+        )
+        #
+        if (sm.lab == "")
+          sm.lab <- "effect"
+        #
+        prefix <- paste0("\n- Null hypothesis: ", sm.lab, " = ")
+        suffix <- ""
+      }
+      #
+      dat.null <- bind_rows(
+        dat.null,
+        data.frame(prefix = prefix, value = null.effect, suffix = suffix)
       )
     }
+    #
+    if (!is.null(dat.null)) {
+      labels.null <- unique(dat.null[, c("prefix", "suffix"), drop = FALSE])
+      #
+      for (i in seq_len(nrow(labels.null))) {
+        sel.null <- dat.null$prefix == labels.null$prefix[i] &
+          dat.null$suffix == labels.null$suffix[i]
+        details.null <- c(
+          details.null,
+          paste0(labels.null$prefix[i],
+                 cond(dat.null$value[sel.null], only.finite = FALSE,
+                      digits = digits, big.mark = big.mark),
+                 labels.null$suffix[i])
+        )
+      }
+    }
+    #
+    details <- c(details, details.null)
   }
-  #
-  details <- c(details, details.null)
   
   #
   #

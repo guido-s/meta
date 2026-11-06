@@ -1,4 +1,4 @@
-#' Forest plot to display the result of a meta-analysis
+#' Forest plot to display the results of several meta-analyses
 #' 
 #' @description
 #' Draws a forest plot in the active graphics window (using grid
@@ -33,14 +33,14 @@
 #'   heterogeneity statistics should only be printed on subgroup
 #'   level.
 #' @param col A named list specifying colours used in the forest
-#'   plot; see \code{\link{forest-formatting}}.
+#'   plot; see \code{\link{meta-formatting}}.
 #' @param print A named list specifying which information to print in the forest
-#'   plot; see \code{\link{forest-formatting}}.
+#'   plot; see \code{\link{meta-formatting}}.
 #' @param type A named list specifying graphical types for estimates, common
 #'   effect estimates, random effect estimates, and prediction intervals;
-#'   see \code{\link{forest-formatting}}.
+#'   see \code{\link{meta-formatting}}.
 #' @param digits A named list specifying digits used for displayed results; a
-#'   scalar value is also accepted. See \code{\link{forest-formatting}}.
+#'   scalar value is also accepted. See \code{\link{meta-formatting}}.
 #' @param leftcols A character vector specifying columns to be printed on the
 #'   left side of the forest plot or a logical value; see
 #'   \code{\link{forest.meta}}.
@@ -388,8 +388,7 @@ forest.metabind <- function(x,
   # Types
   #
   type <- as_named_list(type)
-  type.list <-
-    merge_legacy(type, args, type_defaults(class = "metabind"), "type")
+  type.list <- merge_legacy(type, args, type_defaults(class = "metabind"))
   #
   types <- type.list$res
   args <- type.list$args
@@ -436,7 +435,7 @@ forest.metabind <- function(x,
   # Define colours
   #
   col <- as_named_list(col)
-  col.list <- merge_legacy(col, args, col_defaults(x, "metabind"), "col")
+  col.list <- merge_legacy(col, args, col_defaults(x, "metabind"))
   #
   col <- col.list$res
   args <- col.list$args
@@ -499,8 +498,7 @@ forest.metabind <- function(x,
   #
   # Print information
   #
-  print.list <-
-    merge_legacy(print, args, print_defaults(x, "metabind"), "print")
+  print.list <- merge_legacy(print, args, print_defaults(x, "metabind"))
   #
   print <- print.list$res
   args <- print.list$args
@@ -549,8 +547,7 @@ forest.metabind <- function(x,
   # Digits
   #
   digits <- as_named_list(digits)
-  digits.list <-
-    merge_legacy(digits, args, digits_defaults("metabind"), "digits")
+  digits.list <- merge_legacy(digits, args, digits_defaults("metabind"))
   #
   digitss <- digits.list$res
   args <- digits.list$args
@@ -991,16 +988,30 @@ forest.metabind <- function(x,
   fdat$class[fdat$class== "metamiss"] <- "metabin"
   classes <- unique(fdat$class)
   #
-  text.details <- catmeth_metabind(x, common, random, prediction,
-                                   print.tau2 = print.tau2,
-                                   print.tau2.ci = print.tau2.ci,
-                                   print.tau = print.tau,
-                                   print.tau.ci = print.tau.ci,
-                                   backtransf = x$backtransf,
-                                   digits = digits,
-                                   pscale = pscale,
-                                   irscale = irscale, irunit = irunit,
-                                   forest = TRUE)
+  text.details <-
+    catmeth_metabind(x,
+                     #
+                     common, random, prediction,
+                     #
+                     print.tau2 = print.tau2,
+                     print.tau2.ci = print.tau2.ci,
+                     print.tau = print.tau,
+                     print.tau.ci = print.tau.ci,
+                     print.I2 = print.I2,
+                     print.pval = print.pval,
+                     #
+                     backtransf = x$backtransf,
+                     #
+                     digits = digits,
+                     digits.tau2 = digits.tau2,
+                     digits.tau = digits.tau,
+                     #
+                     pscale = pscale,
+                     irscale = irscale, irunit = irunit,
+                     #
+                     big.mark = big.mark,
+                     #
+                     forest = TRUE)
   #
   forest_args$x$.text.details.methods <- text.details
   #

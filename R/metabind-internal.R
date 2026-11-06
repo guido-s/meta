@@ -33,6 +33,7 @@ extrMA <- function(id, x, name, type = "overall", outclab = NULL) {
       #
       level.ma = x$level.ma,
       level.predict = x$level.predict,
+      level.hetstat = x$level.hetstat,
       #
       three.level = replaceNULL(x$three.level, NA),
       rho = replaceNULL(x$rho, NA),

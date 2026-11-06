@@ -2,7 +2,7 @@
 % Please edit documentation in R/forest.metabind.R
 \name{forest.metabind}
 \alias{forest.metabind}
-\title{Forest plot to display the result of a meta-analysis}
+\title{Forest plot to display the results of several meta-analyses}
 \usage{
 \method{forest}{metabind}(
   x,
@@ -69,17 +69,17 @@ heterogeneity statistics should only be printed on subgroup
 level.}
 
 \item{col}{A named list specifying colours used in the forest
-plot; see \code{\link{forest-formatting}}.}
+plot; see \code{\link{meta-formatting}}.}
 
 \item{print}{A named list specifying which information to print in the forest
-plot; see \code{\link{forest-formatting}}.}
+plot; see \code{\link{meta-formatting}}.}
 
 \item{type}{A named list specifying graphical types for estimates, common
 effect estimates, random effect estimates, and prediction intervals;
-see \code{\link{forest-formatting}}.}
+see \code{\link{meta-formatting}}.}
 
 \item{digits}{A named list specifying digits used for displayed results; a
-scalar value is also accepted. See \code{\link{forest-formatting}}.}
+scalar value is also accepted. See \code{\link{meta-formatting}}.}
 
 \item{leftcols}{A character vector specifying columns to be printed on the
 left side of the forest plot or a logical value; see
