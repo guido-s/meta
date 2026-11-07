@@ -1,3 +1,14 @@
+test_that("merge_legacy preserves the inferred prefix for NULL input", {
+  print <- NULL
+  res <- meta:::merge_legacy(
+    print, list(print.tau2.ci = TRUE), list(tau2.ci = FALSE)
+  )
+
+  expect_true(res$res$tau2.ci)
+  expect_length(res$args, 0)
+  expect_false(res$miss$tau2.ci)
+})
+
 test_that("merge_legacy maps and removes legacy list arguments", {
   dots <- list(fs.main = 3, graphical = TRUE)
 

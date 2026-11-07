@@ -49,8 +49,11 @@ as.data.frame.metabind <- function(x, row.names = NULL, optional = FALSE,
                                    random = !is.null(x$random),
                                    prediction = !is.null(x$predict),
                                    subgroup = !is.null(x$subgroup),
-                                   drop_all_NA = TRUE,
-                                   ...) {
+                                    drop_all_NA = TRUE,
+                                    ...) {
+  # Get rid of warning 'no visible binding for global variable'
+  model <- method.interval <- id <- seTE <- method <- TE <- adhoc.hakn <-
+    df <- df.hakn <- df.kero <- name <- NULL
   
   chkclass(x, "metabind")
   x <- updateversion(x)

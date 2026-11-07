@@ -20,7 +20,11 @@ catmeth_metabind <- function(x,
                              #
                              big.mark,
                              #
-                             forest) {
+                              forest) {
+  # Get rid of warning 'no visible binding for global variable'
+  model <- method <- df <- id <- name <- outclab <- title <- label.right <-
+    Q <- upper.Rb <- TE <- upper <- level.predict <- text.t <-
+    method.interval <- method.incr <- NULL
   
   #
   #

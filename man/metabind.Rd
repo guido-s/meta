@@ -88,7 +88,7 @@ ma2 <- update(ma, subgroup = region, subgroup.name = "Region")
 #
 mb <- metabind(ma1, ma2, common = FALSE)
 mb
-forest(mb)
+#forest(mb)
 
 # Use various estimation methods for between-study heterogeneity
 # variance

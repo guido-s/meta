@@ -68,7 +68,7 @@
 #' #
 #' mb <- metabind(ma1, ma2, common = FALSE)
 #' mb
-#' forest(mb)
+#' #forest(mb)
 #'
 #' # Use various estimation methods for between-study heterogeneity
 #' # variance
@@ -103,7 +103,9 @@ metabind <- function(...,
                      name = NULL,
                      common = NULL, random = NULL, prediction = NULL,
                      backtransf = NULL, outclab = NULL,
-                     keepdata = TRUE, keepmeta = FALSE) {
+                      keepdata = TRUE, keepmeta = FALSE) {
+  # Get rid of warning 'no visible binding for global variable'
+  id <- NULL
   
   #
   #

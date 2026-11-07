@@ -1161,6 +1161,7 @@ merge_legacy <- function(x, args, default,
                          prefix = deparse(substitute(x)),
                          inherit = NULL, warn = FALSE) {
   nam.x <- deparse(substitute(x))
+  force(prefix)
   #
   if (is.null(x))
     x <- list()

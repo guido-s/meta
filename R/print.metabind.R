@@ -78,8 +78,14 @@ print.metabind <- function(x,
                           text.tau = gs("text.tau"),
                           text.I2 = gs("text.I2"),
                           #
-                          details.methods = gs("details"),
-                          ...) {
+                           details.methods = gs("details"),
+                           ...) {
+  # Get rid of warning 'no visible binding for global variable'
+  ftr <- atr <- model <- name <- method <- method.interval <- TE <- pval <-
+    seTE <- lower <- upper <- adhoc.hakn <- df <- Q <- upper.I2 <- pval.Q <-
+    tau2 <- lower.tau2 <- upper.tau2 <- tau <- lower.tau <- upper.tau <-
+    I2 <- lower.I2 <- H <- lower.H <- upper.H <-
+    level.hetstat <- level.ma <- level.predict <- NULL
   
   #
   #
@@ -208,6 +214,11 @@ print.metabind <- function(x,
   chklogical(print.pval.Q.b)
   chklogical(print.subgroup.name)
   #
+  print.tau2.ci <- print.tau2 && print.tau2.ci
+  print.tau.ci <- print.tau && print.tau.ci
+  print.I2.ci <- print.I2 && print.I2.ci
+  print.H.ci <- print.H && print.H.ci
+  #
   # Digits
   #
   digits <- as_named_list(digits)
@@ -243,11 +254,6 @@ print.metabind <- function(x,
   chklogical(JAMA.pval)
   #
   chklogical(details.methods)
-  #
-  print.tau2.ci <- print.tau2 && print.tau2.ci
-  print.tau.ci <- print.tau && print.tau.ci
-  print.I2.ci <- print.I2 && print.I2.ci
-  print.H.ci <- print.H && print.H.ci
   #
   print.het <- print.tau2 || print.tau || print.I2 || print.H
   #
@@ -312,9 +318,9 @@ print.metabind <- function(x,
   irscale <- makeunique(x$overall$irscale, 1)
   irunit <- makeunique(x$overall$irunit, "units")
   #
-  level.ma <- makeunique(x$overall$level.ma)
-  level.predict <- makeunique(x$overall$level.predict)
-  level.hetstat <- makeunique(x$overall$level.hetstat)
+  same.level.ma <- length(unique(x$overall$level.ma)) == 1
+  same.level.predict <- length(unique(x$overall$level.predict)) == 1
+  same.level.hetstat <- length(unique(x$overall$level.hetstat)) == 1
   #
   if (x$same.sm) {
     sm <- label.sm <- x$sm
@@ -436,14 +442,16 @@ print.metabind <- function(x,
   #
   if (common) {
     dat.c <- dat %>% filter(model == "Common effect model") %>%
-      select(name, text, sm, method, method.interval, TE:pval) %>%
+      select(name, text, sm, method, method.interval, level.ma, TE:pval) %>%
       mutate(
         TE = formatN(TE, digits = digits, lab.NA = lab.NA, big.mark = big.mark),
         seTE = formatN(seTE, digits = digits.se, lab.NA = lab.NA,
                        big.mark = big.mark),
         lower = 
           formatCI(lower, upper, digits = digits, lab.NA = lab.NA,
-                   na.lab = TRUE)) %>%
+                   na.lab = TRUE),
+        #
+        level.ma = round(level.ma, 4)) %>%
       drop_allNAs()
     #
     if (is.null(dat.c$statistic) || allNA(dat.c$statistic))
@@ -471,8 +479,14 @@ print.metabind <- function(x,
     else
       dat.c$seTE <- NULL
     #
-    names(dat.c)[names(dat.c) == "lower"] <-
-      percent_label(level.ma)
+    if (same.level.ma) {
+      names(dat.c)[names(dat.c) == "lower"] <- percent_label(dat.c$level.ma[1])
+      dat.c$level.ma <- NULL
+    }
+    else {
+      names(dat.c)[names(dat.c) == "lower"] <- "CI"
+      names(dat.c)[names(dat.c) == "level.ma"] <- "level"
+    }
     #
     if (print.stat)
       names(dat.c)[names(dat.c) == "statistic"] <- "z"
@@ -491,8 +505,10 @@ print.metabind <- function(x,
     if (!print.sm)
       dat.c$sm <- NULL
     #
-    if (length(unique(dat.c$method.interval)) == 1)
-      dat.c$method.interval <- NULL
+    names(dat.c)[names(dat.c) == "method.interval"] <- "interval"
+    #
+    if (all(dat.c$interval == "classic"))
+      dat.c$interval <- NULL
     #
     if (length(unique(dat.c$text)) == nrow(dat.c))
       dat.c$method <- NULL
@@ -505,7 +521,8 @@ print.metabind <- function(x,
   #
   if (random) {
     dat.r <- dat %>% filter(model == "Random effects model") %>%
-      select(name, text, sm, method, method.interval, adhoc.hakn, df, TE:pval) %>%
+      select(name, text, sm, method, method.interval, adhoc.hakn, level.ma,
+             TE:pval, df) %>%
       mutate(
         TE = formatN(TE, digits = digits, lab.NA = lab.NA, big.mark = big.mark),
         seTE = formatN(seTE, digits = digits.se, lab.NA = lab.NA,
@@ -514,7 +531,9 @@ print.metabind <- function(x,
           formatCI(lower, upper, digits = digits, lab.NA = lab.NA,
                    na.lab = TRUE),
         #
-        df = round(df, 2)) %>%
+        df = round(df, 2),
+        #
+        level.ma = round(level.ma, 4)) %>%
       drop_allNAs()
     #
     if (is.null(dat.r$statistic) || allNA(dat.r$statistic))
@@ -542,12 +561,17 @@ print.metabind <- function(x,
     else
       dat.r$seTE <- NULL
     #
-    names(dat.r)[names(dat.r) == "lower"] <- percent_label(level.ma)
+    if (same.level.ma) {
+      names(dat.r)[names(dat.r) == "lower"] <- percent_label(dat.r$level.ma[1])
+      dat.r$level.ma <- NULL
+    }
+    else {
+      names(dat.r)[names(dat.r) == "lower"] <- "CI"
+      names(dat.r)[names(dat.r) == "level.ma"] <- "level"
+    }
     #
     if (all(is.infinite(dat.r$df)))
       dat.r$df <- NULL
-    else
-      dat.r %<>% relocate(df, .after = pval)
     #
     if (print.stat) {
       is.t <- dat.r$method.interval %in% c("HK", "KR", "CR0", "CR1", "CR2")
@@ -576,9 +600,16 @@ print.metabind <- function(x,
     if (!print.sm)
       dat.r$sm <- NULL
     #
-    if (nrow(unique(dat.r[, c("method.interval", "adhoc.hakn"),
-                          drop = FALSE])) == 1) {
-      dat.r$method.interval <- NULL
+    names(dat.r)[names(dat.r) == "method.interval"] <- "interval"
+    #
+    if (all(dat.r$interval == "classic")) {
+      dat.r$interval <- NULL
+      dat.r$adhoc.hakn <- NULL
+    }
+    else if (!any(dat.r$interval == "HK"))
+      dat.r$adhoc.hakn <- NULL
+    #
+    if (all(dat.r$adhoc.hakn == "")) {
       dat.r$adhoc.hakn <- NULL
     }
     #
@@ -593,12 +624,16 @@ print.metabind <- function(x,
   #
   if (prediction) {
     dat.p <- dat %>% filter(model == "Prediction interval") %>%
-      select(name, text, sm, method, method.interval, adhoc.hakn, df,
-             seTE:upper) %>%
+      select(name, text, sm, method, method.interval, adhoc.hakn, level.predict,
+             seTE:upper, df) %>%
       mutate(
         lower = 
           formatCI(lower, upper, digits = digits, lab.NA = lab.NA,
-                   na.lab = TRUE)) %>%
+                   na.lab = TRUE),
+        #
+        df = round(df, 2),
+        #
+        level.predict = round(level.predict, 4)) %>%
       drop_allNAs()
     #
     if (all(dat.p$text == "Prediction interval"))
@@ -611,7 +646,18 @@ print.metabind <- function(x,
     else
       dat.p$seTE <- NULL
     #
-    names(dat.p)[names(dat.p) == "lower"] <-  percent_label(level.predict)
+    if (all(is.infinite(dat.p$df)))
+      dat.p$df <- NULL
+    #
+    if (same.level.predict) {
+      names(dat.p)[names(dat.p) == "lower"] <-
+        percent_label(dat.p$level.predict[1])
+      dat.p$level.predict <- NULL
+    }
+    else {
+      names(dat.p)[names(dat.p) == "lower"] <- "PI"
+      names(dat.p)[names(dat.p) == "level.predict"] <- "level"
+    }
     #
     # Drop additional variables
     #
@@ -620,8 +666,18 @@ print.metabind <- function(x,
     if (!print.sm)
       dat.p$sm <- NULL
     #
-    if (length(unique(dat.p$method.interval)) == 1)
-      dat.p$method.interval <- NULL
+    names(dat.p)[names(dat.p) == "method.interval"] <- "interval"
+    #
+    if (all(dat.p$method == "Inverse")) {
+      dat.p$method <- NULL
+    }
+    #
+    if (!any(grepl("HK", dat.p$interval)))
+      dat.p$adhoc.hakn <- NULL
+    #
+    if (all(dat.p$adhoc.hakn == "")) {
+      dat.p$adhoc.hakn <- NULL
+    }
     #
     if (length(unique(dat.p$text)) == nrow(dat.p))
       dat.p$method <- NULL
@@ -634,7 +690,7 @@ print.metabind <- function(x,
   #
   if (print.het) {
     dat.h <- dat %>% filter(model == "Random effects model") %>% 
-      select(name, text, sm, method, method.interval, Q:upper.I2) %>%
+      select(name, text, sm, method, level.hetstat, Q:upper.I2) %>%
       unique() %>%
       mutate(
         Q = formatN(Q, digits = digits.Q, lab.NA = lab.NA,
@@ -724,8 +780,15 @@ print.metabind <- function(x,
       dat.h$lower.tau2 <- NULL
     }
     #
+    if (same.level.hetstat) {
+      cilab.hetstat <- percent_label(dat.h$level.hetstat[1])
+      dat.h$level.hetstat <- NULL
+    }
+    else
+      cilab.hetstat <- "CI"
+    #
     if (print.tau2.ci)
-      names(dat.h)[names(dat.h) == "lower.tau2"] <- percent_label(level.hetstat)
+      names(dat.h)[names(dat.h) == "lower.tau2"] <- cilab.hetstat
     else
       dat.h$lower.tau2 <- NULL
     #
@@ -735,7 +798,7 @@ print.metabind <- function(x,
       dat.h$tau <- NULL
     #
     if (print.tau.ci)
-      names(dat.h)[names(dat.h) == "lower.tau"] <- percent_label(level.hetstat)
+      names(dat.h)[names(dat.h) == "lower.tau"] <- cilab.hetstat
     else
       dat.h$lower.tau <- NULL
     #
@@ -745,7 +808,7 @@ print.metabind <- function(x,
       dat.h$I2 <- NULL
     #
     if (print.I2.ci)
-      names(dat.h)[names(dat.h) == "lower.I2"] <- percent_label(level.hetstat)
+      names(dat.h)[names(dat.h) == "lower.I2"] <- cilab.hetstat
     else
       dat.h$lower.I2 <- NULL
     #
@@ -753,9 +816,14 @@ print.metabind <- function(x,
       dat.h$H <- NULL
     #
     if (print.H.ci)
-      names(dat.h)[names(dat.h) == "lower.H"] <- percent_label(level.hetstat)
+      names(dat.h)[names(dat.h) == "lower.H"] <- cilab.hetstat
     else
       dat.h$lower.H <- NULL
+    #
+    if (!print.tau2.ci & !print.tau.ci & !print.I2.ci & !print.H.ci)
+      dat.h$level.hetstat <- NULL
+    else
+      names(dat.h)[names(dat.h) == "level.hetstat"] <- "level"
     #
     name.h <- dat.h$name
     dat.h$name <- NULL

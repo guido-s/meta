@@ -99,27 +99,8 @@
 #' @keywords hplot
 #' 
 #' @examples
-#' data(Fleiss1993cont)
-#' 
-#' # Add some (fictitious) grouping variables:
-#' #
-#' Fleiss1993cont$age <- c(55, 65, 55, 65, 55)
-#' Fleiss1993cont$region <- c("Europe", "Europe", "Asia", "Asia", "Europe")
-#' 
-#' ma <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
-#'   data = Fleiss1993cont, sm = "SMD")
-#'
-#' # Conduct two subgroup analyses
-#' #
-#' ma1 <- update(ma, subgroup = age, subgroup.name = "Age group")
-#' ma2 <- update(ma, subgroup = region, subgroup.name = "Region")
-#'
-#' # Combine subgroup meta-analyses and show forest plot with subgroup
-#' # results
-#' #
-#' mb <- metabind(ma1, ma2)
-#' mb
-#' forest(mb)
+#' # Examples:
+#' # example(metabind)
 #'
 #' @method forest metabind
 #' @export
