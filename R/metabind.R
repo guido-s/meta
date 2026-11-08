@@ -324,8 +324,9 @@ metabind <- function(...,
   # Name of meta-analysis object
   #
   if (missing.name) {
-    name <- name.i
-    name[name == ""] <- paste0("meta", seq.meta[name == ""])
+    name <- paste0("meta", seq.meta)
+    #name <- name.i
+    #name[name == ""] <- paste0("meta", seq.meta[name == ""])
   }
   else
     chklength(name, length(is.subgroup),
@@ -347,6 +348,9 @@ metabind <- function(...,
       if (random[i])
         name[i] <- paste(name[i], args[[i]]$method.tau, sep = ".")
   }
+  #
+  # Fallback - set 'name' to meta1, ..., if the previous assignments do not
+  # results in unique names
   #
   if (length(unique(name)) != length(name))
     name <- paste0("meta", seq.meta)
@@ -572,34 +576,6 @@ metabind <- function(...,
       random = res.subgroup.random,
       predict = res.subgroup.predict)
   }
-  #
-  # Check for unique methods and results
-  #
-  same.overall <- FALSE
-  same.common <- if (!is.null(res.common)) FALSE else NA
-  same.random <- if (!is.null(res.random)) FALSE else NA
-  same.predict <- if (!is.null(res.predict)) FALSE else NA
-  #
-  if (same.data) {
-    overall.subgroup <- res.overall %>% select(-id, -name)
-    #
-    same.overall <- sum(!duplicated(overall.subgroup)) == 1
-    #
-    if (!is.null(res.common)) {
-      common.subgroup <- res.common %>% select(-id)
-      same.common <- sum(!duplicated(common.subgroup)) == 1
-    }
-    #
-    if (!is.null(res.random)) {
-      random.subgroup <- res.random %>% select(-id)
-      same.random <- sum(!duplicated(random.subgroup)) == 1
-    }
-    #
-    if (!is.null(res.predict)) {
-      predict.subgroup <- res.predict %>% select(-id)
-      same.predict <- sum(!duplicated(predict.subgroup)) == 1
-    }
-  }
   
   #
   #
@@ -616,19 +592,11 @@ metabind <- function(...,
     #
     subgroup = list.subgroup,
     #
-    same.sm = same.sm,
-    sm = sm,
     sm.family = sm.family,
     #
     backtransf = backtransf,
     #
-    same.data = same.data,
     data = list.data,
-    #
-    same.overall = same.overall,
-    same.common = same.common,
-    same.random = same.random,
-    same.predict = same.predict,
     #
     meta = list.meta,
     #

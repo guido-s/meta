@@ -195,7 +195,11 @@ chklist <- function(x, name = NULL) {
   invisible(NULL)
 }
 
-chklogical <- function(x, name = NULL, text = "", length = 1) {
+chklogical <- function(x, name = NULL, text = "", length = 1, NULL.ok = FALSE) {
+  
+  if (NULL.ok && is.null(x))
+    return(invisible(NULL))
+  
   #
   # Check whether argument is logical
   #

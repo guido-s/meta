@@ -19,8 +19,8 @@ extrMA <- function(id, x, name, type = "overall", outclab = NULL) {
   if (type == "overall") {
     res <- data.frame(
       id,
-      class = setClass(x),
       name = name[id],
+      class = setClass(x),
       subgroup = NA,
       #
       sm = x$sm,
@@ -110,10 +110,10 @@ extrMA <- function(id, x, name, type = "overall", outclab = NULL) {
       #
       res$incr <- format_seq(x$incr, exclude = 0, digits = 4)
       res$method.incr <- x$method.incr
+      res$sparse <- x$sparse
     }
     #
     if (metamiss) {
-      res$class <- "metamiss"
       res$method.miss <- x$method.miss
       #
       res$IMOR.e <- format_seq(x$IMOR.e, digits = 4)
@@ -171,7 +171,7 @@ extrMA <- function(id, x, name, type = "overall", outclab = NULL) {
   else if (common) {
     res <- data.frame(
       id,
-      model = "Common effect model",
+      type = "Common effect model",
       method = x$method,
       #
       method.interval = x$method.common.ci,
@@ -194,7 +194,7 @@ extrMA <- function(id, x, name, type = "overall", outclab = NULL) {
   else if (random) {
     res <- data.frame(
       id,
-      model = "Random effects model",
+      type = "Random effects model",
       method = x$method.random,
       #
       method.interval = x$method.random.ci,
@@ -217,7 +217,7 @@ extrMA <- function(id, x, name, type = "overall", outclab = NULL) {
   else if (type == "prediction") {
     res <- data.frame(
       id,
-      model = "Prediction interval",
+      type = "Prediction interval",
       method = x$method.random,
       #
       method.interval = x$method.predict,
@@ -467,10 +467,11 @@ addNAs2var <- function(x, n) {
 setClass <- function(x) {
   if (inherits(x, "trimfill"))
     class <- "trimfill"
+  else if (inherits(x, "metamiss"))
+    class <- "metamiss"
   else
     class <- class(x)
   #
-  class <- class[class != "metamiss"]
   class <- class[class != "meta"]
   #
   if (length(class) > 1) {

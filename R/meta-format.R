@@ -185,7 +185,10 @@ formatCI <- function(lower, upper,
 
 formatN <- function(x, digits = 2, lab.NA = "--", big.mark = "",
                     format.whole.numbers = TRUE,
-                    monospaced = FALSE) {
+                    monospaced = FALSE, keep.allNA = FALSE) {
+  
+  if (keep.allNA && allNA(x))
+    return(x)
   
   outdec <- options()$OutDec  
 
@@ -227,10 +230,13 @@ formatN <- function(x, digits = 2, lab.NA = "--", big.mark = "",
 formatPT <- function(x, lab = FALSE, labval = "p", noblanks = FALSE,
                      digits = 4, zero = TRUE, scientific = FALSE,
                      lab.NA = "--", big.mark = "",
-                     JAMA = FALSE, trim = NULL) {
+                     JAMA = FALSE, trim = NULL, keep.allNA = FALSE) {
   
   if (is.null(x))
     return("")
+  
+  if (keep.allNA && allNA(x))
+    return(x)
   
   outdec <- options()$OutDec
   

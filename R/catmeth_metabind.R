@@ -20,9 +20,9 @@ catmeth_metabind <- function(x,
                              #
                              big.mark,
                              #
-                              forest) {
+                             forest) {
   # Get rid of warning 'no visible binding for global variable'
-  model <- method <- df <- id <- name <- outclab <- title <- label.right <-
+  type <- method <- df <- id <- name <- outclab <- title <- label.right <-
     Q <- upper.Rb <- TE <- upper <- level.predict <- text.t <-
     method.interval <- method.incr <- NULL
   
@@ -54,43 +54,46 @@ catmeth_metabind <- function(x,
     text.I2 <- gs("text.I2")
   }
   #
-  results <- as.data.frame(x, common = common, random = random,
-                           prediction = FALSE, subgroup = FALSE)
-  #
-  results %<>%
-    mutate(
-      model =
-        case_match(
-          model,
-          "Common effect model" ~ "common",
-          "Random effects model" ~ "random",
-          .default = model))
-  #
-  results$n <- NULL
-  results$n.e <- NULL
-  results$n.c <- NULL
-  #
-  results$event <- NULL
-  results$event.e <- NULL
-  results$event.c <- NULL
-  #
-  results$time <- NULL
-  results$time.e <- NULL
-  results$time.c <- NULL
-  #
-  results$tau.common <- replaceNULL(results$tau.common)
-  results$Q.Cochrane <- replaceNULL(results$Q.Cochrane)
-  #
-  common_or_random <- nrow(results) > 0
-  common <- nrow(results %>% filter(model == "common")) > 0
-  random <- nrow(results %>% filter(model == "random")) > 0
+  results <- NULL
+  if (common || random) {
+    results <- as.data.frame(x, common = common, random = random,
+                             prediction = FALSE, subgroup = FALSE)
+    #
+    results %<>%
+      mutate(
+        type =
+          case_match(
+            type,
+            "Common effect model" ~ "common",
+            "Random effects model" ~ "random",
+            .default = type))
+    #
+    results$n <- NULL
+    results$n.e <- NULL
+    results$n.c <- NULL
+    #
+    results$event <- NULL
+    results$event.e <- NULL
+    results$event.c <- NULL
+    #
+    results$time <- NULL
+    results$time.e <- NULL
+    results$time.c <- NULL
+    #
+    results$tau.common <- replaceNULL(results$tau.common)
+    results$Q.Cochrane <- replaceNULL(results$Q.Cochrane)
+    #
+    common <- any(results$type == "common")
+    random <- any(results$type == "random")
+  }
+  common_or_random <- common || random
   #
   print.tau2 <- print.tau2 && random
   print.tau2.ci <- print.tau2.ci && print.tau2
   print.tau <- print.tau && random
   print.tau.ci <- print.tau.ci && print.tau
   #
-  predict <- if (prediction) x$predict %>% select(method:df) else NULL
+  predict <- if (prediction) x$predict else NULL
   #
   ids <- unique(c(results$id, predict$id))
   overall <- x$overall %>%
@@ -127,7 +130,11 @@ catmeth_metabind <- function(x,
     #
     meth$tau.preset <- replaceNULL(meth$tau.preset)
     #
-    sel.random <- meth$model == "random"
+    sel.random <- meth$type == "random"
+  }
+  else {
+    meth <- left_join(predict, overall, by = "id")
+    sel.random <- rep(FALSE, nrow(meth))
   }
   
   #
@@ -159,9 +166,11 @@ catmeth_metabind <- function(x,
   #
   if (common_or_random) {
     any.random <- any(sel.random)
-    # 
-    for (i in seq_len(nrow(meth)))
-      details <- c(details, text_meth(meth, i, any.random, meth$class[i]))
+    #
+    meth.cr <- meth %>% mutate(model = type)
+    #
+    for (i in seq_len(nrow(meth.cr)))
+      details <- c(details, text_meth(meth.cr, i, any.random, meth.cr$class[i]))
   }
   
   #
@@ -321,7 +330,7 @@ catmeth_metabind <- function(x,
   #
     
   if (common &&
-      any(meth$model == "common" & meth$method.common.ci == "IVhet"))
+      any(meth$type == "common" & meth$method.common.ci == "IVhet"))
     details <- c(details, "\n- Inverse variance heterogeneity model")
   
   #
@@ -335,9 +344,9 @@ catmeth_metabind <- function(x,
   if (random) {
     vars <- c("method", "method.interval", "df", "three.level")
     #
-    dat.rc <- unique(meth[meth$model == "random", vars])
+    dat.rc <- unique(meth[meth$type == "random", vars])
     dat.rc.hk <-
-      unique(meth[meth$model == "random", c(vars, "adhoc.hakn")])
+      unique(meth[meth$type == "random", c(vars, "adhoc.hakn")])
     #
     dat.rc.hk <-
       subset(dat.rc.hk,
@@ -713,7 +722,8 @@ catmeth_metabind <- function(x,
   
   details.cc <- NULL
   #
-  if (any(c("metabin", "metainc", "metaprop", "metarate") %in% meth$class)) {
+  if (common_or_random &&
+      any(c("metabin", "metainc", "metaprop", "metarate") %in% meth$class)) {
     vars <- c("class", "method", "sm", "incr", "method.incr", "sparse", "k.all")
     #
     if ("metabin" %in% meth$class)
@@ -841,10 +851,11 @@ catmeth_metabind <- function(x,
   if (!is.null(irscale) && irscale != 1 &&
       (any(is_rate(meth$sm)) || any(meth$sm == "IRD"))) {
     details <-
-      paste0(details,
-             "\n- Events per ",
-             format(irscale, scientific = FALSE, big.mark = big.mark),
-             " ", irunit)
+      c(details,
+        paste0(
+          "\n- Events per ",
+          format(irscale, scientific = FALSE, big.mark = big.mark),
+          " ", irunit))
   }
   
   #
@@ -853,7 +864,7 @@ catmeth_metabind <- function(x,
   #
   #
   
-  if (print.pval) {
+  if ((common || random) && print.pval) {
     details.null <- NULL
     dat.null <- NULL
     #

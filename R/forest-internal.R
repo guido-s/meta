@@ -1883,7 +1883,8 @@ print_defaults <- function(x, class = "meta", func = "forest") {
     if (func == "forest") {
       res <- list(
         studlab = TRUE,
-        model = NULL,
+        type = NULL,
+        class = NULL,
         k = TRUE,
         sm = NULL,
         pval = FALSE,
@@ -1901,12 +1902,18 @@ print_defaults <- function(x, class = "meta", func = "forest") {
     }
     else {
       res <- list(
+        class = NULL,
+        method = NULL,
+        method.interval = NULL,
         k = TRUE,
         sm = NULL,
         se = FALSE,
         pval = TRUE,
         stat = TRUE,
         null.effect = FALSE,
+        level.ma = NULL,
+        level.predict = NULL,
+        level.hetstat = NULL,
         I2 = gs("print.I2"),
         I2.ci = FALSE,
         tau2 = gs("print.tau2"),
