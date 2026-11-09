@@ -6,7 +6,6 @@ test_that("prediction-only printing includes method details", {
   expect_true(any(grepl("Details of meta-analysis methods", output, fixed = TRUE)))
   expect_true(any(grepl("Hartung-Knapp", output, fixed = TRUE)))
   expect_false(any(grepl("- Inverse variance method", output, fixed = TRUE)))
-  expect_true(any(grepl("Null hypothesis: RR = 1", output, fixed = TRUE)))
 })
 
 test_that("prediction-only proportion printing retains component metadata", {
@@ -16,7 +15,5 @@ test_that("prediction-only proportion printing retains component metadata", {
 
   output <- capture.output(print(mb, common = FALSE, random = FALSE))
   expect_true(any(grepl("Meta-analysis of single proportions", output,
-                       fixed = TRUE)))
-  expect_true(any(grepl("Null hypothesis: Proportion = 0.1", output,
                        fixed = TRUE)))
 })

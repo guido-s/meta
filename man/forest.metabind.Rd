@@ -15,6 +15,7 @@
   subgroup = NULL,
   hetstat = FALSE,
   overall.hetstat = x$overall.hetstat,
+  backtransf = x$backtransf,
   col = NULL,
   print = NULL,
   type = NULL,
@@ -25,6 +26,8 @@
   rightlabs = NULL,
   lab.NA = gs("lab.NA"),
   scientific.pval = gs("scientific.pval"),
+  zero.pval = gs("zero.pval"),
+  JAMA.pval = gs("JAMA.pval"),
   big.mark = gs("big.mark"),
   addrow.subgroups = NULL,
   details = FALSE,
@@ -34,124 +37,93 @@
 \arguments{
 \item{x}{An object of class \code{\link{metabind}}.}
 
-\item{layout}{A character string specifying the layout of the
-forest plot (see \code{\link{forest.meta}}).}
+\item{layout}{Layout of the forest plot; see \code{\link{forest.meta}}.}
 
-\item{common}{A logical indicating whether common effect estimates
-should be plotted.}
+\item{common, random, prediction}{Logical values selecting common effect
+estimates, random effects estimates, and prediction intervals.}
 
-\item{random}{A logical indicating whether random effects estimates
-should be plotted.}
+\item{overall}{A logical indicating whether overall summaries should
+be plotted. No additional pooled estimates are calculated for the
+component meta-analysis results.}
 
-\item{prediction}{A logical indicating whether prediction intervals
-should be plotted.}
+\item{studlab}{A variable containing labels for individual results,
+evaluated in the combined result data and then the calling environment.}
 
-\item{overall}{A logical indicating whether overall summaries
-should be plotted. This argument is useful in a meta-analysis
-with subgroups if summaries should only be plotted on group
-level.}
+\item{subgroup}{A variable defining display groups, evaluated in the
+combined result data and then the calling environment. For example,
+\code{subgroup = type} groups results by result type.}
 
-\item{studlab}{A  variable containing labels for individual results.}
+\item{hetstat, overall.hetstat}{Arguments passed to
+\code{\link{forest.meta}} for heterogeneity text. Heterogeneity text
+from the synthetic plotting object is disabled; use \code{print} to
+display the component meta-analyses' heterogeneity information.}
 
-\item{subgroup}{A logical indicating whether subgroup results
-should be shown in forest plot. This argument is useful in a
-meta-analysis with subgroups if summaries should not be plotted
-on group level.}
+\item{backtransf}{A logical indicating whether results should be
+back-transformed. Different summary measures require back-transformation.}
 
-\item{hetstat}{Either a logical value indicating whether to print
-results for heterogeneity measures at all or a character string
-(see Details).}
+\item{col, print, type, digits}{Named lists controlling colours, displayed
+information, graphical types, and rounding; see
+\code{\link{meta-formatting}}. Scalar values are also accepted for
+\code{type} and \code{digits}.}
 
-\item{overall.hetstat}{A logical value indicating whether to print
-heterogeneity measures for overall treatment comparisons. This
-argument is useful in a meta-analysis with subgroups if
-heterogeneity statistics should only be printed on subgroup
-level.}
+\item{leftcols, rightcols}{Columns printed to the left or right of the
+forest plot; see \code{\link{forest.meta}}. Explicit column selections
+take precedence over automatic column selection.}
 
-\item{col}{A named list specifying colours used in the forest
-plot; see \code{\link{meta-formatting}}.}
+\item{leftlabs, rightlabs}{Column headings. Use \code{NA} to retain a
+default heading.}
 
-\item{print}{A named list specifying which information to print in the forest
-plot; see \code{\link{meta-formatting}}.}
+\item{lab.NA}{Label for missing values.}
 
-\item{type}{A named list specifying graphical types for estimates, common
-effect estimates, random effect estimates, and prediction intervals;
-see \code{\link{meta-formatting}}.}
+\item{scientific.pval, zero.pval, JAMA.pval}{Logical values controlling
+the formatting of P values.}
 
-\item{digits}{A named list specifying digits used for displayed results; a
-scalar value is also accepted. See \code{\link{meta-formatting}}.}
+\item{big.mark}{Character used as thousands separator.}
 
-\item{leftcols}{A character vector specifying columns to be printed on the
-left side of the forest plot or a logical value; see
-\code{\link{forest.meta}}.}
+\item{addrow.subgroups}{A logical indicating whether an empty row is
+printed between display groups.}
 
-\item{leftlabs}{A character vector specifying labels for columns on the left
-side of the forest plot (see Details).}
+\item{details}{A logical specifying whether method details are printed.}
 
-\item{rightcols}{A character vector specifying columns to be printed on the
-right side of the forest plot or a logical value; see
-\code{\link{forest.meta}}.}
-
-\item{rightlabs}{A character vector specifying labels for columns on the
-right side of the forest plot (see Details).}
-
-\item{lab.NA}{A character string to label missing values.}
-
-\item{scientific.pval}{A logical specifying whether p-values should
-be printed in scientific notation, e.g., 1.2345e-01 instead of
-0.12345.}
-
-\item{big.mark}{A character used as thousands separator.}
-
-\item{addrow.subgroups}{A logical value indicating whether an empty
-row is printed between results for subgroups.}
-
-\item{details}{A logical specifying whether details on statistical
-methods should be printed.}
-
-\item{\dots}{Additional graphical arguments (passed on to
-\code{\link{forest.meta}}).}
+\item{\dots}{Additional arguments passed to \code{\link{forest.meta}}.}
+}
+\value{
+Invisibly returns the result of \code{forest.meta()}, with the
+prepared result data in element \code{data}.
 }
 \description{
-Draws a forest plot in the active graphics window (using grid
-graphics system).
+Draws a forest plot combining common effect estimates, random effects
+estimates, and prediction intervals from a metabind object.
 }
 \details{
-A forest plot, also called confidence interval plot, is drawn in
-the active graphics window. The forest functions in R package
-\bold{meta} are based on the grid graphics system. In order to
-print the forest plot, resize the graphics window and either use
-\code{\link{dev.copy2eps}} or \code{\link{dev.copy2pdf}}. Another
-possibility is to create a file using \code{\link{pdf}},
-\code{\link{png}}, or \code{\link{svg}} and to specify the width
-and height of the graphic (see \code{\link{forest.meta}} examples).
+Automatic class, summary-measure, estimation-method, and interval-method
+columns are shown when their values differ within a display group, or
+across the selected results if no groups are specified. Set the
+corresponding element of \code{print} to \code{TRUE} or \code{FALSE}
+to override this behaviour. Element \code{method.tau} (or legacy argument
+\code{print.method.tau}) controls the heterogeneity estimator column
+independently of \code{print$method}. If P values are available, statistics and
+P values are shown by default.
 
-Arguments \code{leftcols} and \code{rightcols} can be used to specify
-columns printed on the left or right side, respectively. Arguments
-\code{leftlabs} and \code{rightlabs} can be used to provide headings for
-these columns. Use \code{NA} for a column heading to retain its default
-label.
+Confidence and prediction intervals share a column. Its heading gives
+their levels when each interval kind has one level, for example,
+\code{95\% CI/PI} or \code{95\% CI/99\% PI}. Otherwise a generic
+heading and a level column are used.
 
-Argument \code{hetstat} can be a character string to specify where
-to print heterogeneity information:
-\itemize{
-\item row with results for common effect model (\code{hetstat =
-"common"}),
-\item row with results for random effects model (\code{hetstat =
-"random"}),
-\item rows with 'study' information (\code{hetstat = "study"}).
-}
-Otherwise, information on heterogeneity is printed in dedicated rows.
+Heterogeneity information is shown once per component meta-analysis:
+on its first random effects row, falling back to its first common effect
+row and then its first prediction interval row.
 }
 \examples{
-# Examples:
-# example(metabind)
+ma <- metagen(1:3, 3:1, sm = "RR")
+mb <- metabind(ma, update(ma, method.random.ci = "HK"))
+forest(mb)
+forest(mb, subgroup = type)
 
 }
 \seealso{
-\code{\link{forest.meta}}, \code{\link{metabin}},
-  \code{\link{metacont}}, \code{\link{metagen}},
-  \code{\link{metabind}}, \code{\link{settings.meta}}
+\code{\link{metabind}}, \code{\link{print.metabind}},
+\code{\link{forest.meta}}
 }
 \author{
 Guido Schwarzer \email{guido.schwarzer@uniklinik-freiburg.de}
