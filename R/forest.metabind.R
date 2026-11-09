@@ -41,14 +41,14 @@
 #' @param \dots Additional arguments passed to \code{\link{forest.meta}}.
 #'
 #' @details
-#' Automatic class, summary-measure, estimation-method, and interval-method
+#' Automatic function, summary-measure, estimation-method, and interval-method
 #' columns are shown when their values differ within a display group, or
 #' across the selected results if no groups are specified. Set the
 #' corresponding element of \code{print} to \code{TRUE} or \code{FALSE}
 #' to override this behaviour. Element \code{method.tau} (or legacy argument
 #' \code{print.method.tau}) controls the heterogeneity estimator column
-#' independently of \code{print$method}. If P values are available, statistics and
-#' P values are shown by default.
+#' independently of \code{print$method}. If P values are available, statistics
+#' and P values are shown by default.
 #'
 #' Confidence and prediction intervals share a column. Its heading gives
 #' their levels when each interval kind has one level, for example,
@@ -151,7 +151,7 @@ forest.metabind <- function(x,
   print.list <- merge_legacy(print, args, print_defaults(x, "metabind"))
   print <- print.list$res
   args <- print.list$args
-  nullable <- c("type", "class", "sm", "method", "method.interval", "method.tau",
+  nullable <- c("type", "func", "sm", "method", "method.interval", "method.tau",
                 "pval", "stat", "level.ma", "level.predict", "level.hetstat",
                 "tau2", "tau", "pval.Q", "pval.Q.b", "subgroup.name")
   for (nm in names(print))
@@ -281,7 +281,7 @@ forest.metabind <- function(x,
   #
   print$type <- replaceNULL(print$type,
                             varies(dat$type) && !identical(studlab, dat$type))
-  for (nm in c("class", "sm", "method", "method.interval"))
+  for (nm in c("func", "sm", "method", "method.interval"))
     print[[nm]] <- replaceNULL(print[[nm]], varies(dat[[nm]]))
   has.pval <- any(!is.na(dat$pval))
   print$pval <- replaceNULL(print$pval, has.pval) && has.pval
@@ -353,7 +353,7 @@ forest.metabind <- function(x,
   for (i in seq_len(nrow(dat))) {
     if (is.na(null.plot[i]))
       next
-    original <- dat$class[i] %in% c("metacor", "metamean", "metaprop", "metarate")
+    original <- dat$func[i] %in% c("metacor", "metamean", "metaprop", "metarate")
     if (!backtransf && original)
       null.plot[i] <- transf(null.plot[i], dat$sm[i],
                              n = dat$n.harmonic.mean[[i]],
@@ -478,7 +478,7 @@ forest.metabind <- function(x,
   #
   
   info.cols <- c(if (print$studlab) "studlab", if (print$type) "type",
-                 if (print$class) "class", if (print$method) "method",
+                 if (print$func) "func", if (print$method) "method",
                  if (print$method.interval) "method.interval",
                  if (show.adhoc) "adhoc.hakn", if (print$k) "k")
   #
@@ -506,15 +506,16 @@ forest.metabind <- function(x,
   if (is.null(rightcols))
     rightcols <- if (layout %in% c("BMJ", "meta8")) result.cols else FALSE
   #
-  labels <- c(studlab = "Meta-Analysis", type = "Type", class = "Function",
+  labels <- c(studlab = "Meta-Analysis", type = "Type", func = "Function",
               method = "Method", method.interval = "Interval\nmethod",
               adhoc.hakn = "Ad hoc\ncorrection", k = "Number of\nStudies",
               sm = "Effect\nmeasure", level = "Level", effect = sm.lab,
               ci = ci.lab, effect.ci = paste0(sm.lab, "\n(", ci.lab, ")"),
               seTE = paste0("SE(", lab.TE, ")"), statistic = stat.lab,
-              pval = "P value", df = "df", null.effect = "Null\neffect",
+              pval = gs("label.pval"), df = "df", null.effect = "Null\neffect",
               tau2 = NA, tau = NA, I2 = NA,
-              H = NA, Q = NA, df.Q = "df", pval.Q = "P value\nQ-test",
+              H = NA, Q = NA, df.Q = "df",
+              pval.Q = paste(gs("label.pval"), "Q-test", sep = "\n"),
               tau2.ci = het.lab, tau.ci = het.lab, I2.ci = het.lab, H.ci = het.lab,
               method.tau = "Tau estimator", method.tau.ci = "Tau CI\nmethod",
               method.I2 = "I2 method", level.hetstat = "Het.\nlevel")

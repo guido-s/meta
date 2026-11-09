@@ -382,6 +382,11 @@
 
 * R package **testthat** added to Suggests.
 
+* Argument evaluation now uses `rlang::enquo()` and `rlang::eval_tidy()`
+  instead of expressions extracted from `match.call()`. Captured expressions
+  retain their evaluation environments, improving argument forwarding through
+  wrapper functions. Subgroup labels are derived from the captured expressions.
+
 * New internal function `layout_colors()` to define default colours for forest
   plots.
 

@@ -96,14 +96,14 @@ Draws a forest plot combining common effect estimates, random effects
 estimates, and prediction intervals from a metabind object.
 }
 \details{
-Automatic class, summary-measure, estimation-method, and interval-method
+Automatic function, summary-measure, estimation-method, and interval-method
 columns are shown when their values differ within a display group, or
 across the selected results if no groups are specified. Set the
 corresponding element of \code{print} to \code{TRUE} or \code{FALSE}
 to override this behaviour. Element \code{method.tau} (or legacy argument
 \code{print.method.tau}) controls the heterogeneity estimator column
-independently of \code{print$method}. If P values are available, statistics and
-P values are shown by default.
+independently of \code{print$method}. If P values are available, statistics
+and P values are shown by default.
 
 Confidence and prediction intervals share a column. Its heading gives
 their levels when each interval kind has one level, for example,

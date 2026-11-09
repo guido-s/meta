@@ -533,6 +533,10 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   missing.sm <- missing(sm)
   missing.subgroup <- missing(subgroup)
   missing.byvar <- missing(byvar)
+  #
+  subgroup.expr <- enquo(subgroup)
+  byvar.expr <- enquo(byvar)
+  #
   missing.overall <- missing(overall)
   missing.overall.hetstat <- missing(overall.hetstat)
   missing.test.subgroup <- missing(test.subgroup)
@@ -747,7 +751,6 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   #
 
   nulldata <- is.null(data)
-  mc <- match.call()
   #
   if (nulldata) {
     data.pairwise <- FALSE
@@ -859,7 +862,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
       }
     }
     #
-    if (missing.subgroup & missing.byvar) {
+    if (missing.subgroup && missing.byvar) {
       subgroup <- paste(treat1, treat2, sep = " vs ")
       #
       if (length(unique(subgroup)) == 1) {
@@ -882,13 +885,6 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
           test.subgroup <- FALSE
       }
     }
-    else {
-      subgroup <- catch(enquo(subgroup), data)
-      byvar <- catch(enquo(byvar), data)
-      #
-      subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
-                              warn.deprecated)
-    }
   }
   else {
     is.pairwise <- FALSE
@@ -905,12 +901,6 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     #
     studlab <- catch(enquo(studlab), data)
     #
-    subgroup <- catch(enquo(subgroup), data)
-    byvar <- catch(enquo(byvar), data)
-    #
-    subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
-                            warn.deprecated)
-    #
     if (!missing.incr)
       incr <- catch(enquo(incr), data)
     #
@@ -918,6 +908,14 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
       incr.e <- catch(enquo(incr.e), data)
     if (!missing.incr.c)
       incr.c <- catch(enquo(incr.c), data)
+  }
+  #
+  if (!is.pairwise || !missing.subgroup || !missing.byvar) {
+    subgroup <- catch(subgroup.expr, data)
+    byvar <- catch(byvar.expr, data)
+    #
+    subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
+                            warn.deprecated)
   }
   #
   method.bias <- setmethodbias(method.bias)
@@ -1220,7 +1218,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
       subgroup <- subgroup[subset]
   }
   #
-  if (missing.subgroup & is.pairwise & by) {
+  if (missing.subgroup && missing.byvar && is.pairwise && by) {
     if (length(unique(subgroup)) == 1) {
       by <- FALSE
       #
@@ -1259,11 +1257,11 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   if (by) {
     chkmiss(subgroup)
     #
-    if (missing.subgroup.name & is.null(subgroup.name)) {
+    if (missing.subgroup.name && is.null(subgroup.name)) {
       if (!missing.subgroup)
-        subgroup.name <- byvarname("subgroup", mc)
+        subgroup.name <- subgroup_name(subgroup.expr)
       else if (!missing.byvar)
-        subgroup.name <- byvarname("byvar", mc)
+        subgroup.name <- subgroup_name(byvar.expr)
     }
   }
   #

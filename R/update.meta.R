@@ -453,6 +453,11 @@ update.meta <- function(object,
   metaprop <- inherits(object, "metaprop")
   metarate <- inherits(object, "metarate")
   #
+  missing.subgroup <- missing(subgroup)
+  missing.byvar <- missing(byvar)
+  subgroup.expr <- enquo(subgroup)
+  byvar.expr <- enquo(byvar)
+  #
   missing.method.common.ci <- missing(method.common.ci)
   missing.method.random.ci <- missing(method.random.ci)
   missing.method.tau <- missing(method.tau)
@@ -1022,8 +1027,6 @@ update.meta <- function(object,
   # (5) Catch variables
   #
   #
-  mc <- match.call()
-  #
   # Catch argument 'subset'
   #
   if (!missing(subset))
@@ -1165,12 +1168,9 @@ update.meta <- function(object,
   #
   # Catch argument 'subgroup'
   #
-  missing.subgroup <- missing(subgroup)
-  missing.byvar <- missing(byvar)
-  #
-  if (!missing.subgroup | !missing.byvar) {
-    subgroup <- catch(enquo(subgroup), data)
-    byvar <- catch(enquo(byvar), data)
+  if (!missing.subgroup || !missing.byvar) {
+    subgroup <- catch(subgroup.expr, data)
+    byvar <- catch(byvar.expr, data)
     subgroup <-
       deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
                   warn.deprecated)
@@ -1182,11 +1182,11 @@ update.meta <- function(object,
   else
     subgroup <- NULL
   #
-  if (missing.subgroup.name & is.null(subgroup.name)) {
+  if (missing.subgroup.name && is.null(subgroup.name)) {
     if (!missing.subgroup)
-      subgroup.name <- byvarname("subgroup", mc)
+      subgroup.name <- subgroup_name(subgroup.expr)
     else if (!missing.byvar)
-      subgroup.name <- byvarname("byvar", mc)
+      subgroup.name <- subgroup_name(byvar.expr)
   }
   #
   missing.sm <- missing(sm)

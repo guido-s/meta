@@ -17,7 +17,7 @@ test_that("constant metadata columns are automatic and print flags override", {
   ma <- metagen_forest_options(common = TRUE, random = FALSE,
                               prediction = FALSE)
   mb <- metabind(ma, ma)
-  cols <- c("class", "method", "method.interval", "sm")
+  cols <- c("func", "method", "method.interval", "sm")
   flags <- setNames(rep(list(TRUE), length(cols)), cols)
 
   res <- forest_metabind_options(mb)
@@ -56,10 +56,10 @@ test_that("automatic metadata columns use every user-defined subgroup", {
                                    prediction = FALSE,
                                    method.random.ci = "HK")
   mb <- metabind(binary, generic, prediction = FALSE)
-  cols <- c("class", "method", "method.interval", "sm")
+  cols <- c("func", "method", "method.interval", "sm")
 
   ungrouped <- forest_metabind_options(mb)
-  expect_true(all(c("class", "method", "method.interval") %in%
+  expect_true(all(c("func", "method", "method.interval") %in%
                     ungrouped$leftcols))
   expect_false("sm" %in% ungrouped$leftcols)
   grouped <- forest_metabind_options(mb, subgroup = type)
@@ -82,7 +82,7 @@ test_that("automatic metadata columns use every user-defined subgroup", {
                     prediction = FALSE)
   res <- forest_metabind_options(varied, subgroup = type)
   expect_true("method.interval" %in% res$leftcols)
-  expect_false(any(c("class", "method", "sm") %in% res$leftcols))
+  expect_false(any(c("func", "method", "sm") %in% res$leftcols))
 })
 
 test_that("p-value and statistic defaults depend on any nonmissing p-values", {

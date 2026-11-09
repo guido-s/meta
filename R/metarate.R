@@ -473,6 +473,12 @@ metarate <- function(event, time, studlab,
   #
   #
 
+  missing.subgroup <- missing(subgroup)
+  missing.byvar <- missing(byvar)
+  #
+  subgroup.expr <- enquo(subgroup)
+  byvar.expr <- enquo(byvar)
+  #
   chknumeric(rho, min = -1, max = 1)
   #
   missing.method <- missing(method)
@@ -664,7 +670,6 @@ metarate <- function(event, time, studlab,
   #
 
   nulldata <- is.null(data)
-  mc <- match.call()
   #
   # Catch 'event', 'time' and 'n' from data:
   #
@@ -689,10 +694,8 @@ metarate <- function(event, time, studlab,
   studlab <- catch(enquo(studlab), data)
   studlab <- setstudlab(studlab, k.All)
   #
-  missing.subgroup <- missing(subgroup)
-  subgroup <- catch(enquo(subgroup), data)
-  missing.byvar <- missing(byvar)
-  byvar <- catch(enquo(byvar), data)
+  subgroup <- catch(subgroup.expr, data)
+  byvar <- catch(byvar.expr, data)
   #
   subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
                           warn.deprecated)
@@ -939,11 +942,11 @@ metarate <- function(event, time, studlab,
   if (by) {
     chkmiss(subgroup)
     #
-    if (missing.subgroup.name & is.null(subgroup.name)) {
+    if (missing.subgroup.name && is.null(subgroup.name)) {
       if (!missing.subgroup)
-        subgroup.name <- byvarname("subgroup", mc)
+        subgroup.name <- subgroup_name(subgroup.expr)
       else if (!missing.byvar)
-        subgroup.name <- byvarname("byvar", mc)
+        subgroup.name <- subgroup_name(byvar.expr)
     }
   }
   #

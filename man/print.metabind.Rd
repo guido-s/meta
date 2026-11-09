@@ -48,7 +48,10 @@ back transformed in printouts and plots. If \code{backtransf=TRUE}
 than log odds ratios, for example.}
 
 \item{print}{A named list specifying which information to print; see
-\code{\link{meta-formatting}}.}
+\code{\link{meta-formatting}}. Element \code{func} controls the
+\code{func} column identifying the originating meta-analysis
+function. Its default \code{NULL} shows the column when values differ
+within a result table.}
 
 \item{digits}{A named list specifying digits used for displayed results; a
 scalar value is also accepted. See \code{\link{meta-formatting}}.}

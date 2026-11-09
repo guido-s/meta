@@ -689,6 +689,10 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   missing.sm <- missing(sm)
   missing.subgroup <- missing(subgroup)
   missing.byvar <- missing(byvar)
+  #
+  subgroup.expr <- enquo(subgroup)
+  byvar.expr <- enquo(byvar)
+  #
   missing.overall <- missing(overall)
   missing.overall.hetstat <- missing(overall.hetstat)
   missing.test.subgroup <- missing(test.subgroup)
@@ -892,7 +896,6 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   #
 
   nulldata <- is.null(data)
-  mc <- match.call()
   #
   if (nulldata) {
     data.pairwise <- FALSE
@@ -971,7 +974,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
       sd.c[wo] <- tsd.e[wo]
     }
     #
-    if (missing.subgroup) {
+    if (missing.subgroup && missing.byvar) {
       subgroup <- paste(treat1, treat2, sep = " vs ")
       #
       if (length(unique(subgroup)) == 1) {
@@ -994,8 +997,6 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
           test.subgroup <- FALSE
       }
     }
-    else
-      subgroup <- catch(enquo(subgroup), data)
   }
   else {
     is.pairwise <- FALSE
@@ -1013,8 +1014,11 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     #
     studlab <- catch(enquo(studlab), data)
     #
-    subgroup <- catch(enquo(subgroup), data)
-    byvar <- catch(enquo(byvar), data)
+  }
+  #
+  if (!is.pairwise || !missing.subgroup || !missing.byvar) {
+    subgroup <- catch(subgroup.expr, data)
+    byvar <- catch(byvar.expr, data)
     #
     subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
                             warn.deprecated)
@@ -1440,7 +1444,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     if (by)
       subgroup <- subgroup[subset]
     #
-    if (missing.subgroup & is.pairwise & by) {
+    if (missing.subgroup && missing.byvar && is.pairwise && by) {
       if (length(unique(subgroup)) == 1) {
         by <- FALSE
         #
@@ -1540,11 +1544,11 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   if (by) {
     chkmiss(subgroup)
     #
-    if (missing.subgroup.name & is.null(subgroup.name)) {
+    if (missing.subgroup.name && is.null(subgroup.name)) {
       if (!missing.subgroup)
-        subgroup.name <- byvarname("subgroup", mc)
+        subgroup.name <- subgroup_name(subgroup.expr)
       else if (!missing.byvar)
-        subgroup.name <- byvarname("byvar", mc)
+        subgroup.name <- subgroup_name(byvar.expr)
     }
   }
   #

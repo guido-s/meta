@@ -1884,7 +1884,7 @@ print_defaults <- function(x, class = "meta", func = "forest") {
       res <- list(
         studlab = TRUE,
         type = NULL,
-        class = NULL,
+        func = NULL,
         method = NULL,
         method.interval = NULL,
         method.tau = NULL,
@@ -1912,7 +1912,7 @@ print_defaults <- function(x, class = "meta", func = "forest") {
     }
     else {
       res <- list(
-        class = NULL,
+        func = NULL,
         method = NULL,
         method.interval = NULL,
         k = TRUE,

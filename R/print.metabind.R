@@ -21,7 +21,10 @@
 #'   (default), results for \code{sm="OR"} are printed as odds ratios rather
 #'   than log odds ratios, for example.
 #' @param print A named list specifying which information to print; see
-#'   \code{\link{meta-formatting}}.
+#'   \code{\link{meta-formatting}}. Element \code{func} controls the
+#'   \code{func} column identifying the originating meta-analysis
+#'   function. Its default \code{NULL} shows the column when values differ
+#'   within a result table.
 #' @param digits A named list specifying digits used for displayed results; a
 #'   scalar value is also accepted. See \code{\link{meta-formatting}}.
 #' @param text.tau2 Text printed to identify between-study variance
@@ -87,7 +90,7 @@ print.metabind <- function(x,
                            details.methods = gs("details"),
                            ...) {
   # Get rid of warning 'no visible binding for global variable'
-  ftr <- atr <- type <- name <- method <- method.interval <- TE <- pval <-
+  ftr <- atr <- type <- name <- func <- method <- method.interval <- TE <- pval <-
     seTE <- lower <- upper <- adhoc.hakn <- df <- Q <- upper.I2 <- pval.Q <-
     tau2 <- lower.tau2 <- upper.tau2 <- tau <- lower.tau <- upper.tau <-
     I2 <- lower.I2 <- H <- lower.H <- upper.H <-
@@ -188,7 +191,7 @@ print.metabind <- function(x,
   print <- print.list$res
   args <- print.list$args
   #
-  print.class <- print$class
+  print.func <- print$func
   print.method <- print$method
   print.method.interval <- print$method.interval
   print.k <- print$k
@@ -218,7 +221,7 @@ print.metabind <- function(x,
   print.tau <- replaceNULL(print.tau, !with.subgroups && random)
   print.subgroup.name <- replaceNULL(print.subgroup.name, with.subgroups)
   #
-  chklogical(print.class, NULL.ok = TRUE)
+  chklogical(print.func, NULL.ok = TRUE)
   chklogical(print.method, NULL.ok = TRUE)
   chklogical(print.method.interval, NULL.ok = TRUE)
   chklogical(print.k)
@@ -472,6 +475,14 @@ print.metabind <- function(x,
                                      func = dat$func.backtransf[i],
                                      args = dat$args.backtransf[i])
         }
+        #
+        # Switch lower and upper limit for VE
+        #
+        if (dat$sm[i] == "VE") {
+          tmp.l <- dat$lower[i]
+          dat$lower[i] <- dat$upper[i]
+          dat$upper[i] <- tmp.l
+        }
       }
     }
     #
@@ -480,7 +491,7 @@ print.metabind <- function(x,
     if (common) {
       dat.c <- dat %>%
         filter(type == "Common effect model") %>%
-        select(name, class, sm, method, method.interval, level.ma, TE:pval) %>%
+        select(name, func, sm, method, method.interval, level.ma, TE:pval) %>%
         #
         mutate(
           TE = formatN(TE, digits = digits, lab.NA = lab.NA,
@@ -522,9 +533,9 @@ print.metabind <- function(x,
       if (!print.level.ma.c)
         dat.c$level <- NULL
       #
-      if (isFALSE(print.class) ||
-          (is.null(print.class) && length(unique(dat.c$class)) == 1))
-        dat.c$class <- NULL
+      if (isFALSE(print.func) ||
+          (is.null(print.func) && length(unique(dat.c$func)) == 1))
+        dat.c$func <- NULL
       #
       if (isFALSE(print.sm) ||
           (is.null(print.sm) && length(unique(dat.c$sm)) == 1))
@@ -545,7 +556,7 @@ print.metabind <- function(x,
         dat.c$statistic <- NULL
       #
       if (!is.null(dat.c$pval) && print.pval)
-        names(dat.c)[names(dat.c) == "pval"] <- "P value"
+        names(dat.c)[names(dat.c) == "pval"] <- "p-value"
       else
         dat.c$pval <- NULL
       #
@@ -565,7 +576,7 @@ print.metabind <- function(x,
     if (random) {
       dat.r <- dat %>%
         filter(type == "Random effects model") %>%
-        select(name, class, sm, method, method.interval,
+        select(name, func, sm, method, method.interval,
                adhoc.hakn, level.ma, TE:pval, df) %>%
         #
         mutate(
@@ -610,9 +621,9 @@ print.metabind <- function(x,
       if (!print.level.ma.r)
         dat.r$level <- NULL
       #
-      if (isFALSE(print.class) ||
-          (is.null(print.class) && length(unique(dat.r$class)) == 1))
-        dat.r$class <- NULL
+      if (isFALSE(print.func) ||
+          (is.null(print.func) && length(unique(dat.r$func)) == 1))
+        dat.r$func <- NULL
       #
       if (isFALSE(print.sm) ||
           (is.null(print.sm) && length(unique(dat.r$sm)) == 1))
@@ -652,7 +663,7 @@ print.metabind <- function(x,
         dat.r$statistic <- NULL
       #
       if (!is.null(dat.r$pval) && print.pval)
-        names(dat.r)[names(dat.r) == "pval"] <- "P value"
+        names(dat.r)[names(dat.r) == "pval"] <- "p-value"
       else
         dat.r$pval <- NULL
       #
@@ -672,7 +683,7 @@ print.metabind <- function(x,
     if (prediction) {
       dat.p <- dat %>%
         filter(type == "Prediction interval") %>%
-        select(name, class, sm, method, method.interval,
+        select(name, func, sm, method, method.interval,
                adhoc.hakn, level.predict, seTE:upper, df) %>%
         #
         mutate(
@@ -705,9 +716,9 @@ print.metabind <- function(x,
       if (!print.level.predict)
         dat.p$level <- NULL
       #
-      if (isFALSE(print.class) ||
-          (is.null(print.class) && length(unique(dat.p$class)) == 1))
-        dat.p$class <- NULL
+      if (isFALSE(print.func) ||
+          (is.null(print.func) && length(unique(dat.p$func)) == 1))
+        dat.p$func <- NULL
       #
       if (isFALSE(print.sm) ||
           (is.null(print.sm) && length(unique(dat.p$sm)) == 1))
@@ -761,7 +772,7 @@ print.metabind <- function(x,
       #
       filter(id %in% ids.het) %>%
       #
-      select(name, class, sm, method.tau, method.tau.ci, method.I2,
+      select(name, func, sm, method.tau, method.tau.ci, method.I2,
              level.hetstat, Q:upper.I2) %>%
       #
       mutate(
@@ -839,9 +850,9 @@ print.metabind <- function(x,
     if (!print.level.hetstat.h)
       dat.h$level <- NULL
     #
-    if (isFALSE(print.class) ||
-        (is.null(print.class) && length(unique(dat.h$class)) == 1))
-      dat.h$class <- NULL
+    if (isFALSE(print.func) ||
+        (is.null(print.func) && length(unique(dat.h$func)) == 1))
+      dat.h$func <- NULL
     #
     if (isFALSE(print.sm) ||
         (is.null(print.sm) && length(unique(dat.h$sm)) == 1))
@@ -869,7 +880,7 @@ print.metabind <- function(x,
     #
     if (print.Q && print.pval.Q) {
       names(dat.h)[names(dat.h) == "df.Q"] <- "df"
-      names(dat.h)[names(dat.h) == "pval.Q"] <- "P value"
+      names(dat.h)[names(dat.h) == "pval.Q"] <- "p-value"
     }
     else {
       dat.h$df.Q <- NULL

@@ -22,7 +22,7 @@ catmeth_metabind <- function(x,
                              #
                              forest) {
   # Get rid of warning 'no visible binding for global variable'
-  type <- method <- df <- id <- name <- outclab <- title <- label.right <-
+  type <- method <- df <- id <- name <- func <- outclab <- title <- label.right <-
     Q <- upper.Rb <- TE <- upper <- level.predict <- text.t <-
     method.interval <- method.incr <- NULL
   
@@ -145,7 +145,7 @@ catmeth_metabind <- function(x,
   
   details <- character()
   #
-  for (cl in unique(overall$class)) {
+  for (cl in unique(overall$func)) {
     description <- switch(
       cl,
       metabin = "comparing two groups with binary outcomes",
@@ -170,7 +170,7 @@ catmeth_metabind <- function(x,
     meth.cr <- meth %>% mutate(model = type)
     #
     for (i in seq_len(nrow(meth.cr)))
-      details <- c(details, text_meth(meth.cr, i, any.random, meth.cr$class[i]))
+      details <- c(details, text_meth(meth.cr, i, any.random, meth.cr$func[i]))
   }
   
   #
@@ -249,7 +249,7 @@ catmeth_metabind <- function(x,
     #
     details <- c(details, details.tau)
     #
-    if ("metabin" %in% overall$class) {
+    if ("metabin" %in% overall$func) {
       dat.qc <-
         unique(meth[sel.random & is.na(meth$tau.preset),
                     c("method.tau", "Q.Cochrane")])
@@ -547,7 +547,7 @@ catmeth_metabind <- function(x,
   
   details.trimfill <- NULL
   #
-  if ("trimfill" %in% overall$class) {
+  if ("trimfill" %in% overall$func) {
     type <- unique(meth$type.tf)
     type <- type[!is.na(type) & type != ""]
     #
@@ -571,7 +571,7 @@ catmeth_metabind <- function(x,
   
   details.miss <- NULL
   #
-  if ("metamiss" %in% overall$class) {
+  if ("metamiss" %in% overall$func) {
     dat.miss <- unique(
       meth %>%
         select(method.miss, IMOR.e, IMOR.c) %>%
@@ -723,20 +723,20 @@ catmeth_metabind <- function(x,
   details.cc <- NULL
   #
   if (common_or_random &&
-      any(c("metabin", "metainc", "metaprop", "metarate") %in% meth$class)) {
-    vars <- c("class", "method", "sm", "incr", "method.incr", "sparse", "k.all")
+      any(c("metabin", "metainc", "metaprop", "metarate") %in% meth$func)) {
+    vars <- c("func", "method", "sm", "incr", "method.incr", "sparse", "k.all")
     #
-    if ("metabin" %in% meth$class)
+    if ("metabin" %in% meth$func)
       vars <- c(vars, "allstudies", "doublezeros", "MH.exact", "RR.Cochrane")
     #
     dat.cc <-
       unique(
         meth[, vars, drop = FALSE] %>%
-          filter(class %in% c("metabin", "metainc", "metaprop", "metarate"),
+          filter(func %in% c("metabin", "metainc", "metaprop", "metarate"),
                  !is.na(method.incr)))
     #
     for (i in seq_len(nrow(dat.cc))) {
-      metabin.i <- dat.cc$class[i] == "metabin"
+      metabin.i <- dat.cc$func[i] == "metabin"
       sm.i <- dat.cc$sm[i]
       #
       if (!(metabin.i && sm.i == "ASD")) {
@@ -876,7 +876,7 @@ catmeth_metabind <- function(x,
       #
       sm.i <- meth$sm[i]
       null.effect.original <-
-        meth$class[i] %in% c("metacor", "metamean", "metaprop", "metarate")
+        meth$func[i] %in% c("metacor", "metamean", "metaprop", "metarate")
       #
       # Use [[i]] for scalar columns and transformation-argument list-columns
       #

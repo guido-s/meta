@@ -20,7 +20,7 @@ extrMA <- function(id, x, name, type = "overall", outclab = NULL) {
     res <- data.frame(
       id,
       name = name[id],
-      class = setClass(x),
+      func = setClass(x),
       subgroup = NA,
       #
       sm = x$sm,
