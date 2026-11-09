@@ -2,21 +2,9 @@ catmeth_metabind <- function(x,
                              #
                              common, random, prediction,
                              #
-                             print.tau2,
-                             print.tau2.ci,
-                             print.tau,
-                             print.tau.ci,
-                             print.I2,
-                             print.pval,
+                             backtransf, print, digits,
                              #
-                             backtransf,
-                             #
-                             digits,
-                             digits.tau2,
-                             digits.tau,
-                             #
-                             pscale,
-                             irscale, irunit,
+                             pscale, irscale, irunit,
                              #
                              big.mark,
                              #
@@ -34,7 +22,7 @@ catmeth_metabind <- function(x,
   
   chkclass(x, "metabind")
   #
-  print.df <- TRUE
+  print$df <- TRUE
   #
   if (!(common || random || prediction))
     return(invisible(""))
@@ -62,11 +50,10 @@ catmeth_metabind <- function(x,
     results %<>%
       mutate(
         type =
-          case_match(
-            type,
-            "Common effect model" ~ "common",
-            "Random effects model" ~ "random",
-            .default = type))
+          case_when(
+            type == "Common effect model" ~ "common",
+            type == "Random effects model" ~ "random",
+            TRUE ~ type))
     #
     results$n <- NULL
     results$n.e <- NULL
@@ -88,10 +75,10 @@ catmeth_metabind <- function(x,
   }
   common_or_random <- common || random
   #
-  print.tau2 <- print.tau2 && random
-  print.tau2.ci <- print.tau2.ci && print.tau2
-  print.tau <- print.tau && random
-  print.tau.ci <- print.tau.ci && print.tau
+  print$tau2 <- print$tau2 && random
+  print$tau2.ci <- print$tau2.ci && print$tau2
+  print$tau <- print$tau && random
+  print$tau.ci <- print$tau.ci && print$tau
   #
   predict <- if (prediction) x$predict else NULL
   #
@@ -179,7 +166,7 @@ catmeth_metabind <- function(x,
   #
   #
   
-  if (print.tau2 || print.tau) {
+  if (print$tau2 || print$tau) {
     dat.preset <- unique(meth[sel.random, c("tau.preset", "method.tau")])
     #
     # Information on tau.preset
@@ -190,7 +177,7 @@ catmeth_metabind <- function(x,
       details.preset <-
         paste0("\n- Preset square root of between-study variance: ",
                text.tau, " = ",
-               cond(tau.preset, only.finite = FALSE, digits = digits.tau,
+               cond(tau.preset, only.finite = FALSE, digits = digits$tau,
                     big.mark = big.mark))
     }
     else
@@ -273,7 +260,7 @@ catmeth_metabind <- function(x,
   
   details.tau.ci <- NULL
   #
-  if (print.tau2.ci || print.tau.ci) {
+  if (print$tau2.ci || print$tau.ci) {
     method.tau.ci <- unique(meth$method.tau.ci[sel.random])
     #
     for (mtci in method.tau.ci) {
@@ -288,9 +275,9 @@ catmeth_metabind <- function(x,
         details.tau.ci.i <-
           paste0(details.tau.ci.i,
                  " for confidence interval of ",
-                 if (print.tau2 & print.tau)
+                  if (print$tau2 & print$tau)
                    paste(text.tau2, "and", text.tau)
-                 else if (print.tau2)
+                  else if (print$tau2)
                    text.tau2
                  else
                    text.tau)
@@ -309,7 +296,7 @@ catmeth_metabind <- function(x,
   
   details.I2 <- NULL
   #
-  if (print.I2) {
+  if (print$I2) {
     method.I2 <- unique(meth$method.I2)
     #
     for (mi2i in method.I2) {
@@ -376,7 +363,7 @@ catmeth_metabind <- function(x,
             "\n- Hartung-Knapp ",
             if (more.ci) "(HK) ",
             "adjustment for random effects model",
-            if (print.df)
+            if (print$df)
               paste0(" (df = ", cond(dat.rc.hk$df, digits = 0), ")")
           )
         )
@@ -400,7 +387,7 @@ catmeth_metabind <- function(x,
           paste0(
             "\n- Random effects confidence interval based on t-distribution",
             if (more.ci) " (T)",
-            if (print.df)
+            if (print$df)
               paste0(" (df = ", cond(dat.rc.hk.tdist$df, digits = 0), ")")
           )
         )
@@ -424,7 +411,7 @@ catmeth_metabind <- function(x,
             "\n- Kenward-Roger ",
             if (more.ci) "(KR) ",
             "adjustment for random effects model",
-            if (print.df)
+            if (print$df)
               paste0(" (df = ", cond(dat.rc.kr$df), ")")
           )
         )
@@ -440,7 +427,7 @@ catmeth_metabind <- function(x,
           paste0(
             "\n- Cluster-robust variance estimator (",
             dat.rc.cr$method.interval[i],
-            if (print.df)
+            if (print$df)
               paste0(
                 ", df = ",
                 cond(df.cr,
@@ -504,7 +491,7 @@ catmeth_metabind <- function(x,
       if (mpi %in% c("HK", "KR"))
         details.pi.i <- paste0(details.pi.i, " prediction interval")
       #
-      if (print.df && mpi != "S") {
+      if (print$df && mpi != "S") {
         details.pi.i <-
           paste0(
             details.pi.i,
@@ -864,7 +851,7 @@ catmeth_metabind <- function(x,
   #
   #
   
-  if ((common || random) && print.pval) {
+  if ((common || random) && print$pval) {
     details.null <- NULL
     dat.null <- NULL
     #
@@ -967,7 +954,7 @@ catmeth_metabind <- function(x,
           details.null,
           paste0(labels.null$prefix[i],
                  cond(dat.null$value[sel.null], only.finite = FALSE,
-                      digits = digits, big.mark = big.mark),
+                      digits = digits$digits, big.mark = big.mark),
                  labels.null$suffix[i])
         )
       }

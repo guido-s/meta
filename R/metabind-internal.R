@@ -1,3 +1,18 @@
+format_args <- function(x, lab.NA = ".") {
+  if (is.null(x) || length(x) == 0)
+    return(lab.NA)
+  #
+  values <- vapply(x, function(value)
+    paste(deparse(value, width.cutoff = 500L), collapse = " "), character(1))
+  arg.names <- names(x)
+  if (!is.null(arg.names)) {
+    named <- !is.na(arg.names) & nzchar(arg.names)
+    values[named] <- paste0(arg.names[named], " = ", values[named])
+  }
+  paste(values, collapse = ", ")
+}
+
+
 extrMA <- function(id, x, name, type = "overall", outclab = NULL) {
   x <- x[[id]]
   #
@@ -59,9 +74,9 @@ extrMA <- function(id, x, name, type = "overall", outclab = NULL) {
     #
     if (metagen) {
       res$func.transf <- replaceNULL(x$func.transf)
-      res$args.transf <- replaceNULL(x$args.transf)
+      res$args.transf <- list(x$args.transf)
       res$func.backtransf <- replaceNULL(x$func.backtransf)
-      res$args.backtransf <- replaceNULL(x$args.backtransf)
+      res$args.backtransf <- list(x$args.backtransf)
     }
     else if (metabin) {
       res$MH.exact <- x$MH.exact

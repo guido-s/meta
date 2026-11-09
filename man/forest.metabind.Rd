@@ -115,6 +115,25 @@ on its first random effects row, falling back to its first common effect
 row and then its first prediction interval row. Tau and tau-squared
 information is also shown on prediction interval rows when random effects
 results for the same component are selected.
+
+With \code{backtransf = FALSE}, references for transformed single-outcome
+measures are passed on the original scale to \code{forest.meta()}.
+PFT and IRFT reference transformations use a shared harmonic mean when
+available; otherwise the arcsine and square-root transformations are used,
+respectively.
+
+Custom back-transformations are applied separately to each result. The
+logarithmic-axis shortcut is used only when all selected results use an
+exponential back-transformation; otherwise the plotting data are prepared
+on the displayed scale.
+
+Custom back-transformation functions and named arguments are displayed
+automatically when supplied. Elements \code{backtransf} and
+\code{args.backtransf} of \code{print} override this selection; the
+argument column is shown only with the function column. These columns
+precede effect and interval columns on the left, and follow them on the
+right. This controls column visibility independently of the logical
+\code{backtransf} argument controlling the result scale.
 }
 \examples{
 ma <- metagen(1:3, 3:1, sm = "RR")

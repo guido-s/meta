@@ -255,3 +255,31 @@ test_that("display skeleton does not pool component result rows", {
                  "Argument 'hetstat' ignored", fixed = TRUE)
   expect_equal(nrow(res$data), nrow(as.data.frame(mb)))
 })
+
+test_that("relative measures respect non-exponential custom transformations", {
+  ma <- metagen(c(0.2, 0.3, 0.4), rep(0.1, 3), sm = "RR",
+                 func.backtransf = "plogis", prediction = TRUE)
+  res <- forest_metabind_options(metabind(ma, ma), digits = 4)
+  expect_equal(res$data$TE, plogis(res$data$TE.orig))
+  expect_equal(res$data$lower, plogis(res$data$lower.orig))
+  expect_equal(res$data$upper, plogis(res$data$upper.orig))
+  expect_true("0.5744" %in% trimws(res$effect.format))
+
+  unchanged <- forest_metabind_options(metabind(ma, ma), backtransf = FALSE)
+  expect_equal(unchanged$data$TE, unchanged$data$TE.orig)
+  expect_equal(unchanged$data$lower, unchanged$data$lower.orig)
+  expect_equal(unchanged$data$upper, unchanged$data$upper.orig)
+})
+
+test_that("mixed effective transformations disable the shared exponential shortcut", {
+  custom <- metagen(c(0.2, 0.3, 0.4), rep(0.1, 3), sm = "RR",
+                     func.backtransf = "plogis")
+  standard <- metagen(c(0.2, 0.3, 0.4), rep(0.1, 3), sm = "OR")
+  mixed <- forest_metabind_options(metabind(custom, standard))$data
+  expect_equal(mixed$TE[mixed$id == 1], plogis(mixed$TE.orig[mixed$id == 1]))
+  expect_equal(mixed$TE[mixed$id == 2], exp(mixed$TE.orig[mixed$id == 2]))
+
+  standard <- forest_metabind_options(metabind(standard, standard), digits = 4)
+  expect_equal(standard$data$TE, standard$data$TE.orig)
+  expect_true("1.3499" %in% trimws(standard$effect.format))
+})

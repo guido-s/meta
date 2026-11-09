@@ -61,6 +61,25 @@
 #' information is also shown on prediction interval rows when random effects
 #' results for the same component are selected.
 #'
+#' With \code{backtransf = FALSE}, references for transformed single-outcome
+#' measures are passed on the original scale to \code{forest.meta()}.
+#' PFT and IRFT reference transformations use a shared harmonic mean when
+#' available; otherwise the arcsine and square-root transformations are used,
+#' respectively.
+#'
+#' Custom back-transformations are applied separately to each result. The
+#' logarithmic-axis shortcut is used only when all selected results use an
+#' exponential back-transformation; otherwise the plotting data are prepared
+#' on the displayed scale.
+#'
+#' Custom back-transformation functions and named arguments are displayed
+#' automatically when supplied. Elements \code{backtransf} and
+#' \code{args.backtransf} of \code{print} override this selection; the
+#' argument column is shown only with the function column. These columns
+#' precede effect and interval columns on the left, and follow them on the
+#' right. This controls column visibility independently of the logical
+#' \code{backtransf} argument controlling the result scale.
+#'
 #' @return Invisibly returns the result of \code{forest.meta()}, with the
 #'   prepared result data in element \code{data}.
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
@@ -119,30 +138,34 @@ forest.metabind <- function(x,
   selections <- list(common = common, random = random, predict = prediction)
   supplied <- c(common = !missing(common), random = !missing(random),
                 predict = !missing(prediction))
-  for (nm in names(selections)) {
-    if (is.null(x[[nm]])) {
-      if (supplied[[nm]] && selections[[nm]])
-        warning("Argument '", if (nm == "predict") "prediction" else nm,
+  for (i in names(selections)) {
+    if (is.null(x[[i]])) {
+      if (supplied[[i]] && selections[[i]])
+        warning("Argument '", if (i == "predict") "prediction" else i,
                 "' set to FALSE as no corresponding results are available.",
                 call. = FALSE)
-      selections[[nm]] <- FALSE
+      selections[[i]] <- FALSE
     }
-    if (!selections[[nm]])
-      x[[nm]] <- NULL
+    if (!selections[[i]])
+      x[[i]] <- NULL
   }
   common <- selections$common
   random <- selections$random
   prediction <- selections$predict
+  #
   if (!(common || random || prediction)) {
     warning("Nothing to show in forest plot.", call. = FALSE)
     return(invisible(NULL))
   }
   # Component results are display rows, not observations to pool again.
   overall <- overall.hetstat <- FALSE
+  #
   if (!identical(hetstat, FALSE))
     warning("Argument 'hetstat' ignored; use 'print' to display ",
-            "component heterogeneity information.", call. = FALSE)
+            "component heterogeneity information.",
+            call. = FALSE)
   hetstat <- FALSE
+  #
   chkchar(lab.NA)
   chkchar(big.mark, length = 1)
   chklogical(scientific.pval)
@@ -150,57 +173,73 @@ forest.metabind <- function(x,
   chklogical(JAMA.pval)
   chklogical(details)
   #
+  # Colours used in forest plot
+  #
+  col <- as_named_list(col)
+  col.list <- merge_legacy(col, args, col_defaults(x, "metabind"))
+  col <- col.list$res
+  args <- col.list$args
+  #
+  colors <- layout_colors(layout)
+  col$square <- replaceNULL(col$square, colors[4])
+  col$square.lines <- replaceNULL(col$square.lines, col$square)
+  col$circle <- replaceNULL(col$circle, colors[4])
+  col$circle.lines <- replaceNULL(col$circle.lines, col$circle)
+  col$diamond <- replaceNULL(col$diamond, colors[2])
+  col$diamond.common <- replaceNULL(col$diamond.common, col$diamond)
+  col$diamond.random <- replaceNULL(col$diamond.random, col$diamond)
+  col$diamond.lines <- replaceNULL(col$diamond.lines, colors[3])
+  col$diamond.lines.common <-
+    replaceNULL(col$diamond.lines.common, col$diamond.lines)
+  col$diamond.lines.random <-
+    replaceNULL(col$diamond.lines.random, col$diamond.lines)
+  col$predict <- replaceNULL(col$predict, colors[7])
+  col$predict.lines <- replaceNULL(col$predict.lines, colors[8])
+  #
+  # Columns shown in forest plot
+  #
   print.list <- merge_legacy(print, args, print_defaults(x, "metabind"))
   print <- print.list$res
   args <- print.list$args
-  nullable <- c("type", "func", "sm", "method", "method.interval", "method.tau",
-                "pval", "stat", "level.ma", "level.predict", "level.hetstat",
-                "tau2", "tau", "pval.Q", "pval.Q.b", "subgroup.name")
-  for (nm in names(print))
-    chklogical(print[[nm]], name = paste0("print.", nm),
-               NULL.ok = nm %in% nullable)
+  #
+  for (i in names(print))
+    chklogical(print[[i]], name = paste0("print.", i),
+               NULL.ok =
+                  i %in% c("type", "func", "sm", "backtransf", "args.backtransf",
+                          "method", "method.interval", "method.tau",
+                          "pval", "stat",
+                          "level.ma", "level.predict", "level.hetstat",
+                          "tau2", "tau",
+                          "pval.Q", "pval.Q.b", "subgroup.name"))
+  #
   print$tau2 <- replaceNULL(print$tau2, random)
   print$tau <- replaceNULL(print$tau, random)
   print$pval.Q <- replaceNULL(print$pval.Q, print$Q) && print$Q
   print$pval.Q.b <- replaceNULL(print$pval.Q.b, FALSE)
   print$subgroup.name <- replaceNULL(print$subgroup.name, FALSE)
+  #
   print$tau2.ci <- print$tau2 && print$tau2.ci
   print$tau.ci <- print$tau && print$tau.ci
   print$I2.ci <- print$I2 && print$I2.ci
   print$H.ci <- print$H && print$H.ci
   #
-  digits <- as_named_list(digits)
-  digits.list <- merge_legacy(digits, args, digits_defaults("metabind"))
-  digitss <- digits.list$res
-  args <- digits.list$args
-  for (nm in names(digitss))
-    chknumeric(digitss[[nm]], min = if (nm %in% c("pval", "pval.Q")) 1 else 0,
-               length = 1, name = paste0("digits.", nm))
-  digits <- digitss$digits
+  # Plot types
   #
   type <- as_named_list(type)
   type.list <- merge_legacy(type, args, type_defaults(class = "metabind"))
   types <- type.list$res
   args <- type.list$args
-  col <- as_named_list(col)
-  col.list <- merge_legacy(col, args, col_defaults(x, "metabind"))
-  cols <- col.list$res
-  args <- col.list$args
-  colors <- layout_colors(layout)
-  cols$square <- replaceNULL(cols$square, colors[4])
-  cols$square.lines <- replaceNULL(cols$square.lines, cols$square)
-  cols$circle <- replaceNULL(cols$circle, colors[4])
-  cols$circle.lines <- replaceNULL(cols$circle.lines, cols$circle)
-  cols$diamond <- replaceNULL(cols$diamond, colors[2])
-  cols$diamond.common <- replaceNULL(cols$diamond.common, cols$diamond)
-  cols$diamond.random <- replaceNULL(cols$diamond.random, cols$diamond)
-  cols$diamond.lines <- replaceNULL(cols$diamond.lines, colors[3])
-  cols$diamond.lines.common <-
-    replaceNULL(cols$diamond.lines.common, cols$diamond.lines)
-  cols$diamond.lines.random <-
-    replaceNULL(cols$diamond.lines.random, cols$diamond.lines)
-  cols$predict <- replaceNULL(cols$predict, colors[7])
-  cols$predict.lines <- replaceNULL(cols$predict.lines, colors[8])
+  #
+  # Digits used to round results
+  #
+  digits <- as_named_list(digits)
+  digits.list <- merge_legacy(digits, args, digits_defaults("metabind"))
+  digits <- digits.list$res
+  args <- digits.list$args
+  #
+  for (i in names(digits))
+    chknumeric(digits[[i]], min = if (i %in% c("pval", "pval.Q")) 1 else 0,
+               length = 1, name = paste0("digits.", i))
   
   #
   #
@@ -225,8 +264,11 @@ forest.metabind <- function(x,
     fbt <- makeunique(meta$func.backtransf, NULL)
     sm.lab <- smlab(sm, backtransf = backtransf, pscale = pscale,
                     irscale = irscale, func.backtransf = fbt, forest = TRUE)
-    lab.TE <- if (is_relative_effect(sm) || identical(fbt, "exp"))
-      paste0(gs("log.prefix"), sm) else sm
+    #
+    if (is_relative_effect(sm) || identical(fbt, "exp"))
+      lab.TE <- paste0(gs("log.prefix"), sm)
+    else
+      lab.TE <- sm
   }
   else {
     fbt <- NULL
@@ -248,10 +290,15 @@ forest.metabind <- function(x,
   #
   
   dat <- as.data.frame(x, drop_all_NA = FALSE)
-  for (nm in c("TE", "seTE", "statistic", "pval", "df", "null.effect")) {
-    if (is.null(dat[[nm]]))
-      dat[[nm]] <- rep(NA_real_, nrow(dat))
+  #
+  for (i in c("TE", "seTE", "statistic", "pval", "df", "null.effect")) {
+    if (is.null(dat[[i]]))
+      dat[[i]] <- rep(NA_real_, nrow(dat))
   }
+  if (is.null(dat$func.backtransf))
+    dat$func.backtransf <- rep(NA_character_, nrow(dat))
+  if (is.null(dat$args.backtransf))
+    dat$args.backtransf <- rep(list(NULL), nrow(dat))
   #
   studlab <- catch(enquo(studlab), dat)
   subgroup <- catch(enquo(subgroup), dat)
@@ -260,116 +307,201 @@ forest.metabind <- function(x,
     studlab <- dat$name
   else if (length(studlab) == 1)
     studlab <- rep(studlab, nrow(dat))
+  #
   chklength(studlab, nrow(dat), name = "studlab")
+  #
   if (!is.null(subgroup)) {
     if (length(subgroup) == 1)
       subgroup <- rep(subgroup, nrow(dat))
     chklength(subgroup, nrow(dat), name = "subgroup")
   }
-  group <- if (is.null(subgroup)) rep(1L, nrow(dat)) else
-    match(subgroup, unique(subgroup))
+  #
+  if (is.null(subgroup))
+    group <- rep(1L, nrow(dat))
+  else
+    group <- match(subgroup, unique(subgroup))
+  #
   varies <- function(value, rows = rep(TRUE, nrow(dat))) {
     any(vapply(split(value[rows], group[rows]),
                function(z) length(unique(z[!is.na(z)])) > 1,
                logical(1)))
   }
+  #
   is.predict <- dat$type == "Prediction interval"
   is.common <- dat$type == "Common effect model"
-  priority <- match(dat$type, c("Random effects model", "Common effect model",
-                               "Prediction interval"))
+  #
+  priority <-
+    match(dat$type,
+          c("Random effects model", "Common effect model",
+            "Prediction interval"))
+  #
   order.het <- order(priority, seq_len(nrow(dat)))
+  #
   rows.het <- rep(FALSE, nrow(dat))
   rows.het[order.het[!duplicated(dat$id[order.het])]] <- TRUE
+  #
   rows.tau <- rows.het |
     (is.predict & dat$id %in% dat$id[dat$type == "Random effects model"])
   #
   print$type <- replaceNULL(print$type,
                             varies(dat$type) && !identical(studlab, dat$type))
-  for (nm in c("func", "sm", "method", "method.interval"))
-    print[[nm]] <- replaceNULL(print[[nm]], varies(dat[[nm]]))
+  #
+  for (i in c("func", "sm", "method", "method.interval"))
+    print[[i]] <- replaceNULL(print[[i]], varies(dat[[i]]))
+  #
   has.pval <- any(!is.na(dat$pval))
   print$pval <- replaceNULL(print$pval, has.pval) && has.pval
   print$stat <- replaceNULL(print$stat, has.pval) && any(!is.na(dat$statistic))
+  #
+  print$backtransf <- replaceNULL(
+    print$backtransf,
+    any(!is.na(dat$func.backtransf) & nzchar(dat$func.backtransf)))
+  print$args.backtransf <- print$backtransf &&
+    replaceNULL(print$args.backtransf, any(lengths(dat$args.backtransf) > 0))
+  #
   print$subgroup.name <- replaceNULL(print$subgroup.name, FALSE)
   addrow.subgroups <- replaceNULL(addrow.subgroups, !is.null(subgroup))
   chklogical(addrow.subgroups)
   #
   levels.ci <- unique(round(dat$level.ma[!is.predict], 4))
   levels.pi <- unique(round(dat$level.predict[is.predict], 4))
+  #
   generic.interval <- length(levels.ci) > 1 || length(levels.pi) > 1
+  #
   if (length(levels.ci) > 0 && length(levels.pi) > 0) {
-    ci.lab <-
-      if (generic.interval) "CI/PI"
-      else if (levels.ci == levels.pi) percent_label(levels.ci, type = "CI/PI")
-      else paste0(percent_label(levels.ci), "/",
-                  percent_label(levels.pi, type = "PI"))
+    if (generic.interval)
+      ci.lab <- "CI/PI"
+    else if (levels.ci == levels.pi)
+      ci.lab <- percent_label(levels.ci, type = "CI/PI")
+    else
+      ci.lab <- paste0(percent_label(levels.ci), "/",
+                       percent_label(levels.pi, type = "PI"))
   }
-  else if (length(levels.pi) > 0)
-    ci.lab <- if (generic.interval) "PI" else
-      percent_label(levels.pi, type = "PI")
-  else
-    ci.lab <- if (generic.interval) "CI" else percent_label(levels.ci)
+  else if (length(levels.pi) > 0) {
+    if (generic.interval)
+      ci.lab <- "PI"
+    else
+      ci.lab <- percent_label(levels.pi, type = "PI")
+  }
+  else {
+    if (generic.interval)
+      ci.lab <- "CI"
+    else
+      ci.lab <- percent_label(levels.ci)
+  }
+  #
   dat$level <- ifelse(is.predict, dat$level.predict, dat$level.ma)
+  #
   show.level.ci <- generic.interval && replaceNULL(print$level.ma, TRUE)
   show.level.pi <- generic.interval && replaceNULL(print$level.predict, TRUE)
   show.level <- (any(!is.predict) && show.level.ci) ||
     (any(is.predict) && show.level.pi)
   #
-  is.t <- dat$method.interval[!is.predict] %in% c("HK", "KR", "CR0", "CR1", "CR2")
-  stat.lab <- if (all(is.t)) "t" else if (all(!is.t)) "z" else "z|t"
+  is.t <-
+    dat$method.interval[!is.predict] %in% c("HK", "KR", "CR0", "CR1", "CR2")
+  #
+  if (all(is.t))
+    stat.lab <- "t"
+  else if (all(!is.t))
+    stat.lab <- "z"
+  else
+    stat.lab <- "z|t"
+  #
   show.df <- any(!is.na(dat$df) & is.finite(dat$df))
   #
-  # Keep relative effects on the log axis; other families use natural coordinates.
-  relative.axis <- backtransf &&
-    (all(is_relative_effect(sm)) || (same.sm && identical(fbt, "exp")))
   dat$TE.orig <- dat$TE
   dat$seTE.orig <- dat$seTE
   dat$lower.orig <- dat$lower
   dat$upper.orig <- dat$upper
+  #
   row_setting <- function(column, i, arguments = FALSE) {
     if (is.null(column))
       return(NULL)
+    #
     value <- column[[i]]
+    #
     if (is.atomic(value) && length(value) == 1 && is.na(value))
       return(NULL)
+    #
     # Flat named argument columns must retain their argument names.
+    #
     if (arguments && !is.null(value) && !is.list(value))
       column[i]
     else
       value
   }
+  #
+  # Only exponential transformations can share the log-axis shortcut
+  #
+  uses.exp <-
+    vapply(seq_len(nrow(dat)),
+           function(i) {
+             fun <- row_setting(dat$func.backtransf, i)
+             if (is.null(fun))
+               is_relative_effect(dat$sm[i])
+             else
+               identical(fun, "exp") || identical(fun, exp)
+           },
+           logical(1))
+  #
+  relative.axis <- backtransf && all(uses.exp)
+  #
   if (backtransf && !relative.axis) {
     for (i in seq_len(nrow(dat))) {
-      for (nm in c("TE", "lower", "upper")) {
-        dat[[nm]][i] <- backtransf(
-          dat[[nm]][i], dat$sm[i],
-          n = dat$n.harmonic.mean[[i]], time = dat$t.harmonic.mean[[i]],
-          func = row_setting(dat$func.backtransf, i),
-          args = row_setting(dat$args.backtransf, i, arguments = TRUE))
+      for (j in c("TE", "lower", "upper")) {
+        dat[[j]][i] <-
+          backtransf(dat[[j]][i], dat$sm[i],
+                     n = dat$n.harmonic.mean[[i]],
+                     time = dat$t.harmonic.mean[[i]],
+                     func = row_setting(dat$func.backtransf, i),
+                     args = row_setting(dat$args.backtransf, i, arguments = TRUE))
         if (is_prop(dat$sm[i]) || dat$sm[i] == "RD")
-          dat[[nm]][i] <- pscale * dat[[nm]][i]
+          dat[[j]][i] <- pscale * dat[[j]][i]
         else if (is_rate(dat$sm[i]) || dat$sm[i] == "IRD")
-          dat[[nm]][i] <- irscale * dat[[nm]][i]
+          dat[[j]][i] <- irscale * dat[[j]][i]
+      }
+      #
+      # Switch lower and upper limit for VE
+      #
+      if (dat$sm[i] == "VE") {
+        tmp.l <- dat$lower[i]
+        dat$lower[i] <- dat$upper[i]
+        dat$upper[i] <- tmp.l
       }
     }
   }
+  #
+  ref.original <- !backtransf && same.sm && is_single(sm)
+  null.ref <- dat$null.effect
   null.plot <- dat$null.effect
+  #
   for (i in seq_len(nrow(dat))) {
     if (is.na(null.plot[i]))
       next
     original <- dat$func[i] %in% c("metacor", "metamean", "metaprop", "metarate")
+    if (ref.original && !original)
+      null.ref[i] <-
+        backtransf(null.ref[i], dat$sm[i],
+                   n = dat$n.harmonic.mean[[i]],
+                   time = dat$t.harmonic.mean[[i]],
+                   func = row_setting(dat$func.backtransf, i),
+                   args = row_setting(dat$args.backtransf, i, arguments = TRUE))
+    #
     if (!backtransf && original)
-      null.plot[i] <- transf(null.plot[i], dat$sm[i],
-                             n = dat$n.harmonic.mean[[i]],
-                             time = dat$t.harmonic.mean[[i]],
-                             func = row_setting(dat$func.transf, i),
-                             args = row_setting(dat$args.transf, i, arguments = TRUE))
+      null.plot[i] <-
+        transf(null.plot[i], dat$sm[i],
+               n = dat$n.harmonic.mean[[i]],
+               time = dat$t.harmonic.mean[[i]],
+               func = row_setting(dat$func.transf, i),
+               args = row_setting(dat$args.transf, i, arguments = TRUE))
     else if (backtransf && !original)
-      null.plot[i] <- backtransf(null.plot[i], dat$sm[i],
-                                 n = dat$n.harmonic.mean[[i]],
-                                 time = dat$t.harmonic.mean[[i]],
-                                 func = row_setting(dat$func.backtransf, i),
-                                 args = row_setting(dat$args.backtransf, i, arguments = TRUE))
+      null.plot[i] <-
+        backtransf(null.plot[i], dat$sm[i],
+                   n = dat$n.harmonic.mean[[i]],
+                   time = dat$t.harmonic.mean[[i]],
+                   func = row_setting(dat$func.backtransf, i),
+                   args = row_setting(dat$args.backtransf, i, arguments = TRUE))
+    #
     if (backtransf && (is_prop(dat$sm[i]) || dat$sm[i] == "RD"))
       null.plot[i] <- pscale * null.plot[i]
     else if (backtransf && (is_rate(dat$sm[i]) || dat$sm[i] == "IRD"))
@@ -382,102 +514,159 @@ forest.metabind <- function(x,
   #
   #
   
-  dat$null.effect <- formatN(null.plot, digits = digits, lab.NA = lab.NA,
+  dat$null.effect <- formatN(null.plot, digits = digits$digits, lab.NA = lab.NA,
                              big.mark = big.mark)
+  dat$func.backtransf[is.na(dat$func.backtransf) | dat$func.backtransf == ""] <- lab.NA
+  dat$args.backtransf <- vapply(dat$args.backtransf, format_args,
+                                character(1), lab.NA = lab.NA)
   dat$k <- as.character(dat$k)
   dat$level <- percent_label(dat$level, type = "")
-  dat$level[(!is.predict & !show.level.ci) | (is.predict & !show.level.pi)] <- ""
+  dat$level[(!is.predict & !show.level.ci) |
+              (is.predict & !show.level.pi)] <- ""
   dat$df <- formatN(dat$df, digits = 2, lab.NA = lab.NA, big.mark = big.mark)
+  #
   if (all(is.na(dat$seTE)))
     print$se <- FALSE
+  #
   show.adhoc <- print$method.interval &&
     any(dat$method.interval %in% c("HK", "HK-PR")) &&
     any(!is.na(dat$adhoc.hakn) & dat$adhoc.hakn != "")
+  #
   dat$adhoc.hakn[is.na(dat$adhoc.hakn)] <- ""
+  #
   het.levels <- unique(round(dat$level.hetstat[rows.het], 4))
-  het.lab <- if (length(het.levels) == 1) percent_label(het.levels) else "CI"
-  show.het.level <- replaceNULL(print$level.hetstat, length(het.levels) > 1) &&
+  #
+  if (length(het.levels) == 1)
+    het.lab <- percent_label(het.levels)
+  else
+    het.lab <- "CI"
+  #
+  show.het.level <-
+    replaceNULL(print$level.hetstat, length(het.levels) > 1) &&
     (print$tau2.ci || print$tau.ci || print$I2.ci || print$H.ci)
+  #
   dat$level.hetstat <- percent_label(dat$level.hetstat, type = "")
-  for (nm in c("tau2", "tau", "I2", "H")) {
-    lower <- dat[[paste0("lower.", nm)]]
-    upper <- dat[[paste0("upper.", nm)]]
-    prec <- if (nm %in% c("I2", "H")) digitss$I2 else digitss[[nm]]
-    dat[[paste0(nm, ".ci")]] <- formatCI(
-      lower, upper, digits = prec, lab.NA = lab.NA, na.lab = TRUE,
-      scale = if (nm == "I2") 100 else 1,
-      suffix = if (nm == "I2") "%" else "", big.mark = big.mark)
-    if (nm == "I2")
-      dat[[nm]] <- percent_label(dat[[nm]], "", prec, formatN, lab.NA = lab.NA)
-    else if (nm == "H")
-      dat[[nm]] <- formatN(dat[[nm]], digits = prec, lab.NA = lab.NA,
-                           big.mark = big.mark)
+  #
+  for (i in c("tau2", "tau", "I2", "H")) {
+    lower <- dat[[paste0("lower.", i)]]
+    upper <- dat[[paste0("upper.", i)]]
+    #
+    if (i %in% c("I2", "H"))
+      prec <- digits$I2
     else
-      dat[[nm]] <- formatPT(dat[[nm]], digits = prec, lab.NA = lab.NA,
-                            big.mark = big.mark, lab = FALSE, trim = "left")
+      prec <- digits[[i]]
+    #
+    dat[[paste0(i, ".ci")]] <-
+      formatCI(lower, upper, digits = prec, lab.NA = lab.NA, na.lab = TRUE,
+               scale = if (i == "I2") 100 else 1,
+               suffix = if (i == "I2") "%" else "", big.mark = big.mark)
+    #
+    if (i == "I2")
+      dat[[i]] <- percent_label(dat[[i]], "", prec, formatN, lab.NA = lab.NA)
+    else if (i == "H")
+      dat[[i]] <- formatN(dat[[i]], digits = prec, lab.NA = lab.NA,
+                          big.mark = big.mark)
+    else
+      dat[[i]] <- formatPT(dat[[i]], digits = prec, lab.NA = lab.NA,
+                           big.mark = big.mark, lab = FALSE, trim = "left")
   }
-  dat$Q <- formatN(dat$Q, digits = digitss$Q, lab.NA = lab.NA,
-                    big.mark = big.mark)
-  dat$pval.Q <- formatPT(dat$pval.Q, digits = digitss$pval.Q,
+  #
+  dat$Q <- formatN(dat$Q, digits = digits$Q, lab.NA = lab.NA,
+                   big.mark = big.mark)
+  #
+  dat$pval.Q <- formatPT(dat$pval.Q, digits = digits$pval.Q,
                          lab.NA = lab.NA, lab = FALSE, trim = "left",
                          scientific = scientific.pval, zero = zero.pval,
                          JAMA = JAMA.pval, big.mark = big.mark)
+  #
   het.cols <- c("tau2", "tau", "I2", "H", "tau2.ci", "tau.ci", "I2.ci", "H.ci",
                 "Q", "df.Q", "pval.Q", "level.hetstat")
-  for (nm in het.cols) {
-    keep <- if (nm %in% c("tau2", "tau", "tau2.ci", "tau.ci"))
-      rows.tau else rows.het
-    dat[[nm]][!keep] <- lab.NA
+  #
+  for (i in het.cols) {
+    if (i %in% c("tau2", "tau", "tau2.ci", "tau.ci"))
+      keep <- rows.tau
+    else
+      keep <- rows.het
+    #
+    dat[[i]][!keep] <- lab.NA
   }
   #
-  for (nm in c("method.tau", "method.tau.ci", "method.I2")) {
-    if (is.null(dat[[nm]]))
-      dat[[nm]] <- NA_character_
-    dat[[nm]][is.na(dat[[nm]])] <- lab.NA
-    keep <- if (nm %in% c("method.tau", "method.tau.ci")) rows.tau else rows.het
-    dat[[nm]][!keep] <- lab.NA
+  for (i in c("method.tau", "method.tau.ci", "method.I2")) {
+    if (is.null(dat[[i]]))
+      dat[[i]] <- NA_character_
+    #
+    dat[[i]][is.na(dat[[i]])] <- lab.NA
+    #
+    if (i %in% c("method.tau", "method.tau.ci"))
+      keep <- rows.tau
+    else
+      keep <- rows.het
+    #
+    dat[[i]][!keep] <- lab.NA
   }
-  print.het.method <- c(
-    method.tau = (print$tau2 || print$tau),
-    method.tau.ci = (print$tau2.ci || print$tau.ci),
-    method.I2 = print$I2)
-  for (nm in names(print.het.method))
-    print.het.method[[nm]] <- print.het.method[[nm]] &&
-      replaceNULL(print[[nm]],
-                  replaceNULL(print.list$res$method, varies(dat[[nm]], rows.het)))
+  #
+  print.het.method <-
+    c(method.tau = (print$tau2 || print$tau),
+      method.tau.ci = (print$tau2.ci || print$tau.ci),
+      method.I2 = print$I2)
+  #
+  for (i in names(print.het.method)) {
+    print.het.method[[i]] <- print.het.method[[i]] &&
+      replaceNULL(print[[i]],
+                  replaceNULL(print.list$res$method,
+                              varies(dat[[i]], rows.het)))
+  }
   #
   type.study <- types$type
+  #
   if (is.null(type.study))
     type.study <- ifelse(is.predict, "predict", "square")
   else if (length(type.study) == 1)
     type.study <- rep(type.study, nrow(dat))
+  #
   chklength(type.study, nrow(dat), name = "type")
+  #
   valid.types <- c("square", "diamond", "predict", "circle")
   type.study <- setchar(type.study, valid.types)
-  for (nm in c("common", "random", "predict")) {
-    if (!is.null(types[[nm]])) {
-      types[[nm]] <- setchar(types[[nm]], valid.types, length = 1)
-      sel <- dat$type == switch(nm, common = "Common effect model",
+  #
+  for (i in c("common", "random", "predict")) {
+    if (!is.null(types[[i]])) {
+      types[[i]] <- setchar(types[[i]], valid.types, length = 1)
+      sel <- dat$type == switch(i, common = "Common effect model",
                                 random = "Random effects model",
                                 predict = "Prediction interval")
-      type.study[sel] <- types[[nm]]
+      type.study[sel] <- types[[i]]
     }
   }
+  #
   dat$.type.study <- type.study
-  cols.square <- cols.square.lines <- rep("", nrow(dat))
+  col.square <- col.square.lines <- rep("", nrow(dat))
+  #
   for (i in seq_len(nrow(dat))) {
     if (type.study[i] == "diamond") {
-      nm <- if (is.common[i]) "common" else "random"
-      cols.square[i] <- cols[[paste0("diamond.", nm)]]
-      cols.square.lines[i] <- cols[[paste0("diamond.lines.", nm)]]
+      if (is.common[i])
+        type.i <- "common"
+      else
+        type.i <- "random"
+      #
+      col.square[i] <- col[[paste0("diamond.", type.i)]]
+      col.square.lines[i] <- col[[paste0("diamond.lines.", type.i)]]
     }
     else {
-      nm <- if (type.study[i] == "predict") "predict" else
-        if (type.study[i] == "circle") "circle" else "square"
-      cols.square[i] <- cols[[nm]]
-      cols.square.lines[i] <- cols[[paste0(nm, ".lines")]]
+      if (type.study[i] == "predict")
+        type.i <- "predict"
+      else if (type.study[i] == "circle")
+        type.i <- "circle"
+      else
+        type.i <- "square"
+      #
+      col.square[i] <- col[[type.i]]
+      col.square.lines[i] <- col[[paste0(type.i, ".lines")]]
     }
   }
+  #
+  col$square <- col.square
+  col$square.lines <- col.square.lines
   
   #
   #
@@ -485,59 +674,100 @@ forest.metabind <- function(x,
   #
   #
   
-  info.cols <- c(if (print$studlab) "studlab", if (print$type) "type",
-                 if (print$func) "func", if (print$method) "method",
+  info.cols <- c(if (print$studlab) "studlab",
+                 if (print$type) "type",
+                 if (print$func) "func",
+                 if (print$method) "method",
                  if (print$method.interval) "method.interval",
-                 if (show.adhoc) "adhoc.hakn", if (print$k) "k")
+                 if (show.adhoc) "adhoc.hakn",
+                 if (print$k) "k")
   #
-  for (nm in c("tau2", "tau", "I2", "H")) {
-    if (print[[nm]])
-      info.cols <- c(info.cols, nm)
-    if (print[[paste0(nm, ".ci")]])
-      info.cols <- c(info.cols, paste0(nm, ".ci"))
+  for (i in c("tau2", "tau", "I2", "H")) {
+    if (print[[i]])
+      info.cols <- c(info.cols, i)
+    if (print[[paste0(i, ".ci")]])
+      info.cols <- c(info.cols, paste0(i, ".ci"))
   }
+  #
   if (print$Q)
     info.cols <- c(info.cols, "Q", "df.Q")
   #
   if (print$pval.Q)
     info.cols <- c(info.cols, "pval.Q")
+  #
   info.cols <- c(info.cols, names(print.het.method)[print.het.method],
                  if (show.het.level) "level.hetstat")
-  result.cols <- c(if (print$sm) "sm", if (show.level) "level",
-                   if (layout %in% c("RevMan5", "JAMA", "BMJ")) "effect.ci"
-                   else c("effect", "ci"),
-                   if (print$se) "seTE", if (print$stat) "statistic",
-                   if (show.df) "df",
-                   if (print$pval) "pval", if (print$null.effect) "null.effect")
-  if (is.null(leftcols))
-    leftcols <- c(info.cols, if (!layout %in% c("BMJ", "meta8")) result.cols)
-  if (is.null(rightcols))
-    rightcols <- if (layout %in% c("BMJ", "meta8")) result.cols else FALSE
   #
-  labels <- c(studlab = "Meta-Analysis", type = "Type", func = "Function",
-              method = "Method", method.interval = "Interval\nmethod",
-              adhoc.hakn = "Ad hoc\ncorrection", k = "Number of\nStudies",
-              sm = "Effect\nmeasure", level = "Level", effect = sm.lab,
-              ci = ci.lab, effect.ci = paste0(sm.lab, "\n(", ci.lab, ")"),
-              seTE = paste0("SE(", lab.TE, ")"), statistic = stat.lab,
-              pval = gs("label.pval"), df = "df", null.effect = "Null\neffect",
-              tau2 = NA, tau = NA, I2 = NA,
-              H = NA, Q = NA, df.Q = "df",
+  transformation.cols <- c(if (print$backtransf) "func.backtransf",
+                            if (print$args.backtransf) "args.backtransf")
+  measure.cols <- c(if (print$sm) "sm", if (show.level) "level")
+  if (layout %in% c("RevMan5", "JAMA", "BMJ"))
+    effect.cols <- "effect.ci"
+  else
+    effect.cols <- c("effect", "ci")
+  test.cols <- c(if (print$se) "seTE", if (print$stat) "statistic",
+                 if (show.df) "df", if (print$pval) "pval",
+                 if (print$null.effect) "null.effect")
+  #
+  if (is.null(leftcols))
+    leftcols <- c(info.cols, if (!layout %in% c("BMJ", "meta8"))
+                    c(measure.cols, transformation.cols, effect.cols, test.cols))
+  #
+  if (is.null(rightcols)) {
+    if (layout %in% c("BMJ", "meta8"))
+      rightcols <- c(measure.cols, effect.cols, transformation.cols, test.cols)
+    else
+      rightcols <- FALSE
+  }
+  #
+  labels <- c(studlab = "Meta-Analysis",
+              type = "Type",
+              func = "Function",
+              func.backtransf = "Back-\ntransformation",
+              args.backtransf = "Arguments",
+              method = "Method",
+              method.interval = "Interval\nmethod",
+              adhoc.hakn = "Ad hoc\ncorrection",
+              k = "Number of\nStudies",
+              sm = "Effect\nmeasure",
+              level = "Level",
+              effect = sm.lab,
+              ci = ci.lab,
+              effect.ci = paste0(sm.lab, "\n(", ci.lab, ")"),
+              seTE = paste0("SE(", lab.TE, ")"),
+              statistic = stat.lab,
+              pval = gs("label.pval"),
+              df = "df",
+              null.effect = "Null\neffect",
+              tau2 = NA,
+              tau = NA,
+              I2 = NA,
+              H = NA,
+              Q = NA,
+              df.Q = "df",
               pval.Q = paste(gs("label.pval"), "Q-test", sep = "\n"),
-              tau2.ci = het.lab, tau.ci = het.lab, I2.ci = het.lab, H.ci = het.lab,
-              method.tau = "Tau estimator", method.tau.ci = "Tau CI\nmethod",
-              method.I2 = "I2 method", level.hetstat = "Het.\nlevel")
+              tau2.ci = het.lab,
+              tau.ci = het.lab,
+              I2.ci = het.lab,
+              H.ci = het.lab,
+              method.tau = "Tau estimator",
+              method.tau.ci = "Tau CI\nmethod",
+              method.I2 = "I2 method",
+              level.hetstat = "Het.\nlevel")
+  #
   if (is.null(leftlabs))
     leftlabs <- rep(NA_character_, length(leftcols))
   else
     chklength(leftlabs, length(leftcols), name = "leftlabs")
+  #
   if (is.null(rightlabs))
     rightlabs <- rep(NA_character_, length(rightcols))
   else
     chklength(rightlabs, length(rightcols), name = "rightlabs")
-  for (nm in names(labels)) {
-    leftlabs <- newlab(leftcols, leftlabs, nm, labels[[nm]])
-    rightlabs <- newlab(rightcols, rightlabs, nm, labels[[nm]])
+  #
+  for (i in names(labels)) {
+    leftlabs <- newlab(leftcols, leftlabs, i, labels[[i]])
+    rightlabs <- newlab(rightcols, rightlabs, i, labels[[i]])
   }
   
   #
@@ -548,73 +778,116 @@ forest.metabind <- function(x,
   
   se.plot <- dat$seTE
   se.plot[is.na(se.plot) | se.plot <= 0] <- 1
-  ma <- metagen(dat$TE, se.plot, lower = dat$lower, upper = dat$upper,
+  #
+  if (relative.axis && same.sm)
+    sm.plot <- sm
+  else if (relative.axis)
+    sm.plot <- "Effect"
+  else if (!backtransf && same.sm)
+    sm.plot <- sm
+  else
+    sm.plot <- ""
+  #
+  ma <- metagen(dat$TE, se.plot,
+                lower = dat$lower, upper = dat$upper,
                 studlab = studlab, data = dat,
-                sm = if (relative.axis && same.sm) sm else sm.lab,
+                sm = sm.plot,
                 common = FALSE, random = FALSE, prediction = FALSE,
                 overall = FALSE, transf = TRUE,
                 backtransf = relative.axis,
                 func.backtransf =
-                  if (relative.axis && (!same.sm || !is_relative_effect(sm)))
+                  if (relative.axis && !is_relative_effect(sm.plot))
                     "exp" else NULL,
                 subgroup = subgroup, print.subgroup.name = print$subgroup.name,
                 label.left = makeunique(dat$label.left, ""),
                 label.right = makeunique(dat$label.right, ""),
                 method.tau = "DL", method.tau.ci = "", warn = FALSE)
+  #
   ma$TE[is.predict] <- NA
   #
   ma$statistic <- dat$statistic
   ma$pval <- dat$pval
   ma$null.effect <- NA_real_
   #
-  if (!"ref" %in% names(args))
-    args$ref <- makeunique(null.plot)
+  # Define PAS and IRS as fallbacks - calculated in forest.meta()
   #
-  forest_args_general <- list(
-    layout = layout,
-    leftcols = leftcols, leftlabs = leftlabs,
-    rightcols = rightcols, rightlabs = rightlabs,
-    hetstat = hetstat, overall.hetstat = overall.hetstat,
-    lab.NA = lab.NA, pooled.totals = FALSE, weight.study = "same",
-    addrow.subgroups = addrow.subgroups,
-    col = list(square = cols.square, square.lines = cols.square.lines,
-               circle = cols$circle, circle.lines = cols$circle.lines,
-               diamond = cols$diamond, diamond.common = cols$diamond.common,
-               diamond.random = cols$diamond.random,
-               diamond.lines = cols$diamond.lines,
-               diamond.lines.common = cols$diamond.lines.common,
-               diamond.lines.random = cols$diamond.lines.random,
-               predict = cols$predict, predict.lines = cols$predict.lines),
-    print = list(I2 = print$I2, I2.ci = print$I2.ci,
-                 tau2 = print$tau2, tau2.ci = print$tau2.ci,
-                 tau = print$tau, tau.ci = print$tau.ci,
-                 H = print$H, Q = print$Q, pval.Q = print$pval.Q,
-                 subgroup.name = print$subgroup.name),
-    type = list(study = type.study), digits = digitss,
-    scientific.pval = scientific.pval, zero.pval = zero.pval,
-    JAMA.pval = JAMA.pval, big.mark = big.mark,
-    test.subgroup = FALSE, test.overall = FALSE, details = details)
+  if (ref.original && sm == "PFT")
+    ma$n.harmonic.mean <- makeunique(dat$n.harmonic.mean, val = NULL)
+  #
+  if (ref.original && sm == "IRFT")
+    ma$t.harmonic.mean <- makeunique(dat$t.harmonic.mean, val = NULL)
+  #
+  if (!"ref" %in% names(args)) {
+    if (ref.original)
+      args$ref <- makeunique(null.ref)
+    else
+      args$ref <- makeunique(null.plot)
+  }
+  #
+  if (sm.plot == "" && !"smlab" %in% names(args))
+    args$smlab <- sm.lab
+  #
+  forest_args_general <-
+    list(
+      layout = layout,
+      #
+      leftcols = leftcols,
+      leftlabs = leftlabs,
+      rightcols = rightcols,
+      rightlabs = rightlabs,
+      #
+      hetstat = hetstat,
+      overall.hetstat = overall.hetstat,
+      #
+      lab.NA = lab.NA,
+      #
+      pooled.totals = FALSE,
+      weight.study = "same",
+      addrow.subgroups = addrow.subgroups,
+      #
+      col = col,
+      #
+      print = print[c("I2", "I2.ci", "tau2", "tau2.ci", "tau", "tau.ci",
+                      "H", "Q", "pval.Q", "subgroup.name")],
+      #
+      type = list(study = type.study),
+      #
+      digits = digits,
+      #
+      scientific.pval = scientific.pval,
+      zero.pval = zero.pval,
+      JAMA.pval = JAMA.pval,
+      big.mark = big.mark,
+      #
+      test.subgroup = FALSE,
+      test.overall = FALSE,
+      details = details)
   #
   forest_args_specific <- list(x = ma)
   #
-  if (!is.null(subgroup))
-    forest_args_specific <- c(
-      forest_args_specific,
-      list(common.subgroup = FALSE, random.subgroup = FALSE,
-           prediction.subgroup = FALSE))
+  if (!is.null(subgroup)) {
+    forest_args_specific <-
+      c(forest_args_specific,
+        list(common.subgroup = FALSE, random.subgroup = FALSE,
+             prediction.subgroup = FALSE))
+  }
   #
   forest_args <- c(forest_args_general, forest_args_specific)
   #
-  if (details)
-    forest_args$x$.text.details.methods <- catmeth_metabind(
-      x, common, random, prediction,
-      print.tau2 = print$tau2, print.tau2.ci = print$tau2.ci,
-      print.tau = print$tau, print.tau.ci = print$tau.ci,
-      print.I2 = print$I2, print.pval = print$pval,
-      backtransf = backtransf, digits = digits,
-      digits.tau2 = digitss$tau2, digits.tau = digitss$tau,
-      pscale = pscale, irscale = irscale, irunit = irunit,
-      big.mark = big.mark, forest = TRUE)
+  if (details) {
+    forest_args$x$.text.details.methods <-
+      catmeth_metabind(x,
+                       #
+                       common, random, prediction,
+                       #
+                       backtransf, print, digits,
+                       #
+                       pscale, irscale, irunit,
+                       #
+                       big.mark = big.mark,
+                       #
+                       forest = TRUE)
+  }
   #
   res <- do.call("forest.meta", c(forest_args, args))
   #

@@ -733,7 +733,7 @@
 #' 
 #' @importFrom tools file_ext
 #'
-#' @importFrom dplyr %>% across mutate all_of select rename rename_with mutate if_else tibble filter bind_rows group_by group_map relocate recode left_join case_match
+#' @importFrom dplyr %>% across mutate all_of select rename rename_with mutate if_else tibble filter bind_rows group_by group_map relocate recode left_join case_when
 #'
 #' @importFrom tibble column_to_rownames
 #'

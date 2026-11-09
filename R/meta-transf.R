@@ -202,7 +202,11 @@ backtransf <- function(x, sm, n = NULL, time = NULL, func = NULL, args = NULL) {
   #
   if (all(is.na(x)))
     return(x)
-  
+  #
+  if (is.atomic(func) && length(func) == 1L &&
+      (is.na(func) || identical(func, "")))
+    func <- NULL
+  #
   if (!is.null(func))
     res <- do.call(func, c(list(x), args))
   #

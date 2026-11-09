@@ -28,48 +28,38 @@
 \arguments{
 \item{x}{An object of class \code{\link{metabind}}.}
 
-\item{common}{A logical indicating whether common effect estimates
-should be plotted.}
+\item{common, random, prediction}{Logical values selecting common effect
+estimates, random effects estimates, and prediction intervals to print.}
 
-\item{random}{A logical indicating whether random effects estimates
-should be plotted.}
-
-\item{prediction}{A logical indicating whether prediction intervals
-should be plotted.}
-
-\item{overall}{A logical indicating whether overall summaries
-should be plotted. This argument is useful in a meta-analysis
-with subgroups if summaries should only be plotted on group
-level.}
+\item{overall}{A logical indicating whether overall summaries should be
+printed. No additional overall summaries are printed for component
+results without source subgroup analyses.}
 
 \item{backtransf}{A logical indicating whether results should be
-back transformed in printouts and plots. If \code{backtransf=TRUE}
-(default), results for \code{sm="OR"} are printed as odds ratios rather
-than log odds ratios, for example.}
+back-transformed. Different summary measures require back-transformation.}
 
-\item{print}{A named list specifying which information to print; see
-\code{\link{meta-formatting}}. Element \code{func} controls the
-\code{func} column identifying the originating meta-analysis
-function. Its default \code{NULL} shows the column when values differ
-within a result table.}
+\item{print}{A named list controlling displayed information; see
+\code{\link{meta-formatting}}. Elements \code{func}, \code{sm},
+\code{method}, and \code{method.interval} accept \code{TRUE},
+\code{FALSE}, or \code{NULL} for automatic column selection within
+each result table. Element \code{func} identifies the originating
+meta-analysis function. Elements \code{level.ma}, \code{level.predict},
+and \code{level.hetstat} control confidence-level columns, which are
+shown automatically when the corresponding levels differ. Elements
+\code{backtransf} and \code{args.backtransf} control columns showing
+custom back-transformation functions and their named arguments, with
+headings \code{backtransf} and \code{args}. By default, these are
+shown when supplied; arguments are shown only with the function column.}
 
-\item{digits}{A named list specifying digits used for displayed results; a
-scalar value is also accepted. See \code{\link{meta-formatting}}.}
+\item{digits}{A named list controlling rounding; see
+\code{\link{meta-formatting}}. A scalar value is also accepted.}
 
-\item{lab.NA}{A character string to label missing values.}
+\item{lab.NA}{Label for missing values.}
 
-\item{big.mark}{A character used as thousands separator.}
+\item{big.mark}{Character used as thousands separator.}
 
-\item{scientific.pval}{A logical specifying whether p-values should
-be printed in scientific notation, e.g., 1.2345e-01 instead of
-0.12345.}
-
-\item{zero.pval}{A logical specifying whether p-values should be
-printed with a leading zero.}
-
-\item{JAMA.pval}{A logical specifying whether p-values for test of
-overall effect should be printed according to JAMA reporting
-standards.}
+\item{scientific.pval, zero.pval, JAMA.pval}{Logical values controlling
+the formatting of P values.}
 
 \item{text.tau2}{Text printed to identify between-study variance
 \eqn{\tau^2}.}
@@ -83,10 +73,15 @@ I\eqn{^2}.}
 \item{details.methods}{A logical specifying whether details on
 statistical methods should be printed.}
 
-\item{\dots}{Additional arguments.}
+\item{\dots}{Additional formatting arguments, including individual
+\code{print.*} and \code{digits.*} arguments.}
+}
+\value{
+Invisibly returns \code{NULL}.
 }
 \description{
-Print results of several meta-analyses
+Prints common effect estimates, random effects estimates, prediction
+intervals, and heterogeneity information in separate tables.
 }
 \examples{
 data(Fleiss1993bin)

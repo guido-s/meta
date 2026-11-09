@@ -185,7 +185,7 @@ Create Figure 4 (file 'figure4.pdf').
 ```{r}
 forest(mbr, xlim = c(0.5, 4),
   layout = "meta8", type = "diamond",
-  print = list(I2 = TRUE, Q = TRUE, pval.Q = TRUE, k = FALSE),
+  print = list(I2 = TRUE, Q = TRUE, pval.Q = TRUE, k = FALSE, func = FALSE),
   file = "figure4.pdf")
 ```
 
