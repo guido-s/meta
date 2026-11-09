@@ -57,7 +57,9 @@
 #'
 #' Heterogeneity information is shown once per component meta-analysis:
 #' on its first random effects row, falling back to its first common effect
-#' row and then its first prediction interval row.
+#' row and then its first prediction interval row. Tau and tau-squared
+#' information is also shown on prediction interval rows when random effects
+#' results for the same component are selected.
 #'
 #' @return Invisibly returns the result of \code{forest.meta()}, with the
 #'   prepared result data in element \code{data}.
@@ -278,6 +280,8 @@ forest.metabind <- function(x,
   order.het <- order(priority, seq_len(nrow(dat)))
   rows.het <- rep(FALSE, nrow(dat))
   rows.het[order.het[!duplicated(dat$id[order.het])]] <- TRUE
+  rows.tau <- rows.het |
+    (is.predict & dat$id %in% dat$id[dat$type == "Random effects model"])
   #
   print$type <- replaceNULL(print$type,
                             varies(dat$type) && !identical(studlab, dat$type))
@@ -420,14 +424,18 @@ forest.metabind <- function(x,
                          JAMA = JAMA.pval, big.mark = big.mark)
   het.cols <- c("tau2", "tau", "I2", "H", "tau2.ci", "tau.ci", "I2.ci", "H.ci",
                 "Q", "df.Q", "pval.Q", "level.hetstat")
-  for (nm in het.cols)
-    dat[[nm]][!rows.het] <- lab.NA
+  for (nm in het.cols) {
+    keep <- if (nm %in% c("tau2", "tau", "tau2.ci", "tau.ci"))
+      rows.tau else rows.het
+    dat[[nm]][!keep] <- lab.NA
+  }
   #
   for (nm in c("method.tau", "method.tau.ci", "method.I2")) {
     if (is.null(dat[[nm]]))
       dat[[nm]] <- NA_character_
     dat[[nm]][is.na(dat[[nm]])] <- lab.NA
-    dat[[nm]][!rows.het] <- lab.NA
+    keep <- if (nm %in% c("method.tau", "method.tau.ci")) rows.tau else rows.het
+    dat[[nm]][!keep] <- lab.NA
   }
   print.het.method <- c(
     method.tau = (print$tau2 || print$tau),

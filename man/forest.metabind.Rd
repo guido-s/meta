@@ -112,7 +112,9 @@ heading and a level column are used.
 
 Heterogeneity information is shown once per component meta-analysis:
 on its first random effects row, falling back to its first common effect
-row and then its first prediction interval row.
+row and then its first prediction interval row. Tau and tau-squared
+information is also shown on prediction interval rows when random effects
+results for the same component are selected.
 }
 \examples{
 ma <- metagen(1:3, 3:1, sm = "RR")

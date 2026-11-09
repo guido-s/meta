@@ -135,7 +135,7 @@ test_that("varying levels of either interval kind require a level column", {
   }
 })
 
-test_that("heterogeneity is printed once per id on the first preferred row", {
+test_that("heterogeneity uses preferred rows and tau is retained for predictions", {
   ma <- metagen_forest_options(common = TRUE, random = TRUE,
                               prediction = TRUE,
                               method.random.ci = c("classic", "HK"),
@@ -163,8 +163,12 @@ test_that("heterogeneity is printed once per id on the first preferred row", {
       for (col in cols) {
         values <- res$data[[col]][rows]
         present <- !is.na(values) & trimws(as.character(values)) != ""
-        expect_equal(rows[present], first,
-                     info = paste(preferred[i], "id", id, col))
+        expected <- if (i == 1 && col %in% c("tau2", "tau"))
+          c(first, rows[res$data$type[rows] == "Prediction interval"])
+        else
+          first
+        expect_equal(rows[present], expected,
+                      info = paste(preferred[i], "id", id, col))
       }
     }
   }
@@ -179,6 +183,32 @@ test_that("mixed rate transformations use time harmonic means and rate scaling",
   expect_equal(res$data$TE[res$data$id == 2],
                rep(meta:::backtransf(other$TE.common, other$sm,
                                     time = other$t.harmonic.mean) * 100, 2))
+})
+
+test_that("prediction rows retain tau estimates and methods from selected random results", {
+  ma <- metagen_forest_options(prediction = TRUE, method.predict = c("V", "HK"))
+  other <- update(ma, method.tau = "REML", random = FALSE)
+  mb <- metabind(ma, other)
+  res <- forest_metabind_options(
+    mb, lab.NA = ".", print = list(tau2 = TRUE, tau = TRUE,
+                                   tau2.ci = TRUE, tau.ci = TRUE,
+                                   method.tau = TRUE))
+  dat <- res$data
+  random.row <- which(dat$id == 1 & dat$type == "Random effects model")[1]
+  prediction.rows <- which(dat$id == 1 & dat$type == "Prediction interval")
+  for (nm in c("tau2", "tau", "tau2.ci", "tau.ci", "method.tau"))
+    expect_equal(dat[[nm]][prediction.rows],
+                 rep(dat[[nm]][random.row], length(prediction.rows)))
+  expect_true(all(dat$method.tau[prediction.rows] == "DL"))
+
+  without.random <- dat$id == 2 & dat$type == "Prediction interval"
+  expect_true(all(dat$tau2[without.random] == "."))
+  expect_true(all(dat$method.tau[without.random] == "."))
+  hidden <- forest_metabind_options(mb, random = FALSE, lab.NA = ".",
+                                    print = list(tau2 = TRUE, tau = TRUE,
+                                                 method.tau = TRUE))$data
+  expect_true(all(hidden$tau2[hidden$type == "Prediction interval"] == "."))
+  expect_true(all(hidden$method.tau[hidden$type == "Prediction interval"] == "."))
 })
 
 test_that("missing and suppressed heterogeneity values use lab.NA", {
