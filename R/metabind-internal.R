@@ -284,20 +284,17 @@ extrSub <- function(id, x, type = "common") {
     )
   }
   else if (type == "random") {
-    method <- rep(colnames(x$lower.random.w),
-                  rep(nrow(x$lower.random.w),
-                      ncol(x$lower.random.w)))
-    method <- replaceNULL(method, x$method.random.ci)
+    n.method <- length(x$method.random.ci)
     #
     res <- data.frame(
       id = id,
       #
-      method.interval = method,
-      adhoc.hakn = x$adhoc.hakn.ci,
+      method.interval = rep(unname(x$method.random.ci), each = n.by),
+      adhoc.hakn = rep(unname(x$adhoc.hakn.ci), each = n.by),
       #
       subgroup.name = x$subgroup.name,
-      subgroup.levels = x$subgroup.levels,
-      k.w = x$k.w,
+      subgroup.levels = rep(x$subgroup.levels, times = n.method),
+      k.w = rep(unname(x$k.w), times = n.method),
       #
       TE = matrix(list2mat(x$TE.random.w), ncol = 1),
       seTE = matrix(list2mat(x$seTE.random.w), ncol = 1),
@@ -307,26 +304,23 @@ extrSub <- function(id, x, type = "common") {
       statistic = matrix(list2mat(x$statistic.random.w), ncol = 1),
       pval = matrix(list2mat(x$pval.random.w), ncol = 1),
       #
-      Q.b = x$Q.b.random,
-      df.Q.b = x$df.Q.b.random,
-      pval.Q.b = x$pval.Q.b.random
+      Q.b = rep(x$Q.b.random, each = n.by),
+      df.Q.b = rep(x$df.Q.b.random, each = n.by),
+      pval.Q.b = rep(x$pval.Q.b.random, each = n.by)
     )
   }
   else if (type == "prediction") {
-    method <- rep(colnames(x$lower.predict.w),
-                  rep(nrow(x$lower.predict.w),
-                      ncol(x$lower.predict.w)))
-    method <- replaceNULL(method, x$method.predict)
+    n.method <- length(x$method.predict)
     #
     res <- data.frame(
       id = id,
       #
-      method.interval = method,
-      adhoc.hakn = x$adhoc.hakn.pi,
+      method.interval = rep(unname(x$method.predict), each = n.by),
+      adhoc.hakn = rep(unname(x$adhoc.hakn.pi), each = n.by),
       #
       subgroup.name = x$subgroup.name,
-      subgroup.levels = x$subgroup.levels,
-      k.w = x$k.w,
+      subgroup.levels = rep(x$subgroup.levels, times = n.method),
+      k.w = rep(unname(x$k.w), times = n.method),
       #
       lower = matrix(list2mat(x$lower.predict.w), ncol = 1),
       upper = matrix(list2mat(x$upper.predict.w), ncol = 1),

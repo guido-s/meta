@@ -52,7 +52,7 @@ as.data.frame.metabind <- function(x, row.names = NULL, optional = FALSE,
                                     drop_all_NA = TRUE,
                                     ...) {
   # Get rid of warning 'no visible binding for global variable'
-  model <- method.interval <- id <- seTE <- method <- TE <- adhoc.hakn <-
+  type <- method.interval <- id <- seTE <- method <- TE <- adhoc.hakn <-
     df <- df.hakn <- df.kero <- name <- NULL
   
   chkclass(x, "metabind")
@@ -66,7 +66,7 @@ as.data.frame.metabind <- function(x, row.names = NULL, optional = FALSE,
   #
   common <- common && !is.null(x$common)
   random <- random && !is.null(x$random)
-  prediction <- prediction && !is.null(x$prediction)
+  prediction <- prediction && !is.null(x$predict)
   subgroup <- subgroup && !is.null(x$subgroup)
   
   if (subgroup) {
@@ -89,15 +89,15 @@ as.data.frame.metabind <- function(x, row.names = NULL, optional = FALSE,
                   by = c("id", "method.interval", "adhoc.hakn"),
                   suffix = c(".w", ""))
     #
-    full.results <- bind_rows(full.common, full.random, full.predict)
-    #
-    full.results  %<>% relocate(model, method.interval, .after = id)
-    #
-    full.results  %<>% relocate(seTE:text, .after = method.interval)
+    full.results <- bind_rows(full.common, full.random, full.predict) %>%
+      #
+      relocate(type, method.interval, .after = id) %>%
+      #
+      relocate(seTE:text, .after = method.interval)
     #
     if (common || random) {
       full.results %<>%
-        relocate(method, .after = model) %>%
+        relocate(method, .after = type) %>%
         relocate(TE, .before = seTE)
     }
     #
@@ -107,7 +107,10 @@ as.data.frame.metabind <- function(x, row.names = NULL, optional = FALSE,
     }
   }
   else {
-      full.results <- bind_rows(x$common, x$random, x$predict)
+    full.results <- bind_rows(
+      if (common) x$common,
+      if (random) x$random,
+      if (prediction) x$predict)
   }
   #
   res <- left_join(full.results, x$overall, by = "id") %>%
@@ -122,19 +125,19 @@ as.data.frame.metabind <- function(x, row.names = NULL, optional = FALSE,
     row.names(res) <- seq_len(nrow(res))
   #
   if (!is.null(res$method.tau))
-    res$method.tau[res$model == "Common effect model"] <- NA
+    res$method.tau[res$type == "Common effect model"] <- NA
   #
   if (!is.null(res$method.tau.ci))
-    res$method.tau.ci[res$model == "Common effect model"] <- NA
+    res$method.tau.ci[res$type == "Common effect model"] <- NA
   #
   if (!is.null(res$tau.preset))
-    res$tau.preset[res$model == "Common effect model"] <- NA
+    res$tau.preset[res$type == "Common effect model"] <- NA
   #
   if (!is.null(res$three.level))
-    res$three.level[res$model == "Common effect model"] <- NA
+    res$three.level[res$type == "Common effect model"] <- NA
   #
   if (!is.null(res$rho))
-    res$rho[res$model == "Common effect model"] <- NA
+    res$rho[res$type == "Common effect model"] <- NA
   #
   if (drop_all_NA)
     res <- drop_allNAs(res)
