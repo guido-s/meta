@@ -378,18 +378,12 @@ rob <- function(item1,
   # (1) Read data
   #
   #
-  
-  nulldata <- is.null(data)
-  sfsp <- sys.frame(sys.parent())
-  mc <- match.call()
-  #
+    
   meta.object <- NULL
   #
   is.meta <- inherits(data, "meta")
   #
-  if (nulldata)
-    data <- sfsp
-  else if (is.meta) {
+  if (is.meta) {
     meta.object <- data
     #
     data <- data$data
@@ -402,7 +396,7 @@ rob <- function(item1,
   #
   # Catch 'item1', etc.
   #
-  item1 <- catch("item1", mc, data, sfsp)
+  item1 <- catch(enquo(item1), data)
   if (!is.null(item1) && inherits(item1, "meta")) {
     if (is.null(item1$rob))
       return(NULL)
@@ -410,25 +404,25 @@ rob <- function(item1,
       return(item1$rob)
   }
   #
-  item2 <- catch("item2", mc, data, sfsp)
-  item3 <- catch("item3", mc, data, sfsp)
-  item4 <- catch("item4", mc, data, sfsp)
-  item5 <- catch("item5", mc, data, sfsp)
-  item6 <- catch("item6", mc, data, sfsp)
-  item7 <- catch("item7", mc, data, sfsp)
-  item8 <- catch("item8", mc, data, sfsp)
-  item9 <- catch("item9", mc, data, sfsp)
-  item10 <- catch("item10", mc, data, sfsp)
+  item2 <- catch(enquo(item2), data)
+  item3 <- catch(enquo(item3), data)
+  item4 <- catch(enquo(item4), data)
+  item5 <- catch(enquo(item5), data)
+  item6 <- catch(enquo(item6), data)
+  item7 <- catch(enquo(item7), data)
+  item8 <- catch(enquo(item8), data)
+  item9 <- catch(enquo(item9), data)
+  item10 <- catch(enquo(item10), data)
   #
   missing.overall <- missing(overall)
-  overall <- catch("overall", mc, data, sfsp)
+  overall <- catch(enquo(overall), data)
   avail.overall <- !missing.overall & !is.null(overall)
   #
   missing.weight <- missing(weight)
-  weight <- catch("weight", mc, data, sfsp)
+  weight <- catch(enquo(weight), data)
   avail.weight <- !missing.weight & !is.null(weight)
   #
-  studlab <- catch("studlab", mc, data, sfsp)
+  studlab <- catch(enquo(studlab), data)
   
   
   #

@@ -150,13 +150,7 @@ metaadd <- function(x, type = NULL,
   # (2) Read data
   #
   #
-  
-  nulldata <- is.null(data)
-  sfsp <- sys.frame(sys.parent())
-  mc <- match.call()
-  #
-  if (nulldata)
-    data <- sfsp
+    
   #
   # Catch 'type', 'TE', 'lower', 'upper', 'statistic', 'pval', 'df', 'se',
   # 'method' and 'method.ci' from data:
@@ -279,7 +273,7 @@ metaadd <- function(x, type = NULL,
     is.meta <- FALSE
     #
     if (!missing.type)
-      type <- catch("type", mc, data, sfsp)
+      type <- catch(enquo(type), data)
     type <- replaceNULL(type, "")
     type <- setchar(type, c("common", "random", "prediction", "tau2"))
     #
@@ -298,46 +292,46 @@ metaadd <- function(x, type = NULL,
            call. = FALSE)
     #
     if (!missing.TE) {
-      TE <- catch("TE", mc, data, sfsp)
+      TE <- catch(enquo(TE), data)
       chknumeric(TE)
     }
     if (!missing.lower) {
-      lower <- catch("lower", mc, data, sfsp)
+      lower <- catch(enquo(lower), data)
       chknumeric(lower)
     }
     if (!missing.upper) {
-      upper <- catch("upper", mc, data, sfsp)
+      upper <- catch(enquo(upper), data)
       chknumeric(upper)
     }
     #
     if (!missing.statistic) {
-      statistic <- catch("statistic", mc, data, sfsp)
+      statistic <- catch(enquo(statistic), data)
       chknumeric(statistic)
     }
     if (!missing.pval) {
-      pval <- catch("pval", mc, data, sfsp)
+      pval <- catch(enquo(pval), data)
       chknumeric(pval)
     }
     if (!missing.df) {
-      df <- catch("df", mc, data, sfsp)
+      df <- catch(enquo(df), data)
       chknumeric(df)
     }
     if (!missing.se) {
-      se <- catch("se", mc, data, sfsp)
+      se <- catch(enquo(se), data)
       chknumeric(se, min = 0)
     }
     #
     if (!missing.method) {
-      method <- catch("method", mc, data, sfsp)
+      method <- catch(enquo(method), data)
       chkchar(method)
     }
     if (!missing.method.ci) {
-      method.ci <- catch("method.ci", mc, data, sfsp)
+      method.ci <- catch(enquo(method.ci), data)
       chkchar(method.ci)
     }
     #
     if (!missing.text) {
-      text <- catch("text", mc, data, sfsp)
+      text <- catch(enquo(text), data)
       chkchar(text)
     }
     #

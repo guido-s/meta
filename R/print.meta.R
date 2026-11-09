@@ -282,9 +282,6 @@ print.meta <- function(x,
   # (2) Check and set other arguments
   #
   #
-  sfsp <- sys.frame(sys.parent())
-  mc <- match.call()
-  #
   chknumeric(digits, min = 0, length = 1)
   chknumeric(digits.tau2, min = 0, length = 1)
   chknumeric(digits.tau, min = 0, length = 1)
@@ -357,7 +354,7 @@ print.meta <- function(x,
     x$df.predict.w <- list2mat(x$df.predict.w)
     #
     if (!missing.prediction.subgroup)
-      prediction.subgroup <- catch("prediction.subgroup", mc, x, sfsp)
+      prediction.subgroup <- catch(enquo(prediction.subgroup), x)
     #
     prediction.subgroup <- replaceNULL(prediction.subgroup, FALSE)
     #
@@ -408,15 +405,15 @@ print.meta <- function(x,
   if (!is.null(print.CMH))
     chklogical(print.CMH)
   #
-  sort.tau <- catch("sort.tau", mc, x, sfsp)
+  sort.tau <- catch(enquo(sort.tau), x)
   if (is.list(sort.tau))
     sort.tau <- unlist(sort.tau)
   #
-  sort.het <- catch("sort.het", mc, x, sfsp)
+  sort.het <- catch(enquo(sort.het), x)
   if (is.list(sort.het))
     sort.het <- unlist(sort.het)
   #
-  sort.Q <- catch("sort.Q", mc, x, sfsp)
+  sort.Q <- catch(enquo(sort.Q), x)
   if (is.list(sort.Q))
     sort.Q <- unlist(sort.Q)
   #

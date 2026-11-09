@@ -681,11 +681,7 @@ metamean <- function(n, mean, sd, studlab,
   #
 
   nulldata <- is.null(data)
-  sfsp <- sys.frame(sys.parent())
   mc <- match.call()
-  #
-  if (nulldata)
-    data <- sfsp
   #
   # Catch 'n', 'mean', and 'sd' from data:
   #
@@ -708,17 +704,17 @@ metamean <- function(n, mean, sd, studlab,
          "arguments 'q1' & 'q3' or 'min & 'max'.",
          call. = FALSE)
   #
-  n <- catch("n", mc, data, sfsp)
+  n <- catch(enquo(n), data)
   chknull(n)
   k.All <- length(n)
   #
-  mean <- catch("mean", mc, data, sfsp)
+  mean <- catch(enquo(mean), data)
   if (!missing.mean)
     chknull(mean)
   else
     mean <- rep(NA, k.All)
   #
-  sd <- catch("sd", mc, data, sfsp)
+  sd <- catch(enquo(sd), data)
   if (!missing.sd)
     chknull(sd)
   else
@@ -727,35 +723,35 @@ metamean <- function(n, mean, sd, studlab,
   # Catch 'studlab', 'subgroup', 'subset', 'exclude' and 'cluster'
   # from data:
   #
-  studlab <- catch("studlab", mc, data, sfsp)
+  studlab <- catch(enquo(studlab), data)
   studlab <- setstudlab(studlab, k.All)
   #
   missing.subgroup <- missing(subgroup)
-  subgroup <- catch("subgroup", mc, data, sfsp)
+  subgroup <- catch(enquo(subgroup), data)
   missing.byvar <- missing(byvar)
-  byvar <- catch("byvar", mc, data, sfsp)
+  byvar <- catch(enquo(byvar), data)
   #
   subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
                           warn.deprecated)
   by <- !is.null(subgroup)
   #
-  subset <- catch("subset", mc, data, sfsp)
+  subset <- catch(enquo(subset), data)
   missing.subset <- is.null(subset)
   #
-  exclude <- catch("exclude", mc, data, sfsp)
+  exclude <- catch(enquo(exclude), data)
   missing.exclude <- is.null(exclude)
   #
-  cluster <- catch("cluster", mc, data, sfsp)
+  cluster <- catch(enquo(cluster), data)
   with.cluster <- !is.null(cluster)
   #
   # Catch 'weights', 'weights.common', and 'weights.random' from data:
   #
   if (!missing(weights))
-    weights <- catch("weights", mc, data, sfsp)
+    weights <- catch(enquo(weights), data)
   if (!missing(weights.common))
-    weights.common <- catch("weights.common", mc, data, sfsp)
+    weights.common <- catch(enquo(weights.common), data)
   if (!missing(weights.random))
-    weights.random <- catch("weights.random", mc, data, sfsp)
+    weights.random <- catch(enquo(weights.random), data)
   #
   if (!is.null(weights) & is.null(weights.common))
     weights.common <- weights
@@ -775,15 +771,15 @@ metamean <- function(n, mean, sd, studlab,
   # Catch 'median', 'q1', 'q3', 'min', 'max', 'approx.mean', and
   # 'approx.sd', from data:
   #
-  median <- catch("median", mc, data, sfsp)
+  median <- catch(enquo(median), data)
   #
-  q1 <- catch("q1", mc, data, sfsp)
+  q1 <- catch(enquo(q1), data)
   #
-  q3 <- catch("q3", mc, data, sfsp)
+  q3 <- catch(enquo(q3), data)
   #
-  min <- catch("min", mc, data, sfsp)
+  min <- catch(enquo(min), data)
   #
-  max <- catch("max", mc, data, sfsp)
+  max <- catch(enquo(max), data)
   #
   avail.median <- !(missing.median || is.null(median))
   avail.q1 <- !(missing.q1 || is.null(q1))
@@ -792,12 +788,12 @@ metamean <- function(n, mean, sd, studlab,
   avail.max <- !(missing.max || is.null(max))
   #
   missing.approx.mean <- missing(approx.mean)
-  approx.mean <- catch("approx.mean", mc, data, sfsp)
+  approx.mean <- catch(enquo(approx.mean), data)
   avail.approx.mean <-
     !(missing.approx.mean || is.null(approx.mean)) && any(approx.mean != "")
   #
   missing.approx.sd <- missing(approx.sd)
-  approx.sd <- catch("approx.sd", mc, data, sfsp)
+  approx.sd <- catch(enquo(approx.sd), data)
   avail.approx.sd <-
     !(missing.approx.sd || is.null(approx.sd)) && any(approx.sd != "")
 

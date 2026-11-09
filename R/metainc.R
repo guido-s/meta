@@ -747,11 +747,9 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   #
 
   nulldata <- is.null(data)
-  sfsp <- sys.frame(sys.parent())
   mc <- match.call()
   #
   if (nulldata) {
-    data <- sfsp
     data.pairwise <- FALSE
   }
   else
@@ -760,7 +758,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   # Catch 'event.e', 'time.e', 'event.c', 'time.c', 'n.e', 'n.c',
   # 'incr.e', 'incr.c', studlab', and 'subgroup' from data:
   #
-  event.e <- catch("event.e", mc, data, sfsp)
+  event.e <- catch(enquo(event.e), data)
   chknull(event.e)
   #
   if (inherits(event.e, "pairwise")) {
@@ -885,8 +883,8 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
       }
     }
     else {
-      subgroup <- catch("subgroup", mc, data, sfsp)
-      byvar <- catch("byvar", mc, data, sfsp)
+      subgroup <- catch(enquo(subgroup), data)
+      byvar <- catch(enquo(byvar), data)
       #
       subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
                               warn.deprecated)
@@ -898,28 +896,28 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     if (missing.sm && !is.null(data) && !is.null(attr(data, "sm")))
       sm <- attr(data, "sm")
     #
-    time.e <- catch("time.e", mc, data, sfsp)
-    n.e <- catch("n.e", mc, data, sfsp)
+    time.e <- catch(enquo(time.e), data)
+    n.e <- catch(enquo(n.e), data)
     #
-    event.c <- catch("event.c", mc, data, sfsp)
-    time.c <- catch("time.c", mc, data, sfsp)
-    n.c <- catch("n.c", mc, data, sfsp)
+    event.c <- catch(enquo(event.c), data)
+    time.c <- catch(enquo(time.c), data)
+    n.c <- catch(enquo(n.c), data)
     #
-    studlab <- catch("studlab", mc, data, sfsp)
+    studlab <- catch(enquo(studlab), data)
     #
-    subgroup <- catch("subgroup", mc, data, sfsp)
-    byvar <- catch("byvar", mc, data, sfsp)
+    subgroup <- catch(enquo(subgroup), data)
+    byvar <- catch(enquo(byvar), data)
     #
     subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
                             warn.deprecated)
     #
     if (!missing.incr)
-      incr <- catch("incr", mc, data, sfsp)
+      incr <- catch(enquo(incr), data)
     #
     if (!missing.incr.e)
-      incr.e <- catch("incr.e", mc, data, sfsp)
+      incr.e <- catch(enquo(incr.e), data)
     if (!missing.incr.c)
-      incr.c <- catch("incr.c", mc, data, sfsp)
+      incr.c <- catch(enquo(incr.c), data)
   }
   #
   method.bias <- setmethodbias(method.bias)
@@ -975,23 +973,23 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   #
   # Catch 'subset', 'exclude' and 'cluster' from data:
   #
-  subset <- catch("subset", mc, data, sfsp)
+  subset <- catch(enquo(subset), data)
   missing.subset <- is.null(subset)
   #
-  exclude <- catch("exclude", mc, data, sfsp)
+  exclude <- catch(enquo(exclude), data)
   missing.exclude <- is.null(exclude)
   #
-  cluster <- catch("cluster", mc, data, sfsp)
+  cluster <- catch(enquo(cluster), data)
   with.cluster <- !is.null(cluster)
   #
   # Catch 'weights', 'weights.common', and 'weights.random' from data:
   #
   if (!missing(weights))
-    weights <- catch("weights", mc, data, sfsp)
+    weights <- catch(enquo(weights), data)
   if (!missing(weights.common))
-    weights.common <- catch("weights.common", mc, data, sfsp)
+    weights.common <- catch(enquo(weights.common), data)
   if (!missing(weights.random))
-    weights.random <- catch("weights.random", mc, data, sfsp)
+    weights.random <- catch(enquo(weights.random), data)
   #
   if (!is.null(weights) & is.null(weights.common))
     weights.common <- weights

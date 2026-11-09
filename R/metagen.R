@@ -799,7 +799,7 @@ metagen <- function(TE, seTE, studlab,
                     prediction.subgroup = gs("prediction.subgroup"),
                     seed.predict.subgroup = NULL,
                     #
-                    byvar, id, adhoc.hakn,
+                    byvar = NULL, id, adhoc.hakn,
                     #
                     keepdata = gs("keepdata"),
                     keeprma = gs("keeprma"),
@@ -820,6 +820,7 @@ metagen <- function(TE, seTE, studlab,
   missing.studlab <- missing(studlab)
   missing.sm <- missing(sm)
   missing.subgroup <- missing(subgroup)
+  missing.byvar <- missing(byvar)
   missing.overall <- missing(overall)
   missing.overall.hetstat <- missing(overall.hetstat)
   missing.test.subgroup <- missing(test.subgroup)
@@ -838,6 +839,9 @@ metagen <- function(TE, seTE, studlab,
   missing.args.transf <- missing(args.transf)
   missing.func.backtransf <- missing(func.backtransf)
   missing.args.backtransf <- missing(args.backtransf)
+  #
+  subgroup.expr <- enquo(subgroup)
+  byvar.expr <- enquo(byvar)
   #
   sm <- replaceNULL(sm, "")
   sm <- setchar(sm,
@@ -1101,21 +1105,15 @@ metagen <- function(TE, seTE, studlab,
   #
 
   nulldata <- is.null(data)
-  sfsp <- sys.frame(sys.parent())
-  mc <- match.call()
   #
   if (nulldata) {
-    data <- sfsp
     data.pairwise <- FALSE
   }
   else
     data.pairwise <- inherits(data, "pairwise")
   #
-  missing.byvar <- missing(byvar)
-  byvar <- catch("byvar", mc, data, sfsp)
-  #
   # Catch 'TE', 'seTE', 'median', 'lower', 'upper', 'n.e', 'n.c', and
-  # 'cluster' from data:
+  # 'cluster' from data
   #
   missing.TE <- missing(TE)
   missing.seTE <- missing(seTE)
@@ -1129,7 +1127,7 @@ metagen <- function(TE, seTE, studlab,
          "or arguments 'lower' and 'upper'.",
          call. = FALSE)
   #
-  TE <- catch("TE", mc, data, sfsp)
+  TE <- catch(enquo(TE), data)
   avail.TE <- !(missing.TE || is.null(TE))
   #
   if (inherits(TE, "pairwise")) {
@@ -1195,7 +1193,7 @@ metagen <- function(TE, seTE, studlab,
       }
     }
     #
-    if (missing.subgroup) {
+    if (missing.subgroup && missing.byvar) {
       subgroup <- paste(treat1, treat2, sep = " vs ")
       #
       if (length(unique(subgroup)) == 1) {
@@ -1218,8 +1216,6 @@ metagen <- function(TE, seTE, studlab,
           test.subgroup <- FALSE
       }
     }
-    else
-      subgroup <- catch("subgroup", mc, data, sfsp)
   }
   else {
     is.pairwise <- FALSE
@@ -1230,27 +1226,31 @@ metagen <- function(TE, seTE, studlab,
     else
       sm <- ""
     #
-    seTE <- catch("seTE", mc, data, sfsp)
+    seTE <- catch(enquo(seTE), data)
     #
-    studlab <- catch("studlab", mc, data, sfsp)
-    #
-    subgroup <- catch("subgroup", mc, data, sfsp)
-    subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
-                            warn.deprecated)
+    studlab <- catch(enquo(studlab), data)
     #
     if (!missing(n.e))
-      n.e <- catch("n.e", mc, data, sfsp)
+      n.e <- catch(enquo(n.e), data)
     if (!missing(n.c))
-      n.c <- catch("n.c", mc, data, sfsp)
+      n.c <- catch(enquo(n.c), data)
+  }
+  #
+  if (!is.pairwise || !missing.subgroup || !missing.byvar) {
+    subgroup <- catch(subgroup.expr, data)
+    byvar <- catch(byvar.expr, data)
+    #
+    subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
+                            warn.deprecated)
   }
   #
   method.bias <- setmethodbias(method.bias)
   #
   by <- !is.null(subgroup)
   #
-  median <- catch("median", mc, data, sfsp)
-  lower <- catch("lower", mc, data, sfsp)
-  upper <- catch("upper", mc, data, sfsp)
+  median <- catch(enquo(median), data)
+  lower <- catch(enquo(lower), data)
+  upper <- catch(enquo(upper), data)
   #
   avail.median <- !(missing.median || is.null(median))
   avail.lower <- !(missing.lower || is.null(lower))
@@ -1334,9 +1334,9 @@ metagen <- function(TE, seTE, studlab,
   }
   #
   missing.cluster <- missing(cluster)
-  cluster <- catch("cluster", mc, data, sfsp)
+  cluster <- catch(enquo(cluster), data)
   missing.id <- missing(id)
-  id <- catch("id", mc, data, sfsp)
+  id <- catch(enquo(id), data)
   #
   cluster <- deprecated2(cluster, missing.cluster, id, missing.id,
                          warn.deprecated)
@@ -1346,15 +1346,15 @@ metagen <- function(TE, seTE, studlab,
     idx <- seq_along(cluster)
   #
   missing.cycles <- missing(cycles)
-  cycles <- catch("cycles", mc, data, sfsp)
+  cycles <- catch(enquo(cycles), data)
   with.cycles <- !is.null(cycles)
   #
   if (!missing(weights))
-    weights <- catch("weights", mc, data, sfsp)
+    weights <- catch(enquo(weights), data)
   if (!missing(weights.common))
-    weights.common <- catch("weights.common", mc, data, sfsp)
+    weights.common <- catch(enquo(weights.common), data)
   if (!missing(weights.random))
-    weights.random <- catch("weights.random", mc, data, sfsp)
+    weights.random <- catch(enquo(weights.random), data)
   #
   if (!is.null(weights) & is.null(weights.common))
     weights.common <- weights
@@ -1406,48 +1406,48 @@ metagen <- function(TE, seTE, studlab,
   #
   # Catch subset', and 'exclude' from data:
   #
-  subset <- catch("subset", mc, data, sfsp)
+  subset <- catch(enquo(subset), data)
   missing.subset <- is.null(subset)
   #
-  exclude <- catch("exclude", mc, data, sfsp)
+  exclude <- catch(enquo(exclude), data)
   missing.exclude <- is.null(exclude)
   #
   # Catch 'pval', 'df', 'level.ci', 'q1', 'q3', 'min', 'max',
   # 'approx.TE' and 'approx.seTE', from data:
   #
   missing.pval <- missing(pval)
-  pval <- catch("pval", mc, data, sfsp)
+  pval <- catch(enquo(pval), data)
   avail.pval <- !(missing.pval || is.null(pval))
   #
   missing.df <- missing(df)
-  df <- catch("df", mc, data, sfsp)
+  df <- catch(enquo(df), data)
   avail.df <- !(missing.df || is.null(df))
   #
   if (!missing(level.ci))
-    level.ci <- catch("level.ci", mc, data, sfsp)
+    level.ci <- catch(enquo(level.ci), data)
   #
   missing.q1 <- missing(q1)
-  q1 <- catch("q1", mc, data, sfsp)
+  q1 <- catch(enquo(q1), data)
   avail.q1 <- !(missing.q1 || is.null(q1))
   #
   missing.q3 <- missing(q3)
-  q3 <- catch("q3", mc, data, sfsp)
+  q3 <- catch(enquo(q3), data)
   avail.q3 <- !(missing.q3 || is.null(q3))
   #
   missing.min <- missing(min)
-  min <- catch("min", mc, data, sfsp)
+  min <- catch(enquo(min), data)
   avail.min <- !(missing.min || is.null(min))
   #
   missing.max <- missing(max)
-  max <- catch("max", mc, data, sfsp)
+  max <- catch(enquo(max), data)
   avail.max <- !(missing.max || is.null(max))
   #
   missing.approx.TE <- missing(approx.TE)
-  approx.TE <- catch("approx.TE", mc, data, sfsp)
+  approx.TE <- catch(enquo(approx.TE), data)
   avail.approx.TE <- !(missing.approx.TE || is.null(approx.TE))
   #
   missing.approx.seTE <- missing(approx.seTE)
-  approx.seTE <- catch("approx.seTE", mc, data, sfsp)
+  approx.seTE <- catch(enquo(approx.seTE), data)
   avail.approx.seTE <- !(missing.approx.seTE || is.null(approx.seTE))
   #
   missing.text.random <- missing(text.random)
@@ -2157,14 +2157,13 @@ metagen <- function(TE, seTE, studlab,
   if (by) {
     chkmiss(subgroup)
     #
-    if (missing.subgroup.name & is.null(subgroup.name)) {
+    if (missing.subgroup.name && is.null(subgroup.name)) {
       if (!missing.subgroup)
-        subgroup.name <- byvarname("subgroup", mc)
+        subgroup.name <- subgroup_name(subgroup.expr)
       else if (!missing.byvar)
-        subgroup.name <- byvarname("byvar", mc)
+        subgroup.name <- subgroup_name(byvar.expr)
     }
   }
-  #
   if (!is.null(subgroup.name))
     chkchar(subgroup.name, length = 1)
   

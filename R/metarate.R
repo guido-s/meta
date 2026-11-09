@@ -664,61 +664,57 @@ metarate <- function(event, time, studlab,
   #
 
   nulldata <- is.null(data)
-  sfsp <- sys.frame(sys.parent())
   mc <- match.call()
-  #
-  if (nulldata)
-    data <- sfsp
   #
   # Catch 'event', 'time' and 'n' from data:
   #
-  event <- catch("event", mc, data, sfsp)
+  event <- catch(enquo(event), data)
   chknull(event)
   k.All <- length(event)
   #
-  time <- catch("time", mc, data, sfsp)
+  time <- catch(enquo(time), data)
   chknull(time)
   #
-  n <- catch("n", mc, data, sfsp)
+  n <- catch(enquo(n), data)
   #
   # Catch 'incr' from data:
   #
   if (!missing(incr))
-    incr <- catch("incr", mc, data, sfsp)
+    incr <- catch(enquo(incr), data)
   chknumeric(incr, min = 0)
   #
   # Catch 'studlab', 'subgroup', 'subset', 'exclude' and 'cluster'
   # from data:
   #
-  studlab <- catch("studlab", mc, data, sfsp)
+  studlab <- catch(enquo(studlab), data)
   studlab <- setstudlab(studlab, k.All)
   #
   missing.subgroup <- missing(subgroup)
-  subgroup <- catch("subgroup", mc, data, sfsp)
+  subgroup <- catch(enquo(subgroup), data)
   missing.byvar <- missing(byvar)
-  byvar <- catch("byvar", mc, data, sfsp)
+  byvar <- catch(enquo(byvar), data)
   #
   subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
                           warn.deprecated)
   by <- !is.null(subgroup)
   #
-  subset <- catch("subset", mc, data, sfsp)
+  subset <- catch(enquo(subset), data)
   missing.subset <- is.null(subset)
   #
-  exclude <- catch("exclude", mc, data, sfsp)
+  exclude <- catch(enquo(exclude), data)
   missing.exclude <- is.null(exclude)
   #
-  cluster <- catch("cluster", mc, data, sfsp)
+  cluster <- catch(enquo(cluster), data)
   with.cluster <- !is.null(cluster)
   #
   # Catch 'weights', 'weights.common', and 'weights.random' from data:
   #
   if (!missing(weights))
-    weights <- catch("weights", mc, data, sfsp)
+    weights <- catch(enquo(weights), data)
   if (!missing(weights.common))
-    weights.common <- catch("weights.common", mc, data, sfsp)
+    weights.common <- catch(enquo(weights.common), data)
   if (!missing(weights.random))
-    weights.random <- catch("weights.random", mc, data, sfsp)
+    weights.random <- catch(enquo(weights.random), data)
   #
   if (!is.null(weights) & is.null(weights.common))
     weights.common <- weights

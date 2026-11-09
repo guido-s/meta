@@ -90,7 +90,7 @@ metagen(
   test.subgroup = gs("test.subgroup"),
   prediction.subgroup = gs("prediction.subgroup"),
   seed.predict.subgroup = NULL,
-  byvar,
+  byvar = NULL,
   id,
   adhoc.hakn,
   keepdata = gs("keepdata"),

@@ -10,6 +10,7 @@
   random = !is.null(x$random),
   prediction = !is.null(x$predict),
   overall = common || random,
+  backtransf = x$backtransf,
   print = NULL,
   digits = NULL,
   lab.NA = ".",
@@ -40,6 +41,11 @@ should be plotted.}
 should be plotted. This argument is useful in a meta-analysis
 with subgroups if summaries should only be plotted on group
 level.}
+
+\item{backtransf}{A logical indicating whether results should be
+back transformed in printouts and plots. If \code{backtransf=TRUE}
+(default), results for \code{sm="OR"} are printed as odds ratios rather
+than log odds ratios, for example.}
 
 \item{print}{A named list specifying which information to print; see
 \code{\link{meta-formatting}}.}

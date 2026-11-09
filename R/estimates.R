@@ -181,9 +181,6 @@ estimates.meta <- function(x,
   x <- updateversion(x)
   chksuitable(x, method = "estimates", classes = "metabind", check.mlm = FALSE)
   #
-  sfsp <- sys.frame(sys.parent())
-  mc <- match.call()
-  #
   chklogical(study.results)
   chklogical(common)
   chklogical(random)
@@ -213,7 +210,7 @@ estimates.meta <- function(x,
     prediction.subgroup <- FALSE
   }
   else {
-    prediction.subgroup <- catch("prediction.subgroup", mc, x, sfsp)
+    prediction.subgroup <- catch(enquo(prediction.subgroup), x)
     prediction.subgroup <- replaceNULL(prediction.subgroup, FALSE)
     #
     if (length(prediction.subgroup) == 1) {
@@ -286,11 +283,9 @@ estimates.meta <- function(x,
   #
   if (study.results) {
     error <-
-      try(sortvar <-
-            catch("sortvar", mc, x, sfsp),
-          silent = TRUE)
+      try(sortvar <- catch(enquo(sortvar), x), silent = TRUE)
     if (inherits(error, "try-error")) {
-      sortvar <- catch("sortvar", mc, x$data,  NULL)
+      sortvar <- catch(enquo(sortvar), x$data)
       if (isCol(x$data, ".subset"))
         sortvar <- sortvar[x$data$.subset]
     }

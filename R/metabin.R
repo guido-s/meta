@@ -816,6 +816,9 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   #
   missing.cluster <- missing(cluster)
   #
+  subgroup.expr <- enquo(subgroup)
+  byvar.expr <- enquo(byvar)
+  #
   chknumeric(rho, min = -1, max = 1)
   #
   chknull(sm)
@@ -1022,11 +1025,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   #
 
   nulldata <- is.null(data)
-  sfsp <- sys.frame(sys.parent())
-  mc <- match.call()
   #
   if (nulldata) {
-    data <- sfsp
     data.pairwise <- FALSE
   }
   else
@@ -1035,7 +1035,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   # Catch 'event.e', 'n.e', 'event.c', 'n.c', 'studlab', 'subgroup', 'incr',
   # 'incr.e' and 'incr.c' from data:
   #
-  event.e <- catch("event.e", mc, data, sfsp)
+  event.e <- catch(enquo(event.e), data)
   chknull(event.e)
   #
   if (inherits(event.e, "pairwise")) {
@@ -1122,7 +1122,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
       }
     }
     #
-    if (missing.subgroup & missing.byvar) {
+    if (missing.subgroup && missing.byvar) {
       subgroup <- paste(treat1, treat2, sep = " vs ")
       #
       if (length(unique(subgroup)) == 1) {
@@ -1145,13 +1145,6 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
           test.subgroup <- FALSE
       }
     }
-    else {
-      subgroup <- catch("subgroup", mc, data, sfsp)
-      byvar <- catch("byvar", mc, data, sfsp)
-      #
-      subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
-                              warn.deprecated)
-    }
   }
   else {
     is.pairwise <- FALSE
@@ -1159,26 +1152,28 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     if (missing.sm && !is.null(data) && !is.null(attr(data, "sm")))
       sm <- attr(data, "sm")
     #
-    n.e <- catch("n.e", mc, data, sfsp)
+    n.e <- catch(enquo(n.e), data)
     #
-    event.c <- catch("event.c", mc, data, sfsp)
-    n.c <- catch("n.c", mc, data, sfsp)
+    event.c <- catch(enquo(event.c), data)
+    n.c <- catch(enquo(n.c), data)
     #
-    studlab <- catch("studlab", mc, data, sfsp)
+    studlab <- catch(enquo(studlab), data)
     #
-    subgroup <- catch("subgroup", mc, data, sfsp)
-    byvar <- catch("byvar", mc, data, sfsp)
+    if (!missing.incr)
+      incr <- catch(enquo(incr), data)
+    #
+    if (!missing.incr.e)
+      incr.e <- catch(enquo(incr.e), data)
+    if (!missing.incr.c)
+      incr.c <- catch(enquo(incr.c), data)
+  }
+  #
+  if (!is.pairwise || !missing.subgroup || !missing.byvar) {
+    subgroup <- catch(subgroup.expr, data)
+    byvar <- catch(byvar.expr, data)
     #
     subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
                             warn.deprecated)
-    #
-    if (!missing.incr)
-      incr <- catch("incr", mc, data, sfsp)
-    #
-    if (!missing.incr.e)
-      incr.e <- catch("incr.e", mc, data, sfsp)
-    if (!missing.incr.c)
-      incr.c <- catch("incr.c", mc, data, sfsp)
   }
   #
   method.bias <- setmethodbias(method.bias)
@@ -1247,23 +1242,23 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   #
   # Catch 'subset', 'exclude' and 'cluster' from data:
   #
-  subset <- catch("subset", mc, data, sfsp)
+  subset <- catch(enquo(subset), data)
   missing.subset <- is.null(subset)
   #
-  exclude <- catch("exclude", mc, data, sfsp)
+  exclude <- catch(enquo(exclude), data)
   missing.exclude <- is.null(exclude)
   #
-  cluster <- catch("cluster", mc, data, sfsp)
+  cluster <- catch(enquo(cluster), data)
   with.cluster <- !is.null(cluster)
   #
   # Catch 'weights', 'weights.common', and 'weights.random' from data:
   #
   if (!missing(weights))
-    weights <- catch("weights", mc, data, sfsp)
+    weights <- catch(enquo(weights), data)
   if (!missing(weights.common))
-    weights.common <- catch("weights.common", mc, data, sfsp)
+    weights.common <- catch(enquo(weights.common), data)
   if (!missing(weights.random))
-    weights.random <- catch("weights.random", mc, data, sfsp)
+    weights.random <- catch(enquo(weights.random), data)
   #
   if (!is.null(weights) & is.null(weights.common))
     weights.common <- weights
@@ -1486,7 +1481,7 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
       subgroup <- subgroup[subset]
   }
   #
-  if (missing.subgroup & is.pairwise & by) {
+  if (missing.subgroup && missing.byvar && is.pairwise && by) {
     if (length(unique(subgroup)) == 1) {
       by <- FALSE
       #
@@ -1525,11 +1520,11 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   if (by) {
     chkmiss(subgroup)
     #
-    if (missing.subgroup.name & is.null(subgroup.name)) {
+    if (missing.subgroup.name && is.null(subgroup.name)) {
       if (!missing.subgroup)
-        subgroup.name <- byvarname("subgroup", mc)
+        subgroup.name <- subgroup_name(subgroup.expr)
       else if (!missing.byvar)
-        subgroup.name <- byvarname("byvar", mc)
+        subgroup.name <- subgroup_name(byvar.expr)
     }
   }
   #

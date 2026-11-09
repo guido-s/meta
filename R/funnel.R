@@ -261,13 +261,10 @@ funnel.meta <- function(x,
   if (!is.null(at))
     chknumeric(at)
   #
-  sfsp <- sys.frame(sys.parent())
-  mc <- match.call()
-  #
   if (!missing(pch)) {
-    error <- try(pch <- catch("pch", mc, x, sfsp), silent = TRUE)
+    error <- try(pch <- catch(enquo(pch), x), silent = TRUE)
     if (inherits(error, "try-error")) {
-      pch <- catch("pch", mc, x$data, sfsp)
+      pch <- catch(enquo(pch), x$data)
       if (isCol(x$data, ".subset"))
         pch <- pch[x$data$.subset]
     }
@@ -275,18 +272,18 @@ funnel.meta <- function(x,
   chknumeric(pch)
   #
   if (!missing(text)) {
-    error <- try(text <- catch("text", mc, x, sfsp), silent = TRUE)
+    error <- try(text <- catch(enquo(text), x), silent = TRUE)
     if (inherits(error, "try-error")) {
-      text <- catch("text", mc, x$data, sfsp)
+      text <- catch(enquo(text), x$data)
       if (isCol(x$data, ".subset"))
         text <- text[x$data$.subset]
     }
   }
   #
   if (!missing(cex)) {
-    error <- try(cex <- catch("cex", mc, x, sfsp), silent = TRUE)
+    error <- try(cex <- catch(enquo(cex), x), silent = TRUE)
     if (inherits(error, "try-error")) {
-      cex <- catch("cex", mc, x$data, sfsp)
+      cex <- catch(enquo(cex), x$data)
       if (isCol(x$data, ".subset"))
         cex <- cex[x$data$.subset]
     }
@@ -306,9 +303,9 @@ funnel.meta <- function(x,
   chknumeric(lwd.random, length = 1)
   #
   if (!missing(col)) {
-    error <- try(col <- catch("col", mc, x, sfsp), silent = TRUE)
+    error <- try(col <- catch(enquo(col), x), silent = TRUE)
     if (inherits(error, "try-error")) {
-      col <- catch("col", mc, x$data, sfsp)
+      col <- catch(enquo(col), x$data)
       if (isCol(x$data, ".subset"))
         col <- col[x$data$.subset]
     }
@@ -318,9 +315,9 @@ funnel.meta <- function(x,
     col <- rep(col, length(x$TE))
   #
   if (!missing(bg)) {
-    error <- try(bg <- catch("bg", mc, x, sfsp), silent = TRUE)
+    error <- try(bg <- catch(enquo(bg), x), silent = TRUE)
     if (inherits(error, "try-error")) {
-      bg <- catch("bg", mc, x$data, sfsp)
+      bg <- catch(enquo(bg), x$data)
       if (isCol(x$data, ".subset"))
         bg <- bg[x$data$.subset]
     }
@@ -378,9 +375,9 @@ funnel.meta <- function(x,
   #
   if (!missing(cex.studlab)) {
     error <-
-      try(cex.studlab <- catch("cex.studlab", mc, x, sfsp), silent = TRUE)
+      try(cex.studlab <- catch(enquo(cex.studlab), x), silent = TRUE)
     if (inherits(error, "try-error")) {
-      cex.studlab <- catch("cex.studlab", mc, x$data, sfsp)
+      cex.studlab <- catch(enquo(cex.studlab), x$data)
       if (isCol(x$data, ".subset"))
         cex.studlab <- cex.studlab[x$data$.subset]
     }

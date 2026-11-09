@@ -892,11 +892,9 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   #
 
   nulldata <- is.null(data)
-  sfsp <- sys.frame(sys.parent())
   mc <- match.call()
   #
   if (nulldata) {
-    data <- sfsp
     data.pairwise <- FALSE
   }
   else
@@ -905,7 +903,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   # Catch 'n.e', 'mean.e', 'sd.e', 'n.c', 'mean.c', 'sd.c', 'studlab',
   # and 'subgroup' from data:
   #
-  n.e <- catch("n.e", mc, data, sfsp)
+  n.e <- catch(enquo(n.e), data)
   chknull(n.e)
   #
   if (inherits(n.e, "pairwise")) {
@@ -997,7 +995,7 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
       }
     }
     else
-      subgroup <- catch("subgroup", mc, data, sfsp)
+      subgroup <- catch(enquo(subgroup), data)
   }
   else {
     is.pairwise <- FALSE
@@ -1005,18 +1003,18 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
     if (missing.sm && !is.null(data) && !is.null(attr(data, "sm")))
       sm <- attr(data, "sm")
     #
-    mean.e <- catch("mean.e", mc, data, sfsp)
-    sd.e <- catch("sd.e", mc, data, sfsp)
+    mean.e <- catch(enquo(mean.e), data)
+    sd.e <- catch(enquo(sd.e), data)
     #
-    n.c <- catch("n.c", mc, data, sfsp)
+    n.c <- catch(enquo(n.c), data)
     chknull(n.c)
-    mean.c <- catch("mean.c", mc, data, sfsp)
-    sd.c <- catch("sd.c", mc, data, sfsp)
+    mean.c <- catch(enquo(mean.c), data)
+    sd.c <- catch(enquo(sd.c), data)
     #
-    studlab <- catch("studlab", mc, data, sfsp)
+    studlab <- catch(enquo(studlab), data)
     #
-    subgroup <- catch("subgroup", mc, data, sfsp)
-    byvar <- catch("byvar", mc, data, sfsp)
+    subgroup <- catch(enquo(subgroup), data)
+    byvar <- catch(enquo(byvar), data)
     #
     subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
                             warn.deprecated)
@@ -1058,14 +1056,14 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   #
   # Catch 'subset', 'exclude', and 'cluster' from data:
   #
-  subset <- catch("subset", mc, data, sfsp)
+  subset <- catch(enquo(subset), data)
   missing.subset <- is.null(subset)
   #
-  exclude <- catch("exclude", mc, data, sfsp)
+  exclude <- catch(enquo(exclude), data)
   missing.exclude <- is.null(exclude)
   #
-  cluster <- catch("cluster", mc, data, sfsp)
-  id <- catch("id", mc, data, sfsp)
+  cluster <- catch(enquo(cluster), data)
+  id <- catch(enquo(id), data)
   #
   cluster <- deprecated2(cluster, missing.cluster, id, missing.id,
                          warn.deprecated)
@@ -1084,11 +1082,11 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   # Catch 'weights', 'weights.common', and 'weights.random' from data:
   #
   if (!missing(weights))
-    weights <- catch("weights", mc, data, sfsp)
+    weights <- catch(enquo(weights), data)
   if (!missing(weights.common))
-    weights.common <- catch("weights.common", mc, data, sfsp)
+    weights.common <- catch(enquo(weights.common), data)
   if (!missing(weights.random))
-    weights.random <- catch("weights.random", mc, data, sfsp)
+    weights.random <- catch(enquo(weights.random), data)
   #
   if (!is.null(weights) & is.null(weights.common))
     weights.common <- weights
@@ -1111,25 +1109,25 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   # 'q1.c', 'q3.c', 'min.c', 'max.c', 'approx.mean.e', 'approx.sd.e',
   # 'approx.mean.c', and 'approx.sd.c', from data:
   #
-  median.e <- catch("median.e", mc, data, sfsp)
+  median.e <- catch(enquo(median.e), data)
   #
-  q1.e <- catch("q1.e", mc, data, sfsp)
+  q1.e <- catch(enquo(q1.e), data)
   #
-  q3.e <- catch("q3.e", mc, data, sfsp)
+  q3.e <- catch(enquo(q3.e), data)
   #
-  min.e <- catch("min.e", mc, data, sfsp)
+  min.e <- catch(enquo(min.e), data)
   #
-  max.e <- catch("max.e", mc, data, sfsp)
+  max.e <- catch(enquo(max.e), data)
   #
-  median.c <- catch("median.c", mc, data, sfsp)
+  median.c <- catch(enquo(median.c), data)
   #
-  q1.c <- catch("q1.c", mc, data, sfsp)
+  q1.c <- catch(enquo(q1.c), data)
   #
-  q3.c <- catch("q3.c", mc, data, sfsp)
+  q3.c <- catch(enquo(q3.c), data)
   #
-  min.c <- catch("min.c", mc, data, sfsp)
+  min.c <- catch(enquo(min.c), data)
   #
-  max.c <- catch("max.c", mc, data, sfsp)
+  max.c <- catch(enquo(max.c), data)
   #
   avail.median.e <- !(missing.median.e || is.null(median.e))
   avail.q1.e <- !(missing.q1.e || is.null(q1.e))
@@ -1143,10 +1141,10 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   avail.min.c <- !(missing.min.c || is.null(min.c))
   avail.max.c <- !(missing.max.c || is.null(max.c))
   #
-  approx.mean.e <- catch("approx.mean.e", mc, data, sfsp)
-  approx.mean.c <- catch("approx.mean.c", mc, data, sfsp)
-  approx.sd.e <- catch("approx.sd.e", mc, data, sfsp)
-  approx.sd.c <- catch("approx.sd.c", mc, data, sfsp)
+  approx.mean.e <- catch(enquo(approx.mean.e), data)
+  approx.mean.c <- catch(enquo(approx.mean.c), data)
+  approx.sd.e <- catch(enquo(approx.sd.e), data)
+  approx.sd.c <- catch(enquo(approx.sd.c), data)
   #
   avail.approx.mean.e <-
     !(missing.approx.mean.e || is.null(approx.mean.e)) &&

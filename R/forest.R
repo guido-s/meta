@@ -2431,15 +2431,12 @@ forest.meta <- function(x,
   # (7) Check other arguments
   #
   #
-  
-  sfsp <- sys.frame(sys.parent())
-  mc <- match.call()
-  #
+    
   error <-
-    try(sortvar <- catch("sortvar", mc, x, sfsp),
+    try(sortvar <- catch(enquo(sortvar), x),
         silent = TRUE)
   if (inherits(error, "try-error") || is.function(error)) {
-    sortvar <- catch("sortvar", mc, x$data, sfsp)
+    sortvar <- catch(enquo(sortvar), x$data)
     if (isCol(x$data, ".subset"))
       sortvar <- sortvar[x$data$.subset]
   }
@@ -2464,10 +2461,10 @@ forest.meta <- function(x,
   #
   if (!miss.studlab) {
     error <-
-      try(studlab <- catch("studlab", mc, x, sfsp),
+      try(studlab <- catch(enquo(studlab), x),
           silent = TRUE)
     if (inherits(error, "try-error")) {
-      studlab <- catch("studlab", mc, x$data, NULL)
+      studlab <- catch(enquo(studlab), x$data)
       if (isCol(x$data, ".subset"))
         studlab <- studlab[x$data$.subset]
     }
@@ -3235,7 +3232,7 @@ forest.meta <- function(x,
   #
   if (by) {
     if (!miss.subgroup & !metabind)
-      subgroup <- catch("subgroup", mc, x, sfsp)
+      subgroup <- catch(enquo(subgroup), x)
     #
     if (length(subgroup) == 1)
       subgroup.logical <- rep(subgroup, n.by) &
@@ -3249,7 +3246,7 @@ forest.meta <- function(x,
     chklogical(subgroup[1])
     #
     if (!miss.subgroup.hetstat & !metabind)
-      subgroup.hetstat <- catch("subgroup.hetstat", mc, x, sfsp)
+      subgroup.hetstat <- catch(enquo(subgroup.hetstat), x)
     #
     if (length(subgroup.hetstat) == 1 & is.character(subgroup.hetstat))
       subgroup.hetstat.logical <- rep(TRUE, n.by)
@@ -3267,19 +3264,19 @@ forest.meta <- function(x,
     }
     #
     if (!miss.common.subgroup)
-      common.subgroup <- catch("common.subgroup", mc, x, sfsp)
+      common.subgroup <- catch(enquo(common.subgroup), x)
     #
     if (!miss.random.subgroup)
-      random.subgroup <- catch("random.subgroup", mc, x, sfsp)
+      random.subgroup <- catch(enquo(random.subgroup), x)
     #
     if (!miss.prediction.subgroup & !metabind)
-      prediction.subgroup <- catch("prediction.subgroup", mc, x, sfsp)
+      prediction.subgroup <- catch(enquo(prediction.subgroup), x)
     #
     if (!miss.print.tau2.ci.subgroup & !metabind)
-      print.tau2.ci.subgroup <- catch("print.tau2.ci.subgroup", mc, x, sfsp)
+      print.tau2.ci.subgroup <- catch(enquo(print.tau2.ci.subgroup), x)
     #
     if (!miss.print.tau.ci.subgroup & !metabind)
-      print.tau.ci.subgroup <- catch("print.tau.ci.subgroup", mc, x, sfsp)
+      print.tau.ci.subgroup <- catch(enquo(print.tau.ci.subgroup), x)
     #
     common.subgroup <- replaceNULL(common.subgroup, FALSE)
     random.subgroup <- replaceNULL(random.subgroup, FALSE)
@@ -3345,7 +3342,7 @@ forest.meta <- function(x,
     #
     if (!miss.test.effect.subgroup) {
       test.effect.subgroup <-
-        catch("test.effect.subgroup", mc, x, sfsp)
+        catch(enquo(test.effect.subgroup), x)
       test.effect.subgroup <- replaceNULL(test.effect.subgroup, FALSE)
       #
       if (length(test.effect.subgroup) == 1) {
@@ -3372,7 +3369,7 @@ forest.meta <- function(x,
       common & test.effect.subgroup.logical
     else {
       test.effect.subgroup.common <-
-        catch("test.effect.subgroup.common", mc, x, sfsp)
+        catch(enquo(test.effect.subgroup.common), x)
       test.effect.subgroup.common <-
         replaceNULL(test.effect.subgroup.common, FALSE)
       #
@@ -3398,7 +3395,7 @@ forest.meta <- function(x,
       random & test.effect.subgroup.logical
     else {
       test.effect.subgroup.random <-
-        catch("test.effect.subgroup.random", mc, x, sfsp)
+        catch(enquo(test.effect.subgroup.random), x)
       test.effect.subgroup.random <-
         replaceNULL(test.effect.subgroup.random, FALSE)
       #

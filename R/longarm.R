@@ -142,11 +142,6 @@ longarm <- function(treat1, treat2,
   #
   #
   nulldata <- is.null(data)
-  sfsp <- sys.frame(sys.parent())
-  mc <- match.call()
-  #
-  if (nulldata)
-    data <- sfsp
   #
   # Catch treat1 and check for pairwise object
   #
@@ -156,7 +151,7 @@ longarm <- function(treat1, treat2,
   dosres <-
     !(missing(agent1) | missing(agent2) |missing(dose1) | missing(dose2))
   #
-  treat1 <- catch("treat1", mc, data, sfsp)
+  treat1 <- catch(enquo(treat1), data)
   #
   ignore <- function(miss, name, func)
     if (!miss)
@@ -339,23 +334,23 @@ longarm <- function(treat1, treat2,
     # Catch studlab, treat2, event1, event2, n1, n2, mean1, mean2,
     # sd1, sd2, time1, time2 from data:
     #
-    studlab <- catch("studlab", mc, data, sfsp)
-    treat2 <- catch("treat2", mc, data, sfsp)
-    event1 <- catch("event1", mc, data, sfsp)
-    event2 <- catch("event2", mc, data, sfsp)
-    n1 <- catch("n1", mc, data, sfsp)
-    n2 <- catch("n2", mc, data, sfsp)
-    mean1 <- catch("mean1", mc, data, sfsp)
-    mean2 <- catch("mean2", mc, data, sfsp)
-    sd1 <- catch("sd1", mc, data, sfsp)
-    sd2 <- catch("sd2", mc, data, sfsp)
-    time1 <- catch("time1", mc, data, sfsp)
-    time2 <- catch("time2", mc, data, sfsp)
+    studlab <- catch(enquo(studlab), data)
+    treat2 <- catch(enquo(treat2), data)
+    event1 <- catch(enquo(event1), data)
+    event2 <- catch(enquo(event2), data)
+    n1 <- catch(enquo(n1), data)
+    n2 <- catch(enquo(n2), data)
+    mean1 <- catch(enquo(mean1), data)
+    mean2 <- catch(enquo(mean2), data)
+    sd1 <- catch(enquo(sd1), data)
+    sd2 <- catch(enquo(sd2), data)
+    time1 <- catch(enquo(time1), data)
+    time2 <- catch(enquo(time2), data)
     #
-    agent1 <- catch("agent1", mc, data, sfsp)
-    agent2 <- catch("agent2", mc, data, sfsp)
-    dose1 <- catch("dose1", mc, data, sfsp)
-    dose2 <- catch("dose2", mc, data, sfsp)
+    agent1 <- catch(enquo(agent1), data)
+    agent2 <- catch(enquo(agent2), data)
+    dose1 <- catch(enquo(dose1), data)
+    dose2 <- catch(enquo(dose2), data)
     #
     if (!is.null(event1))
       chknumeric(event1)

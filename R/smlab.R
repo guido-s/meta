@@ -1,5 +1,6 @@
 smlab <- function(sm, backtransf, pscale, irscale,
-                  func.backtransf = NULL, forest = FALSE) {
+                  func.backtransf = NULL, forest = FALSE,
+                  fallback = "") {
   
   res <- sm
   #
@@ -36,6 +37,9 @@ smlab <- function(sm, backtransf, pscale, irscale,
     else if (!is.null(func.backtransf) && func.backtransf == "exp")
       res <- paste0(gs("log.prefix"), "(", sm, ")")
   }
+  #
+  if (res == "" && fallback != "")
+    res <- fallback
   #
   res
 }

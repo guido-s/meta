@@ -635,10 +635,9 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
               prediction = prediction,
               backtransf = backtransf,
               #
-              method = m$method,
-              method.random = m$method.random,
-              level = x$level,
-              #
+               method = m$method,
+               method.random = m$method.random,
+               #
               w.common = m$w.common,
               TE.common = m$TE.common, seTE.common = m$seTE.common,
               statistic.common = m$statistic.common,

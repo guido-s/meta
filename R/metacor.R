@@ -491,41 +491,37 @@ metacor <- function(cor, n, studlab,
   #
   
   nulldata <- is.null(data)
-  sfsp <- sys.frame(sys.parent())
   mc <- match.call()
-  #
-  if (nulldata)
-    data <- sfsp
   #
   # Catch 'cor' and 'n' from data:
   #
-  cor <- catch("cor", mc, data, sfsp)
+  cor <- catch(enquo(cor), data)
   chknull(cor)
   k.All <- length(cor)
   #
-  n <- catch("n", mc, data, sfsp)
+  n <- catch(enquo(n), data)
   chknull(n)
   #
   # Catch 'studlab', 'subgroup', 'subset', 'exclude' and 'cluster'
   # from data:
   #
-  studlab <- catch("studlab", mc, data, sfsp)
+  studlab <- catch(enquo(studlab), data)
   studlab <- setstudlab(studlab, k.All)
   #
   missing.subgroup <- missing(subgroup)
-  subgroup <- catch("subgroup", mc, data, sfsp)
+  subgroup <- catch(enquo(subgroup), data)
   missing.byvar <- missing(byvar)
-  byvar <- catch("byvar", mc, data, sfsp)
+  byvar <- catch(enquo(byvar), data)
   subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar)
   by <- !is.null(subgroup)
   #
-  subset <- catch("subset", mc, data, sfsp)
+  subset <- catch(enquo(subset), data)
   missing.subset <- is.null(subset)
   #
-  exclude <- catch("exclude", mc, data, sfsp)
+  exclude <- catch(enquo(exclude), data)
   missing.exclude <- is.null(exclude)
   #
-  cluster <- catch("cluster", mc, data, sfsp)
+  cluster <- catch(enquo(cluster), data)
   with.cluster <- !is.null(cluster)
   #
   # Additional checks
@@ -544,11 +540,11 @@ metacor <- function(cor, n, studlab,
   # Catch 'weights', 'weights.common', and 'weights.random' from data:
   #
   if (!missing(weights))
-    weights <- catch("weights", mc, data, sfsp)
+    weights <- catch(enquo(weights), data)
   if (!missing(weights.common))
-    weights.common <- catch("weights.common", mc, data, sfsp)
+    weights.common <- catch(enquo(weights.common), data)
   if (!missing(weights.random))
-    weights.random <- catch("weights.random", mc, data, sfsp)
+    weights.random <- catch(enquo(weights.random), data)
   #
   if (!is.null(weights) & is.null(weights.common))
     weights.common <- weights

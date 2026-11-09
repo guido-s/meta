@@ -51,22 +51,20 @@ labels.meta <- function(object,
   warn_ignore_dots(list(...), "labels.meta")
   
   layout <- setchar(layout, c("JAMA", "Lancet"))
-  
-  sfsp <- sys.frame(sys.parent())
-  mc <- match.call()
+    
   #
   # Catch 'author', 'year', and 'citation' from data:
   #
   if (!missing(author))
-    author <- catch("author", mc, data, sfsp)
+    author <- catch(enquo(author), data)
   #
   if (!missing(year))
-    year <- catch("year", mc, data, sfsp)
+    year <- catch(enquo(year), data)
   else
     year <- rep_len("", length(author))
   #
   if (!missing(citation))
-    citation <- catch("citation", mc, data, sfsp)
+    citation <- catch(enquo(citation), data)
   else
     citation <- seq_along(author)
   #

@@ -729,7 +729,7 @@
 #' 
 #' @importFrom cli cli_warn cli_alert_success cli_abort
 #' 
-#' @importFrom rlang := is_bare_list expr enexprs
+#' @importFrom rlang := is_bare_list expr enexprs eval_tidy enquo quo_is_missing quo_get_expr
 #' 
 #' @importFrom tools file_ext
 #'

@@ -89,7 +89,7 @@ printed between display groups.}
 }
 \value{
 Invisibly returns the result of \code{forest.meta()}, with the
-prepared result data in element \code{data}.
+  prepared result data in element \code{data}.
 }
 \description{
 Draws a forest plot combining common effect estimates, random effects
@@ -123,7 +123,7 @@ forest(mb, subgroup = type)
 }
 \seealso{
 \code{\link{metabind}}, \code{\link{print.metabind}},
-\code{\link{forest.meta}}
+  \code{\link{forest.meta}}
 }
 \author{
 Guido Schwarzer \email{guido.schwarzer@uniklinik-freiburg.de}

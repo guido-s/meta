@@ -173,11 +173,8 @@ forest.metacum <- function(x,
   #
   args <- drop_from_dots(list(...), drop_args, replace_args)
   #
-  sfsp <- sys.frame(sys.parent())
-  mc <- match.call()
-  #
   if (!missing(prediction))
-    prediction <- catch("prediction", mc, x, sfsp)
+    prediction <- catch(enquo(prediction), x)
   #
   chklogical(prediction, length = c(1, k.all))
   #

@@ -16,6 +16,21 @@ bylevs <- function(x) {
   res
 }
 
+subgroup_name <- function(x) {
+  if (quo_is_missing(x))
+    return("subgroup")
+  #
+  res <- as.character(quo_get_expr(x))
+  #
+  if (length(res) > 1 && res[1] == "$")
+    res <- res[length(res)]
+  #
+  if (length(res) == 0 || length(res) > 1)
+    res <- "subgroup"
+  #
+  res
+}
+
 byvarname <- function(argname, matchcall) {
   #
   # Determine name of subgroup variable
@@ -31,7 +46,14 @@ byvarname <- function(argname, matchcall) {
   res
 }
 
-catch <- function(argname, matchcall, data, encl)
+catch <- function(x, data = NULL) {
+  if (quo_is_missing(x))
+    return(NULL)
+  #
+  eval_tidy(x, data = data)
+}
+
+oldcatch <- function(argname, matchcall, data, encl)
   eval(matchcall[[match(argname, names(matchcall))]], data, enclos = encl)
 
 catch2 <- function(x, varname, return = NULL, fromobject = FALSE) {

@@ -266,8 +266,12 @@ importFrom(readr,
 importFrom(rlang,
   ":=",
   enexprs,
+  enquo,
+  eval_tidy,
   expr,
-  is_bare_list
+  is_bare_list,
+  quo_get_expr,
+  quo_is_missing
 )
 importFrom(scales,number_format)
 importFrom(stats,

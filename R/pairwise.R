@@ -562,16 +562,11 @@ pairwise <- function(treat,
   #
   
   nulldata <- is.null(data)
-  sfsp <- sys.frame(sys.parent())
-  mc <- match.call()
-  #
-  if (nulldata)
-    data <- sfsp
   #
   #
   # Catch studlab, treat, agent, dose, event, n, mean, sd, time from data:
   #
-  treat <- catch("treat", mc, data, sfsp)
+  treat <- catch(enquo(treat), data)
   #
   if (inherits(treat, "pairwise")) {
     is.pairwise <- TRUE
@@ -637,18 +632,18 @@ pairwise <- function(treat,
       keep.all.comparisons <- TRUE
     chklogical(keep.all.comparisons)
     #
-    agent <- catch("agent", mc, data, sfsp)
-    dose <- catch("dose", mc, data, sfsp)
+    agent <- catch(enquo(agent), data)
+    dose <- catch(enquo(dose), data)
     #
-    studlab <- catch("studlab", mc, data, sfsp)
+    studlab <- catch(enquo(studlab), data)
     #
-    event <- catch("event", mc, data, sfsp)
-    n <- catch("n", mc, data, sfsp)
-    mean <- catch("mean", mc, data, sfsp)
-    sd <- catch("sd", mc, data, sfsp)
-    TE <- catch("TE", mc, data, sfsp)
-    seTE <- catch("seTE", mc, data, sfsp)
-    time <- catch("time", mc, data, sfsp)
+    event <- catch(enquo(event), data)
+    n <- catch(enquo(n), data)
+    mean <- catch(enquo(mean), data)
+    sd <- catch(enquo(sd), data)
+    TE <- catch(enquo(TE), data)
+    seTE <- catch(enquo(seTE), data)
+    time <- catch(enquo(time), data)
     #
     avail.studlab <- !is.null(studlab)
     #

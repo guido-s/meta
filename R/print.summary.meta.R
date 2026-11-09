@@ -244,14 +244,9 @@ print.summary.meta <- function(x,
   # (2) Check other arguments
   #
   #
-  sfsp <- sys.frame(sys.parent())
-  mc <- match.call()
-  error <-
-    try(sortvar <-
-          catch("sortvar", mc, x.meta, sfsp),
-        silent = TRUE)
+  error <- try(sortvar <- catch(enquo(sortvar), x.meta), silent = TRUE)
   if (inherits(error, "try-error")) {
-    sortvar <- catch("sortvar", mc, x$data,  NULL)
+    sortvar <- catch(enquo(sortvar), x$data)
     if (isCol(x$data, ".subset"))
       sortvar <- sortvar[x$data$.subset]
   }
@@ -337,10 +332,10 @@ print.summary.meta <- function(x,
   #
   missing.truncate <- missing(truncate)
   if (!missing.truncate) {
-    truncate <- catch("truncate", mc, x.meta, sfsp)
+    truncate <- catch(enquo(truncate), x.meta)
     #
     if (is.null(truncate))
-      truncate <- catch("truncate", mc, x$data, sfsp)
+      truncate <- catch(enquo(truncate), x$data)
     #
     if (length(truncate) > k.all)
       stop("Length of argument 'truncate' is too long.",

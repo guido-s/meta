@@ -184,13 +184,9 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
     x$method.random.ci %in% c("HK", "KR", "CR0", "CR1", "CR2")
   tdist_predict <- !(x$method.predict %in% c("S", ""))
   #
-  mc <- match.call()
-  error <-
-    try(sortvar <-
-          catch("sortvar", mc, x, sys.frame(sys.parent())),
-        silent = TRUE)
+  error <- try(sortvar <- catch(enquo(sortvar), x), silent = TRUE)
   if (inherits(error, "try-error")) {
-    sortvar <- catch("sortvar", mc, x$data,  NULL)
+    sortvar <- catch(enquo(sortvar), x$data)
     if (isCol(x$data, ".subset"))
       sortvar <- sortvar[x$data$.subset]
   }

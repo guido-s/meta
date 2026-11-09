@@ -1022,27 +1022,26 @@ update.meta <- function(object,
   # (5) Catch variables
   #
   #
-  sfsp <- sys.frame(sys.parent())
   mc <- match.call()
   #
   # Catch argument 'subset'
   #
   if (!missing(subset))
-    subset <- catch("subset", mc, data, sfsp)
+    subset <- catch(enquo(subset), data)
   else
     subset <- catch2(object, "subset", fromobject = TRUE)
   #
   # Catch argument 'studlab'
   #
   if (!missing(studlab))
-    studlab <- catch("studlab", mc, data, sfsp)
+    studlab <- catch(enquo(studlab), data)
   else
     studlab <- catch2(object, "studlab")
   #
   # Catch argument 'exclude'
   #
   if (!missing(exclude))
-    exclude <- catch("exclude", mc, data, sfsp)
+    exclude <- catch(enquo(exclude), data)
   else
     exclude <- catch2(object, "exclude")
   #
@@ -1052,8 +1051,8 @@ update.meta <- function(object,
   missing.id <- missing(id)
   #
   if (!missing.cluster | !missing.id) {
-    cluster <- catch("cluster", mc, data, sfsp)
-    id <- catch("id", mc, data, sfsp)
+    cluster <- catch(enquo(cluster), data)
+    id <- catch(enquo(id), data)
     ...cluster <-
       deprecated2(cluster, missing.cluster, id, missing.id,
                   warn.deprecated)
@@ -1075,10 +1074,10 @@ update.meta <- function(object,
   # Catch argument 'cycles'
   #
   if (!missing(cycles))
-    cycles <- catch("cycles", mc, data, sfsp)
+    cycles <- catch(enquo(cycles), data)
   else {
     if (isCol(object$data, ".cycles"))
-      cycles <- catch(".cycles", object$data, object$data, sfsp)
+      cycles <- object$data$.cycles
     else
       cycles <- NULL
   }
@@ -1096,7 +1095,7 @@ update.meta <- function(object,
          call. = FALSE)
   #
   if (!missing.incr.e)
-    incr.e <- catch("incr.e", mc, data, sfsp)
+    incr.e <- catch(enquo(incr.e), data)
   else
     incr.e <- catch2(object, "incr.e", gs("incr"))
   #
@@ -1105,7 +1104,7 @@ update.meta <- function(object,
   # Catch argument 'incr.c'
   #
   if (!missing.incr.c)
-    incr.c <- catch("incr.c", mc, data, sfsp)
+    incr.c <- catch(enquo(incr.c), data)
   else
     incr.c <- catch2(object, "incr.c", gs("incr"))
   #
@@ -1125,42 +1124,42 @@ update.meta <- function(object,
   # Catch argument 'n.e'
   #
   if (!missing(n.e))
-    n.e <- catch("n.e", mc, data, sfsp)
+    n.e <- catch(enquo(n.e), data)
   else
     n.e <- catch2(object, "n.e")
   #
   # Catch argument 'n.c'
   #
   if (!missing(n.c))
-    n.c <- catch("n.c", mc, data, sfsp)
+    n.c <- catch(enquo(n.c), data)
   else
     n.c <- catch2(object, "n.c")
   #
   # Catch argument 'approx.mean.e'
   #
   if (!missing(approx.mean.e))
-    approx.mean.e <- catch("approx.mean.e", mc, data, sfsp)
+    approx.mean.e <- catch(enquo(approx.mean.e), data)
   else
     approx.mean.e <- catch2(object, "approx.mean.e")
   #
   # Catch argument 'approx.mean.c'
   #
   if (!missing(approx.mean.c))
-    approx.mean.c <- catch("approx.mean.c", mc, data, sfsp)
+    approx.mean.c <- catch(enquo(approx.mean.c), data)
   else
     approx.mean.c <- catch2(object, "approx.mean.c")
   #
   # Catch argument 'approx.sd.e'
   #
   if (!missing(approx.sd.e))
-    approx.sd.e <- catch("approx.sd.e", mc, data, sfsp)
+    approx.sd.e <- catch(enquo(approx.sd.e), data)
   else
     approx.sd.e <- catch2(object, "approx.sd.e")
   #
   # Catch argument 'approx.sd.c'
   #
   if (!missing(approx.sd.c))
-    approx.sd.c <- catch("approx.sd.c", mc, data, sfsp)
+    approx.sd.c <- catch(enquo(approx.sd.c), data)
   else
     approx.sd.c <- catch2(object, "approx.sd.c")
   #
@@ -1170,8 +1169,8 @@ update.meta <- function(object,
   missing.byvar <- missing(byvar)
   #
   if (!missing.subgroup | !missing.byvar) {
-    subgroup <- catch("subgroup", mc, data, sfsp)
-    byvar <- catch("byvar", mc, data, sfsp)
+    subgroup <- catch(enquo(subgroup), data)
+    byvar <- catch(enquo(byvar), data)
     subgroup <-
       deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
                   warn.deprecated)

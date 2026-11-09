@@ -314,7 +314,7 @@ print.metabind <- function(x,
       backtransf = backtransf,
       pscale = pscale,
       irscale = irscale,
-      func.backtransf = fbt)
+      func.backtransf = fbt, fallback = ".no_sm_provided")
     #
     lab.TE <- sm
     #
@@ -554,6 +554,8 @@ print.metabind <- function(x,
       else
         dat.c$seTE <- NULL
       #
+      names(dat.c)[names(dat.c) == ".no_sm_provided"] <- ""
+      #
       name.c <- dat.c$name
       dat.c$name <- NULL
     }
@@ -658,6 +660,8 @@ print.metabind <- function(x,
         names(dat.r)[names(dat.r) == "seTE"] <- paste0("SE(", lab.TE, ")")
       else
         dat.r$seTE <- NULL
+      #
+      names(dat.r)[names(dat.r) == ".no_sm_provided"] <- ""
       #
       name.r <- dat.r$name
       dat.r$name <- NULL

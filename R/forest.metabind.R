@@ -251,11 +251,8 @@ forest.metabind <- function(x,
       dat[[nm]] <- rep(NA_real_, nrow(dat))
   }
   #
-  sfsp <- sys.frame(sys.parent())
-  mc <- match.call()
-  #
-  studlab <- catch("studlab", mc, dat, sfsp)
-  subgroup <- catch("subgroup", mc, dat, sfsp)
+  studlab <- catch(enquo(studlab), dat)
+  subgroup <- catch(enquo(subgroup), dat)
   #
   if (is.null(studlab))
     studlab <- dat$name
