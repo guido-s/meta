@@ -72,6 +72,8 @@
 #' row and then its first prediction interval row. Tau and tau-squared
 #' information is also shown on prediction interval rows when random effects
 #' results for the same component are selected.
+#' Tau and tau-squared estimates and their confidence intervals are never
+#' shown on common effect rows.
 #'
 #' For meta-analyses containing subgroup results, each component defines a
 #' display group and its source subgroup results define the individual rows.
@@ -584,9 +586,10 @@ forest.metabind <- function(x,
     order.het <- summary.rows[order(priority[summary.rows])]
     rows.het[order.het[!duplicated(plotdat$id[order.het])]] <- TRUE
     rows.tau <- rows.het | (seq_len(nrow(plotdat)) %in% summary.rows &
-                              is.predict & plotdat$id %in%
-                              plotdat$id[summary.rows[plotdat$type[summary.rows] == "Random effects model"]])
+                               is.predict & plotdat$id %in%
+                               plotdat$id[summary.rows[plotdat$type[summary.rows] == "Random effects model"]])
   }
+  rows.tau[is.common] <- FALSE
   #
   print$type <- replaceNULL(print$type,
                             !with.subgroups && varies(plotdat$type) &&

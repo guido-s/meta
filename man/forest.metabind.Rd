@@ -132,6 +132,8 @@ on its first random effects row, falling back to its first common effect
 row and then its first prediction interval row. Tau and tau-squared
 information is also shown on prediction interval rows when random effects
 results for the same component are selected.
+Tau and tau-squared estimates and their confidence intervals are never
+shown on common effect rows.
 
 For meta-analyses containing subgroup results, each component defines a
 display group and its source subgroup results define the individual rows.

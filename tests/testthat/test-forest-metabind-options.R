@@ -163,13 +163,40 @@ test_that("heterogeneity uses preferred rows and tau is retained for predictions
       for (col in cols) {
         values <- res$data[[col]][rows]
         present <- !is.na(values) & trimws(as.character(values)) != ""
-        expected <- if (i == 1 && col %in% c("tau2", "tau"))
+        expected <- if (i == 2 && col %in% c("tau2", "tau"))
+          integer()
+        else if (i == 1 && col %in% c("tau2", "tau"))
           c(first, rows[res$data$type[rows] == "Prediction interval"])
         else
           first
         expect_equal(rows[present], expected,
                       info = paste(preferred[i], "id", id, col))
       }
+    }
+  }
+})
+
+test_that("common effect rows never show between-study variance estimates", {
+  first <- metagen(1:3, 3:1 / 10, random = FALSE)
+  fields <- c("tau2", "tau", "tau2.ci", "tau.ci", "method.tau", "method.tau.ci")
+  for (other.random in c(FALSE, TRUE)) {
+    second <- metagen(1:3, 3:1 / 10, random = other.random)
+    mb <- metabind(first, second)
+    automatic <- forest_metabind_options(mb)
+    common <- automatic$data$type == "Common effect model"
+    expect_true(all(automatic$data$tau2[common] == meta::gs("lab.NA")))
+    expect_true(all(automatic$data$tau[common] == meta::gs("lab.NA")))
+    drawn <- forest_metabind_options(
+      mb, lab.NA = "MISSING",
+      print = list(tau2 = TRUE, tau = TRUE, tau2.ci = TRUE, tau.ci = TRUE,
+                   method.tau = TRUE, method.tau.ci = TRUE))
+    common <- drawn$data$type == "Common effect model"
+    for (field in fields)
+      expect_true(all(drawn$data[[field]][common] == "MISSING"), info = field)
+    if (other.random) {
+      random <- drawn$data$type == "Random effects model"
+      expect_true(all(drawn$data$tau2[random] != "MISSING"))
+      expect_true(all(drawn$data$tau[random] != "MISSING"))
     }
   }
 })

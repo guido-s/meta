@@ -12,4 +12,7 @@ internal-functions.md
 ^\.Rproj\.user$
 ^\.positai$
 ^\.claude$
-^tests/testthat/.*forest.*[.]R
+^tests/testthat/test-(forest|funnel|drapery).*[.]R$
+^tests/testthat/test-(print|catmeth)-.*[.]R$
+^tests/testthat/test-metabind-(prediction-only|subgroup-names|transformation-columns)[.]R$
+^tests/testthat/test-(chklogical-length|chksetVar-list|merge-legacy|newCol-full-layout)[.]R$
