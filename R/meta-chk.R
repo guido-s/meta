@@ -58,6 +58,19 @@ chkchar <- function(x, length = 0, name = NULL, nchar = NULL, NULL.ok = FALSE) {
   invisible(NULL)
 }
 
+chkchar_list <- function(x, length = list(), NULL.ok = character(),
+                         name = deparse(substitute(x))) {
+  for (i in names(x)) {
+    length.i <- 1
+    if (i %in% names(length))
+      length.i <- length[[i]]
+    #
+    chkchar(x[[i]], length = length.i,
+             NULL.ok = i %in% NULL.ok,
+             name = paste0(name, ".", i))
+  }
+}
+
 chkclass <- function(x, class, name = NULL) {
   #
   # Check class of R object
@@ -93,6 +106,21 @@ chkcolor <- function(x, length = 0, name = NULL, one = FALSE) {
   else if (!(is.character(x) || is.numeric(x)))
     stop("Argument '", name, "' must be a character or numeric vector.",
          call. = FALSE)
+}
+
+chkcolor_list <- function(x, length = list(), one = FALSE) {
+  name <- deparse(substitute(x))
+  #
+  chklogical(one)
+  #
+  for (i in names(x)) {
+    length.i <- 0
+    if (i %in% names(length))
+      length.i <- length[[i]]
+    #
+    chkcolor(x[[i]], length = length.i, one = one,
+              name = paste0(name, ".", i))
+  }
 }
 
 chkfunc <- function(x, name = NULL) {
@@ -206,12 +234,17 @@ chklogical <- function(x, name = NULL, text = "", length = 1, NULL.ok = FALSE) {
   if (is.null(name))
     name <- deparse(substitute(x))
   #
+  # Do not check length if length = 0
+  #
   length <- sort(unique(length))
+  check.length <- !(length(length) == 1 && length == 0)
   #
   if (is.numeric(x))
     x <- as.logical(x)
   #
-  if (length(length) == 1 && length == 1) {
+  if (!check.length)
+    txt.length <- "logical vector"
+  else if (length(length) == 1 && length == 1) {
     txt.length <- "logical"
   }
   else {
@@ -221,12 +254,27 @@ chklogical <- function(x, name = NULL, text = "", length = 1, NULL.ok = FALSE) {
             collapse_choices(length))
   }
   #
-  if (!(length(x) %in% length) || !is.logical(x) || anyNA(x))
+  if ((check.length && !(length(x) %in% length)) || !is.logical(x) || anyNA(x))
     stop("Argument '", name, "' must be a ",
          txt.length,
          if (text != "") " ", text, ".", call. = FALSE)
   #
   invisible(NULL)
+}
+
+chklogical_list <- function(x, NULL.ok = character(), length = list()) {
+  name <- deparse(substitute(x))
+  #
+  for (i in names(x)) {
+    length.i <- 1
+    if (i %in% names(length))
+      length.i <- length[[i]]
+    #
+    chklogical(x[[i]],
+               name = paste0(name, ".", i),
+               length = length.i,
+               NULL.ok = i %in% NULL.ok)
+  }
 }
 
 chkmiss <- function(x, name = NULL) {
@@ -349,6 +397,37 @@ argid <- function(x, value) {
   else
     res <- NA
   res
+}
+
+chknumeric_list <- function(x, min = list(), length = list(),
+                            strict = FALSE, miss = list()) {
+  name <- deparse(substitute(x))
+  #
+  chklogical(strict)
+  #
+  if (strict)
+    check <- chknumeric_strict
+  else
+    check <- chknumeric
+  #
+  for (i in names(x)) {
+    if (!(i %in% names(miss) && isTRUE(miss[[i]]))) {
+      if (i %in% names(length))
+        length.i <- length[[i]]
+      else
+        length.i <- 1
+      #
+      if (i %in% names(min))
+        min.i <- min[[i]]
+      else
+        min.i <- 0
+      #
+      check(x[[i]],
+            min = min.i,
+            length = length.i,
+            name = paste0(name, ".", i))
+    }
+  }
 }
 
 chkdeprecated <- function(x, new, old, warn = TRUE) {
@@ -555,4 +634,13 @@ chkfontface <- function(x, length = 1, name = NULL) {
          call. = FALSE)
   #
   invisible(NULL)
+}
+
+chkfontface_list <- function(x, length = 1) {
+  name <- deparse(substitute(x))
+  #
+  for (i in names(x))
+    chkfontface(x[[i]],
+                length = length,
+                name = paste0(name, ".", i))
 }

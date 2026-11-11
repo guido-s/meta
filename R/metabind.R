@@ -9,7 +9,9 @@
 #' @param ... Any number of meta-analysis objects or a single list
 #'   with meta-analyses.
 #' @param name An optional character vector providing descriptive
-#'   names for the meta-analysis objects.
+#'   names for the meta-analysis objects. Defaults to their \code{subgroup.name}
+#'   values when subgroup results are present, and \code{meta1}, \code{meta2},
+#'   etc. otherwise. Names are adjusted if necessary to make them unique.
 #' @param common A logical vector indicating whether results of common
 #'   effect model should be considered.
 #' @param random A logical vector indicating whether results of random
@@ -68,7 +70,7 @@
 #' #
 #' mb <- metabind(ma1, ma2, common = FALSE)
 #' mb
-#' #forest(mb)
+#' forest(mb)
 #'
 #' # Use various estimation methods for between-study heterogeneity
 #' # variance
@@ -324,9 +326,10 @@ metabind <- function(...,
   # Name of meta-analysis object
   #
   if (missing.name) {
-    name <- paste0("meta", seq.meta)
-    #name <- name.i
-    #name[name == ""] <- paste0("meta", seq.meta[name == ""])
+    if (with.subgroups)
+      name <- vapply(args, `[[`, character(1), "subgroup.name", USE.NAMES = FALSE)
+    else
+      name <- paste0("meta", seq.meta)
   }
   else
     chklength(name, length(is.subgroup),

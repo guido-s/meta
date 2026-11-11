@@ -21,7 +21,9 @@ metabind(
 with meta-analyses.}
 
 \item{name}{An optional character vector providing descriptive
-names for the meta-analysis objects.}
+names for the meta-analysis objects. Defaults to their \code{subgroup.name}
+values when subgroup results are present, and \code{meta1}, \code{meta2},
+etc. otherwise. Names are adjusted if necessary to make them unique.}
 
 \item{common}{A logical vector indicating whether results of common
 effect model should be considered.}

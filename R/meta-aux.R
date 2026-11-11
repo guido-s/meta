@@ -71,6 +71,13 @@ replaceNULL <- function(x, replace = NA, chklength = FALSE) {
   x
 }
 
+replaceNULL_list <- function(x, defaults) {
+  for (i in names(defaults))
+    x[i] <- list(replaceNULL(x[[i]], defaults[[i]]))
+  #
+  x
+}
+
 replaceNA <- function(x, replace = NA) {
   if (is.null(x))
     return(x)
@@ -400,6 +407,12 @@ setNAwithin <- function(x, condition) {
   }
   #
   res
+}
+
+drop_allNAs <- function(x) {
+  all_NA <- colSums(is.na(x)) == nrow(x)
+  #
+  x[, !all_NA, drop = FALSE]
 }
 
 extrVar <- function(x, name)
@@ -1175,12 +1188,15 @@ merge_legacy <- function(x, args, default,
   #
   if (!is.list(default) || is.null(names(default)))
     stop("Bug: argument 'default' must be a named list.", call. = FALSE)
-  
+  #
   supplied <- names(x)
   #
-  res <- modifyList(default, x)
+  res <- modifyList(default, x, keep.null = TRUE)
+  #
   miss <- setNames(as.list(!(names(default) %in% supplied)), names(default))
-  null <- lapply(res, is.null)
+  #
+  null <-
+    setNames(lapply(names(miss), function(i) is.null(res[[i]])), names(miss))
   #
   old.names <- intersect(names(args), paste0(prefix, ".", names(default)))
   #
@@ -1196,30 +1212,32 @@ merge_legacy <- function(x, args, default,
       warning("Use element '", prefix,
               "[['", name, "']]' instead of argument '", old,
               "' (deprecated).",
-        call. = FALSE)
+              call. = FALSE)
     #
-    res[[name]] <- args[[old]]
+    res[name] <- list(args[[old]])
     miss[name] <- FALSE
     null[[name]] <- is.null(res[[name]])
     args[[old]] <- NULL
   }
-
+  #
   if (!is.null(inherit)) {
     if (is.null(names(inherit)))
-      stop("Argument 'inherit' must be a named character vector.",
-           call. = FALSE)
-
+      stop("Argument 'inherit' must be a named list.",
+            call. = FALSE)
+    #
+    inherit.eligible <- Map(function(m, n) m || n, miss, null)
+    #
     for (pass in seq_len(length(inherit) + 1L)) {
       changed <- FALSE
-
+      #
       for (child in names(inherit)) {
         parent <- inherit[[child]]
-
-        if (!(child %in% names(res)) || !(parent %in% names(res)))
+        #
+        if (!(child %in% names(miss)) || !(parent %in% names(miss)))
           stop("Unknown child or parent in argument 'inherit'.",
                call. = FALSE)
-
-        if ((miss[[child]] || null[[child]]) && !is.null(res[[parent]])) {
+        #
+        if (inherit.eligible[[child]] && !is.null(res[[parent]])) {
           changed <- changed ||
             !identical(res[[child]], res[[parent]]) ||
             null[[child]]
@@ -1227,12 +1245,12 @@ merge_legacy <- function(x, args, default,
           null[[child]] <- FALSE
         }
       }
-
+      #
       if (!changed)
         break
     }
   }
-  
+  #
   list(res = res, args = args, miss = miss, null = null)
 }
 
@@ -1290,4 +1308,30 @@ sum_or_na <- function(x) {
     return(NA)
   #
   sum(x, na.rm = TRUE)
+}
+
+makeunique <- function(x, val = NA, orig = FALSE) {
+  res <- unique(x)
+  #
+  if (length(res) != 1) {
+    if (orig)
+      return(res)
+    else
+      res <- val
+  }
+  #
+  res
+}
+
+addNAs2var <- function(x, n) {
+  if (n == 1)
+    res <- x
+  else {
+    res <- vector("numeric", 0)
+    #
+    for (i in seq_along(x))
+      res <- c(res, c(x[i], rep(NA, n - 1)))
+  }
+  #
+  res
 }

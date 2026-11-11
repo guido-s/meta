@@ -637,8 +637,8 @@ setOption("just", c("left", "center", "right"))
 #
 setOption("special.characters", c("+", ".", "&", "$", "#", "|", "*", "^"))
 #
-setOption("major.update", 5)
-setOption("minor.update", 6)
+setOption("major.update", 9)
+setOption("minor.update", 0)
 #
 # List of arguments that can be changed by user
 #

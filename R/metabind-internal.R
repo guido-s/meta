@@ -1,18 +1,3 @@
-format_args <- function(x, lab.NA = ".") {
-  if (is.null(x) || length(x) == 0)
-    return(lab.NA)
-  #
-  values <- vapply(x, function(value)
-    paste(deparse(value, width.cutoff = 500L), collapse = " "), character(1))
-  arg.names <- names(x)
-  if (!is.null(arg.names)) {
-    named <- !is.na(arg.names) & nzchar(arg.names)
-    values[named] <- paste0(arg.names[named], " = ", values[named])
-  }
-  paste(values, collapse = ", ")
-}
-
-
 extrMA <- function(id, x, name, type = "overall", outclab = NULL) {
   x <- x[[id]]
   #
@@ -146,8 +131,8 @@ extrMA <- function(id, x, name, type = "overall", outclab = NULL) {
       res$type.tf <- replaceNULL(x$type, "")
     }
     #
-    res$n.harmonic.mean <- replaceNULL(x$n.harmonic.mean)
-    res$t.harmonic.mean <- replaceNULL(x$t.harmonic.mean)
+    res$n.harmonic.mean <- replaceNULL(x[["n.harmonic.mean"]])
+    res$t.harmonic.mean <- replaceNULL(x[["t.harmonic.mean"]])
     #
     res$n.e <- sum_or_na(x$n.e)
     res$n.c <- sum_or_na(x$n.c)
@@ -279,7 +264,7 @@ extrSub <- function(id, x, type = "common") {
       pval = matrix(list2mat(x$pval.common.w), ncol = 1),
       #
       Q.b = x$Q.b.common,
-      df.Q.b = x$df.Q.b.common,
+      df.Q.b = unlist(x$df.Q.b.common),
       pval.Q.b = x$pval.Q.b.common
     )
   }
@@ -305,7 +290,7 @@ extrSub <- function(id, x, type = "common") {
       pval = matrix(list2mat(x$pval.random.w), ncol = 1),
       #
       Q.b = rep(x$Q.b.random, each = n.by),
-      df.Q.b = rep(x$df.Q.b.random, each = n.by),
+      df.Q.b = rep(unlist(x$df.Q.b.random), each = n.by),
       pval.Q.b = rep(x$pval.Q.b.random, each = n.by)
     )
   }
@@ -334,145 +319,6 @@ extrSub <- function(id, x, type = "common") {
   res
 }
 
-
-subgr2meta <- function(x, common, random, prediction, name) {
-  n.subgr <- length(x$subgroup.levels)
-  #
-  res <- list(
-    studlab =
-      c(if (common)
-          paste0(x$subgroup.levels,
-                if (random | prediction) " (common effect)"),
-        if (random)
-          paste0(x$subgroup.levels,
-                if (common | prediction) " (random effects)"),
-        if (prediction)
-          paste0(x$subgroup.levels,
-                if (common | random) " (prediction)")
-        ),
-    #
-    subgroup = NA,
-    #
-    subgroup.levels = name,
-    #
-    TE =
-      c(if (common) x$TE.common.w,
-        if (random) x$TE.random.w,
-        if (prediction) rep(NA, n.subgr)),
-    #
-    seTE =
-      c(if (common) x$seTE.common.w,
-        if (random) x$seTE.random.w,
-        if (prediction) rep(NA, n.subgr)),
-    lower =
-      c(if (common) x$lower.common.w,
-        if (random) x$lower.random.w,
-        if (prediction) x$lower.predict.w),
-    upper =
-      c(if (common) x$upper.common.w,
-        if (random) x$upper.random.w,
-        if (prediction) x$upper.predict.w),
-    statistic =
-      c(if (common) x$statistic.common.w,
-        if (random) x$statistic.random.w,
-        if (prediction) rep(NA, n.subgr)),
-    pval =
-      c(if (common) x$pval.common.w,
-        if (random) x$pval.random.w,
-        if (prediction) rep(NA, n.subgr)),
-    #
-    TE.common = x$TE.common,
-    seTE.common = x$seTE.common,
-    lower.common = x$lower.common,
-    upper.common = x$upper.common,
-    statistic.common = x$statistic.common,
-    pval.common = x$pval.common,
-    text.common = if (common) x$text.common else NULL,
-    #
-    TE.random = x$TE.random,
-    seTE.random = x$seTE.random,
-    lower.random = x$lower.random,
-    upper.random = x$upper.random,
-    statistic.random = x$statistic.random,
-    pval.random = x$pval.random,
-    text.random = if (random) x$text.random else NULL,
-    #
-    lower.predict = x$lower.predict,
-    upper.predict = x$upper.predict,
-    text.predict = if (prediction) x$text.predict else NULL,
-    #
-    df.random = replaceNULL(x$df.random),
-    df.hakn = replaceNULL(x$df.hakn),
-    df.kero = replaceNULL(x$df.kero),
-    #
-    n.harmonic.mean = replaceNULL(x$n.harmonic.mean.w),
-    t.harmonic.mean = replaceNULL(x$t.harmonic.mean.w),
-    #
-    n.e = replaceNULL(x$n.e),
-    n.c = replaceNULL(x$n.c),
-    n = replaceNULL(x$n),
-    #
-    event.e = replaceNULL(x$event.e),
-    event.c = replaceNULL(x$event.c),
-    event = replaceNULL(x$event),
-    #
-    time.e = replaceNULL(x$time.e),
-    time.c = replaceNULL(x$time.c),
-    time = replaceNULL(x$time),
-    #
-    Q = x$Q[1],
-    df.Q = x$df.Q[1],
-    pval.Q = x$pval.Q[1],
-    #
-    tau2 = x$tau2,
-    tau = x$tau,
-    H = x$H,
-    lower.H = x$lower.H,
-    upper.H = x$upper.H,
-    I2 = x$I2,
-    lower.I2 = x$lower.I2,
-    upper.I2 = x$upper.I2,
-    Rb = x$Rb,
-    lower.Rb = x$lower.Rb,
-    upper.Rb = x$upper.Rb,
-    #
-    Q.b.common = NA,
-    Q.b.random = NA,
-    df.Q.b = NA,
-    pval.Q.b.common = NA,
-    pval.Q.b.random = NA)
-  #
-  res$subgroup <- rep_len(name, length(res$TE))
-  #
-  res
-}
-
-makeunique <- function(x, val = NA, orig = FALSE) {
-  res <- unique(x)
-  #
-  if (length(res) != 1) {
-    if (orig)
-      return(res)
-    else
-      res <- val
-  }
-  #
-  res
-}
-
-addNAs2var <- function(x, n) {
-  if (n == 1)
-    res <- x
-  else {
-    res <- vector("numeric", 0)
-    #
-    for (i in seq_along(x))
-      res <- c(res, c(x[i], rep(NA, n - 1)))
-  }
-  #
-  res
-}
-
 setClass <- function(x) {
   if (inherits(x, "trimfill"))
     class <- "trimfill"
@@ -486,7 +332,8 @@ setClass <- function(x) {
   if (length(class) > 1) {
     warning("Meta-analysis has ", length(class), " classes: ",
             paste(class, collapse = ", "), "\n Keeping the first class: ",
-            class[1], call. = FALSE)
+            class[1],
+            call. = FALSE)
     #
     class <- class[1]
   }
@@ -494,8 +341,18 @@ setClass <- function(x) {
   class
 }
 
-drop_allNAs <- function(x) {
-  all_NA <- colSums(is.na(x)) == nrow(x)
+format_args <- function(x, lab.NA = ".") {
+  if (is.null(x) || length(x) == 0)
+    return(lab.NA)
   #
-  x[, !all_NA, drop = FALSE]
+  values <- vapply(x, function(value)
+    paste(deparse(value, width.cutoff = 500L), collapse = " "), character(1))
+  #
+  arg.names <- names(x)
+  #
+  if (!is.null(arg.names)) {
+    named <- !is.na(arg.names) & nzchar(arg.names)
+    values[named] <- paste0(arg.names[named], " = ", values[named])
+  }
+  paste(values, collapse = ", ")
 }

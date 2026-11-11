@@ -113,7 +113,12 @@ as.data.frame.metabind <- function(x, row.names = NULL, optional = FALSE,
       if (prediction) x$predict)
   }
   #
-  res <- left_join(full.results, x$overall, by = "id") %>%
+  if (subgroup)
+    res <- left_join(full.results, x$overall, by = "id", suffix = c(".w", ""))
+  else
+    res <- left_join(full.results, x$overall, by = "id")
+  #
+  res <- res %>%
     relocate(name, .after = id)
   #
   if (!is.null(row.names)) {

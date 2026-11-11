@@ -1451,19 +1451,24 @@ newCol <- function(varname, label,
   #
   n.subgroup <- n.com.w + n.ran.w + n.prd.w + n.stat.w
   #
-  if (length(rob[[varname]]) != 0)
+  if (isCol(rob, varname))
     fvar <- rob[[varname]]
-  else if (length(data1[[varname]]) != 0)
+  else if (isCol(data1, varname))
     fvar <- data1[[varname]]
-  else if (length(data2[[varname]]) != 0)
+  else if (isCol(data2, varname))
     fvar <- data2[[varname]]
   else
     stop("Variable '", varname,
          "' not available in meta-analysis object.",
          call. = FALSE)
   #
+  full.layout <- FALSE
   if (isCol(datap, varname)) {
-    if (nrow(datap) == 1) {
+    full.layout <- nrow(datap) ==
+      n.com + n.ran + n.prd + n.com.w + n.ran.w + n.prd.w
+    if (full.layout)
+      fvar <- c(datap[[varname]], rep(NA, n.stat.w), fvar)
+    else if (nrow(datap) == 1) {
       fvar <- c(rep(datap[[varname]], n.com),
                 rep(datap[[varname]], n.ran),
                 rep(NA, n.prd),
@@ -1517,10 +1522,12 @@ newCol <- function(varname, label,
   #
   fvar <- ifelse(is.na(fvar), "", fvar)
   #
-  # Print nothing for lines with prediction interval
+  # Legacy pooled layouts do not supply prediction-interval values.
   #
-  if (isCol(datap, varname))
-    fvar[sel.prd] <- ""
+  if (isCol(datap, varname)) {
+    if (!full.layout)
+      fvar[sel.prd] <- ""
+  }
   else
     fvar <- c(rep("", n.com), rep("", n.ran), rep("", n.prd),
               if (by) rep("", n.subgroup),
@@ -1549,7 +1556,7 @@ newCol <- function(varname, label,
   #
   res <- list(format_var = fvar, colname = paste0("col.", varname),
               label = label, longer = longer,
-              rob = length(rob[[varname]]) != 0)
+              rob = isCol(rob, varname))
   #
   res
 }

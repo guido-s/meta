@@ -10,7 +10,7 @@
   common = !is.null(x$common),
   random = !is.null(x$random),
   prediction = !is.null(x$predict),
-  overall = common || random,
+  overall = common || random || prediction,
   studlab = NULL,
   subgroup = NULL,
   hetstat = FALSE,
@@ -31,6 +31,9 @@
   big.mark = gs("big.mark"),
   addrow.subgroups = NULL,
   details = FALSE,
+  test.overall = TRUE,
+  test.overall.common = test.overall,
+  test.overall.random = test.overall,
   ...
 )
 }
@@ -51,12 +54,15 @@ evaluated in the combined result data and then the calling environment.}
 
 \item{subgroup}{A variable defining display groups, evaluated in the
 combined result data and then the calling environment. For example,
-\code{subgroup = type} groups results by result type.}
+\code{subgroup = type} groups results by result type. Unavailable when
+the component meta-analyses contain subgroup results.}
 
 \item{hetstat, overall.hetstat}{Arguments passed to
-\code{\link{forest.meta}} for heterogeneity text. Heterogeneity text
-from the synthetic plotting object is disabled; use \code{print} to
-display the component meta-analyses' heterogeneity information.}
+\code{\link{forest.meta}} for stored heterogeneity text in source
+subgroup plots, either for shared overall summaries or within each
+component group. Otherwise heterogeneity text from the synthetic plotting
+object is disabled; use \code{print} to display component heterogeneity
+in columns.}
 
 \item{backtransf}{A logical indicating whether results should be
 back-transformed. Different summary measures require back-transformation.}
@@ -83,7 +89,13 @@ the formatting of P values.}
 \item{addrow.subgroups}{A logical indicating whether an empty row is
 printed between display groups.}
 
-\item{details}{A logical specifying whether method details are printed.}
+\item{details}{A logical specifying whether method details are printed.
+Defaults to \code{TRUE} for source subgroup
+results, and \code{FALSE} otherwise.}
+
+\item{test.overall, test.overall.common, test.overall.random}{Logical values
+controlling overall-effect test rows for source subgroup results.
+The model-specific arguments default to \code{test.overall}.}
 
 \item{\dots}{Additional arguments passed to \code{\link{forest.meta}}.}
 }
@@ -115,6 +127,40 @@ on its first random effects row, falling back to its first common effect
 row and then its first prediction interval row. Tau and tau-squared
 information is also shown on prediction interval rows when random effects
 results for the same component are selected.
+
+For meta-analyses containing subgroup results, each component defines a
+display group and its source subgroup results define the individual rows.
+Default study labels append \code{ (common)}, \code{ (random)}, or
+\code{ (prediction)} to the subgroup levels when more than one result type
+is selected. The separate type column is hidden by default.
+Stored overall summaries are shown once when the datasets and selected
+overall results agree, unless \code{overall = FALSE}. Shared heterogeneity
+is shown in an overall heterogeneity row by default instead of additional
+columns; \code{hetstat = FALSE} disables it. Otherwise stored component
+summaries and a heterogeneity row are shown within their respective groups.
+For source subgroup plots, \code{print$I2} defaults to \code{gs("print.I2")}
+(resolved to \code{TRUE} if \code{NULL}), and \code{print$pval.Q} defaults
+to \code{TRUE}, independently of \code{print$Q}. Displayed subgroup
+results are never pooled again and no between-component tests are calculated.
+Tests for overall effect are shown below shared overall summaries or,
+otherwise, within each component group, using the stored common effect
+and random effects test results. With several random-effects interval
+methods, each component's test row uses its first displayed method with
+an available P value.
+The stored tests for differences between source subgroups are shown in
+columns \code{Q.b}, \code{df.Q.b}, and \code{pval.Q.b} for common effect
+and random effects results, only on the first subgroup level of each
+component. Element \code{pval.Q.b} of \code{print}
+controls the P-value column. Prediction intervals and pooled summary rows
+do not display these tests.
+
+For shared overall summaries, method details are printed by default, and
+method and interval-method columns are selected according to variation
+within each result type (common effect, random effects, or prediction),
+not differences between result types. Statistic, P-value, and degrees-of-freedom
+columns are omitted by default. These test columns are also omitted for
+subgroup meta-analyses with different datasets. Explicit display options
+take precedence.
 
 With \code{backtransf = FALSE}, references for transformed single-outcome
 measures are passed on the original scale to \code{forest.meta()}.

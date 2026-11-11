@@ -132,7 +132,7 @@ forest_meta_internal <- function(
     newline.w.common, newline.w.random,
     #
     metabin, metacont, metacor, metagen, metainc, metamean,
-    metaprop, metarate, metabind, metacum, metainf, metamerge, meta,
+    metaprop, metarate, metacum, metainf, metamerge,
     #
     addrow, addrows.below.overall,
     #

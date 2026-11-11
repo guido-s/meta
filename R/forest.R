@@ -1169,12 +1169,15 @@ forest.meta <- function(x,
   
   chkclass(x, "meta")
   x.name <- deparse(substitute(x))
-  device.name <- NULL
-  if (!missing(device)) {
-    device.expr <- substitute(device)
-    device.name <-
-      if (is.character(device.expr)) device.expr else deparse(device.expr)
-  }
+  #
+  if (inherits(x, "is.metabind"))
+    stop("Forest plots are not available for metabind objects created with ",
+         "versions of the R package 'meta' earlier than 9.0-0. Recreate the ",
+         "metabind object with the currently used meta version.\n",
+         "Original call:\n",
+         paste(deparse(x$call, width.cutoff = 80L), collapse = "\n"),
+         call. = FALSE)
+  #
   x <- updateversion(x)
   #
   # Global plot settings
@@ -1202,8 +1205,11 @@ forest.meta <- function(x,
   bmj.revman5 <- bmj || revman5
   bmj.revman5.jama <- bmj.revman5 || jama
   bmj.revman5.jama.meta9 <- bmj.revman5.jama || meta9
-  
-  
+  #
+  n.com <- max(length(x$TE.common), 1)
+  n.ran <- max(length(x$lower.random), 1)
+  n.prd <- max(length(x$lower.predict), 1)
+    
   #
   #
   # (2) Determine whether forest plot should be stored to file and how to
@@ -1212,8 +1218,10 @@ forest.meta <- function(x,
   #
   
   args <- list(...)
+  #
   # Check whether first argument is a list. In this case only use
   # this list as input.
+  #
   if (length(args) > 0 && is.list(args[[1]]))
     args <- args[[1]]
   nam.args <- names(args)
@@ -1222,13 +1230,23 @@ forest.meta <- function(x,
   chkdeprecated(nam.args, NULL, "bmj.xpos", warn.deprecated)
   chkdeprecated(nam.args, NULL, "rob.xpos", warn.deprecated)
   #
+  device.name <- NULL
+  #
+  if (!missing(device)) {
+    device.expr <- substitute(device)
+    device.name <-
+      if (is.character(device.expr)) device.expr else deparse(device.expr)
+  }
+  #
   device <-
     deprecated(device, missing(device), args, "func.gr", warn.deprecated)
+  #
   if (is.character(device) && length(device) == 1)
     device.name <- device
   #
   if (is.null(filename) & !is.null(device))
     filename <- paste0("Rplots.", device.name)
+  #
   if (!is.null(filename)) {
     default.device.file <- tempfile(fileext = ".pdf")
     old.device <- getOption("device")
@@ -1269,7 +1287,6 @@ forest.meta <- function(x,
   else
     autosize <- "new"
   
-  
   #
   #
   # (3) Some assignments
@@ -1288,25 +1305,25 @@ forest.meta <- function(x,
   metamean <- inherits(x, "metamean")
   metaprop <- inherits(x, "metaprop")
   metarate <- inherits(x, "metarate")
-  metabind <- inherits(x, "is.metabind")
   metacum <- inherits(x, "metacum")
   metainf <- inherits(x, "metainf")
   #
   metamerge <- inherits(x, "metamerge")
-  #
-  meta <- !metabind &&
-    (metabin | metacont | metacor | metagen | metainc | metamean |
-       metaprop | metarate)
   #
   ftr <- x$func.transf
   atr <- x$args.transf
   fbt <- x$func.backtransf
   abt <- x$args.backtransf
   #
+  main.prefix <-
+    replaceNULL(main.prefix,
+                !(is.null(x$complab) || identical(x$complab, "")) ||
+                  !(is.null(x$outclab) || identical(x$outclab, "")))
+  chklogical(main.prefix)
+  #
+  # Logical variables for missing or NULL arguments
+  #
   avail.dev.off <- !missing(dev.off) && !is.null(dev.off)
-  #
-  # Logical variables for missing arguments
-  #
   #
   miss.common <- missing(common)
   miss.common.subgroup <- missing(common.subgroup)
@@ -1314,17 +1331,6 @@ forest.meta <- function(x,
   miss.header.line <- missing(header.line)
   miss.hetstat <- missing(hetstat)
   miss.irscale <- missing(irscale)
-  miss.label <- missing(label)
-  if (miss.label)
-    label <- TRUE
-  labels <- NULL
-  if (is.list(label)) {
-    labels <- label
-    label <- TRUE
-    miss.label <- FALSE
-  }
-  #
-  #
   miss.leftcols <- missing(leftcols)
   avail.leftcols <-
     !is.null(leftcols) && length(leftcols) > 0 &&
@@ -1361,818 +1367,62 @@ forest.meta <- function(x,
   #
   avail.xlim <- !missing(xlim)
   #
-  # Scalar is possible input
-  #
-  addrow <- as_named_list(addrow)
-  cid <- as_named_list(cid)
-  colgap <- as_named_list(colgap)
-  digits <- as_named_list(digits)
-  fill <- as_named_list(fill)
-  just <- as_named_list(just)
-  lwd <- as_named_list(lwd)
-  #
-  # Data frame is possible input
-  #
-  if (is.data.frame(rob))
-    rob <- list(rob = rob)
-  #
-  # Font sizes
-  #
-  fs.list <- merge_legacy(fs, args, fs_defaults(fontsize))
-  #
-  fs <- fs.list$res
-  args <- fs.list$args
-  #
-  fs.main <- fs$main
-  fs.heading <- fs$heading
-  fs.common <- fs$common
-  fs.random <- fs$random
-  fs.predict <- fs$predict
-  fs.common.labels <- fs$common.labels
-  fs.random.labels <- fs$random.labels
-  fs.predict.labels <- fs$predict.labels
-  fs.study <- fs$study
-  fs.study.labels <- fs$study.labels
-  fs.hetstat <- fs$hetstat
-  fs.test.overall <- fs$test.overall
-  fs.test.subgroup <- fs$test.subgroup
-  fs.test.effect.subgroup <- fs$test.effect.subgroup
-  fs.addline <- fs$addline
-  fs.axis <- fs$axis
-  fs.smlab <- fs$smlab
-  fs.xlab <- fs$xlab
-  fs.lr <- fs$lr
-  fs.rob <- fs$rob
-  fs.rob.symbols <- fs$rob.symbols
-  fs.details <- fs$details
-  #
-  fs.main <- replaceNULL(fs.main, 1.25 * fontsize)
-  fs.heading <- replaceNULL(fs.heading, fontsize)
-  #
-  fs.common <- replaceNULL(fs.common, fontsize)
-  fs.random <- replaceNULL(fs.random, fs.common)
-  fs.predict <- replaceNULL(fs.predict, fs.common)
-  fs.common.labels <- replaceNULL(fs.common.labels, fs.common)
-  #
-  fs.random.labels <- replaceNULL(fs.random.labels, fs.random)
-  fs.predict.labels <- replaceNULL(fs.predict.labels, fs.predict)
-  #
-  fs.study <- replaceNULL(fs.study, fontsize)
-  fs.study.labels <- replaceNULL(fs.study.labels, fs.study)
-  #
-  fs.hetstat <- replaceNULL(fs.hetstat, fontsize - 1)
-  fs.test.overall <- replaceNULL(fs.test.overall, fs.hetstat)
-  fs.test.subgroup <- replaceNULL(fs.test.subgroup, fs.hetstat)
-  fs.test.effect.subgroup <- replaceNULL(fs.test.effect.subgroup, fs.hetstat)
-  fs.addline <- replaceNULL(fs.addline, fs.hetstat)
-  #
-  fs.axis <- replaceNULL(fs.axis, fontsize - 1)
-  fs.smlab <- replaceNULL(fs.smlab, fontsize)
-  fs.xlab <- replaceNULL(fs.xlab, fontsize)
-  fs.lr <- replaceNULL(fs.lr, fontsize)
-  #
-  fs.rob <- replaceNULL(fs.rob, fontsize - 1)
-  fs.rob.symbols <- replaceNULL(fs.rob.symbols, fontsize - 1)
-  #
-  fs.details <- replaceNULL(fs.details, fontsize - 1)
-  #
-  # Font faces
-  #
-  ff.list <- merge_legacy(ff, args, ff_defaults())
-  #
-  ff <- ff.list$res
-  args <- ff.list$args
-  #
-  ff.main <- ff$main
-  ff.heading <- ff$heading
-  ff.common <- ff$common
-  ff.random <- ff$random
-  ff.predict <- ff$predict
-  ff.common.labels <- ff$common.labels
-  ff.random.labels <- ff$random.labels
-  ff.predict.labels <- ff$predict.labels
-  ff.study <- ff$study
-  ff.study.labels <- ff$study.labels
-  ff.hetstat <- ff$hetstat
-  ff.test.overall <- ff$test.overall
-  ff.test.subgroup <- ff$test.subgroup
-  ff.test.effect.subgroup <- ff$test.effect.subgroup
-  ff.addline <- ff$addline
-  ff.axis <- ff$axis
-  ff.smlab <- ff$smlab
-  ff.xlab <- ff$xlab
-  ff.lr <- ff$lr
-  ff.rob <- ff$rob
-  ff.rob.symbols <- ff$rob.symbols
-  ff.details <- ff$details
-  #
-  ff.common <- replaceNULL(ff.common, if (bmj || jama) "plain" else "bold")
-  #
-  ff.random <- replaceNULL(ff.random, ff.common)
-  ff.predict <- replaceNULL(ff.predict, ff.common)
-  #
-  ff.common.labels <- replaceNULL(ff.common.labels, ff.common)
-  ff.random.labels <- replaceNULL(ff.random.labels, ff.random)
-  ff.predict.labels <- replaceNULL(ff.predict.labels, ff.predict)
-  #
-  ff.hetstat <- replaceNULL(ff.hetstat, "plain")
-  ff.test.overall <- replaceNULL(ff.test.overall, ff.hetstat)
-  ff.test.subgroup <- replaceNULL(ff.test.subgroup, ff.hetstat)
-  ff.test.effect.subgroup <-
-    replaceNULL(ff.test.effect.subgroup, ff.hetstat)
-  ff.addline <- replaceNULL(ff.addline, ff.hetstat)
-  #
-  ff.lr <- replaceNULL(ff.lr, if (jama || bmj) "bold" else "plain")
-  #
-  # Print information
-  #
-  print.list <- merge_legacy(print, args, print_defaults(x))
-  #
-  print <- print.list$res
-  args <- print.list$args
-  miss.print <- print.list$miss
-  #
-  print.subgroup.labels <- print$subgroup.labels
-  print.subgroup.name <- print$subgroup.name
-  print.I2 <- print$I2
-  print.I2.ci <- print$I2.ci
-  print.tau2 <- print$tau2
-  print.tau2.ci <- print$tau2.ci
-  print.tau <- print$tau
-  print.tau.ci <- print$tau.ci
-  print.Q <- print$Q
-  print.pval.Q <- print$pval.Q
-  print.Rb <- print$Rb
-  print.Rb.ci <- print$Rb.ci
-  print.stat <- print$stat
-  print.tau2.ci.subgroup <- print$tau2.ci.subgroup
-  print.tau.ci.subgroup <- print$tau.ci.subgroup
-  print.Q.subgroup <- print$Q.subgroup
-  #
-  miss.print.tau2.ci.subgroup <- miss.print$tau2.ci.subgroup
-  miss.print.tau.ci.subgroup <- miss.print$tau.ci.subgroup
-  miss.print.I2 <- miss.print$I2
-  miss.print.Q <- miss.print$Q
-  miss.print.Rb <- miss.print$Rb
-  miss.print.pval.Q <- miss.print$pval.Q
-  miss.print.stat <- miss.print$stat
-  miss.print.tau <- miss.print$tau
-  miss.print.tau2 <- miss.print$tau2
-  #
-  # Define colours
-  #
-  col.list <- merge_legacy(col, args, col_defaults(x))
-  #
-  col <- col.list$res
-  args <- col.list$args
-  miss.col <- col.list$miss
-  null.col <- col.list$null
-  #
-  col.main <- col$main
-  col.common <- col$common
-  col.random <- col$random
-  col.label <- col$label
-  col.study <- col$study
-  col.study.text <- col$study.text
-  col.square <- col$square
-  col.square.lines <- col$square.lines
-  col.circle <- col$circle
-  col.circle.lines <- col$circle.lines
-  col.inside <- col$inside
-  col.inside.common <- col$inside.common
-  col.inside.random <- col$inside.random
-  col.diamond <- col$diamond
-  col.diamond.common <- col$diamond.common
-  col.diamond.common.subgroup <- col$diamond.common.subgroup
-  col.diamond.random <- col$diamond.random
-  col.diamond.random.subgroup <- col$diamond.random.subgroup
-  col.diamond.lines <- col$diamond.lines
-  col.diamond.lines.common <- col$diamond.lines.common
-  col.diamond.lines.common.subgroup <- col$diamond.lines.common.subgroup
-  col.diamond.lines.random <- col$diamond.lines.random
-  col.diamond.lines.random.subgroup <- col$diamond.lines.random.subgroup
-  col.predict <- col$predict
-  col.predict.subgroup <- col$predict.subgroup
-  col.predict.lines <- col$predict.lines
-  col.predict.lines.subgroup <- col$predict.lines.subgroup
-  col.subgroup <- col$subgroup
-  col.label.left <- col$label.left
-  col.label.right <- col$label.right
-  col.lines <- col$lines
-  col.header.line <- col$header.line
-  col.jama.line <- col$jama.line
-  col.cid <- col$cid
-  #
-  miss.col.common <- miss.col$common || null.col$common
-  miss.col.random <- miss.col$random || null.col$random
-  #
-  miss.col.diamond <- miss.col$diamond || null.col$diamond
-  #
-  miss.col.diamond.common <- miss.col$diamond.common || null.col$diamond.common
-  miss.col.diamond.common.subgroup <-
-    miss.col$diamond.common.subgroup || null.col$diamond.common.subgroup
-  #
-  miss.col.diamond.random <- miss.col$diamond.random || null.col$diamond.random
-  miss.col.diamond.random.subgroup <-
-    miss.col$diamond.random.subgroup || null.col$diamond.random.subgroup
-  #
-  miss.col.diamond.lines <- miss.col$diamond.lines || null.col$diamond.lines
-  #
-  miss.col.diamond.lines.common <-
-    miss.col$diamond.lines.common || null.col$diamond.lines.common
-  miss.col.diamond.lines.common.subgroup <-
-    miss.col$diamond.lines.common.subgroup ||
-    null.col$diamond.lines.common.subgroup
-  #
-  miss.col.diamond.lines.random <-
-    miss.col$diamond.lines.random || null.col$diamond.lines.random
-  miss.col.diamond.lines.random.subgroup <-
-    miss.col$diamond.lines.random.subgroup ||
-    null.col$diamond.lines.random.subgroup
-  #
-  miss.col.study <- miss.col$study || null.col$study
-  miss.col.study.text <- miss.col$study.text || null.col$study.text
-  miss.col.circle <- miss.col$circle || null.col$circle
-  miss.col.circle.lines <-
-    miss.col$circle.lines || null.col$circle.lines
-  #
-  miss.col.square <- miss.col$square || null.col$square
-  miss.col.square.lines <-
-    miss.col$square.lines || null.col$square.lines
-  #
-  miss.col.inside <- miss.col$inside || null.col$inside
-  miss.col.inside.common <-
-    miss.col$inside.common || null.col$inside.common
-  miss.col.inside.random <-
-    miss.col$inside.random || null.col$inside.random
-  miss.col.subgroup <- miss.col$subgroup || null.col$subgroup
-  miss.col.jama.line <- miss.col$jama.line || null.col$jama.line
-  #
-  miss.col.lines <- miss.col$lines || null.col$lines
-  miss.col.header.line <- miss.col$header.line || null.col$header.line
-  #
-  miss.col.predict <- miss.col$predict || null.col$predict
-  miss.col.predict.subgroup <-
-    miss.col$predict.subgroup || null.col$predict.subgroup
-  miss.col.predict.lines <-
-    miss.col$predict.lines || null.col$predict.lines
-  miss.col.predict.lines.subgroup <-
-    miss.col$predict.lines.subgroup || null.col$predict.lines.subgroup
-  #
-  miss.col.cid <- miss.col$cid || null.col$cid
-  #
-  #
-  # Define labels
-  #
-  labels.list <- merge_legacy(labels, args, label_defaults(x), "label")
-  #
-  labels <- labels.list$res
-  args <- labels.list$args
-  miss.labels <- labels.list$miss
-  null.labels <- labels.list$null
-  #
-  label.e <- labels$e
-  label.c <- labels$c
-  label.e.attach <- labels$e.attach
-  label.c.attach <- labels$c.attach
-  label.left <- labels$left
-  label.right <- labels$right
-  label.n <- labels$n
-  label.events <- labels$events
-  label.mean <- labels$mean
-  label.sd <- labels$sd
-  label.cor <- labels$cor
-  label.time <- labels$time
-  label.pval <- labels$pval
-  label.tau2 <- labels$tau2
-  label.tau <- labels$tau
-  label.I2 <- labels$I2
-  label.cluster <- labels$cluster
-  label.cycles <- labels$cycles
-  label.test.overall.common <- labels$test.overall.common
-  label.test.overall.random <- labels$test.overall.random
-  label.test.subgroup.common <- labels$test.subgroup.common
-  label.test.subgroup.random <- labels$test.subgroup.random
-  label.test.effect.subgroup.common <- labels$test.effect.subgroup.common
-  label.test.effect.subgroup.random <- labels$test.effect.subgroup.random
-  #
-  miss.label.c <- miss.labels$c
-  miss.label.e <- miss.labels$e
-  miss.label.c.attach <- miss.labels$c.attach
-  miss.label.e.attach <- miss.labels$e.attach
-  miss.label.test.effect.subgroup.common <-
-    miss.labels$test.effect.subgroup.common
-  miss.label.test.effect.subgroup.random <-
-    miss.labels$test.effect.subgroup.random
-  miss.label.test.overall.common <- miss.labels$test.overall.common
-  miss.label.test.overall.random <- miss.labels$test.overall.random
-  miss.label.test.subgroup.common <- miss.labels$test.subgroup.common
-  miss.label.test.subgroup.random <- miss.labels$test.subgroup.random
-  #
-  # calcwidth.*
-  #
-  calcwidth.list <-
-    merge_legacy(calcwidth, args,
-                 calcwidth_defaults(common, random, overall, x$subgroup),
-                 inherit = c(common = "pooled", random = "pooled"))
-  #
-  calcwidth <- calcwidth.list$res
-  args <- calcwidth.list$args
-  miss.calcwidth <- calcwidth.list$miss
-  null.calcwidth <- calcwidth.list$null
-  #
-  calcwidth.pooled <- calcwidth$pooled
-  calcwidth.common <- calcwidth$common
-  calcwidth.random <- calcwidth$random
-  calcwidth.predict <- calcwidth$predict
-  calcwidth.hetstat <- calcwidth$hetstat
-  calcwidth.tests <- calcwidth$tests
-  calcwidth.subgroup <- calcwidth$subgroup
-  calcwidth.addline <- calcwidth$addline
-  calcwidth.details <- calcwidth$details
-  #
-  # colgap
-  #
-  colgap.list <-
-    merge_legacy(colgap, args, colgap_defaults(),
-                 inherit = c(
-                   left = "colgap", right = "colgap",
-                   studlab = "colgap",
-                   forest.left = "forest", forest.right = "forest"))
-  #
-  colgaps <- colgap.list$res
-  args <- colgap.list$args
-  miss.colgap <- colgap.list$miss
-  #
-  colgap <- colgaps$colgap
-  colgap.left <- colgaps$left
-  colgap.right <- colgaps$right
-  colgap.studlab <- colgaps$studlab
-  colgap.forest <- colgaps$forest
-  colgap.forest.left <- colgaps$forest.left
-  colgap.forest.right <- colgaps$forest.right
-  colgap.rob <- colgaps$rob
-  colgap.rob.overall <- colgaps$rob.overall
-  #
-  miss.colgap.studlab <- miss.colgap$studlab
-  miss.colgap.left <- miss.colgap$left
-  miss.colgap.forest.left <- miss.colgap$forest.left
-  miss.colgap.forest.right <- miss.colgap$forest.right
-  #
-  if (miss.colgap.studlab && !miss.colgap.left)
-    colgap.studlab <- colgap.left  
-  #
-  # Justification
-  #
-  just.list <-
-    merge_legacy(just, args, just_defaults(layout),
-                 inherit = c(
-                   label.e = "just", label.c = "just",
-                   addcols.left = "addcols", addcols.right = "addcols"))
-  #
-  justs <- just.list$res
-  args <- just.list$args
-  miss.just <- just.list$miss
-  #
-  just <- justs$just
-  just.main <- justs$main
-  just.studlab <- justs$studlab
-  just.addcols <- justs$addcols
-  just.addcols.left <- justs$addcols.left
-  just.addcols.right <- justs$addcols.right
-  just.label.e <- justs$label.e
-  just.label.c <- justs$label.c
-  just.rob <- justs$rob
-  #
-  miss.just <- miss.just$just
-  #
-  # Digits
-  #
-  digits.list <-
-    merge_legacy(digits, args, digits_defaults(),
-                 inherit = c(
-                   cor = "digits", time = "digits", addcols = "digits",
-                   addcols.right = "addcols", addcols.left = "addcols"))
-  #
-  digitss <- digits.list$res
-  args <- digits.list$args
-  miss.digits <- digits.list$miss
-  #
-  digits <- digitss$digits
-  digits.se <- digitss$se
-  digits.stat <- digitss$stat
-  digits.pval <- digitss$pval
-  digits.pval.Q <- digitss$pval.Q
-  digits.Q <- digitss$Q
-  digits.tau2 <- digitss$tau2
-  digits.tau <- digitss$tau
-  digits.I2 <- digitss$I2
-  digits.weight <- digitss$weight
-  digits.mean <- digitss$mean
-  digits.sd <- digitss$sd
-  digits.cor <- digitss$cor
-  digits.time <- digitss$time
-  digits.n <- digitss$n
-  digits.event <- digitss$event
-  digits.TE <- digitss$TE
-  digits.addcols <- digitss$addcols
-  digits.addcols.right <- digitss$addcols.right
-  digits.addcols.left <- digitss$addcols.left
-  #
-  miss.digits.TE <- miss.digits$TE
-  miss.digits.addcols <- miss.digits$addcols
-  miss.digits.addcols.left <- miss.digits$addcols.left
-  miss.digits.addcols.right <- miss.digits$addcols.right
-  miss.digits.cor <- miss.digits$cor
-  miss.digits.mean <- miss.digits$mean
-  miss.digits.sd <- miss.digits$sd
-  miss.digits.stat <- miss.digits$stat
-  miss.digits.time <- miss.digits$time
-  #
-  notavail.digits.addcols.left <-
-    miss.digits.addcols & miss.digits.addcols.left
-  notavail.digits.addcols.right <-
-    miss.digits.addcols & miss.digits.addcols.right
-  #
-  # Print information on statistical tests
-  #
-  test.list <-
-    merge_legacy(test, args,
-                 test_defaults(x, common, random, overall,
-                               bmj.revman5.jama.meta9),
-                 inherit =
-                   c(overall.common = "overall",
-                     overall.random = "overall",
-                     subgroup.common = "subgroup",
-                     subgroup.random = "subgroup",
-                     effect.subgroup.common = "effect.subgroup",
-                     effect.subgroup.random = "effect.subgroup"))
-  #
-  test <- test.list$res
-  args <- test.list$args
-  miss.test <- test.list$miss
-  #
-  test.overall <- test$overall
-  test.overall.common <- test$overall.common
-  test.overall.random <- test$overall.random
-  #
-  test.subgroup <- test$subgroup
-  test.subgroup.common <- test$subgroup.common
-  test.subgroup.random <- test$subgroup.random
-  #
-  test.effect.subgroup <- test$effect.subgroup
-  test.effect.subgroup.common <- test$effect.subgroup.common
-  test.effect.subgroup.random <- test$effect.subgroup.random
-  #
-  miss.test.effect.subgroup <- miss.test$effect.subgroup
-  miss.test.effect.subgroup.common <- miss.test$effect.subgroup.common
-  miss.test.effect.subgroup.random <- miss.test$effect.subgroup.random
-  miss.test.overall.common <- miss.test$overall.common
-  miss.test.subgroup.common <- miss.test$subgroup.common
-  #
-  # type
-  #
-  type.list <-
-    merge_legacy(type, args, type_defaults(study.results),
-                 inherit =
-                   c(random = "common",
-                     subgroup.common = "subgroup",
-                     subgroup.random = "subgroup"))
-  #
-  type <- type.list$res
-  args <- type.list$args
-  miss.type <- type.list$miss
-  #
-  type.study <- type$study
-  type.common <- type$common
-  type.random <- type$random
-  type.subgroup <- type$subgroup
-  type.subgroup.common <- type$subgroup.common
-  type.subgroup.random <- type$subgroup.random
-  #
-  miss.type.common <- miss.type$common
-  miss.type.subgroup <- miss.type$subgroup
-  miss.type.subgroup.common <- miss.type$subgroup.common
-  miss.type.subgroup.random <- miss.type$subgroup.random
-  #
-  # fill
-  #
-  fill.list <-
-    merge_legacy(fill, args, fill_defaults(),
-                 inherit = c(cid.below.null = "cid", cid.above.null = "cid",
-                             lower.equi = "equi", upper.equi = "equi"))
-  #
-  fills <- fill.list$res
-  args <- fill.list$args
-  miss.fill <- fill.list$miss
-  null.fill <- fill.list$null
-  #
-  fill <- fills$fill
-  fill.equi <- fills$equi
-  fill.cid <- fills$cid
-  fill.cid.below.null <- fills$cid.below.null
-  fill.cid.above.null <- fills$cid.above.null
-  fill.lower.equi <- fills$lower.equi
-  fill.upper.equi <- fills$upper.equi
-  #
-  miss.fill.cid <- miss.fill$cid
-  miss.fill.cid.below.null <- miss.fill$cid.below.null
-  miss.fill.cid.above.null <- miss.fill$cid.above.null
-  miss.fill.lower.equi <- miss.fill$lower.equi
-  miss.fill.upper.equi <- miss.fill$upper.equi
-  #
-  avail.fill.equi <-  !miss.fill$equi & !null.fill$equi
-  #
-  # pooled
-  #
-  pooled.list <-
-    merge_legacy(pooled, args, pooled_defaults(common, random))
-  #
-  pooled <- pooled.list$res
-  args <- pooled.list$args
-  miss.pooled <- pooled.list$miss
-  #
-  pooled.totals <- pooled$totals
-  pooled.events <- pooled$events
-  pooled.times <- pooled$times
-  #
-  miss.pooled.totals <- miss.pooled$totals
-  #
-  # text
-  #
-  text.list <-
-    merge_legacy(text, args, text_defaults(x),
-                 inherit =
-                   c(common.w = "common", random.w = "random",
-                     predict.w = "predict"))
-  #
-  text <- text.list$res
-  args <- text.list$args
-  miss.text <- text.list$miss
-  #
-  text.common <- text$common
-  text.random <- text$random
-  text.w.common <- text$w.common
-  text.w.random <- text$w.random
-  text.predict <- text$predict
-  text.subgroup <- text$subgroup
-  text.common.w <- text$common.w
-  text.random.w <- text$random.w
-  text.predict.w <- text$predict.w
-  text.subgroup.nohet <- text$subgroup.nohet
-  text.addline1 <- text$addline1
-  text.addline2 <- text$addline2
-  #
-  miss.text.addline1 <- miss.text$addline1
-  miss.text.addline2 <- miss.text$addline2
-  miss.text.common <- miss.text$common
-  miss.text.common.w <- miss.text$common.w
-  miss.text.predict <- miss.text$predict
-  miss.text.random <- miss.text$random
-  #
-  # lty
-  #
-  lty.list <- merge_legacy(lty, args, lty_defaults())
-  #
-  lty <- lty.list$res
-  args <- lty.list$args
-  #
-  lty.common <- lty$common
-  lty.random <- lty$random
-  lty.cid <- lty$cid
-  #
-  # lwd
-  #
-  lwd.list <- merge_legacy(lwd, args, lwd_defaults())
-  #
-  lwds <- lwd.list$res
-  args <- lwd.list$args
-  #
-  lwd <- lwds$lwd
-  lwd.square <- lwds$square
-  lwd.diamond <- lwds$diamond
-  #
-  # Risk of Bias
-  #
-  rob.list <- merge_legacy(rob, args, rob_defaults(x))
-  #
-  robs <- rob.list$res
-  args <- rob.list$args
-  #
-  rob <- robs$rob
-  rob.text <- robs$text
-  rob.legend <- robs$legend
-  rob.only <- robs$only
-  #
-  # CID
-  #
-  cid.list <- merge_legacy(cid, args, cid_defaults(x))
-  #
-  cids <- cid.list$res
-  args <- cid.list$args
-  #
-  cid <- cids$cid
-  cid.below.null <- cids$below.null
-  cid.above.null <- cids$above.null
-  cid.pooled.only <- cids$pooled.only
-  #
-  # addrow
-  #
-  addrow.list <- merge_legacy(addrow, args, addrow_defaults())
-  #
-  addrows <- addrow.list$res
-  args <- addrow.list$args
-  #
-  addrow <- addrows$addrow
-  addrow.overall <- addrows$overall
-  addrow.subgroups <- addrows$subgroup
-  #
-  # Names of all remaining arguments in '...'
-  #
-  nam.args <- names(args)
-  
+  # Set / check common, random, overall, prediction
+  #
+  common <- deprecated(common, miss.common, args, "fixed", warn.deprecated)
+  chklogical(common)
+  chklogical(random)
+  overall <- replaceNULL(overall, common | random)
+  chklogical(overall)
+  #
+  prediction <- prediction &
+    any(!is.na(x$lower.predict) & !is.na(x$upper.predict))
+  #
+  #
+  # Define overall.hetstat, hetstat and hetstat.pooled
+  #
+  overall.hetstat <- replaceNULL(overall.hetstat, TRUE)
+  chklogical(overall.hetstat)
+  #
+  hetstat.pooled <- ""
+  #
+  if (is.character(hetstat)) {
+    hetstat <- setchar(hetstat, c("common", "random", "fixed"))
+    hetstat[hetstat == "fixed"] <- "common"
+    #
+    hetstat.pooled <- hetstat
+  }
+  else
+    chklogical(hetstat)
+  #
+  if (hetstat.pooled == "common") {
+    common <- TRUE
+    overall <- TRUE
+  }
+  if (hetstat.pooled == "random") {
+    if (length(x$TE.random) == 1) {
+      random <- TRUE
+      overall <- TRUE
+    }
+    else
+      hetstat.pooled <- ""
+  }
+  #
+  if (miss.overall.hetstat && !miss.hetstat) {
+    if (is.character(hetstat))
+      overall.hetstat <- FALSE
+    else
+      overall.hetstat <- hetstat
+  }
+  #
+  chklogical(overall.hetstat)
+  #
+  three.level <- !is.null(x$three.level) && any(x$three.level)
+  n_of_1 <- !is.null(x$cycles)
   
   #
   #
-  #
-  #
-  # (4) Define colours
-  #
-  #
-  
-  # Colour schemes for layouts:
-  # - colors[1] - vertical line for common effect or random effects model
-  # - colors[2] - diamond for meta-analysis results
-  # - colors[3] - outer lines of diamonds
-  # - colors[4] - square  colour
-  # - colors[5] - outer lines of squares
-  # - colors[6] - line color (axes, reference line, header lines)
-  # - colors[7] - prediction interval
-  # - colors[8] - outer lines of prediction intervals
-  # - colors[9] - subgroups
-  # - colors[10] - color within squares or circles
-  # - colors[11] - color of circles and outer lines of circles
-  #
-  colors <- layout_colors(layout, class(x))
-  #
-  # Set colours for overall results
-  #
-  col.common <-
-    chksetVar(col.common, miss.col.common, colors[1], func = chkcolor, n = 1)
-  #
-  col.random <-
-    chksetVar(col.random, miss.col.random, colors[1], func = chkcolor, n = 1)
-  #
-  col.diamond <-
-    chksetVar(col.diamond, miss.col.diamond, colors[2], func = chkcolor, n = 1)
-  #
-  col.diamond.common <-
-    chksetVar(col.diamond.common, miss.col.diamond.common,
-              col.diamond, func = chkcolor)
-  col.diamond.random <-
-    chksetVar(col.diamond.random, miss.col.diamond.random,
-              col.diamond, func = chkcolor)
-  col.diamond.common.subgroup <-
-    chksetVar(col.diamond.common.subgroup, miss.col.diamond.common.subgroup,
-              col.diamond.common, func = chkcolor)
-  col.diamond.random.subgroup <-
-    chksetVar(col.diamond.random.subgroup, miss.col.diamond.random.subgroup,
-              col.diamond.random, func = chkcolor)
-  #
-  col.diamond.lines <-
-    chksetVar(col.diamond.lines, miss.col.diamond.lines, colors[3],
-              func = chkcolor, n = 1)
-  #
-  col.diamond.lines.common <-
-    chksetVar(col.diamond.lines.common, miss.col.diamond.lines.common,
-              col.diamond.lines, func = chkcolor)
-  col.diamond.lines.random <-
-    chksetVar(col.diamond.lines.random, miss.col.diamond.lines.random,
-              col.diamond.lines, func = chkcolor)
-  col.diamond.lines.common.subgroup <-
-    chksetVar(col.diamond.lines.common.subgroup,
-              miss.col.diamond.lines.common.subgroup,
-              col.diamond.lines.common, func = chkcolor)
-  col.diamond.lines.random.subgroup <-
-    chksetVar(col.diamond.lines.random.subgroup,
-              miss.col.diamond.lines.random.subgroup,
-              col.diamond.lines.random, func = chkcolor)
-  #
-  # Study-specific colours
-  #
-  col.study <-
-    chksetVar(col.study, miss.col.study, colors[1], func = chkcolor, n = K.all,
-              one = TRUE)
-  col.study.text <-
-    chksetVar(col.study.text, miss.col.study.text, gs("col.study.text"),
-              func = chkcolor, n = K.all, one = TRUE)
-  #
-  col.inside <-
-    chksetVar(col.inside, miss.col.inside, colors[10], func = chkcolor,
-              n = K.all,
-              args = args, oldname = "col.i.inside.square",
-              warn = warn.deprecated)
-  #
-  col.inside.common <-
-    chksetVar(col.inside.common, miss.col.inside.common, col.inside[1],
-              func = chkcolor, n = 1)
-  #
-  col.inside.random <-
-    chksetVar(col.inside.random, miss.col.inside.random, col.inside[1],
-              func = chkcolor, n = 1)
-  #
-  if (miss.col.square) {
-    col.square <- colors[4]
-    #
-    if (length(col.square) == 1)
-      col.square <- rep(col.square, K.all)
-  }
-  else {
-    col.square <-
-      chksetVar(col.square, miss.col.square, colors[4], func = chkcolor,
-                n = K.all, one = TRUE)
-  }
-  #
-  if (miss.col.square.lines) {
-    col.square.lines <- colors[5]
-    #
-    if (length(col.square.lines) == 1)
-      col.square.lines <- rep(col.square.lines, K.all)
-  }
-  else {
-    col.square.lines <-
-      chksetVar(col.square.lines, miss.col.square.lines, colors[1],
-                func = chkcolor, n = K.all, one = TRUE)
-  }
-  #
-  if (miss.col.circle) {
-    col.circle <- colors[11]
-    #
-    if (length(col.circle) == 1)
-      col.circle <- rep(col.circle, K.all)
-  }
-  else {
-    col.circle <-
-      chksetVar(col.circle, miss.col.circle, colors[11], func = chkcolor,
-                n = K.all, one = TRUE)
-  }
-  #
-  col.circle.lines <-
-    chksetVar(col.circle.lines, miss.col.circle.lines, col.circle,
-              func = chkcolor, n = K.all, one = TRUE)
-  #
-  col.lines <-
-    chksetVar(col.lines, miss.col.lines, colors[6], func = chkcolor, n = 1)
-  #
-  col.header.line <-
-    chksetVar(col.header.line, miss.col.header.line, col.lines, func = chkcolor,
-              n = 1)
-  #
-  col.predict <-
-    chksetVar(col.predict, miss.col.predict, colors[7], func = chkcolor)
-  col.predict.subgroup <-
-    chksetVar(col.predict.subgroup, miss.col.predict.subgroup, col.predict,
-              func = chkcolor)
-  #
-  col.predict.lines <-
-    chksetVar(col.predict.lines, miss.col.predict.lines, colors[8],
-              func = chkcolor)
-  col.predict.lines.subgroup <-
-    chksetVar(col.predict.lines.subgroup, miss.col.predict.lines.subgroup,
-              col.predict.lines, func = chkcolor)
-  #
-  col.subgroup <-
-    chksetVar(col.subgroup, miss.col.subgroup, colors[9], func = chkcolor,
-              n = 1, args = args, oldname = "col.by", warn = warn.deprecated)
-  #
-  col.jama.line <-
-    chksetVar(col.jama.line, miss.col.jama.line, col.subgroup, func = chkcolor,
-              n = 1)
-  #
-  col.cid <-
-    chksetVar(col.cid, miss.col.cid, col.jama.line, func = chkcolor, n = 1,
-              args = args, oldname = "col.equi", warn = warn.deprecated)
-  #
-  col.label <- replaceNULL(col.label, "black")
-  chkcolor(col.label, length = 1)
-  col.main <- replaceNULL(col.main, "black")
-  chkcolor(col.main, length = 1)
-  #
-  col.label.left <- replaceNULL(col.label.left, "black")
-  chkcolor(col.label.left, length = 1)
-  col.label.right <- replaceNULL(col.label.right, "black")
-  chkcolor(col.label.right, length = 1)
-  #
-  main.prefix <-
-    replaceNULL(main.prefix,
-                !(is.null(x$complab) || identical(x$complab, "")) ||
-                  !(is.null(x$outclab) || identical(x$outclab, "")))
-  chklogical(main.prefix)
-
-
-  #
-  #
-  # (5) Extract data on subgroup analysis
+  # (4) Extract data on subgroup analysis
   #
   #
   
@@ -2180,6 +1430,7 @@ forest.meta <- function(x,
   #
   if (by) {
     n.by <- length(x$subgroup.levels)
+    k.w.hetstat <- replaceNULL(x$k.w.orig, x$k.w)
     #
     TE.common.w <- collapsemat(x$TE.common.w)
     statistic.common.w <- collapsemat(x$statistic.common.w)
@@ -2205,10 +1456,741 @@ forest.meta <- function(x,
     #
     lower.predict.w <- collapsemat(x$lower.predict.w)
     upper.predict.w <- collapsemat(x$upper.predict.w)
+    #
+    if (!miss.subgroup)
+      subgroup <- catch(enquo(subgroup), x)
+    #
+    chklogical(subgroup, length = c(1, n.by))
+    #
+    if (length(subgroup) == 1)
+      subgroup.logical <- rep(subgroup, n.by) &
+      (k.w.hetstat > 1 | layout == "subgroup")
+    else
+      subgroup.logical <- subgroup
+    #
+    chklogical(subgroup.logical, length = n.by)
+    #
+    if (!miss.subgroup.hetstat)
+      subgroup.hetstat <- catch(enquo(subgroup.hetstat), x)
+    #
+    if (length(subgroup.hetstat) == 1 & is.character(subgroup.hetstat))
+      subgroup.hetstat.logical <- rep(TRUE, n.by)
+    else if (length(subgroup.hetstat) == 1) {
+      chklogical(subgroup.hetstat)
+      subgroup.hetstat.logical <- subgroup.hetstat &
+        (k.w.hetstat > 1 | layout == "subgroup")
+    }
+    else {
+      chklength(subgroup.hetstat, n.by,
+                text = paste("Length of argument 'subgroup.hetstat' must be",
+                             "equal to 1 or number of subgroups."))
+      chklogical(subgroup.hetstat, length = 0)
+      subgroup.hetstat.logical <- subgroup.hetstat
+    }
+    #
+    if (!miss.common.subgroup)
+      common.subgroup <- catch(enquo(common.subgroup), x)
+    #
+    if (!miss.random.subgroup)
+      random.subgroup <- catch(enquo(random.subgroup), x)
+    #
+    if (!miss.prediction.subgroup)
+      prediction.subgroup <- catch(enquo(prediction.subgroup), x)
+    #
+    common.subgroup <- replaceNULL(common.subgroup, FALSE)
+    random.subgroup <- replaceNULL(random.subgroup, FALSE)
+    prediction.subgroup <- replaceNULL(prediction.subgroup, FALSE)
+    #
+    chklogical(common.subgroup, length = 0)
+    chklogical(random.subgroup, length = 0)
+    chklogical(prediction.subgroup, length = 0)
+    #
+    common.subgroup.logical <-
+      show_subgroup_results(common.subgroup, n.by,
+                            x$lower.common.w, x$upper.common.w)
+    #
+    random.subgroup.logical <-
+      show_subgroup_results_by_method(random.subgroup, n.by,
+                                      x$lower.random.w, x$upper.random.w,
+                                      "random.subgroup")
+    #
+    prediction.subgroup.logical <-
+      show_prediction_subgroup_results(prediction.subgroup, n.by,
+                                       x$lower.predict.w, x$upper.predict.w)
   }
-  else
+  else {
     n.by <- 0
+    #
+    warn_only_subgroup(miss.subgroup)
+    warn_only_subgroup(miss.subgroup.hetstat)
+    warn_only_subgroup(miss.common.subgroup)
+    warn_only_subgroup(miss.random.subgroup)
+    warn_only_subgroup(miss.prediction.subgroup)
+  }
+  #
+  subgroup <- x$subgroup
   
+  #
+  #
+  # (5) Process named lists
+  #
+  #
+  
+  # Font sizes
+  #
+  fs.list <- merge_legacy(fs, args, fs_defaults(fontsize))
+  #
+  fs <- fs.list$res
+  args <- fs.list$args
+  #
+  fs <- replaceNULL_list(
+    fs,
+    list(main = 1.25 * fontsize, heading = fontsize,
+         common = fontsize, study = fontsize,
+         hetstat = fontsize - 1, axis = fontsize - 1,
+         smlab = fontsize, xlab = fontsize, lr = fontsize,
+         rob = fontsize - 1, rob.symbols = fontsize - 1,
+         details = fontsize - 1))
+  #
+  fs <- replaceNULL_list(
+    fs,
+    list(random = fs[["common"]], predict = fs[["common"]],
+         common.labels = fs[["common"]], study.labels = fs[["study"]],
+         test.overall = fs[["hetstat"]], test.subgroup = fs[["hetstat"]],
+         test.effect.subgroup = fs[["hetstat"]],
+         addline = fs[["hetstat"]]))
+  #
+  fs <- replaceNULL_list(
+    fs,
+    list(random.labels = fs[["random"]], predict.labels = fs[["predict"]]))
+  #
+  chknumeric_list(fs, strict = TRUE)
+  #
+  # Font faces
+  #
+  ff.list <- merge_legacy(ff, args, ff_defaults())
+  #
+  ff <- ff.list$res
+  args <- ff.list$args
+  #
+  ff <- replaceNULL_list(
+    ff,
+    list(common = if (bmj || jama) "plain" else "bold", hetstat = "plain",
+         lr = if (jama || bmj) "bold" else "plain"))
+  #
+  ff <- replaceNULL_list(
+    ff,
+    list(random = ff[["common"]],
+         predict = ff[["common"]],
+         common.labels = ff[["common"]]))
+  #
+  ff <- replaceNULL_list(ff, list(random.labels = ff[["random"]]))
+  #
+  ff <- replaceNULL_list(ff, list(predict.labels = ff[["predict"]]))
+  #
+  ff <- replaceNULL_list(
+    ff,
+    list(test.overall = ff[["hetstat"]],
+         test.subgroup = ff[["hetstat"]],
+         test.effect.subgroup = ff[["hetstat"]],
+         addline = ff[["hetstat"]]))
+  #
+  chkfontface_list(ff)
+  #
+  # Print information
+  #
+  print.list <- merge_legacy(print, args, print_defaults(x))
+  #
+  print <- print.list$res
+  args <- print.list$args
+  #
+  miss.print <- print.list$miss
+  #
+  print["stat"] <-
+    list(deprecated(print[["stat"]], miss.print[["stat"]], args,
+                    "print.zval", warn.deprecated, name = "print.stat"))
+  #
+  print$subgroup.name <- replaceNULL(print[["subgroup.name"]],
+                                     replaceNULL(x$print.subgroup.name, TRUE))
+  #
+  if (is.null(print[["I2"]])) {
+    if (is.character(hetstat) || hetstat || overall.hetstat)
+      print$I2 <- TRUE
+    else
+      print$I2 <- FALSE
+  }
+  #
+  if (is.null(print[["tau2"]])) {
+    if (is.character(hetstat) || hetstat || overall.hetstat)
+      print$tau2 <- TRUE
+    else if (revman5.jama.meta9)
+      print$tau2 <- TRUE
+    else
+      print$tau2 <- FALSE
+  }
+  #
+  print$tau2.tau <- print[["tau2"]] || print[["tau"]]
+  #
+  if (print[["tau2"]] & print[["tau"]])
+    print$tau2 <- FALSE
+  #
+  if (print[["tau2.ci"]] & print[["tau.ci"]])
+    print$tau2.ci <- FALSE
+  #
+  if (is.null(print[["pval.Q"]])) {
+    if (is.character(hetstat) || hetstat || overall.hetstat)
+      print$pval.Q <- TRUE
+    else
+      print$pval.Q <- FALSE
+  }
+  #
+  if (bmj.revman5.jama & overall.hetstat) {
+    if (miss.print[["I2"]] && !print[["I2"]])
+      print$I2 <- TRUE
+    #
+    if (miss.print[["Q"]] && !print[["Q"]])
+      print$Q <- TRUE
+    #
+    if (miss.print[["pval.Q"]] && !print[["pval.Q"]])
+      print$pval.Q <- TRUE
+    #
+    if (!miss.print[["Rb"]] && print[["Rb"]])
+      warning("Heterogeneity statistic Rb not printed for ", layout, " layout.")
+  }
+  #
+  chklogical_list(print,
+                   NULL.ok = c("tau2.ci.subgroup", "tau.ci.subgroup"),
+                   length = list(tau2.ci.subgroup = 0, tau.ci.subgroup = 0))
+  #
+  # Define colours
+  #
+  col.list <- merge_legacy(col, args, col_defaults(x))
+  #
+  col <- col.list$res
+  args <- col.list$args
+  #
+  miss.col <- col.list$miss
+  null.col <- col.list$null
+  #
+  for (i in names(miss.col))
+    miss.col[[i]] <- miss.col[[i]] || null.col[[i]]
+  #
+  # Colour schemes for layouts:
+  # - colors[1] - vertical line for common effect or random effects model
+  # - colors[2] - diamond for meta-analysis results
+  # - colors[3] - outer lines of diamonds
+  # - colors[4] - square  colour
+  # - colors[5] - outer lines of squares
+  # - colors[6] - line color (axes, reference line, header lines)
+  # - colors[7] - prediction interval
+  # - colors[8] - outer lines of prediction intervals
+  # - colors[9] - subgroups
+  # - colors[10] - color within squares or circles
+  # - colors[11] - color of circles and outer lines of circles
+  #
+  colors <- layout_colors(layout, class(x))
+  #
+  col <- replaceNULL_list(
+    col,
+    list(label = "black", main = "black",
+         label.left = "black", label.right = "black"))
+  #
+  col <- chksetVar_list(
+    col, miss.col,
+    list(common = colors[1], random = colors[1], diamond = colors[2],
+         diamond.lines = colors[3], study = colors[1],
+         study.text = gs("col.study.text"), inside = colors[10],
+         square = colors[4], square.lines = colors[5], circle = colors[11],
+         lines = colors[6], predict = colors[7], predict.lines = colors[8],
+         subgroup = colors[9]),
+    func = chkcolor,
+    n = list(common = 1, random = 1, diamond = 1, diamond.lines = 1,
+          study = K.all, study.text = K.all, inside = K.all,
+          square = K.all, square.lines = K.all, circle = K.all,
+          lines = 1, subgroup = 1),
+    one = TRUE, args = args,
+    oldname = list(inside = "col.i.inside.square", subgroup = "col.by"),
+    warn = warn.deprecated)
+  #
+  col <- chksetVar_list(
+    col, miss.col,
+    list(diamond.common = col[["diamond"]],
+         diamond.random = col[["diamond"]],
+         diamond.lines.common = col[["diamond.lines"]],
+         diamond.lines.random = col[["diamond.lines"]],
+         inside.common = col[["inside"]][1],
+         inside.random = col[["inside"]][1],
+         circle.lines = col[["circle"]],
+         header.line = col[["lines"]],
+         predict.subgroup = col[["predict"]],
+         predict.lines.subgroup = col[["predict.lines"]],
+         jama.line = col[["subgroup"]]),
+    func = chkcolor,
+    n = list(inside.common = 1, inside.random = 1, circle.lines = K.all,
+          header.line = 1, jama.line = 1),
+    one = TRUE)
+  #
+  col <- chksetVar_list(
+    col, miss.col,
+    list(diamond.common.subgroup = col[["diamond.common"]],
+         diamond.random.subgroup = col[["diamond.random"]],
+         diamond.lines.common.subgroup = col[["diamond.lines.common"]],
+         diamond.lines.random.subgroup = col[["diamond.lines.random"]],
+         cid = col[["jama.line"]]),
+    func = chkcolor, n = list(cid = 1),
+    args = args, oldname = list(cid = "col.equi"), warn = warn.deprecated)
+  #
+  chkcolor_list(
+    col,
+    length = list(common = 1, random = 1,
+                  diamond = 1, diamond.lines = 1,
+                  study = K.all, study.text = K.all, inside = K.all,
+                  square = K.all, square.lines = K.all,
+                  circle = K.all, circle.lines = K.all,
+                  inside.common = 1, inside.random = 1, lines = 1,
+                  header.line = 1, subgroup = 1, jama.line = 1, cid = 1,
+                  label = 1, main = 1, label.left = 1, label.right = 1),
+    one = TRUE)
+  #
+  # calcwidth.*
+  #
+  calcwidth.list <-
+    merge_legacy(calcwidth, args,
+                 calcwidth_defaults(common, random, overall, x$subgroup),
+                 inherit = list(common = "pooled", random = "pooled"))
+  #
+  calcwidth <- calcwidth.list$res
+  args <- calcwidth.list$args
+  #
+  chklogical_list(calcwidth)
+  #
+  # colgap
+  #
+  colgap <- as_named_list(colgap)
+  colgap.list <-
+    merge_legacy(colgap, args, colgap_defaults(),
+                 inherit =
+                   list(left = "colgap", right = "colgap",
+                     studlab = "colgap",
+                     forest.left = "forest", forest.right = "forest"))
+  #
+  colgap <- colgap.list$res
+  args <- colgap.list$args
+  #
+  miss.colgap <- colgap.list$miss
+  #
+  if (miss.colgap[["studlab"]] && !miss.colgap[["left"]])
+    colgap$studlab <- colgap[["left"]]
+  #
+  colgap <- setunit_list(colgap)
+  #
+  # Justification of text
+  #
+  just <- as_named_list(just)
+  just.list <-
+    merge_legacy(just, args, just_defaults(layout),
+                 inherit = list(
+                   label.e = "just", label.c = "just",
+                   addcols.left = "addcols", addcols.right = "addcols"))
+  #
+  just <- just.list$res
+  args <- just.list$args
+  #
+  miss.just <- just.list$miss
+  #
+  if (miss.just[["just"]] && bmj)
+    just$just <- "center"
+  #
+  just$main <- replaceNULL(just[["main"]],
+                           if (revman5.jama.meta9) "left" else "center")
+  #
+  just <- setchar_list(just, gs("just"),
+                       length = list(main = 1, studlab = 1,
+                                  label.e = 1, label.c = 1, rob = 1))
+  #
+  # Digits
+  #
+  digits <- as_named_list(digits)
+  digits.list <-
+    merge_legacy(digits, args, digits_defaults(),
+                 inherit = list(
+                   cor = "digits", time = "digits", addcols = "digits",
+                   addcols.right = "addcols", addcols.left = "addcols"))
+  #
+  digits <- digits.list$res
+  args <- digits.list$args
+  #
+  miss.digits <- digits.list$miss
+  #
+  digits$stat <-
+    deprecated(digits[["stat"]], miss.digits[["stat"]], args, "digits.zval",
+               warn.deprecated, name = "digits.stat")
+  #
+  chknumeric_list(digits, min = list(pval = 1, pval.Q = 1),
+                  length = list(addcols = 0, addcols.right = 0, addcols.left = 0),
+                  miss = miss.digits[c("mean", "sd", "cor", "time", "TE",
+                                       "addcols", "addcols.right",
+                                       "addcols.left")])
+  #
+  notavail.digits.addcols.left <-
+    miss.digits[["addcols"]] & miss.digits[["addcols.left"]]
+  notavail.digits.addcols.right <-
+    miss.digits[["addcols"]] & miss.digits[["addcols.right"]]
+  #
+  # Print information on statistical tests
+  #
+  test.list <-
+    merge_legacy(test, args,
+                 test_defaults(x, common, random, overall,
+                               bmj.revman5.jama.meta9),
+                 inherit =
+                   list(overall.common = "overall",
+                     overall.random = "overall",
+                     subgroup.common = "subgroup",
+                     subgroup.random = "subgroup",
+                     effect.subgroup.common = "effect.subgroup",
+                     effect.subgroup.random = "effect.subgroup"))
+  #
+  test <- test.list$res
+  args <- test.list$args
+  #
+  test <- replaceNULL_list(
+    test,
+    list(overall = bmj.revman5.jama.meta9,
+         subgroup = TRUE, effect.subgroup = FALSE))
+  #
+  test <- replaceNULL_list(
+    test,
+    list(overall.common = test[["overall"]],
+         overall.random = test[["overall"]],
+         subgroup.common = test[["subgroup"]],
+         subgroup.random = test[["subgroup"]],
+         effect.subgroup.common = test[["effect.subgroup"]],
+         effect.subgroup.random = test[["effect.subgroup"]]))
+  #
+  chklogical_list(test, length = list(effect.subgroup = 0,
+                                     effect.subgroup.common = 0,
+                                     effect.subgroup.random = 0))
+  #
+  miss.test <- test.list$miss
+  #
+  if (by) {
+    if (!miss.test[["effect.subgroup"]]) {
+      if (length(test[["effect.subgroup"]]) == 1) {
+        test.effect.subgroup.logical <-
+          rep(test[["effect.subgroup"]], n.by) &
+          (k.w.hetstat > 1 | layout == "subgroup")
+      }
+      else {
+        chklength(test[["effect.subgroup"]], n.by,
+                  text = paste("Length of argument 'test.effect.subgroup'",
+                               "must be equal to 1 or number of subgroups."))
+        #
+        test.effect.subgroup.logical <- test[["effect.subgroup"]]
+      }
+    }
+    else {
+      test.effect.subgroup.logical <-
+        rep(test[["effect.subgroup"]], n.by) & subgroup.logical
+    }
+    #
+    if (miss.test[["effect.subgroup.common"]]) {
+      test.effect.subgroup.common.logical <-
+        common & test.effect.subgroup.logical
+    }
+    else {
+      if (length(test[["effect.subgroup.common"]]) == 1) {
+        test.effect.subgroup.common.logical <-
+          rep(test[["effect.subgroup.common"]], n.by) &
+          (k.w.hetstat > 1 | layout == "subgroup")
+      }
+      else {
+        chklength(test[["effect.subgroup.common"]], n.by,
+                  text = paste("Length of argument",
+                               "'test.effect.subgroup.common'",
+                               "must be equal to 1 or number of subgroups."))
+        #
+        test.effect.subgroup.common.logical <- test[["effect.subgroup.common"]]
+      }
+    }
+    #
+    if (miss.test[["effect.subgroup.random"]]) {
+      test.effect.subgroup.random.logical <-
+        random & test.effect.subgroup.logical
+    }
+    else {
+      if (length(test[["effect.subgroup.random"]]) == 1) {
+        test.effect.subgroup.random.logical <-
+          rep(test[["effect.subgroup.random"]], n.by) &
+          (k.w.hetstat > 1 | layout == "subgroup")
+      }
+      else {
+        chklength(test[["effect.subgroup.random"]], n.by,
+                  text = paste("Length of argument",
+                               "'test.effect.subgroup.random'",
+                               "must be equal to 1 or number of subgroups."))
+        test.effect.subgroup.random.logical <- test[["effect.subgroup.random"]]
+      }
+    }
+  }
+  else {
+    warn_only_subgroup(miss.test[["effect.subgroup"]])
+    warn_only_subgroup(miss.test[["effect.subgroup.common"]])
+    warn_only_subgroup(miss.test[["effect.subgroup.random"]])
+  }
+  #
+  # Only print requested results after resolving the per-group test masks.
+  #
+  test$overall.common <- test[["overall.common"]] && common && overall
+  test$overall.random <- test[["overall.random"]] && random && overall
+  #
+  test$subgroup.common <-
+    test[["subgroup.common"]] && test[["subgroup"]] && common
+  test$subgroup.random <-
+    test[["subgroup.random"]] && test[["subgroup"]] && random
+  #
+  test$effect.subgroup.common <- any(test[["effect.subgroup.common"]]) &&
+    any(test[["effect.subgroup"]]) && common
+  test$effect.subgroup.random <- any(test[["effect.subgroup.random"]]) &&
+    any(test[["effect.subgroup"]]) && random
+  #
+  if (by) {
+    common.random <-
+      any(common | test[["subgroup.common"]] |
+            test.effect.subgroup.common.logical) &
+      any(random | test[["subgroup.random"]] |
+            test.effect.subgroup.random.logical)
+  }
+  else {
+    common.random <- common & random
+    #
+    test$subgroup.common <- FALSE
+    test$subgroup.random <- FALSE
+  }
+  #
+  # Define labels after resolving which models and tests are shown
+  #
+  miss.label <- missing(label)
+  #
+  if (miss.label)
+    label <- TRUE
+  #
+  label <- deprecated(label, miss.label, args, "labels", warn.deprecated)
+  #
+  if (is.list(label))
+    label.axis <- TRUE
+  else {
+    label.axis <- label
+    label <- NULL
+  }
+  #
+  label.list <- merge_legacy(label, args, label_defaults(x))
+  #
+  label <- label.list$res
+  args <- label.list$args
+  #
+  miss.label <- label.list$miss
+  #
+  label["e"] <- list(deprecated(label[["e"]], miss.label[["e"]], args,
+                                "lab.e", warn.deprecated, name = "label.e"))
+  label["c"] <- list(deprecated(label[["c"]], miss.label[["c"]], args,
+                                "lab.c", warn.deprecated, name = "label.c"))
+  label["e.attach"] <-
+    list(deprecated(label[["e.attach"]], miss.label[["e.attach"]],
+                    args, "lab.e.attach.to.col", warn.deprecated,
+                    name = "label.e.attach"))
+  label["c.attach"] <-
+    list(deprecated(label[["c.attach"]], miss.label[["c.attach"]],
+                    args, "lab.c.attach.to.col", warn.deprecated,
+                    name = "label.c.attach"))
+  #
+  label <- replaceNULL_list(label, list(left = "", right = ""))
+  #
+  chkchar_list(label[c("right", "left", "n", "events", "mean", "sd", "cor",
+                       "time", "pval", "tau2", "tau", "I2",
+                       "cluster", "cycles")],
+                name = "label")
+  #
+  if (miss.label[["test.overall.common"]]) {
+    label$test.overall.common <-
+      paste0("Test for overall effect",
+             if (common.random) paste0(" (", gs("text.w.common"), " effect)"),
+             ": ")
+  }
+  #
+  if (miss.label[["test.overall.random"]]) {
+    label$test.overall.random <-
+      paste0("Test for overall effect",
+             if (common.random) paste0(" (", gs("text.w.random"), " effects)"),
+             ": ")
+  }
+  #
+  if (miss.label[["test.subgroup.common"]]) {
+    label$test.subgroup.common <-
+      paste0("Test for subgroup differences",
+             if (common.random) paste0(" (", gs("text.w.common"), " effect)"),
+             ": ")
+  }
+  #
+  if (miss.label[["test.subgroup.random"]]) {
+    label$test.subgroup.random <-
+      paste0("Test for subgroup differences",
+             if (common.random) paste0(" (", gs("text.w.random"), " effects)"),
+             ": ")
+  }
+  #
+  if (miss.label[["test.effect.subgroup.common"]]) {
+    label$test.effect.subgroup.common <-
+      paste0(if (bmj.revman5.jama.meta9) "Test for overall effect"
+             else "Test for effect in subgroup",
+             if (common.random) paste0(" (", gs("text.w.common"), " effect)"),
+             ": ")
+  }
+  #
+  if (miss.label[["test.effect.subgroup.random"]]) {
+    label$test.effect.subgroup.random <-
+      paste0(if (bmj.revman5.jama.meta9) "Test for overall effect"
+             else "Test for effect in subgroup",
+             if (common.random) paste0(" (", gs("text.w.random"), " effects)"),
+             ": ")
+  }
+  #
+  # Type
+  #
+  type.list <-
+    merge_legacy(type, args, type_defaults(study.results),
+                 inherit =
+                   list(random = "common",
+                     subgroup.common = "subgroup",
+                     subgroup.random = "subgroup"))
+  #
+  type <- type.list$res
+  args <- type.list$args
+  #
+  miss.type <- type.list$miss
+  #
+  type <-
+    setchar_list(type,
+                 c("square", "diamond", "predict", "circle", "squarediamond"))
+  if (bmj)
+    type$study[type[["study"]] == "square"] <- "squarediamond"
+  #
+  # fill
+  #
+  fill <- as_named_list(fill)
+  fill.list <-
+    merge_legacy(fill, args, fill_defaults(),
+                 inherit = list(cid.below.null = "cid", cid.above.null = "cid",
+                             lower.equi = "equi", upper.equi = "equi"))
+  #
+  fill <- fill.list$res
+  args <- fill.list$args
+  #
+  miss.fill <- fill.list$miss
+  null.fill <- fill.list$null
+  #
+  avail.fill.equi <- !miss.fill[["equi"]] && !null.fill[["equi"]]
+  #
+  # pooled
+  #
+  pooled.list <-
+    merge_legacy(pooled, args, pooled_defaults(common, random))
+  #
+  pooled <- pooled.list$res
+  args <- pooled.list$args
+  #
+  miss.pooled <- pooled.list$miss
+  #
+  chklogical_list(pooled)
+  #
+  # text
+  #
+  text.list <-
+    merge_legacy(text, args, text_defaults(x),
+                 inherit =
+                   list(common.w = "common", random.w = "random",
+                     predict.w = "predict"))
+  #
+  text <- text.list$res
+  args <- text.list$args
+  #
+  miss.text <- text.list$miss
+  #
+  # lty
+  #
+  lty.list <- merge_legacy(lty, args, lty_defaults())
+  #
+  lty <- lty.list$res
+  args <- lty.list$args
+  #
+  lty$cid <- deprecated(lty[["cid"]], lty.list$miss[["cid"]],
+                        args, "lty.equi", warn.deprecated, name = "lty.cid")
+  #
+  chknumeric_list(lty)
+  #
+  # Line width(s)
+  #
+  lwd <- as_named_list(lwd)
+  lwd.list <- merge_legacy(lwd, args, lwd_defaults())
+  #
+  lwd <- lwd.list$res
+  args <- lwd.list$args
+  #
+  chknumeric_list(lwd)
+  #
+  # Risk of Bias
+  #
+  if (is.data.frame(rob) || is.logical(rob))
+    rob <- list(rob = rob)
+  #
+  rob.list <- merge_legacy(rob, args, rob_defaults(x))
+  #
+  rob <- rob.list$res
+  args <- rob.list$args
+  #
+  chkchar(rob[["text"]], length = 1, name = "rob.text")
+  chklogical(rob[["legend"]], name = "rob.legend")
+  chklogical(rob[["only"]], name = "rob.only")
+  #
+  # CID
+  #
+  cid <- as_named_list(cid)
+  cid.list <- merge_legacy(cid, args, cid_defaults(x))
+  #
+  cid <- cid.list$res
+  args <- cid.list$args
+  #
+  miss.cid <- cid.list$miss
+  #
+  # addrow
+  #
+  addrow <- as_named_list(addrow)
+  if ("addrow.subgroups" %in% names(args)) {
+    if ("subgroup" %in% names(addrow) || "addrow.subgroup" %in% names(args))
+      stop("Argument 'addrow.subgroups' cannot be combined with 'addrow.subgroup' ",
+           "or element 'addrow[[\"subgroup\"]]'.", call. = FALSE)
+    args["addrow.subgroup"] <- args["addrow.subgroups"]
+    args["addrow.subgroups"] <- NULL
+  }
+  addrow.list <- merge_legacy(addrow, args, addrow_defaults())
+  #
+  addrow <- addrow.list$res
+  args <- addrow.list$args
+  #
+  addrow <- replaceNULL_list(
+    addrow,
+    list(addrow = !jama,
+         overall = !jama & overall & (common | random | prediction),
+         subgroup = !jama))
+  #
+  chklogical_list(addrow)
+  #
+  if (!(overall & (common | random | prediction)))
+    addrow$overall <- FALSE
+  #
+  # Names of all remaining arguments in '...'
+  #
+  nam.args <- names(args)
   
   #
   #
@@ -2217,15 +2199,15 @@ forest.meta <- function(x,
   #
   
   if (layout == "subgroup") {
-    if (miss.type.subgroup)
-      type.subgroup <- "square"
-    if (miss.type.subgroup.common)
-      type.subgroup.common <- "square"
-    if (miss.type.subgroup.random)
-      type.subgroup.random <- "square"
+    if (miss.type[["subgroup"]])
+      type$subgroup <- "square"
+    if (miss.type[["subgroup.common"]] && miss.type[["subgroup"]])
+      type$subgroup.common <- "square"
+    if (miss.type[["subgroup.random"]] && miss.type[["subgroup"]])
+      type$subgroup.random <- "square"
     #
-    if (miss.pooled.totals)
-      pooled.totals <- FALSE
+    if (miss.pooled[["totals"]])
+      pooled$totals <- FALSE
   }
   #
   lsel <- TRUE
@@ -2247,21 +2229,16 @@ forest.meta <- function(x,
   if (is.character(rightcols) && anyDuplicated(rightcols))
     stop("Duplicate columns in argument 'rightcols'.", call. = FALSE)
   #
-  chkchar(rob.text, length = 1)
-  chklogical(rob.legend)
+  RoB.available <- !is.null(rob[["rob"]]) && !(is.logical(rob[["rob"]]) && !rob[["rob"]])
+  RoB.legend <- RoB.available & rob[["legend"]]
   #
-  chklogical(rob.only)
-  #
-  RoB.available <- !is.null(rob) && !(is.logical(rob) && !rob)
-  RoB.legend <- RoB.available & rob.legend
-  #
-  if (!RoB.available && rob.only) {
+  if (!RoB.available && rob[["only"]]) {
     warning("Argument 'rob.only' ignored for forest plot without ",
             "risk of bias assessment.", call. = FALSE)
-    rob.only <- FALSE
+    rob[["only"]] <- FALSE
   }
   #
-  if (rob.only) {
+  if (rob[["only"]]) {
     if (avail.rightlabs)
       warning("Argument 'rightlabs' ignored as argument 'rob.only = TRUE'.",
               call. = FALSE)
@@ -2272,31 +2249,32 @@ forest.meta <- function(x,
   }
   #
   if (RoB.available) {
-    if (!inherits(rob, "rob"))
+    if (!inherits(rob[["rob"]], "rob"))
       stop("Argument 'rob' must be of class \"rob\".", call. = FALSE)
     #
     rob.labels <-
-      colnames(rob)[!(colnames(rob) %in% c("Study", "Weight"))]
+      colnames(rob[["rob"]])[!(colnames(rob[["rob"]]) %in% c("Study", "Weight"))]
     rob.labels[rob.labels == "Overall"] <- "O"
     #
-    rob.categories <- attr(rob, "categories")
-    rob.symbols <- attr(rob, "symbols")
-    rob.col <- attr(rob, "col")
+    rob.categories <- attr(rob[["rob"]], "categories")
+    rob.symbols <- attr(rob[["rob"]], "symbols")
+    rob.col <- attr(rob[["rob"]], "col")
     #
-    text.rob.legend <- c("Risk of bias legend", catleg(rob))
+    text.rob.legend <- c("Risk of bias legend", catleg(rob[["rob"]]))
     #
-    rob <- rob[, !(colnames(rob) %in% c("Study", "Weight")), drop = FALSE]
+    rob[["rob"]] <- rob[["rob"]][, !(colnames(rob[["rob"]]) %in% c("Study", "Weight")), drop = FALSE]
     #
-    colnames(rob)[colnames(rob) == "Overall"] <- "O"
-    colnames(rob) <- gsub(" ", "_", paste0("RoB.", rob.labels))
+    colnames(rob[["rob"]])[colnames(rob[["rob"]]) == "Overall"] <- "O"
+    colnames(rob[["rob"]]) <- gsub(" ", "_", paste0("RoB.", rob.labels))
     #
-    rightcols.rob <- colnames(rob)
+    rightcols.rob <- colnames(rob[["rob"]])
     #
     text.rob.legend <- text.rob.legend[text.rob.legend != ""]
   }
   else {
     rightcols.rob <- rob.labels <- rob.categories <- rob.symbols <-
-      rob.col <- text.rob.legend <- rob <- NULL
+      rob.col <- text.rob.legend <- NULL
+    rob["rob"] <- list(NULL)
   }
   #
   if (!rsel)
@@ -2369,7 +2347,7 @@ forest.meta <- function(x,
       dataset1 <- dataset2
     #
     if (!is.null(x$subset)) {
-      dataset1 <- dataset1[x$subset, ]
+      dataset1 <- dataset1[x$subset, , drop = FALSE]
     }
     #
     if (!withstudlab && newcols) {
@@ -2420,18 +2398,17 @@ forest.meta <- function(x,
     # 1. Use column name as label if no label is given
     # 2. Otherwise use specified labels
     #
-    rightcols.new <- c(rightcols, rightcols.rob)[
-      !(c(rightcols, rightcols.rob) %in% colnames.notNULL)]
+    rightcols.new <- unique(c(rightcols, rightcols.rob)[
+      !(c(rightcols, rightcols.rob) %in% colnames.notNULL)])
     leftcols.new <- leftcols[!leftcols %in% colnames.notNULL]
   }
-  
   
   #
   #
   # (7) Check other arguments
   #
   #
-    
+  
   error <-
     try(sortvar <- catch(enquo(sortvar), x),
         silent = TRUE)
@@ -2447,17 +2424,6 @@ forest.meta <- function(x,
          "have different length.")
   if (!sort)
     sortvar <- 1:K.all
-  #
-  if (!by) {
-    warn_only_subgroup(miss.subgroup)
-    warn_only_subgroup(miss.subgroup.hetstat)
-    warn_only_subgroup(miss.common.subgroup)
-    warn_only_subgroup(miss.random.subgroup)
-    warn_only_subgroup(miss.prediction.subgroup)
-    warn_only_subgroup(miss.test.effect.subgroup)
-    warn_only_subgroup(miss.test.effect.subgroup.common)
-    warn_only_subgroup(miss.test.effect.subgroup.random)
-  }
   #
   if (!miss.studlab) {
     error <-
@@ -2486,25 +2452,7 @@ forest.meta <- function(x,
     stop("Number of studies in object 'x' and argument 'studlab' have ",
          "different length.")
   #
-  # Additional arguments in '...'
-  #
-  common <- deprecated(common, miss.common, args, "fixed", warn.deprecated)
-  chklogical(common)
-  chklogical(random)
-  overall <- replaceNULL(overall, common | random)
-  chklogical(overall)
-  #
-  if (!is.null(lty.common))
-    chknumeric(lty.common, min = 0, length = 1)
-  if (!is.null(lty.random))
-    chknumeric(lty.random, min = 0, length = 1)
-  #
   chklogical(prediction)
-  #
-  chklogical(print.subgroup.labels)
-  #
-  if (!is.null(print.subgroup.name))
-    chklogical(print.subgroup.name)
   #
   if (!is.null(sep.subgroup))
     chkchar(sep.subgroup, length = 1)
@@ -2520,9 +2468,6 @@ forest.meta <- function(x,
     deprecated(device.args, missing(device.args),
                args, "args.gr", warn.deprecated)
   #
-  chklogical(pooled.totals)
-  chklogical(pooled.events)
-  chklogical(pooled.times)
   chklogical(study.results)
   chklogical(allstudies)
   #
@@ -2605,26 +2550,22 @@ forest.meta <- function(x,
   else
     chknumeric(ref, length = 1)
   #
-  avail.cid <- !missing(cid) & !is.null(cid) & !all(is.na(cid))
-  chknumeric(cid)
+  avail.cid <- !is.null(cid[["cid"]]) & !all(is.na(cid[["cid"]]))
+  chknumeric(cid[["cid"]], name = "cid")
   #
-  cid.below.null <-
-    deprecated(cid.below.null, missing(cid.below.null),
-               args, "lower.equi", warn.deprecated)
+  cid["below.null"] <-
+    list(deprecated(cid[["below.null"]], miss.cid[["below.null"]],
+                    args, "lower.equi", warn.deprecated, name = "cid.below.null"))
   #
-  cid.above.null <-
-    deprecated(cid.above.null, missing(cid.above.null),
-               args, "upper.equi", warn.deprecated)
+  cid["above.null"] <-
+    list(deprecated(cid[["above.null"]], miss.cid[["above.null"]],
+                    args, "upper.equi", warn.deprecated, name = "cid.above.null"))
   #
-  lty.cid <-
-    deprecated(lty.cid, missing(lty.cid), args, "lty.equi", warn.deprecated)
-  chknumeric(lty.cid)
-  #
-  avail.cid.below.null <- !is.null(cid.below.null) & !all(is.na(cid.below.null))
-  avail.cid.above.null <- !is.null(cid.above.null) & !all(is.na(cid.above.null))
+  avail.cid.below.null <- !is.null(cid[["below.null"]]) & !all(is.na(cid[["below.null"]]))
+  avail.cid.above.null <- !is.null(cid[["above.null"]]) & !all(is.na(cid[["above.null"]]))
   #
   if (avail.cid) {
-    if (any(is.na(cid)))
+    if (any(is.na(cid[["cid"]])))
       stop("Missing values not allows in argument 'cid'.",
            call. = FALSE)
     #
@@ -2641,46 +2582,46 @@ forest.meta <- function(x,
         "Argument 'cid.above.null' ignored as argument 'cid' is provided.",
         call. = FALSE)
     #
-    if (any(diff(cid) <= 0))
+    if (any(diff(cid[["cid"]]) <= 0))
       stop("Values for argument 'cid' must be increasing.",
            call. = FALSE)
     #
-    if (any(cid < ref) & any(cid > ref))
+    if (any(cid[["cid"]] < ref) & any(cid[["cid"]] > ref))
       stop("All values provided for argument 'cid' must be either ",
            "smaller or larger than reference value of ", ref, ".",
            call. = FALSE)
     #
-    if (all(cid < ref)) {
-      cid.below.null <- cid
+    if (all(cid[["cid"]] < ref)) {
+      cid$below.null <- cid[["cid"]]
       #
       if (log.xaxis)
-        cid.above.null <- rev(1 / cid)
+        cid$above.null <- rev(1 / cid[["cid"]])
       else
-        cid.above.null <- rev(-cid)
+        cid$above.null <- rev(-cid[["cid"]])
     }
     else {
-      cid.above.null <- cid
+      cid$above.null <- cid[["cid"]]
       #
       if (log.xaxis)
-        cid.below.null <- rev(1 / cid)
+        cid$below.null <- rev(1 / cid[["cid"]])
       else
-        cid.below.null <- rev(-cid)
+        cid$below.null <- rev(-cid[["cid"]])
     }
     #
     avail.cid.below.null <- TRUE
     avail.cid.above.null <- TRUE
   }
   #
-  chknumeric(cid.below.null)
-  chknumeric(cid.above.null)
+  chknumeric(cid[["below.null"]], name = "cid.below.null")
+  chknumeric(cid[["above.null"]], name = "cid.above.null")
   #
-  n.cid.below.null <- sum(!is.na(cid.below.null))
-  n.cid.above.null <- sum(!is.na(cid.above.null))
+  n.cid.below.null <- sum(!is.na(cid[["below.null"]]))
+  n.cid.above.null <- sum(!is.na(cid[["above.null"]]))
   #
   if (n.cid.below.null > 0) {
-    max.cid.below.null <- max(cid.below.null, na.rm = TRUE)
+    max.cid.below.null <- max(cid[["below.null"]], na.rm = TRUE)
     #
-    if (!is.na(ref) && any(cid.below.null[!is.na(cid.below.null)] > ref))
+    if (!is.na(ref) && any(cid[["below.null"]][!is.na(cid[["below.null"]])] > ref))
       stop("All values provided for argument 'cid.below.null' must be ",
            "smaller than reference value of ", ref, ".",
            call. = FALSE)
@@ -2689,9 +2630,9 @@ forest.meta <- function(x,
     max.cid.below.null <- NA
   #
   if (n.cid.above.null > 0) {
-    min.cid.above.null <- min(cid.above.null, na.rm = TRUE)
+    min.cid.above.null <- min(cid[["above.null"]], na.rm = TRUE)
     #
-    if (!is.na(ref) && any(cid.above.null[!is.na(cid.above.null)] < ref))
+    if (!is.na(ref) && any(cid[["above.null"]][!is.na(cid[["above.null"]])] < ref))
       stop("All values provided for argument 'cid.above.null' must be ",
            "larger than reference value of ", ref, ".",
            call. = FALSE)
@@ -2701,50 +2642,50 @@ forest.meta <- function(x,
   #
   if (n.cid.below.null > 0 && n.cid.above.null > 0 &&
       max.cid.below.null > min.cid.above.null)
-    stop("Value", if (length(cid.below.null) > 1) "s " else " ",
+    stop("Value", if (length(cid[["below.null"]]) > 1) "s " else " ",
          "of 'cid.below.null' must be smaller than 'cid.above.null'.",
          call. = FALSE)
   #
-  if (any(cid.below.null != sort(cid.below.null), na.rm = TRUE))
+  if (any(cid[["below.null"]] != sort(cid[["below.null"]]), na.rm = TRUE))
     stop("Values of 'cid.below.null' must be increasing.",
          call. = FALSE)
   #
-  if (any(cid.above.null != sort(cid.above.null), na.rm = TRUE))
+  if (any(cid[["above.null"]] != sort(cid[["above.null"]]), na.rm = TRUE))
     stop("Values of 'cid.above.null' must be increasing.",
          call. = FALSE)
   #
   # Define colours for CID regions
   #
   if (n.cid.below.null > 0) {
-    if (length(fill.cid.below.null) == 1 & n.cid.below.null > 1)
-      fill.cid.below.null <- rep(fill.cid.below.null, n.cid.below.null)
-    else if (all(length(fill.cid.below.null) != n.cid.below.null))
+    if (length(fill[["cid.below.null"]]) == 1 & n.cid.below.null > 1)
+      fill$cid.below.null <- rep(fill[["cid.below.null"]], n.cid.below.null)
+    else if (all(length(fill[["cid.below.null"]]) != n.cid.below.null))
       stop("Number of fill colours must be equal to the number of values ",
            "for 'cid.below.null'.",
            call. = FALSE)
   }
   #
-  fill.cid.below.null <-
-    c(fill.cid.below.null, if (avail.fill.equi) fill.equi else fill)
+  fill$cid.below.null <-
+    c(fill[["cid.below.null"]], if (avail.fill.equi) fill[["equi"]] else fill[["fill"]])
   #
   if (n.cid.above.null > 0) {
-    if (length(fill.cid.above.null) == 1 & n.cid.above.null > 1)
-      fill.cid.above.null <- rep(fill.cid.above.null, n.cid.above.null)
-    else if (all(length(fill.cid.above.null) != n.cid.above.null))
+    if (length(fill[["cid.above.null"]]) == 1 & n.cid.above.null > 1)
+      fill$cid.above.null <- rep(fill[["cid.above.null"]], n.cid.above.null)
+    else if (all(length(fill[["cid.above.null"]]) != n.cid.above.null))
       stop("Number of fill colours must be equal to the number of values ",
            "for 'cid.above.null'.",
            call. = FALSE)
   }
   #
-  fill.cid.above.null <-
-    c(if (avail.fill.equi) fill.equi else fill, fill.cid.above.null)
+  fill$cid.above.null <-
+    c(if (avail.fill.equi) fill[["equi"]] else fill[["fill"]], fill[["cid.above.null"]])
   #
   # Define colours based on equivalence limits
   #
-  if (!miss.fill.lower.equi | !miss.fill.upper.equi) {
-    if (!miss.fill.cid |
-        !miss.fill.cid.above.null |
-        !miss.fill.cid.above.null) {
+  if (!miss.fill[["lower.equi"]] | !miss.fill[["upper.equi"]]) {
+    if (!miss.fill[["cid"]] |
+        !miss.fill[["cid.below.null"]] |
+        !miss.fill[["cid.above.null"]]) {
       warning("Input for arguments 'fill.lower.equi' and 'fill.upper.equi' ",
               "ignored if argument 'fill.cid', 'fill.cid.below.null' or ",
               "'fill.cid.above.null' is provided.",
@@ -2752,61 +2693,30 @@ forest.meta <- function(x,
     }
     else {
       if (n.cid.below.null > 0) {
-        if (length(fill.lower.equi) == 1 & n.cid.below.null > 1)
-          fill.lower.equi <- rep(fill.lower.equi, n.cid.below.null)
-        else if (all(length(fill.lower.equi) != n.cid.below.null + 0:1))
+        if (length(fill[["lower.equi"]]) == 1 & n.cid.below.null > 1)
+          fill$lower.equi <- rep(fill[["lower.equi"]], n.cid.below.null)
+        else if (all(length(fill[["lower.equi"]]) != n.cid.below.null + 0:1))
           stop("Number of fill colours must be equal to the number of values ",
                "for 'cid.below.null' or +1.",
                call. = FALSE)
         #
-        fill.cid.below.null <- fill.lower.equi
+        fill$cid.below.null <- fill[["lower.equi"]]
       }
       #
       if (n.cid.above.null > 0) {
-        if (length(fill.upper.equi) == 1 & n.cid.above.null > 1)
-          fill.upper.equi <- rep(fill.upper.equi, n.cid.above.null)
-        else if (all(length(fill.upper.equi) != n.cid.above.null + 0:1))
+        if (length(fill[["upper.equi"]]) == 1 & n.cid.above.null > 1)
+          fill$upper.equi <- rep(fill[["upper.equi"]], n.cid.above.null)
+        else if (all(length(fill[["upper.equi"]]) != n.cid.above.null + 0:1))
           stop("Number of fill colours must be equal to the number of values ",
                "for 'cid.above.null' or +1.",
                call. = FALSE)
         #
-        fill.cid.above.null <- fill.upper.equi
+        fill$cid.above.null <- fill[["upper.equi"]]
       }
     }
   }
   #
-  chklogical(cid.pooled.only)
-  #
-  if (bmj) {
-    type.study <- setchar(type.study,
-                          c("square", "diamond", "predict", "circle",
-                            "squarediamond"))
-    #
-    type.study[type.study == "square"] <- "squarediamond"
-  }
-  else
-    type.study <- setchar(type.study,
-                          c("square", "diamond", "predict", "circle",
-                            "squarediamond"))
-  #
-  type.common <-
-    setchar(type.common,
-            c("square", "diamond", "predict", "circle", "squarediamond"))
-  #
-  type.random <-
-    setchar(type.random,
-            c("square", "diamond", "predict", "circle", "squarediamond"))
-  #
-  type.subgroup <-
-    setchar(type.subgroup,
-            c("square", "diamond", "predict", "circle", "squarediamond"))
-  type.subgroup.common <-
-    setchar(type.subgroup.common,
-            c("square", "diamond", "predict", "circle", "squarediamond"))
-  #
-  type.subgroup.random <-
-    setchar(type.subgroup.random,
-            c("square", "diamond", "predict", "circle", "squarediamond"))
+  chklogical(cid[["pooled.only"]], name = "cid.pooled.only")
   #
   chklogical(bottom.lr)
   #
@@ -2819,125 +2729,10 @@ forest.meta <- function(x,
   if (!is.null(at))
     chknumeric(at)
   #
-  overall.hetstat <- replaceNULL(overall.hetstat, TRUE)
-  chklogical(overall.hetstat)
-  #
-  if (is.null(print.I2)) {
-    if (is.character(hetstat) || hetstat || overall.hetstat)
-      print.I2 <- TRUE
-    else
-      print.I2 <- FALSE
-  }
-  else
-    chklogical(print.I2)
-  #
-  chklogical(print.I2.ci)
-  #
-  if (is.null(print.tau2)) {
-    if (is.character(hetstat) || hetstat || overall.hetstat)
-      print.tau2 <- TRUE
-    else if (revman5.jama.meta9)
-      print.tau2 <- TRUE
-    else
-      print.tau2 <- FALSE
-  }
-  else
-    chklogical(print.tau2)
-  #
-  chklogical(print.tau2.ci)
-  #
-  chklogical(print.tau)
-  #
-  chklogical(print.tau.ci)
-  print.tau2.tau <- print.tau2 | print.tau
-  if (print.tau2 & print.tau)
-    print.tau2 <- FALSE
-  if (print.tau2.ci & print.tau.ci)
-    print.tau2.ci <- FALSE
-  #
-  chklogical(print.Q)
-  #
-  if (is.null(print.pval.Q)) {
-    if (is.character(hetstat) || hetstat || overall.hetstat)
-      print.pval.Q <- TRUE
-    else
-      print.pval.Q <- FALSE
-  }
-  else
-    chklogical(print.pval.Q)
-  #
-  chklogical(print.Rb)
-  chklogical(print.Rb.ci)
-  #
-  chkchar(label.n, length = 1)
-  chkchar(label.events, length = 1)
-  chkchar(label.mean, length = 1)
-  chkchar(label.sd, length = 1)
-  chkchar(label.cor, length = 1)
-  chkchar(label.time, length = 1)
-  chkchar(label.pval, length = 1)
-  chkchar(label.tau2, length = 1)
-  chkchar(label.tau, length = 1)
-  chkchar(label.I2, length = 1)
-  chkchar(label.cluster, length = 1)
-  chkchar(label.cycles, length = 1)
-  #
-  if (bmj.revman5.jama & overall.hetstat) {
-    if (miss.print.I2 && !print.I2)
-      print.I2 <- TRUE
-    #
-    if (miss.print.Q && !print.Q)
-      print.Q <- TRUE
-    #
-    if (miss.print.pval.Q && !print.pval.Q)
-      print.pval.Q <- TRUE
-    #
-    if (!miss.print.Rb && print.Rb)
-      warning("Heterogeneity statistic Rb not printed for ", layout, " layout.")
-  }
-  #
-  if (!is.logical(text.subgroup.nohet))
-    chkchar(text.subgroup.nohet)
-  else if (text.subgroup.nohet)
-    text.subgroup.nohet <- "not applicable"
-  #
-  hetstat.pooled <- ""
-  if (is.character(hetstat)) {
-    hetstat <- setchar(hetstat, c("common", "random", "study", "fixed"))
-    hetstat[hetstat == "fixed"] <- "common"
-    hetstat.pooled <- hetstat
-    if (!metabind & hetstat.pooled == "study") {
-      warning("Argument 'hetstat = \"study\"' ",
-              "only considered for 'metabind' objects.")
-      hetstat <- print.I2 | print.tau2.tau | print.Q | print.pval.Q | print.Rb
-    }
-  }
-  else
-    chklogical(hetstat)
-  #
-  if (hetstat.pooled == "common") {
-    common <- TRUE
-    overall <- TRUE
-  }
-  if (hetstat.pooled == "random") {
-    if (length(x$TE.random) == 1) {
-      random <- TRUE
-      overall <- TRUE
-    }
-    else
-      hetstat.pooled <- ""
-  }
-  #
-  if (miss.overall.hetstat) {
-    if (!miss.hetstat) {
-      if (is.character(hetstat))
-        overall.hetstat <- FALSE
-      else
-        overall.hetstat <- hetstat
-    }
-  }
-  else
-    chklogical(overall.hetstat)
+  if (!is.logical(text[["subgroup.nohet"]]))
+    chkchar(text[["subgroup.nohet"]])
+  else if (text[["subgroup.nohet"]])
+    text$subgroup.nohet <- "not applicable"
   #
   chklogical(LRT)
   if (LRT & all(x$method != "GLMM")) {
@@ -2957,18 +2752,6 @@ forest.meta <- function(x,
       resid.hetstat <- FALSE
   }
   chkchar(resid.hetlab)
-  #
-  test.overall <- replaceNULL(test.overall, bmj.revman5.jama.meta9)
-  #
-  chklogical(test.overall.common)
-  chklogical(test.overall.random)
-  #
-  test.subgroup <- replaceNULL(test.subgroup, TRUE)
-  chklogical(test.subgroup)
-  chklogical(test.subgroup.common)
-  chklogical(test.subgroup.random)
-  #
-  chklogical(print.Q.subgroup)
   #
   if (miss.header.line) {
     if (is.character(gs("header.line")))
@@ -3011,97 +2794,12 @@ forest.meta <- function(x,
   else
     monospaced <- FALSE
   #
-  # Check font sizes
-  #
-  chknumeric_strict(fs.main, min = 0, length = 1)
-  chknumeric_strict(fs.heading, min = 0, length = 1)
-  #
-  chknumeric_strict(fs.common, min = 0, length = 1)
-  chknumeric_strict(fs.random, min = 0, length = 1)
-  chknumeric_strict(fs.predict, min = 0, length = 1)
-  chknumeric_strict(fs.common.labels, min = 0, length = 1)
-  chknumeric_strict(fs.random.labels, min = 0, length = 1)
-  chknumeric_strict(fs.predict.labels, min = 0, length = 1)
-  #
-  chknumeric_strict(fs.study, min = 0, length = 1)
-  chknumeric_strict(fs.study.labels, min = 0, length = 1)
-  #
-  chknumeric_strict(fs.hetstat, min = 0, length = 1)
-  chknumeric_strict(fs.test.overall, min = 0, length = 1)
-  chknumeric_strict(fs.test.subgroup, min = 0, length = 1)
-  chknumeric_strict(fs.test.effect.subgroup, min = 0, length = 1)
-  chknumeric_strict(fs.addline, min = 0, length = 1)
-  #
-  chknumeric_strict(fs.axis, min = 0, length = 1)
-  chknumeric_strict(fs.smlab, min = 0, length = 1)
-  chknumeric_strict(fs.xlab, min = 0, length = 1)
-  chknumeric_strict(fs.lr, min = 0, length = 1)
-  #
-  chknumeric_strict(fs.rob, min = 0, length = 1)
-  chknumeric_strict(fs.rob.symbols, min = 0, length = 1)
-  #
-  chknumeric_strict(fs.details, min = 0, length = 1)
-  #
-  # Check font faces
-  #
-  chkfontface(ff.main)
-  chkfontface(ff.heading)
-  chkfontface(ff.common)
-  chkfontface(ff.random)
-  chkfontface(ff.predict)
-  chkfontface(ff.common.labels)
-  chkfontface(ff.random.labels)
-  chkfontface(ff.predict.labels)
-  chkfontface(ff.study)
-  chkfontface(ff.study.labels)
-  chkfontface(ff.hetstat)
-  chkfontface(ff.test.overall)
-  chkfontface(ff.test.subgroup)
-  chkfontface(ff.test.effect.subgroup)
-  chkfontface(ff.addline)
-  chkfontface(ff.axis)
-  chkfontface(ff.smlab)
-  chkfontface(ff.xlab)
-  chkfontface(ff.lr)
-  chkfontface(ff.rob)
-  chkfontface(ff.rob.symbols)
-  chkfontface(ff.details)
-  #
   chknumeric(squaresize, length = 1)
-  chknumeric(lwd, length = 1)
-  chknumeric(lwd.square, length = 1)
-  chknumeric(lwd.diamond, length = 1)
   #
   arrow.type <- setchar(arrow.type, c("open", "closed"))
   chknumeric(arrow.length, min = 0, zero = FALSE)
   #
-  chklogical(calcwidth.pooled)
-  chklogical(calcwidth.common)
-  chklogical(calcwidth.random)
-  chklogical(calcwidth.predict)
-  chklogical(calcwidth.hetstat)
-  chklogical(calcwidth.tests)
-  chklogical(calcwidth.subgroup)
-  chklogical(calcwidth.addline)
-  chklogical(calcwidth.details)
-  #
-  if (miss.just && bmj)
-    just <- "center"
-  #
-  just <- setchar(just, gs("just"))
-  just.cols <- just
-  just.main <-
-    replaceNULL(just.main, if (revman5.jama.meta9) "left" else "center")
-  just.main <- setchar(just.main, gs("just"), length = 1)
-  just.studlab <- setchar(just.studlab, gs("just"), length = 1)
-  just.addcols <- setchar(just.addcols, gs("just"))
-  just.addcols.left <- setchar(just.addcols.left, gs("just"))
-  just.addcols.right <- setchar(just.addcols.right, gs("just"))
-  just.label.e <- setchar(just.label.e, gs("just"), length = 1)
-  just.label.c <- setchar(just.label.c, gs("just"), length = 1)
-  just.rob <- setchar(just.rob, gs("just"), length = 1)
-  #
-  xpos.main <- replaceNULL(xpos.main, set_xpos(just.main))
+  xpos.main <- replaceNULL(xpos.main, set_xpos(just[["main"]]))
   chknumeric(xpos.main, min = 0, max = 1, length = 1)
   #
   if (!is.null(bmj.text))
@@ -3110,65 +2808,22 @@ forest.meta <- function(x,
   #
   chknumeric(spacing, length = 1)
   #
-  if (!miss.text.addline1) {
-    chkchar(text.addline1)
-    if (text.addline1 == "")
-      miss.text.addline1 <- TRUE
+  if (!miss.text[["addline1"]]) {
+    chkchar(text[["addline1"]])
+    if (text[["addline1"]] == "")
+      miss.text$addline1 <- TRUE
   }
   else
-    text.addline1 <- ""
+    text$addline1 <- ""
   #
-  if (!miss.text.addline2) {
-    chkchar(text.addline2)
-    if (text.addline2 == "")
-      miss.text.addline2 <- TRUE
+  if (!miss.text[["addline2"]]) {
+    chkchar(text[["addline2"]])
+    if (text[["addline2"]] == "")
+      miss.text$addline2 <- TRUE
   }
   else
-    text.addline2 <- ""
+    text$addline2 <- ""
   #
-  # Check and set additional empty rows in forest plot
-  #
-  if (!is.null(addrow))
-    chklogical(addrow)
-  else
-    addrow <- !jama
-  if (!is.null(addrow.overall)) {
-    chklogical(addrow.overall)
-    if (!(overall & (common | random | prediction)))
-      addrow.overall <- FALSE
-  }
-  else
-    addrow.overall <- !jama & overall & (common | random | prediction)
-  if (!is.null(addrow.subgroups))
-    chklogical(addrow.subgroups)
-  else
-    addrow.subgroups <- !jama
-  #
-  chknumeric(digits, min = 0, length = 1)
-  chknumeric(digits.tau2, min = 0, length = 1)
-  chknumeric(digits.pval, min = 1, length = 1)
-  chknumeric(digits.pval.Q, min = 1, length = 1)
-  chknumeric(digits.Q, min = 0, length = 1)
-  chknumeric(digits.I2, min = 0, length = 1)
-  chknumeric(digits.se, min = 0, length = 1)
-  if (!miss.digits.mean)
-    chknumeric(digits.mean, min = 0, length = 1)
-  if (!miss.digits.sd)
-    chknumeric(digits.sd, min = 0, length = 1)
-  if (!miss.digits.cor)
-    chknumeric(digits.cor, min = 0, length = 1)
-  if (!miss.digits.time)
-    chknumeric(digits.time, min = 0, length = 1)
-  chknumeric(digits.n, min = 0, length = 1)
-  chknumeric(digits.event, min = 0, length = 1)
-  if (!miss.digits.TE)
-    chknumeric(digits.TE, min = 0, length = 1)
-  if (!miss.digits.addcols)
-    chknumeric(digits.addcols, min = 0)
-  if (!miss.digits.addcols.right)
-    chknumeric(digits.addcols.right, min = 0)
-  if (!miss.digits.addcols.left)
-    chknumeric(digits.addcols.left, min = 0)
   chklogical(scientific.pval)
   chklogical(zero.pval)
   chklogical(JAMA.pval)
@@ -3183,35 +2838,9 @@ forest.meta <- function(x,
   weight.study <- setchar(weight.study, c("same", "common", "random", "fixed"))
   weight.study[weight.study == "fixed"] <- "common"
   #
-  digits.stat <-
-    deprecated(digits.stat, miss.digits.stat, args, "digits.zval",
-               warn.deprecated)
-  chknumeric(digits.stat, min = 0, length = 1)
-  #
-  print.stat <-
-    deprecated(print.stat, miss.print.stat, args, "print.zval",
-               warn.deprecated)
-  chklogical(print.stat)
-  #
-  label <- deprecated(label, miss.label, args, "labels",
-                      warn.deprecated)
-  #
-  label.e <- deprecated(label.e, miss.label.e, args, "lab.e",
-                        warn.deprecated)
-  label.c <- deprecated(label.c, miss.label.c, args, "lab.c",
-                        warn.deprecated)
-  #
-  label.e.attach <- deprecated(label.e.attach, miss.label.e.attach,
-                               args, "lab.e.attach.to.col",
-                               warn.deprecated)
-  label.c.attach <- deprecated(label.c.attach, miss.label.c.attach,
-                               args, "lab.c.attach.to.col",
-                               warn.deprecated)
-  #
   # Additional assignments
   #
   hetseparator <- " = "
-  
   
   #
   #
@@ -3219,250 +2848,39 @@ forest.meta <- function(x,
   #
   #
   
-  n.com <- max(length(x$TE.common), 1)
-  n.ran <- max(length(x$lower.random), 1)
-  n.prd <- max(length(x$lower.predict), 1)
-  prediction <- prediction &
-    any(!is.na(x$lower.predict) & !is.na(x$upper.predict))
-  #
-  if (metabind || !overall)
+  if (!overall)
     n.pooled <- 0L
   else
     n.pooled <- n.com * common + n.ran * random + n.prd * prediction
   #
   if (by) {
-    if (!miss.subgroup & !metabind)
-      subgroup <- catch(enquo(subgroup), x)
-    #
-    if (length(subgroup) == 1)
-      subgroup.logical <- rep(subgroup, n.by) &
-        (x$k.w > 1 | layout == "subgroup")
-    else {
-      chklength(subgroup, n.by,
-                text = paste("Length of argument 'subgroup' must be",
-                             "equal to 1 or number of subgroups."))
-      subgroup.logical <- subgroup
-    }
-    chklogical(subgroup[1])
-    #
-    if (!miss.subgroup.hetstat & !metabind)
-      subgroup.hetstat <- catch(enquo(subgroup.hetstat), x)
-    #
-    if (length(subgroup.hetstat) == 1 & is.character(subgroup.hetstat))
-      subgroup.hetstat.logical <- rep(TRUE, n.by)
-    else if (length(subgroup.hetstat) == 1) {
-      chklogical(subgroup.hetstat)
-      subgroup.hetstat.logical <- subgroup.hetstat &
-        (x$k.w > 1 | layout == "subgroup")
-    }
-    else {
-      chklength(subgroup.hetstat, n.by,
-                text = paste("Length of argument 'subgroup.hetstat' must be",
-                             "equal to 1 or number of subgroups."))
-      chklogical(subgroup.hetstat[1])
-      subgroup.hetstat.logical <- subgroup.hetstat
-    }
-    #
-    if (!miss.common.subgroup)
-      common.subgroup <- catch(enquo(common.subgroup), x)
-    #
-    if (!miss.random.subgroup)
-      random.subgroup <- catch(enquo(random.subgroup), x)
-    #
-    if (!miss.prediction.subgroup & !metabind)
-      prediction.subgroup <- catch(enquo(prediction.subgroup), x)
-    #
-    if (!miss.print.tau2.ci.subgroup & !metabind)
-      print.tau2.ci.subgroup <- catch(enquo(print.tau2.ci.subgroup), x)
-    #
-    if (!miss.print.tau.ci.subgroup & !metabind)
-      print.tau.ci.subgroup <- catch(enquo(print.tau.ci.subgroup), x)
-    #
-    common.subgroup <- replaceNULL(common.subgroup, FALSE)
-    random.subgroup <- replaceNULL(random.subgroup, FALSE)
-    prediction.subgroup <- replaceNULL(prediction.subgroup, FALSE)
-    #
     miss.null.print.tau2.ci.subgroup <-
-      miss.print.tau2.ci.subgroup & is.null(print.tau2.ci.subgroup)
-    print.tau2.ci.subgroup <- replaceNULL(print.tau2.ci.subgroup, FALSE)
+      miss.print[["tau2.ci.subgroup"]] & is.null(print[["tau2.ci.subgroup"]])
+    #
+    print$tau2.ci.subgroup <- replaceNULL(print[["tau2.ci.subgroup"]], FALSE)
     #
     miss.null.print.tau.ci.subgroup <-
-      miss.print.tau.ci.subgroup & is.null(print.tau.ci.subgroup)
-    print.tau.ci.subgroup <- replaceNULL(print.tau.ci.subgroup, FALSE)
+      miss.print[["tau.ci.subgroup"]] & is.null(print[["tau.ci.subgroup"]])
     #
-    # if (length(prediction.subgroup) == 1) {
-    #   if (is.matrix(x$lower.predict.w))
-    #     prediction.subgroup.logical <-
-    #       prediction.subgroup &
-    #       apply(x$lower.predict.w, 1, notallNA) &
-    #       apply(x$upper.predict.w, 1, notallNA)
-    #   else {
-    #     prediction.subgroup.logical <-
-    #       prediction.subgroup &
-    #       notallNA(x$lower.predict.w) &
-    #       notallNA(x$upper.predict.w)
-    #     prediction.subgroup.logical <-
-    #       rep(prediction.subgroup.logical, n.by)
-    #   }
-    # }
-    # else {
-    #   chklength(prediction.subgroup, n.by,
-    #             text = paste("Length of argument 'prediction.subgroup' must be",
-    #                          "equal to 1 or number of subgroups."))
-    #   prediction.subgroup.logical <-
-    #     prediction.subgroup
-    # }
-    #
-    common.subgroup.logical <-
-      show_subgroup_results(common.subgroup, n.by,
-                            x$lower.common.w, x$upper.common.w)
-    #
-    random.subgroup.logical <-
-      show_subgroup_results_by_method(random.subgroup, n.by,
-                                      x$lower.random.w, x$upper.random.w,
-                                      "random.subgroup")
-    #
-    prediction.subgroup.logical <-
-      show_prediction_subgroup_results(prediction.subgroup, n.by,
-                                       x$lower.predict.w, x$upper.predict.w)
+    print$tau.ci.subgroup <- replaceNULL(print[["tau.ci.subgroup"]], FALSE)
     #
     print.tau2.ci.subgroup.logical <-
-      show_subgroup_results(print.tau2.ci.subgroup, n.by,
+      show_subgroup_results(print[["tau2.ci.subgroup"]], n.by,
                             x$lower.tau2.w, x$upper.tau2.w)
     #
     print.tau.ci.subgroup.logical <-
-      show_subgroup_results(print.tau.ci.subgroup, n.by,
+      show_subgroup_results(print[["tau.ci.subgroup"]], n.by,
                             x$lower.tau.w, x$upper.tau.w)
     #
-    chklogical(common.subgroup[1])
-    chklogical(random.subgroup[1])
-    chklogical(prediction.subgroup[1])
-    chklogical(print.tau2.ci.subgroup[1])
-    chklogical(print.tau.ci.subgroup[1])
-    #
-    if (!miss.test.effect.subgroup) {
-      test.effect.subgroup <-
-        catch(enquo(test.effect.subgroup), x)
-      test.effect.subgroup <- replaceNULL(test.effect.subgroup, FALSE)
-      #
-      if (length(test.effect.subgroup) == 1) {
-        chklogical(test.effect.subgroup)
-        #
-        test.effect.subgroup.logical <-
-          rep(test.effect.subgroup, n.by) &
-          (x$k.w > 1 | layout == "subgroup")
-      }
-      else {
-        chklength(test.effect.subgroup, n.by,
-                  text = paste("Length of argument 'test.effect.subgroup'",
-                               "must be equal to 1 or number of subgroups."))
-        chklogical(test.effect.subgroup[1])
-        test.effect.subgroup.logical <- test.effect.subgroup
-      }
-    }
-    else
-      test.effect.subgroup.logical <-
-      rep(test.effect.subgroup, n.by) & subgroup.logical
-    #
-    if (miss.test.effect.subgroup.common)
-      test.effect.subgroup.common.logical <-
-      common & test.effect.subgroup.logical
-    else {
-      test.effect.subgroup.common <-
-        catch(enquo(test.effect.subgroup.common), x)
-      test.effect.subgroup.common <-
-        replaceNULL(test.effect.subgroup.common, FALSE)
-      #
-      if (length(test.effect.subgroup.common) == 1) {
-        chklogical(test.effect.subgroup.common)
-        #
-        test.effect.subgroup.common.logical <-
-          rep(test.effect.subgroup.common, n.by) &
-          (x$k.w > 1 | layout == "subgroup")
-      }
-      else {
-        chklength(test.effect.subgroup.common, n.by,
-                  text = paste("Length of argument",
-                               "'test.effect.subgroup.common'",
-                               "must be equal to 1 or number of subgroups."))
-        chklogical(test.effect.subgroup.common[1])
-        test.effect.subgroup.common.logical <- test.effect.subgroup.common
-      }
-    }
-    #
-    if (miss.test.effect.subgroup.random)
-      test.effect.subgroup.random.logical <-
-      random & test.effect.subgroup.logical
-    else {
-      test.effect.subgroup.random <-
-        catch(enquo(test.effect.subgroup.random), x)
-      test.effect.subgroup.random <-
-        replaceNULL(test.effect.subgroup.random, FALSE)
-      #
-      if (length(test.effect.subgroup.random) == 1) {
-        chklogical(test.effect.subgroup.random)
-        #
-        test.effect.subgroup.random.logical <-
-          rep(test.effect.subgroup.random, n.by) &
-          (x$k.w > 1 | layout == "subgroup")
-      }
-      else {
-        chklength(test.effect.subgroup.random, n.by,
-                  text = paste("Length of argument",
-                               "'test.effect.subgroup.random'",
-                               "must be equal to 1 or number of subgroups."))
-        chklogical(test.effect.subgroup.random[1])
-        test.effect.subgroup.random.logical <- test.effect.subgroup.random
-      }
-    }
+    chklogical(print[["tau2.ci.subgroup"]], length = 0)
+    chklogical(print[["tau.ci.subgroup"]], length = 0)
   }
   #
   level <- x$level
   level.ma <- x$level.ma
   level.predict <- x$level.predict
   #
-  if (is.null(label.right))
-    label.right <- ""
-  else
-    chkchar(label.right, length = 1)
-  #
-  if (is.null(label.left))
-    label.left <- ""
-  else
-    chkchar(label.left, length = 1)
-  #
-  # Only print requested results
-  #
-  test.overall.common <- test.overall.common && common && overall
-  test.overall.random <- test.overall.random && random && overall
-  #
-  test.subgroup.common <- test.subgroup.common && test.subgroup && common
-  test.subgroup.random <- test.subgroup.random && test.subgroup && random
-  #
-  test.effect.subgroup.common <- test.effect.subgroup.common &&
-    test.effect.subgroup && common
-  test.effect.subgroup.random <-test.effect.subgroup.random &&
-    test.effect.subgroup && random
-  #
-  pooled.totals <- pooled.totals && (common || random)
-  #
-  # Additional settings
-  #
-  subgroup <- x$subgroup
-  #
-  three.level <- !is.null(x$three.level) && any(x$three.level)
-  n_of_1 <- !is.null(x$cycles)
-  #
-  if (!by) {
-    common.random <- common & random
-    #
-    test.subgroup.common <- FALSE
-    test.subgroup.random <- FALSE
-  }
-  else
-    common.random <-
-    any(common | test.subgroup.common | test.effect.subgroup.common.logical) &
-    any(random | test.subgroup.random | test.effect.subgroup.random.logical)
+  pooled$totals <- pooled[["totals"]] && (common || random)
   #
   if (layout == "subgroup") {
     if (!miss.study.results & study.results)
@@ -3471,86 +2889,86 @@ forest.meta <- function(x,
     study.results <- FALSE
   }
   #
-  if (miss.text.common || is.null(text.common)) {
-    if (is.null(text.common) || length(text.common) == 1) {
+  if (miss.text[["common"]] || is.null(text[["common"]])) {
+    if (is.null(text[["common"]]) || length(text[["common"]]) == 1) {
       if (study.results & (level != level.ma | bmj.revman5)) {
         if (revman5.jama)
-          text.common <- paste0("Total (",
+          text$common <- paste0("Total (",
                                 if (common.random)
                                   paste0(gs("text.w.common"), " effect, "),
                                 round(level.ma * 100), "% CI)")
         else if (bmj)
-          text.common <- paste0("Total (",
+          text$common <- paste0("Total (",
                                 round(level.ma * 100), "% CI)",
                                 if (common.random)
                                   paste0(", ", gs("text.w.common"))
           )
-        else if (!is.null(text.common))
-          text.common <- paste0(text.common, " (",
+        else if (!is.null(text[["common"]]))
+          text$common <- paste0(text[["common"]], " (",
                                 round(level.ma * 100), "% CI)")
         else
-          text.common <- paste0(gs("text.common"), " (",
+          text$common <- paste0(gs("text.common"), " (",
                                 round(level.ma * 100), "% CI)")
       }
       else {
         if (bmj.revman5.jama) {
-          text.common <- "Total"
+          text$common <- "Total"
           if (common.random)
-            text.common <- paste0(text.common, " (", gs("text.w.common"),
+            text$common <- paste0(text[["common"]], " (", gs("text.w.common"),
                                   " effect)")
         }
-        else if (is.null(text.common))
-          text.common <- gs("text.common")
+        else if (is.null(text[["common"]]))
+          text$common <- gs("text.common")
       }
     }
   }
   #
-  if (miss.text.random || is.null(text.random)) {
-    if (is.null(text.random) || length(text.random) == 1) {
+  if (miss.text[["random"]] || is.null(text[["random"]])) {
+    if (is.null(text[["random"]]) || length(text[["random"]]) == 1) {
       if (study.results & (level != level.ma | bmj.revman5)) {
         if (bmj.revman5.jama) {
           if (revman5.jama) {
-            text.random <- paste0("Total (",
+            text$random <- paste0("Total (",
                                   if (common.random)
                                     paste0(gs("text.w.random"), " effect, "))
             #
             if (length(x$lower.random) > 1) {
               meth.r <- gsub("classic", "", x$method.random.ci)
-              text.random <-
-                paste0(text.random, meth.r,
+              text$random <-
+                paste0(text[["random"]], meth.r,
                        ifelse(meth.r == "HK" & x$adhoc.hakn.ci != "",
                               paste0("-",
                                      toupper(substring(x$adhoc.hakn.ci, 1, 2))),
                               ""),
                        ifelse(meth.r != "", ", ", ""))
             }
-            text.random <- paste0(text.random,
+            text$random <- paste0(text[["random"]],
                                   round(level.ma * 100), "% CI)")
           }
           else if (bmj)
-            text.random <- paste0("Total (",
+            text$random <- paste0("Total (",
                                   round(level.ma * 100), "% CI)",
                                   if (common.random)
                                     paste0(", ", gs("text.w.random"))
             )
         }
-        else if (!is.null(text.random))
-          text.random <- paste0(text.random, " (",
+        else if (!is.null(text[["random"]]))
+          text$random <- paste0(text[["random"]], " (",
                                 round(level.ma * 100), "% CI)")
         else
-          text.random <- paste0(gs("text.random"), " (",
+          text$random <- paste0(gs("text.random"), " (",
                                 round(level.ma * 100), "% CI)")
       }
       else {
         if (bmj.revman5.jama) {
-          text.random <- "Total"
+          text$random <- "Total"
           if (common.random || length(x$lower.random) > 1) {
-            text.random <- paste0(text.random, " (", gs("text.w.random"),
+            text$random <- paste0(text[["random"]], " (", gs("text.w.random"),
                                   " effect")
             if (length(x$lower.random) > 1) {
               meth.r <- gsub("classic", "", x$method.random.ci)
-              text.random <-
-                paste0(text.random,
+              text$random <-
+                paste0(text[["random"]],
                        ifelse(meth.r != "", ", ", ""),
                        meth.r,
                        ifelse(meth.r == "HK" & x$adhoc.hakn.ci != "",
@@ -3558,15 +2976,15 @@ forest.meta <- function(x,
                                      toupper(substring(x$adhoc.hakn.ci, 1, 2))),
                               ""))
             }
-            text.random <- paste0(text.random, ")")
+            text$random <- paste0(text[["random"]], ")")
           }
         }
-        else if (is.null(text.random)) {
-          text.random <- gs("text.random")
+        else if (is.null(text[["random"]])) {
+          text$random <- gs("text.random")
           if (length(x$lower.random) > 1) {
             meth.r <- gsub("classic", "", x$method.random.ci)
-            text.random <-
-              paste0(text.random,
+            text$random <-
+              paste0(text[["random"]],
                      ifelse(meth.r != "", "(", ""),
                      meth.r,
                      ifelse(meth.r == "HK" & x$adhoc.hakn.ci != "",
@@ -3580,31 +2998,31 @@ forest.meta <- function(x,
     }
   }
   #
-  if (length(text.random) == 1 & n.ran > 1)
-    text.random <- rep(text.random, n.ran)
+  if (length(text[["random"]]) == 1 & n.ran > 1)
+    text$random <- rep(text[["random"]], n.ran)
   #
-  if (miss.text.predict || is.null(text.predict)) {
-    if (is.null(text.predict))
-      text.predict <- rep("Prediction interval", n.prd)
+  if (miss.text[["predict"]] || is.null(text[["predict"]])) {
+    if (is.null(text[["predict"]]))
+      text$predict <- rep("Prediction interval", n.prd)
     if (!(length(level.predict) == 0) &&
         (study.results & (level != level.predict |
                           level.ma != level.predict)))
-      text.predict <- paste0(text.predict, " (",
+      text$predict <- paste0(text[["predict"]], " (",
                              round(level.predict * 100), "% PI)")
   }
   #
   if (is.null(x$null.effect) || is.na(x$null.effect)) {
-    test.overall.common <- FALSE
-    test.overall.random <- FALSE
+    test$overall.common <- FALSE
+    test$overall.random <- FALSE
   }
   #
   if (!overall) {
-    if (test.overall)
-      test.overall <- FALSE
-    if (test.overall.common)
-      test.overall.common <- FALSE
-    if (test.overall.random)
-      test.overall.random <- FALSE
+    if (test[["overall"]])
+      test$overall <- FALSE
+    if (test[["overall.common"]])
+      test$overall.common <- FALSE
+    if (test[["overall.random"]])
+      test$overall.random <- FALSE
   }
   #
   addrows.below.overall <- replaceNULL(addrows.below.overall, 0)
@@ -3623,11 +3041,11 @@ forest.meta <- function(x,
       xlim <- "symmetric"
   }
   #
-  xpos.s <- set_xpos(just.studlab)
-  xpos.c <- set_xpos(just.cols)
-  xpos.label.e <- set_xpos(just.label.e)
-  xpos.label.c <- set_xpos(just.label.c)
-  xpos.rob <- set_xpos(just.rob)
+  xpos.s <- set_xpos(just[["studlab"]])
+  xpos.c <- set_xpos(just[["just"]])
+  xpos.label.e <- set_xpos(just[["label.e"]])
+  xpos.label.c <- set_xpos(just[["label.c"]])
+  xpos.rob <- set_xpos(just[["rob"]])
   #
   # Back-transform reference value
   #
@@ -3641,16 +3059,14 @@ forest.meta <- function(x,
   #
   if (log.xaxis) {
     ref <- log(ref)
-    cid.below.null <- log(cid.below.null)
-    cid.above.null <- log(cid.above.null)
+    cid$below.null <- log(cid[["below.null"]])
+    cid$above.null <- log(cid[["above.null"]])
   }
   #
   if (!backtransf) {
     if (sm == "PFT") {
       if (inherits(x, "trimfill"))
         ref <- transf(ref, "PAS")
-      else if (metabind)
-        ref <- transf(ref, sm, n = makeunique(x$n.harmonic.mean.ma))
       else if (metacum | metainf)
         ref <- transf(ref, sm, n = x$n.harmonic.mean.pooled)
       else
@@ -3659,8 +3075,6 @@ forest.meta <- function(x,
     else if (sm == "IRFT") {
       if (inherits(x, "trimfill"))
         ref <- transf(ref, "IRS")
-      else if (metabind)
-        ref <- transf(ref, sm, time = makeunique(x$t.harmonic.mean.ma))
       else if (metacum | metainf)
         ref <- transf(ref, sm, time = x$t.harmonic.mean.pooled)
       else
@@ -3715,7 +3129,8 @@ forest.meta <- function(x,
                        func.backtransf = fbt)
   }
   #
-  print.label <- (label.left != "" | label.right != "") & !is.na(ref)
+  print.label <- (label[["left"]] != "" | label[["right"]] != "") & !is.na(ref)
+  #
   if (print.label & !bottom.lr) {
     if (avail.smlab && smlab != "")
       warning("Argument 'smlab' ignored as argument 'bottom.lr' is FALSE.")
@@ -3723,7 +3138,7 @@ forest.meta <- function(x,
   }
   #
   if (!by)
-    addrow.subgroups <- FALSE
+    addrow$subgroup <- FALSE
   #
   if (resid.hetstat &&
       (!by || (by && is.null(x$tau.common) || !x$tau.common))) {
@@ -3737,71 +3152,7 @@ forest.meta <- function(x,
   }
   #
   plotwidth <- setunit(plotwidth)
-  colgap <- setunit(colgap)
-  colgap.left <- setunit(colgap.left)
-  colgap.right <- setunit(colgap.right)
-  colgap.studlab <- setunit(colgap.studlab)
-  colgap.forest <- setunit(colgap.forest)
-  colgap.forest.left <- setunit(colgap.forest.left)
-  colgap.forest.right <- setunit(colgap.forest.right)
-  colgap.rob <- setunit(colgap.rob)
-  colgap.rob.overall <- setunit(colgap.rob.overall)
   #
-  if (miss.label.test.overall.common)
-    label.test.overall.common <-
-    paste0("Test for overall effect",
-           if (common.random)
-             paste0(" (", gs("text.w.common"), " effect)"),
-           ": ")
-  if (miss.label.test.overall.random)
-    label.test.overall.random <-
-    paste0("Test for overall effect",
-           if (common.random)
-             paste0(" (", gs("text.w.random"), " effects)"),
-           ": ")
-  #
-  if (miss.label.test.subgroup.common) {
-    label.test.subgroup.common <-
-      paste0("Test for subgroup differences",
-             if (common.random)
-               paste0(" (", gs("text.w.common"), " effect)"),
-             ": ")
-  }
-  #
-  if (miss.label.test.subgroup.random)
-    label.test.subgroup.random <-
-    paste0("Test for subgroup differences",
-           if (common.random)
-             paste0(" (", gs("text.w.random"), " effects)"),
-           ": ")
-  #
-  if (miss.label.test.effect.subgroup.common)
-    label.test.effect.subgroup.common <-
-    paste0(if (bmj.revman5.jama.meta9)
-      "Test for overall effect"
-      else
-        "Test for effect in subgroup",
-      if (common.random)
-        paste0(" (", gs("text.w.common"), " effect)"),
-      ": ")
-  if (miss.label.test.effect.subgroup.random)
-    label.test.effect.subgroup.random <-
-    paste0(if (bmj.revman5.jama.meta9)
-      "Test for overall effect"
-      else
-        "Test for effect in subgroup",
-      if (common.random)
-        paste0(" (", gs("text.w.random"), " effects)"),
-      ": ")
-  #
-  # Define aliases
-  #
-  fs.head <- fs.heading
-  ff.head <- ff.heading
-  #
-  just.c <- just.cols
-  just.s <- just.studlab
-  
   
   #
   #
@@ -3897,31 +3248,31 @@ forest.meta <- function(x,
     ci.lab.bracket <- ci.lab
   #
   if (!common.random) {
-    text.w.common <- paste0("Weight", if (bmj) "\n(%)")
-    text.w.random <- paste0("Weight", if (bmj) "\n(%)")
+    text$w.common <- paste0("Weight", if (bmj) "\n(%)")
+    text$w.random <- paste0("Weight", if (bmj) "\n(%)")
   }
   else {
     if (bmj) {
-      if (is.null(text.w.common))
-        text.w.common <- paste0("Weight (%),\n", gs("text.w.common"))
+      if (is.null(text[["w.common"]]))
+        text$w.common <- paste0("Weight (%),\n", gs("text.w.common"))
       else
-        text.w.common <- paste0("Weight (%),\n", text.w.common)
+        text$w.common <- paste0("Weight (%),\n", text[["w.common"]])
       #
-      if (is.null(text.w.random))
-        text.w.random <- paste0("Weight (%),\n", gs("text.w.random"))
+      if (is.null(text[["w.random"]]))
+        text$w.random <- paste0("Weight (%),\n", gs("text.w.random"))
       else
-        text.w.random <- paste0("Weight (%),\n", text.w.random)
+        text$w.random <- paste0("Weight (%),\n", text[["w.random"]])
     }
     else {
-      if (is.null(text.w.common))
-        text.w.common <- paste0("Weight\n(", gs("text.w.common"), ")")
+      if (is.null(text[["w.common"]]))
+        text$w.common <- paste0("Weight\n(", gs("text.w.common"), ")")
       else
-        text.w.common <- paste0("Weight\n(", text.w.common, ")")
+        text$w.common <- paste0("Weight\n(", text[["w.common"]], ")")
       #
-      if (is.null(text.w.random))
-        text.w.random <- paste0("Weight\n(", gs("text.w.random"), ")")
+      if (is.null(text[["w.random"]]))
+        text$w.random <- paste0("Weight\n(", gs("text.w.random"), ")")
       else
-        text.w.random <- paste0("Weight\n(", text.w.random, ")")
+        text$w.random <- paste0("Weight\n(", text[["w.random"]], ")")
     }
   }
   #
@@ -3974,27 +3325,27 @@ forest.meta <- function(x,
   labnames <- c(lab.studlab,
                 lab.TE,
                 if (revman5) "SE" else paste0("SE(", lab.TE, ")"),
-                label.cluster, label.cycles,
+                label[["cluster"]], label[["cycles"]],
                 #
-                label.n, label.n, label.events, label.events,
-                label.e, label.c, label.e,
-                label.mean, label.mean, label.sd, label.sd,
-                label.e, label.c, label.e,
+                label[["n"]], label[["n"]], label[["events"]], label[["events"]],
+                label[["e"]], label[["c"]], label[["e"]],
+                label[["mean"]], label[["mean"]], label[["sd"]], label[["sd"]],
+                label[["e"]], label[["c"]], label[["e"]],
                 #
-                label.cor,
-                label.time, label.time,
-                label.e, label.c,
-                label.e, label.c,
+                label[["cor"]],
+                label[["time"]], label[["time"]],
+                label[["e"]], label[["c"]],
+                label[["e"]], label[["c"]],
                 #
                 sm.lab,
                 ci.lab,
                 sm.ci.lab,
                 #
-                text.w.common,
-                text.w.common,
-                text.w.random,
+                text[["w.common"]],
+                text[["w.common"]],
+                text[["w.random"]],
                 #
-                label.pval, zlab)
+                label[["pval"]], zlab)
   #
   if (newcols) {
     #
@@ -4002,21 +3353,21 @@ forest.meta <- function(x,
     # cluster, and cycles
     #
     default_labs <- c(
-      n = if (metacor || metaprop || metamean || metarate) label.n else NA,
-      mean = if (metamean) label.mean else NA,
-      sd = if (metamean) label.sd else NA,
-      time = if (metarate) label.time else NA,
-      tau2 = label.tau2,
-      tau = label.tau,
-      I2 = label.I2,
-      pval.Q = label.pval,
-      cluster = if (three.level) label.cluster else NA,
-      cycles  = if (n_of_1) label.cycles else NA)
+      n = if (metacor || metaprop || metamean || metarate) label[["n"]] else NA,
+      mean = if (metamean) label[["mean"]] else NA,
+      sd = if (metamean) label[["sd"]] else NA,
+      time = if (metarate) label[["time"]] else NA,
+      tau2 = label[["tau2"]],
+      tau = label[["tau"]],
+      I2 = label[["I2"]],
+      pval.Q = label[["pval"]],
+      cluster = if (three.level) label[["cluster"]] else NA,
+      cycles  = if (n_of_1) label[["cycles"]] else NA)
     #
     if (length(rightcols.new) > 0) {
-      if (all(rightcols.new %in% colnames(rob))) {
+      if (all(rightcols.new %in% colnames(rob[["rob"]]))) {
         rightlabs.new <- rightcols.new
-        rightlabs.new[rightlabs.new %in% colnames(rob)] <- rob.labels
+        rightlabs.new[rightlabs.new %in% colnames(rob[["rob"]])] <- rob.labels
       }
       else {
         if (!avail.rightlabs ||
@@ -4065,7 +3416,7 @@ forest.meta <- function(x,
         }
         #
         if (RoB.available)
-          rightlabs.new[rightlabs.new %in% colnames(rob)] <- rob.labels
+          rightlabs.new[rightlabs.new %in% colnames(rob[["rob"]])] <- rob.labels
       }
     }
     #
@@ -4137,12 +3488,12 @@ forest.meta <- function(x,
         if (study.results) {
           if (bmj) {
             leftcols <- add.columns(leftcols, c("event.n.e", "event.n.c"))
-            label.e.attach <- c("event.n.e", "event.n.c")
+            label$e.attach <- c("event.n.e", "event.n.c")
             #
             if (is.null(bmj.text))
-              label.e <- "No of events / total"
+              label$e <- "No of events / total"
             else
-              label.e <- bmj.text
+              label$e <- bmj.text
           }
           else
             leftcols <-
@@ -4150,16 +3501,16 @@ forest.meta <- function(x,
         }
         else {
           leftcols <- add.columns(leftcols,
-                                  c(if (pooled.events) "event.e",
-                                    if (pooled.totals) "n.e",
-                                    if (pooled.events) "event.c",
-                                    if (pooled.totals) "n.c"))
+                                  c(if (pooled[["events"]]) "event.e",
+                                    if (pooled[["totals"]]) "n.e",
+                                    if (pooled[["events"]]) "event.c",
+                                    if (pooled[["totals"]]) "n.c"))
           #
-          if (pooled.events & !pooled.totals) {
-            if (is.null(label.e.attach))
-              label.e.attach <- "event.e"
-            if (is.null(label.c.attach))
-              label.c.attach <- "event.c"
+          if (pooled[["events"]] & !pooled[["totals"]]) {
+            if (is.null(label[["e.attach"]]))
+              label$e.attach <- "event.e"
+            if (is.null(label[["c.attach"]]))
+              label$c.attach <- "event.c"
           }
         }
       }
@@ -4169,12 +3520,12 @@ forest.meta <- function(x,
           if (bmj) {
             leftcols <-
               add.columns(leftcols, c("mean.sd.n.e", "mean.sd.n.c"))
-            label.e.attach <- c("mean.sd.n.e", "mean.sd.n.c")
+            label$e.attach <- c("mean.sd.n.e", "mean.sd.n.c")
             #
             if (is.null(bmj.text))
-              label.e <- "Mean (SD) / total"
+              label$e <- "Mean (SD) / total"
             else
-              label.e <- bmj.text
+              label$e <- bmj.text
           }         
           else if (revman5)
             leftcols <-
@@ -4185,12 +3536,12 @@ forest.meta <- function(x,
               add.columns(leftcols,
                           c("n.e", "mean.e", "sd.e", "n.c", "mean.c", "sd.c"))
         }
-        else if (pooled.totals) {
+        else if (pooled[["totals"]]) {
           leftcols <- add.columns(leftcols, c("n.e", "n.c"))
-          if (is.null(label.e.attach))
-            label.e.attach <- "n.e"
-          if (is.null(label.c.attach))
-            label.c.attach <- "n.c"
+          if (is.null(label[["e.attach"]]))
+            label$e.attach <- "n.e"
+          if (is.null(label[["c.attach"]]))
+            label$c.attach <- "n.c"
         }
       }
       #
@@ -4207,10 +3558,10 @@ forest.meta <- function(x,
           leftcols <- add.columns(leftcols, "n.c")
         #
         if (!is.null(x$n.e) & !is.null(x$n.c)) {
-          if (is.null(label.e.attach))
-            label.e.attach <- "n.e"
-          if (is.null(label.c.attach))
-            label.c.attach <- "n.c"
+          if (is.null(label[["e.attach"]]))
+            label$e.attach <- "n.e"
+          if (is.null(label[["c.attach"]]))
+            label$c.attach <- "n.c"
         }
       }
       #
@@ -4221,7 +3572,7 @@ forest.meta <- function(x,
           else
             leftcols <- add.columns(leftcols, c("n.e", "mean.e", "sd.e"))
         }
-        else if (pooled.totals)
+        else if (pooled[["totals"]])
           leftcols <- add.columns(leftcols, "n.e")
       }
       #
@@ -4229,12 +3580,12 @@ forest.meta <- function(x,
         if (study.results) {
           if (bmj) {
             leftcols <- add.columns(leftcols, "event.n.e")
-            label.e.attach <- "event.n.e"
+            label$e.attach <- "event.n.e"
             #
             if (is.null(bmj.text))
-              label.e <- "No of events / total"
+              label$e <- "No of events / total"
             else
-              label.e <- bmj.text
+              label$e <- bmj.text
             
           }
           else
@@ -4242,8 +3593,8 @@ forest.meta <- function(x,
         }
         else {
           leftcols <- add.columns(leftcols,
-                                  c(if (pooled.events) "event.e",
-                                    if (pooled.totals) "n.e"))
+                                  c(if (pooled[["events"]]) "event.e",
+                                    if (pooled[["totals"]]) "n.e"))
         }
       }
       #
@@ -4255,13 +3606,13 @@ forest.meta <- function(x,
         else {
           leftcols <-
             add.columns(leftcols,
-                        c(if (pooled.events) "event.e",
-                          if (pooled.times) "time.e"))
+                        c(if (pooled[["events"]]) "event.e",
+                          if (pooled[["times"]]) "time.e"))
         }
       }
       #
       if (metacor) {
-        if (study.results | pooled.totals)
+        if (study.results | pooled[["totals"]])
           leftcols <- add.columns(leftcols, "n.e")
       }
       #
@@ -4271,20 +3622,20 @@ forest.meta <- function(x,
             if (!is.null(x$n.e) & !is.null(x$n.c)) {
               leftcols <-
                 add.columns(leftcols, c("event.time.n.e", "event.time.n.c"))
-              label.e.attach <- c("event.time.n.e", "event.time.n.c")
+              label$e.attach <- c("event.time.n.e", "event.time.n.c")
               default.bmj.text <- "No of events / time (total)"
             }
             else {
               leftcols <-
                 add.columns(leftcols, c("event.time.e", "event.time.c"))
-              label.e.attach <- c("event.time.e", "event.time.c")
+              label$e.attach <- c("event.time.e", "event.time.c")
               default.bmj.text <- "No of events / time"
             }
             #
             if (is.null(bmj.text))
-              label.e <- default.bmj.text
+              label$e <- default.bmj.text
             else
-              label.e <- bmj.text
+              label$e <- bmj.text
           }
           else
             leftcols <-
@@ -4293,15 +3644,15 @@ forest.meta <- function(x,
         else {
           leftcols <-
             add.columns(leftcols,
-                        c(if (pooled.events) "event.e",
-                          if (pooled.times) "time.e",
-                          if (pooled.events) "event.c",
-                          if (pooled.times) "time.c"))
-          if (pooled.events & !pooled.times) {
-            if (is.null(label.e.attach))
-              label.e.attach <- "event.e"
-            if (is.null(label.c.attach))
-              label.c.attach <- "event.c"
+                        c(if (pooled[["events"]]) "event.e",
+                          if (pooled[["times"]]) "time.e",
+                          if (pooled[["events"]]) "event.c",
+                          if (pooled[["times"]]) "time.c"))
+          if (pooled[["events"]] & !pooled[["times"]]) {
+            if (is.null(label[["e.attach"]]))
+              label$e.attach <- "event.e"
+            if (is.null(label[["c.attach"]]))
+              label$c.attach <- "event.c"
           }
         }
       }
@@ -4327,7 +3678,7 @@ forest.meta <- function(x,
   # Move columns from right to left side if risk of bias assessment is the only
   # information on the right side of the forest plot
   #
-  if (lsel && !revman5.jama.meta9 && rob.only && !avail.leftcols) {
+  if (lsel && !revman5.jama.meta9 && rob[["only"]] && !avail.leftcols) {
     leftcols <-
       add.columns(leftcols, if (bmj) "effect.ci" else c("effect", "ci"))
     #
@@ -4366,7 +3717,7 @@ forest.meta <- function(x,
   #
   # Determine the final right-side columns
   #
-  if (rob.only)
+  if (rob[["only"]])
     rightcols <- rightcols.rob
   else
     rightcols <- add.columns(rightcols, rightcols.rob)
@@ -4491,20 +3842,21 @@ forest.meta <- function(x,
   }
   #
   just.left.new <-
-    column_just(leftcols.new, leftlabs.new, just.addcols.left, just)
+    column_just(leftcols.new, leftlabs.new,
+                just[["addcols.left"]], just[["just"]])
   just.right.new <-
-    column_just(rightcols.new, rightlabs.new, just.addcols.right, just)
+    column_just(rightcols.new, rightlabs.new,
+                just[["addcols.right"]], just[["just"]])
   #
-  leftjust.return <- rep_len(just.c, length(leftcols))
-  leftjust.return[leftcols == "studlab"] <- just.s
+  leftjust.return <- rep_len(just[["just"]], length(leftcols))
+  leftjust.return[leftcols == "studlab"] <- just[["studlab"]]
   for (i in seq_along(leftcols.new))
     leftjust.return[match(leftcols.new[i], leftcols)] <- just.left.new[i]
   #
-  rightjust.return <- rep_len(just.c, length(rightcols))
-  rightjust.return[rightcols == "studlab"] <- just.s
+  rightjust.return <- rep_len(just[["just"]], length(rightcols))
+  rightjust.return[rightcols == "studlab"] <- just[["studlab"]]
   for (i in seq_along(rightcols.new))
     rightjust.return[match(rightcols.new[i], rightcols)] <- just.right.new[i]
-  
   
   #
   #
@@ -4604,14 +3956,9 @@ forest.meta <- function(x,
   #
   k.all <- length(x$TE)
   #
-  if (allstudies)
-    n.stud <- k.all # all studies
-  else
-    n.stud <- sum(!is.na(x$TE)) # number of studies with treatment estimates
-  #
-  if (length(type.study) == 1)
-    type.study <- rep(type.study, k.all)
-  else if (length(type.study) != k.all)
+  if (length(type[["study"]]) == 1)
+    type$study <- rep(type[["study"]], k.all)
+  else if (length(type[["study"]]) != k.all)
     stop("Argument 'type.study' must be a single character or of ",
          "same length as number of studies.")
   #
@@ -4624,7 +3971,9 @@ forest.meta <- function(x,
   if (allstudies)
     sel <- rep(TRUE, k.all)
   else
-    sel <- !is.na(x$TE)
+    sel <- !is.na(x$TE) |
+      (type[["study"]] == "predict" & !is.na(x$lower) & !is.na(x$upper))
+  n.stud <- sum(sel)
   #
   x$n.e <- x$n.e[sel]
   x$n.c <- x$n.c[sel]
@@ -4660,7 +4009,7 @@ forest.meta <- function(x,
     x$w.random <- x$w.random[sel]
   #
   studlab <- studlab[sel]
-  type.study <- type.study[sel]
+  type$study <- type[["study"]][sel]
   #
   if (metacum | metainf) {
     x$n.harmonic.mean <- x$n.harmonic.mean[sel]
@@ -4678,13 +4027,20 @@ forest.meta <- function(x,
   subgroup <- subgroup[sel]
   sortvar <- sortvar[sel]
   #
-  col.study <- col.study[sel]
-  col.study.text <- col.study.text[sel]
-  col.square <- col.square[sel]
-  col.square.lines <- col.square.lines[sel]
-  col.circle <- col.circle[sel]
-  col.circle.lines <- col.circle.lines[sel]
-  col.inside <- col.inside[sel]
+  col[["study"]] <- col[["study"]][sel]
+  col[["study.text"]] <- col[["study.text"]][sel]
+  col[["square"]] <- col[["square"]][sel]
+  col[["square.lines"]] <- col[["square.lines"]][sel]
+  col[["circle"]] <- col[["circle"]][sel]
+  col[["circle.lines"]] <- col[["circle.lines"]][sel]
+  col[["inside"]] <- col[["inside"]][sel]
+  #
+  if (newcols) {
+    dataset1 <- dataset1[sel, , drop = FALSE]
+    dataset2 <- dataset2[sel, , drop = FALSE]
+  }
+  if (RoB.available)
+    rob["rob"] <- list(rob[["rob"]][sel, , drop = FALSE])
   #
   avail.exclude <- !is.null(x$exclude)
   if (avail.exclude)
@@ -4736,7 +4092,7 @@ forest.meta <- function(x,
       x$w.random <- x$w.random[o]
     #
     studlab  <- studlab[o]
-    type.study  <- type.study[o]
+    type$study <- type[["study"]][o]
     #
     if (metacum | metainf) {
       x$n.harmonic.mean <- x$n.harmonic.mean[o]
@@ -4749,28 +4105,28 @@ forest.meta <- function(x,
     subgroup <- subgroup[o]
     sortvar <- sortvar[o]
     #
-    col.study <- col.study[o]
-    col.study.text <- col.study.text[o]
-    col.square <- col.square[o]
-    col.square.lines <- col.square.lines[o]
-    col.circle <- col.circle[o]
-    col.circle.lines <- col.circle.lines[o]
-    col.inside <- col.inside[o]
+    col[["study"]] <- col[["study"]][o]
+    col[["study.text"]] <- col[["study.text"]][o]
+    col[["square"]] <- col[["square"]][o]
+    col[["square.lines"]] <- col[["square.lines"]][o]
+    col[["circle"]] <- col[["circle"]][o]
+    col[["circle.lines"]] <- col[["circle.lines"]][o]
+    col[["inside"]] <- col[["inside"]][o]
     #
     if (avail.exclude)
       x$exclude <- x$exclude[o]
     #
     if (newcols) {
-      dataset1 <- dataset1[o, ]
-      dataset2 <- dataset2[o, ]
+      dataset1 <- dataset1[o, , drop = FALSE]
+      dataset2 <- dataset2[o, , drop = FALSE]
       #
       if (RoB.available)
-        rob <- rob[o, ]
+        rob[["rob"]] <- rob[["rob"]][o, , drop = FALSE]
     }
   }
   #
-  if (avail.exclude && miss.col.study.text)
-    col.study.text[x$exclude] <- "lightgrey"
+  if (avail.exclude && miss.col[["study.text"]])
+    col[["study.text"]][x$exclude] <- "lightgrey"
   #
   if (bmj)
     studlab <- paste0(" ", studlab)
@@ -4938,48 +4294,43 @@ forest.meta <- function(x,
     #
     hetstat.I2 <-
       paste0(hetseparator,
-             percent_label(I2, "", digits.I2, formatN, lab.NA = "NA%"),
-             if (print.I2.ci && !(is.na(lowI2) | is.na(uppI2)))
-               pasteCI(100 * lowI2, 100 * uppI2,
-                       digits.I2, big.mark,
+             percent_label(I2, "", digits[["I2"]], formatN, lab.NA = "NA%"),
+             if (print[["I2.ci"]] && !(is.na(lowI2) | is.na(uppI2)))
+               pasteCI(100 * lowI2, 100 * uppI2, digits[["I2"]], big.mark,
                        lab.NA = lab.NA, unit = "%"))
     #
     hetstat.tau2 <-
-      paste0(formatPT(tau2, digits = digits.tau2, big.mark = big.mark,
+      paste0(formatPT(tau2, digits = digits[["tau2"]], big.mark = big.mark,
                       lab = TRUE, labval = "", lab.NA = "NA"),
-             if (print.tau2.ci && !(is.na(lower.tau2) | is.na(upper.tau2)))
-               pasteCI(lower.tau2, upper.tau2, digits.tau2, big.mark,
+             if (print[["tau2.ci"]] && !(is.na(lower.tau2) | is.na(upper.tau2)))
+               pasteCI(lower.tau2, upper.tau2, digits[["tau2"]], big.mark,
                        sign.lower.tau, sign.upper.tau, lab.NA))
     #
     hetstat.tau <-
-      paste0(formatPT(tau, digits = digits.tau, big.mark = big.mark,
+      paste0(formatPT(tau, digits = digits[["tau"]], big.mark = big.mark,
                       lab = TRUE, labval = "", lab.NA = "NA"),
-             if (print.tau.ci && !(is.na(lower.tau) | is.na(upper.tau)))
-               pasteCI(lower.tau, upper.tau, digits.tau, big.mark,
+             if (print[["tau.ci"]] && !(is.na(lower.tau) | is.na(upper.tau)))
+               pasteCI(lower.tau, upper.tau, digits[["tau"]], big.mark,
                        sign.lower.tau, sign.upper.tau, lab.NA))
     #
     hetstat.Q <-
       paste0(hetseparator,
-             formatN(Q, digits.Q, "NA", big.mark = big.mark),
+             formatN(Q, digits[["Q"]], "NA", big.mark = big.mark),
              if (bmj.revman5) ", df",
              if (bmj.revman5) hetseparator,
              if (bmj.revman5) df.Q)
     #
     hetstat.pval.Q <-
-      formatPT(pval.Q,
-               lab = TRUE, labval = "",
-               digits = digits.pval.Q,
+      formatPT(pval.Q, lab = TRUE, labval = "", digits = digits[["pval.Q"]],
                zero = zero.pval, JAMA = JAMA.pval,
-               scientific = scientific.pval,
-               lab.NA = "NA")
+               scientific = scientific.pval, lab.NA = "NA")
     #
-    if (print.Rb)
+    if (print[["Rb"]])
       hetstat.Rb <-
       paste0(hetseparator,
-             percent_label(Rb, "", digits.I2, formatN, big.mark = big.mark),
-             if (print.Rb.ci && !(is.na(lowRb) | is.na(uppRb)))
-               pasteCI(100 * lowRb, 100 * uppRb,
-                       digits.I2, big.mark,
+             percent_label(Rb, "", digits[["I2"]], formatN, big.mark = big.mark),
+             if (print[["Rb.ci"]] && !(is.na(lowRb) | is.na(uppRb)))
+               pasteCI(100 * lowRb, 100 * uppRb, digits[["I2"]], big.mark,
                        lab.NA = lab.NA, unit = "%"))
     #
     # Remove superfluous spaces
@@ -4994,7 +4345,7 @@ forest.meta <- function(x,
       hetstat.Q <- gsub("  ", " ", hetstat.Q)
     while(grepl("  ", hetstat.pval.Q))
       hetstat.pval.Q <- gsub("  ", " ", hetstat.pval.Q)
-    if (print.Rb)
+    if (print[["Rb"]])
       while(grepl("  ", hetstat.Rb))
         hetstat.Rb <- gsub("  ", " ", hetstat.Rb)
     if (bmj) {
@@ -5010,10 +4361,10 @@ forest.meta <- function(x,
                    hetstat.I2, hetstat.tau2, hetstat.tau,
                    hetstat.Q, hetstat.pval.Q, hetstat.Rb,
                    df.Q,
-                   print.I2, print.tau2, print.tau,
-                   print.Q, print.pval.Q, print.Rb,
+                   print[["I2"]], print[["tau2"]], print[["tau"]],
+                   print[["Q"]], print[["pval.Q"]], print[["Rb"]],
                    bmj, jama, revman5,
-                   miss.print.tau2, miss.print.tau)
+                   miss.print[["tau2"]], miss.print[["tau"]])
   }
   #
   # Line with residual heterogeneity
@@ -5023,38 +4374,41 @@ forest.meta <- function(x,
   if (by && (length(tau2.resid) == 0 || is.na(tau2.resid)))
     print.tau2.tau.resid <- FALSE
   else
-    print.tau2.tau.resid <- print.tau2.tau
+    print.tau2.tau.resid <- print[["tau2.tau"]]
   #
   if (resid.hetstat) {
     #
     hetstat.I2.resid <-
       paste0(hetseparator,
-             percent_label(I2.resid, "", digits.I2, formatN, lab.NA = "NA%"),
-             if (print.I2.ci && !(is.na(lowI2.resid) | is.na(uppI2.resid)))
+             percent_label(I2.resid, "", digits[["I2"]],
+                           formatN, lab.NA = "NA%"),
+             if (print[["I2.ci"]] && !(is.na(lowI2.resid) | is.na(uppI2.resid)))
                pasteCI(100 * lowI2.resid, 100 * uppI2.resid,
-                       digits.I2, big.mark,
+                       digits[["I2"]], big.mark,
                        lab.NA = lab.NA, unit = "%"))
     #
     hetstat.tau2.resid <-
-      paste0(formatPT(tau2.resid, digits = digits.tau2, big.mark = big.mark,
+      paste0(formatPT(tau2.resid, digits = digits[["tau2"]],
+                      big.mark = big.mark,
                       lab = TRUE, labval = "", lab.NA = "NA"),
-             if (print.tau2.ci &&
+             if (print[["tau2.ci"]] &&
                  !(is.na(lower.tau2.resid) | is.na(upper.tau2.resid)))
-               pasteCI(lower.tau2.resid, upper.tau2.resid, digits.tau2,
+               pasteCI(lower.tau2.resid, upper.tau2.resid, digits[["tau2"]],
                        big.mark,
                        sign.lower.tau.resid, sign.upper.tau.resid, lab.NA))
+    #
     hetstat.tau.resid <-
-      paste0(formatPT(tau.resid, digits = digits.tau, big.mark = big.mark,
+      paste0(formatPT(tau.resid, digits = digits[["tau"]], big.mark = big.mark,
                       lab = TRUE, labval = "", lab.NA = "NA"),
-             if (print.tau.ci &&
+             if (print[["tau.ci"]] &&
                  !(is.na(lower.tau.resid) | is.na(upper.tau.resid)))
-               pasteCI(lower.tau.resid, upper.tau.resid, digits.tau,
+               pasteCI(lower.tau.resid, upper.tau.resid, digits[["tau"]],
                        big.mark,
                        sign.lower.tau.resid, sign.upper.tau.resid, lab.NA))
     #
     hetstat.Q.resid <-
       paste0(hetseparator,
-             formatN(Q.resid, digits.Q, "NA", big.mark = big.mark),
+             formatN(Q.resid, digits[["Q"]], "NA", big.mark = big.mark),
              if (bmj.revman5) ", df",
              if (bmj.revman5) hetseparator,
              if (bmj.revman5) df.Q.resid)
@@ -5062,7 +4416,7 @@ forest.meta <- function(x,
     hetstat.pval.Q.resid <-
       formatPT(pval.Q.resid,
                lab = TRUE, labval = "",
-               digits = digits.pval.Q,
+               digits = digits[["pval.Q"]],
                zero = zero.pval, JAMA = JAMA.pval,
                scientific = scientific.pval,
                lab.NA = "NA")
@@ -5085,8 +4439,8 @@ forest.meta <- function(x,
     while(grepl("  ", hetstat.Rb.resid))
       hetstat.Rb.resid <- gsub("  ", " ", hetstat.Rb.resid)
     #
-    print.tau2.resid <- print.tau2 & print.tau2.tau.resid
-    print.tau.resid <- print.tau & print.tau2.tau.resid
+    print.tau2.resid <- print[["tau2"]] & print.tau2.tau.resid
+    print.tau.resid <- print[["tau"]] & print.tau2.tau.resid
     #
     hetstat.resid <-
       make_hetstat(resid.hetlab,
@@ -5094,22 +4448,22 @@ forest.meta <- function(x,
                    hetstat.tau.resid, hetstat.Q.resid,
                    hetstat.pval.Q.resid, hetstat.Rb.resid,
                    df.Q.resid,
-                   print.I2, print.tau2.resid, print.tau.resid,
-                   print.Q, print.pval.Q, print.Rb.resid,
+                   print[["I2"]], print.tau2.resid, print.tau.resid,
+                   print[["Q"]], print[["pval.Q"]], print.Rb.resid,
                    bmj, jama, revman5,
-                   miss.print.tau2, miss.print.tau)
+                   miss.print[["tau2"]], miss.print[["tau"]])
   }
   #
   # Label of test for overall effect
   #
   pvals.overall <- formatPT(c(x$pval.common, x$pval.random),
                             lab = TRUE, labval = "",
-                            digits = digits.pval,
+                            digits = digits[["pval"]],
                             zero = zero.pval, JAMA = JAMA.pval,
                             scientific = scientific.pval,
                             lab.NA = "NA")
   statistics.overall <- formatN(c(x$statistic.common, x$statistic.random),
-                                digits.stat, "NA", big.mark = big.mark)
+                                digits[["stat"]], "NA", big.mark = big.mark)
   #
   # Remove superfluous spaces
   #
@@ -5120,14 +4474,14 @@ forest.meta <- function(x,
   while(any(grepl("  ", statistics.overall)))
     statistics.overall <- gsub("  ", " ", statistics.overall)
   #
-  if (test.overall.common) {
-    if (print.stat) {
+  if (test[["overall.common"]]) {
+    if (print[["stat"]]) {
       if (bmj)
         text.overall.common <-
           substitute(paste(tl,
                            Z, hetseparator, tt,
                            ", P", tp),
-                     list(tl = label.test.overall.common,
+                     list(tl = label[["test.overall.common"]],
                           hetseparator = hetseparator,
                           tt = statistics.overall[1],
                           tp = pvals.overall[1]))
@@ -5136,7 +4490,7 @@ forest.meta <- function(x,
           substitute(paste(tl,
                            Z, hetseparator, tt,
                            " (P", tp, ")"),
-                     list(tl = label.test.overall.common,
+                     list(tl = label[["test.overall.common"]],
                           hetseparator = hetseparator,
                           tt = statistics.overall[1],
                           tp = pvals.overall[1]))
@@ -5145,7 +4499,7 @@ forest.meta <- function(x,
           substitute(paste(tl,
                            italic(z), hetseparator, tt,
                            " (", italic(P), tp, ")"),
-                     list(tl = label.test.overall.common,
+                     list(tl = label[["test.overall.common"]],
                           hetseparator = hetseparator,
                           tt = statistics.overall[1],
                           tp = pvals.overall[1]))
@@ -5154,7 +4508,7 @@ forest.meta <- function(x,
           substitute(paste(tl,
                            italic(z), hetseparator, tt,
                            " (", italic(p), tp, ")"),
-                     list(tl = label.test.overall.common,
+                     list(tl = label[["test.overall.common"]],
                           hetseparator = hetseparator,
                           tt = statistics.overall[1],
                           tp = pvals.overall[1]))
@@ -5163,22 +4517,22 @@ forest.meta <- function(x,
       if (bmj)
         text.overall.common <-
           substitute(paste(tl, " P", tp),
-                     list(tl = label.test.overall.common,
+                     list(tl = label[["test.overall.common"]],
                           tp = pvals.overall[1]))
       else if (revman5)
         text.overall.common <-
           substitute(paste(tl, " P", tp),
-                     list(tl = label.test.overall.common,
+                     list(tl = label[["test.overall.common"]],
                           tp = pvals.overall[1]))
       else if (jama)
         text.overall.common <-
           substitute(paste(tl, " ", italic(P), tp),
-                     list(tl = label.test.overall.common,
+                     list(tl = label[["test.overall.common"]],
                           tp = pvals.overall[1]))
       else
         text.overall.common <-
           substitute(paste(tl, " ", italic(p), tp),
-                     list(tl = label.test.overall.common,
+                     list(tl = label[["test.overall.common"]],
                           tp = pvals.overall[1]))     
     }
   }
@@ -5187,15 +4541,15 @@ forest.meta <- function(x,
   #
   use_t <- x$method.random.ci[1] %in% c("HK", "KR", "CR0", "CR1", "CR2")
   #
-  if (test.overall.random) {
-    if (print.stat) {
+  if (test[["overall.random"]]) {
+    if (print[["stat"]]) {
       if (!use_t) {
         if (bmj)
           text.overall.random <-
             substitute(paste(tl,
                              Z, hetseparator, tt,
                              ", P", tp),
-                       list(tl = label.test.overall.random,
+                       list(tl = label[["test.overall.random"]],
                             hetseparator = hetseparator,
                             tt = statistics.overall[2],
                             tp = pvals.overall[2]))
@@ -5204,7 +4558,7 @@ forest.meta <- function(x,
             substitute(paste(tl,
                              Z, hetseparator, tt,
                              " (P", tp, ")"),
-                       list(tl = label.test.overall.random,
+                       list(tl = label[["test.overall.random"]],
                             hetseparator = hetseparator,
                             tt = statistics.overall[2],
                             tp = pvals.overall[2]))
@@ -5213,7 +4567,7 @@ forest.meta <- function(x,
             substitute(paste(tl,
                              italic(z), hetseparator, tt,
                              " (", italic(P), tp, ")"),
-                       list(tl = label.test.overall.random,
+                       list(tl = label[["test.overall.random"]],
                             hetseparator = hetseparator,
                             tt = statistics.overall[2],
                             tp = pvals.overall[2]))
@@ -5222,7 +4576,7 @@ forest.meta <- function(x,
             substitute(paste(tl,
                              italic(z), hetseparator, tt,
                              " (", italic(p), tp, ")"),
-                       list(tl = label.test.overall.random,
+                       list(tl = label[["test.overall.random"]],
                             hetseparator = hetseparator,
                             tt = statistics.overall[2],
                             tp = pvals.overall[2]))
@@ -5233,7 +4587,7 @@ forest.meta <- function(x,
             substitute(paste(tl,
                              t[df], hetseparator, tt,
                              ", P", tp),
-                       list(tl = label.test.overall.random,
+                       list(tl = label[["test.overall.random"]],
                             hetseparator = hetseparator,
                             tt = statistics.overall[2],
                             tp = pvals.overall[2],
@@ -5243,7 +4597,7 @@ forest.meta <- function(x,
             substitute(paste(tl,
                              t[df], hetseparator, tt,
                              " (P", tp, ")"),
-                       list(tl = label.test.overall.random,
+                       list(tl = label[["test.overall.random"]],
                             hetseparator = hetseparator,
                             tt = statistics.overall[2],
                             tp = pvals.overall[2],
@@ -5253,7 +4607,7 @@ forest.meta <- function(x,
             substitute(paste(tl,
                              italic(t)[df], hetseparator, tt,
                              " (", italic(P), tp, ")"),
-                       list(tl = label.test.overall.random,
+                       list(tl = label[["test.overall.random"]],
                             hetseparator = hetseparator,
                             tt = statistics.overall[2],
                             tp = pvals.overall[2],
@@ -5263,7 +4617,7 @@ forest.meta <- function(x,
             substitute(paste(tl,
                              italic(t)[df], hetseparator, tt,
                              " (", italic(p), tp, ")"),
-                       list(tl = label.test.overall.random,
+                       list(tl = label[["test.overall.random"]],
                             hetseparator = hetseparator,
                             tt = statistics.overall[2],
                             tp = pvals.overall[2],
@@ -5274,22 +4628,22 @@ forest.meta <- function(x,
       if (bmj)
         text.overall.random <-
           substitute(paste(tl, " P", tp),
-                     list(tl = label.test.overall.random,
+                     list(tl = label[["test.overall.random"]],
                           tp = pvals.overall[2]))
       else if (revman5)
         text.overall.random <-
           substitute(paste(tl, " P", tp),
-                     list(tl = label.test.overall.random,
+                     list(tl = label[["test.overall.random"]],
                           tp = pvals.overall[2]))
       else if (jama)
         text.overall.random <-
           substitute(paste(tl, " ", italic(P), tp),
-                     list(tl = label.test.overall.random,
+                     list(tl = label[["test.overall.random"]],
                           tp = pvals.overall[2]))
       else
         text.overall.random <-
           substitute(paste(tl, " ", italic(p), tp),
-                     list(tl = label.test.overall.random,
+                     list(tl = label[["test.overall.random"]],
                           tp = pvals.overall[2]))
     }
   }
@@ -5310,7 +4664,7 @@ forest.meta <- function(x,
   #
   # hetstat.Q.bs <-
   #   paste0(hetseparator,
-  #          gsub(" ", "", formatN(Q.bs, digits.Q, "NA", big.mark = big.mark)),
+  #          gsub(" ", "", formatN(Q.bs, digits[["Q"]], "NA", big.mark = big.mark)),
   #          if (!jama) ", df",
   #          if (!jama) hetseparator,
   #          if (!jama) c(df.Q.b.common,
@@ -5332,7 +4686,7 @@ forest.meta <- function(x,
     hetstat.i <-
       paste0(hetseparator,
              gsub(" ", "",
-                  formatN(Q.b.common[i], digits.Q, "NA", big.mark = big.mark)),
+                  formatN(Q.b.common[i], digits[["Q"]], "NA", big.mark = big.mark)),
              if (!jama) ", df",
              if (!jama) hetseparator,
              if (!jama) df.Q.b.common[i])
@@ -5340,7 +4694,7 @@ forest.meta <- function(x,
     pval.i <-
       paste0(formatPT(pval.Q.b.common[i],
                       lab = TRUE, labval = "",
-                      digits = digits.pval.Q,
+                      digits = digits[["pval.Q"]],
                       zero = zero.pval, JAMA = JAMA.pval,
                       scientific = scientific.pval,
                       lab.NA = "NA"))
@@ -5363,7 +4717,7 @@ forest.meta <- function(x,
     hetstat.i <-
       paste0(hetseparator,
              gsub(" ", "",
-                  formatN(Q.b.random[i], digits.Q, "NA", big.mark = big.mark)),
+                  formatN(Q.b.random[i], digits[["Q"]], "NA", big.mark = big.mark)),
              if (!jama) ", df",
              if (!jama) hetseparator,
              if (!jama) collapse(df.Q.b.random[[i]], quote = ""))
@@ -5371,7 +4725,7 @@ forest.meta <- function(x,
     pval.i <-
       paste0(formatPT(pval.Q.b.random[i],
                       lab = TRUE, labval = "",
-                      digits = digits.pval.Q,
+                      digits = digits[["pval.Q"]],
                       zero = zero.pval, JAMA = JAMA.pval,
                       scientific = scientific.pval,
                       lab.NA = "NA"))
@@ -5390,14 +4744,14 @@ forest.meta <- function(x,
     hetstat.pval.Q.b.random <- c(hetstat.pval.Q.b.random, pval.i)
   }
   #
-  if (test.subgroup.common) {
-    if (print.Q.subgroup) {
+  if (test[["subgroup.common"]]) {
+    if (print[["Q.subgroup"]]) {
       if (bmj)
         text.subgroup.common <-
           substitute(paste(tl,
                            chi^2, tq,
                            ", P", tp),
-                     list(tl = label.test.subgroup.common,
+                     list(tl = label[["test.subgroup.common"]],
                           tq = hetstat.Q.b.common[1],
                           tp = hetstat.pval.Q.b.common[1]))
       else if (revman5)
@@ -5405,7 +4759,7 @@ forest.meta <- function(x,
           substitute(paste(tl,
                            "Chi"^2, tq,
                            " (P", tp, ")"),
-                     list(tl = label.test.subgroup.common,
+                     list(tl = label[["test.subgroup.common"]],
                           tq = hetstat.Q.b.common[1],
                           tp = hetstat.pval.Q.b.common[1]))
       else if (jama)
@@ -5413,7 +4767,7 @@ forest.meta <- function(x,
           substitute(paste(tl,
                            chi[df]^2, tq,
                            " (", italic(P), tp, ")"),
-                     list(tl = label.test.subgroup.common,
+                     list(tl = label[["test.subgroup.common"]],
                           tq = hetstat.Q.b.common[1],
                           tp = hetstat.pval.Q.b.common[1],
                           df = df.Q.b.common[1]))
@@ -5422,7 +4776,7 @@ forest.meta <- function(x,
           substitute(paste(tl,
                            chi[df]^2, tq,
                            " (", italic(p), tp, ")"),
-                     list(tl = label.test.subgroup.common,
+                     list(tl = label[["test.subgroup.common"]],
                           tq = hetstat.Q.b.common[1],
                           tp = hetstat.pval.Q.b.common[1],
                           df = df.Q.b.common[1]))
@@ -5431,41 +4785,41 @@ forest.meta <- function(x,
       if (bmj)
         text.subgroup.common <-
           substitute(paste(tl, " P", tp),
-                     list(tl = label.test.subgroup.common,
+                     list(tl = label[["test.subgroup.common"]],
                           tp = hetstat.pval.Q.b.common[1]))
       else if (revman5)
         text.subgroup.common <-
           substitute(paste(tl, " P", tp),
-                     list(tl = label.test.subgroup.common,
+                     list(tl = label[["test.subgroup.common"]],
                           tp = hetstat.pval.Q.b.common[1]))
       else if (jama)
         text.subgroup.common <-
           substitute(paste(tl, " ", italic(P), tp),
-                     list(tl = label.test.subgroup.common,
+                     list(tl = label[["test.subgroup.common"]],
                           tp = hetstat.pval.Q.b.common[1]))
       else
         text.subgroup.common <-
           substitute(paste(tl, " ", italic(p), tp),
-                     list(tl = label.test.subgroup.common,
+                     list(tl = label[["test.subgroup.common"]],
                           tp = hetstat.pval.Q.b.common[1]))
     }
   }
   else
     text.subgroup.common <- ""
   #
-  if (test.subgroup.random) {
-    if (print.Q.subgroup) {
+  if (test[["subgroup.random"]]) {
+    if (print[["Q.subgroup"]]) {
       if (bmj) {
         if (length(df.Q.b.random[[1]]) == 2)
           text.subgroup.random <-
             substitute(paste(tl, "F", tq, ", P", tp),
-                       list(tl = label.test.subgroup.random,
+                       list(tl = label[["test.subgroup.random"]],
                             tq = hetstat.Q.b.random[1],
                             tp = hetstat.pval.Q.b.random[1]))
         else
           text.subgroup.random <-
             substitute(paste(tl, chi^2, tq, " P", tp),
-                       list(tl = label.test.subgroup.random,
+                       list(tl = label[["test.subgroup.random"]],
                             tq = hetstat.Q.b.random[1],
                             tp = hetstat.pval.Q.b.random[1]))
       }
@@ -5475,7 +4829,7 @@ forest.meta <- function(x,
             substitute(paste(tl,
                              "F", tq,
                              " (P", tp, ")"),
-                       list(tl = label.test.subgroup.random,
+                       list(tl = label[["test.subgroup.random"]],
                             tq = hetstat.Q.b.random[1],
                             tp = hetstat.pval.Q.b.random[1]))
         else
@@ -5483,7 +4837,7 @@ forest.meta <- function(x,
             substitute(paste(tl,
                              "Chi"^2, tq,
                              " (P", tp, ")"),
-                       list(tl = label.test.subgroup.random,
+                       list(tl = label[["test.subgroup.random"]],
                             tq = hetstat.Q.b.random[1],
                             tp = hetstat.pval.Q.b.random[1]))
       }
@@ -5493,7 +4847,7 @@ forest.meta <- function(x,
             substitute(paste(tl,
                              F[df], tq,
                              " (", italic(P), tp, ")"),
-                       list(tl = label.test.subgroup.random,
+                       list(tl = label[["test.subgroup.random"]],
                             tq = hetstat.Q.b.random[1],
                             tp = hetstat.pval.Q.b.random[1],
                             df = paste(df.Q.b.random[[1]], collapse = ", ")))
@@ -5502,7 +4856,7 @@ forest.meta <- function(x,
             substitute(paste(tl,
                              chi[df]^2, tq,
                              " (", italic(P), tp, ")"),
-                       list(tl = label.test.subgroup.random,
+                       list(tl = label[["test.subgroup.random"]],
                             tq = hetstat.Q.b.random[1],
                             tp = hetstat.pval.Q.b.random[1],
                             df = df.Q.b.random[[1]]))          
@@ -5513,7 +4867,7 @@ forest.meta <- function(x,
             substitute(paste(tl,
                              F[df], tq,
                              " (", italic(p), tp, ")"),
-                       list(tl = label.test.subgroup.random,
+                       list(tl = label[["test.subgroup.random"]],
                             tq = hetstat.Q.b.random[1],
                             tp = hetstat.pval.Q.b.random[1],
                             df = paste(df.Q.b.random[[1]], collapse = ", ")))
@@ -5522,7 +4876,7 @@ forest.meta <- function(x,
             substitute(paste(tl,
                              chi[df]^2, tq,
                              " (", italic(p), tp, ")"),
-                       list(tl = label.test.subgroup.random,
+                       list(tl = label[["test.subgroup.random"]],
                             tq = hetstat.Q.b.random[1],
                             tp = hetstat.pval.Q.b.random[1],
                             df = df.Q.b.random[[1]]))
@@ -5532,28 +4886,27 @@ forest.meta <- function(x,
       if (bmj)
         text.subgroup.random <-
           substitute(paste(tl, " P", tp),
-                     list(tl = label.test.subgroup.random,
+                     list(tl = label[["test.subgroup.random"]],
                           tp = hetstat.pval.Q.b.random[1]))
       else if (revman5)
         text.subgroup.random <-
           substitute(paste(tl, " P", tp),
-                     list(tl = label.test.subgroup.random,
+                     list(tl = label[["test.subgroup.random"]],
                           tp = hetstat.pval.Q.b.random[1]))
       else if (jama)
         text.subgroup.random <-
           substitute(paste(tl, " ", italic(P), tp),
-                     list(tl = label.test.subgroup.random,
+                     list(tl = label[["test.subgroup.random"]],
                           tp = hetstat.pval.Q.b.random[1]))
       else
         text.subgroup.random <-
           substitute(paste(tl, " ", italic(p), tp),
-                     list(tl = label.test.subgroup.random,
+                     list(tl = label[["test.subgroup.random"]],
                           tp = hetstat.pval.Q.b.random[1]))
     }
   }
   else
     text.subgroup.random <- ""
-  
   
   #
   #
@@ -5582,7 +4935,6 @@ forest.meta <- function(x,
   if (by) {
     NAs.by <- rep(NA, n.by)
     #
-    k.w.hetstat <- if (metabind) x$k.w.orig else x$k.w
     o.w <- order(factor(x$subgroup.levels, levels = subgroup.levels))
     k.w.hetstat <- k.w.hetstat[o.w]
     if (use_t)
@@ -5696,7 +5048,7 @@ forest.meta <- function(x,
     if (allstudies)
       sel.w <- rep(TRUE, length(k.all.w))
     else
-      sel.w <- k.w > 0
+      sel.w <- k.w.hetstat > 0
     #
     if (use_t)
       df.random.w <- df.random.w[sel.w]
@@ -5749,6 +5101,7 @@ forest.meta <- function(x,
     k.all.w <- k.all.w[sel.w]
     k.study.w <- k.study.w[sel.w]
     k.w <- k.w[sel.w]
+    k.w.hetstat <- k.w.hetstat[sel.w]
     k.TE.w <- k.TE.w[sel.w]
     #
     subgroup.logical <- subgroup.logical[sel.w]
@@ -5763,13 +5116,13 @@ forest.meta <- function(x,
     print.tau.ci.subgroup.logical <- print.tau.ci.subgroup.logical[sel.w]
     #
     if (miss.null.print.tau2.ci.subgroup)
-      print.tau2.ci.subgroup.logical <- k.w > 2
+      print.tau2.ci.subgroup.logical <- k.w.hetstat > 2
     #
     lower.tau2.w[!print.tau2.ci.subgroup.logical] <- NA
     upper.tau2.w[!print.tau2.ci.subgroup.logical] <- NA
     #
     if (miss.null.print.tau.ci.subgroup)
-      print.tau.ci.subgroup.logical <- k.w > 2
+      print.tau.ci.subgroup.logical <- k.w.hetstat > 2
     #
     lower.tau.w[!print.tau.ci.subgroup.logical] <- NA
     upper.tau.w[!print.tau.ci.subgroup.logical] <- NA
@@ -5879,7 +5232,7 @@ forest.meta <- function(x,
         if (!all(is.na(w.common.w)) && sum(w.common.w) > 0)
           w.common.w.p <-
             round(100 * w.common.w / sum(w.common.w, na.rm = TRUE),
-                  digits.weight)
+                  digits[["weight"]])
         else
           w.common.w.p <- w.common.w
       }
@@ -5889,15 +5242,8 @@ forest.meta <- function(x,
       #
       w.common.w.p <- NAs.by
       #
-      if (!miss.text.common.w) {
-        text.common.w <-
-          deprecated(text.common.w, miss.text.common.w, args,
-                     "text.common.w",
-                     warn.deprecated)
-        miss.text.common.w <- FALSE
-      }
-      if (miss.text.common.w)
-        text.common.w <- rep("Overall", n.com.w)
+      if (miss.text[["common.w"]])
+        text$common.w <- rep("Overall", n.com.w)
     }
     #
     if (random) {
@@ -5914,7 +5260,7 @@ forest.meta <- function(x,
         if (!all(is.na(w.random.w)) && sum(w.random.w) > 0)
           w.random.w.p <-
             round(100 * w.random.w / sum(w.random.w, na.rm = TRUE),
-                  digits.weight)
+                  digits[["weight"]])
         else
           w.random.w.p <- w.random.w
       }
@@ -5923,7 +5269,7 @@ forest.meta <- function(x,
       TE.random.w <- lower.random.w <- upper.random.w <- NAs.by
       #
       w.random.w.p <- NAs.ran.w
-      text.random.w <- blanks.ran.w
+      text$random.w <- blanks.ran.w
     }
     #
     hetstat.w <- vector("list", n.by)
@@ -5932,11 +5278,11 @@ forest.meta <- function(x,
       #
       hetstat.I2.w <-
         paste0(hetseparator,
-               round(100 * I2.w, digits.I2), "%",
-               if (print.I2.ci)
+               round(100 * I2.w, digits[["I2"]]), "%",
+               if (print[["I2.ci"]])
                  ifelse(!(is.na(lowI2.w) | is.na(uppI2.w)),
                         pasteCI(100 * lowI2.w, 100 * uppI2.w,
-                                digits.I2, big.mark,
+                                digits[["I2"]], big.mark,
                                 lab.NA = lab.NA, unit = "%"),
                         ""))
       #
@@ -5944,14 +5290,14 @@ forest.meta <- function(x,
         paste0(hetseparator,
                ifelse(is.na(tau.w), "NA",
                       ifelse(tau2.w == 0, "0",
-                             formatPT(tau2.w, digits = digits.tau2,
+                             formatPT(tau2.w, digits = digits[["tau2"]],
                                       big.mark = big.mark, lab.NA = "NA"))))
       #
-      if (print.tau2.ci)
+      if (print[["tau2.ci"]])
         hetstat.tau2.w <-
         paste0(hetstat.tau2.w,
                ifelse(!(is.na(lower.tau2.w) | is.na(upper.tau2.w)),
-                      pasteCI(lower.tau2.w, upper.tau2.w, digits.tau2, big.mark,
+                      pasteCI(lower.tau2.w, upper.tau2.w, digits[["tau2"]], big.mark,
                               lab.NA = lab.NA),
                       ""))
       #
@@ -5959,37 +5305,37 @@ forest.meta <- function(x,
         paste0(hetseparator,
                ifelse(is.na(tau.w), "NA",
                       ifelse(tau.w == 0, "0",
-                             formatPT(tau.w, digits = digits.tau,
+                             formatPT(tau.w, digits = digits[["tau"]],
                                       big.mark = big.mark, lab.NA = "NA"))))
       #
-      if (print.tau.ci)
+      if (print[["tau.ci"]])
         hetstat.tau.w <-
         paste0(hetstat.tau.w,
                ifelse(!(is.na(lower.tau.w) | is.na(upper.tau.w)),
-                      pasteCI(lower.tau.w, upper.tau.w, digits.tau, big.mark,
+                      pasteCI(lower.tau.w, upper.tau.w, digits[["tau"]], big.mark,
                               lab.NA = lab.NA),
                       ""))
       #
       hetstat.Q.w <-
-        paste0(hetseparator, round(Q.w, digits.Q),
+        paste0(hetseparator, round(Q.w, digits[["Q"]]),
                if (bmj.revman5)
                  paste0(", df",  hetseparator, k.w.hetstat - 1))
       #
       hetstat.pval.Q.w <-
         paste0(formatPT(replaceNULL(pval.Q.w, pvalQ(Q.w, k.w - 1)),
                         lab = TRUE, labval = "",
-                        digits = digits.pval.Q,
+                        digits = digits[["pval.Q"]],
                         zero = zero.pval, JAMA = JAMA.pval,
                         scientific = scientific.pval,
                         lab.NA = "NA"))
       #
       hetstat.Rb.w <-
         paste0(hetseparator,
-               round(100 * Rb.w, digits.I2), "%",
-               if (print.Rb.ci)
+               round(100 * Rb.w, digits[["I2"]]), "%",
+               if (print[["Rb.ci"]])
                  ifelse(!(is.na(lowRb.w) | is.na(uppRb.w)),
                         pasteCI(100 * lowRb.w, 100 * uppRb.w,
-                                digits.I2, big.mark,
+                                digits[["I2"]], big.mark,
                                 lab.NA = lab.NA, unit = "%"),
                         ""))
       #
@@ -6016,14 +5362,13 @@ forest.meta <- function(x,
                        hetstat.I2.w[i], hetstat.tau2.w[i], hetstat.tau.w[i],
                        hetstat.Q.w[i], hetstat.pval.Q.w[i], hetstat.Rb.w[i],
                        k.w.hetstat[i] - 1,
-                       print.I2, print.tau2 & print.tau2.tau,
-                       print.tau & print.tau2.tau,
-                       print.Q, print.pval.Q, print.Rb,
+                       print[["I2"]], print[["tau2"]] & print[["tau2.tau"]],
+                       print[["tau"]] & print[["tau2.tau"]],
+                       print[["Q"]], print[["pval.Q"]], print[["Rb"]],
                        bmj, jama, revman5,
-                       miss.print.tau2, miss.print.tau)
-        if (hetstat.pooled != "study" &
-            !is.logical(text.subgroup.nohet) & k.w.hetstat[i] < 2)
-          hetstat.w[[i]] <- paste0(hetlab, text.subgroup.nohet)
+                       miss.print[["tau2"]], miss.print[["tau"]])
+        if (!is.logical(text[["subgroup.nohet"]]) & k.w.hetstat[i] < 2)
+          hetstat.w[[i]] <- paste0(hetlab, text[["subgroup.nohet"]])
       }
     }
     #
@@ -6040,16 +5385,36 @@ forest.meta <- function(x,
     #
     # Label of test for effect in subgroups
     #
+    # Each subgroup has only one random-effects test row.
+    random.effect.w <- rep(NA_integer_, n.by)
+    for (i in seq_len(n.by)) {
+      slots <- (i - 1) * n.ran + seq_len(n.ran)
+      slots <- slots[random.subgroup.logical[slots] &
+                       !is.na(pval.random.w[slots])]
+      if (length(slots))
+        random.effect.w[i] <- slots[1]
+    }
+    method.effect.w <- (random.effect.w - 1) %% n.ran + 1
+    if (is.matrix(x$df.random.w))
+      df.effect.w <- as.vector(t(x$df.random.w[
+        match(subgroup.levels, rownames(x$df.random.w)), , drop = FALSE]))[
+          random.effect.w]
+    else if (length(x$df.random.w))
+      df.effect.w <- x$df.random.w[
+        match(subgroup.levels, x$subgroup.levels)][random.effect.w]
+    else
+      df.effect.w <- rep(NA_real_, n.by)
+    #
     pvals.effect.w <-
-      formatPT(c(pval.common.w, pval.random.w),
+      formatPT(c(pval.common.w, pval.random.w[random.effect.w]),
                lab = TRUE, labval = "",
-               digits = digits.pval,
+               digits = digits[["pval"]],
                zero = zero.pval, JAMA = JAMA.pval,
                scientific = scientific.pval,
                lab.NA = "NA")
     statistics.effect.w <-
-      formatN(c(statistic.common.w, statistic.random.w),
-              digits.stat, "NA", big.mark = big.mark)
+      formatN(c(statistic.common.w, statistic.random.w[random.effect.w]),
+              digits[["stat"]], "NA", big.mark = big.mark)
     #
     # Remove superfluous spaces
     #
@@ -6063,13 +5428,13 @@ forest.meta <- function(x,
     if (any(test.effect.subgroup.common.logical)) {
       text.effect.subgroup.common <- vector("list", n.by)
       for (i in seq_len(n.by)) {
-        if (print.stat) {
+        if (print[["stat"]]) {
           if (bmj)
             text.effect.subgroup.common[[i]] <-
               substitute(paste(tl,
                                Z, hetseparator, tt,
                                ", P", tp),
-                         list(tl = label.test.effect.subgroup.common,
+                         list(tl = label[["test.effect.subgroup.common"]],
                               hetseparator = hetseparator,
                               tt = statistics.effect.w[i],
                               tp = rmSpace(pvals.effect.w[i], end = TRUE)))
@@ -6078,7 +5443,7 @@ forest.meta <- function(x,
               substitute(paste(tl,
                                Z, hetseparator, tt,
                                " (P", tp, ")"),
-                         list(tl = label.test.effect.subgroup.common,
+                         list(tl = label[["test.effect.subgroup.common"]],
                               hetseparator = hetseparator,
                               tt = statistics.effect.w[i],
                               tp = rmSpace(pvals.effect.w[i], end = TRUE)))
@@ -6087,7 +5452,7 @@ forest.meta <- function(x,
               substitute(paste(tl,
                                italic(z), hetseparator, tt,
                                " (", italic(P), tp, ")"),
-                         list(tl = label.test.effect.subgroup.common,
+                         list(tl = label[["test.effect.subgroup.common"]],
                               hetseparator = hetseparator,
                               tt = statistics.effect.w[i],
                               tp = rmSpace(pvals.effect.w[i], end = TRUE)))
@@ -6096,7 +5461,7 @@ forest.meta <- function(x,
               substitute(paste(tl,
                                italic(z), hetseparator, tt,
                                " (", italic(p), tp, ")"),
-                         list(tl = label.test.effect.subgroup.common,
+                         list(tl = label[["test.effect.subgroup.common"]],
                               hetseparator = hetseparator,
                               tt = statistics.effect.w[i],
                               tp = rmSpace(pvals.effect.w[i], end = TRUE)))
@@ -6106,25 +5471,25 @@ forest.meta <- function(x,
             text.effect.subgroup.common[[i]] <-
               substitute(paste(tl,
                                " P", tp),
-                         list(tl = label.test.effect.subgroup.common,
+                         list(tl = label[["test.effect.subgroup.common"]],
                               tp = rmSpace(pvals.effect.w[i], end = TRUE)))
           else if (revman5)
             text.effect.subgroup.common[[i]] <-
               substitute(paste(tl,
                                " P", tp),
-                         list(tl = label.test.effect.subgroup.common,
+                         list(tl = label[["test.effect.subgroup.common"]],
                               tp = rmSpace(pvals.effect.w[i], end = TRUE)))
           else if (jama)
             text.effect.subgroup.common[[i]] <-
               substitute(paste(tl,
                                " ", italic(P), tp),
-                         list(tl = label.test.effect.subgroup.common,
+                         list(tl = label[["test.effect.subgroup.common"]],
                               tp = rmSpace(pvals.effect.w[i], end = TRUE)))
           else
             text.effect.subgroup.common[[i]] <-
               substitute(paste(tl,
                                " ", italic(p), tp),
-                         list(tl = label.test.effect.subgroup.common,
+                         list(tl = label[["test.effect.subgroup.common"]],
                               tp = rmSpace(pvals.effect.w[i], end = TRUE)))
         }
       }
@@ -6138,14 +5503,15 @@ forest.meta <- function(x,
     if (any(test.effect.subgroup.random.logical)) {
       text.effect.subgroup.random <- vector("list", n.by)
       for (i in seq_len(n.by)) {
-        if (print.stat) {
-          if (!use_t) {
+        if (print[["stat"]]) {
+          if (!(x$method.random.ci[method.effect.w[i]] %in%
+                c("HK", "KR", "CR0", "CR1", "CR2"))) {
             if (bmj)
               text.effect.subgroup.random[[i]] <-
                 substitute(paste(tl,
                                  Z, hetseparator, tt,
                                  ", P", tp),
-                           list(tl = label.test.effect.subgroup.random,
+                           list(tl = label[["test.effect.subgroup.random"]],
                                 hetseparator = hetseparator,
                                 tt = statistics.effect.w[n.by + i],
                                 tp = rmSpace(pvals.effect.w[n.by + i],
@@ -6155,7 +5521,7 @@ forest.meta <- function(x,
                 substitute(paste(tl,
                                  Z, hetseparator, tt,
                                  " (P", tp, ")"),
-                           list(tl = label.test.effect.subgroup.random,
+                           list(tl = label[["test.effect.subgroup.random"]],
                                 hetseparator = hetseparator,
                                 tt = statistics.effect.w[n.by + i],
                                 tp = rmSpace(pvals.effect.w[n.by + i],
@@ -6165,7 +5531,7 @@ forest.meta <- function(x,
                 substitute(paste(tl,
                                  italic(z), hetseparator, tt,
                                  " (", italic(P), tp, ")"),
-                           list(tl = label.test.effect.subgroup.random,
+                           list(tl = label[["test.effect.subgroup.random"]],
                                 hetseparator = hetseparator,
                                 tt = statistics.effect.w[n.by + i],
                                 tp = rmSpace(pvals.effect.w[n.by + i],
@@ -6175,7 +5541,7 @@ forest.meta <- function(x,
                 substitute(paste(tl,
                                  italic(z), hetseparator, tt,
                                  " (", italic(p), tp, ")"),
-                           list(tl = label.test.effect.subgroup.random,
+                           list(tl = label[["test.effect.subgroup.random"]],
                                 hetseparator = hetseparator,
                                 tt = statistics.effect.w[n.by + i],
                                 tp = rmSpace(pvals.effect.w[n.by + i],
@@ -6187,45 +5553,45 @@ forest.meta <- function(x,
                 substitute(paste(tl,
                                  t[df], hetseparator, tt,
                                  ", P", tp),
-                           list(tl = label.test.effect.subgroup.random,
+                           list(tl = label[["test.effect.subgroup.random"]],
                                 hetseparator = hetseparator,
                                 tt = statistics.effect.w[n.by + i],
                                 tp = rmSpace(pvals.effect.w[n.by + i],
                                              end = TRUE),
-                                df = df.random.w[i]))
+                                df = df.effect.w[i]))
             else if (revman5)
               text.effect.subgroup.random[[i]] <-
                 substitute(paste(tl,
                                  t[df], hetseparator, tt,
                                  " (P", tp, ")"),
-                           list(tl = label.test.effect.subgroup.random,
+                           list(tl = label[["test.effect.subgroup.random"]],
                                 hetseparator = hetseparator,
                                 tt = statistics.effect.w[n.by + i],
                                 tp = rmSpace(pvals.effect.w[n.by + i],
                                              end = TRUE),
-                                df = df.random.w[i]))
+                                df = df.effect.w[i]))
             else if (jama)
               text.effect.subgroup.random[[i]] <-
                 substitute(paste(tl,
                                  italic(t)[df], hetseparator, tt,
                                  " (", italic(P), tp, ")"),
-                           list(tl = label.test.effect.subgroup.random,
+                           list(tl = label[["test.effect.subgroup.random"]],
                                 hetseparator = hetseparator,
                                 tt = statistics.effect.w[n.by + i],
                                 tp = rmSpace(pvals.effect.w[n.by + i],
                                              end = TRUE),
-                                df = df.random.w[i]))
+                                df = df.effect.w[i]))
             else
               text.effect.subgroup.random[[i]] <-
                 substitute(paste(tl,
                                  italic(t)[df], hetseparator, tt,
                                  " (", italic(p), tp, ")"),
-                           list(tl = label.test.effect.subgroup.random,
+                           list(tl = label[["test.effect.subgroup.random"]],
                                 hetseparator = hetseparator,
                                 tt = statistics.effect.w[n.by + i],
                                 tp = rmSpace(pvals.effect.w[n.by + i],
                                              end = TRUE),
-                                df = df.random.w[i]))
+                                df = df.effect.w[i]))
           }
         }
         else {
@@ -6233,28 +5599,28 @@ forest.meta <- function(x,
             text.effect.subgroup.random[[i]] <-
               substitute(paste(tl,
                                " P", tp),
-                         list(tl = label.test.effect.subgroup.random,
+                         list(tl = label[["test.effect.subgroup.random"]],
                               tp = rmSpace(pvals.effect.w[n.by + i],
                                            end = TRUE)))
           else if (revman5)
             text.effect.subgroup.random[[i]] <-
               substitute(paste(tl,
                                " P", tp),
-                         list(tl = label.test.effect.subgroup.random,
+                         list(tl = label[["test.effect.subgroup.random"]],
                               tp = rmSpace(pvals.effect.w[n.by + i],
                                            end = TRUE)))
           else if (jama)
             text.effect.subgroup.random[[i]] <-
               substitute(paste(tl,
                                " ", italic(P)),
-                         list(tl = label.test.effect.subgroup.random,
+                         list(tl = label[["test.effect.subgroup.random"]],
                               tp = rmSpace(pvals.effect.w[n.by + i],
                                            end = TRUE)))
           else
             text.effect.subgroup.random[[i]] <-
               substitute(paste(tl,
                                " ", italic(p), tp),
-                         list(tl = label.test.effect.subgroup.random,
+                         list(tl = label[["test.effect.subgroup.random"]],
                               tp = rmSpace(pvals.effect.w[n.by + i],
                                            end = TRUE)))
         }
@@ -6272,13 +5638,13 @@ forest.meta <- function(x,
   #
   if (!is.null(x$sd.n_of_1))
     x$sd.n_of_1 <-
-    formatPT(x$sd.n_of_1, digits = digits.sd, big.mark = big.mark)
+    formatPT(x$sd.n_of_1, digits = digits[["sd"]], big.mark = big.mark)
   #
   text.details <- ""
   #
   if (details) {
     x.details <- x
-    if (!test.overall.common && !test.overall.random)
+    if (!test[["overall.common"]] && !test[["overall.random"]])
       x.details$null.effect <- NA
     #
     if (is.null(x$.text.details.methods)) {
@@ -6290,8 +5656,8 @@ forest.meta <- function(x,
                   func.transf = x$func.transf,
                   backtransf = backtransf, func.backtransf = fbt,
                   #
-                  big.mark = big.mark, digits = digits,
-                  digits.tau = digits.tau,
+                  big.mark = big.mark, digits = digits[["digits"]],
+                  digits.tau = digits[["tau"]],
                   text.tau = gs("text.tau"), text.tau2 = gs("text.tau2"),
                   #
                   print.tau2 = FALSE,
@@ -6306,14 +5672,14 @@ forest.meta <- function(x,
                   func.transf = x$func.transf,
                   backtransf = backtransf, func.backtransf = fbt,
                   #
-                  big.mark = big.mark, digits = digits,
-                  digits.tau = digits.tau,
+                  big.mark = big.mark, digits = digits[["digits"]],
+                  digits.tau = digits[["tau"]],
                   text.tau = gs("text.tau"), text.tau2 = gs("text.tau2"),
                   #
-                  print.tau2 = print.tau2, print.tau2.ci = print.tau2.ci,
-                  print.tau = print.tau, print.tau.ci = print.tau.ci,
+                  print.tau2 = print[["tau2"]], print.tau2.ci = print[["tau2.ci"]],
+                  print.tau = print[["tau"]], print.tau.ci = print[["tau.ci"]],
                   #
-                  print.I2 = print.I2 &
+                  print.I2 = print[["I2"]] &
                     (overall.hetstat | (by && any(subgroup.hetstat.logical))),
                   #
                   forest = TRUE)
@@ -6352,7 +5718,7 @@ forest.meta <- function(x,
       id.tau.c <- seq_along(is.tau.c)[is.tau.c]
       id.Q.Cochrane <- seq_along(is.Q.Cochrane)[is.Q.Cochrane]
       #
-      if (print.tau) {
+      if (print[["tau"]]) {
         if (any.tau.c)
           for (i in id.tau.c)
             td[[i]] <-
@@ -6387,7 +5753,7 @@ forest.meta <- function(x,
               gsub(" and tau^2 (like RevMan 5)", " and ", td[[i]], fixed = TRUE)
       }
       #
-      if (print.tau) {
+      if (print[["tau"]]) {
         if (revman5) {
           if (any.tau.c)
             for (i in id.tau.c)
@@ -6496,7 +5862,7 @@ forest.meta <- function(x,
         td[[i]] <- gsub(" of tau", " of ", td[[i]], fixed = TRUE)
       }
       #
-      if (print.tau.ci) {
+      if (print[["tau.ci"]]) {
         if (revman5)
           for (i in id)
             td[[i]] <-
@@ -6572,7 +5938,6 @@ forest.meta <- function(x,
       text.details <- td
   }
   
-  
   #
   #
   # (12) Backtransform data
@@ -6585,17 +5950,7 @@ forest.meta <- function(x,
     #
     # Freeman-Tukey transformations
     #
-    if (metabind) {
-      if (sm == "IRFT") {
-        npft <- x$t.harmonic.mean
-        npft.ma <- x$t.harmonic.mean.ma
-      }
-      else {
-        npft <- x$n.harmonic.mean
-        npft.ma <- x$n.harmonic.mean.ma
-      }
-    }
-    else if (metacum | metainf) {
+    if (metacum | metainf) {
       if (sm == "IRFT") {
         npft <- x$t.harmonic.mean
         npft.ma <- x$t.harmonic.mean.pooled
@@ -6760,30 +6115,30 @@ forest.meta <- function(x,
   }
   #
   if (by & !overall)
-    w.common.p <- round(100 * x$w.common, digits.weight)
+    w.common.p <- round(100 * x$w.common, digits[["weight"]])
   else {
     if (!all(is.na(x$w.common)) && sum(x$w.common) > 0) {
       if (is.matrix(x$w.common))
         w.common.p <-
-          round(apply(x$w.common, 2, calcPercent), digits.weight)
+          round(apply(x$w.common, 2, calcPercent), digits[["weight"]])
       else
         w.common.p <-
-          round(calcPercent(x$w.common), digits.weight)
+          round(calcPercent(x$w.common), digits[["weight"]])
     }
     else
       w.common.p <- x$w.common
   }
   #
   if (by & !overall)
-    w.random.p <- round(100 * x$w.random, digits.weight)
+    w.random.p <- round(100 * x$w.random, digits[["weight"]])
   else {
     if (!all(is.na(x$w.random)) && sum(x$w.random) > 0) {
       if (is.matrix(x$w.random))
         w.random.p <-
-          round(apply(x$w.random, 2, calcPercent), digits.weight)
+          round(apply(x$w.random, 2, calcPercent), digits[["weight"]])
       else
         w.random.p <-
-          round(calcPercent(x$w.random), digits.weight)
+          round(calcPercent(x$w.random), digits[["weight"]])
     }
     else
       w.random.p <- x$w.random
@@ -6793,7 +6148,6 @@ forest.meta <- function(x,
     w.common.p <- as.vector(w.common.p[, 1])
   if (is.matrix(w.random.p))
     w.random.p <- as.vector(w.random.p[, 1])
-  
   
   #
   #
@@ -7405,8 +6759,8 @@ forest.meta <- function(x,
   #
   lines.smlab <- split_lines(smlab)
   lines.xlab <- split_lines(xlab)
-  lines.label.left <- split_lines(label.left)
-  lines.label.right <- split_lines(label.right)
+  lines.label.left <- split_lines(label[["left"]])
+  lines.label.right <- split_lines(label[["right"]])
   #
   rows.smlab <- length(lines.smlab)
   rows.xlab <- length(lines.xlab)
@@ -7448,8 +6802,7 @@ forest.meta <- function(x,
     newline.pval | newline.statistic | newline.tau2 | newline.tau | newline.I2 |
     rows.smlab > 1 | newline.addcol.left | newline.addcol.right
   #
-  newline.all <- newline | (!newline & rows.lr > 1 & !addrow)
-  
+  newline.all <- newline | (!newline & rows.lr > 1 & !addrow[["addrow"]])
   
   #
   #
@@ -7457,55 +6810,45 @@ forest.meta <- function(x,
   #
   #
   
-  type.common <-
-    deprecated(type.common, miss.type.common,
-               args, "type.common",
-               warn.deprecated)
-  #
-  type.subgroup.common <-
-    deprecated(type.subgroup.common, miss.type.subgroup.common,
-               args, "type.subgroup.common",
-               warn.deprecated)
-  #
   # Set / check correct length of variables
   #
-  col.diamond.common <-
-    setlength(col.diamond.common, n.com, "number of common effect estimates")
+  col[["diamond.common"]] <-
+    setlength(col[["diamond.common"]], n.com, "number of common effect estimates")
   #
-  col.diamond.random <-
-    setlength(col.diamond.random, n.ran, "number of random effect estimates")
+  col[["diamond.random"]] <-
+    setlength(col[["diamond.random"]], n.ran, "number of random effect estimates")
   #
-  col.predict <-
-    setlength(col.predict, n.prd, "number of prediction intervals")
+  col[["predict"]] <-
+    setlength(col[["predict"]], n.prd, "number of prediction intervals")
   #
-  col.diamond.lines.common <-
-    setlength(col.diamond.lines.common, n.com,
+  col[["diamond.lines.common"]] <-
+    setlength(col[["diamond.lines.common"]], n.com,
               "number of common effect estimates")
   #
-  col.diamond.lines.random <-
-    setlength(col.diamond.lines.random, n.ran,
+  col[["diamond.lines.random"]] <-
+    setlength(col[["diamond.lines.random"]], n.ran,
               "number of random effect estimates")
   #
-  col.predict.lines <-
-    setlength(col.predict.lines, n.prd, "number of prediction intervals")
+  col[["predict.lines"]] <-
+    setlength(col[["predict.lines"]], n.prd, "number of prediction intervals")
   #
-  col.inside.common <-
-    setlength(col.inside.common, n.com, "number of common effect estimates")
+  col[["inside.common"]] <-
+    setlength(col[["inside.common"]], n.com, "number of common effect estimates")
   #
-  col.inside.random <-
-    setlength(col.inside.random, n.ran, "number of random effect estimates")
+  col[["inside.random"]] <-
+    setlength(col[["inside.random"]], n.ran, "number of random effect estimates")
   #
   if (by) {
-    if (!is.null(text.subgroup)) {
-      if (length(text.subgroup) != length(subgroup.levels))
+    if (!is.null(text[["subgroup"]])) {
+      if (length(text[["subgroup"]]) != length(subgroup.levels))
         stop("Length of argument 'text.subgroup' must be equal to ",
              length(subgroup.levels), ", i.e., the number of subgroups.")
       #
-      subgroup.name <- text.subgroup
+      subgroup.name <- text[["subgroup"]]
     }
     else
       subgroup.name <-
-        bylabel(subgroup.name, subgroup.levels, print.subgroup.name,
+        bylabel(subgroup.name, subgroup.levels, print[["subgroup.name"]],
                 sep.subgroup, big.mark = big.mark)
     #
     wrong.common <- FALSE
@@ -7513,39 +6856,39 @@ forest.meta <- function(x,
     wrong.predict <- FALSE
     #
     if (n.by > 1) {
-      if (length(text.common.w) == 1)
-        text.common.w <- rep(text.common.w, n.com.w)
-      else if (length(text.common.w) == n.com)
-        text.common.w <- rep(text.common.w, n.by)
-      else if (length(text.common.w) == n.by)
-        text.common.w <- rep(text.common.w, n.com)
+      if (length(text[["common.w"]]) == 1)
+        text$common.w <- rep(text[["common.w"]], n.com.w)
+      else if (length(text[["common.w"]]) == n.com)
+        text$common.w <- rep(text[["common.w"]], n.by)
+      else if (length(text[["common.w"]]) == n.by)
+        text$common.w <- rep(text[["common.w"]], n.com)
       else
         wrong.common <- TRUE
       #
-      if (length(text.random.w) == 1)
-        text.random.w <- rep(text.random.w, n.ran.w)
-      else if (length(text.random.w) == n.ran)
-        text.random.w <- rep(text.random.w, n.by)
-      else if (length(text.random.w) == n.by)
-        text.random.w <- rep(text.random.w, n.ran)
+      if (length(text[["random.w"]]) == 1)
+        text$random.w <- rep(text[["random.w"]], n.ran.w)
+      else if (length(text[["random.w"]]) == n.ran)
+        text$random.w <- rep(text[["random.w"]], n.by)
+      else if (length(text[["random.w"]]) == n.by)
+        text$random.w <- rep(text[["random.w"]], n.ran)
       else
         wrong.random <- TRUE
       #
-      if (length(text.predict.w) == 1)
-        text.predict.w <- rep(text.predict.w, n.prd.w)
-      else if (length(text.predict.w) == n.prd)
-        text.predict.w <- rep(text.predict.w, n.by)
-      else if (length(text.predict.w) == n.by)
-        text.predict.w <- rep(text.predict.w, n.prd)
+      if (length(text[["predict.w"]]) == 1)
+        text$predict.w <- rep(text[["predict.w"]], n.prd.w)
+      else if (length(text[["predict.w"]]) == n.prd)
+        text$predict.w <- rep(text[["predict.w"]], n.by)
+      else if (length(text[["predict.w"]]) == n.by)
+        text$predict.w <- rep(text[["predict.w"]], n.prd)
       else
         wrong.predict <- TRUE
     }
     else if (n.by == 1) {
-      if (length(text.common.w) != n.com)
+      if (length(text[["common.w"]]) != n.com)
         wrong.common <- TRUE
-      if (length(text.random.w) != n.ran)
+      if (length(text[["random.w"]]) != n.ran)
         wrong.random <- TRUE
-      if (length(text.predict.w) != n.prd)
+      if (length(text[["predict.w"]]) != n.prd)
         wrong.predict <- TRUE
     }
     #
@@ -7574,30 +6917,26 @@ forest.meta <- function(x,
              ".")
     #
     if (hetstat.pooled == "common") {
-      text.common <- hetstat.overall
-      text.common.w <- hetstat.w
+      text$common <- hetstat.overall
+      text$common.w <- hetstat.w
       hetstat <- FALSE
     }
     else if (hetstat.pooled == "random") {
-      text.random <- hetstat.overall
-      text.random.w <- hetstat.w
-      hetstat <- FALSE
-    }
-    else if (hetstat.pooled == "study") {
-      studlab <- hetstat.w
+      text$random <- hetstat.overall
+      text$random.w <- hetstat.w
       hetstat <- FALSE
     }
     #
     if (revman5) {
-      modlabs <- c(text.common, text.random, text.predict,
+      modlabs <- c(text[["common"]], text[["random"]], text[["predict"]],
                    hetstat.overall,
                    hetstat.resid,
                    text.overall.common, text.overall.random,
                    text.subgroup.common, text.subgroup.random,
-                   text.addline1, text.addline2,
+                   text[["addline1"]], text[["addline2"]],
                    if (details) text.details else NULL,
                    if (RoB.legend) text.rob.legend else NULL,
-                   subgroup.name, text.common.w, text.random.w, text.predict.w,
+                   subgroup.name, text[["common.w"]], text[["random.w"]], text[["predict.w"]],
                    hetstat.w,
                    unlist(text.effect.subgroup.common),
                    unlist(text.effect.subgroup.random),
@@ -7605,14 +6944,14 @@ forest.meta <- function(x,
       
     }
     else {
-      modlabs <- c(text.common, text.random, text.predict,
+      modlabs <- c(text[["common"]], text[["random"]], text[["predict"]],
                    hetstat.overall, hetstat.resid,
                    text.overall.common, text.overall.random,
                    text.subgroup.common, text.subgroup.random,
-                   text.addline1, text.addline2,
+                   text[["addline1"]], text[["addline2"]],
                    if (details) text.details else NULL,
                    if (RoB.legend) text.rob.legend else NULL,
-                   subgroup.name, text.common.w, text.random.w, text.predict.w,
+                   subgroup.name, text[["common.w"]], text[["random.w"]], text[["predict.w"]],
                    hetstat.w,
                    unlist(text.effect.subgroup.common),
                    unlist(text.effect.subgroup.random),
@@ -7630,11 +6969,11 @@ forest.meta <- function(x,
                         uppTE.exclude)
     #
     TEs.study <- c(blanks, blanks.w,
-                   formatN(TE.orig, digits.TE, lab.NA, big.mark = big.mark,
+                   formatN(TE.orig, digits[["TE"]], lab.NA, big.mark = big.mark,
                            monospaced = monospaced))
     #
     seTEs.study <- c(blanks, blanks.w,
-                     formatN(seTE, digits.se, lab.NA, big.mark = big.mark,
+                     formatN(seTE, digits[["se"]], lab.NA, big.mark = big.mark,
                              monospaced = monospaced))
     #
     w.commons <- c(NAs.com, NAs.ran, NAs.prd,
@@ -7657,10 +6996,10 @@ forest.meta <- function(x,
                           w.random.p)
     #
     Wc.format <-
-      formatN(format.w.commons, digits.weight, lab.NA = lab.NA.weight,
+      formatN(format.w.commons, digits[["weight"]], lab.NA = lab.NA.weight,
               monospaced = monospaced)
     Wr.format <-
-      formatN(format.w.randoms, digits.weight, lab.NA = lab.NA.weight,
+      formatN(format.w.randoms, digits[["weight"]], lab.NA = lab.NA.weight,
               monospaced = monospaced)
     #
     sel.common <- Wc.format == lab.NA.weight
@@ -7669,95 +7008,100 @@ forest.meta <- function(x,
     sel.common[first.ran.w] <- TRUE
     sel.random[first.com.w] <- TRUE
     #
-    type.pooled <- c(rep(type.common, n.com),
-                     rep(type.random, n.ran),
+    type.pooled <- c(rep(type[["common"]], n.com),
+                     rep(type[["random"]], n.ran),
                      rep("predict", n.prd),
-                     rep(type.subgroup.common, n.com.w),
-                     rep(type.subgroup.random, n.ran.w),
+                     rep(type[["subgroup.common"]], n.com.w),
+                     rep(type[["subgroup.random"]], n.ran.w),
                      rep("predict", n.prd.w),
                      blanks.stat.w)
     #
-    col.diamond.common.subgroup <-
+    col[["diamond.common.subgroup"]] <-
       setlength_subgroup_colors(
-        col.diamond.common.subgroup, n.com, n.com.w,
+        col[["diamond.common.subgroup"]], n.com, n.com.w,
         subgroup.levels, x$subgroup.levels,
         "number of common effect estimates",
         "col.diamond.common.subgroup")
-    col.diamond.random.subgroup <-
+    #
+    col[["diamond.random.subgroup"]] <-
       setlength_subgroup_colors(
-        col.diamond.random.subgroup, n.ran, n.ran.w,
+        col[["diamond.random.subgroup"]], n.ran, n.ran.w,
         subgroup.levels, x$subgroup.levels,
         "number of random effects estimates",
         "col.diamond.random.subgroup")
-    col.diamond.lines.common.subgroup <-
+    #
+    col[["diamond.lines.common.subgroup"]] <-
       setlength_subgroup_colors(
-        col.diamond.lines.common.subgroup, n.com, n.com.w,
+        col[["diamond.lines.common.subgroup"]], n.com, n.com.w,
         subgroup.levels, x$subgroup.levels,
         "number of common effect estimates",
         "col.diamond.lines.common.subgroup")
-    col.diamond.lines.random.subgroup <-
+    #
+    col[["diamond.lines.random.subgroup"]] <-
       setlength_subgroup_colors(
-        col.diamond.lines.random.subgroup, n.ran, n.ran.w,
+        col[["diamond.lines.random.subgroup"]], n.ran, n.ran.w,
         subgroup.levels, x$subgroup.levels,
         "number of random effects estimates",
         "col.diamond.lines.random.subgroup")
-    col.predict.subgroup <-
+    #
+    col[["predict.subgroup"]] <-
       setlength_subgroup_colors(
-        col.predict.subgroup, n.prd, n.prd.w,
+        col[["predict.subgroup"]], n.prd, n.prd.w,
         subgroup.levels, x$subgroup.levels,
         "number of prediction intervals",
         "col.predict.subgroup")
-    col.predict.lines.subgroup <-
+    #
+    col[["predict.lines.subgroup"]] <-
       setlength_subgroup_colors(
-        col.predict.lines.subgroup, n.prd, n.prd.w,
+        col[["predict.lines.subgroup"]], n.prd, n.prd.w,
         subgroup.levels, x$subgroup.levels,
         "number of prediction intervals",
         "col.predict.lines.subgroup")
     #
     col.diamond.pooled <-
-      c(col.diamond.common, col.diamond.random, col.predict,
-        col.diamond.common.subgroup,
-        col.diamond.random.subgroup,
-        col.predict.subgroup,
+      c(col[["diamond.common"]], col[["diamond.random"]], col[["predict"]],
+        col[["diamond.common.subgroup"]],
+        col[["diamond.random.subgroup"]],
+        col[["predict.subgroup"]],
         NAs.stat.w)
     #
     col.diamond.lines.pooled <-
-      c(col.diamond.lines.common, col.diamond.lines.random, col.predict.lines,
-        col.diamond.lines.common.subgroup,
-        col.diamond.lines.random.subgroup,
-        col.predict.lines.subgroup,
+      c(col[["diamond.lines.common"]], col[["diamond.lines.random"]], col[["predict.lines"]],
+        col[["diamond.lines.common.subgroup"]],
+        col[["diamond.lines.random.subgroup"]],
+        col[["predict.lines.subgroup"]],
         NAs.stat.w)
     #
     col.inside.pooled <-
-      c(col.inside.common, col.inside.random, blanks.prd,
-        rep(col.inside.common, n.by),
-        rep(col.inside.random, n.by),
+      c(col[["inside.common"]], col[["inside.random"]], blanks.prd,
+        rep(col[["inside.common"]], n.by),
+        rep(col[["inside.random"]], n.by),
         rep("", n.prd.w),
         NAs.stat.w)
   }
   else {
     #
     if (hetstat.pooled == "common")
-      text.common <- hetstat.overall
+      text$common <- hetstat.overall
     else if (hetstat.pooled == "random")
-      text.random <- hetstat.overall
+      text$random <- hetstat.overall
     #
     if (revman5)
-      modlabs <- c(text.common, text.random, text.predict,
+      modlabs <- c(text[["common"]], text[["random"]], text[["predict"]],
                    hetstat.overall,
                    text.overall.common, text.overall.random,
                    hetstat.resid,
                    text.subgroup.common, text.subgroup.random,
-                   text.addline1, text.addline2,
+                   text[["addline1"]], text[["addline2"]],
                    if (details) text.details else NULL,
                    if (RoB.legend) text.rob.legend else NULL,
                    studlab)
     else
-      modlabs <- c(text.common, text.random, text.predict,
+      modlabs <- c(text[["common"]], text[["random"]], text[["predict"]],
                    hetstat.overall, hetstat.resid,
                    text.overall.common, text.overall.random,
                    text.subgroup.common, text.subgroup.random,
-                   text.addline1, text.addline2,
+                   text[["addline1"]], text[["addline2"]],
                    if (details) text.details else NULL,
                    if (RoB.legend) text.rob.legend else NULL,
                    studlab)
@@ -7773,16 +7117,16 @@ forest.meta <- function(x,
                         uppTE.predict, uppTE.exclude)
     #
     TEs.study <- c(blanks,
-                   formatN(TE.orig, digits.TE, lab.NA, big.mark = big.mark))
+                   formatN(TE.orig, digits[["TE"]], lab.NA, big.mark = big.mark))
     seTEs.study <- c(blanks,
-                     formatN(seTE, digits.se, lab.NA, big.mark = big.mark))
+                     formatN(seTE, digits[["se"]], lab.NA, big.mark = big.mark))
     #
     w.commons <- c(NAs, w.common.p)
     w.randoms <- c(NAs, w.random.p)
     #
-    format.w.common <- formatN(c(100, w.common.p), digits.weight,
+    format.w.common <- formatN(c(100, w.common.p), digits[["weight"]],
                                monospaced = monospaced)
-    format.w.random <- formatN(c(100, w.random.p), digits.weight,
+    format.w.random <- formatN(c(100, w.random.p), digits[["weight"]],
                                monospaced = monospaced)
     #
     Wc.format <- c(rep(format.w.common[1], n.com),
@@ -7797,18 +7141,18 @@ forest.meta <- function(x,
     sel.common <- Wc.format == lab.NA.weight
     sel.random <- Wr.format == lab.NA.weight
     #
-    type.pooled <- c(rep(type.common, n.com),
-                     rep(type.random, n.ran),
+    type.pooled <- c(rep(type[["common"]], n.com),
+                     rep(type[["random"]], n.ran),
                      rep("predict", n.prd))
     #
     col.diamond.pooled <-
-      c(col.diamond.common, col.diamond.random, col.predict)
+      c(col[["diamond.common"]], col[["diamond.random"]], col[["predict"]])
     #
     col.diamond.lines.pooled <-
-      c(col.diamond.lines.common, col.diamond.lines.random, col.predict.lines)
+      c(col[["diamond.lines.common"]], col[["diamond.lines.random"]], col[["predict.lines"]])
     #
     col.inside.pooled <-
-      c(col.inside.common, col.inside.random, blanks.prd)
+      c(col[["inside.common"]], col[["inside.random"]], blanks.prd)
   }
   #
   # Treatment effect and confidence interval
@@ -7816,25 +7160,25 @@ forest.meta <- function(x,
   if (backtransf & log.xaxis) {
     effect.format <-
       formatN(scale * exp(TEs / scale),
-              digits, lab.NA.effect, big.mark = big.mark)
+              digits[["digits"]], lab.NA.effect, big.mark = big.mark)
     ci.format <-
       ifelse(is.na(lowTEs) | is.na(uppTEs), lab.NA.effect,
              formatCI(formatN(scale * exp(lowTEs / scale),
-                              digits = digits, lab.NA = lab.NA,
+                              digits = digits[["digits"]], lab.NA = lab.NA,
                               big.mark = big.mark),
                       formatN(scale * exp(uppTEs / scale),
-                              digits = digits, lab.NA = lab.NA,
+                              digits = digits[["digits"]], lab.NA = lab.NA,
                               big.mark = big.mark)))
   }
   else {
-    effect.format <- formatN(TEs, digits, lab.NA.effect, big.mark = big.mark,
+    effect.format <- formatN(TEs, digits[["digits"]], lab.NA.effect, big.mark = big.mark,
                              monospaced = monospaced)
     ci.format <-
       ifelse(is.na(lowTEs) | is.na(uppTEs), lab.NA.effect,
-             formatCI(formatN(lowTEs, digits = digits, lab.NA = lab.NA,
+             formatCI(formatN(lowTEs, digits = digits[["digits"]], lab.NA = lab.NA,
                               big.mark = big.mark,
                               monospaced = monospaced),
-                      formatN(uppTEs, digits = digits, lab.NA = lab.NA,
+                      formatN(uppTEs, digits = digits[["digits"]], lab.NA = lab.NA,
                               big.mark = big.mark,
                               monospaced = monospaced)))
   }
@@ -7950,7 +7294,7 @@ forest.meta <- function(x,
   as.character.cycles <- FALSE
   #
   if (by) {
-    if (pooled.totals) {
+    if (pooled[["totals"]]) {
       Ne <- c(c(sum.n.e, NAs.com1),
               c(sum.n.e, NAs.ran1),
               NAs.prd,
@@ -7970,7 +7314,7 @@ forest.meta <- function(x,
       Ne <- c(NAs.all, x$n.e)
       Nc <- c(NAs.all, x$n.c)
     }
-    if (pooled.events) {
+    if (pooled[["events"]]) {
       Ee <- c(c(sum.e.e, NAs.com1),
               c(sum.e.e, NAs.ran1),
               NAs.prd,
@@ -7990,7 +7334,7 @@ forest.meta <- function(x,
       Ee <- c(NAs.all, x$event.e)
       Ec <- c(NAs.all, x$event.c)
     }
-    if (pooled.times) {
+    if (pooled[["times"]]) {
       Te <- c(c(sum.t.e, NAs.com1),
               c(sum.t.e, NAs.ran1),
               NAs.prd,
@@ -8012,7 +7356,7 @@ forest.meta <- function(x,
     }
   }
   else {
-    if (pooled.totals) {
+    if (pooled[["totals"]]) {
       Ne <- c(c(sum.n.e, NAs.com1),
               c(sum.n.e, NAs.ran1),
               NAs.prd,
@@ -8028,7 +7372,7 @@ forest.meta <- function(x,
       Nc <- c(NAs,
               x$n.c)
     }
-    if (pooled.events) {
+    if (pooled[["events"]]) {
       Ee <- c(c(sum.e.e, NAs.com1),
               c(sum.e.e, NAs.ran1),
               NAs.prd,
@@ -8044,7 +7388,7 @@ forest.meta <- function(x,
       Ec <- c(NAs,
               x$event.c)
     }
-    if (pooled.times) {
+    if (pooled[["times"]]) {
       Te <- c(c(sum.t.e, NAs.com1),
               c(sum.t.e, NAs.ran1),
               NAs.prd,
@@ -8094,29 +7438,29 @@ forest.meta <- function(x,
                        Ne, notfirst))
   }
   Ne.format <-
-    formatN(Ne, digits = digits.n, lab.NA = lab.NA, big.mark = big.mark,
+    formatN(Ne, digits = digits[["n"]], lab.NA = lab.NA, big.mark = big.mark,
             monospaced = monospaced)
   Nc.format <-
-    formatN(Nc, digits = digits.n, lab.NA = lab.NA, big.mark = big.mark,
+    formatN(Nc, digits = digits[["n"]], lab.NA = lab.NA, big.mark = big.mark,
             monospaced = monospaced)
   Ee.format <-
-    formatN(Ee, digits = digits.event, lab.NA = lab.NA, big.mark = big.mark,
+    formatN(Ee, digits = digits[["event"]], lab.NA = lab.NA, big.mark = big.mark,
             monospaced = monospaced)
   Ec.format <-
-    formatN(Ec, digits = digits.event, lab.NA = lab.NA, big.mark = big.mark,
+    formatN(Ec, digits = digits[["event"]], lab.NA = lab.NA, big.mark = big.mark,
             monospaced = monospaced)
   #
-  if (all(is_wholenumber(Te), na.rm = TRUE) & miss.digits.time)
+  if (all(is_wholenumber(Te), na.rm = TRUE) & miss.digits[["time"]])
     Te.format <-
     formatN(Te, digits = 0, lab.NA = lab.NA, big.mark = big.mark)
   else
-    Te.format <- formatN(Te, digits.time, lab.NA, big.mark = big.mark)
+    Te.format <- formatN(Te, digits[["time"]], lab.NA, big.mark = big.mark)
   #
-  if (all(is_wholenumber(Tc), na.rm = TRUE) & miss.digits.time)
+  if (all(is_wholenumber(Tc), na.rm = TRUE) & miss.digits[["time"]])
     Tc.format <-
     formatN(Tc, digits = 0, lab.NA = lab.NA, big.mark = big.mark)
   else
-    Tc.format <- formatN(Tc, digits.time, lab.NA, big.mark = big.mark)
+    Tc.format <- formatN(Tc, digits[["time"]], lab.NA, big.mark = big.mark)
   #
   # Print nothing in lines with prediction interval
   #
@@ -8175,7 +7519,7 @@ forest.meta <- function(x,
   #
   # Only print samples sizes if pooled.totals is TRUE
   #
-  if (!pooled.totals) {
+  if (!pooled[["totals"]]) {
     Ne.format[all.com] <- Nc.format[all.com] <- ""
     Ne.format[all.ran] <- Nc.format[all.ran] <- ""
     #
@@ -8187,7 +7531,7 @@ forest.meta <- function(x,
   #
   # Only print total number of events if pooled.events is TRUE
   #
-  if (!pooled.events) {
+  if (!pooled[["events"]]) {
     Ee.format[all.com] <- Ec.format[all.com] <- ""
     Ee.format[all.ran] <- Ec.format[all.ran] <- ""
     #
@@ -8199,7 +7543,7 @@ forest.meta <- function(x,
   #
   # Only print total person times if pooled.times is TRUE
   #
-  if (!pooled.times) {
+  if (!pooled[["times"]]) {
     Te.format[all.com] <- Tc.format[all.com] <- ""
     Te.format[all.ran] <- Tc.format[all.ran] <- ""
     #
@@ -8226,7 +7570,7 @@ forest.meta <- function(x,
   #
   digits.R <- options()$digits
   #
-  if (is.null(digits.mean)) {
+  if (is.null(digits[["mean"]])) {
     if (all(is_wholenumber(Me), na.rm = TRUE))
       Me.format <-
         formatN(Me, digits = 0, lab.NA = lab.NA, big.mark = big.mark,
@@ -8246,13 +7590,13 @@ forest.meta <- function(x,
                 monospaced = monospaced)
   }
   else {
-    Me.format <- formatN(Me, digits.mean, lab.NA, big.mark = big.mark,
+    Me.format <- formatN(Me, digits[["mean"]], lab.NA, big.mark = big.mark,
                          monospaced = monospaced)
-    Mc.format <- formatN(Mc, digits.mean, lab.NA, big.mark = big.mark,
+    Mc.format <- formatN(Mc, digits[["mean"]], lab.NA, big.mark = big.mark,
                          monospaced = monospaced)
   }
   #
-  if (is.null(digits.sd)) {
+  if (is.null(digits[["sd"]])) {
     if (all(is_wholenumber(Se), na.rm = TRUE))
       Se.format <-
         formatN(Se, digits = 0, lab.NA = lab.NA, big.mark = big.mark,
@@ -8272,9 +7616,9 @@ forest.meta <- function(x,
                 monospaced = monospaced)
   }
   else {
-    Se.format <- formatN(Se, digits.sd, lab.NA, big.mark = big.mark,
+    Se.format <- formatN(Se, digits[["sd"]], lab.NA, big.mark = big.mark,
                          monospaced = monospaced)
-    Sc.format <- formatN(Sc, digits.sd, lab.NA, big.mark = big.mark,
+    Sc.format <- formatN(Sc, digits[["sd"]], lab.NA, big.mark = big.mark,
                          monospaced = monospaced)
   }
   #
@@ -8335,7 +7679,7 @@ forest.meta <- function(x,
              paste0(Ec.bmj, bmj.sep, Nc.bmj),
              "")
     #
-    if (pooled.totals & !pooled.events) {
+    if (pooled[["totals"]] & !pooled[["events"]]) {
       event.n.e.format[Ne.format != "" & Ee.format == ""] <-
         Ne.format[Ne.format != "" & Ee.format == ""]
       event.n.c.format[Nc.format != "" & Ec.format == ""] <-
@@ -8411,7 +7755,7 @@ forest.meta <- function(x,
              paste0(Ee.bmj, bmj.sep, Ne.bmj),
              "")
     #
-    if (pooled.totals & !pooled.events) {
+    if (pooled[["totals"]] & !pooled[["events"]]) {
       event.n.e.format[Ne.format != "" & Ee.format == ""] <-
         Ne.format[Ne.format != "" & Ee.format == ""]
     }
@@ -8499,7 +7843,7 @@ forest.meta <- function(x,
              paste0(Ec.bmj, bmj.sep, Tc.bmj, " (", Nc.bmj, ")"),
              "")
     #
-    if (pooled.times & !pooled.events) {
+    if (pooled[["times"]] & !pooled[["events"]]) {
       event.time.e.format[Te.format != "" & Ee.format == ""] <-
         Te.format[Te.format != "" & Ee.format == ""]
       event.time.c.format[Tc.format != "" & Ec.format == ""] <-
@@ -8518,10 +7862,10 @@ forest.meta <- function(x,
   else
     cor <- c(NAs, x$cor)
   #
-  if (is.null(digits.cor))
+  if (is.null(digits[["cor"]]))
     cor.format <- formatN(cor, digits = digits.R, lab.NA = lab.NA)
   else
-    cor.format <- formatN(cor, digits.cor, lab.NA, big.mark = big.mark)
+    cor.format <- formatN(cor, digits[["cor"]], lab.NA, big.mark = big.mark)
   #
   # Print nothing for lines with summary results
   #
@@ -8548,7 +7892,7 @@ forest.meta <- function(x,
           c(x$pval.common, x$pval.random, NAs.prd,
             pval.common.w, pval.random.w, NAs.prd.w, NAs.stat.w,
             if (is.numeric(x$pval)) x$pval else rep(NA, length(x$pval))),
-          digits = digits.pval,
+          digits = digits[["pval"]],
           big.mark = big.mark,
           lab = FALSE, labval = "",
           zero = zero.pval, JAMA = JAMA.pval,
@@ -8556,14 +7900,14 @@ forest.meta <- function(x,
           lab.NA = lab.NA)
   }
   else if (is.character(x$pval.common) &&
-      is.character(x$pval.random) &&
-      is.character(x$pval))
+           is.character(x$pval.random) &&
+           is.character(x$pval))
     pval.format <- c(x$pval.common, x$pval.random, NAs.prd, x$pval)
   else {
     pval.format <-
       formatPT(c(x$pval.common, x$pval.random, NAs.prd,
                  if (is.numeric(x$pval)) x$pval else rep(NA, length(x$pval))),
-               digits = digits.pval,
+               digits = digits[["pval"]],
                big.mark = big.mark,
                lab = FALSE, labval = "",
                zero = zero.pval, JAMA = JAMA.pval,
@@ -8593,13 +7937,13 @@ forest.meta <- function(x,
           c(x$statistic.common, x$statistic.random, NAs.prd,
             statistic.common.w, statistic.random.w, NAs.prd.w, NAs.stat.w,
             if (is.numeric(x$statistic)) x$statistic else rep(NA, length(x$statistic))),
-          digits = digits.stat,
+          digits = digits[["stat"]],
           big.mark = big.mark,
           lab.NA = lab.NA)
   }
   else if (is.character(x$statistic.common) &&
-      is.character(x$statistic.random) &&
-      is.character(x$statistic))
+           is.character(x$statistic.random) &&
+           is.character(x$statistic))
     statistic.format <-
     c(x$statistic.common, x$statistic.random, NAs.prd, x$statistic)
   else {
@@ -8607,7 +7951,7 @@ forest.meta <- function(x,
       formatN(
         c(x$statistic.common, x$statistic.random, NAs.prd,
           if (is.numeric(x$statistic)) x$statistic else rep(NA, length(x$statistic))),
-        digits = digits.stat,
+        digits = digits[["stat"]],
         big.mark = big.mark,
         lab.NA = lab.NA)
   }
@@ -8650,7 +7994,7 @@ forest.meta <- function(x,
   #
   rows.main <- if (main == "") 0 else length(strsplit(main, "\n")[[1]])
   rows.main.total <- if (rows.main == 0) 0 else rows.main + gap.main
-  spacing.main <- fs.main * lineheight.main / (1.1 * fontsize)
+  spacing.main <- fs[["main"]] * lineheight.main / (1.1 * fontsize)
   #
   two.header.rows <-
     (!(metaprop | metacor) &
@@ -8668,8 +8012,8 @@ forest.meta <- function(x,
        (any(rightcols %in% c("sd.e")) |
           any(leftcols  %in% c("sd.e")))
     ) |
-    (!is.null(label.e.attach) & !is.null(label.e)) |
-    (!is.null(label.c.attach) & !is.null(label.c)) |
+    (!is.null(label[["e.attach"]]) & !is.null(label[["e"]])) |
+    (!is.null(label[["c.attach"]]) & !is.null(label[["c"]])) |
     RoB.available |
     newline.all
   #
@@ -8722,17 +8066,17 @@ forest.meta <- function(x,
       #
       k <- k + k.i
       #
-      if (print.subgroup.labels) {
+      if (print[["subgroup.labels"]]) {
         yBylab[i] <- j
         j <- j + 1
       }
       #
       if (study.results) {
-        yTE[(k - k.i + 1):k] <- j:(j + k.i - 1)
+        yTE[k - k.i + seq_len(k.i)] <- j + seq_len(k.i) - 1
         j <- j + k.i
       }
       else
-        yTE[(k - k.i + 1):k] <- NA
+        yTE[k - k.i + seq_len(k.i)] <- NA
       #
       # Common effect model
       #
@@ -8759,7 +8103,7 @@ forest.meta <- function(x,
       # Only pooled totals
       #
       # cat("pooled.totals\n")
-      # print(pooled.totals)
+      # print(pooled[["totals"]])
       # cat("subgroup.logical[i]\n")
       # print(subgroup.logical[i])
       # cat("common.subgroup.logical[i]\n")
@@ -8767,7 +8111,7 @@ forest.meta <- function(x,
       # cat("random.subgroup.logical[i]\n")
       # print(random.subgroup.logical[i])
       #
-      if (pooled.totals & subgroup.logical[i] &
+      if (pooled[["totals"]] & subgroup.logical[i] &
           !(common.subgroup.logical[i] | any(random.subgroup.logical.i))) {
         yTE.common.w[n.by.i * n.com + seq.com.w] <- j + seq.com.w - 1
         j <- j + max(seq.com.w)
@@ -8824,17 +8168,17 @@ forest.meta <- function(x,
       #
       if (!study.results & !any(!is.na(y.w.i))) {
         yBylab[i] <- NA
-        if (print.subgroup.labels)
+        if (print[["subgroup.labels"]])
           j <- j - 1
       }
       #
-      if (!is.na(yBylab[i]) & addrow.subgroups)
+      if (!is.na(yBylab[i]) & addrow[["subgroup"]])
         j <- j + 1
       #
       n.by.i <- n.by.i + 1
     }
     #
-    if (!addrow.subgroups)
+    if (!addrow[["subgroup"]])
       j <- j + 1
     #
     yTE.w <- c(yTE.common.w, yTE.random.w, yTE.predict.w,
@@ -8869,15 +8213,8 @@ forest.meta <- function(x,
     if (!is.na(ref) && ref > xlim[2])
       xlim[2] <- ref
     #
-    if (!is.na(cid.below.null) && cid.below.null < xlim[1])
-      xlim[1] <- cid.below.null
-    if (!is.na(cid.below.null) && cid.below.null > xlim[2])
-      xlim[2] <- cid.below.null
-    #
-    if (!is.na(cid.above.null) && cid.above.null < xlim[1])
-      xlim[1] <- cid.above.null
-    if (!is.na(cid.above.null) && cid.above.null > xlim[2])
-      xlim[2] <- cid.above.null
+    cid.limits <- c(cid[["below.null"]], cid[["above.null"]])
+    xlim <- range(xlim, cid.limits[is.finite(cid.limits)])
   }
   #
   symmetric <- FALSE
@@ -8926,7 +8263,7 @@ forest.meta <- function(x,
       max.yTE <- max(yTE, na.rm = TRUE)
   }
   #
-  yNext <- max.yTE + ifelse(max.yTE == 0 | !addrow.overall, 1, 2)
+  yNext <- max.yTE + ifelse(max.yTE == 0 | !addrow[["overall"]], 1, 2)
   #
   if (miss.xlab.pos)
     xlab.pos <- mean(xlim)
@@ -8982,12 +8319,12 @@ forest.meta <- function(x,
     yNext <- yNext + 1 + max(seq.ran)
   }
   #
-  else if (!common & !random & pooled.totals & overall) {
+  else if (!common & !random & pooled[["totals"]] & overall) {
     yTE.common <- yNext + seq.com
     yNext <- yNext + 1 + max(seq.com)
     #
-    if (miss.text.common)
-      text.common <- "Overall"
+    if (miss.text[["common"]])
+      text$common <- "Overall"
   }
   #
   if (prediction & overall) {
@@ -9008,23 +8345,23 @@ forest.meta <- function(x,
       yNext <- yNext + 1
     }
     #
-    if (test.overall.common) {
+    if (test[["overall.common"]]) {
       yOverall.common <- yNext
       yNext <- yNext + 1
     }
     #
-    if (test.overall.random) {
+    if (test[["overall.random"]]) {
       yOverall.random <- yNext
       yNext <- yNext + 1
     }
   }
   else {
-    if (test.overall.common) {
+    if (test[["overall.common"]]) {
       yOverall.common <- yNext
       yNext <- yNext + 1
     }
     #
-    if (test.overall.random) {
+    if (test[["overall.random"]]) {
       yOverall.random <- yNext
       yNext <- yNext + 1
     }
@@ -9040,22 +8377,22 @@ forest.meta <- function(x,
     }
   }
   #
-  if (test.subgroup.common) {
+  if (test[["subgroup.common"]]) {
     ySubgroup.common <- yNext
     yNext <- yNext + 1
   }
   #
-  if (test.subgroup.random) {
+  if (test[["subgroup.random"]]) {
     ySubgroup.random <- yNext
     yNext <- yNext + 1
   }
   #
-  if (!miss.text.addline1) {
+  if (!miss.text[["addline1"]]) {
     yText.addline1 <- yNext
     yNext <- yNext + 1
   }
   #
-  if (!miss.text.addline2) {
+  if (!miss.text[["addline2"]]) {
     yText.addline2 <- yNext
     yNext <- yNext + 1
   }
@@ -9071,28 +8408,28 @@ forest.meta <- function(x,
     yText.rob.legend <- seq(yNext, yNext + length(yText.rob.legend) - 1)
   }
   #
-  if (!common & !pooled.totals) text.common <- ""
-  if (!random) text.random <- ""
-  if (!prediction) text.predict <- ""
+  if (!common & !pooled[["totals"]]) text$common <- ""
+  if (!random) text$random <- ""
+  if (!prediction) text$predict <- ""
   #
-  yTE <- yHead + yTE + addrow
+  yTE <- yHead + yTE + addrow[["addrow"]]
   #
-  yTE.common <- yHead + yTE.common + addrow
-  yTE.random <- yHead + yTE.random + addrow
-  yPredict   <- yHead + yPredict   + addrow
+  yTE.common <- yHead + yTE.common + addrow[["addrow"]]
+  yTE.random <- yHead + yTE.random + addrow[["addrow"]]
+  yPredict   <- yHead + yPredict   + addrow[["addrow"]]
   #
-  yHetstat <- yHead + yHetstat + addrow
-  yResidHetstat <- yHead + yResidHetstat + addrow
-  yOverall.common <- yHead + yOverall.common + addrow
-  yOverall.random <- yHead + yOverall.random + addrow
-  ySubgroup.common <- yHead + ySubgroup.common + addrow
-  ySubgroup.random <- yHead + ySubgroup.random + addrow
-  yText.addline1 <- yHead + yText.addline1 + addrow
-  yText.addline2 <- yHead + yText.addline2 + addrow
+  yHetstat <- yHead + yHetstat + addrow[["addrow"]]
+  yResidHetstat <- yHead + yResidHetstat + addrow[["addrow"]]
+  yOverall.common <- yHead + yOverall.common + addrow[["addrow"]]
+  yOverall.random <- yHead + yOverall.random + addrow[["addrow"]]
+  ySubgroup.common <- yHead + ySubgroup.common + addrow[["addrow"]]
+  ySubgroup.random <- yHead + ySubgroup.random + addrow[["addrow"]]
+  yText.addline1 <- yHead + yText.addline1 + addrow[["addrow"]]
+  yText.addline2 <- yHead + yText.addline2 + addrow[["addrow"]]
   if (details)
-    yText.details <- yHead + yText.details + addrow
+    yText.details <- yHead + yText.details + addrow[["addrow"]]
   if (RoB.legend)
-    yText.rob.legend <- yHead + yText.rob.legend + addrow
+    yText.rob.legend <- yHead + yText.rob.legend + addrow[["addrow"]]
   #
   if (revman5) {
     yStats <- c(yHetstat, yResidHetstat,
@@ -9120,8 +8457,8 @@ forest.meta <- function(x,
   }
   #
   if (by) {
-    yBylab <- yHead + yBylab + addrow
-    yTE.w  <- yHead + yTE.w + addrow
+    yBylab <- yHead + yBylab + addrow[["addrow"]]
+    yTE.w  <- yHead + yTE.w + addrow[["addrow"]]
     #
     yLab <- c(yHead,
               yTE.common, yTE.random, yPredict,
@@ -9150,7 +8487,6 @@ forest.meta <- function(x,
                  yTE)
   }
   
-  
   #
   #
   # (15) Format columns in forest plot
@@ -9163,35 +8499,35 @@ forest.meta <- function(x,
   col.studlab <- list(labels =
                         lapply(as.list(c(labs[["lab.studlab"]], modlabs)),
                                tg,
-                               xpos = xpos.s, just = just.s,
-                               fs = fs.study.labels,
-                               ff = ff.study.labels,
+                               xpos = xpos.s, just = just[["studlab"]],
+                               fs = fs[["study.labels"]],
+                               ff = ff[["study.labels"]],
                                fontfamily = fontfamily),
                       rows = yLab
   )
   # Study label:
   col.studlab$labels[[1]] <- tg(labs[["lab.studlab"]], xpos.s,
-                                just.s, fs.head, ff.head, fontfamily)
+                                just[["studlab"]], fs[["heading"]], ff[["heading"]], fontfamily)
   # Common effect estimate:
   strt <- 1
   for (i in seq_len(n.com)) {
     col.studlab$labels[[strt + i]] <-
-      tg(text.common[i], xpos.s, just.s,
-         fs.common.labels, ff.common.labels, fontfamily)
+      tg(text[["common"]][i], xpos.s, just[["studlab"]],
+         fs[["common.labels"]], ff[["common.labels"]], fontfamily)
   }
   # Random effects estimate:
   strt <- strt + i
   for (i in seq_len(n.ran)) {
     col.studlab$labels[[strt + i]] <-
-      tg(text.random[i], xpos.s, just.s,
-         fs.random.labels, ff.random.labels, fontfamily)
+      tg(text[["random"]][i], xpos.s, just[["studlab"]],
+         fs[["random.labels"]], ff[["random.labels"]], fontfamily)
   }
   # Prediction interval:
   strt <- strt + i
   for (i in seq_len(n.prd)) {
     col.studlab$labels[[strt + i]] <-
-      tg(text.predict[i], xpos.s, just.s,
-         fs.predict.labels, ff.predict.labels, fontfamily)
+      tg(text[["predict"]][i], xpos.s, just[["studlab"]],
+         fs[["predict.labels"]], ff[["predict.labels"]], fontfamily)
   }
   #
   strt <- strt + i
@@ -9199,58 +8535,58 @@ forest.meta <- function(x,
   if (revman5) {
     # Heterogeneity statistics:
     col.studlab$labels[[strt + 1]] <-
-      tg(hetstat.overall, xpos.s, just.s, fs.hetstat, ff.hetstat, fontfamily)
+      tg(hetstat.overall, xpos.s, just[["studlab"]], fs[["hetstat"]], ff[["hetstat"]], fontfamily)
     # Statistic for residual heterogeneity:
     col.studlab$labels[[strt + 2]] <-
-      tg(hetstat.resid, xpos.s, just.s, fs.hetstat, ff.hetstat, fontfamily)
+      tg(hetstat.resid, xpos.s, just[["studlab"]], fs[["hetstat"]], ff[["hetstat"]], fontfamily)
     # Test for overall effect (common effect model):
     col.studlab$labels[[strt + 3]] <-
-      tg(text.overall.common, xpos.s, just.s, fs.test.overall, ff.test.overall,
+      tg(text.overall.common, xpos.s, just[["studlab"]], fs[["test.overall"]], ff[["test.overall"]],
          fontfamily)
     # Test for overall effect (random effects model):
     col.studlab$labels[[strt + 4]] <-
-      tg(text.overall.random, xpos.s, just.s, fs.test.overall, ff.test.overall,
+      tg(text.overall.random, xpos.s, just[["studlab"]], fs[["test.overall"]], ff[["test.overall"]],
          fontfamily)
   }
   else {
     # Test for overall effect (common effect model):
     col.studlab$labels[[strt + 1]] <-
-      tg(text.overall.common, xpos.s, just.s, fs.test.overall, ff.test.overall,
+      tg(text.overall.common, xpos.s, just[["studlab"]], fs[["test.overall"]], ff[["test.overall"]],
          fontfamily)
     # Test for overall effect (random effects model):
     col.studlab$labels[[strt + 2]] <-
-      tg(text.overall.random, xpos.s, just.s, fs.test.overall, ff.test.overall,
+      tg(text.overall.random, xpos.s, just[["studlab"]], fs[["test.overall"]], ff[["test.overall"]],
          fontfamily)
     # Heterogeneity statistics:
     col.studlab$labels[[strt + 3]] <-
-      tg(hetstat.overall, xpos.s, just.s, fs.hetstat, ff.hetstat, fontfamily)
+      tg(hetstat.overall, xpos.s, just[["studlab"]], fs[["hetstat"]], ff[["hetstat"]], fontfamily)
     # Statistic for residual heterogeneity:
     col.studlab$labels[[strt + 4]] <-
-      tg(hetstat.resid, xpos.s, just.s, fs.hetstat, ff.hetstat, fontfamily)
+      tg(hetstat.resid, xpos.s, just[["studlab"]], fs[["hetstat"]], ff[["hetstat"]], fontfamily)
   }
   # Test for subgroup differences (common effect model):
   col.studlab$labels[[strt + 5]] <-
-    tg(text.subgroup.common, xpos.s, just.s, fs.test.subgroup, ff.test.subgroup,
+    tg(text.subgroup.common, xpos.s, just[["studlab"]], fs[["test.subgroup"]], ff[["test.subgroup"]],
        fontfamily)
   # Test for subgroup differences (random effects model):
   col.studlab$labels[[strt + 6]] <-
-    tg(text.subgroup.random, xpos.s, just.s, fs.test.subgroup, ff.test.subgroup,
+    tg(text.subgroup.random, xpos.s, just[["studlab"]], fs[["test.subgroup"]], ff[["test.subgroup"]],
        fontfamily)
   # First additional line:
   col.studlab$labels[[strt + 7]] <-
-    tg(text.addline1, xpos.s, just.s, fs.addline, ff.addline, fontfamily)
+    tg(text[["addline1"]], xpos.s, just[["studlab"]], fs[["addline"]], ff[["addline"]], fontfamily)
   # Second additional line:
   col.studlab$labels[[strt + 8]] <-
-    tg(text.addline2, xpos.s, just.s, fs.addline, ff.addline, fontfamily)
+    tg(text[["addline2"]], xpos.s, just[["studlab"]], fs[["addline"]], ff[["addline"]], fontfamily)
   # Details on meta-analysis methods:
   strt <- strt + 8
   i <- 0
   if (details) {
     for (i in seq_len(length(text.details))) {
       col.studlab$labels[[strt + i]] <-
-        tg(text.details[[i]], xpos.s, just.s,
-           if (i == 1) fs.heading else fs.details,
-           if (i == 1) ff.heading else ff.details,
+        tg(text.details[[i]], xpos.s, just[["studlab"]],
+           if (i == 1) fs[["heading"]] else fs[["details"]],
+           if (i == 1) ff[["heading"]] else ff[["details"]],
            fontfamily)
     }
   }
@@ -9260,9 +8596,9 @@ forest.meta <- function(x,
   if (RoB.legend) {
     for (i in seq_len(length(text.rob.legend))) {
       col.studlab$labels[[strt + i]] <-
-        tg(text.rob.legend[i], xpos.s, just.s,
-           if (i == 1) fs.heading else fs.rob,
-           if (i == 1) ff.heading else ff.rob,
+        tg(text.rob.legend[i], xpos.s, just[["studlab"]],
+           if (i == 1) fs[["heading"]] else fs[["rob"]],
+           if (i == 1) ff[["heading"]] else ff[["rob"]],
            fontfamily)
     }
   }
@@ -9272,52 +8608,52 @@ forest.meta <- function(x,
     strt <- strt + i
     for (i in seq_len(n.by)) {
       col.studlab$labels[[strt + i]] <-
-        tg(subgroup.name[i], xpos.s, just.s,
-           fs.head, ff.head, fontfamily, col.subgroup)
+        tg(subgroup.name[i], xpos.s, just[["studlab"]],
+           fs[["heading"]], ff[["heading"]], fontfamily, col[["subgroup"]])
     }
     # Common effect estimates:
     strt <- strt + i
     for (i in seq_len(n.com.w)) {
       col.studlab$labels[[strt + i]] <-
-        tg(text.common.w[i], xpos.s, just.s,
-           fs.common.labels, ff.common.labels, fontfamily, col.subgroup)
+        tg(text[["common.w"]][i], xpos.s, just[["studlab"]],
+           fs[["common.labels"]], ff[["common.labels"]], fontfamily, col[["subgroup"]])
     }
     # Random effects estimates:
     strt <- strt + i
     for (i in seq_len(n.ran.w)) {
       col.studlab$labels[[strt + i]] <-
-        tg(text.random.w[i], xpos.s, just.s,
-           fs.random.labels, ff.random.labels, fontfamily, col.subgroup)
+        tg(text[["random.w"]][i], xpos.s, just[["studlab"]],
+           fs[["random.labels"]], ff[["random.labels"]], fontfamily, col[["subgroup"]])
     }
     # Prediction interval:
     strt <- strt + i
     for (i in seq_len(n.prd.w)) {
       col.studlab$labels[[strt + i]] <-
-        tg(text.predict.w[i], xpos.s, just.s,
-           fs.predict.labels, ff.predict.labels, fontfamily, col.subgroup)
+        tg(text[["predict.w"]][i], xpos.s, just[["studlab"]],
+           fs[["predict.labels"]], ff[["predict.labels"]], fontfamily, col[["subgroup"]])
     }
     # Test for effect in subgroup (common effect model):
     strt <- strt + i
     for (i in seq_len(n.by)) {
       col.studlab$labels[[strt + i]] <-
-        tg(text.effect.subgroup.common[[i]], xpos.s, just.s,
-           fs.test.effect.subgroup, ff.test.effect.subgroup,
-           fontfamily, col.subgroup)
+        tg(text.effect.subgroup.common[[i]], xpos.s, just[["studlab"]],
+           fs[["test.effect.subgroup"]], ff[["test.effect.subgroup"]],
+           fontfamily, col[["subgroup"]])
     }
     # Test for effect in subgroup (random effects model):
     strt <- strt + i
     for (i in seq_len(n.by)) {
       col.studlab$labels[[strt + i]] <-
-        tg(text.effect.subgroup.random[[i]], xpos.s, just.s,
-           fs.test.effect.subgroup, ff.test.effect.subgroup,
-           fontfamily, col.subgroup)
+        tg(text.effect.subgroup.random[[i]], xpos.s, just[["studlab"]],
+           fs[["test.effect.subgroup"]], ff[["test.effect.subgroup"]],
+           fontfamily, col[["subgroup"]])
     }
     # Heterogeneity statistics:
     strt <- strt + i
     for (i in seq_len(n.by)) {
       col.studlab$labels[[strt + i]] <-
-        tg(hetstat.w[[i]], xpos.s, just.s,
-           fs.hetstat, ff.hetstat, fontfamily, col.subgroup)
+        tg(hetstat.w[[i]], xpos.s, just[["studlab"]],
+           fs[["hetstat"]], ff[["hetstat"]], fontfamily, col[["subgroup"]])
     }
   }
   #
@@ -9328,56 +8664,60 @@ forest.meta <- function(x,
   study.lines <- length(col.studlab$labels) - length(yTE) + seq_along(yTE)
   nonstudy.lines <- setdiff(seq_along(col.studlab$labels), c(1, study.lines))
   for (i in seq_along(study.lines))
-    col.studlab$labels[[study.lines[i]]]$gp$col <- col.study.text[i]
+    col.studlab$labels[[study.lines[i]]]$gp$col <- col[["study.text"]][i]
   #
   col.studlab.right <- col.studlab
+  #
   if (studlab.right)
     col.studlab.right <-
-    blank_labels(col.studlab.right, nonstudy.lines, xpos.s, just.s,
-                 fs.study.labels, ff.study.labels, fontfamily)
+    blank_labels(col.studlab.right, nonstudy.lines, xpos.s, just[["studlab"]],
+                 fs[["study.labels"]], ff[["study.labels"]], fontfamily)
+  #
   col.studlab.calc <- col.studlab
+  #
   if (add.left.studlab) {
     col.studlab <-
-      blank_labels(col.studlab, c(1, study.lines), xpos.s, just.s,
-                   fs.study.labels, ff.study.labels, fontfamily)
+      blank_labels(col.studlab, c(1, study.lines), xpos.s, just[["studlab"]],
+                   fs[["study.labels"]], ff[["study.labels"]], fontfamily)
     col.studlab.calc <-
       blank_labels(col.studlab.calc, seq_along(col.studlab.calc$labels),
-                   xpos.s, just.s, fs.study.labels, ff.study.labels,
+                   xpos.s, just[["studlab"]], fs[["study.labels"]], ff[["study.labels"]],
                    fontfamily)
-    colgap.studlab <- unit(0, "mm")
+    #
+    colgap$studlab <- unit(0, "mm")
   }
   #
-  fcs <- list(fs.study = fs.study, ff.study = ff.study,
-              col.study.text = col.study.text,
-              fs.heading = fs.head, ff.heading = ff.head,
-              fs.common = fs.common, ff.common = ff.common,
-              fs.random = fs.random, ff.random = ff.random,
-              fs.predict = fs.predict, ff.predict = ff.predict,
-              by = by, n.by = n.by, col.subgroup = col.subgroup)
+  fcs <- list(fs.study = fs[["study"]], ff.study = ff[["study"]],
+              col.study.text = col[["study.text"]],
+              fs.heading = fs[["heading"]], ff.heading = ff[["heading"]],
+              fs.common = fs[["common"]], ff.common = ff[["common"]],
+              fs.random = fs[["random"]], ff.random = ff[["random"]],
+              fs.predict = fs[["predict"]], ff.predict = ff[["predict"]],
+              by = by, n.by = n.by, col.subgroup = col[["subgroup"]])
   #
   col.effect <- formatcol(labs[["lab.effect"]], effect.format,
-                          yS, just.c, fcs, fontfamily,
+                          yS, just[["just"]], fcs, fontfamily,
                           n.com, n.ran, n.prd)
   #
-  col.ci <- formatcol(labs[["lab.ci"]], ci.format, yS, just.c, fcs, fontfamily,
+  col.ci <- formatcol(labs[["lab.ci"]], ci.format, yS, just[["just"]], fcs, fontfamily,
                       n.com, n.ran, n.prd)
   #
   col.effect.ci <-
     formatcol(labs[["lab.effect.ci"]], effect.ci.format, yS,
-              if (bmj.revman5 & miss.just) "center" else just.c,
+              if (bmj.revman5 & miss.just[["just"]]) "center" else just[["just"]],
               fcs, fontfamily,
               n.com, n.ran, n.prd)
   #
   if (ev.n.bin) {
     col.event.n.e <-
       formatcol(labs[["lab.event.n.e"]], event.n.e.format, yS,
-                if (bmj.revman5 & miss.just) "center" else just.c,
+                if (bmj.revman5 & miss.just[["just"]]) "center" else just[["just"]],
                 fcs, fontfamily,
                 n.com, n.ran, n.prd)
     #
     col.event.n.c <-
       formatcol(labs[["lab.event.n.c"]], event.n.c.format, yS,
-                if (bmj.revman5 & miss.just) "center" else just.c,
+                if (bmj.revman5 & miss.just[["just"]]) "center" else just[["just"]],
                 fcs, fontfamily,
                 n.com, n.ran, n.prd)
   }
@@ -9385,13 +8725,13 @@ forest.meta <- function(x,
   if (m.s.n.cont) {
     col.mean.sd.n.e <-
       formatcol(labs[["lab.mean.sd.n.e"]], mean.sd.n.e.format, yS,
-                if (bmj.revman5 & miss.just) "center" else just.c,
+                if (bmj.revman5 & miss.just[["just"]]) "center" else just[["just"]],
                 fcs, fontfamily,
                 n.com, n.ran, n.prd)
     #
     col.mean.sd.n.c <-
       formatcol(labs[["lab.mean.sd.n.c"]], mean.sd.n.c.format, yS,
-                if (bmj.revman5 & miss.just) "center" else just.c,
+                if (bmj.revman5 & miss.just[["just"]]) "center" else just[["just"]],
                 fcs, fontfamily,
                 n.com, n.ran, n.prd)
   }
@@ -9399,7 +8739,7 @@ forest.meta <- function(x,
   if (ev.n.prop) {
     col.event.n.e <-
       formatcol(labs[["lab.event.n.e"]], event.n.e.format, yS,
-                if (bmj.revman5 & miss.just) "center" else just.c,
+                if (bmj.revman5 & miss.just[["just"]]) "center" else just[["just"]],
                 fcs, fontfamily,
                 n.com, n.ran, n.prd)
   }
@@ -9407,226 +8747,226 @@ forest.meta <- function(x,
   if (ev.t.inc) {
     col.event.time.e <-
       formatcol(labs[["lab.event.time.e"]], event.time.e.format, yS,
-                if (bmj.revman5 & miss.just) "center" else just.c,
+                if (bmj.revman5 & miss.just[["just"]]) "center" else just[["just"]],
                 fcs, fontfamily,
                 n.com, n.ran, n.prd)
     #
     col.event.time.c <-
       formatcol(labs[["lab.event.time.c"]], event.time.c.format, yS,
-                if (bmj.revman5 & miss.just) "center" else just.c,
+                if (bmj.revman5 & miss.just[["just"]]) "center" else just[["just"]],
                 fcs, fontfamily,
                 n.com, n.ran, n.prd)
     #
     col.event.time.n.e <-
       formatcol(labs[["lab.event.time.n.e"]], event.time.n.e.format, yS,
-                if (bmj.revman5 & miss.just) "center" else just.c,
+                if (bmj.revman5 & miss.just[["just"]]) "center" else just[["just"]],
                 fcs, fontfamily,
                 n.com, n.ran, n.prd)
     #
     col.event.time.n.c <-
       formatcol(labs[["lab.event.time.n.c"]], event.time.n.c.format, yS,
-                if (bmj.revman5 & miss.just) "center" else just.c,
+                if (bmj.revman5 & miss.just[["just"]]) "center" else just[["just"]],
                 fcs, fontfamily,
                 n.com, n.ran, n.prd)
   }
   #
   col.w.common  <- formatcol(labs[["lab.w.common"]], Wc.format, yS,
-                             just.c, fcs, fontfamily,
+                             just[["just"]], fcs, fontfamily,
                              n.com, n.ran, n.prd)
   col.w.random <- formatcol(labs[["lab.w.random"]], Wr.format, yS,
-                            just.c, fcs, fontfamily,
+                            just[["just"]], fcs, fontfamily,
                             n.com, n.ran, n.prd)
   #
   col.TE <- formatcol(labs[["lab.TE"]], TE.format, yS,
-                      just.c, fcs, fontfamily,
+                      just[["just"]], fcs, fontfamily,
                       n.com, n.ran, n.prd)
   col.seTE <- formatcol(labs[["lab.seTE"]], seTE.format, yS,
-                        just.c, fcs, fontfamily,
+                        just[["just"]], fcs, fontfamily,
                         n.com, n.ran, n.prd)
   #
   col.cluster <-
     formatcol(labs[["lab.cluster"]], cluster.format, yS,
-              if (as.character.cluster) "left" else just.c, fcs, fontfamily,
+              if (as.character.cluster) "left" else just[["just"]], fcs, fontfamily,
               n.com, n.ran, n.prd)
   #
   col.cycles <-
     formatcol(labs[["lab.cycles"]], cycles.format, yS,
-              if (as.character.cycles) "left" else just.c, fcs, fontfamily,
+              if (as.character.cycles) "left" else just[["just"]], fcs, fontfamily,
               n.com, n.ran, n.prd)
   #
-  col.n.e <- formatcol(labs[["lab.n.e"]], Ne.format, yS, just.c, fcs,
+  col.n.e <- formatcol(labs[["lab.n.e"]], Ne.format, yS, just[["just"]], fcs,
                        fontfamily,
                        n.com, n.ran, n.prd)
-  col.n.c <- formatcol(labs[["lab.n.c"]], Nc.format, yS, just.c, fcs,
+  col.n.c <- formatcol(labs[["lab.n.c"]], Nc.format, yS, just[["just"]], fcs,
                        fontfamily,
                        n.com, n.ran, n.prd)
   #
-  col.event.e <- formatcol(labs[["lab.event.e"]], Ee.format, yS, just.c, fcs,
+  col.event.e <- formatcol(labs[["lab.event.e"]], Ee.format, yS, just[["just"]], fcs,
                            fontfamily,
                            n.com, n.ran, n.prd)
-  col.event.c <- formatcol(labs[["lab.event.c"]], Ec.format, yS, just.c, fcs,
+  col.event.c <- formatcol(labs[["lab.event.c"]], Ec.format, yS, just[["just"]], fcs,
                            fontfamily,
                            n.com, n.ran, n.prd)
   #
-  col.mean.e <- formatcol(labs[["lab.mean.e"]], Me.format, yS, just.c, fcs,
+  col.mean.e <- formatcol(labs[["lab.mean.e"]], Me.format, yS, just[["just"]], fcs,
                           fontfamily,
                           n.com, n.ran, n.prd)
-  col.mean.c <- formatcol(labs[["lab.mean.c"]], Mc.format, yS, just.c, fcs,
+  col.mean.c <- formatcol(labs[["lab.mean.c"]], Mc.format, yS, just[["just"]], fcs,
                           fontfamily,
                           n.com, n.ran, n.prd)
   #
-  col.sd.e <- formatcol(labs[["lab.sd.e"]], Se.format, yS, just.c, fcs,
+  col.sd.e <- formatcol(labs[["lab.sd.e"]], Se.format, yS, just[["just"]], fcs,
                         fontfamily,
                         n.com, n.ran, n.prd)
-  col.sd.c <- formatcol(labs[["lab.sd.c"]], Sc.format, yS, just.c, fcs,
+  col.sd.c <- formatcol(labs[["lab.sd.c"]], Sc.format, yS, just[["just"]], fcs,
                         fontfamily,
                         n.com, n.ran, n.prd)
   #
-  col.cor <- formatcol(labs[["lab.cor"]], cor.format, yS, just.c, fcs,
+  col.cor <- formatcol(labs[["lab.cor"]], cor.format, yS, just[["just"]], fcs,
                        fontfamily,
                        n.com, n.ran, n.prd)
   #
-  col.time.e <- formatcol(labs[["lab.time.e"]], Te.format, yS, just.c, fcs,
+  col.time.e <- formatcol(labs[["lab.time.e"]], Te.format, yS, just[["just"]], fcs,
                           fontfamily,
                           n.com, n.ran, n.prd)
-  col.time.c <- formatcol(labs[["lab.time.c"]], Tc.format, yS, just.c, fcs,
+  col.time.c <- formatcol(labs[["lab.time.c"]], Tc.format, yS, just[["just"]], fcs,
                           fontfamily,
                           n.com, n.ran, n.prd)
   #
-  col.pval <- formatcol(labs[["lab.pval"]], pval.format, yS, just.c, fcs,
+  col.pval <- formatcol(labs[["lab.pval"]], pval.format, yS, just[["just"]], fcs,
                         fontfamily,
                         n.com, n.ran, n.prd)
   #
   col.statistic <- formatcol(labs[["lab.statistic"]], statistic.format,
-                             yS, just.c, fcs, fontfamily,
+                             yS, just[["just"]], fcs, fontfamily,
                              n.com, n.ran, n.prd)
   #
-  col.effect.calc <- formatcol(longer.effect, effect.format, yS, just.c, fcs,
+  col.effect.calc <- formatcol(longer.effect, effect.format, yS, just[["just"]], fcs,
                                fontfamily,
                                n.com, n.ran, n.prd)
   #
-  col.ci.calc <- formatcol(longer.ci, ci.format, yS, just.c, fcs,
+  col.ci.calc <- formatcol(longer.ci, ci.format, yS, just[["just"]], fcs,
                            fontfamily,
                            n.com, n.ran, n.prd)
   #
   col.effect.ci.calc <- formatcol(longer.effect.ci, effect.ci.format, yS,
-                                  just.c, fcs, fontfamily,
+                                  just[["just"]], fcs, fontfamily,
                                   n.com, n.ran, n.prd)
   #
   if (ev.n.bin) {
     col.event.n.e.calc <- formatcol(longer.event.n.e, event.n.e.format, yS,
-                                    just.c, fcs, fontfamily,
+                                    just[["just"]], fcs, fontfamily,
                                     n.com, n.ran, n.prd)
     #
     col.event.n.c.calc <- formatcol(longer.event.n.c, event.n.c.format, yS,
-                                    just.c, fcs, fontfamily,
+                                    just[["just"]], fcs, fontfamily,
                                     n.com, n.ran, n.prd)
   }
   #
   if (m.s.n.cont) {
     col.mean.sd.n.e.calc <-
       formatcol(longer.mean.sd.n.e, mean.sd.n.e.format, yS,
-                just.c, fcs, fontfamily,
+                just[["just"]], fcs, fontfamily,
                 n.com, n.ran, n.prd)
     #
     col.mean.sd.n.c.calc <-
       formatcol(longer.mean.sd.n.c, mean.sd.n.c.format, yS,
-                just.c, fcs, fontfamily,
+                just[["just"]], fcs, fontfamily,
                 n.com, n.ran, n.prd)
   }
   #
   if (ev.n.prop) {
     col.event.n.e.calc <- formatcol(longer.event.n.e, event.n.e.format, yS,
-                                    just.c, fcs, fontfamily,
+                                    just[["just"]], fcs, fontfamily,
                                     n.com, n.ran, n.prd)
   }
   #
   if (ev.t.inc) {
     col.event.time.e.calc <-
       formatcol(longer.event.time.e, event.time.e.format, yS,
-                just.c, fcs, fontfamily,
+                just[["just"]], fcs, fontfamily,
                 n.com, n.ran, n.prd)
     #
     col.event.time.c.calc <-
       formatcol(longer.event.time.c, event.time.c.format, yS,
-                just.c, fcs, fontfamily,
+                just[["just"]], fcs, fontfamily,
                 n.com, n.ran, n.prd)
     #
     col.event.time.n.e.calc <-
       formatcol(longer.event.time.n.e, event.time.n.e.format, yS,
-                just.c, fcs, fontfamily,
+                just[["just"]], fcs, fontfamily,
                 n.com, n.ran, n.prd)
     #
     col.event.time.n.c.calc <-
       formatcol(longer.event.time.n.c, event.time.n.c.format, yS,
-                just.c, fcs, fontfamily,
+                just[["just"]], fcs, fontfamily,
                 n.com, n.ran, n.prd)
   }
   #
   col.w.common.calc  <- formatcol(longer.w.common, Wc.format, yS,
-                                  just.c, fcs, fontfamily,
+                                  just[["just"]], fcs, fontfamily,
                                   n.com, n.ran, n.prd)
   col.w.random.calc <- formatcol(longer.w.random, Wr.format, yS,
-                                 just.c, fcs, fontfamily,
+                                 just[["just"]], fcs, fontfamily,
                                  n.com, n.ran, n.prd)
   #
-  col.TE.calc <- formatcol(longer.TE, TE.format, yS, just.c, fcs, fontfamily,
+  col.TE.calc <- formatcol(longer.TE, TE.format, yS, just[["just"]], fcs, fontfamily,
                            n.com, n.ran, n.prd)
-  col.seTE.calc <- formatcol(longer.seTE, seTE.format, yS, just.c, fcs,
+  col.seTE.calc <- formatcol(longer.seTE, seTE.format, yS, just[["just"]], fcs,
                              fontfamily,
                              n.com, n.ran, n.prd)
   #
   col.cluster.calc <- formatcol(longer.cluster, cluster.format,
-                                yS, just.c, fcs, fontfamily,
+                                yS, just[["just"]], fcs, fontfamily,
                                 n.com, n.ran, n.prd)
   #
   col.cycles.calc <- formatcol(longer.cycles, cycles.format,
-                               yS, just.c, fcs, fontfamily,
+                               yS, just[["just"]], fcs, fontfamily,
                                n.com, n.ran, n.prd)
   #
-  col.n.e.calc <- formatcol(longer.n.e, Ne.format, yS, just.c, fcs, fontfamily,
+  col.n.e.calc <- formatcol(longer.n.e, Ne.format, yS, just[["just"]], fcs, fontfamily,
                             n.com, n.ran, n.prd)
-  col.n.c.calc <- formatcol(longer.n.c, Nc.format, yS, just.c, fcs, fontfamily,
+  col.n.c.calc <- formatcol(longer.n.c, Nc.format, yS, just[["just"]], fcs, fontfamily,
                             n.com, n.ran, n.prd)
   #
   col.event.e.calc <- formatcol(longer.event.e, Ee.format, yS,
-                                just.c, fcs, fontfamily,
+                                just[["just"]], fcs, fontfamily,
                                 n.com, n.ran, n.prd)
-  col.event.c.calc <- formatcol(longer.event.c, Ec.format, yS, just.c, fcs,
+  col.event.c.calc <- formatcol(longer.event.c, Ec.format, yS, just[["just"]], fcs,
                                 fontfamily,
                                 n.com, n.ran, n.prd)
   #
-  col.mean.e.calc <- formatcol(longer.mean.e, Me.format, yS, just.c, fcs,
+  col.mean.e.calc <- formatcol(longer.mean.e, Me.format, yS, just[["just"]], fcs,
                                fontfamily,
                                n.com, n.ran, n.prd)
-  col.mean.c.calc <- formatcol(longer.mean.c, Mc.format, yS, just.c, fcs,
+  col.mean.c.calc <- formatcol(longer.mean.c, Mc.format, yS, just[["just"]], fcs,
                                fontfamily,
                                n.com, n.ran, n.prd)
   #
-  col.sd.e.calc <- formatcol(longer.sd.e, Se.format, yS, just.c, fcs,
+  col.sd.e.calc <- formatcol(longer.sd.e, Se.format, yS, just[["just"]], fcs,
                              fontfamily,
                              n.com, n.ran, n.prd)
-  col.sd.c.calc <- formatcol(longer.sd.c, Sc.format, yS, just.c, fcs,
+  col.sd.c.calc <- formatcol(longer.sd.c, Sc.format, yS, just[["just"]], fcs,
                              fontfamily,
                              n.com, n.ran, n.prd)
   #
-  col.cor.calc <- formatcol(longer.cor, cor.format, yS, just.c, fcs,
+  col.cor.calc <- formatcol(longer.cor, cor.format, yS, just[["just"]], fcs,
                             fontfamily,
                             n.com, n.ran, n.prd)
   #
-  col.time.e.calc <- formatcol(longer.time.e, Te.format, yS, just.c, fcs,
+  col.time.e.calc <- formatcol(longer.time.e, Te.format, yS, just[["just"]], fcs,
                                fontfamily,
                                n.com, n.ran, n.prd)
-  col.time.c.calc <- formatcol(longer.time.c, Tc.format, yS, just.c, fcs,
+  col.time.c.calc <- formatcol(longer.time.c, Tc.format, yS, just[["just"]], fcs,
                                fontfamily,
                                n.com, n.ran, n.prd)
   #
-  col.pval.calc <- formatcol(longer.pval, pval.format, yS, just.c, fcs,
+  col.pval.calc <- formatcol(longer.pval, pval.format, yS, just[["just"]], fcs,
                              fontfamily,
                              n.com, n.ran, n.prd)
   #
   col.statistic.calc <- formatcol(longer.statistic, statistic.format,
-                                  yS, just.c, fcs, fontfamily,
+                                  yS, just[["just"]], fcs, fontfamily,
                                   n.com, n.ran, n.prd)
   #
   col.forest <- list(eff = TEs.exclude,
@@ -9640,23 +8980,24 @@ forest.meta <- function(x,
                      # "diamond" - meta-analysis diamond
                      # "predict" - prediction interval
                      #
-                     type = c(type.pooled, type.study),
+                     type = c(type.pooled, type[["study"]]),
                      #
-                     col = c(col.diamond.lines.pooled, col.study),
-                     col.square = c(col.diamond.pooled, col.square),
+                     col = c(col.diamond.lines.pooled, col[["study"]]),
+                     col.square = c(col.diamond.pooled, col[["square"]]),
                      col.square.lines =
-                       c(col.diamond.lines.pooled, col.square.lines),
-                     col.inside = c(col.inside.pooled, col.inside),
-                     col.circle = c(col.diamond.pooled, col.circle),
+                       c(col.diamond.lines.pooled, col[["square.lines"]]),
+                     col.inside = c(col.inside.pooled, col[["inside"]]),
+                     col.circle = c(col.diamond.pooled, col[["circle"]]),
                      col.circle.lines =
-                       c(col.diamond.lines.pooled, col.circle.lines),
+                       c(col.diamond.lines.pooled, col[["circle.lines"]]),
                      #
-                     col.diamond = c(col.diamond.pooled, col.square),
+                     col.diamond = c(col.diamond.pooled, col[["square"]]),
                      col.diamond.lines =
-                       c(col.diamond.lines.pooled, col.square.lines),
+                       c(col.diamond.lines.pooled, col[["square.lines"]]),
                      #
-                     lwd = lwd,
-                     lwd.square = lwd.square, lwd.diamond = lwd.diamond,
+                     lwd = lwd[["lwd"]],
+                     lwd.square = lwd[["square"]],
+                     lwd.diamond = lwd[["diamond"]],
                      #
                      arrow.type = arrow.type, arrow.length = arrow.length
   )
@@ -9675,8 +9016,8 @@ forest.meta <- function(x,
     # Square height equal to 1 for most precise study result
     if (!all(is.na(information))) {
       information <- information / max(information, na.rm = TRUE)
-      if (length(unique(type.study)) == 1 &&
-          unique(type.study) == "squarediamond")
+      if (length(unique(type[["study"]])) == 1 &&
+          unique(type[["study"]]) == "squarediamond")
         information[information < 0.35 * max(information, na.rm = TRUE)] <-
           0.35
     }
@@ -9811,51 +9152,52 @@ forest.meta <- function(x,
     # Check just.addcols
     #
     if (length(leftcols.new) > 0)
-      if (length(just.addcols.left) != 1) {
-        if (length(just.addcols.left) != length(leftcols.new))
+      if (length(just[["addcols.left"]]) != 1) {
+        if (length(just[["addcols.left"]]) != length(leftcols.new))
           stop("Length of argument 'just.addcols.left' must be one or ",
                "same as number of additional columms in argument 'leftcols'.")
       }
     else
-      just.addcols.left <- rep(just.addcols.left, length(leftcols.new))
+      just$addcols.left <- rep(just[["addcols.left"]], length(leftcols.new))
     #
     if (length(rightcols.new) > 0)
-      if (length(just.addcols.right) != 1) {
-        if (length(just.addcols.right) != length(rightcols.new))
+      if (length(just[["addcols.right"]]) != 1) {
+        if (length(just[["addcols.right"]]) != length(rightcols.new))
           stop("Length of argument 'just.addcols.right' must be one or ",
                "same as number of additional columms in argument 'rightcols'.")
       }
     else
-      just.addcols.right <- rep(just.addcols.right, length(rightcols.new))
+      just$addcols.right <- rep(just[["addcols.right"]], length(rightcols.new))
     #
     # Check digits.addcols
     #
     if (length(leftcols.new) > 0)
-      if (length(digits.addcols.left) != 1) {
-        if (length(digits.addcols.left) != length(leftcols.new))
+      if (length(digits[["addcols.left"]]) != 1) {
+        if (length(digits[["addcols.left"]]) != length(leftcols.new))
           stop("Length of argument 'digits.addcols.left' must be one or ",
                "same as number of additional columms in argument 'leftcols'.")
       }
     else
-      digits.addcols.left <- rep(digits.addcols.left, length(leftcols.new))
+      digits$addcols.left <- rep(digits[["addcols.left"]], length(leftcols.new))
     #
     if (length(rightcols.new) > 0)
-      if (length(digits.addcols.right) != 1) {
-        if (length(digits.addcols.right) != length(rightcols.new))
+      if (length(digits[["addcols.right"]]) != 1) {
+        if (length(digits[["addcols.right"]]) != length(rightcols.new))
           stop("Length of argument 'digits.addcols.right' must be one or ",
                "same as number of additional columms in argument 'rightcols'.")
       }
     else
-      digits.addcols.right <- rep(digits.addcols.right, length(rightcols.new))
+      digits$addcols.right <- rep(digits[["addcols.right"]], length(rightcols.new))
     #
     if (by) {
       for (i in seq_along(rightcols.new)) {
         col.i <-
           newCol(rightcols.new[i], rightlabs.new[i],
-                 rob, dataset1, dataset2, data.pooled,
+                 rob[["rob"]], dataset1, dataset2, data.pooled,
                  n.com, n.ran, n.prd,
                  notavail.digits.addcols.right, lab.NA, big.mark,
-                 digits.addcols.right[i], digits.tau2, digits.tau, digits.I2,
+                 digits[["addcols.right"]][i],
+                 digits[["tau2"]], digits[["tau"]], digits[["I2"]],
                  all.prd,
                  n.com.w, n.ran.w, n.prd.w, n.stat.w)
         #
@@ -9867,12 +9209,12 @@ forest.meta <- function(x,
                     just.right.new[i],
                     fcs, fontfamily,
                     n.com, n.ran, n.prd,
-                    rightcols.new[i] %in% colnames(rob))
+                    rightcols.new[i] %in% colnames(rob[["rob"]]))
         #
         cols.calc[[col.i$colname]] <-
           formatcol(col.i$longer, col.i$format_var,
                     yS,
-                    just.addcols.right[i],
+                    just[["addcols.right"]][i],
                     fcs, fontfamily,
                     n.com, n.ran, n.prd)
       }
@@ -9880,10 +9222,11 @@ forest.meta <- function(x,
       for (i in seq_along(leftcols.new)) {
         col.i <-
           newCol(leftcols.new[i], leftlabs.new[i],
-                 rob, dataset1, dataset2, data.pooled,
+                 rob[["rob"]], dataset1, dataset2, data.pooled,
                  n.com, n.ran, n.prd,
                  notavail.digits.addcols.left, lab.NA, big.mark,
-                 digits.addcols.left[i], digits.tau2, digits.tau, digits.I2,
+                 digits[["addcols.left"]][i],
+                 digits[["tau2"]], digits[["tau"]], digits[["I2"]],
                  all.prd,
                  n.com.w, n.ran.w, n.prd.w, n.stat.w)
         #
@@ -9895,12 +9238,12 @@ forest.meta <- function(x,
                     just.left.new[i],
                     fcs, fontfamily,
                     n.com, n.ran, n.prd,
-                    leftcols.new[i] %in% colnames(rob))
+                    leftcols.new[i] %in% colnames(rob[["rob"]]))
         #
         cols.calc[[col.i$colname]] <-
           formatcol(col.i$longer, col.i$format_var,
                     yS,
-                    just.addcols.left[i],
+                    just[["addcols.left"]][i],
                     fcs, fontfamily,
                     n.com, n.ran, n.prd)
       }
@@ -9909,10 +9252,11 @@ forest.meta <- function(x,
       for (i in seq_along(rightcols.new)) {
         col.i <-
           newCol(rightcols.new[i], rightlabs.new[i],
-                 rob, dataset1, dataset2, data.pooled,
+                 rob[["rob"]], dataset1, dataset2, data.pooled,
                  n.com, n.ran, n.prd,
                  notavail.digits.addcols.right, lab.NA, big.mark,
-                 digits.addcols.right[i], digits.tau2, digits.tau, digits.I2,
+                 digits[["addcols.right"]][i],
+                 digits[["tau2"]], digits[["tau"]], digits[["I2"]],
                  all.prd)
         #
         cols.new[[col.i$colname]] <- col.i$format_var
@@ -9923,12 +9267,12 @@ forest.meta <- function(x,
                     just.right.new[i],
                     fcs, fontfamily,
                     n.com, n.ran, n.prd,
-                    rightcols.new[i] %in% colnames(rob))
+                    rightcols.new[i] %in% colnames(rob[["rob"]]))
         #
         cols.calc[[col.i$colname]] <-
           formatcol(col.i$longer, col.i$format_var,
                     yS,
-                    just.addcols.right[i],
+                    just[["addcols.right"]][i],
                     fcs, fontfamily,
                     n.com, n.ran, n.prd)
       }
@@ -9936,10 +9280,10 @@ forest.meta <- function(x,
       for (i in seq_along(leftcols.new)) {
         col.i <-
           newCol(leftcols.new[i], leftlabs.new[i],
-                 rob, dataset1, dataset2, data.pooled,
+                 rob[["rob"]], dataset1, dataset2, data.pooled,
                  n.com, n.ran, n.prd,
                  notavail.digits.addcols.left, lab.NA, big.mark,
-                 digits.addcols.left[i], digits.tau2, digits.tau, digits.I2,
+                 digits[["addcols.left"]][i], digits[["tau2"]], digits[["tau"]], digits[["I2"]],
                  all.prd)
         #
         cols.new[[col.i$colname]] <- col.i$format_var
@@ -9950,36 +9294,36 @@ forest.meta <- function(x,
                     just.left.new[i],
                     fcs, fontfamily,
                     n.com, n.ran, n.prd,
-                    leftcols.new[i] %in% colnames(rob))
+                    leftcols.new[i] %in% colnames(rob[["rob"]]))
         #
         cols.calc[[col.i$colname]] <-
           formatcol(col.i$longer, col.i$format_var,
                     yS,
-                    just.addcols.left[i],
+                    just[["addcols.left"]][i],
                     fcs, fontfamily,
                     n.com, n.ran, n.prd)
       }
     }
   }
   #
-  if (label_attach_has_newline(label.e.attach))
-    label.e <- ""
-  if (label_attach_has_newline(label.c.attach))
-    label.c <- ""
+  if (label_attach_has_newline(label[["e.attach"]]))
+    label$e <- ""
+  if (label_attach_has_newline(label[["c.attach"]]))
+    label$c <- ""
   #
   col.label.e <-
-    tgl(label.e,
+    tgl(label[["e"]],
         xpos.label.e,
-        just.label.e,
-        fs.head, ff.head, fontfamily)
+        just[["label.e"]],
+        fs[["heading"]], ff[["heading"]], fontfamily)
   #
   col.label.c <-
-    tgl(label.c,
+    tgl(label[["c"]],
         xpos.label.c,
-        just.label.c,
-        fs.head, ff.head, fontfamily)
+        just[["label.c"]],
+        fs[["heading"]], ff[["heading"]], fontfamily)
   #
-  col.rob <- tgl(rob.text, xpos.rob, just.rob, fs.head, ff.head, fontfamily)
+  col.rob <- tgl(rob[["text"]], xpos.rob, just[["rob"]], fs[["heading"]], ff[["heading"]], fontfamily)
   #
   col.add.TE <- col.add.ci <- col.add.cluster <- col.add.cor <-
     col.add.cycles <- col.add.effect <- col.add.effect.ci <-
@@ -9993,150 +9337,150 @@ forest.meta <- function(x,
     col.add.w.common <- col.add.w.random <- NULL
   #
   if (newline.studlab)
-    col.add.studlab <- tgl(add.studlab, xpos.s, just.s, fs.head, ff.head,
+    col.add.studlab <- tgl(add.studlab, xpos.s, just[["studlab"]], fs[["heading"]], ff[["heading"]],
                            fontfamily)
   #
   if (newline.effect)
-    col.add.effect <- tgl(add.effect, xpos.c, just.c, fs.head, ff.head,
+    col.add.effect <- tgl(add.effect, xpos.c, just[["just"]], fs[["heading"]], ff[["heading"]],
                           fontfamily)
   #
   if (newline.ci)
-    col.add.ci <- tgl(add.ci, xpos.c, just.c, fs.head, ff.head, fontfamily)
+    col.add.ci <- tgl(add.ci, xpos.c, just[["just"]], fs[["heading"]], ff[["heading"]], fontfamily)
   #
   if (newline.effect.ci)
     col.add.effect.ci <- tgl(add.effect.ci,
                              if (bmj.revman5) 0.5 else xpos.c,
-                             if (bmj.revman5) "center" else just.c,
-                             fs.head, ff.head, fontfamily)
+                             if (bmj.revman5) "center" else just[["just"]],
+                             fs[["heading"]], ff[["heading"]], fontfamily)
   #
   if (ev.n.bin) {
     if (newline.event.n.e)
       col.add.event.n.e <- tgl(add.event.n.e,
                                if (bmj.revman5) 0.5 else xpos.c,
-                               if (bmj.revman5) "center" else just.c,
-                               fs.head, ff.head, fontfamily)
+                               if (bmj.revman5) "center" else just[["just"]],
+                               fs[["heading"]], ff[["heading"]], fontfamily)
     #
     if (newline.event.n.c)
       col.add.event.n.c <- tgl(add.event.n.c,
                                if (bmj.revman5) 0.5 else xpos.c,
-                               if (bmj.revman5) "center" else just.c,
-                               fs.head, ff.head, fontfamily)
+                               if (bmj.revman5) "center" else just[["just"]],
+                               fs[["heading"]], ff[["heading"]], fontfamily)
   }
   #
   if (m.s.n.cont) {
     if (newline.mean.sd.n.e)
       col.add.mean.sd.n.e <- tgl(add.mean.sd.n.e,
                                  if (bmj.revman5) 0.5 else xpos.c,
-                                 if (bmj.revman5) "center" else just.c,
-                                 fs.head, ff.head, fontfamily)
+                                 if (bmj.revman5) "center" else just[["just"]],
+                                 fs[["heading"]], ff[["heading"]], fontfamily)
     #
     if (newline.mean.sd.n.c)
       col.add.mean.sd.n.c <- tgl(add.mean.sd.n.c,
                                  if (bmj.revman5) 0.5 else xpos.c,
-                                 if (bmj.revman5) "center" else just.c,
-                                 fs.head, ff.head, fontfamily)
+                                 if (bmj.revman5) "center" else just[["just"]],
+                                 fs[["heading"]], ff[["heading"]], fontfamily)
   }
   #
   if (ev.n.prop) {
     if (newline.event.n.e)
       col.add.event.n.e <- tgl(add.event.n.e,
                                if (bmj.revman5) 0.5 else xpos.c,
-                               if (bmj.revman5) "center" else just.c,
-                               fs.head, ff.head, fontfamily)
+                               if (bmj.revman5) "center" else just[["just"]],
+                               fs[["heading"]], ff[["heading"]], fontfamily)
   }
   #
   if (ev.t.inc) {
     if (newline.event.time.e)
       col.add.event.time.e <- tgl(add.event.time.e,
                                   if (bmj.revman5) 0.5 else xpos.c,
-                                  if (bmj.revman5) "center" else just.c,
-                                  fs.head, ff.head, fontfamily)
+                                  if (bmj.revman5) "center" else just[["just"]],
+                                  fs[["heading"]], ff[["heading"]], fontfamily)
     #
     if (newline.event.time.c)
       col.add.event.time.c <- tgl(add.event.time.c,
                                   if (bmj.revman5) 0.5 else xpos.c,
-                                  if (bmj.revman5) "center" else just.c,
-                                  fs.head, ff.head, fontfamily)
+                                  if (bmj.revman5) "center" else just[["just"]],
+                                  fs[["heading"]], ff[["heading"]], fontfamily)
     #
     if (newline.event.time.n.e)
       col.add.event.time.n.e <- tgl(add.event.time.n.e,
                                     if (bmj.revman5) 0.5 else xpos.c,
-                                    if (bmj.revman5) "center" else just.c,
-                                    fs.head, ff.head, fontfamily)
+                                    if (bmj.revman5) "center" else just[["just"]],
+                                    fs[["heading"]], ff[["heading"]], fontfamily)
     #
     if (newline.event.time.n.c)
       col.add.event.time.n.c <- tgl(add.event.time.n.c,
                                     if (bmj.revman5) 0.5 else xpos.c,
-                                    if (bmj.revman5) "center" else just.c,
-                                    fs.head, ff.head, fontfamily)
+                                    if (bmj.revman5) "center" else just[["just"]],
+                                    fs[["heading"]], ff[["heading"]], fontfamily)
   }
   #
   if (newline.w.common)
-    col.add.w.common <- tgl(add.w.common, xpos.c, just.c, fs.head, ff.head,
+    col.add.w.common <- tgl(add.w.common, xpos.c, just[["just"]], fs[["heading"]], ff[["heading"]],
                             fontfamily)
   #
   if (newline.w.random)
-    col.add.w.random <- tgl(add.w.random, xpos.c, just.c, fs.head, ff.head,
+    col.add.w.random <- tgl(add.w.random, xpos.c, just[["just"]], fs[["heading"]], ff[["heading"]],
                             fontfamily)
   #
   if (newline.TE)
-    col.add.TE <- tgl(add.TE, xpos.c, just.c, fs.head, ff.head,
+    col.add.TE <- tgl(add.TE, xpos.c, just[["just"]], fs[["heading"]], ff[["heading"]],
                       fontfamily)
   #
   if (newline.seTE)
-    col.add.seTE <- tgl(add.seTE, xpos.c, just.c, fs.head, ff.head, fontfamily)
+    col.add.seTE <- tgl(add.seTE, xpos.c, just[["just"]], fs[["heading"]], ff[["heading"]], fontfamily)
   #
   if (newline.cluster)
     col.add.cluster <-
     tgl(add.cluster,
         if (as.character.cluster) 0 else xpos.c,
-        if (as.character.cluster) "left" else just.c,
-        fs.head, ff.head, fontfamily)
+        if (as.character.cluster) "left" else just[["just"]],
+        fs[["heading"]], ff[["heading"]], fontfamily)
   #
   if (newline.cycles)
     col.add.cycles <-
     tgl(add.cycles,
         if (as.character.cycles) 0 else xpos.c,
-        if (as.character.cycles) "left" else just.c,
-        fs.head, ff.head, fontfamily)
+        if (as.character.cycles) "left" else just[["just"]],
+        fs[["heading"]], ff[["heading"]], fontfamily)
   #
   if (newline.n.e)
-    col.add.n.e <- tgl(add.n.e, xpos.c, just.c, fs.head, ff.head, fontfamily)
+    col.add.n.e <- tgl(add.n.e, xpos.c, just[["just"]], fs[["heading"]], ff[["heading"]], fontfamily)
   #
   if (newline.n.c)
-    col.add.n.c <- tgl(add.n.c, xpos.c, just.c, fs.head, ff.head, fontfamily)
+    col.add.n.c <- tgl(add.n.c, xpos.c, just[["just"]], fs[["heading"]], ff[["heading"]], fontfamily)
   #
   if (newline.event.e)
-    col.add.event.e <- tgl(add.event.e, xpos.c, just.c, fs.head, ff.head,
+    col.add.event.e <- tgl(add.event.e, xpos.c, just[["just"]], fs[["heading"]], ff[["heading"]],
                            fontfamily)
   #
   if (newline.event.c)
-    col.add.event.c <- tgl(add.event.c, xpos.c, just.c, fs.head, ff.head,
+    col.add.event.c <- tgl(add.event.c, xpos.c, just[["just"]], fs[["heading"]], ff[["heading"]],
                            fontfamily)
   #
   if (newline.mean.e)
-    col.add.mean.e <- tgl(add.mean.e, xpos.c, just.c, fs.head, ff.head,
+    col.add.mean.e <- tgl(add.mean.e, xpos.c, just[["just"]], fs[["heading"]], ff[["heading"]],
                           fontfamily)
   #
   if (newline.mean.c)
-    col.add.mean.c <- tgl(add.mean.c, xpos.c, just.c, fs.head, ff.head,
+    col.add.mean.c <- tgl(add.mean.c, xpos.c, just[["just"]], fs[["heading"]], ff[["heading"]],
                           fontfamily)
   #
   if (newline.sd.e)
-    col.add.sd.e <- tgl(add.sd.e, xpos.c, just.c, fs.head, ff.head, fontfamily)
+    col.add.sd.e <- tgl(add.sd.e, xpos.c, just[["just"]], fs[["heading"]], ff[["heading"]], fontfamily)
   #
   if (newline.sd.c)
-    col.add.sd.c <- tgl(add.sd.c, xpos.c, just.c, fs.head, ff.head, fontfamily)
+    col.add.sd.c <- tgl(add.sd.c, xpos.c, just[["just"]], fs[["heading"]], ff[["heading"]], fontfamily)
   #
   if (newline.cor)
-    col.add.cor <- tgl(add.cor, xpos.c, just.c, fs.head, ff.head, fontfamily)
+    col.add.cor <- tgl(add.cor, xpos.c, just[["just"]], fs[["heading"]], ff[["heading"]], fontfamily)
   #
   if (newline.time.e)
-    col.add.time.e <- tgl(add.time.e, xpos.c, just.c, fs.head, ff.head,
+    col.add.time.e <- tgl(add.time.e, xpos.c, just[["just"]], fs[["heading"]], ff[["heading"]],
                           fontfamily)
   #
   if (newline.time.c)
-    col.add.time.c <- tgl(add.time.c, xpos.c, just.c, fs.head, ff.head,
+    col.add.time.c <- tgl(add.time.c, xpos.c, just[["just"]], fs[["heading"]], ff[["heading"]],
                           fontfamily)
   #
   if (!is.na(yHeadadd)) {
@@ -10183,19 +9527,18 @@ forest.meta <- function(x,
   if (studlab.right)
     rightcols[rightcols == "col.studlab"] <- "col.studlab.right"
   #
-  calcwidth.common <- calcwidth.common && common
-  calcwidth.random <- calcwidth.random && random
-  calcwidth.predict <- calcwidth.predict && prediction
-  calcwidth.hetstat <- calcwidth.hetstat &&
+  calcwidth$common <- calcwidth[["common"]] && common
+  calcwidth$random <- calcwidth[["random"]] && random
+  calcwidth$predict <- calcwidth[["predict"]] && prediction
+  calcwidth$hetstat <- calcwidth[["hetstat"]] &&
     any(!is.na(c(yHetstat, yResidHetstat, if (by) yTE.hetstat.w else NA)))
-  calcwidth.tests <- calcwidth.tests &&
+  calcwidth$tests <- calcwidth[["tests"]] &&
     any(!is.na(c(yOverall.common, yOverall.random,
                  ySubgroup.common, ySubgroup.random)))
-  calcwidth.subgroup <- calcwidth.subgroup && by && any(!is.na(yBylab))
-  calcwidth.addline <-
-    calcwidth.addline && any(!is.na(c(yText.addline1, yText.addline2)))
-  calcwidth.details <- calcwidth.details && details && length(text.details) > 0
-  
+  calcwidth$subgroup <- calcwidth[["subgroup"]] && by && any(!is.na(yBylab))
+  calcwidth$addline <-
+    calcwidth[["addline"]] && any(!is.na(c(yText.addline1, yText.addline2)))
+  calcwidth$details <- calcwidth[["details"]] && details && length(text.details) > 0
   
   #
   #
@@ -10206,12 +9549,12 @@ forest.meta <- function(x,
   # Exclude lines with summary measures from calculation of column
   # width for study labels
   #
-  axis <- axis_labels(xlim, at, label, log.xaxis, avail.xlim)
+  axis <- axis_labels(xlim, at, label.axis, log.xaxis, avail.xlim)
   axis.widths <- unit(0, "mm")
   if (axis$draw.labels) {
     axis.grobs <- lapply(
       as.list(axis$label), tg,
-      xpos = 0.5, just = "center", fs = fs.axis, ff = ff.axis,
+      xpos = 0.5, just = "center", fs = fs[["axis"]], ff = ff[["axis"]],
       fontfamily = fontfamily)
     axis.widths <- do.call(unit.c, lapply(axis.grobs, wcalc))
   }
@@ -10224,32 +9567,33 @@ forest.meta <- function(x,
   }
   #
   width.center <- unit.pmax(
-    text.width(lines.smlab, fs.smlab, ff.smlab),
-    text.width(lines.xlab, fs.xlab, ff.xlab))
-  extra.center <- unit.pmax(unit(0, "mm"),
-                            width.center - col.forestwidth)
-  if (miss.colgap.forest.left && miss.colgap.forest.right) {
-    colgap.forest.left <- colgap.forest.left + extra.center / 2
-    colgap.forest.right <- colgap.forest.right + extra.center / 2
+    text.width(lines.smlab, fs[["smlab"]], ff[["smlab"]]),
+    text.width(lines.xlab, fs[["xlab"]], ff[["xlab"]]))
+  #
+  extra.center <- unit.pmax(unit(0, "mm"), width.center - col.forestwidth)
+  #
+  if (miss.colgap[["forest.left"]] && miss.colgap[["forest.right"]]) {
+    colgap$forest.left <- colgap[["forest.left"]] + extra.center / 2
+    colgap$forest.right <- colgap[["forest.right"]] + extra.center / 2
   }
-  else if (miss.colgap.forest.left)
-    colgap.forest.left <- colgap.forest.left + extra.center
-  else if (miss.colgap.forest.right)
-    colgap.forest.right <- colgap.forest.right + extra.center
+  else if (miss.colgap[["forest.left"]])
+    colgap$forest.left <- colgap[["forest.left"]] + extra.center
+  else if (miss.colgap[["forest.right"]])
+    colgap$forest.right <- colgap[["forest.right"]] + extra.center
   #
   if (length(axis.widths) > 0) {
-    if (miss.colgap.forest.left)
-      colgap.forest.left <- unit.pmax(
-        colgap.forest.left, axis.widths[1] / 2)
-    if (miss.colgap.forest.right)
-      colgap.forest.right <- unit.pmax(
-        colgap.forest.right, axis.widths[length(axis.widths)] / 2)
+    if (miss.colgap[["forest.left"]])
+      colgap$forest.left <- unit.pmax(
+        colgap[["forest.left"]], axis.widths[1] / 2)
+    if (miss.colgap[["forest.right"]])
+      colgap$forest.right <- unit.pmax(
+        colgap[["forest.right"]], axis.widths[length(axis.widths)] / 2)
   }
   #
   width.label.left <-
-    text.width(lines.label.left, fs.lr, ff.lr, just = "right")
+    text.width(lines.label.left, fs[["lr"]], ff[["lr"]], just = "right")
   width.label.right <-
-    text.width(lines.label.right, fs.lr, ff.lr, just = "left")
+    text.width(lines.label.right, fs[["lr"]], ff[["lr"]], just = "left")
   #
   if (print.label && !is.na(ref) && diff(xlim) > 0) {
     ref.pos <- (ref - xlim[1]) / diff(xlim)
@@ -10259,12 +9603,12 @@ forest.meta <- function(x,
     available.left <- col.forestwidth * left.pos
     available.right <- col.forestwidth * (1 - right.pos)
     #
-    if (miss.colgap.forest.left) {
-      colgap.forest.left <- colgap.forest.left +
+    if (miss.colgap[["forest.left"]]) {
+      colgap$forest.left <- colgap[["forest.left"]] +
         unit.pmax(unit(0, "mm"), width.label.left - available.left)
     }
-    if (miss.colgap.forest.right) {
-      colgap.forest.right <- colgap.forest.right +
+    if (miss.colgap[["forest.right"]]) {
+      colgap$forest.right <- colgap[["forest.right"]] +
         unit.pmax(unit(0, "mm"), width.label.right - available.right)
     }
   }
@@ -10275,24 +9619,24 @@ forest.meta <- function(x,
   calcwidth.details.line <- NULL
   #
   pooled.data.cols <- c(
-    if (pooled.events)
+    if (pooled[["events"]])
       c("col.event.e", "col.event.c")
     else
       NULL,
-    if (pooled.totals)
+    if (pooled[["totals"]])
       c("col.n.e", "col.n.c")
     else
       NULL,
-    if (pooled.times)
+    if (pooled[["times"]])
       c("col.time.e", "col.time.c")
     else
       NULL,
-    if (pooled.events | pooled.totals)
+    if (pooled[["events"]] | pooled[["totals"]])
       c("col.event.n.e", "col.event.n.c", "col.mean.sd.n.e",
         "col.mean.sd.n.c")
     else
       NULL,
-    if (pooled.events | pooled.times)
+    if (pooled[["events"]] | pooled[["times"]])
       c("col.event.time.e", "col.event.time.c",
         "col.event.time.n.e", "col.event.time.n.c")
     else
@@ -10314,11 +9658,11 @@ forest.meta <- function(x,
     pooled.random.cols <- c(pooled.random.cols, pooled.datap.cols)
   }
   pooled.common.in.row <-
-    ((pooled.totals | pooled.events | pooled.times) &&
+    ((pooled[["totals"]] | pooled[["events"]] | pooled[["times"]]) &&
        any(leftcols %in% pooled.data.cols)) ||
     any(leftcols %in% pooled.common.cols)
   pooled.random.in.row <-
-    ((pooled.totals | pooled.events | pooled.times) &&
+    ((pooled[["totals"]] | pooled[["events"]] | pooled[["times"]]) &&
        any(leftcols %in% pooled.data.cols)) ||
     any(leftcols %in% pooled.random.cols)
   #
@@ -10326,21 +9670,21 @@ forest.meta <- function(x,
   #
   del.lines <- c(del.lines, common.lines)
   #
-  if (calcwidth.common)
+  if (calcwidth[["common"]])
     calcwidth.text.lines <- c(calcwidth.text.lines, common.lines)
   #
   random.lines <- 1 + n.com + seq_len(n.ran)
   #
   del.lines <- c(del.lines, random.lines)
   #
-  if (calcwidth.random)
+  if (calcwidth[["random"]])
     calcwidth.text.lines <- c(calcwidth.text.lines, random.lines)
   #
   predict.lines <- 1 + n.com + n.ran + seq_len(n.prd)
   #
   del.lines <- c(del.lines, predict.lines)
   #
-  if (calcwidth.predict)
+  if (calcwidth[["predict"]])
     calcwidth.text.lines <- c(calcwidth.text.lines, predict.lines)
   #
   overall.tests.lines <- 1 + n.com + n.ran + n.prd + seq(2)
@@ -10348,21 +9692,21 @@ forest.meta <- function(x,
   #
   del.lines <- c(del.lines, hetstat.lines)
   #
-  if (calcwidth.hetstat)
+  if (calcwidth[["hetstat"]])
     calcwidth.lines <- c(calcwidth.lines, hetstat.lines)
   #
   tests.lines <- c(overall.tests.lines, 1 + n.com + n.ran + n.prd + 4 + seq(2))
   #
   del.lines <- c(del.lines, tests.lines)
   #
-  if (calcwidth.tests)
+  if (calcwidth[["tests"]])
     calcwidth.lines <- c(calcwidth.lines, tests.lines)
   #
   addline.lines <- 1 + n.com + n.ran + n.prd + 2 + 4 + seq(2)
   #
   del.lines <- c(del.lines, addline.lines)
   #
-  if (calcwidth.addline)
+  if (calcwidth[["addline"]])
     calcwidth.lines <- c(calcwidth.lines, addline.lines)
   #
   if (details) {
@@ -10371,7 +9715,7 @@ forest.meta <- function(x,
     #
     del.lines <- c(del.lines, details.lines)
     #
-    if (calcwidth.details)
+    if (calcwidth[["details"]])
       calcwidth.details.line <- details.lines[1]
   }
   #
@@ -10392,21 +9736,21 @@ forest.meta <- function(x,
     #
     del.lines <- c(del.lines, subgroup.lines)
     #
-    if (calcwidth.subgroup)
+    if (calcwidth[["subgroup"]])
       calcwidth.lines <- c(calcwidth.lines, subgroup.lines)
     #
     common.lines.w <- nd + n.by + seq_len(n.by * n.com)
     #
     del.lines <- c(del.lines, common.lines.w)
     #
-    if (calcwidth.common)
+    if (calcwidth[["common"]])
       calcwidth.lines <- c(calcwidth.lines, common.lines.w)
     #
     random.lines.w <- nd + n.by + n.by * n.com + seq_len(n.by * n.ran)
     #
     del.lines <- c(del.lines, random.lines.w)
     #
-    if (calcwidth.random)
+    if (calcwidth[["random"]])
       calcwidth.lines <- c(calcwidth.lines, random.lines.w)
     #
     predict.lines.w <-
@@ -10414,7 +9758,7 @@ forest.meta <- function(x,
     #
     del.lines <- c(del.lines, predict.lines.w)
     #
-    if (calcwidth.predict)
+    if (calcwidth[["predict"]])
       calcwidth.lines <- c(calcwidth.lines, predict.lines.w)
     #
     # Test for effect (CE)
@@ -10462,9 +9806,9 @@ forest.meta <- function(x,
       n.by + n.by + seq_len(n.by)
     hetstat.lines <- c(hetstat.lines, hetstat.lines.w)
     del.lines <- c(del.lines, hetstat.lines.w)
-    if (calcwidth.hetstat)
+    if (calcwidth[["hetstat"]])
       calcwidth.lines <- c(calcwidth.lines, hetstat.lines.w)
-    if (calcwidth.tests)
+    if (calcwidth[["tests"]])
       calcwidth.lines <-
       c(calcwidth.lines, tests.lines.common.w, tests.lines.random.w)
   }
@@ -10477,18 +9821,21 @@ forest.meta <- function(x,
     }, logical(1))]
   }
   pooled.common.width.cols <-
-    pooled.width.cols(c(common.lines, if (by) common.lines.w),
+    pooled.width.cols(c(common.lines,
+                        if (by) 1 + n.com + n.ran + n.prd + seq_len(n.com.w)),
                       c(pooled.data.cols, pooled.common.cols))
   pooled.random.width.cols <-
-    pooled.width.cols(c(random.lines, if (by) random.lines.w),
+    pooled.width.cols(c(random.lines,
+                        if (by) 1 + n.com + n.ran + n.prd + n.com.w +
+                          seq_len(n.ran.w)),
                       c(pooled.data.cols, pooled.random.cols))
   #
   if (lsel) {
     effect.lines <- integer()
     if (by) {
       effect.lines <- c(
-        yHead + yTE.effect.common.w[!is.na(yTE.effect.common.w)] + addrow,
-        yHead + yTE.effect.random.w[!is.na(yTE.effect.random.w)] + addrow
+        yHead + yTE.effect.common.w[!is.na(yTE.effect.common.w)] + addrow[["addrow"]],
+        yHead + yTE.effect.random.w[!is.na(yTE.effect.random.w)] + addrow[["addrow"]]
       )
       effect.lines <- unique(effect.lines)
       del.lines <- c(del.lines, effect.lines)
@@ -10509,9 +9856,9 @@ forest.meta <- function(x,
         yTE.common.w[!is.na(yTE.common.w)],
         yTE.random.w[!is.na(yTE.random.w)],
         yTE.predict.w[!is.na(yTE.predict.w)],
-        yHead + yTE.effect.common.w[!is.na(yTE.effect.common.w)] + addrow,
-        yHead + yTE.effect.random.w[!is.na(yTE.effect.random.w)] + addrow,
-        yHead + yTE.hetstat.w[!is.na(yTE.hetstat.w)] + addrow
+        yHead + yTE.effect.common.w[!is.na(yTE.effect.common.w)] + addrow[["addrow"]],
+        yHead + yTE.effect.random.w[!is.na(yTE.effect.random.w)] + addrow[["addrow"]],
+        yHead + yTE.hetstat.w[!is.na(yTE.hetstat.w)] + addrow[["addrow"]]
       )
       del.lines <- unique(del.lines)
     }
@@ -10539,31 +9886,38 @@ forest.meta <- function(x,
     #
     width.left.cols <-
       add_attached_label_widths(
-        width.left.cols, leftcols, colgap.left,
-        list(label.e.attach, label.c.attach), list(col.label.e, col.label.c),
-        colgap.studlab)
+        width.left.cols, leftcols, colgap[["left"]],
+        list(label[["e.attach"]], label[["c.attach"]]), list(col.label.e, col.label.c),
+        colgap[["studlab"]])
+    #
     width.left.total <- width.left.cols[[1]]
+    #
     if (length(width.left.cols) > 1) {
       for (i in 2:length(width.left.cols))
         width.left.total <-
           unit.c(width.left.total,
                  if (leftcols[[i - 1]] == "col.studlab")
-                   colgap.studlab
+                   colgap[["studlab"]]
                  else
-                   colgap.left,
+                   colgap[["left"]],
                  width.left.cols[[i]])
     }
     extra.calcwidth.pooled <-
-      unit.pmax(calc_pooled_prefix_extra(common.lines, pooled.common.width.cols,
-                                         calcwidth.common,
-                                         leftcols, width.left.cols,
-                                         colgap.left, colgap.studlab,
-                                         cols[["col.studlab"]]$labels, wcalc),
-                calc_pooled_prefix_extra(random.lines, pooled.random.width.cols,
-                                         calcwidth.random,
-                                         leftcols, width.left.cols,
-                                         colgap.left, colgap.studlab,
-                                         cols[["col.studlab"]]$labels, wcalc))
+      unit.pmax(
+        calc_pooled_prefix_extra(
+          c(common.lines, if (by) common.lines.w),
+          pooled.common.width.cols,
+          calcwidth[["common"]],
+          leftcols, width.left.cols,
+          colgap[["left"]], colgap[["studlab"]],
+          cols[["col.studlab"]]$labels, wcalc),
+        calc_pooled_prefix_extra(
+          c(random.lines, if (by) random.lines.w),
+          pooled.random.width.cols,
+          calcwidth[["random"]],
+          leftcols, width.left.cols,
+          colgap[["left"]], colgap[["studlab"]],
+          cols[["col.studlab"]]$labels, wcalc))
     #
     for (i in seq_along(leftcols)) {
       width.i <- width.left.cols[[i]]
@@ -10574,8 +9928,8 @@ forest.meta <- function(x,
         width.left <-
           unit.c(width.left,
                  if (leftcols[[i - 1]] == "col.studlab")
-                   colgap.studlab
-                 else colgap.left,
+                   colgap[["studlab"]]
+                 else colgap[["left"]],
                  width.i)
     }
     #
@@ -10599,9 +9953,9 @@ forest.meta <- function(x,
           for (col.i in seq.int(studlab.i + 1, first.info.i - 1)) {
             available.i <- available.i +
               if (leftcols[col.i - 1] == "col.studlab")
-                colgap.studlab
+                colgap[["studlab"]]
             else
-              colgap.left
+              colgap[["left"]]
             available.i <- available.i + width.left.cols[[col.i]]
           }
         }
@@ -10631,9 +9985,9 @@ forest.meta <- function(x,
       else {
         x1 <- unit.c(x1,
                      if (leftcols[[i - 1]] == "col.studlab")
-                       colgap.studlab + extra.calcwidth +
+                       colgap[["studlab"]] + extra.calcwidth +
                        extra.calcwidth.pooled
-                     else colgap.left,
+                     else colgap[["left"]],
                      width.left.cols[[i]])
       }
     }
@@ -10641,9 +9995,9 @@ forest.meta <- function(x,
     x1 <-
       unit.c(x1,
              if (leftcols[[length(leftcols)]] == "col.studlab")
-               colgap.forest.left + extra.calcwidth + extra.calcwidth.pooled
+               colgap[["forest.left"]] + extra.calcwidth + extra.calcwidth.pooled
              else
-               colgap.forest.left,
+               colgap[["forest.left"]],
              col.forestwidth)
   }
   else
@@ -10652,20 +10006,20 @@ forest.meta <- function(x,
   rob.attach <- NULL
   #
   if (RoB.available) {
-    colnames(rob) <- paste0("col.", colnames(rob))
-    rob.attach <- colnames(rob)[1]
+    colnames(rob[["rob"]]) <- paste0("col.", colnames(rob[["rob"]]))
+    rob.attach <- colnames(rob[["rob"]])[1]
   }
   #
   if (rsel | RoB.available) {
     width.right.cols <- vector("list", length(rightcols))
     for (i in seq_along(rightcols)) {
       width.right.cols[[i]] <-
-        if (rightcols[i] %in% colnames(rob))
+        if (rightcols[i] %in% colnames(rob[["rob"]]))
           wcalc(grid.text("aa",
                           just = "center",
                           gp = gpar(col = "transparent",
-                                    fontsize = fs.head,
-                                    fontface = ff.head,
+                                    fontsize = fs[["heading"]],
+                                    fontface = ff[["heading"]],
                                     fontfamily = fontfamily)))
       else
         wcalc(cols.calc[[rightcols[i]]]$labels)
@@ -10673,30 +10027,29 @@ forest.meta <- function(x,
     #
     width.right.cols <-
       add_attached_label_widths(
-        width.right.cols, rightcols, colgap.right,
-        list(label.e.attach, label.c.attach), list(col.label.e, col.label.c))
+        width.right.cols, rightcols, colgap[["right"]],
+        list(label[["e.attach"]], label[["c.attach"]]), list(col.label.e, col.label.c))
     #
     for (i in seq_along(rightcols)) {
-      colgap.right.i <- colgap.right
+      colgap.right.i <- colgap[["right"]]
       #
       if (RoB.available && i > 1 &&
-          rightcols[i] %in% colnames(rob) &&
-          rightcols[i - 1] %in% colnames(rob)) {
+          rightcols[i] %in% colnames(rob[["rob"]]) &&
+          rightcols[i - 1] %in% colnames(rob[["rob"]])) {
         if (rightcols[i] == "col.RoB.O")
-          colgap.right.i <- colgap.rob.overall
+          colgap.right.i <- colgap[["rob.overall"]]
         else
-          colgap.right.i <- colgap.rob
+          colgap.right.i <- colgap[["rob"]]
       }
       #
       x1 <- unit.c(x1,
-                   if (i == 1) colgap.forest.right else colgap.right.i,
-                    width.right.cols[[i]]
-       )
+                   if (i == 1) colgap[["forest.right"]] else colgap.right.i,
+                   width.right.cols[[i]]
+      )
     }
   }
   else
-    x1 <- unit.c(x1, colgap.forest.right)
-  
+    x1 <- unit.c(x1, colgap[["forest.right"]])
   
   #
   #
@@ -10706,11 +10059,11 @@ forest.meta <- function(x,
   
   if (by) {
     addline <-
-      addrow *
+      addrow[["addrow"]] *
       (!any(c(overall.hetstat,
-              test.overall.common, test.overall.random,
+              test[["overall.common"]], test[["overall.random"]],
               resid.hetstat,
-              test.subgroup.common, test.subgroup.random))) *
+              test[["subgroup.common"]], test[["subgroup.random"]]))) *
       !(details | RoB.legend)
     #
     nrow <- max(addline + c(yTE, yTE.common, yTE.random, yPredict,
@@ -10718,8 +10071,8 @@ forest.meta <- function(x,
   }
   else {
     addline <-
-      addrow *
-      (!any(c(test.overall.common, test.overall.random,
+      addrow[["addrow"]] *
+      (!any(c(test[["overall.common"]], test[["overall.random"]],
               overall.hetstat))) *
       !(details | RoB.legend)
     #
@@ -10732,7 +10085,7 @@ forest.meta <- function(x,
   # bottom axis annotations belong to the bottom extension. Text columns and
   # the forest column may therefore use the same extension rows.
   nrow.body <- max(yS, na.rm = TRUE)
-  axislabel.gap <- max(0, fs.axis - fontsize) / fontsize
+  axislabel.gap <- max(0, fs[["axis"]] - fontsize) / fontsize
   rows.bottom.axis <- 1
   rows.bottom.lr <- if (print.label && bottom.lr) rows.lr else 0
   bottom.axis.row <- nrow.body + 1
@@ -10747,9 +10100,9 @@ forest.meta <- function(x,
       nrow.body + rows.bottom.axis + rows.bottom.lr + seq_len(rows.xlab)
   else
     numeric(0)
-  spacing.axis.labels <- max(1.5 * spacing, fs.axis / fontsize + axislabel.gap)
-  spacing.xlab <- max(spacing, fs.xlab / fontsize)
-  spacing.lr <- max(spacing, fs.lr / fontsize)
+  spacing.axis.labels <- max(1.5 * spacing, fs[["axis"]] / fontsize + axislabel.gap)
+  spacing.xlab <- max(spacing, fs[["xlab"]] / fontsize)
+  spacing.lr <- max(spacing, fs[["lr"]] / fontsize)
   bottom.rows <- c(bottom.axis.rows, bottom.lr.rows, xlab.rows)
   bottom.heights <- c(spacing.axis.labels,
                       rep(spacing.lr, rows.bottom.lr),
@@ -10759,8 +10112,8 @@ forest.meta <- function(x,
   addrows.below.line <- addrows.below.overall
   if (details & layout == "meta" & (metacor | metagen) &
       miss.leftcols &
-      (overall.hetstat | test.overall.common | test.overall.random) &
-      !(calcwidth.hetstat | calcwidth.tests) & !RoB.legend)
+      (overall.hetstat | test[["overall.common"]] | test[["overall.random"]]) &
+      !(calcwidth[["hetstat"]] | calcwidth[["tests"]]) & !RoB.legend)
     addrows.below.line <- max(addrows.below.line, 2)
   #
   yStatsLine <- yStats
@@ -10790,9 +10143,9 @@ forest.meta <- function(x,
   #
   ymax <-
     spacing *
-    (nrow.body - rows.main.total - rows.header - 1 * addrow)
+    (nrow.body - rows.main.total - rows.header - 1 * addrow[["addrow"]])
   #
-  if (cid.pooled.only)
+  if (cid[["pooled.only"]])
     ymax.ref <- spacing *
     (nrow.body - min(c(yTE.common, yTE.random, yPredict), na.rm = TRUE) + 0.5)
   else
@@ -10809,7 +10162,7 @@ forest.meta <- function(x,
   # Summary label at top of forest plot
   #
   grob.smlab <- tgl(lines.smlab, unit(smlab.pos, "native"), "center",
-                    fs.smlab, ff.smlab, fontfamily,
+                    fs[["smlab"]], ff[["smlab"]], fontfamily,
                     rows = rows.main.total +
                       if (rows.smlab == 1 && !is.na(yHeadadd))
                         2
@@ -10817,7 +10170,7 @@ forest.meta <- function(x,
                       seq_len(rows.smlab))
   grob.xlab <-
     tgl(lines.xlab, unit(xlab.pos, "native"), "center",
-        fs.xlab, ff.xlab, fontfamily,
+        fs[["xlab"]], ff[["xlab"]], fontfamily,
         rows = xlab.rows)
   grob.label.left <- lines.label.left
   grob.label.right <- lines.label.right
@@ -10827,9 +10180,9 @@ forest.meta <- function(x,
   if (!bottom.lr & !is.na(ref)) {
     row.lr <- if (rows.lr > 1 && header.line.pos == "both")
       1
-    else if (!newline & rows.lr > 1 & !addrow)
+    else if (!newline & rows.lr > 1 & !addrow[["addrow"]])
       1
-    else if (!is.na(yHeadadd) & addrow)
+    else if (!is.na(yHeadadd) & addrow[["addrow"]])
       2
     else if (is.na(yHeadadd))
       1
@@ -10839,13 +10192,13 @@ forest.meta <- function(x,
     grob.label.left <-
       tgl(lines.label.left,
           unit(ref - (xlim[2] - xlim[1]) / 30, "native"),
-          "right", fs.lr, ff.lr, fontfamily, col.label.left,
+          "right", fs[["lr"]], ff[["lr"]], fontfamily, col[["label.left"]],
           rows = rows.main.total + row.lr + seq_along(lines.label.left) - 1)
     #
     grob.label.right <-
       tgl(lines.label.right,
           unit(ref + (xlim[2] - xlim[1]) / 30, "native"),
-          "left", fs.lr, ff.lr, fontfamily, col.label.right,
+          "left", fs[["lr"]], ff[["lr"]], fontfamily, col[["label.right"]],
           rows = rows.main.total + row.lr + seq_along(lines.label.right) - 1)
   }
   else if (bottom.lr && print.label && !is.na(ref)) {
@@ -10861,16 +10214,16 @@ forest.meta <- function(x,
             unit(xlim[1], "native")
           else
             unit(ref - (xlim[2] - xlim[1]) / 30, "native"),
-          if (bmj) "left" else "right", fs.lr, ff.lr, fontfamily,
-          col.label.left, rows = bottom.lr.rows)
+          if (bmj) "left" else "right", fs[["lr"]], ff[["lr"]], fontfamily,
+          col[["label.left"]], rows = bottom.lr.rows)
     grob.label.right <-
       tgl(bottom.lines.right,
           if (bmj)
             unit(xlim[2], "native")
           else
             unit(ref + (xlim[2] - xlim[1]) / 30, "native"),
-          if (bmj) "right" else "left", fs.lr, ff.lr, fontfamily,
-          col.label.right, rows = bottom.lr.rows)
+          if (bmj) "right" else "left", fs[["lr"]], ff[["lr"]], fontfamily,
+          col[["label.right"]], rows = bottom.lr.rows)
   }
   #
   top.depth.lines <- if (header.line.pos == "both") 0.5 else 0
@@ -10879,7 +10232,6 @@ forest.meta <- function(x,
     max(0, rows.main * (spacing.main - spacing) / 2)
   #
   bottom.depth.lines <- 0
-  
   
   #
   #
@@ -10904,29 +10256,29 @@ forest.meta <- function(x,
     rightcols = rightcols, rightcols.new = rightcols.new,
     rightlabs = rightlabs, rightlabs.new = rightlabs.new,
     #
-    label.e.attach, label.c.attach,
+    label.e.attach = label[["e.attach"]], label.c.attach = label[["c.attach"]],
     col.label.e = col.label.e, col.label.c = col.label.c,
-    just.label.e = just.label.e, just.label.c = just.label.c,
-    just.addcols.left = just.addcols.left,
-    just.addcols.right = just.addcols.right,
+    just.label.e = just[["label.e"]], just.label.c = just[["label.c"]],
+    just.addcols.left = just[["addcols.left"]],
+    just.addcols.right = just[["addcols.right"]],
     #
-    RoB.available = RoB.available, rob = rob,
+    RoB.available = RoB.available, rob = rob[["rob"]],
     col.rob = col.rob, rob.attach = rob.attach,
     rob.categories = rob.categories, rob.symbols = rob.symbols,
     rob.col = rob.col,
-    fs.rob.symbols = fs.rob.symbols, ff.rob.symbols = ff.rob.symbols,
+    fs.rob.symbols = fs[["rob.symbols"]], ff.rob.symbols = ff[["rob.symbols"]],
     #
-    clines = clines, jama = jama, col.jama.line = col.jama.line,
+    clines = clines, jama = jama, col.jama.line = col[["jama.line"]],
     bmj = bmj, revman5 = revman5,
     #
     ev.n.bin = ev.n.bin, m.s.n.cont = m.s.n.cont, ev.n.prop = ev.n.prop,
     ev.t.inc = ev.t.inc,
     #
-    fontfamily = fontfamily, fs.head = fs.head, ff.head = ff.head,
+    fontfamily = fontfamily, fs.head = fs[["heading"]], ff.head = ff[["heading"]],
     #
-    col.forest = col.forest, col.lines = col.lines, col.label = col.label,
-    col.label.left = col.label.left, col.label.right = col.label.right,
-    col.common = col.common, col.random = col.random, col.cid = col.cid,
+    col.forest = col.forest, col.lines = col[["lines"]], col.label = col[["label"]],
+    col.label.left = col[["label.left"]], col.label.right = col[["label.right"]],
+    col.common = col[["common"]], col.random = col[["random"]], col.cid = col[["cid"]],
     #
     col.add.TE = col.add.TE, col.add.ci = col.add.ci,
     col.add.cluster = col.add.cluster, col.add.cor = col.add.cor,
@@ -10959,33 +10311,34 @@ forest.meta <- function(x,
     ymin.ref = ymin.ref, ymax = ymax, ymax.ref = ymax.ref,
     #
     header.line = header.line, header.line.pos = header.line.pos,
-    col.header.line = col.header.line,
+    col.header.line = col[["header.line"]],
     #
-    lwd = lwd, lty.common = lty.common, lty.random = lty.random,
+    lwd = lwd[["lwd"]],
+    lty.common = lty[["common"]], lty.random = lty[["random"]],
     xlim = xlim, avail.xlim = avail.xlim,
     #
-    cid.below.null = cid.below.null, cid.above.null = cid.above.null,
-    lty.cid = lty.cid,
-    fill.cid.below.null = fill.cid.below.null,
-    fill.cid.above.null = fill.cid.above.null, fill = fill,
+    cid.below.null = cid[["below.null"]], cid.above.null = cid[["above.null"]],
+    lty.cid = lty[["cid"]],
+    fill.cid.below.null = fill[["cid.below.null"]],
+    fill.cid.above.null = fill[["cid.above.null"]], fill = fill[["fill"]],
     #
     main = main, rows.main = rows.main, gap.main = gap.main,
-    just.main = just.main, xpos.main = xpos.main,
-    fs.main = fs.main, ff.main = ff.main,
-    col.main = col.main, lineheight.main = lineheight.main,
+    just.main = just[["main"]], xpos.main = xpos.main,
+    fs.main = fs[["main"]], ff.main = ff[["main"]],
+    col.main = col[["main"]], lineheight.main = lineheight.main,
     #
     grob.xlab = grob.xlab, xlab.pos = xlab.pos, xlab.ypos = xlab.ypos,
-    fs.xlab = fs.xlab, ff.xlab = ff.xlab,
+    fs.xlab = fs[["xlab"]], ff.xlab = ff[["xlab"]],
     #
     bottom.lr = bottom.lr, grob.smlab = grob.smlab,
     print.label = print.label, grob.label.left = grob.label.left,
     grob.label.right = grob.label.right,
-    y.bottom.lr = y.bottom.lr, fs.lr = fs.lr, ff.lr = ff.lr,
+    y.bottom.lr = y.bottom.lr, fs.lr = fs[["lr"]], ff.lr = ff[["lr"]],
     #
-    yS = yS, log.xaxis = log.xaxis, at = at, label = label,
+    yS = yS, log.xaxis = log.xaxis, at = at, label = label.axis,
     axis.row = nrow.body,
     axis.label.row = bottom.axis.row,
-    fs.axis = fs.axis, ff.axis = ff.axis,
+    fs.axis = fs[["axis"]], ff.axis = ff[["axis"]],
     #
     newline.TE = newline.TE, newline.ci = newline.ci,
     newline.cluster = newline.cluster, newline.cor = newline.cor,
@@ -11010,15 +10363,16 @@ forest.meta <- function(x,
     #
     metabin = metabin, metacont = metacont, metacor = metacor,
     metagen = metagen, metainc = metainc, metamean = metamean,
-    metaprop = metaprop, metarate = metarate, metabind = metabind,
-    metacum = metacum, metainf = metainf, metamerge = metamerge, meta = meta,
+    metaprop = metaprop, metarate = metarate,
+    metacum = metacum, metainf = metainf, metamerge = metamerge,
     #
-    addrow = addrow, addrows.below.overall = addrows.below.overall,
+    addrow = addrow[["addrow"]], addrows.below.overall = addrows.below.overall,
     #
-    colgap = colgap, colgap.left = colgap.left, colgap.right = colgap.right,
-    colgap.studlab = colgap.studlab, colgap.forest = colgap.forest,
-    colgap.forest.left = colgap.forest.left,
-    colgap.forest.right = colgap.forest.right,
+    colgap = colgap[["colgap"]], colgap.left = colgap[["left"]],
+    colgap.right = colgap[["right"]],
+    colgap.studlab = colgap[["studlab"]], colgap.forest = colgap[["forest"]],
+    colgap.forest.left = colgap[["forest.left"]],
+    colgap.forest.right = colgap[["forest.right"]],
     #
     studlab = studlab, TE.format = TE.format, seTE.format = seTE.format,
     cluster.format = cluster.format, cycles.format = cycles.format,
@@ -11113,37 +10467,31 @@ forest.meta <- function(x,
     if (is.null(height)) {
       figheight <- gh(device, rows.gr,
                       #
-                      if (metabind) length(x$TE) else n.stud,
+                      n.stud,
                       lowTE.common, lowTE.random, lowTE.predict,
                       x$subgroup, subgroup.levels,
                       lower.common.w, lower.random.w, lower.predict.w,
                       #
-                      if (metabind) FALSE else common,
-                      if (metabind) FALSE else random,
-                      if (metabind) FALSE else overall,
-                      if (metabind) FALSE else prediction,
-                      if (metabind) FALSE else overall.hetstat,
+                      common, random, overall, prediction, overall.hetstat,
                       study.results,
                       #
                       spacing,
                       #
-                      xlab, smlab, label.right, label.left, bottom.lr,
+                      xlab, smlab, label[["right"]], label[["left"]], bottom.lr,
                       #
                       prediction.subgroup, subgroup.hetstat,
-                      if (metabind) FALSE else test.overall.common,
-                      if (metabind) FALSE else test.overall.random,
-                      if (metabind) FALSE else test.subgroup.common,
-                      if (metabind) FALSE else test.subgroup.random,
+                      test[["overall.common"]], test[["overall.random"]],
+                      test[["subgroup.common"]], test[["subgroup.random"]],
                       #
-                      text.addline1, text.addline2,
+                      text[["addline1"]], text[["addline2"]],
                       text.details, text.rob.legend,
                       #
-                      addrow, addrow.overall,
-                      addrow.subgroups,
-                      if (metabind) 0 else addrows.below.overall,
+                      addrow[["addrow"]], addrow[["overall"]],
+                      addrow[["subgroup"]],
+                      addrows.below.overall,
                       #
                       c(leftcols, rightcols), labs,
-                      text.w.common, text.w.random)
+                      text[["w.common"]], text[["w.random"]])
       #
       height <- figheight$height
       figheight$height <- NULL
@@ -11154,11 +10502,14 @@ forest.meta <- function(x,
     #
     old_dev <- dev.cur()
     runNN(device, device.args.all)
+    file_dev <- dev.cur()
     #
     if (dev.off) {
       on.exit({
-        dev.off()
-        if (old_dev > 1) dev.set(old_dev)
+        if (file_dev %in% dev.list())
+          dev.off(file_dev)
+        if (old_dev > 1 && old_dev %in% dev.list())
+          dev.set(old_dev)
       }, add = TRUE)
     }
   }
@@ -11170,7 +10521,6 @@ forest.meta <- function(x,
       on.exit(dev.off(), add = TRUE)
     }
   }
-  
   
   #
   #

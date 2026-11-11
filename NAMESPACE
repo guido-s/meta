@@ -157,6 +157,7 @@ importFrom(dplyr,
   rename,
   rename_with,
   select,
+  setequal,
   tibble
 )
 importFrom(ggplot2,
