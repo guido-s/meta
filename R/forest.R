@@ -1387,10 +1387,19 @@ forest.meta <- function(x,
   hetstat.pooled <- ""
   #
   if (is.character(hetstat)) {
-    hetstat <- setchar(hetstat, c("common", "random", "fixed"))
+    hetstat <- setchar(hetstat, c("common", "random", "fixed", "study"))
     hetstat[hetstat == "fixed"] <- "common"
     #
-    hetstat.pooled <- hetstat
+    if (hetstat == "study") {
+      warning("Use of argument 'hetstat = \"study\"' is deprecated; ",
+              "using 'hetstat = TRUE' instead.",
+              call. = FALSE)
+      #
+      hetstat <- TRUE
+      hetstat.pooled <- ""
+    }
+    else
+      hetstat.pooled <- hetstat
   }
   else
     chklogical(hetstat)
@@ -1399,6 +1408,7 @@ forest.meta <- function(x,
     common <- TRUE
     overall <- TRUE
   }
+  #
   if (hetstat.pooled == "random") {
     if (length(x$TE.random) == 1) {
       random <- TRUE
@@ -6917,12 +6927,12 @@ forest.meta <- function(x,
              ".")
     #
     if (hetstat.pooled == "common") {
-      text$common <- hetstat.overall
+      text$common <- as.expression(hetstat.overall)
       text$common.w <- hetstat.w
       hetstat <- FALSE
     }
     else if (hetstat.pooled == "random") {
-      text$random <- hetstat.overall
+      text$random <- as.expression(hetstat.overall)
       text$random.w <- hetstat.w
       hetstat <- FALSE
     }
@@ -7082,9 +7092,9 @@ forest.meta <- function(x,
   else {
     #
     if (hetstat.pooled == "common")
-      text$common <- hetstat.overall
+      text$common <- as.expression(hetstat.overall)
     else if (hetstat.pooled == "random")
-      text$random <- hetstat.overall
+      text$random <- as.expression(hetstat.overall)
     #
     if (revman5)
       modlabs <- c(text[["common"]], text[["random"]], text[["predict"]],

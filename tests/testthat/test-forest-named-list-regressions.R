@@ -12,6 +12,38 @@ forest_named_regression_plot <- function(x, ...) {
   list(result = result, args = observed)
 }
 
+test_that("character hetstat preserves complete model-row expressions", {
+  datas <- data.frame(a_n = c(60, 70, 100), a_mean = c(8, 7, 10),
+                      a_sd = c(11, 11, 13), study = c("s1", "s2", "s3"))
+  ma <- metamean(a_n, a_mean, a_sd, study, data = datas)
+  grouped <- metamean(rep(datas$a_n, 2), rep(datas$a_mean, 2),
+                       rep(datas$a_sd, 2), subgroup = rep(c("A", "B"), each = 3))
+  for (x in list(ma, grouped)) {
+    for (placement in c("common", "fixed", "random")) {
+      drawn <- forest_named_regression_plot(x, hetstat = placement)
+      row <- if (placement == "random") 3 else 2
+      label <- drawn$args$cols$col.studlab$labels[[row]]$label
+      expect_type(label, "expression")
+      expect_length(label, 1)
+      expect_identical(label[[1]][[1]], quote(paste))
+      expect_match(paste(deparse(label), collapse = " "), "Heterogeneity")
+      expect_match(paste(deparse(label), collapse = " "), "italic\\(I\\)\\^2")
+    }
+  }
+})
+
+test_that("deprecated study hetstat warns and falls back to logical TRUE", {
+  ma <- metagen(c(0.1, 0.3, 0.5), rep(0.1, 3), method.tau = "DL")
+  expected <- forest_named_regression_plot(ma, hetstat = TRUE)
+  expect_warning(drawn <- forest_named_regression_plot(ma, hetstat = "study"),
+                 "Use of argument 'hetstat = \"study\"' is deprecated.",
+                 fixed = TRUE)
+  expect_identical(lapply(drawn$args$cols$col.studlab$labels, `[[`, "label"),
+                   lapply(expected$args$cols$col.studlab$labels, `[[`, "label"))
+  expect_identical(drawn$args$cols$col.studlab$rows,
+                   expected$args$cols$col.studlab$rows)
+})
+
 test_that("omitted studies are removed from additional columns before sorting", {
   dat <- data.frame(te = c(NA, 0.2, 0.3), se = rep(0.1, 3),
                      extra = c("DROP", "KEEP2", "KEEP3"))
