@@ -57,7 +57,7 @@ check_pooled_gap <- function(x, family, details, test.overall) {
   expect_true(all(forwarded$common.subgroup))
   expect_true(all(forwarded$random.subgroup))
   expect_identical(forwarded$details, details)
-  expect_identical(forwarded$test.effect.subgroup, test.overall)
+  expect_identical(forwarded$test$effect.subgroup, test.overall)
   expect_identical(captured$leftcols,
                    c("col.studlab", "col.k", "col.effect", "col.ci"))
   expect_false(captured$rsel)

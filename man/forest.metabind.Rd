@@ -16,24 +16,24 @@
   hetstat = FALSE,
   overall.hetstat = x$overall.hetstat,
   backtransf = x$backtransf,
-  col = NULL,
-  print = NULL,
-  type = NULL,
-  digits = NULL,
+  test = NULL,
   leftcols = NULL,
-  leftlabs = NULL,
   rightcols = NULL,
+  leftlabs = NULL,
   rightlabs = NULL,
+  label,
   lab.NA = gs("lab.NA"),
   scientific.pval = gs("scientific.pval"),
   zero.pval = gs("zero.pval"),
   JAMA.pval = gs("JAMA.pval"),
   big.mark = gs("big.mark"),
+  col = NULL,
+  print = NULL,
+  type = NULL,
+  text = NULL,
+  digits = NULL,
   addrow.subgroups = NULL,
   details = FALSE,
-  test.overall = TRUE,
-  test.overall.common = test.overall,
-  test.overall.random = test.overall,
   ...
 )
 }
@@ -67,10 +67,10 @@ in columns.}
 \item{backtransf}{A logical indicating whether results should be
 back-transformed. Different summary measures require back-transformation.}
 
-\item{col, print, type, digits}{Named lists controlling colours, displayed
-information, graphical types, and rounding; see
-\code{\link{meta-formatting}}. Scalar values are also accepted for
-\code{type} and \code{digits}.}
+\item{test}{A named list controlling statistical test rows. Elements
+\code{overall}, \code{overall.common}, and \code{overall.random} control
+the stored overall-effect tests. Component test controls are also accepted
+through \code{effect.subgroup} and its model-specific elements.}
 
 \item{leftcols, rightcols}{Columns printed to the left or right of the
 forest plot; see \code{\link{forest.meta}}. Explicit column selections
@@ -79,6 +79,10 @@ take precedence over automatic column selection.}
 \item{leftlabs, rightlabs}{Column headings. Use \code{NA} to retain a
 default heading.}
 
+\item{label}{A named list controlling column and test labels; see
+\code{\link{forest.meta}}. Logical values or character vectors control
+the x-axis tick labels instead.}
+
 \item{lab.NA}{Label for missing values.}
 
 \item{scientific.pval, zero.pval, JAMA.pval}{Logical values controlling
@@ -86,16 +90,17 @@ the formatting of P values.}
 
 \item{big.mark}{Character used as thousands separator.}
 
+\item{col, print, type, text, digits}{Named lists controlling colours, displayed
+information, graphical types, model text, and rounding; see
+\code{\link{meta-formatting}}. Scalar values are also accepted for
+\code{type} and \code{digits}.}
+
 \item{addrow.subgroups}{A logical indicating whether an empty row is
 printed between display groups.}
 
 \item{details}{A logical specifying whether method details are printed.
 Defaults to \code{TRUE} for source subgroup
 results, and \code{FALSE} otherwise.}
-
-\item{test.overall, test.overall.common, test.overall.random}{Logical values
-controlling overall-effect test rows for source subgroup results.
-The model-specific arguments default to \code{test.overall}.}
 
 \item{\dots}{Additional arguments passed to \code{\link{forest.meta}}.}
 }
@@ -147,6 +152,17 @@ otherwise, within each component group, using the stored common effect
 and random effects test results. With several random-effects interval
 methods, each component's test row uses its first displayed method with
 an available P value.
+The legacy arguments \code{test.overall}, \code{test.overall.common},
+and \code{test.overall.random} remain supported through \code{\dots}.
+Explicit component test settings override the corresponding overall-test
+defaults for nonshared summaries. Between-component tests are unavailable.
+Vector-valued component test controls follow the component order before
+display sorting.
+Named \code{label} and \code{text} settings override generated labels
+without suppressing unspecified defaults. A model text also supplies the
+corresponding component summary text unless it is overridden separately.
+Legacy individual arguments remain accepted; specifying the same setting
+both in a named list and as an individual argument gives an error.
 The stored tests for differences between source subgroups are shown in
 columns \code{Q.b}, \code{df.Q.b}, and \code{pval.Q.b} for common effect
 and random effects results, only on the first subgroup level of each

@@ -25,8 +25,15 @@
 #'   in columns.
 #' @param backtransf A logical indicating whether results should be
 #'   back-transformed. Different summary measures require back-transformation.
-#' @param col,print,type,digits Named lists controlling colours, displayed
-#'   information, graphical types, and rounding; see
+#' @param test A named list controlling statistical test rows. Elements
+#'   \code{overall}, \code{overall.common}, and \code{overall.random} control
+#'   the stored overall-effect tests. Component test controls are also accepted
+#'   through \code{effect.subgroup} and its model-specific elements.
+#' @param label A named list controlling column and test labels; see
+#'   \code{\link{forest.meta}}. Logical values or character vectors control
+#'   the x-axis tick labels instead.
+#' @param col,print,type,text,digits Named lists controlling colours, displayed
+#'   information, graphical types, model text, and rounding; see
 #'   \code{\link{meta-formatting}}. Scalar values are also accepted for
 #'   \code{type} and \code{digits}.
 #' @param leftcols,rightcols Columns printed to the left or right of the
@@ -43,9 +50,6 @@
 #' @param details A logical specifying whether method details are printed.
 #'   Defaults to \code{TRUE} for source subgroup
 #'   results, and \code{FALSE} otherwise.
-#' @param test.overall,test.overall.common,test.overall.random Logical values
-#'   controlling overall-effect test rows for source subgroup results.
-#'   The model-specific arguments default to \code{test.overall}.
 #' @param \dots Additional arguments passed to \code{\link{forest.meta}}.
 #'
 #' @details
@@ -88,6 +92,17 @@
 #' and random effects test results. With several random-effects interval
 #' methods, each component's test row uses its first displayed method with
 #' an available P value.
+#' The legacy arguments \code{test.overall}, \code{test.overall.common},
+#' and \code{test.overall.random} remain supported through \code{\dots}.
+#' Explicit component test settings override the corresponding overall-test
+#' defaults for nonshared summaries. Between-component tests are unavailable.
+#' Vector-valued component test controls follow the component order before
+#' display sorting.
+#' Named \code{label} and \code{text} settings override generated labels
+#' without suppressing unspecified defaults. A model text also supplies the
+#' corresponding component summary text unless it is overridden separately.
+#' Legacy individual arguments remain accepted; specifying the same setting
+#' both in a named list and as an individual argument gives an error.
 #' The stored tests for differences between source subgroups are shown in
 #' columns \code{Q.b}, \code{df.Q.b}, and \code{pval.Q.b} for common effect
 #' and random effects results, only on the first subgroup level of each
@@ -147,20 +162,19 @@ forest.metabind <- function(x,
                             hetstat = FALSE,
                             overall.hetstat = x$overall.hetstat,
                             backtransf = x$backtransf,
-                            col = NULL, print = NULL, type = NULL,
-                            digits = NULL,
-                            leftcols = NULL, leftlabs = NULL,
-                            rightcols = NULL, rightlabs = NULL,
+                            test = NULL,
+                            leftcols = NULL, rightcols = NULL,
+                            leftlabs = NULL, rightlabs = NULL,
+                            label,
                             lab.NA = gs("lab.NA"),
                             scientific.pval = gs("scientific.pval"),
                             zero.pval = gs("zero.pval"),
                             JAMA.pval = gs("JAMA.pval"),
                             big.mark = gs("big.mark"),
+                            col = NULL, print = NULL, type = NULL,
+                            text = NULL, digits = NULL,
                             addrow.subgroups = NULL,
-                            details = FALSE,
-                            test.overall = TRUE,
-                            test.overall.common = test.overall,
-                            test.overall.random = test.overall, ...) {
+                            details = FALSE, ...) {
   
   #
   #
@@ -178,9 +192,6 @@ forest.metabind <- function(x,
   chklogical(common)
   chklogical(random)
   chklogical(prediction)
-  chklogical(test.overall)
-  chklogical(test.overall.common)
-  chklogical(test.overall.random)
   chklogical(backtransf)
   selections <- list(common = common, random = random, predict = prediction)
   supplied <- c(common = !missing(common), random = !missing(random),
@@ -223,7 +234,13 @@ forest.metabind <- function(x,
   chklogical(zero.pval)
   chklogical(JAMA.pval)
   chklogical(details)
+  
   #
+  #
+  # (2) Process named lists
+  #
+  #
+  
   # Colours used in forest plot
   #
   col <- as_named_list(col)
@@ -305,13 +322,6 @@ forest.metabind <- function(x,
   print$I2.ci <- print[["I2"]] && print[["I2.ci"]]
   print$H.ci <- print[["H"]] && print[["H.ci"]]
   #
-  # Plot types
-  #
-  type <- as_named_list(type)
-  type.list <- merge_legacy(type, args, type_defaults(class = "metabind"))
-  types <- type.list$res
-  args <- type.list$args
-  #
   # Digits used to round results
   #
   digits <- as_named_list(digits)
@@ -320,10 +330,82 @@ forest.metabind <- function(x,
   args <- digits.list$args
   #
   chknumeric_list(digits, min = list(pval = 1, pval.Q = 1))
+  #
+  # Statistical tests
+  #
+  test.defaults <- test_defaults(x, common, random, TRUE)
+  test.defaults$subgroup <- FALSE
+  test.defaults$subgroup.common <- FALSE
+  test.defaults$subgroup.random <- FALSE
+  test.defaults["effect.subgroup"] <- list(NULL)
+  #
+  test.list <- merge_legacy(
+    test, args, test.defaults,
+    inherit = list(overall.common = "overall", overall.random = "overall",
+                   subgroup.common = "subgroup", subgroup.random = "subgroup",
+                   effect.subgroup.common = "effect.subgroup",
+                   effect.subgroup.random = "effect.subgroup"))
+  test <- test.list$res
+  args <- test.list$args
+  #
+  test <- replaceNULL_list(test, list(overall = TRUE, subgroup = FALSE))
+  test <- replaceNULL_list(
+    test,
+    list(overall.common = test[["overall"]], overall.random = test[["overall"]],
+         subgroup.common = test[["subgroup"]], subgroup.random = test[["subgroup"]],
+         effect.subgroup.common = test[["overall.common"]],
+         effect.subgroup.random = test[["overall.random"]]))
+  chklogical_list(test, NULL.ok = "effect.subgroup",
+                  length = list(effect.subgroup = 0,
+                                effect.subgroup.common = 0,
+                                effect.subgroup.random = 0))
+  test <- replaceNULL_list(
+    test,
+    list(effect.subgroup = any(test[["effect.subgroup.common"]]) ||
+           any(test[["effect.subgroup.random"]])))
+  if (any(unlist(test[c("subgroup", "subgroup.common", "subgroup.random")])))
+    warning("Between-component tests are not available for metabind objects.",
+            call. = FALSE)
+  test$subgroup <- test$subgroup.common <- test$subgroup.random <- FALSE
+  #
+  # Column and test labels
+  #
+  missing.label <- missing(label)
+  if (missing.label)
+    label <- TRUE
+  label <- deprecated(label, missing.label, args, "labels",
+                      replaceNULL(args[["warn.deprecated"]], gs("warn.deprecated")),
+                      name = "label")
+  args$labels <- NULL
+  if (is.list(label))
+    label.axis <- TRUE
+  else {
+    label.axis <- label
+    label <- NULL
+  }
+  label.list <- merge_legacy(label, args, label_defaults(x))
+  label <- label.list$res
+  args <- label.list$args
+  chkchar(label[["pval"]], length = 1, name = "label.pval")
+  #
+  # Plot types
+  #
+  type <- as_named_list(type)
+  type.list <- merge_legacy(type, args, type_defaults(class = "metabind"))
+  types <- type.list$res
+  args <- type.list$args
+  #
+  # Model and subgroup text
+  #
+  text.list <- merge_legacy(
+    text, args, text_defaults(x),
+    inherit = list(common.w = "common", random.w = "random", predict.w = "predict"))
+  text <- text.list$res
+  args <- text.list$args
   
   #
   #
-  # (2) General labels and transformation settings
+  # (3) General labels and transformation settings
   #
   #
   
@@ -365,7 +447,7 @@ forest.metabind <- function(x,
   
   #
   #
-  # (3) Prepare selected result data before formatting
+  # (4) Prepare selected result data before formatting
   #
   #
   
@@ -689,7 +771,7 @@ forest.metabind <- function(x,
   
   #
   #
-  # (4) Format integrated result and heterogeneity columns
+  # (5) Format integrated result and heterogeneity columns
   #
   #
   
@@ -884,7 +966,7 @@ forest.metabind <- function(x,
   
   #
   #
-  # (5) Select columns and their headings
+  # (6) Select columns and their headings
   #
   #
   
@@ -961,7 +1043,7 @@ forest.metabind <- function(x,
               effect.ci = paste0(sm.lab, "\n(", ci.lab, ")"),
               seTE = paste0("SE(", lab.TE, ")"),
               statistic = stat.lab,
-              pval = gs("label.pval"),
+              pval = label[["pval"]],
               df = "df",
               null.effect = "Null\neffect",
               tau2 = NA,
@@ -970,10 +1052,10 @@ forest.metabind <- function(x,
               H = NA,
               Q = NA,
               df.Q = "df",
-              pval.Q = paste(gs("label.pval"), "Q-test", sep = "\n"),
+              pval.Q = paste(label[["pval"]], "Q-test", sep = "\n"),
               Q.b = "Q",
               df.Q.b = "df",
-              pval.Q.b = paste("Interaction", gs("label.pval"), sep = "\n"),
+              pval.Q.b = paste("Interaction", label[["pval"]], sep = "\n"),
               tau2.ci = het.lab,
               tau.ci = het.lab,
               I2.ci = het.lab,
@@ -1000,7 +1082,7 @@ forest.metabind <- function(x,
   
   #
   #
-  # (6) Create a display-only forest skeleton
+  # (7) Create a display-only forest skeleton
   #
   #
   
@@ -1088,11 +1170,16 @@ forest.metabind <- function(x,
       JAMA.pval = JAMA.pval,
       big.mark = big.mark,
       #
-      test.subgroup = FALSE,
-      test.overall = FALSE,
       details = details)
   #
   forest_args_specific <- list(x = ma)
+  label.defaults <- text.defaults <- list()
+  test.plot <- modifyList(
+    test,
+    list(overall = FALSE, overall.common = FALSE, overall.random = FALSE,
+         subgroup = FALSE, subgroup.common = FALSE, subgroup.random = FALSE,
+         effect.subgroup = FALSE, effect.subgroup.common = FALSE,
+         effect.subgroup.random = FALSE))
   #
   if (with.subgroups) {
     mapped <- map_metabind_subgroups(ma, x, summary.numeric, summary.display,
@@ -1100,22 +1187,37 @@ forest.metabind <- function(x,
                                      common, random, prediction, overall)
     #
     forest_args_specific <- c(list(x = mapped$ma), mapped$args)
+    label.defaults <- mapped$args$label
+    text.defaults <- mapped$args$text
+    forest_args_specific[c("label", "text", "test.overall", "test.subgroup",
+                           "test.effect.subgroup", "test.effect.subgroup.common",
+                           "test.effect.subgroup.random")] <- NULL
     forest_args_specific$sort.subgroup <- FALSE
     forest_args_specific$subgroup.hetstat <- !shared.overall &&
       !identical(hetstat, FALSE)
-    test.common <- common && test.overall.common && (!shared.overall || overall)
-    test.random <- random && test.overall.random && (!shared.overall || overall)
     if (shared.overall) {
-      forest_args_specific$test.overall <- test.overall
-      forest_args_specific$test.overall.common <- test.common
-      forest_args_specific$test.overall.random <- test.random
+      test.plot$overall <- test[["overall"]]
+      test.plot$overall.common <- common && test[["overall.common"]] && overall
+      test.plot$overall.random <- random && test[["overall.random"]] && overall
+      test.common <- test.plot[["overall.common"]]
+      test.random <- test.plot[["overall.random"]]
     }
     else {
-      forest_args_specific$test.effect.subgroup <- test.common || test.random
-      forest_args_specific$test.effect.subgroup.common <-
-        mapped$args$test.effect.subgroup.common & test.common
-      forest_args_specific$test.effect.subgroup.random <-
-        mapped$args$test.effect.subgroup.random & test.random
+      for (i in c("effect.subgroup", "effect.subgroup.common", "effect.subgroup.random")) {
+        if (length(test[[i]]) != 1) {
+          chklength(test[[i]], length(ma$subgroup.levels), name = paste0("test.", i),
+                    internal = FALSE)
+          test[[i]] <- test[[i]][match(as.character(ma$subgroup.levels),
+                                       unique(as.character(plotdat$id)))]
+        }
+      }
+      test.plot$effect.subgroup.common <-
+        mapped$args$test.effect.subgroup.common & test[["effect.subgroup.common"]] & common
+      test.plot$effect.subgroup.random <-
+        mapped$args$test.effect.subgroup.random & test[["effect.subgroup.random"]] & random
+      test.common <- any(test.plot[["effect.subgroup.common"]])
+      test.random <- any(test.plot[["effect.subgroup.random"]])
+      test.plot$effect.subgroup <- test.common || test.random
     }
     #
     if (prepared$shared.overall) {
@@ -1129,6 +1231,27 @@ forest.metabind <- function(x,
         list(common.subgroup = FALSE, random.subgroup = FALSE,
              prediction.subgroup = FALSE))
   }
+  #
+  if (!with.subgroups && is.null(subgroup))
+    test.plot[c("subgroup", "subgroup.common", "subgroup.random", "effect.subgroup",
+                "effect.subgroup.common", "effect.subgroup.random")] <- NULL
+  forest_args_general$test <- test.plot
+  #
+  label.supplied <- names(label.list$miss)[!vapply(label.list$miss, isTRUE, logical(1))]
+  label.plot <- modifyList(label.defaults, label[label.supplied], keep.null = TRUE)
+  if (isTRUE(label.axis))
+    forest_args_general$label <- label.plot
+  else {
+    forest_args_general$label <- label.axis
+    args <- c(args, setNames(label.plot, paste0("label.", names(label.plot))))
+  }
+  #
+  text.supplied <- names(text.list$miss)[!vapply(text.list$miss, isTRUE, logical(1))]
+  for (i in c("common", "random", "predict")) {
+    if (i %in% text.supplied)
+      text.supplied <- union(text.supplied, paste0(i, ".w"))
+  }
+  forest_args_general$text <- modifyList(text.defaults, text[text.supplied], keep.null = TRUE)
   #
   forest_args_general[names(forest_args_specific)] <- NULL
   forest_args <- c(forest_args_general, forest_args_specific)

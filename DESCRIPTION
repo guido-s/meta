@@ -8,7 +8,7 @@ Imports: metafor (>= 3.0-0), grid, ggplot2, lme4, CompQuadForm, xml2,
   cli
 Suggests: netmeta, BiasedUrn, pimeta, estmeansd, robvis, brglm2, writexl,
   rmarkdown, knitr, ggpubr, gridExtra, gemtc, ragg, metadat, svglite,
-  testthat, clubSandwich
+  testthat, withr, clubSandwich
 Config/testthat/edition: 3
 Authors@R: person("Guido", "Schwarzer",
                   role = c("cre", "aut"),

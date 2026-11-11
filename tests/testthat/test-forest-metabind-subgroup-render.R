@@ -404,7 +404,7 @@ test_that("source subgroup tests are displayed for common and random results", {
       expect_true(all(is.na(drawn$args$data.pooled[[i]]) |
                         drawn$args$data.pooled[[i]] == ""))
     }
-    expect_false(drawn$args$test.subgroup)
+    expect_false(drawn$args$test$subgroup)
   }
 })
 
@@ -469,9 +469,9 @@ test_that("stored overall-effect tests appear for shared and component summaries
                        grepl("Test for overall effect", as.character(z[[2]]), fixed = TRUE),
                      drawn$labels)
     expect_length(labels, if (grouped) 4 else 2)
-    expect_identical(drawn$args$test.overall, !grouped)
-    expect_identical(drawn$args$test.effect.subgroup, grouped)
-    expect_false(drawn$args$test.subgroup)
+    expect_identical(drawn$args$test$overall, !grouped)
+    expect_identical(drawn$args$test$effect.subgroup, grouped)
+    expect_false(drawn$args$test$subgroup)
     expect_false(any(c("statistic", "pval", "df") %in% drawn$result$leftcols))
     for (i in seq_along(labels)) {
       family <- if (grepl("random", labels[[i]][[2]])) "random" else "common"
@@ -493,8 +493,8 @@ test_that("effect test rows follow model selections and omit unavailable compone
   x$common <- subset(x$common, id == 1)
   x$subgroup$common <- subset(x$subgroup$common, id == 1)
   drawn <- metabind_render_pdf(x)
-  expect_equal(drawn$args$test.effect.subgroup.common, c(TRUE, FALSE))
-  expect_equal(drawn$args$test.effect.subgroup.random, c(TRUE, TRUE))
+  expect_equal(drawn$args$test$effect.subgroup.common, c(TRUE, FALSE))
+  expect_equal(drawn$args$test$effect.subgroup.random, c(TRUE, TRUE))
   for (i in c("common", "random", "prediction")) {
     drawn <- metabind_render_pdf(x, common = i == "common",
                                  random = i == "random", prediction = i == "prediction")
