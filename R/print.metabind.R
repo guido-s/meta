@@ -320,7 +320,7 @@ print.metabind <- function(x,
   dat <- NULL
   #
   if (common || random || prediction) {
-    dat <- as.data.frame(x, drop_all_NA = FALSE)
+    dat <- as.data.frame(x, subgroup = FALSE, drop_all_NA = FALSE)
     #
     # Set certain information to missing
     #

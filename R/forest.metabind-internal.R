@@ -177,8 +177,10 @@ map_metabind_subgroups <- function(ma, x, dat, display, shared.overall,
     }
   }
   #
-  args$test.effect.subgroup.common <- args$common.subgroup
-  args$test.effect.subgroup.random <- unname(rowSums(args$random.subgroup) > 0)
+  null.effect <- replaceNULL(x$overall[["null.effect"]][metadata], rep(NA_real_, n.by))
+  has.null <- !is.na(null.effect)
+  args$test.effect.subgroup.common <- args$common.subgroup & has.null
+  args$test.effect.subgroup.random <- unname(rowSums(args$random.subgroup) > 0) & has.null
   #
   args$label <- list(
     test.effect.subgroup.common =
@@ -235,7 +237,7 @@ map_metabind_subgroups <- function(ma, x, dat, display, shared.overall,
   ma$k.w.orig <- x$overall$k[metadata]
   #
   if (shared.overall)
-    ma$null.effect <- replaceNULL(x$overall$null.effect[metadata[1]])
+    ma$null.effect <- null.effect[1]
   #
   ma$common.subgroup <- args$common.subgroup
   ma$random.subgroup <- args$random.subgroup

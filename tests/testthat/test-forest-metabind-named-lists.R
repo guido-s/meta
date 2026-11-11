@@ -91,9 +91,9 @@ test_that("overall named control disables shared and component effect tests", {
     for (field in c("overall.common", "overall.random",
                     "effect.subgroup.common", "effect.subgroup.random"))
       expect_false(any(disabled$args$test[[field]]))
-    expect_identical(grepl("Null hypothesis",
-                           paste(disabled$args$x$.text.details.methods, collapse = " "),
-                           fixed = TRUE), kind == "tau")
+    expect_false(grepl("Null hypothesis",
+                       paste(disabled$args$x$.text.details.methods, collapse = " "),
+                       fixed = TRUE))
     expect_true(disabled$args$details)
   }
 })
@@ -274,4 +274,45 @@ test_that("overall FALSE suppresses shared tests and null details, not native de
   disabled <- metabind_named_draw(x, details = FALSE)
   expect_false(disabled$args$details)
   expect_null(disabled$args$x$.text.details.methods)
+})
+
+test_that("undefined proportion null effects do not produce component test rows", {
+  death <- c(3, 6, 10, 1)
+  animals <- c(11, 17, 21, 6)
+  grp1 <- LETTERS[c(1, 2, 2, 1)]
+  grp2 <- LETTERS[rep(c(1, 2), c(2, 2))]
+  ma1 <- metaprop(death, animals, sm = "PFT", subgroup = grp1, common = FALSE)
+  ma2 <- metaprop(death, animals, sm = "PAS", subgroup = grp2, common = FALSE)
+  drawn <- metabind_named_draw(metabind(ma1, ma2))
+  expect_length(metabind_named_effect_labels(drawn), 0)
+  expect_false(any(drawn$args$test$effect.subgroup.random))
+  expect_false(drawn$args$test$effect.subgroup)
+
+  shared <- metabind_named_draw(metabind(ma1, update(ma1, subgroup = grp2)))
+  expect_length(metabind_named_effect_labels(shared), 0)
+  expect_false(shared$args$test$overall)
+  expect_false(shared$args$test$overall.random)
+})
+
+test_that("null-effect eligibility is matched to each component and model", {
+  death <- c(3, 6, 10, 1)
+  animals <- c(11, 17, 21, 6)
+  first <- metaprop(death, animals, sm = "PFT", subgroup = LETTERS[c(1, 2, 2, 1)])
+  second <- metaprop(death, animals, sm = "PAS", subgroup = LETTERS[c(1, 1, 2, 2)])
+  for (defined in c(1, 2)) {
+    components <- list(first, second)
+    components[[defined]] <- update(components[[defined]], null.effect = 0.2)
+    x <- metabind(components)
+    x$subgroup$common <- x$subgroup$common[order(-x$subgroup$common$id), ]
+    x$subgroup$random <- x$subgroup$random[order(-x$subgroup$random$id), ]
+    for (sorted in c(FALSE, TRUE)) {
+      drawn <- metabind_named_draw(x, sort.subgroup = sorted)
+      expected <- as.character(drawn$args$x$subgroup.levels) == as.character(defined)
+      expect_equal(drawn$args$test$effect.subgroup.common, expected)
+      expect_equal(drawn$args$test$effect.subgroup.random, expected)
+      expect_length(metabind_named_effect_labels(drawn), 2)
+      expect_match(paste(drawn$args$x$.text.details.methods, collapse = " "),
+                   "Null hypothesis", fixed = TRUE)
+    }
+  }
 })

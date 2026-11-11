@@ -361,11 +361,17 @@ test_that("shared summaries retain interval methods varying within a result type
   expect_false(any(c("statistic", "pval", "df") %in% drawn$result$leftcols))
 })
 
-test_that("nonshared summaries print details and retain same-data test columns", {
+test_that("nonshared summaries show effect tests in rows rather than automatic columns", {
   x <- metabind_render_fixture(method.tau = "REML")
   drawn <- metabind_render_pdf(x)
   expect_true(drawn$args$details)
-  expect_true(all(c("statistic", "pval", "df") %in% drawn$result$leftcols))
+  expect_false(any(c("statistic", "pval") %in%
+                     c(drawn$result$leftcols, drawn$result$rightcols)))
+  expect_true("df" %in% drawn$result$leftcols)
+  labels <- Filter(function(z) is.call(z) &&
+                     grepl("Test for overall effect", as.character(z[[2]]), fixed = TRUE),
+                   drawn$labels)
+  expect_length(labels, 4)
 })
 
 test_that("explicit shared-summary display options override automatic selection", {

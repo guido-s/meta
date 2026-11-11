@@ -22,7 +22,7 @@
   leftlabs = NULL,
   rightlabs = NULL,
   label,
-  lab.NA = gs("lab.NA"),
+  lab.NA = if (is.null(x$subgroup)) gs("lab.NA") else "",
   scientific.pval = gs("scientific.pval"),
   zero.pval = gs("zero.pval"),
   JAMA.pval = gs("JAMA.pval"),
@@ -99,8 +99,8 @@ information, graphical types, model text, and rounding; see
 printed between display groups.}
 
 \item{details}{A logical specifying whether method details are printed.
-Defaults to \code{TRUE} for source subgroup
-results, and \code{FALSE} otherwise.}
+Defaults to \code{TRUE} for source subgroup results, and \code{FALSE}
+otherwise.}
 
 \item{\dots}{Additional arguments passed to \code{\link{forest.meta}}.}
 }
@@ -119,8 +119,8 @@ across the selected results if no groups are specified. Set the
 corresponding element of \code{print} to \code{TRUE} or \code{FALSE}
 to override this behaviour. Element \code{method.tau} (or legacy argument
 \code{print.method.tau}) controls the heterogeneity estimator column
-independently of \code{print$method}. If P values are available, statistics
-and P values are shown by default.
+independently of \code{print$method}. Without source subgroup results,
+statistics and P values are shown by default when P values are available.
 
 Confidence and prediction intervals share a column. Its heading gives
 their levels when each interval kind has one level, for example,
@@ -154,6 +154,7 @@ otherwise, within each component group, using the stored common effect
 and random effects test results. With several random-effects interval
 methods, each component's test row uses its first displayed method with
 an available P value.
+Effect-test rows are omitted for components without a defined null effect.
 The legacy arguments \code{test.overall}, \code{test.overall.common},
 and \code{test.overall.random} remain supported through \code{\dots}.
 Explicit component test settings override the corresponding overall-test
@@ -175,10 +176,10 @@ do not display these tests.
 For shared overall summaries, method details are printed by default, and
 method and interval-method columns are selected according to variation
 within each result type (common effect, random effects, or prediction),
-not differences between result types. Statistic, P-value, and degrees-of-freedom
-columns are omitted by default. These test columns are also omitted for
-subgroup meta-analyses with different datasets. Explicit display options
-take precedence.
+not differences between result types. Statistic and P-value columns are
+omitted by default for all source subgroup plots; their tests are shown in
+overall-effect test rows. Degrees-of-freedom columns are also omitted for
+shared summaries or different datasets. Explicit display options take precedence.
 
 With \code{backtransf = FALSE}, references for transformed single-outcome
 measures are passed on the original scale to \code{forest.meta()}.

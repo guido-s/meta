@@ -1916,6 +1916,7 @@ print_defaults <- function(x, class = "meta", func = "forest") {
         pval.Q = NULL,
         H = FALSE,
         H.ci = FALSE,
+        Q.b = NULL,
         pval.Q.b = NULL,
         subgroup.name = FALSE)
     }
@@ -1945,6 +1946,7 @@ print_defaults <- function(x, class = "meta", func = "forest") {
         pval.Q = NULL,
         H = FALSE,
         H.ci = FALSE,
+        Q.b = NULL,
         pval.Q.b = NULL,
         subgroup.name = FALSE)
     }

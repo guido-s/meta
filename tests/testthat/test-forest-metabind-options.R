@@ -48,6 +48,33 @@ test_that("print.method.tau controls the heterogeneity estimator column", {
                                                         method.tau = TRUE))$leftcols)
 })
 
+test_that("automatic I2 columns follow tau estimator methods", {
+  data("Fleiss1993cont", package = "meta")
+  ma <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
+                  data = Fleiss1993cont, sm = "SMD", common = FALSE,
+                  method.tau = "REML")
+  mb <- metabind(ma, update(ma, method.tau = "DL"))
+  drawn <- forest_metabind_options(
+    mb, print = list(I2 = TRUE, method.I2 = TRUE, I2.ci = FALSE))
+  expect_true(all(c("method.tau", "I2") %in% drawn$leftcols))
+  expect_gt(match("I2", drawn$leftcols), match("method.tau", drawn$leftcols))
+  expect_equal(match("method.I2", drawn$leftcols), match("I2", drawn$leftcols) + 1)
+  intervals <- forest_metabind_options(
+    mb, print = list(I2 = TRUE, I2.ci = TRUE, tau2 = TRUE, tau2.ci = TRUE,
+                     tau = TRUE, tau.ci = TRUE, H = TRUE, H.ci = TRUE,
+                     Q = TRUE, pval.Q = TRUE, method.I2 = TRUE,
+                     method.tau = TRUE, method.tau.ci = TRUE))
+  expect_gt(match("I2", intervals$leftcols), match("method.tau.ci", intervals$leftcols))
+  expect_equal(match("I2.ci", intervals$leftcols), match("I2", intervals$leftcols) + 1)
+  ordered <- c("tau2", "tau2.ci", "tau", "tau.ci", "method.tau",
+               "method.tau.ci", "I2", "I2.ci", "method.I2", "H", "H.ci",
+               "Q", "df.Q", "pval.Q")
+  expect_identical(intervals$leftcols[intervals$leftcols %in% ordered], ordered)
+  columns <- c("studlab", "method.I2", "I2", "method.tau", "effect", "ci")
+  explicit <- forest_metabind_options(mb, leftcols = columns)
+  expect_identical(explicit$leftcols, columns)
+})
+
 test_that("automatic metadata columns use every user-defined subgroup", {
   binary <- metabin(c(12, 20, 30), c(100, 100, 100),
                     c(8, 10, 12), c(100, 100, 100), sm = "RR",
@@ -258,6 +285,24 @@ test_that("missing and suppressed heterogeneity values use lab.NA", {
     expect_equal(res$data$tau2[duplicate], "MISSING")
     expect_equal(res$data$method.tau[duplicate], "MISSING")
   }
+})
+
+test_that("empty tau estimator names use lab.NA without changing stored methods", {
+  mbin1 <- metabin(1:5, 101:105, 6:10, 201:205, sm = "OR", method = "Inverse")
+  mbin2 <- update(mbin1, method = "LRP")
+  mb <- metabind(mbin1, mbin2)
+  original <- mb$overall$method.tau
+  expect_identical(original[2], "")
+  for (missing in c("", ".", "MISSING")) {
+    res <- forest_metabind_options(mb, lab.NA = missing)
+    expect_true("method.tau" %in% res$leftcols)
+    lrp <- res$data$id == 2 & res$data$type == "Random effects model"
+    inverse <- res$data$id == 1 & res$data$type == "Random effects model"
+    expect_true(any(lrp))
+    expect_true(all(res$data$method.tau[lrp] == missing))
+    expect_true(all(res$data$method.tau[inverse] == mbin1$method.tau))
+  }
+  expect_identical(mb$overall$method.tau, original)
 })
 
 test_that("custom transformation metadata keeps named arguments and missing functions", {

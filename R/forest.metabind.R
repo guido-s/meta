@@ -48,8 +48,8 @@
 #' @param addrow.subgroups A logical indicating whether an empty row is
 #'   printed between display groups.
 #' @param details A logical specifying whether method details are printed.
-#'   Defaults to \code{TRUE} for source subgroup
-#'   results, and \code{FALSE} otherwise.
+#'   Defaults to \code{TRUE} for source subgroup results, and \code{FALSE}
+#'   otherwise.
 #' @param \dots Additional arguments passed to \code{\link{forest.meta}}.
 #'
 #' @details
@@ -59,8 +59,8 @@
 #' corresponding element of \code{print} to \code{TRUE} or \code{FALSE}
 #' to override this behaviour. Element \code{method.tau} (or legacy argument
 #' \code{print.method.tau}) controls the heterogeneity estimator column
-#' independently of \code{print$method}. If P values are available, statistics
-#' and P values are shown by default.
+#' independently of \code{print$method}. Without source subgroup results,
+#' statistics and P values are shown by default when P values are available.
 #'
 #' Confidence and prediction intervals share a column. Its heading gives
 #' their levels when each interval kind has one level, for example,
@@ -94,6 +94,7 @@
 #' and random effects test results. With several random-effects interval
 #' methods, each component's test row uses its first displayed method with
 #' an available P value.
+#' Effect-test rows are omitted for components without a defined null effect.
 #' The legacy arguments \code{test.overall}, \code{test.overall.common},
 #' and \code{test.overall.random} remain supported through \code{\dots}.
 #' Explicit component test settings override the corresponding overall-test
@@ -115,10 +116,10 @@
 #' For shared overall summaries, method details are printed by default, and
 #' method and interval-method columns are selected according to variation
 #' within each result type (common effect, random effects, or prediction),
-#' not differences between result types. Statistic, P-value, and degrees-of-freedom
-#' columns are omitted by default. These test columns are also omitted for
-#' subgroup meta-analyses with different datasets. Explicit display options
-#' take precedence.
+#' not differences between result types. Statistic and P-value columns are
+#' omitted by default for all source subgroup plots; their tests are shown in
+#' overall-effect test rows. Degrees-of-freedom columns are also omitted for
+#' shared summaries or different datasets. Explicit display options take precedence.
 #'
 #' With \code{backtransf = FALSE}, references for transformed single-outcome
 #' measures are passed on the original scale to \code{forest.meta()}.
@@ -168,7 +169,8 @@ forest.metabind <- function(x,
                             leftcols = NULL, rightcols = NULL,
                             leftlabs = NULL, rightlabs = NULL,
                             label,
-                            lab.NA = gs("lab.NA"),
+                            lab.NA =
+                              if (is.null(x$subgroup)) gs("lab.NA") else "",
                             scientific.pval = gs("scientific.pval"),
                             zero.pval = gs("zero.pval"),
                             JAMA.pval = gs("JAMA.pval"),
@@ -217,7 +219,7 @@ forest.metabind <- function(x,
     warning("Nothing to show in forest plot.", call. = FALSE)
     return(invisible(NULL))
   }
-  # Component results are display rows, not observations to pool again.
+  #
   if (!with.subgroups)
     overall <- overall.hetstat <- FALSE
   else
@@ -227,6 +229,7 @@ forest.metabind <- function(x,
     warning("Argument 'hetstat' ignored; use 'print' to display ",
             "component heterogeneity information.",
             call. = FALSE)
+  #
   if (!with.subgroups)
     hetstat <- FALSE
   #
@@ -299,11 +302,13 @@ forest.metabind <- function(x,
                     "pval", "stat",
                     "level.ma", "level.predict", "level.hetstat",
                     "tau2", "tau", "I2",
-                    "pval.Q", "pval.Q.b", "subgroup.name"))
+                    "Q", "pval.Q", "Q.b", "pval.Q.b",
+                    "subgroup.name"))
   #
   print.defaults <- list(
     tau2 = random,
     tau = random,
+    Q.b = with.subgroups,
     pval.Q.b = with.subgroups,
     subgroup.name = FALSE)
   #
@@ -353,21 +358,27 @@ forest.metabind <- function(x,
   test <- replaceNULL_list(test, list(overall = TRUE, subgroup = FALSE))
   test <- replaceNULL_list(
     test,
-    list(overall.common = test[["overall"]], overall.random = test[["overall"]],
-         subgroup.common = test[["subgroup"]], subgroup.random = test[["subgroup"]],
+    list(overall.common = test[["overall"]],
+         overall.random = test[["overall"]],
+         subgroup.common = test[["subgroup"]],
+         subgroup.random = test[["subgroup"]],
          effect.subgroup.common = test[["overall.common"]],
          effect.subgroup.random = test[["overall.random"]]))
+  #
   chklogical_list(test, NULL.ok = "effect.subgroup",
                   length = list(effect.subgroup = 0,
                                 effect.subgroup.common = 0,
                                 effect.subgroup.random = 0))
+  #
   test <- replaceNULL_list(
     test,
     list(effect.subgroup = any(test[["effect.subgroup.common"]]) ||
            any(test[["effect.subgroup.random"]])))
+  #
   if (any(unlist(test[c("subgroup", "subgroup.common", "subgroup.random")])))
     warning("Between-component tests are not available for metabind objects.",
             call. = FALSE)
+  #
   test$subgroup <- test$subgroup.common <- test$subgroup.random <- FALSE
   #
   # Column and test labels
@@ -607,8 +618,8 @@ forest.metabind <- function(x,
   }
   #
   has.pval <- any(!is.na(plotdat$pval))
-  print$pval <- replaceNULL(print$pval, has.pval && !omit.test.cols) && has.pval
-  print$stat <- replaceNULL(print$stat, has.pval && !omit.test.cols) &&
+  print$pval <- replaceNULL(print$pval, has.pval && !with.subgroups) && has.pval
+  print$stat <- replaceNULL(print$stat, has.pval && !with.subgroups) &&
     any(!is.na(plotdat$statistic))
   #
   print$backtransf <- replaceNULL(
@@ -855,19 +866,25 @@ forest.metabind <- function(x,
       if (is.null(plotdat[[i]]))
         plotdat[[i]] <- NA_real_
     }
+    #
     plotdat$Q.b <- formatN(plotdat$Q.b, digits = digits$Q, lab.NA = lab.NA,
                            big.mark = big.mark)
+    #
     plotdat$df.Q.b <- formatN(plotdat$df.Q.b, digits = 0, lab.NA = lab.NA,
                               big.mark = big.mark)
+    #
     plotdat$pval.Q.b <- formatPT(plotdat$pval.Q.b, digits = digits$pval.Q,
                                  lab.NA = lab.NA, lab = FALSE, trim = "left",
                                  scientific = scientific.pval, zero = zero.pval,
                                  JAMA = JAMA.pval, big.mark = big.mark)
+    #
     first.level <- plotdat$subgroup.levels[match(plotdat$id, plotdat$id)]
+    #
     keep <- !is.predict & !is.na(plotdat$subgroup.levels) &
       plotdat$subgroup.levels == first.level
+    #
     for (i in c("Q.b", "df.Q.b", "pval.Q.b"))
-      plotdat[[i]][!keep] <- ""
+      plotdat[[i]][!keep] <- lab.NA
   }
   #
   het.cols <- c("tau2", "tau", "I2", "H", "tau2.ci", "tau.ci", "I2.ci", "H.ci",
@@ -887,6 +904,8 @@ forest.metabind <- function(x,
       plotdat[[i]] <- NA_character_
     #
     plotdat[[i]][is.na(plotdat[[i]])] <- lab.NA
+    if (i == "method.tau")
+      plotdat[[i]][plotdat[[i]] == ""] <- lab.NA
     #
     if (i %in% c("method.tau", "method.tau.ci"))
       keep <- rows.tau
@@ -981,11 +1000,24 @@ forest.metabind <- function(x,
                  if (show.adhoc) "adhoc.hakn",
                  if (print$k) "k")
   #
-  for (i in c("tau2", "tau", "I2", "H")) {
+  for (i in c("tau2", "tau")) {
     if (print[[i]])
       info.cols <- c(info.cols, i)
     if (print[[paste0(i, ".ci")]])
       info.cols <- c(info.cols, paste0(i, ".ci"))
+  }
+  #
+  info.cols <- c(info.cols,
+                 if (print.het.method[["method.tau"]]) "method.tau",
+                 if (print.het.method[["method.tau.ci"]]) "method.tau.ci")
+  #
+  for (i in c("I2", "H")) {
+    if (print[[i]])
+      info.cols <- c(info.cols, i)
+    if (print[[paste0(i, ".ci")]])
+      info.cols <- c(info.cols, paste0(i, ".ci"))
+    if (i == "I2" && print.het.method[["method.I2"]])
+      info.cols <- c(info.cols, "method.I2")
   }
   #
   if (print$Q)
@@ -994,14 +1026,18 @@ forest.metabind <- function(x,
   if (print$pval.Q)
     info.cols <- c(info.cols, "pval.Q")
   #
-  info.cols <- c(info.cols, names(print.het.method)[print.het.method],
-                 if (show.het.level) "level.hetstat")
+  info.cols <- c(info.cols, if (show.het.level) "level.hetstat")
   # Shared heterogeneity is printed in the native overall heterogeneity row.
   if (with.subgroups && prepared$shared.overall)
     info.cols <- setdiff(info.cols, c(het.cols, names(print.het.method)))
   #
-  if (with.subgroups && (common || random))
-    info.cols <- c(info.cols, "Q.b", "df.Q.b", if (print$pval.Q.b) "pval.Q.b")
+  if (with.subgroups && (common || random)) {
+    info.cols <-
+      c(info.cols,
+        if (print$Q.b) "Q.b",
+        if (print$Q.b) "df.Q.b",
+        if (print$pval.Q.b) "pval.Q.b")
+  }
   #
   transformation.cols <- c(if (print$backtransf) "func.backtransf",
                            if (print$args.backtransf) "args.backtransf")
@@ -1192,34 +1228,48 @@ forest.metabind <- function(x,
     forest_args_specific <- c(list(x = mapped$ma), mapped$args)
     label.defaults <- mapped$args$label
     text.defaults <- mapped$args$text
+    #
     forest_args_specific[c("label", "text", "test.overall", "test.subgroup",
-                           "test.effect.subgroup", "test.effect.subgroup.common",
+                           "test.effect.subgroup",
+                           "test.effect.subgroup.common",
                            "test.effect.subgroup.random")] <- NULL
+    #
     forest_args_specific$sort.subgroup <- FALSE
+    #
     forest_args_specific$subgroup.hetstat <- !shared.overall &&
       !identical(hetstat, FALSE)
+    #
     if (shared.overall) {
-      test.plot$overall <- test[["overall"]]
-      test.plot$overall.common <- common && test[["overall.common"]] && overall
-      test.plot$overall.random <- random && test[["overall.random"]] && overall
+      has.null <- !is.na(mapped$ma$null.effect)
+      test.plot$overall <- test[["overall"]] && has.null
+      test.plot$overall.common <- common && test[["overall.common"]] && overall && has.null
+      test.plot$overall.random <- random && test[["overall.random"]] && overall && has.null
       test.common <- test.plot[["overall.common"]]
       test.random <- test.plot[["overall.random"]]
     }
     else {
-      for (i in c("effect.subgroup", "effect.subgroup.common", "effect.subgroup.random")) {
+      for (i in c("effect.subgroup", "effect.subgroup.common",
+                  "effect.subgroup.random")) {
         if (length(test[[i]]) != 1) {
-          chklength(test[[i]], length(ma$subgroup.levels), name = paste0("test.", i),
+          chklength(test[[i]], length(ma$subgroup.levels),
+                    name = paste0("test.", i),
                     internal = FALSE)
           test[[i]] <- test[[i]][match(as.character(ma$subgroup.levels),
                                        unique(as.character(plotdat$id)))]
         }
       }
+      #
       test.plot$effect.subgroup.common <-
-        mapped$args$test.effect.subgroup.common & test[["effect.subgroup.common"]] & common
+        mapped$args$test.effect.subgroup.common &
+        test[["effect.subgroup.common"]] & common
+      #
       test.plot$effect.subgroup.random <-
-        mapped$args$test.effect.subgroup.random & test[["effect.subgroup.random"]] & random
+        mapped$args$test.effect.subgroup.random &
+        test[["effect.subgroup.random"]] & random
+      #
       test.common <- any(test.plot[["effect.subgroup.common"]])
       test.random <- any(test.plot[["effect.subgroup.random"]])
+      #
       test.plot$effect.subgroup <- test.common || test.random
     }
     #
@@ -1236,12 +1286,17 @@ forest.metabind <- function(x,
   }
   #
   if (!with.subgroups && is.null(subgroup))
-    test.plot[c("subgroup", "subgroup.common", "subgroup.random", "effect.subgroup",
+    test.plot[c("subgroup", "subgroup.common", "subgroup.random",
+                "effect.subgroup",
                 "effect.subgroup.common", "effect.subgroup.random")] <- NULL
   forest_args_general$test <- test.plot
   #
-  label.supplied <- names(label.list$miss)[!vapply(label.list$miss, isTRUE, logical(1))]
-  label.plot <- modifyList(label.defaults, label[label.supplied], keep.null = TRUE)
+  label.supplied <-
+    names(label.list$miss)[!vapply(label.list$miss, isTRUE, logical(1))]
+  #
+  label.plot <-
+    modifyList(label.defaults, label[label.supplied], keep.null = TRUE)
+  #
   if (isTRUE(label.axis))
     forest_args_general$label <- label.plot
   else {
@@ -1249,12 +1304,15 @@ forest.metabind <- function(x,
     args <- c(args, setNames(label.plot, paste0("label.", names(label.plot))))
   }
   #
-  text.supplied <- names(text.list$miss)[!vapply(text.list$miss, isTRUE, logical(1))]
+  text.supplied <-
+    names(text.list$miss)[!vapply(text.list$miss, isTRUE, logical(1))]
+  #
   for (i in c("common", "random", "predict")) {
     if (i %in% text.supplied)
       text.supplied <- union(text.supplied, paste0(i, ".w"))
   }
-  forest_args_general$text <- modifyList(text.defaults, text[text.supplied], keep.null = TRUE)
+  forest_args_general$text <-
+    modifyList(text.defaults, text[text.supplied], keep.null = TRUE)
   #
   forest_args_general[names(forest_args_specific)] <- NULL
   forest_args <- c(forest_args_general, forest_args_specific)

@@ -53,9 +53,8 @@
 #' @export
 
 summary.metabind <- function(object, ...) {
-  
   chkclass(object, "metabind")
-  
+  #
   res <- object
   #
   class(res) <- c("summary.metabind", class(res))
@@ -95,11 +94,7 @@ print.summary.metabind <- function(x,
   
   chkclass(x, "summary.metabind")
   #
-  with.subgroups <- !is.null(x$subgroup)
-  if (with.subgroups)
-    return(invisible(NULL))
-  else
-    class(x) <- "metabind"
+  class(x) <- "metabind"
   #
   print(x,
         #
