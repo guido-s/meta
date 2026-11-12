@@ -850,10 +850,10 @@ print.metabind <- function(x,
       cat("\n")
     }
     #
-    cat("Subgroup meta-analysis results\n\n")
+    cat("Subgroup meta-analysis results\n")
     #
     if (common) {
-      cat("Common effect model\n")
+      cat("\nCommon effect model\n")
       #
       j <- 0
       #

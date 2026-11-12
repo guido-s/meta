@@ -1948,7 +1948,7 @@ print_defaults <- function(x, class = "meta", func = "forest") {
         H.ci = FALSE,
         Q.b = NULL,
         pval.Q.b = NULL,
-        subgroup.name = FALSE)
+        subgroup.name = NULL)
     }
   }
   #

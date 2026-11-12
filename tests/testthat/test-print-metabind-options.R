@@ -190,3 +190,29 @@ test_that("print sharing uses only selected model methods and interval levels", 
   expect_true(any(grepl("95% PI", opening, fixed = TRUE)))
   expect_equal(sum(grepl("Prediction interval", opening, fixed = TRUE)), 1)
 })
+
+test_that("subgroup analysis names print by default and respect explicit overrides", {
+  dat <- data.frame(TE = c(0.1, 0.3, 0.5, 0.2, 0.4, 0.6), seTE = rep(0.1, 6),
+                    age = rep(c(55, 65), each = 3),
+                    region = rep(c("Europe", "Asia"), 3))
+  ma <- metagen(TE, seTE, data = dat, subgroup = age, subgroup.name = "Age group",
+                  sm = "MD", prediction = TRUE, method.predict = "V")
+  mb <- metabind(ma, update(ma, subgroup = region, subgroup.name = "Region"))
+  default <- capture.output(print(mb, details.methods = FALSE))
+  expect_equal(sum(grepl("1. Age group", default, fixed = TRUE)), 3)
+  expect_equal(sum(grepl("2. Region", default, fixed = TRUE)), 3)
+
+  for (show in list(NULL, TRUE)) {
+    explicit <- capture.output(print(mb, print = list(subgroup.name = show),
+                                      details.methods = FALSE))
+    expect_identical(explicit, default)
+  }
+
+  hidden <- capture.output(print(mb, print = list(subgroup.name = FALSE),
+                                  details.methods = FALSE))
+  expect_false(any(grepl("Age group|Region", hidden)))
+  expect_equal(sum(hidden %in% c("1.", "2.")), 6)
+  legacy <- capture.output(print(mb, print.subgroup.name = FALSE,
+                                  details.methods = FALSE))
+  expect_identical(legacy, hidden)
+})
