@@ -758,35 +758,52 @@ print.meta <- function(x,
     }
   }
   #
-  # Switch lower and upper limit for VE if results have been
-  # backtransformed
+  # Switch reversed lower and upper limits after back-transformation
   #
-  if (backtransf & sm == "VE") {
-    tmp.l <- lowTE.common
-    lowTE.common <- uppTE.common
-    uppTE.common <- tmp.l
+  if (backtransf) {
+    swap <- !is.na(lowTE.common) & !is.na(uppTE.common) &
+      lowTE.common > uppTE.common
     #
-    tmp.l <- lowTE.random
-    lowTE.random <- uppTE.random
-    uppTE.random <- tmp.l
+    tmp.l <- lowTE.common[swap]
+    lowTE.common[swap] <- uppTE.common[swap]
+    uppTE.common[swap] <- tmp.l
     #
-    tmp.l <- lowTE.predict
-    lowTE.predict <- uppTE.predict
-    uppTE.predict <- tmp.l
+    swap <- !is.na(lowTE.random) & !is.na(uppTE.random) &
+      lowTE.random > uppTE.random
+    #
+    tmp.l <- lowTE.random[swap]
+    lowTE.random[swap] <- uppTE.random[swap]
+    uppTE.random[swap] <- tmp.l
+    #
+    swap <- !is.na(lowTE.predict) & !is.na(uppTE.predict) &
+      lowTE.predict > uppTE.predict
+    #
+    tmp.l <- lowTE.predict[swap]
+    lowTE.predict[swap] <- uppTE.predict[swap]
+    uppTE.predict[swap] <- tmp.l
     #
     if (by) {
-      tmp.l <- lowTE.common.w
-      lowTE.common.w <- uppTE.common.w
-      uppTE.common.w <- tmp.l
-      #   
-      tmp.l <- lowTE.random.w
-      lowTE.random.w <- uppTE.random.w
-      uppTE.random.w <- tmp.l
-      #   
+      swap <- !is.na(lowTE.common.w) & !is.na(uppTE.common.w) &
+        lowTE.common.w > uppTE.common.w
+      #
+      tmp.l <- lowTE.common.w[swap]
+      lowTE.common.w[swap] <- uppTE.common.w[swap]
+      uppTE.common.w[swap] <- tmp.l
+      #
+      swap <- !is.na(lowTE.random.w) & !is.na(uppTE.random.w) &
+        lowTE.random.w > uppTE.random.w
+      #
+      tmp.l <- lowTE.random.w[swap]
+      lowTE.random.w[swap] <- uppTE.random.w[swap]
+      uppTE.random.w[swap] <- tmp.l
+      #
       if (prediction.w) {
-        tmp.l <- lowTE.predict.w
-        lowTE.predict.w <- uppTE.predict.w
-        uppTE.predict.w <- tmp.l
+        swap <- !is.na(lowTE.predict.w) & !is.na(uppTE.predict.w) &
+          lowTE.predict.w > uppTE.predict.w
+        #
+        tmp.l <- lowTE.predict.w[swap]
+        lowTE.predict.w[swap] <- uppTE.predict.w[swap]
+        uppTE.predict.w[swap] <- tmp.l
       }
     }
   }

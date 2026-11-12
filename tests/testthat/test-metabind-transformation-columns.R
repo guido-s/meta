@@ -15,9 +15,9 @@ metagen_transformation_columns <- function(...) {
 test_that("print automatically shows functions but not absent arguments", {
   ma <- metagen_transformation_columns()
   mb <- metabind(update(ma, func.backtransf = "exp"), ma)
-  output <- capture.output(print(mb, details.methods = FALSE))
+  output <- capture.output(print(mb, print = list(k = FALSE), details.methods = FALSE))
   automatic <- capture.output(print(
-    mb, print = list(backtransf = NULL, args.backtransf = NULL),
+    mb, print = list(backtransf = NULL, args.backtransf = NULL, k = FALSE),
     details.methods = FALSE))
   expect_identical(output, automatic)
   expect_equal(sum(grepl("backtransf", output, fixed = TRUE)), 3L)
@@ -43,7 +43,7 @@ test_that("print flags force or suppress columns and respect selected rows", {
   }, c(func = 0L, args = 0L))
   expect_equal(unname(headings), rbind(c(0L, 3L, 0L, 3L), c(0L, 3L, 0L, 0L)))
   forced <- capture.output(print(
-    metabind(ma, ma), print = list(backtransf = TRUE, args.backtransf = TRUE),
+    metabind(ma, ma), print = list(backtransf = TRUE, args.backtransf = TRUE, k = FALSE),
     details.methods = FALSE))
   expect_equal(sum(grepl("backtransf +args", forced)), 3L)
   expect_equal(sum(grepl("^meta[12] +\\. +\\.", forced)), 6L)

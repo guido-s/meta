@@ -36,7 +36,8 @@ test_that("deprecated study hetstat warns and falls back to logical TRUE", {
   ma <- metagen(c(0.1, 0.3, 0.5), rep(0.1, 3), method.tau = "DL")
   expected <- forest_named_regression_plot(ma, hetstat = TRUE)
   expect_warning(drawn <- forest_named_regression_plot(ma, hetstat = "study"),
-                 "Use of argument 'hetstat = \"study\"' is deprecated.",
+                 paste0("Use of argument 'hetstat = \"study\"' is deprecated; ",
+                        "using 'hetstat = TRUE' instead."),
                  fixed = TRUE)
   expect_identical(lapply(drawn$args$cols$col.studlab$labels, `[[`, "label"),
                    lapply(expected$args$cols$col.studlab$labels, `[[`, "label"))

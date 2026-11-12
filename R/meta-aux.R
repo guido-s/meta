@@ -412,7 +412,9 @@ setNAwithin <- function(x, condition) {
 drop_allNAs <- function(x) {
   all_NA <- colSums(is.na(x)) == nrow(x)
   #
-  x[, !all_NA, drop = FALSE]
+  res <- x[, !all_NA, drop = FALSE]
+  colnames(res) <- colnames(x)[!all_NA]
+  res
 }
 
 extrVar <- function(x, name)

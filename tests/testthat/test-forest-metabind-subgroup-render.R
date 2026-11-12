@@ -63,6 +63,30 @@ test_that("shared summaries render stored estimates rather than pooling source r
   expect_type(drawn$result, "list")
 })
 
+test_that("shared common effects do not present differing heterogeneity as shared", {
+  x <- metabind_render_fixture(method.tau = "REML")
+  for (hetstat in list(TRUE, "common", "random")) {
+    drawn <- metabind_render_pdf(
+      x, random = FALSE, prediction = FALSE, backtransf = FALSE,
+      hetstat = hetstat, overall.hetstat = TRUE, lab.NA = "MISSING",
+      leftcols = c("studlab", "effect", "ci", "I2", "tau2"))
+    expect_true(drawn$args$overall)
+    expect_equal(drawn$args$x$TE.common, x$common$TE[1])
+    expect_false(drawn$args$overall.hetstat)
+    expect_false(drawn$args$hetstat)
+    expect_false(drawn$args$subgroup.hetstat)
+    expect_true(is.na(drawn$args$x$Q))
+    expect_equal(unname(drawn$args$x$tau2.w), x$overall$tau2)
+    expect_true(all(c("I2", "tau2") %in% names(drawn$args$data.pooled)))
+    for (field in c("I2", "tau2"))
+      expect_true(all(is.na(drawn$args$data.pooled[[field]]) |
+                        drawn$args$data.pooled[[field]] == "MISSING"))
+    labels <- vapply(drawn$labels, function(label)
+      paste(deparse(label), collapse = " "), character(1))
+    expect_false(any(grepl("Heterogeneity", labels, fixed = TRUE)))
+  }
+})
+
 test_that("different tau methods or list data render component stored summaries", {
   for (reason in c("method.tau", "list data")) {
     x <- metabind_render_fixture(
@@ -95,7 +119,41 @@ test_that("explicit overall FALSE and rejection of public subgroup survive rende
   expect_error(metabind_render_pdf(x, subgroup = type),
                "Argument 'subgroup' is unavailable", fixed = TRUE)
   expect_error(metabind_render_pdf(x, subgroup = NULL),
-               "Argument 'subgroup' is unavailable", fixed = TRUE)
+                "Argument 'subgroup' is unavailable", fixed = TRUE)
+})
+
+test_that("forest sharing depends on displayed models and their interval levels", {
+  x <- metabind_render_fixture()
+  first <- x$meta[[1]]
+  second <- x$meta[[2]]
+  for (difference in c("random CI", "prediction level")) {
+    other <- if (difference == "random CI")
+      update(second, method.random.ci = "HK")
+    else
+      update(second, level.predict = 0.90)
+    mb <- metabind(first, other)
+    drawn <- metabind_render_pdf(mb, random = FALSE, prediction = FALSE,
+                                  backtransf = FALSE)
+    expect_true(drawn$args$overall, info = difference)
+    expect_equal(drawn$args$x$TE.common, first$TE.common, info = difference)
+
+    hidden <- metabind_render_pdf(mb, random = FALSE, prediction = FALSE,
+                                   overall = FALSE, backtransf = FALSE)
+    expect_false(hidden$args$overall, info = difference)
+    expect_false(hidden$args$x$overall, info = difference)
+
+    selected <- metabind_render_pdf(
+      mb, random = difference == "random CI",
+      prediction = difference == "prediction level", backtransf = FALSE)
+    expect_false(selected$args$overall, info = difference)
+  }
+
+  mb <- metabind(first, update(second, level.ma = 0.90))
+  drawn <- metabind_render_pdf(mb, common = FALSE, random = FALSE,
+                                prediction = TRUE, backtransf = FALSE)
+  expect_true(drawn$args$overall)
+  expect_equal(drawn$args$x$lower.predict, first$lower.predict)
+  expect_equal(drawn$args$x$upper.predict, first$upper.predict)
 })
 
 test_that("source numeric effects, intervals and study counts use subgroup fields", {

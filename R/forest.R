@@ -3073,8 +3073,10 @@ forest.meta <- function(x,
     cid$above.null <- log(cid[["above.null"]])
   }
   #
-  if (!backtransf) {
-    if (sm == "PFT") {
+  if (!backtransf && !(ref.from.null && !null.effect.original)) {
+    if (is_single(sm) && !is.null(ftr))
+      ref <- transf(ref, sm, func = ftr, args = atr)
+    else if (sm == "PFT") {
       if (inherits(x, "trimfill"))
         ref <- transf(ref, "PAS")
       else if (metacum | metainf)
@@ -3090,7 +3092,7 @@ forest.meta <- function(x,
       else
         ref <- transf(ref, sm, time = x$t.harmonic.mean)
     }
-    else if (is_single(sm) && !(ref.from.null && !null.effect.original))
+    else if (is_single(sm))
       ref <- transf(ref, sm)
   }
   #
@@ -6046,31 +6048,41 @@ forest.meta <- function(x,
       uppTE.w <- scale * uppTE.w
     }
     #
-    # Switch lower and upper limit for VE if results have been
-    # backtransformed
+    # Switch reversed lower and upper limits after back-transformation
     #
-    if (sm == "VE") {
-      tmp.l <- lowTE
-      lowTE <- uppTE
-      uppTE <- tmp.l
+    swap <- !is.na(lowTE) & !is.na(uppTE) & lowTE > uppTE
+    #
+    tmp.l <- lowTE[swap]
+    lowTE[swap] <- uppTE[swap]
+    uppTE[swap] <- tmp.l
+    #
+    swap <- !is.na(lowTE.common) & !is.na(uppTE.common) &
+      lowTE.common > uppTE.common
+    #
+    tmp.l <- lowTE.common[swap]
+    lowTE.common[swap] <- uppTE.common[swap]
+    uppTE.common[swap] <- tmp.l
+    #
+    swap <- !is.na(lowTE.random) & !is.na(uppTE.random) &
+      lowTE.random > uppTE.random
+    #
+    tmp.l <- lowTE.random[swap]
+    lowTE.random[swap] <- uppTE.random[swap]
+    uppTE.random[swap] <- tmp.l
+    #
+    swap <- !is.na(lowTE.predict) & !is.na(uppTE.predict) &
+      lowTE.predict > uppTE.predict
+    #
+    tmp.l <- lowTE.predict[swap]
+    lowTE.predict[swap] <- uppTE.predict[swap]
+    uppTE.predict[swap] <- tmp.l
+    #
+    if (by) {
+      swap <- !is.na(lowTE.w) & !is.na(uppTE.w) & lowTE.w > uppTE.w
       #
-      tmp.l <- lowTE.common
-      lowTE.common <- uppTE.common
-      uppTE.common <- tmp.l
-      #
-      tmp.l <- lowTE.random
-      lowTE.random <- uppTE.random
-      uppTE.random <- tmp.l
-      #
-      tmp.l <- lowTE.predict
-      lowTE.predict <- uppTE.predict
-      uppTE.predict <- tmp.l
-      #
-      if (by) {
-        tmp.l <- lowTE.w
-        lowTE.w <- uppTE.w
-        uppTE.w <- tmp.l
-      }
+      tmp.l <- lowTE.w[swap]
+      lowTE.w[swap] <- uppTE.w[swap]
+      uppTE.w[swap] <- tmp.l
     }
   }
   #

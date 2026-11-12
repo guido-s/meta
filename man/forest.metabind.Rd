@@ -23,10 +23,13 @@
   rightlabs = NULL,
   label,
   lab.NA = if (is.null(x$subgroup)) gs("lab.NA") else "",
+  big.mark = gs("big.mark"),
+  pscale = NULL,
+  irscale = NULL,
+  irunit = NULL,
   scientific.pval = gs("scientific.pval"),
   zero.pval = gs("zero.pval"),
   JAMA.pval = gs("JAMA.pval"),
-  big.mark = gs("big.mark"),
   col = NULL,
   print = NULL,
   type = NULL,
@@ -85,10 +88,23 @@ the x-axis tick labels instead.}
 
 \item{lab.NA}{Label for missing values.}
 
+\item{big.mark}{Character used as thousands separator.}
+
+\item{pscale}{A numeric giving scaling factor for printing of
+single event probabilities or risk differences, i.e. if argument
+\code{sm} is equal to \code{"PLOGIT"}, \code{"PLN"},
+\code{"PRAW"}, \code{"PAS"}, \code{"PFT"}, or \code{"RD"}.}
+
+\item{irscale}{A numeric defining a scaling factor for printing of
+single incidence rates or incidence rate differences, i.e. if
+argument \code{sm} is equal to \code{"IR"}, \code{"IRLN"},
+\code{"IRS"}, \code{"IRFT"}, or \code{"IRD"}.}
+
+\item{irunit}{A character specifying the time unit used to
+calculate rates, e.g., person-years.}
+
 \item{scientific.pval, zero.pval, JAMA.pval}{Logical values controlling
 the formatting of P values.}
-
-\item{big.mark}{Character used as thousands separator.}
 
 \item{col, print, type, text, digits}{Named lists controlling colours, displayed
 information, graphical types, model text, and rounding; see
@@ -141,10 +157,12 @@ Default study labels append \code{ (common)}, \code{ (random)}, or
 \code{ (prediction)} to the subgroup levels when more than one result type
 is selected. The separate type column is hidden by default.
 Stored overall summaries are shown once when the datasets and selected
-overall results agree, unless \code{overall = FALSE}. Shared heterogeneity
-is shown in an overall heterogeneity row by default instead of additional
-columns; \code{hetstat = FALSE} disables it. Otherwise stored component
-summaries and a heterogeneity row are shown within their respective groups.
+overall results agree, unless \code{overall = FALSE}. Heterogeneity is
+assessed separately: an overall heterogeneity row is shown only when its
+values and settings also agree; \code{hetstat = FALSE} disables it.
+Differing heterogeneity is omitted from shared effect summaries. When
+effects are not shared, stored component summaries and a heterogeneity
+row are shown within their respective groups.
 For source subgroup plots, \code{print$I2} defaults to \code{gs("print.I2")}
 (resolved to \code{TRUE} if \code{NULL}), and \code{print$pval.Q} defaults
 to \code{TRUE}, independently of \code{print$Q}. Displayed subgroup

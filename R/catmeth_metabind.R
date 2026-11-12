@@ -11,7 +11,7 @@ catmeth_metabind <- function(x,
                              forest) {
   # Get rid of warning 'no visible binding for global variable'
   type <- method <- df <- id <- name <- func <- outclab <- title <- label.right <-
-    Q <- upper.Rb <- TE <- upper <- level.predict <- text.t <-
+    Q <- upper.Rb <- TE <- upper <- level.predict <-
     method.interval <- method.incr <- NULL
   
   #
@@ -41,6 +41,13 @@ catmeth_metabind <- function(x,
     #
     text.I2 <- gs("text.I2")
   }
+  #
+  text.t <- ""
+  #
+  if (print[["tau2"]])
+    text.t <- text.tau2
+  else if (print[["tau"]])
+    text.t <- text.tau
   #
   results <- NULL
   if (common || random) {
@@ -75,10 +82,10 @@ catmeth_metabind <- function(x,
   }
   common_or_random <- common || random
   #
-  print$tau2 <- print$tau2 && random
-  print$tau2.ci <- print$tau2.ci && print$tau2
-  print$tau <- print$tau && random
-  print$tau.ci <- print$tau.ci && print$tau
+  print$tau2 <- print[["tau2"]] && random
+  print$tau2.ci <- print[["tau2.ci"]] && print[["tau2"]]
+  print$tau <- print[["tau"]] && random
+  print$tau.ci <- print[["tau.ci"]] && print[["tau"]]
   #
   predict <- if (prediction) x$predict else NULL
   #
@@ -166,7 +173,7 @@ catmeth_metabind <- function(x,
   #
   #
   
-  if (print$tau2 || print$tau) {
+  if (print[["tau2"]] || print[["tau"]]) {
     dat.preset <- unique(meth[sel.random, c("tau.preset", "method.tau")])
     #
     # Information on tau.preset
@@ -222,7 +229,7 @@ catmeth_metabind <- function(x,
         if (mti != "")
           details.tau.i <- paste(details.tau.i, "for", text.tau2)
         #
-        if (replaceNA(meth$tau.common[i], FALSE))
+        if (replaceNA(dat.tau$tau.common[i], FALSE))
           details.tau.i <-
             paste0(details.tau.i,
                    if (forest) " " else "\n  ",
@@ -260,7 +267,7 @@ catmeth_metabind <- function(x,
   
   details.tau.ci <- NULL
   #
-  if (print$tau2.ci || print$tau.ci) {
+  if (print[["tau2.ci"]] || print[["tau.ci"]]) {
     method.tau.ci <- unique(meth$method.tau.ci[sel.random])
     #
     for (mtci in method.tau.ci) {
@@ -275,15 +282,15 @@ catmeth_metabind <- function(x,
         details.tau.ci.i <-
           paste0(details.tau.ci.i,
                  " for confidence interval of ",
-                  if (print$tau2 & print$tau)
+                  if (print[["tau2.ci"]] & print[["tau.ci"]])
                    paste(text.tau2, "and", text.tau)
-                  else if (print$tau2)
+                  else if (print[["tau2.ci"]])
                    text.tau2
                  else
                    text.tau)
+      #
+      details.tau.ci <- c(details.tau.ci, details.tau.ci.i)
     }
-    #
-    details.tau.ci <- c(details.tau.ci, details.tau.ci.i)
   }
   #
   details <- c(details, details.tau.ci)
@@ -296,16 +303,16 @@ catmeth_metabind <- function(x,
   
   details.I2 <- NULL
   #
-  if (print$I2) {
+  if (print[["I2"]]) {
     method.I2 <- unique(meth$method.I2)
     #
     for (mi2i in method.I2) {
       details.I2.i <-
         paste0("\n- Calculation of ", text.I2,
                " based on ", switch(mi2i, Q = "Q", tau2 = text.tau2))
+      #
+      details.I2 <- c(details.I2, details.I2.i)
     }
-    #
-    details.I2 <- c(details.I2, details.I2.i)
   }
   #
   details <- c(details, details.I2)
@@ -317,7 +324,7 @@ catmeth_metabind <- function(x,
   #
     
   if (common &&
-      any(meth$type == "common" & meth$method.common.ci == "IVhet"))
+      any(meth$type == "common" & meth$method.interval == "IVhet"))
     details <- c(details, "\n- Inverse variance heterogeneity model")
   
   #
@@ -363,7 +370,7 @@ catmeth_metabind <- function(x,
             "\n- Hartung-Knapp ",
             if (more.ci) "(HK) ",
             "adjustment for random effects model",
-            if (print$df)
+            if (print[["df"]])
               paste0(" (df = ", cond(dat.rc.hk$df, digits = 0), ")")
           )
         )
@@ -387,7 +394,7 @@ catmeth_metabind <- function(x,
           paste0(
             "\n- Random effects confidence interval based on t-distribution",
             if (more.ci) " (T)",
-            if (print$df)
+            if (print[["df"]])
               paste0(" (df = ", cond(dat.rc.hk.tdist$df, digits = 0), ")")
           )
         )
@@ -411,7 +418,7 @@ catmeth_metabind <- function(x,
             "\n- Kenward-Roger ",
             if (more.ci) "(KR) ",
             "adjustment for random effects model",
-            if (print$df)
+            if (print[["df"]])
               paste0(" (df = ", cond(dat.rc.kr$df), ")")
           )
         )
@@ -427,7 +434,7 @@ catmeth_metabind <- function(x,
           paste0(
             "\n- Cluster-robust variance estimator (",
             dat.rc.cr$method.interval[i],
-            if (print$df)
+            if (print[["df"]])
               paste0(
                 ", df = ",
                 cond(df.cr,
@@ -491,7 +498,7 @@ catmeth_metabind <- function(x,
       if (mpi %in% c("HK", "KR"))
         details.pi.i <- paste0(details.pi.i, " prediction interval")
       #
-      if (print$df && mpi != "S") {
+      if (print[["df"]] && mpi != "S") {
         details.pi.i <-
           paste0(
             details.pi.i,
@@ -509,13 +516,13 @@ catmeth_metabind <- function(x,
           paste0(details.pi.i, " instead of Kenward-Roger adjustment")
       }
       #
-      if (mpi == "HK" && any(dat.pr.i$adhoc.hakn.pi != "")) {
+      if (mpi == "HK" && any(dat.pr.i$adhoc.hakn != "")) {
         details.pi.i <-
           paste0(
             details.pi.i,
             if (forest) " " else "\n  ",
             "(with ",
-            if (any(dat.pr.i$adhoc.hakn.pi == "")) "and without ",
+            if (any(dat.pr.i$adhoc.hakn == "")) "and without ",
             "ad hoc correction)"
           )
       }
@@ -851,7 +858,7 @@ catmeth_metabind <- function(x,
   #
   #
   
-  if ((common || random) && print$pval) {
+  if ((common || random) && print[["pval"]]) {
     details.null <- NULL
     dat.null <- NULL
     #
@@ -905,7 +912,9 @@ catmeth_metabind <- function(x,
       if (is.na(null.effect))
         next
       #
-      if (!is.null(pscale) && pscale != 1) {
+      if (backtransf &&
+          (is_prop(sm.i) || sm.i == "RD") &&
+          !is.null(pscale) && pscale != 1) {
         prefix <- "\n- Null hypothesis: "
         null.effect <- null.effect * pscale
         suffix <- paste0(
@@ -913,7 +922,9 @@ catmeth_metabind <- function(x,
           format(pscale, scientific = FALSE, big.mark = big.mark),
           " observations")
       }
-      else if (!is.null(irscale) && irscale != 1) {
+      else if (backtransf &&
+               (is_rate(sm.i) || sm.i == "IRD") &&
+               !is.null(irscale) && irscale != 1) {
         prefix <- "\n- Null hypothesis: "
         null.effect <- null.effect * irscale
         suffix <- paste0(

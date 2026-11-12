@@ -42,9 +42,19 @@
 #' @param leftlabs,rightlabs Column headings. Use \code{NA} to retain a
 #'   default heading.
 #' @param lab.NA Label for missing values.
+#' @param big.mark Character used as thousands separator.
+#' @param pscale A numeric giving scaling factor for printing of
+#'   single event probabilities or risk differences, i.e. if argument
+#'   \code{sm} is equal to \code{"PLOGIT"}, \code{"PLN"},
+#'   \code{"PRAW"}, \code{"PAS"}, \code{"PFT"}, or \code{"RD"}.
+#' @param irscale A numeric defining a scaling factor for printing of
+#'   single incidence rates or incidence rate differences, i.e. if
+#'   argument \code{sm} is equal to \code{"IR"}, \code{"IRLN"},
+#'   \code{"IRS"}, \code{"IRFT"}, or \code{"IRD"}.
+#' @param irunit A character specifying the time unit used to
+#'   calculate rates, e.g., person-years.
 #' @param scientific.pval,zero.pval,JAMA.pval Logical values controlling
 #'   the formatting of P values.
-#' @param big.mark Character used as thousands separator.
 #' @param addrow.subgroups A logical indicating whether an empty row is
 #'   printed between display groups.
 #' @param details A logical specifying whether method details are printed.
@@ -81,10 +91,12 @@
 #' \code{ (prediction)} to the subgroup levels when more than one result type
 #' is selected. The separate type column is hidden by default.
 #' Stored overall summaries are shown once when the datasets and selected
-#' overall results agree, unless \code{overall = FALSE}. Shared heterogeneity
-#' is shown in an overall heterogeneity row by default instead of additional
-#' columns; \code{hetstat = FALSE} disables it. Otherwise stored component
-#' summaries and a heterogeneity row are shown within their respective groups.
+#' overall results agree, unless \code{overall = FALSE}. Heterogeneity is
+#' assessed separately: an overall heterogeneity row is shown only when its
+#' values and settings also agree; \code{hetstat = FALSE} disables it.
+#' Differing heterogeneity is omitted from shared effect summaries. When
+#' effects are not shared, stored component summaries and a heterogeneity
+#' row are shown within their respective groups.
 #' For source subgroup plots, \code{print$I2} defaults to \code{gs("print.I2")}
 #' (resolved to \code{TRUE} if \code{NULL}), and \code{print$pval.Q} defaults
 #' to \code{TRUE}, independently of \code{print$Q}. Displayed subgroup
@@ -171,12 +183,18 @@ forest.metabind <- function(x,
                             label,
                             lab.NA =
                               if (is.null(x$subgroup)) gs("lab.NA") else "",
+                            #
+                            big.mark = gs("big.mark"),
+                            #
+                            pscale = NULL, irscale = NULL, irunit = NULL,
+                            #
                             scientific.pval = gs("scientific.pval"),
                             zero.pval = gs("zero.pval"),
                             JAMA.pval = gs("JAMA.pval"),
-                            big.mark = gs("big.mark"),
+                            #
                             col = NULL, print = NULL, type = NULL,
                             text = NULL, digits = NULL,
+                            #
                             addrow.subgroups = NULL,
                             details = FALSE, ...) {
   
@@ -426,9 +444,15 @@ forest.metabind <- function(x,
   meta <- x$overall[x$overall$id %in% ids, , drop = FALSE]
   sm <- unique(meta$sm)
   same.sm <- length(sm) == 1
-  pscale <- makeunique(meta$pscale, 1)
-  irscale <- makeunique(meta$irscale, 1)
-  irunit <- makeunique(meta$irunit, "units")
+  #
+  pscale <- replaceNULL(pscale, makeunique(meta$pscale, 1))
+  irscale <- replaceNULL(irscale, makeunique(meta$irscale, 1))
+  irunit <- replaceNULL(irunit, makeunique(meta$irunit, "units"))
+  #
+  chknumeric_strict(pscale, min = 1, length = 1)
+  chknumeric_strict(irscale, min = 1, length = 1)
+  chkchar(irunit, length = 1)
+  #
   if (!same.sm && !backtransf) {
     if (!missing.backtransf)
       warning("Argument 'backtransf' set to TRUE as ",
@@ -471,19 +495,15 @@ forest.metabind <- function(x,
       stop("Argument 'subgroup' is unavailable for subgroup meta-analyses.",
            call. = FALSE)
     #
-    prepared <- prepare_metabind_subgroups(x, dat)
+    prepared <- prepare_metabind_subgroups(x)
     #
-    dat <- prepared$dat
+    dat <- prepared$dat %>%
+      rename_with(~ sub("\\.pooled$", "", .x), ends_with(".pooled"))
+    #
     subdat <- prepared$subdat
     #
-    for (i in c("TE", "seTE", "lower", "upper", "statistic", "pval", "df",
-                "k", "n.harmonic.mean", "t.harmonic.mean")) {
-      if (!is.null(subdat[[paste0(i, ".w")]]))
-        subdat[[i]] <- as.vector(subdat[[paste0(i, ".w")]])
-      else if (i %in% c("TE", "seTE", "statistic", "pval", "df"))
-        subdat[[i]] <- NA_real_
-    }
     # Parent heterogeneity belongs to summary rows, not source subgroup rows
+    #
     for (i in c("Q", "df.Q", "pval.Q", "tau2", "lower.tau2", "upper.tau2",
                 "tau", "lower.tau", "upper.tau", "I2", "lower.I2", "upper.I2",
                 "H", "lower.H", "upper.H"))
@@ -494,7 +514,10 @@ forest.metabind <- function(x,
     if (missing(hetstat))
       hetstat <- TRUE
     #
-    overall.hetstat <- prepared$shared.overall &&
+    if (prepared$shared.overall && !prepared$shared.heterogeneity)
+      hetstat <- FALSE
+    #
+    overall.hetstat <- prepared$shared.overall && prepared$shared.heterogeneity &&
       replaceNULL(overall.hetstat, TRUE) && !identical(hetstat, FALSE)
   }
   else
@@ -602,6 +625,9 @@ forest.metabind <- function(x,
   }
   rows.tau[is.common] <- FALSE
   #
+  if (shared.overall && !prepared$shared.heterogeneity)
+    rows.het[] <- rows.tau[] <- FALSE
+  #
   print$type <- replaceNULL(print$type,
                             !with.subgroups && varies(plotdat$type) &&
                               !identical(studlab, plotdat$type))
@@ -700,6 +726,29 @@ forest.metabind <- function(x,
       value
   }
   #
+  # Resolve common forward-transformation metadata
+  #
+  transf.settings <- lapply(seq_len(nrow(meta)), function(i) {
+    func <- row_setting(meta$func.transf, i)
+    #
+    if (identical(func, ""))
+      func <- NULL
+    #
+    args <- row_setting(meta$args.transf, i, arguments = TRUE)
+    #
+    if (is.null(func) || length(args) == 0)
+      args <- NULL
+    #
+    list(func = func, args = args)
+  })
+  #
+  same.transf <- all(vapply(
+    transf.settings,
+    function(setting) identical(setting, transf.settings[[1]]),
+    logical(1)))
+  #
+  common.transf <- if (same.transf) transf.settings[[1]] else NULL
+  #
   # Only exponential transformations can share the log-axis shortcut
   #
   uses.exp <-
@@ -713,7 +762,11 @@ forest.metabind <- function(x,
            },
            logical(1))
   #
-  relative.axis <- backtransf && all(uses.exp)
+  needs.scaling <-
+    ((is_prop(plotdat$sm) | plotdat$sm == "RD") & pscale != 1) |
+    ((is_rate(plotdat$sm) | plotdat$sm == "IRD") & irscale != 1)
+  #
+  relative.axis <- backtransf && all(uses.exp) && !any(needs.scaling)
   #
   if (backtransf && !relative.axis) {
     for (i in seq_len(nrow(plotdat))) {
@@ -731,9 +784,10 @@ forest.metabind <- function(x,
           plotdat[[j]][i] <- irscale * plotdat[[j]][i]
       }
       #
-      # Switch lower and upper limit for VE
+      # Switch lower and upper limits
       #
-      if (plotdat$sm[i] == "VE") {
+      if (!is.na(plotdat$lower[i]) && !is.na(plotdat$upper[i]) &&
+          plotdat$lower[i] > plotdat$upper[i]) {
         tmp.l <- plotdat$lower[i]
         plotdat$lower[i] <- plotdat$upper[i]
         plotdat$upper[i] <- tmp.l
@@ -742,6 +796,16 @@ forest.metabind <- function(x,
   }
   #
   ref.original <- !backtransf && same.sm && is_single(sm)
+  #
+  ref.original <- !backtransf && same.sm && is_single(sm)
+  #
+  if (ref.original && !same.transf)
+    stop("Cannot display results on a common analysis scale because ",
+         "the selected meta-analyses use different forward-transformation ",
+         "functions or arguments. Use 'backtransf = TRUE' or select ",
+         "meta-analyses with the same transformation.",
+         call. = FALSE)
+  #
   null.ref <- plotdat$null.effect
   null.plot <- plotdat$null.effect
   #
@@ -1159,6 +1223,11 @@ forest.metabind <- function(x,
   ma$pval <- plotdat$pval
   ma$null.effect <- NA_real_
   #
+  if (ref.original) {
+    ma$func.transf <- common.transf$func
+    ma$args.transf <- common.transf$args
+  }
+  #
   # Define PAS and IRS as fallbacks - calculated in forest.meta()
   #
   if (ref.original && sm == "PFT")
@@ -1223,7 +1292,8 @@ forest.metabind <- function(x,
   if (with.subgroups) {
     mapped <- map_metabind_subgroups(ma, x, summary.numeric, summary.display,
                                      prepared$shared.overall,
-                                     common, random, prediction, overall)
+                                     common, random, prediction, overall,
+                                     shared.heterogeneity = prepared$shared.heterogeneity)
     #
     forest_args_specific <- c(list(x = mapped$ma), mapped$args)
     label.defaults <- mapped$args$label

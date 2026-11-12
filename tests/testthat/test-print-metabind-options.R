@@ -41,3 +41,152 @@ test_that("automatic confidence-level selection stays independent by table", {
   expect_true(any(grepl("level", output[random:(heterogeneity - 1)],
                        fixed = TRUE)))
 })
+
+test_that("shared pooled results use one interval column for selected CI and PI levels", {
+  dat <- data.frame(TE = c(0.1, 0.3, 0.5, 0.2, 0.4, 0.6), seTE = rep(0.1, 6),
+                    first = rep(c("A", "B"), each = 3),
+                    second = rep(c("C", "D"), 3))
+  for (level in c(0.95, 0.90)) {
+    ma <- metagen(TE, seTE, data = dat, subgroup = first, sm = "MD",
+                    level.ma = 0.95, level.predict = level,
+                    prediction = TRUE, method.predict = "V", method.tau = "DL")
+    mb <- metabind(ma, update(ma, subgroup = second))
+    output <- capture.output(print(mb, details.methods = FALSE))
+    overall <- output[seq_len(match("Subgroup meta-analysis results", output) - 1)]
+    header <- overall[grepl("CI/PI", overall, fixed = TRUE)]
+    expect_length(header, 1)
+    expect_false(any(grepl("90% PI", header, fixed = TRUE)))
+    if (level == 0.95) {
+      expect_match(header, "95% CI/PI", fixed = TRUE)
+      expect_false(grepl("level", header, fixed = TRUE))
+    }
+    else {
+      expect_false(grepl("95% CI/PI", header, fixed = TRUE))
+      expect_true(grepl("level", header, fixed = TRUE))
+    }
+
+    output <- capture.output(print(mb, prediction = FALSE, details.methods = FALSE))
+    overall <- output[seq_len(match("Subgroup meta-analysis results", output) - 1)]
+    expect_true(any(grepl("95% CI", overall, fixed = TRUE)))
+    expect_false(any(grepl("CI/PI", overall, fixed = TRUE)))
+
+    output <- capture.output(print(mb, common = FALSE, random = FALSE,
+                                    prediction = TRUE, details.methods = FALSE))
+    overall <- output[seq_len(match("Subgroup meta-analysis results", output) - 1)]
+    expect_true(any(grepl(meta:::percent_label(level, type = "PI"),
+                          overall, fixed = TRUE)))
+    expect_false(any(grepl("CI/PI", overall, fixed = TRUE)))
+  }
+})
+
+test_that("single-subgroup printing works for both effect models", {
+  ma <- metagen(1:3, rep(0.1, 3), subgroup = rep("A", 3), sm = "MD")
+  mb <- metabind(ma, ma)
+  for (random in c(FALSE, TRUE)) {
+    expect_error(output <- capture.output(print(
+      mb, common = !random, random = random, details.methods = FALSE)), NA)
+    expect_true(any(grepl("d.f.", output, fixed = TRUE)))
+  }
+})
+
+test_that("printing multiple CI methods retains their separate subgroup tests", {
+  ma <- metagen(c(0.1, 0.3, 0.5, 0.2, 0.4, 0.6), rep(0.1, 6),
+                  subgroup = rep(c("A", "B"), each = 3), sm = "MD",
+                  method.tau = "DL", method.random.ci = c("classic", "HK"))
+  mb <- metabind(ma, ma)
+  output <- capture.output(print(
+    mb, common = FALSE, print = list(method.interval = FALSE),
+    digits = list(Q = 4), details.methods = FALSE))
+  for (Q in as.vector(ma$Q.b.random))
+    expect_true(any(grepl(trimws(meta:::formatN(Q, digits = 4)), output, fixed = TRUE)))
+
+  output <- capture.output(print(
+    mb, common = FALSE, print = list(pval.Q.b = FALSE), details.methods = FALSE))
+  expect_false(any(grepl("Q.b|df.Q.b|pval.Q.b|d.f.", output)))
+})
+
+test_that("subgroup prediction degrees of freedom honor the missing-value label", {
+  ma <- metagen(c(0.1, 0.3, 0.5), rep(0.1, 3), sm = "RR",
+                  subgroup = c("A", "A", "B"),
+                  prediction = TRUE, method.predict = "V")
+  mb <- metabind(ma, ma, common = FALSE, random = FALSE, prediction = TRUE)
+  output <- capture.output(print(mb, lab.NA = "MISSING", details.methods = FALSE))
+  expect_true(any(grepl("B.*MISSING.*MISSING", output)))
+  expect_false(any(grepl("<NA>", output, fixed = TRUE)))
+})
+
+test_that("subgroup level formatting follows heading calculation and handles missing levels", {
+  ma <- metagen(c(0.1, 0.3, 0.5, 0.2, 0.4, 0.6), rep(0.1, 6),
+                  subgroup = rep(c("A", "B"), each = 3), sm = "MD")
+  mb <- metabind(ma, ma)
+  mb$overall$level.ma[2] <- NA_real_
+  for (random in c(FALSE, TRUE)) {
+    output <- capture.output(print(
+      mb, common = !random, random = random, overall = FALSE,
+      print = list(level.ma = TRUE), lab.NA = "MISSING", details.methods = FALSE))
+    expect_true(any(grepl("95% CI", output, fixed = TRUE)))
+    expect_true(any(grepl("0.9500", output, fixed = TRUE)))
+    expect_true(any(grepl("MISSING", output, fixed = TRUE)))
+    expect_false(any(grepl("<NA>", output, fixed = TRUE)))
+  }
+})
+
+test_that("common-only printing shares effects independently of heterogeneity", {
+  dat <- data.frame(TE = c(0.1, 0.3, 0.5, 0.2, 0.4, 0.6), seTE = rep(0.1, 6),
+                    first = rep(c("A", "B"), each = 3),
+                    second = rep(c("C", "D"), 3))
+  ma <- metagen(TE, seTE, data = dat, subgroup = first, sm = "MD", method.tau = "DL")
+  for (different.heterogeneity in c(FALSE, TRUE)) {
+    other <- update(ma, subgroup = second, method.random.ci = "HK",
+                      method.tau = if (different.heterogeneity) "REML" else "DL")
+    mb <- metabind(ma, other)
+    output <- capture.output(print(
+      mb, random = FALSE, print = list(tau2 = TRUE, tau = TRUE),
+      details.methods = FALSE))
+    expect_true(any(output == "Overall results"))
+    opening <- output[seq_len(match("Subgroup meta-analysis results", output) - 1)]
+    expect_equal(sum(grepl("Common effect model", opening, fixed = TRUE)), 1)
+    expect_identical(any(grepl("tau^2", opening, fixed = TRUE)),
+                      !different.heterogeneity)
+
+    output <- capture.output(print(mb, random = FALSE, overall = FALSE,
+                                    details.methods = FALSE))
+    expect_false(any(output == "Overall results"))
+    expect_true(any(output == "Subgroup meta-analysis results"))
+
+    output <- capture.output(print(mb, random = FALSE, overall = NULL,
+                                    details.methods = FALSE))
+    expect_false(any(output == "Overall results"))
+  }
+})
+
+test_that("print sharing uses only selected model methods and interval levels", {
+  dat <- data.frame(TE = c(0.1, 0.3, 0.5, 0.2, 0.4, 0.6), seTE = rep(0.1, 6),
+                    first = rep(c("A", "B"), each = 3),
+                    second = rep(c("C", "D"), 3))
+  ma <- metagen(TE, seTE, data = dat, subgroup = first, sm = "MD",
+                  method.tau = "DL", prediction = TRUE, method.predict = "V")
+  for (difference in c("random CI", "prediction level")) {
+    other <- if (difference == "random CI")
+      update(ma, subgroup = second, method.random.ci = "HK")
+    else
+      update(ma, subgroup = second, level.predict = 0.90)
+    mb <- metabind(ma, other)
+    output <- capture.output(print(mb, random = FALSE, prediction = FALSE,
+                                    details.methods = FALSE))
+    expect_true(any(output == "Overall results"), info = difference)
+
+    selected <- capture.output(print(
+      mb, random = difference == "random CI",
+      prediction = difference == "prediction level", details.methods = FALSE))
+    expect_false(any(selected == "Overall results"), info = difference)
+  }
+
+  mb <- metabind(ma, update(ma, subgroup = second, level.ma = 0.90))
+  output <- capture.output(print(mb, common = FALSE, random = FALSE,
+                                  prediction = TRUE, details.methods = FALSE))
+  expect_true(any(output == "Overall results"))
+  opening <- output[seq_len(match("Subgroup meta-analysis results", output) - 1)]
+  expect_true(any(grepl("95% PI", opening, fixed = TRUE)))
+  expect_equal(sum(grepl("Prediction interval", opening, fixed = TRUE)), 1)
+})

@@ -356,3 +356,786 @@ format_args <- function(x, lab.NA = ".") {
   }
   paste(values, collapse = ", ")
 }
+
+map_metabind_subgroups <- function(ma, x, dat, display, shared.overall,
+                                   common, random, prediction, overall,
+                                   shared.heterogeneity) {
+  groups <- as.character(ma$subgroup.levels)
+  n.by <- length(groups)
+  metadata <- match(groups, as.character(x$overall$id))
+  #
+  args <- list(common = common, random = random,
+               prediction = prediction && shared.overall,
+               overall = overall && shared.overall,
+               subgroup = rep(TRUE, n.by),
+               subgroup.hetstat = !shared.overall, resid.hetstat = FALSE,
+               test.overall = shared.overall, test.subgroup = FALSE,
+               test.effect.subgroup = !shared.overall,
+               text = list(subgroup = x$overall$name[metadata]))
+  #
+  global.rows <- group.rows <- list()
+  #
+  families <- c(common = "Common effect model",
+                random = "Random effects model",
+                predict = "Prediction interval")
+  #
+  selected <- c(common = common, random = random, predict = prediction)
+  #
+  fields <- c("TE", "seTE", "lower", "upper", "statistic", "pval", "df")
+  #
+  for (family in names(families)) {
+    rows <- which(dat$type == families[[family]] & selected[[family]])
+    keys <- intersect(c("method.interval", "adhoc.hakn",
+                        if (family == "predict")
+                          "level.predict"
+                        else
+                          "level.ma",
+                        "text"), names(dat))
+    #
+    slots <- dat[rows, keys, drop = FALSE]
+    #
+    if (family == "common")
+      slots <- slots[seq_len(min(nrow(slots), 1L)), , drop = FALSE]
+    else
+      slots <- unique(slots)
+    #
+    ns <- max(nrow(slots), 1L)
+    #
+    slot <- integer(length(rows))
+    #
+    if (family == "common")
+      slot[] <- 1L
+    else {
+      for (j in seq_len(nrow(slots))) {
+        same <- rep(TRUE, length(rows))
+        for (key in keys) {
+          value <- dat[[key]][rows]
+          target <- slots[[key]][j]
+          same <- same & ((is.na(value) & is.na(target)) |
+                            (!is.na(value) & !is.na(target) & value == target))
+        }
+        slot[same] <- j
+      }
+    }
+    #
+    global <- rep(NA_integer_, ns)
+    grouped <- matrix(NA_integer_, n.by, ns,
+                      dimnames = list(groups, NULL))
+    #
+    if (shared.overall) {
+      global[slot] <- rows
+    }
+    else if (length(rows)) {
+      group <- match(as.character(dat$id[rows]), groups)
+      keep <- !is.na(group)
+      grouped[cbind(group[keep], slot[keep])] <- rows[keep]
+    }
+    #
+    labels <- if (nrow(slots) && "text" %in% keys)
+      as.character(slots$text) else rep(NA_character_, ns)
+    #
+    fallback <- switch(family,
+                       common = "Common effect model",
+                       random = "Random effects model",
+                       predict = "Prediction interval")
+    #
+    labels[is.na(labels) | !nzchar(labels)] <- fallback
+    #
+    repeated <- duplicated(labels) | duplicated(labels, fromLast = TRUE)
+    #
+    if (any(repeated) && nrow(slots)) {
+      codes <-
+        vapply(seq_len(nrow(slots)),
+               function(j) {
+                 values <-
+                   unlist(slots[j, setdiff(keys, "text"), drop = FALSE],
+                          use.names = FALSE)
+                 paste(values[!is.na(values) & nzchar(as.character(values))],
+                       collapse = ", ")
+               }, character(1))
+      labels[repeated] <- paste0(labels[repeated], " (", codes[repeated], ")")
+    }
+    #
+    colnames(grouped) <- labels
+    #
+    global.rows[[family]] <- global
+    group.rows[[family]] <- grouped
+    #
+    args$text[[family]] <- labels
+    args$text[[paste0(family, ".w")]] <- labels
+    #
+    ma[[paste0("text.", family)]] <- labels
+    #
+    for (field in fields) {
+      values <- dat[[field]]
+      if (is.null(values))
+        values <- rep(NA_real_, nrow(dat))
+      #
+      ma[[paste0(field, ".", family)]] <- unname(values[global])
+      ma[[paste0(field, ".", family, ".w")]] <-
+        matrix(values[grouped], n.by, ns, dimnames = dimnames(grouped))
+    }
+    #
+    method <- if (nrow(slots) && "method.interval" %in% keys)
+      as.character(slots$method.interval) else "classic"
+    #
+    adhoc <- if (nrow(slots) && "adhoc.hakn" %in% keys)
+      as.character(slots$adhoc.hakn) else ""
+    adhoc[is.na(adhoc)] <- ""
+    #
+    method.field <- switch(family,
+                           common = "method.common.ci",
+                           random = "method.random.ci",
+                           predict = "method.predict")
+    #
+    ma[[method.field]] <- method
+    #
+    if (family == "predict")
+      level.field <- "level.predict"
+    else
+      level.field <- "level.ma"
+    #
+    if (nrow(slots) && level.field %in% keys)
+      ma[[level.field]] <- makeunique(slots[[level.field]], gs(level.field))
+    #
+    if (length(rows) && "method" %in% names(dat) &&
+        (family != "predict" || !random)) {
+      name <- if (family == "common") "method" else "method.random"
+      #
+      ma[[name]] <- dat$method[rows[1]]
+      #
+      ma[[paste0(name, ".w")]] <-
+        matrix(dat$method[grouped], n.by, ns, dimnames = dimnames(grouped))
+    }
+    if (family != "common") {
+      suffix <- if (family == "random") "ci" else "pi"
+      ma[[paste0("adhoc.hakn.", suffix)]] <- adhoc
+      #
+      for (field in c("df.hakn", "df.kero")) {
+        values <- dat[[field]]
+        #
+        if (is.null(values))
+          values <- rep(NA_real_, nrow(dat))
+        #
+        name <- if (field == "df.hakn") paste0(field, ".", suffix) else field
+        # KR degrees of freedom belong to the random CI, not a PI
+        if (field == "df.kero" && family == "predict")
+          next
+        #
+        ma[[name]] <- unname(values[global])
+        #
+        ma[[paste0(name, ".w")]] <-
+          matrix(values[grouped], n.by, ns, dimnames = dimnames(grouped))
+      }
+    }
+    #
+    mask <- !is.na(grouped)
+    #
+    flag <- switch(family,
+                   common = "common.subgroup",
+                   random = "random.subgroup",
+                   predict = "prediction.subgroup")
+    #
+    args[[flag]] <- if (family == "common") unname(mask[, 1]) else mask
+    #
+    if (family == "common" && !shared.overall && "text" %in% names(dat)) {
+      text <- as.character(dat$text[grouped[, 1]])
+      text[is.na(text) | !nzchar(text)] <- fallback
+      args$text$common.w <- text
+    }
+  }
+  #
+  null.effect <- replaceNULL(x$overall[["null.effect"]][metadata], rep(NA_real_, n.by))
+  has.null <- !is.na(null.effect)
+  args$test.effect.subgroup.common <- args$common.subgroup & has.null
+  args$test.effect.subgroup.random <- unname(rowSums(args$random.subgroup) > 0) & has.null
+  #
+  args$label <- list(
+    test.effect.subgroup.common =
+      paste0("Test for overall effect",
+             if (common && random)
+               paste0(" (", gs("text.w.common"), " effect)"),
+             ": "),
+    test.effect.subgroup.random =
+      paste0("Test for overall effect",
+             if (common && random)
+               paste0(" (", gs("text.w.random"), " effects)"),
+             ": "))
+  #
+  heterogeneity <- c("Q", "df.Q", "pval.Q", "tau2", "lower.tau2", "upper.tau2",
+                     "se.tau2", "tau", "lower.tau", "upper.tau", "H", "lower.H",
+                     "upper.H", "I2", "lower.I2", "upper.I2", "Rb", "lower.Rb",
+                     "upper.Rb")
+  #
+  settings <- c("method.I2", "method.tau", "method.tau.ci", "level.hetstat")
+  #
+  for (field in c(heterogeneity, settings)) {
+    values <- x$overall[[field]]
+    if (is.null(values))
+      next
+    #
+    if (shared.overall && shared.heterogeneity)
+      ma[[field]] <- values[metadata[1]]
+    else if (field %in% heterogeneity)
+      ma[[field]] <- NA_real_
+    else
+      ma[[field]] <- values[metadata[1]]
+    #
+    if (shared.overall && shared.heterogeneity)
+      ma[[paste0(field, ".w")]] <-
+        rep(if (is.numeric(values)) NA_real_ else NA_character_, n.by)
+    else
+      ma[[paste0(field, ".w")]] <- values[metadata]
+    #
+    names(ma[[paste0(field, ".w")]]) <- groups
+  }
+  #
+  for (field in c("Q.b", "df.Q.b", "pval.Q.b")) {
+    ma[[field]] <- NA_real_
+    #
+    for (family in c("common", "random"))
+      ma[[paste0(field, ".", family)]] <-
+        rep(NA_real_, length(global.rows[[family]]))
+  }
+  #
+  ma$common <- common
+  ma$random <- random
+  ma$prediction <- args$prediction
+  ma$overall <- args$overall
+  ma$k.w.orig <- x$overall$k[metadata]
+  #
+  if (shared.overall)
+    ma$null.effect <- null.effect[1]
+  #
+  ma$common.subgroup <- args$common.subgroup
+  ma$random.subgroup <- args$random.subgroup
+  ma$prediction.subgroup <- args$prediction.subgroup
+  #
+  index <- c(unlist(global.rows, use.names = FALSE),
+             unlist(lapply(group.rows, function(rows) as.vector(t(rows))),
+                    use.names = FALSE))
+  #
+  pooled <- display[index, , drop = FALSE]
+  #
+  if ("seTE.plot" %in% names(ma$data) && !"seTE.plot" %in% names(pooled) &&
+      "seTE" %in% names(pooled))
+    pooled$seTE.plot <- pooled$seTE
+  #
+  for (field in setdiff(names(ma$data), names(pooled)))
+    pooled[[field]] <- ma$data[[field]][rep(NA_integer_, length(index))]
+  #
+  rownames(pooled) <- NULL
+  #
+  args$data.pooled <- pooled
+  #
+  list(ma = ma, args = args)
+}
+
+format_metabind_heterogeneity <- function(dat, print, digits,
+                                         ids = NULL, pooled = FALSE,
+                                         lab.NA = ".", big.mark = gs("big.mark"),
+                                         scientific.pval = gs("scientific.pval"),
+                                         zero.pval = gs("zero.pval"),
+                                         JAMA.pval = gs("JAMA.pval"),
+                                         text.tau2 = gs("text.tau2"),
+                                         text.tau = gs("text.tau"),
+                                         text.I2 = gs("text.I2")) {
+  if (!is.null(ids))
+    dat <- dat[dat$id %in% ids, , drop = FALSE]
+  #
+  columns <- c(if (!pooled) "name", "func", "sm",
+               "method.tau", "method.tau.ci", "method.I2", "level.hetstat",
+               "Q", "df.Q", "pval.Q", "tau2", "lower.tau2", "upper.tau2",
+               "se.tau2", "tau", "lower.tau", "upper.tau",
+               "H", "lower.H", "upper.H", "I2", "lower.I2", "upper.I2")
+  dat <- dat[, intersect(columns, names(dat)), drop = FALSE]
+  #
+  if (pooled)
+    dat <- unique(dat)
+  #
+  if (isCol(dat, "Q"))
+    dat$Q <- formatN(dat$Q, digits = digits[["Q"]], lab.NA = lab.NA,
+                     big.mark = big.mark, keep.allNA = TRUE)
+  #
+  if (isCol(dat, "pval.Q"))
+    dat$pval.Q <- formatPT(dat$pval.Q, digits = digits[["pval.Q"]],
+                           lab.NA = lab.NA,
+                           scientific = scientific.pval, zero = zero.pval,
+                           JAMA = JAMA.pval, keep.allNA = TRUE)
+  #
+  for (field in c("tau2", "tau")) {
+    if (isCol(dat, field))
+      dat[[field]] <- formatPT(dat[[field]], digits = digits[[field]],
+                               lab.NA = lab.NA, big.mark = big.mark,
+                               keep.allNA = TRUE)
+    #
+    lower <- paste0("lower.", field)
+    upper <- paste0("upper.", field)
+    #
+    if (!(allNA(dat[[lower]]) && allNA(dat[[upper]])))
+      dat[[lower]] <- formatCI(dat[[lower]], dat[[upper]],
+                               digits = digits[[field]], lab.NA = lab.NA,
+                               na.lab = TRUE, big.mark = big.mark)
+  }
+  #
+  if (!allNA(dat$I2)) {
+    dat$I2 <-
+      percent_label(dat$I2, "", digits[["I2"]], formatN, lab.NA = lab.NA)
+  }
+  #
+  if (!(allNA(dat$lower.I2) && allNA(dat$upper.I2)))
+    dat$lower.I2 <- formatCI(dat$lower.I2, dat$upper.I2,
+                             digits = digits[["I2"]],
+                             scale = 100, suffix = "%", lab.NA = lab.NA,
+                             na.lab = TRUE)
+  #
+  if (isCol(dat, "H"))
+    dat$H <- formatN(dat$H, digits = digits[["I2"]], lab.NA = lab.NA,
+                     big.mark = big.mark, keep.allNA = TRUE)
+  #
+  if (!(allNA(dat$lower.H) && allNA(dat$upper.H)))
+    dat$lower.H <- formatCI(dat$lower.H, dat$upper.H, digits = digits[["I2"]],
+                            lab.NA = lab.NA, na.lab = TRUE,
+                            big.mark = big.mark)
+  #
+  dat$level.hetstat <- round(dat$level.hetstat, 4)
+  dat[c("se.tau2", "upper.tau2", "upper.tau", "upper.H", "upper.I2")] <- NULL
+  names(dat)[names(dat) == "level.hetstat"] <- "level"
+  #
+  same.level <- length(unique(dat$level)) == 1 && !anyNA(dat$level)
+  show.level <- replaceNULL(print[["level.hetstat"]], !same.level)
+  cilab <- if (same.level) percent_label(dat$level[1]) else "CI"
+  #
+  if (!show.level)
+    dat$level <- NULL
+  #
+  for (field in c("func", "sm", "method.tau", "method.tau.ci", "method.I2")) {
+    flag <- if (field %in% c("func", "sm")) field else "method"
+    if (isFALSE(print[[flag]]) ||
+        (is.null(print[[flag]]) && length(unique(dat[[field]])) == 1))
+      dat[[field]] <- NULL
+  }
+  #
+  if (!(print[["tau2"]] || print[["tau"]]))
+    dat$method.tau <- NULL
+  if (!((print[["tau2"]] && print[["tau2.ci"]]) ||
+        (print[["tau"]] && print[["tau.ci"]])))
+    dat$method.tau.ci <- NULL
+  if (!print[["I2"]])
+    dat$method.I2 <- NULL
+  #
+  if (!print[["Q"]])
+    dat$Q <- NULL
+  if (print[["Q"]] && print[["pval.Q"]]) {
+    names(dat)[names(dat) == "df.Q"] <- "df"
+    names(dat)[names(dat) == "pval.Q"] <- "p-value"
+  }
+  else {
+    dat$df.Q <- NULL
+    dat$pval.Q <- NULL
+  }
+  #
+  labels <- list(tau2 = text.tau2, tau = text.tau, I2 = text.I2, H = "H")
+  for (field in names(labels)) {
+    lower <- paste0("lower.", field)
+    if (print[[field]])
+      names(dat)[names(dat) == field] <- labels[[field]]
+    else
+      dat[[field]] <- NULL
+    #
+    if (print[[field]] && print[[paste0(field, ".ci")]])
+      names(dat)[names(dat) == lower] <- cilab
+    else
+      dat[[lower]] <- NULL
+  }
+  #
+  if (!((print[["tau2"]] && print[["tau2.ci"]]) ||
+        (print[["tau"]] && print[["tau.ci"]]) ||
+        (print[["I2"]] && print[["I2.ci"]]) ||
+        (print[["H"]] && print[["H.ci"]])))
+    dat$level <- NULL
+  #
+  for (field in intersect(c("df", "level"), names(dat))) {
+    if (isCol(dat, field))
+      dat[[field]] <- formatN(dat[[field]],
+                              digits = if (field == "level") 4 else 0,
+                              lab.NA = lab.NA, big.mark = big.mark,
+                              keep.allNA = TRUE)
+  }
+  #
+  drop_allNAs(dat)
+}
+
+format_metabind_results <- function(dat, model, print, digits, sm.lab, lab.TE,
+                                    with.subgroups = FALSE, lab.NA = ".",
+                                    big.mark = gs("big.mark"),
+                                    scientific.pval = gs("scientific.pval"),
+                                    zero.pval = gs("zero.pval"),
+                                    JAMA.pval = gs("JAMA.pval"),
+                                    keep = character(),
+                                    lab.interval = NULL, show.level = NULL) {
+  # Get rid of warning 'no visible binding for global variable'
+  type <- Q.b <- df.Q.b <- pval.Q.b <- NULL
+  #
+  model <- setchar(model, c("common", "random", "prediction"), length = 1)
+  #
+  result.type <- setchar(model, c("Common effect model",
+                                  "Random effects model",
+                                  "Prediction interval"))
+  #
+  dat %<>% filter(type == result.type)
+  #
+  if (with.subgroups && model != "prediction") {
+    test.cols <- c("Q.b", "df.Q.b", "pval.Q.b")
+    #
+    for (field in setdiff(test.cols, names(dat)))
+      dat[[field]] <- rep(NA_real_, nrow(dat))
+    #
+    if (print[["pval.Q.b"]]) {
+      group.cols <- intersect(
+        c("id", "method.interval", "adhoc.hakn", "level.ma"), names(dat))
+      #
+      dat %<>%
+        group_by(across(all_of(group.cols))) %>%
+        mutate(
+          across(all_of(test.cols),
+                 ~ replace(.x, row_number() != 1L, NA))) %>%
+        ungroup() %>%
+        as.data.frame()
+    }
+  }
+  #
+  if (is.null(dat$func.backtransf))
+    dat$func.backtransf <- rep(NA_character_, nrow(dat))
+  #
+  if (is.null(dat$args.backtransf))
+    dat$args.backtransf <- rep(list(NULL), nrow(dat))
+  #
+  has.backtransf <- !is.na(dat$func.backtransf) & dat$func.backtransf != ""
+  has.args.backtransf <- lengths(dat$args.backtransf) > 0
+  #
+  dat$func.backtransf <- as.character(dat$func.backtransf)
+  dat$func.backtransf[!has.backtransf] <- lab.NA
+  dat$args.backtransf <- vapply(dat$args.backtransf, format_args,
+                                character(1), lab.NA = lab.NA)
+  #
+  if (model == "prediction")
+    level <- "level.predict"
+  else
+    level <- "level.ma"
+  #
+  columns <- c("id", "name", "subgroup.name", "subgroup.levels", "k",
+               "func", "sm", "method", "method.interval",
+               if (model != "common") "adhoc.hakn",
+               level, "func.backtransf", "args.backtransf",
+               if (model != "prediction") "TE",
+               "seTE", "lower", "upper",
+               if (model != "prediction") c("statistic", "pval"),
+               if (model != "common") "df",
+               if (model != "prediction") c("Q.b", "df.Q.b", "pval.Q.b"))
+  #
+  dat <- dat[, intersect(union(columns, keep), names(dat)), drop = FALSE]
+  #
+  if (model != "prediction") {
+    if (isCol(dat, "TE"))
+      dat$TE <- formatN(dat$TE, digits = digits[["digits"]], lab.NA = lab.NA,
+                        big.mark = big.mark)
+    #
+    if (isCol(dat, "statistic"))
+      dat$statistic <- formatN(dat$statistic, digits = digits[["stat"]],
+                               lab.NA = lab.NA, keep.allNA = TRUE)
+    #
+    if (isCol(dat, "pval"))
+      dat$pval <- formatPT(dat$pval, digits = digits[["pval"]], lab.NA = lab.NA,
+                           scientific = scientific.pval, zero = zero.pval,
+                           JAMA = JAMA.pval, keep.allNA = TRUE)
+  }
+  #
+  if (isCol(dat, "seTE"))
+    dat$seTE <- formatN(dat$seTE, digits = digits[["se"]], lab.NA = lab.NA,
+                        big.mark = big.mark, keep.allNA = TRUE)
+  #
+  if (isCol(dat, "lower"))
+    dat$lower <- formatCI(dat$lower, dat$upper, digits = digits[["digits"]],
+                          lab.NA = lab.NA, na.lab = TRUE, big.mark = big.mark)
+  dat$upper <- NULL
+  #
+  if (model != "common" && isCol(dat, "df"))
+      dat$df <- round(dat$df, 2)
+  #
+  if (isCol(dat, level))
+    dat[[level]] <- round(dat[[level]], 4)
+  #
+  if (model != "prediction")
+    names(dat)[names(dat) == "TE"] <- sm.lab
+  #
+  names(dat)[names(dat) == "method.interval"] <- "interval"
+  names(dat)[names(dat) == level] <- "level"
+  #
+  same.level <- length(unique(dat$level)) == 1 && !anyNA(dat$level)
+  show.level <-
+    replaceNULL(show.level, replaceNULL(print[[level]], !same.level))
+  #
+  if (!is.null(lab.interval))
+    names(dat)[names(dat) == "lower"] <- lab.interval
+  else if (same.level)
+    names(dat)[names(dat) == "lower"] <-
+    percent_label(dat$level[1],
+                  type = if (model == "prediction") "PI" else "CI")
+  else {
+    names(dat)[names(dat) == "lower"] <-
+      if (model == "prediction") "PI" else "CI"
+  }
+  #
+  if (!show.level)
+    dat$level <- NULL
+  #
+  show.backtransf <- replaceNULL(print[["backtransf"]], any(has.backtransf))
+  show.args.backtransf <- show.backtransf &&
+    replaceNULL(print[["args.backtransf"]], any(has.args.backtransf))
+  #
+  if (show.backtransf)
+    names(dat)[names(dat) == "func.backtransf"] <- "backtransf"
+  else
+    dat$func.backtransf <- NULL
+  #
+  if (show.args.backtransf)
+    names(dat)[names(dat) == "args.backtransf"] <- "args"
+  else
+    dat$args.backtransf <- NULL
+  #
+  interval <- dat$interval
+  #
+  for (field in c("func", "sm", "method", "method.interval", "k")) {
+    if (field == "method.interval")
+      column <- "interval"
+    else
+      column <- field
+    #
+    if (model == "prediction" && field == "method")
+      constant <- all(dat[[column]] %in% "Inverse")
+    else
+      constant <- length(unique(dat[[column]])) == 1
+    #
+    if (isFALSE(print[[field]]) || (is.null(print[[field]]) && constant))
+      dat[[column]] <- NULL
+  }
+  #
+  if (model != "common") {
+    if (all(is.infinite(dat$df)))
+      dat$df <- NULL
+    #
+    if (model == "random")
+      methods <- "HK"
+    else
+      methods <- c("HK", "HK-PR")
+    #
+    if (is.null(dat$interval) || !any(dat$interval %in% methods) ||
+        all(is.na(dat$adhoc.hakn) | dat$adhoc.hakn == ""))
+      dat$adhoc.hakn <- NULL
+  }
+  #
+  if (model != "prediction") {
+    if (!with.subgroups && print[["stat"]]) {
+      stat.lab <- "z"
+      if (model == "random") {
+        is.t <- interval %in% c("HK", "KR", "CR0", "CR1", "CR2")
+        stat.lab <- if (all(is.t)) "t" else if (all(!is.t)) "z" else "z|t"
+      }
+      names(dat)[names(dat) == "statistic"] <- stat.lab
+    }
+    else
+      dat$statistic <- NULL
+    #
+    if (!with.subgroups && print[["pval"]])
+      names(dat)[names(dat) == "pval"] <- "p-value"
+    else
+      dat$pval <- NULL
+  }
+  #
+  if (print[["se"]])
+    names(dat)[names(dat) == "seTE"] <- paste0("SE(", lab.TE, ")")
+  else
+    dat$seTE <- NULL
+  #
+  names(dat)[names(dat) == ".no_sm_provided"] <- ""
+  #
+  if (with.subgroups && model != "prediction") {
+    if (print[["pval.Q.b"]]) {
+      dat$df <- NULL
+      #
+      dat %<>%
+        mutate(
+          Q.b = formatN(Q.b, digits = digits[["Q"]],
+                        big.mark = big.mark, lab.NA = lab.NA),
+          df.Q.b = formatN(df.Q.b, digits = 0,
+                           big.mark = big.mark, lab.NA = lab.NA),
+          pval.Q.b = formatPT(pval.Q.b, digits = digits[["pval.Q"]],
+                              lab.NA = lab.NA, scientific = scientific.pval,
+                              zero = zero.pval, JAMA = JAMA.pval)) %>%
+        rename(Q = Q.b, "d.f." = df.Q.b, "p-value" = pval.Q.b)
+    }
+    else
+      dat[c("Q.b", "df.Q.b", "pval.Q.b")] <- NULL
+  }
+  #
+  for (field in intersect(c("k", "df", "level"), names(dat))) {
+    # Subgroup level headings are resolved in print.metabind().
+    if (field == "level" && with.subgroups)
+      next
+    #
+    if (isCol(dat, field))
+      dat[[field]] <- formatN(dat[[field]],
+                              digits = switch(field, k = 0, df = 2, level = 4),
+                              lab.NA = lab.NA, big.mark = big.mark,
+                              keep.allNA = TRUE)
+  }
+  #
+  drop_allNAs(dat)
+}
+
+backtransf_metabind <- function(dat, pscale = 1, irscale = 1, suffix = "") {
+  n <- paste0("n.harmonic.mean", suffix)
+  time <- paste0("t.harmonic.mean", suffix)
+  lower <- paste0("lower", suffix)
+  upper <- paste0("upper", suffix)
+  #
+  for (i in seq_len(nrow(dat))) {
+    if (is_prop(dat$sm[i]) || dat$sm[i] == "RD") {
+      scale <- pscale
+      n.i <- dat[[n]][i]
+      time.i <- NULL
+    }
+    else if (is_rate(dat$sm[i]) || dat$sm[i] == "IRD") {
+      scale <- irscale
+      n.i <- NULL
+      time.i <- dat[[time]][i]
+    }
+    else {
+      scale <- 1
+      n.i <- dat[[n]][i]
+      time.i <- dat[[time]][i]
+    }
+    #
+    for (field in paste0(c("TE", "lower", "upper"), suffix))
+      dat[[field]][i] <- scale *
+        backtransf(dat[[field]][i], dat$sm[i], n = n.i, time = time.i,
+                   func = dat$func.backtransf[i],
+                   args = dat$args.backtransf[[i]])
+    #
+    # Switch lower and upper limits
+    #
+    if (!is.na(dat[[lower]][i]) && !is.na(dat[[upper]][i]) &&
+        dat[[lower]][i] > dat[[upper]][i]) {
+      tmp.l <- dat[[lower]][i]
+      dat[[lower]][i] <- dat[[upper]][i]
+      dat[[upper]][i] <- tmp.l
+    }
+  }
+  #
+  dat
+}
+
+prepare_metabind_subgroups <- function(x) {
+  # Get rid of warning 'no visible binding for global variable'
+  common <- random <- prediction <- id <- name <- NULL
+  #
+  dat = as.data.frame(x, subgroup = FALSE, drop_all_NA = FALSE)
+  #
+  # Repeated parent settings must not multiply the source subgroup rows
+  pooled <- x
+  #
+  for (i in c("common", "random", "predict")) {
+    if (!is.null(pooled[[i]]))
+      pooled[[i]] <- unique(pooled[[i]])
+  }
+  #
+  subdat <- as.data.frame(pooled, subgroup = TRUE, drop_all_NA = FALSE)
+  #
+  same.data <- inherits(x$data, "data.frame") &&
+    !".not_a_dataset" %in% names(x$data)
+  #
+  same.results <- FALSE
+  #
+  # Compare selected effects separately from original heterogeneity metadata
+  ignore <- c("id", "name", "subgroup", "subgroup.name", "subgroup.levels",
+               "common", "random", "prediction", "title", "complab", "outclab",
+               "label.e", "label.c", "label.left", "label.right")
+  #
+  heterogeneity <- c("Q", "df.Q", "pval.Q", "tau2", "lower.tau2", "upper.tau2",
+                     "se.tau2", "tau", "lower.tau", "upper.tau", "H", "lower.H",
+                     "upper.H", "I2", "lower.I2", "upper.I2", "Rb", "lower.Rb",
+                     "upper.Rb", "method.I2", "method.tau.ci", "level.hetstat",
+                     "Q.Cochrane")
+  tau.settings <- c("method.tau", "tau.preset", "TE.tau", "tau.common")
+  ignore <- c(ignore, heterogeneity)
+  #
+  if (is.null(x$random) && is.null(x$predict))
+    ignore <- c(ignore, tau.settings, "three.level", "rho")
+  #
+  if (is.null(x$predict))
+    ignore <- c(ignore, "level.predict")
+  #
+  if (is.null(x$common) && is.null(x$random))
+    ignore <- c(ignore, "level.ma")
+  #
+  comparison <- dat
+  #
+  rows <- match(dat$id, x$overall$id)
+  #
+  for (i in setdiff(names(x$overall), ignore))
+    comparison[[i]] <- x$overall[[i]][rows]
+  #
+  comparison <- comparison[, setdiff(names(comparison), ignore), drop = FALSE]
+  #
+  ids <- unique(dat$id)
+  #
+  shared.heterogeneity <- same.data && length(ids) > 0 &&
+    nrow(unique(x$overall[match(ids, x$overall$id),
+                          intersect(c(heterogeneity, tau.settings,
+                                      "three.level", "rho"), names(x$overall)),
+                          drop = FALSE])) == 1
+  #
+  if (same.data && length(ids) > 0) {
+    reference <- comparison[dat$id == ids[1], , drop = FALSE]
+    #
+    same.results <- all(vapply(ids[-1], function(id)
+      setequal(reference, comparison[dat$id == id, , drop = FALSE]),
+      logical(1)))
+  }
+  #
+  shared.overall <- same.data && same.results
+  #
+  if (shared.overall)
+    keep <- !duplicated(comparison)
+  else
+    keep <- !duplicated(cbind(id = dat$id, comparison))
+  #
+  dat %<>% filter(keep) %>% select(-common, -random, -prediction)
+  #
+  if (shared.overall)
+    dat %<>% select(-id, -name)
+  #
+  # Rename pooled results and replace parent results with subgroup values
+  #
+  fields <- c("TE", "seTE", "lower", "upper", "statistic", "pval", "df",
+              "k", "n.harmonic.mean", "t.harmonic.mean")
+  #
+  for (i in intersect(fields, names(dat)))
+    names(dat)[names(dat) == i] <- paste0(i, ".pooled")
+  #
+  for (i in fields) {
+    field.w <- paste0(i, ".w")
+    #
+    if (field.w %in% names(subdat))
+      subdat[[i]] <- as.vector(subdat[[field.w]])
+    else
+      subdat[[i]] <- rep(NA_real_, nrow(subdat))
+    #
+    subdat[[field.w]] <- NULL
+  }
+  #
+  list(dat = dat, subdat = subdat, same.data = same.data,
+       same.results = same.results, shared.overall = shared.overall,
+       shared.heterogeneity = shared.heterogeneity)
+}

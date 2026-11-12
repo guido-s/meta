@@ -686,11 +686,12 @@ print.summary.meta <- function(x,
       lowTE <- scale * lowTE
       uppTE <- scale * uppTE
       #
-      if (sm == "VE") {
-        tmp.l <- lowTE
-        lowTE <- uppTE
-        uppTE <- tmp.l
-      }
+      # Switch reversed lower and upper limits after back-transformation
+      #
+      swap <- !is.na(lowTE) & !is.na(uppTE) & lowTE > uppTE
+      tmp.l <- lowTE[swap]
+      lowTE[swap] <- uppTE[swap]
+      uppTE[swap] <- tmp.l
     }
     #
     TE <- round(TE, digits)

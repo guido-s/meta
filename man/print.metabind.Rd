@@ -33,7 +33,10 @@ estimates, random effects estimates, and prediction intervals to print.}
 
 \item{overall}{A logical indicating whether overall summaries should be
 printed. No additional overall summaries are printed for component
-results without source subgroup analyses.}
+results without source subgroup analyses.
+For source subgroup analyses, selected overall effects can be shared
+independently of heterogeneity. Shared heterogeneity is printed only
+when its values and settings also agree across components.}
 
 \item{backtransf}{A logical indicating whether results should be
 back-transformed. Different summary measures require back-transformation.}

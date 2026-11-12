@@ -30,6 +30,22 @@
   `digits`, `test`, `type`, `fill`, `pooled`, `text`, `lty`, and `lwd`. The
   corresponding individual `list.element` arguments remain supported.
 
+* `metabind()` has been substantially redesigned, with a new object structure
+  and dedicated `print.metabind()` and `forest.metabind()` methods. These
+  methods display stored component results without calculating new pooled
+  estimates. They support common effect and random effects results,
+  prediction intervals, multiple interval methods, and subgroup analyses.
+  Results using different, compatible summary measures can be displayed
+  together, with appropriate back-transformation and scaling.
+
+  For subgroup analyses, identical selected overall results based on shared
+  data can be displayed once. Shared heterogeneity is assessed separately
+  and is displayed only when its values and settings also agree across
+  components.
+
+  To use the new implementation, recreate `metabind` objects generated with
+  earlier versions of R package **meta**.
+
 * `metagen()` now always stores `null.effect` on the transformed analysis
   scale. If argument `transf = FALSE`, the supplied value is transformed
   before being stored.
