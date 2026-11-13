@@ -544,10 +544,12 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
   #
   TE.random.w <- extrMat(res.i, "TE.random", levs, methci)    
   seTE.random.w <- extrMat(res.i, "seTE.random", levs, methci)
+  #
   if (is.matrix(TE.random.w)) {
     TE.random.w <- as.vector(TE.random.w[, 1])
     names(TE.random.w) <- rownames(seTE.random.w)
   }
+  #
   statistic.random.w <- extrMat(res.i, "statistic.random", levs, methci)
   pval.random.w <- extrMat(res.i, "pval.random", levs, methci)
   df.random.w <- extrMat(res.i, "df.random", levs, methci)
@@ -620,12 +622,12 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
     n.random <- ncol(seTE.random.w)
     Q.b.random <- rep(NA, n.random)
     names(Q.b.random) <- colnames(seTE.random.w)
-    for (i in seq_len(n.random))
+    #
+    for (i in seq_len(n.random)) {
       Q.b.random[i] <-
-        metagen(TE.random.w,
-                lower = lower.random.w[, i],
-                upper = upper.random.w[, i],
+        metagen(TE.random.w, seTE.random.w[, i],
                 method.tau = "DL")$Q
+    }
   }
   else {
     n.random <- 1
@@ -678,18 +680,21 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
     if (is.null(x$exclude))
       x$exclude <- rep(FALSE, length(x$TE))
     #
-    list.mlm <- list(yi = x$TE[!x$exclude],
-                     V = vcalc(vi = x$seTE[!x$exclude]^2,
-                               cluster = x$cluster[!x$exclude],
-                               obs = seq_along(x$cluster)[!x$exclude],
+    sel.rma <- !x$exclude & is.finite(x$TE) & is.finite(x$seTE)
+    subgroup.rma <- droplevels(subgroup.rma[sel.rma])
+    #
+    list.mlm <- list(yi = x$TE[sel.rma],
+                     V = vcalc(vi = x$seTE[sel.rma]^2,
+                                cluster = x$cluster[sel.rma],
+                                obs = seq_along(x$cluster)[sel.rma],
                                rho = replaceNULL(x$rho, 0)))
     #
     mlm <-
       runMLM(c(list.mlm,
                list(data = 
-                      data.frame(subgroup.rma = subgroup.rma,
-                                 cluster = x$cluster[!x$exclude],
-                                 idx = seq_along(x$cluster)[!x$exclude]))),
+                       data.frame(subgroup.rma = subgroup.rma,
+                                  cluster = x$cluster[sel.rma],
+                                  idx = seq_along(x$cluster)[sel.rma]))),
              method.tau = x$method.tau,
              method.random.ci = x$method.random.ci,
              level = x$level.ma,
@@ -786,9 +791,9 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
     mlm.Q <-
       runMLM(c(list.mlm,
                list(data = 
-                      data.frame(subgroup.rma = subgroup.rma,
-                                 cluster = x$cluster[!x$exclude],
-                                 idx = seq_along(x$cluster)[!x$exclude]))),
+                       data.frame(subgroup.rma = subgroup.rma,
+                                  cluster = x$cluster[sel.rma],
+                                  idx = seq_along(x$cluster)[sel.rma]))),
              method.tau = x$method.tau,
              method.random.ci = x$method.random.ci,
              level = x$level.ma,
@@ -916,6 +921,8 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
       upper.random.w[sel.r] <- as.numeric(glmm.r[[1]]$ci.ub)
       statistic.random.w[sel.r] <- as.numeric(glmm.r[[1]]$zval)
       pval.random.w[sel.r] <- as.numeric(glmm.r[[1]]$pval)
+      df.random.w[sel.r] <- if (glmm.r[[1]]$test == "z") Inf
+      else as.numeric(glmm.r[[1]]$ddf)
     }
     else {
       for (i in seq_len(n.methci)) {
@@ -923,6 +930,8 @@ subgroup <- function(x, tau.preset = NULL, subgroup.rma,
         upper.random.w[sel.r, i] <- as.numeric(glmm.r[[i]]$ci.ub)
         statistic.random.w[sel.r, i] <- as.numeric(glmm.r[[i]]$zval)
         pval.random.w[sel.r, i] <- as.numeric(glmm.r[[i]]$pval)
+        df.random.w[sel.r, i] <- if (glmm.r[[i]]$test == "z") Inf
+        else as.numeric(glmm.r[[i]]$ddf)
       }
     }
     #

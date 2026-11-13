@@ -301,10 +301,10 @@ is also accepted. See \code{\link{meta-formatting}}.}
 a line in the forest plot. No reference line is plotted if
 argument \code{ref} is equal to \code{NA}.}
 
-\item{cid}{A numeric value or vector, or a named list specifying clinically important
-differences (CID) / decision thresholds used to calculate probabilities
-of clinically important benefit or harm, or not important effects
-(see Details); see \code{\link{meta-formatting}}.}
+\item{cid}{A numeric value or vector, or a named list specifying clinically
+important differences (CID) / decision thresholds used to calculate
+probabilities of clinically important benefit or harm, or not important
+effects (see Details); see \code{\link{meta-formatting}}.}
 
 \item{xlab}{A label for the x-axis. By default, no label is printed,
 except for meta-analyses of single proportions, incidence rates,
@@ -450,6 +450,12 @@ be printed if deprecated arguments are used.}
 
 \item{\dots}{Additional graphical arguments.}
 }
+\value{
+Invisibly returns a list with information about the forest plot,
+including the selected columns (\code{leftcols}, \code{rightcols}),
+their headings (\code{leftlabs}, \code{rightlabs}), formatted results,
+and graphical settings (see Examples).
+}
 \description{
 Draw a forest plot (using grid graphics system) in the active
 graphics window or store the forest plot in a file.
@@ -460,6 +466,14 @@ the active graphics window. The forest functions in R package
 \bold{meta} are based on the grid graphics system. Resize the
 graphics windows if the forest plot is too large or too small for
 the graphics window. Alternatively, save the forest plot in a file.
+
+\subsection{Formatting defaults}{
+Defaults for the named formatting lists \code{test}, \code{label},
+\code{rob}, \code{fs}, \code{ff}, \code{just}, \code{fill}, \code{col},
+\code{print}, \code{type}, \code{pooled}, \code{text}, \code{lty},
+\code{lwd}, \code{digits}, \code{calcwidth}, \code{colgap}, \code{cid},
+and \code{addrow} are described in \code{\link{meta-formatting}}.
+}
 
 \subsection{Saving forest plots}{
 
@@ -485,33 +499,26 @@ against the most common graphics device drivers:
 If only argument \code{device} is provided, the filename will be equal to
 "Rplots.\code{device}".
 
-By default, the height and width of the file containing the forest plot is
-determined automatically (values \code{.height} and \code{.width}).
+By default, the file dimensions are determined automatically
+(values \code{.height} and \code{.width}). Automatic sizing is recommended
+for most forest plots.
 
-The user can specify the height and width of the
-file using the arguments \code{height} and \code{width}. The input to these
-arguments can be either absolute values, e.g., \code{width = 10} for a
-graphics file with the width of 10 inches, or values relative to the
-automatically determined height and width, e.g., \code{width = .width * 1.05}
-will add 5 percent to the automatically determined width.
+Arguments \code{height} and \code{width} can adjust these dimensions.
+For example, \code{width = .width * 1.05} increases the automatically
+determined width by 5 percent. Absolute dimensions can also be supplied,
+e.g., \code{width = 10} for a file with a width of 10 inches.
+Setting either argument to \code{NA} uses the corresponding dimension
+of the current graphics device.
 
-It is also possible to provide \code{NA} as input to arguments \code{height}
-and \code{width}. In this case, the size of the current graphics
-device is used.
+The deprecated argument \code{rows.gr} uses a different approach to
+determine file height and is retained only for backward compatibility.
 
-For backward compatibility, the height of the file is determined using a
-different approach if argument \code{rows.gr} is provided to
-increase or decrease the number of rows shown in the forest plot
-(either to show missing information or to remove white space). It is
-recommended to not use argument \code{rows.gr}, but, to use
-argument \code{height = .height * 1.10} or similar.
+Set \code{dev.off = FALSE} to keep the graphics device open and add
+further forest plots to the same file. Afterwards, call
+\code{\link{dev.off}} to close the device and finalize the file.
 
-Argument \code{dev.off} can be used to keep the current graphics device
-open in order to store additional forest plots in the file. Use the R
-function \code{\link{dev.off}} to close the graphics device / store the file.
-
-Other arguments of graphics device functions can be provided as a list in
-the argument \code{device.args}.
+Additional arguments to the graphics device function can be supplied
+as a named list in \code{device.args}.
 }
 
 \subsection{Default forest plot layout}{
@@ -545,20 +552,17 @@ from the common effect model are used if argument \code{x$common} is
 \code{x$random} is \code{TRUE} and \code{x$common} is \code{FALSE}.
 The same square sizes are used if \code{weight.study = "same"}.
 
-A prediction interval for treatment effect of a new study (Higgins
-et al., 2009) is given in the forest plot if arguments
-\code{prediction} and \code{random} are \code{TRUE}. For
-graphical presentation of prediction intervals the approach by
-Guddat et al. (2012) is used.
+If \code{prediction = TRUE}, a prediction interval for the treatment
+effect in a new study is shown (Higgins et al., 2009). The interval is
+displayed as a bar, following Guddat et al. (2012).
 }
-  
+
 \subsection{Columns printed on left side of forest plot}{
 
-Argument \code{leftcols} can be used to specify columns printed on the
-left side of the forest plot. By default, if \code{leftcols} is \code{NULL}
-and \code{layout = "meta"}, the following columns are printed on the
-left side of the forest plot. These column names can also be used
-in argument \code{leftcols} or \code{rightcols}:
+Argument \code{leftcols} specifies the columns printed on the left side
+of the forest plot. If \code{leftcols = NULL} and \code{layout = "meta"},
+the following columns are printed by default. These column names can
+be used in \code{leftcols} or \code{rightcols}:
 
 \tabular{ll}{
 \bold{Column} \tab \bold{Description} \cr
@@ -570,9 +574,12 @@ in argument \code{leftcols} or \code{rightcols}:
 \code{"ci"} \tab confidence interval for the estimated effect
 }
 
-Depending on the outcome, i.e., the class of the meta-analysis object
-determined by the function used to create it, the following
-outcome-specific columns are printed:
+For three-level models, the cluster variable is printed next to the
+study labels. Use \code{"cluster"} in \code{leftcols} to select this column,
+for example, to change the order of variables.
+
+The following outcome-specific columns are printed, depending on the
+function used to create the meta-analysis object:
 
 \tabular{ll}{
 \bold{Function} \tab \bold{Default outcome-specific columns} \cr
@@ -588,10 +595,6 @@ outcome-specific columns are printed:
 \code{\link{metaprop}} \tab \code{"event"}, \code{"n"} \cr
 \code{\link{metarate}} \tab \code{"event"}, \code{"time"}, \code{"n"}
 }
-
-For three-level models, the cluster variable is printed next to the
-study labels. It is specified using \code{"cluster"} in argument
-\code{leftcols}.
 
 By default, study labels and labels for pooled estimates and
 heterogeneity statistics will be printed in the first column on the
@@ -1002,202 +1005,213 @@ ma1 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
 
 
 \dontrun{
-# Do standard (symmetric) forest plot
+# Draw a forest plot with the default layout
 #
 forest(ma1)
 }
 
-# Layout of forest plot similar to Review Manager 5
-#
-# Furthermore, add labels on both sides of the forest plot and
-# a prediction interval
+# Review Manager 5 layout with directional labels, a prediction interval,
+# and a main title
 #
 forest(ma1, layout = "RevMan5", common = FALSE,
-  label.left = "Favours experimental", label.right = "Favours control",
+  label = list(left = "Favours experimental", right = "Favours control"),
   col = list(label.left = "green", label.right = "red"),
-  prediction = TRUE)
+  prediction = TRUE,
+  main = paste("Meta-analysis on Thrombolytic Therapy",
+               "after Acute Myocardial Infarction"))
 
 \dontrun{
 #
-# Create PDF files with the forest plot
+# Save forest plots to files
 #
 
-# 1) Specify filename, here, pdf() is used due to the file extension ".pdf";
-#    height and width of the figure are automatically determined
+# 1) Specify a filename; the ".pdf" extension selects pdf()
+#    The height and width are determined automatically
 #
 forest(ma1, filename = "forest-ma1-1.pdf")
 
-# 2) Specify the device; results in the creation of a file "Rplots.svg"
+# 2) Specify only the device; svg() creates "Rplots.svg"
 #
 forest(ma1, device = "svg")
 
-# 3) Set title for PDF file and set background colour of forest plot
+# 3) Set the PDF metadata title and the plot background colour
+#
 forest(ma1, filename = "forest-ma1-2.pdf",
-  device.args = list(title = "My Forest Plot", bg = "green"))
+  device.args = list(title = "Forest plot created with R package meta",
+    bg = "green"))
 
-# 4) Manually specify the width and height of the figure
+# 4) Specify the width and height in inches
 #
 forest(ma1, filename = "forest-ma1-3.pdf", width = 10, height = 3)
-}
 
-\dontrun{
 #
 # More forest plots
 #
 
-# Define equivalence limits: 0.75 and 1 / 0.75
+# Mark equivalence limits at 0.75 and 1 / 0.75
 #
 forest(ma1, layout = "RevMan5", common = FALSE,
   cid = 0.75, fill = list(fill = "lightgray", cid = "white"))
 
-# Fill regions with beneficial and detrimental effects
+# Shade regions indicating beneficial and harmful effects
 #
 forest(ma1, layout = "RevMan5", common = FALSE,
   cid = 0.75,
   fill = list(fill = "lightgray", cid = "white",
-    cid.below.null = "green", cid.above.null = "red"))
+    cid.below.null = "green", cid.above.null = "red"),
+  label = list(left = "Desirable effect", right = "Undesirable effect"))
 
-# Define thresholds for small, moderate and large effects
-# and use hcl.colors() to define colours to fill regions
+# Define thresholds for small, moderate, and large effects
+# and shade the corresponding regions using hcl.colors()
 #
 thresholds <- c(0.25, 0.5, 0.75)
 n.cols <- length(thresholds)
+#
 forest(ma1, layout = "RevMan5", common = FALSE,
-  label.left = "Desirable effect", label.right = "Undesirable effect",
-  lty.cid = 3, col.cid = "darkgray",
   cid.below.null = thresholds, cid.above.null = 1 / rev(thresholds),
   fill = list(
     cid.below.null = hcl.colors(n.cols, palette = "Blues 2", alpha = 0.6),
     cid.above.null = hcl.colors(n.cols, palette = "Oranges", alpha = 0.6,
-      rev = TRUE))
+      rev = TRUE)),
+  lty = list(cid = 3), col = list(cid = "darkgray"),
+  label = list(left = "Desirable effect", right = "Undesirable effect"))
 
-# Conduct subgroup meta-analysis
-#
-ma2 <- update(ma1,
-  subgroup = ifelse(year < 1987, "Before 1987", "1987 and later"),
-  print.subgroup.name = FALSE)
-
-# Show summary results for subgroups with at least two studies
-#
-forest(ma2, sortvar = -TE, random = FALSE)
-
-# Show results for all subgroups
-#
-forest(ma2, sortvar = -TE, random = FALSE, subgroup = k.w >= 1)
-
-# Forest plot specifying argument 'xlim'
+# Specify the limits of the horizontal axis
 #
 forest(ma1, xlim = c(0.01, 10))
 
-# Print results of test for overall effect
+# Show tests for overall effects
 #
-forest(ma1, test.overall.common = TRUE, test.overall.random = TRUE)
+forest(ma1, test = list(overall.common = TRUE, overall.random = TRUE))
 
-# Forest plot with 'classic' layout used in R package meta,
-# version < 1.6-0
+# Use black squares and omit heterogeneity information
 #
-forest(ma1, col.square = "black", hetstat = FALSE)
+forest(ma1, col.square = "black", overall.hetstat = FALSE)
 
-# Change set of columns printed on left side of forest plot
-# (resulting in overlapping text)
+# Inspect the columns and headings on both sides of the forest plot
 #
-forest(ma1, random = FALSE, leftcols = "studlab")
-
-# Use argument 'addrows.below.overall' to manually add two empty
-# rows
+fdat <- forest(ma1)
 #
-forest(ma1, random = FALSE, leftcols = "studlab", addrows.below.overall = 2)
+fdat$leftcols
+fdat$leftlabs
+fdat$rightcols
+fdat$rightlabs
+# character(0) indicates that no columns or headings are present
 
-# Do not print columns on right side of forest plot
+# Show only study labels on the left and effect estimates and
+# confidence intervals on the right
 #
-forest(ma1, rightcols = FALSE)
+forest(ma1, random = FALSE,
+  leftcols = "studlab", rightcols = c("effect", "ci"))
 
-# Change study label to "Author"
+# Omit columns on the left and combine effect estimates and
+# confidence intervals in one column on the right
 #
-forest(ma1, random = FALSE, leftlabs = c("Author", NA, NA, NA, NA))
+forest(ma1, leftcols = FALSE, rightcols = "effect.ci")
 
-# Just give effect estimate and 95\% confidence interval on right
-# side of forest plot (in one column)
+# Change the study-label heading to "Author"
+# Use the columns and headings returned by forest(ma1) above
 #
-forest(ma1, rightcols = "effect.ci")
-
-# Just give effect estimate and 95\% confidence interval on right
-# side of forest plot
+lcols <- fdat$leftcols
+llabs <- fdat$leftlabs
+llabs[lcols == "studlab"] <- "Author"
 #
-forest(ma1, rightcols = c("effect", "ci"))
+forest(ma1, leftlabs = llabs)
 
-# 1. Change order of columns on left side
-# 2. Attach labels to columns 'event.e' and 'event.c' instead of
-#    columns 'n.e' and 'n.c'
+# Attach group labels to event counts rather than sample sizes
 #
 forest(ma1,
-  leftcols = c("studlab", "n.e", "event.e", "n.c", "event.c"),
-  label.e.attach = "event.e", label.c.attach = "event.c")
+  label = list(e.attach = "event.e", c.attach = "event.c"))
 
-# Specify column labels only for variables 'year' and 'author'
-# (and define digits for additional variables)
+# Add 'author' and 'year', using their variable names as headings
 #
-forest(ma1,
-  leftcols = c("studlab", "event.e", "n.e", "event.c", "n.c", "author", "year"),
-  leftlabs = c("Author", "Year of Publ"))
+forest(ma1, leftcols = c(lcols, "author", "year"))
+
+# Specify headings only for the newly added columns
+#
+forest(ma1, leftcols = c(lcols, "author", "year"),
+  leftlabs = c("Author", "Year of publication"))
+
+# Additional columns are centered by default
+# Left-align 'author' and right-align 'year'
+#
+forest(ma1, leftcols = c(lcols, "author", "year"),
+  leftlabs = c("Author", "Year of publication"),
+  just.addcols = c("left", "right"))
+
+# Draw the same plot using abbreviated justification values
+#
+forest(ma1, leftcols = c(lcols, "author", "year"),
+  leftlabs = c("Author", "Year of publication"),
+  just.addcols = c("l", "r"))
+
+# Center text in all columns except study labels
+#
+forest(ma1, leftcols = c(lcols, "author", "year"),
+  leftlabs = c("First author", "Year of publication"),
+  just = "center")
 
 # Center text in all columns
 #
-forest(ma1,
-  leftcols = c("studlab", "event.e", "n.e", "event.c", "n.c",
-               "author", "year"),
-  leftlabs = c("Author", "Year of Publ"), hetstat = FALSE,
-  just = "center", just.addcols = "center", just.studlab = "center")
+forest(ma1, leftcols = c(lcols, "author", "year"),
+  leftlabs = c("First author", "Year of publication"),
+  just = list(just = "center", studlab = "center"))
 
-# Same result
+# Change font sizes and faces
 #
 forest(ma1,
-  leftcols = c("studlab", "event.e", "n.e", "event.c", "n.c",
-             "author", "year"),
-  leftlabs = c("Author", "Year of Publ"), hetstat = FALSE,
-  just = "c", just.addcols = "c", just.studlab = "c")
-
-# Change some fontsizes and fontfaces
-#
-forest(ma1,
-  fs = list(study = 10, study.label = 11, axis = 5), 
-  ff = list(study = "italic", study.label = "bold",
+  fs = list(study = 10, study.labels = 11, axis = 5),
+  ff = list(study = "italic", study.labels = "bold",
     axis = "italic", smlab = "bold.italic",
     common = "plain", hetstat = "plain"))
 
-# Change some colours
+# Change colours
 #
 forest(ma1,
   col = list(diamond = "green", diamond.lines = "red",
     study = c("green", "blue", "red", "orange"),
     square = "pink", square.lines = "black"))
 
-# Sort by weight in common effect model
+# Sort by increasing common-effect weight
 #
 forest(ma1, sortvar = w.common, random = FALSE)
 
-# Sort by decreasing weight in common effect model
+# Sort by decreasing common-effect weight
 #
 forest(ma1, sortvar = -w.common, random = FALSE)
 
-# Sort by size of treatment effect
+# Sort by increasing treatment effect
 #
 forest(ma1, sortvar = TE, random = FALSE)
 
-# Sort by size of treatment effect
+# Sort by decreasing treatment effect
 #
 forest(ma1, sortvar = -TE, random = FALSE)
 
-# Sort by decreasing year of publication
+# Sort by decreasing publication year
 #
 forest(ma1, sortvar = -year, random = FALSE)
 
-# Print results of test for subgroup differences (random effects
-# model)
 #
-forest(ma2, sortvar = -TE, common = FALSE)
+# Forest plots for subgroup meta-analyses
+#
 
-# Print only subgroup results
+# Conduct a subgroup meta-analysis
+#
+ma2 <- update(ma1,
+  subgroup = ifelse(year < 1987, "Before 1987", "1987 and later"),
+  print.subgroup.name = FALSE)
+
+# Omit subgroup summaries based on a single study (the default)
+#
+forest(ma2, random = FALSE)
+
+# Include subgroup summaries based on a single study
+# (identical to the individual study results)
+#
+forest(ma2, random = FALSE, subgroup = k.w > 0)
+
+# Show only subgroup results
 #
 forest(ma2, layout = "subgroup")
 }

@@ -13,15 +13,20 @@
   overall = common || random || prediction,
   studlab = NULL,
   subgroup = NULL,
-  hetstat = FALSE,
-  overall.hetstat = x$overall.hetstat,
+  overall.hetstat = NULL,
+  hetstat = !is.null(x$subgroup),
   backtransf = x$backtransf,
   test = NULL,
+  label,
+  col = NULL,
+  print = NULL,
+  type = NULL,
+  text = NULL,
+  digits = NULL,
   leftcols = NULL,
   rightcols = NULL,
   leftlabs = NULL,
   rightlabs = NULL,
-  label,
   lab.NA = if (is.null(x$subgroup)) gs("lab.NA") else "",
   big.mark = gs("big.mark"),
   pscale = NULL,
@@ -30,12 +35,6 @@
   scientific.pval = gs("scientific.pval"),
   zero.pval = gs("zero.pval"),
   JAMA.pval = gs("JAMA.pval"),
-  col = NULL,
-  print = NULL,
-  type = NULL,
-  text = NULL,
-  digits = NULL,
-  addrow.subgroups = NULL,
   details = FALSE,
   ...
 )
@@ -48,32 +47,46 @@
 \item{common, random, prediction}{Logical values selecting common effect
 estimates, random effects estimates, and prediction intervals.}
 
-\item{overall}{A logical indicating whether overall summaries should
-be plotted. No additional pooled estimates are calculated for the
-component meta-analysis results.}
+\item{overall}{A logical value indicating whether overall summaries should
+be plotted.}
 
 \item{studlab}{A variable containing labels for individual results,
-evaluated in the combined result data and then the calling environment.}
+evaluated in the combined results data frame or supplied as an external
+vector. Available with or without subgroup results.}
 
-\item{subgroup}{A variable defining display groups, evaluated in the
-combined result data and then the calling environment. For example,
-\code{subgroup = type} groups results by result type. Unavailable when
-the component meta-analyses contain subgroup results.}
+\item{subgroup}{For meta-analyses without subgroup results, a variable
+defining display groups, evaluated in the combined results data frame or
+supplied as an external vector. For example, \code{subgroup = type} groups
+results by common effect model, random effects model, or prediction
+interval. Unavailable when the included meta-analyses contain subgroup
+results.}
 
-\item{hetstat, overall.hetstat}{Arguments passed to
-\code{\link{forest.meta}} for stored heterogeneity text in source
-subgroup plots, either for shared overall summaries or within each
-component group. Otherwise heterogeneity text from the synthetic plotting
-object is disabled; use \code{print} to display component heterogeneity
-in columns.}
+\item{overall.hetstat}{Ignored when meta-analyses have no subgroup results.
+Otherwise, a logical value indicating whether to display a shared overall
+heterogeneity row. The default \code{NULL} determines this automatically
+from agreement of the overall results and heterogeneity.}
+
+\item{hetstat}{Ignored when meta-analyses have no subgroup results; use
+\code{print} to display heterogeneity information in columns.
+Otherwise, a logical value controlling separate heterogeneity rows,
+defaulting to \code{TRUE}. Setting \code{FALSE} suppresses all such rows,
+including the shared overall heterogeneity row.}
 
 \item{backtransf}{A logical indicating whether results should be
 back-transformed. Different summary measures require back-transformation.}
 
-\item{test}{A named list controlling statistical test rows. Elements
-\code{overall}, \code{overall.common}, and \code{overall.random} control
-the stored overall-effect tests. Component test controls are also accepted
-through \code{effect.subgroup} and its model-specific elements.}
+\item{test}{A named list controlling statistical test rows.}
+
+\item{label}{A named list controlling column and test labels. Logical values
+or character vectors control the x-axis tick labels instead.
+See Details for defaults specific to this function and
+\code{\link{meta-formatting}} for information on the elements.}
+
+\item{col, print, type, text, digits}{Named lists controlling colours, displayed
+information, graphical types, model text. Scalar values are also accepted
+for \code{type} and \code{digits}.
+See Details for defaults specific to this function and
+\code{\link{meta-formatting}} for information on the elements.}
 
 \item{leftcols, rightcols}{Columns printed to the left or right of the
 forest plot; see \code{\link{forest.meta}}. Explicit column selections
@@ -82,146 +95,110 @@ take precedence over automatic column selection.}
 \item{leftlabs, rightlabs}{Column headings. Use \code{NA} to retain a
 default heading.}
 
-\item{label}{A named list controlling column and test labels; see
-\code{\link{forest.meta}}. Logical values or character vectors control
-the x-axis tick labels instead.}
-
 \item{lab.NA}{Label for missing values.}
 
 \item{big.mark}{Character used as thousands separator.}
 
 \item{pscale}{A numeric giving scaling factor for printing of
-single event probabilities or risk differences, i.e. if argument
-\code{sm} is equal to \code{"PLOGIT"}, \code{"PLN"},
-\code{"PRAW"}, \code{"PAS"}, \code{"PFT"}, or \code{"RD"}.}
+single event probabilities or risk differences
+(see \code{\link{metaprop}}).}
 
 \item{irscale}{A numeric defining a scaling factor for printing of
-single incidence rates or incidence rate differences, i.e. if
-argument \code{sm} is equal to \code{"IR"}, \code{"IRLN"},
-\code{"IRS"}, \code{"IRFT"}, or \code{"IRD"}.}
+single incidence rates or incidence rate differences
+(see \code{\link{metarate}}).}
 
 \item{irunit}{A character specifying the time unit used to
-calculate rates, e.g., person-years.}
+calculate rates, e.g., person-years (see \code{\link{metarate}}).}
 
 \item{scientific.pval, zero.pval, JAMA.pval}{Logical values controlling
-the formatting of P values.}
-
-\item{col, print, type, text, digits}{Named lists controlling colours, displayed
-information, graphical types, model text, and rounding; see
-\code{\link{meta-formatting}}. Scalar values are also accepted for
-\code{type} and \code{digits}.}
-
-\item{addrow.subgroups}{A logical indicating whether an empty row is
-printed between display groups.}
+the formatting of P values (see \code{\link{forest.meta}}).}
 
 \item{details}{A logical specifying whether method details are printed.
-Defaults to \code{TRUE} for source subgroup results, and \code{FALSE}
-otherwise.}
+Defaults to \code{TRUE} when the included meta-analyses contain subgroup
+results, and \code{FALSE} otherwise.}
 
 \item{\dots}{Additional arguments passed to \code{\link{forest.meta}}.}
 }
 \value{
-Invisibly returns the result of \code{forest.meta()}, with the
-  prepared result data in element \code{data}.
+Invisibly returns a list with information about the forest plot,
+including the selected columns (\code{leftcols}, \code{rightcols}),
+their headings (\code{leftlabs}, \code{rightlabs}), formatted results,
+and graphical settings (see \code{\link{forest.meta}}).
+Element \code{data} contains the dataset used to create the forest plot.
 }
 \description{
 Draws a forest plot combining common effect estimates, random effects
 estimates, and prediction intervals from a metabind object.
 }
 \details{
-Automatic function, summary-measure, estimation-method, and interval-method
-columns are shown when their values differ within a display group, or
-across the selected results if no groups are specified. Set the
-corresponding element of \code{print} to \code{TRUE} or \code{FALSE}
-to override this behaviour. Element \code{method.tau} (or legacy argument
-\code{print.method.tau}) controls the heterogeneity estimator column
-independently of \code{print$method}. Without source subgroup results,
-statistics and P values are shown by default when P values are available.
+When the included meta-analyses contain subgroup results, the forest plot
+groups these results by meta-analysis. Overall summaries are shared when
+the datasets and selected overall results agree; otherwise they are shown
+separately for each meta-analysis. Shared heterogeneity information
+additionally requires agreement of the heterogeneity values and settings.
 
-Confidence and prediction intervals share a column. Its heading gives
-their levels when each interval kind has one level, for example,
-\code{95\% CI/PI} or \code{95\% CI/99\% PI}. Otherwise a generic
-heading and a level column are used.
+Confidence and prediction intervals share a column. Heterogeneity information
+is shown once per included meta-analysis, with tau and tau-squared
+information also shown on its prediction interval rows when random effects
+results are selected. Tau and tau-squared information is not shown on common
+effect rows.
 
-Heterogeneity information is shown once per component meta-analysis:
-on its first random effects row, falling back to its first common effect
-row and then its first prediction interval row. Tau and tau-squared
-information is also shown on prediction interval rows when random effects
-results for the same component are selected.
-Tau and tau-squared estimates and their confidence intervals are never
-shown on common effect rows.
+Back-transformations are applied separately using the settings stored for
+each meta-analysis, allowing results with different transformations
+to be displayed together.
 
-For meta-analyses containing subgroup results, each component defines a
-display group and its source subgroup results define the individual rows.
-Default study labels append \code{ (common)}, \code{ (random)}, or
-\code{ (prediction)} to the subgroup levels when more than one result type
-is selected. The separate type column is hidden by default.
-Stored overall summaries are shown once when the datasets and selected
-overall results agree, unless \code{overall = FALSE}. Heterogeneity is
-assessed separately: an overall heterogeneity row is shown only when its
-values and settings also agree; \code{hetstat = FALSE} disables it.
-Differing heterogeneity is omitted from shared effect summaries. When
-effects are not shared, stored component summaries and a heterogeneity
-row are shown within their respective groups.
-For source subgroup plots, \code{print$I2} defaults to \code{gs("print.I2")}
-(resolved to \code{TRUE} if \code{NULL}), and \code{print$pval.Q} defaults
-to \code{TRUE}, independently of \code{print$Q}. Displayed subgroup
-results are never pooled again and no between-component tests are calculated.
-Tests for overall effect are shown below shared overall summaries or,
-otherwise, within each component group, using the stored common effect
-and random effects test results. With several random-effects interval
-methods, each component's test row uses its first displayed method with
-an available P value.
-Effect-test rows are omitted for components without a defined null effect.
-The legacy arguments \code{test.overall}, \code{test.overall.common},
-and \code{test.overall.random} remain supported through \code{\dots}.
-Explicit component test settings override the corresponding overall-test
-defaults for nonshared summaries. Between-component tests are unavailable.
-Vector-valued component test controls follow the component order before
-display sorting.
-Named \code{label} and \code{text} settings override generated labels
-without suppressing unspecified defaults. A model text also supplies the
-corresponding component summary text unless it is overridden separately.
-Legacy individual arguments remain accepted; specifying the same setting
-both in a named list and as an individual argument gives an error.
-The stored tests for differences between source subgroups are shown in
-columns \code{Q.b}, \code{df.Q.b}, and \code{pval.Q.b} for common effect
-and random effects results, only on the first subgroup level of each
-component. Element \code{pval.Q.b} of \code{print}
-controls the P-value column. Prediction intervals and pooled summary rows
-do not display these tests.
+\subsection{Formatting defaults}{
+Unless listed below, defaults for supported formatting elements are
+described in \code{\link{meta-formatting}}.
 
-For shared overall summaries, method details are printed by default, and
-method and interval-method columns are selected according to variation
-within each result type (common effect, random effects, or prediction),
-not differences between result types. Statistic and P-value columns are
-omitted by default for all source subgroup plots; their tests are shown in
-overall-effect test rows. Degrees-of-freedom columns are also omitted for
-shared summaries or different datasets. Explicit display options take precedence.
+\tabular{ll}{
+\bold{Element} \tab \bold{Default} \cr
+\code{print$stat}, \code{print$pval} \tab Automatic. \cr
+\code{print$I2}, \code{print$pval.Q} \tab See below. \cr
+\code{print$I2.ci}, \code{print$Q} \tab \code{FALSE}. \cr
+\code{print$subgroup.name} \tab \code{FALSE}. \cr
+\code{type$common}, \code{type$random} \tab \code{NULL} (automatic). \cr
+\code{digits$pval} \tab \code{max(gs("digits.pval") - 2, 2)} \cr
+\code{digits$pval.Q} \tab \code{max(gs("digits.pval.Q") - 2, 2)} \cr
+}
+Fill and border colours are determined automatically from the layout.
+They can be overridden using the following elements of the named list
+\code{col}:
+\itemize{
+\item \code{square}, \code{square.lines}: square fill and border;
+\item \code{circle}, \code{circle.lines}: circle fill and border;
+\item \code{diamond}, \code{diamond.lines}: diamond fill and border;
+\item \code{diamond.common}, \code{diamond.lines.common}: common effect
+  diamond fill and border;
+\item \code{diamond.random}, \code{diamond.lines.random}: random effects
+  diamond fill and border;
+\item \code{predict}, \code{predict.lines}: prediction interval fill
+  and border.
+}
 
-With \code{backtransf = FALSE}, references for transformed single-outcome
-measures are passed on the original scale to \code{forest.meta()}.
-PFT and IRFT reference transformations use a shared harmonic mean when
-available; otherwise the arcsine and square-root transformations are used,
-respectively.
+The named list \code{print} controls which columns are shown.
+Columns \code{func}, \code{sm}, \code{method}, and \code{method.interval}
+are selected automatically when their values differ between the displayed
+results. Heterogeneity-method columns \code{method.tau},
+\code{method.tau.ci}, and \code{method.I2} are selected similarly when
+the corresponding heterogeneity statistics are shown.
+Statistics and P values are shown when available, except in subgroup plots.
 
-Custom back-transformations are applied separately to each result. The
-logarithmic-axis shortcut is used only when all selected results use an
-exponential back-transformation; otherwise the plotting data are prepared
-on the displayed scale.
-
-Custom back-transformation functions and named arguments are displayed
-automatically when supplied. Elements \code{backtransf} and
-\code{args.backtransf} of \code{print} override this selection; the
-argument column is shown only with the function column. These columns
-precede effect and interval columns on the left, and follow them on the
-right. This controls column visibility independently of the logical
-\code{backtransf} argument controlling the result scale.
+Without subgroup results, \code{print$I2} defaults to \code{FALSE},
+and \code{print$pval.Q} follows \code{print$Q}.
+With subgroup results, I-squared is shown by default. The global setting
+\code{settings.meta(print.I2 = FALSE)} suppresses it unless
+\code{print$I2} is set explicitly. Element \code{print$pval.Q}
+defaults to \code{TRUE} for subgroup plots.
+}
 }
 \examples{
-ma <- metagen(1:3, 3:1, sm = "RR")
+ma <- metagen(1:3, 3:1, sm = "md")
+#
 mb <- metabind(ma, update(ma, method.random.ci = "HK"))
+#
 forest(mb)
+#
 forest(mb, subgroup = type)
 
 }

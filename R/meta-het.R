@@ -119,3 +119,23 @@ pvalQ <- function(Q, df, lower.tail = FALSE) {
   #
   res
 }
+
+pval_subgroup <- function(statistic, df) {
+  df <- subgroup_test_df(df, length(statistic))
+  #
+  res <- vapply(seq_along(statistic), function(i) {
+    dfs <- df[[i]]
+    #
+    if (is.na(statistic[i]) || length(dfs) == 0L || anyNA(dfs))
+      NA_real_
+    else if (length(dfs) == 1L)
+      unname(pvalQ(statistic[i], dfs))
+    else if (length(dfs) == 2L && all(dfs > 0))
+      unname(pf(statistic[i], dfs[1], dfs[2], lower.tail = FALSE))
+    else
+      NA_real_
+  }, numeric(1))
+  #
+  names(res) <- names(statistic)
+  res
+}

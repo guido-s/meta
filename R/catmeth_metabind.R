@@ -52,7 +52,10 @@ catmeth_metabind <- function(x,
   results <- NULL
   if (common || random) {
     results <- as.data.frame(x, common = common, random = random,
-                             prediction = FALSE, subgroup = FALSE)
+                             prediction = FALSE, subgroup = FALSE,
+                             drop_all_NA = FALSE)
+    #
+    results$interval.slot <- NULL
     #
     results %<>%
       mutate(
@@ -88,6 +91,8 @@ catmeth_metabind <- function(x,
   print$tau.ci <- print[["tau.ci"]] && print[["tau"]]
   #
   predict <- if (prediction) x$predict else NULL
+  if (prediction)
+    predict$interval.slot <- NULL
   #
   ids <- unique(c(results$id, predict$id))
   overall <- x$overall %>%

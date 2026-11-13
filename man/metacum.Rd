@@ -104,15 +104,16 @@ Performs a cumulative meta-analysis.
 A cumulative meta-analysis is performed. Studies are included
 sequentially as defined by \code{sortvar}.
 
-Information from object \code{x} is utilised if argument
-\code{pooled} is missing. A random effects model is assumed
-(\code{pooled = "random"}) if (i) a random effects meta-analysis was
-conducted (list element \code{x$random = TRUE}) and prediction intervals
-are requested (argument \code{prediction = TRUE} or list element
-\code{x$prediction = TRUE}) or (ii) a common effect meta-analysis was
-not conducted (\code{x$common = FALSE}), but a random effects meta-analysis
-was conducted (\code{x$random = TRUE}). Otherwise, a common effect model is
-assumed.
+If argument \code{pooled} is missing, a random effects model is assumed
+(\code{pooled = "random"}) whenever prediction intervals are requested,
+irrespective of \code{x$random}. If argument \code{prediction} is missing,
+the setting \code{x$prediction} is used; an explicit value of
+\code{prediction} overrides this setting.
+
+If prediction intervals are not requested, a random effects model is
+assumed when \code{x$common = FALSE} and \code{x$random = TRUE}.
+Otherwise, a common effect model is assumed. An explicit choice of
+\code{pooled} takes precedence over these defaults.
 }
 \examples{
 data(Fleiss1993bin)

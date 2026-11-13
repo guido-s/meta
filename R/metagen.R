@@ -1322,14 +1322,17 @@ metagen <- function(TE, seTE, studlab,
       upper <-
         transf(upper, sm, func = func.transf, args = args.transf, n = n.pft)
     }
-    if (sm == "VE" && avail.lower & avail.upper) {
-      tmp.l <- lower
-      lower <- upper
-      upper <- tmp.l
+    #
+    if (avail.lower && avail.upper) {
+      wo <- !is.na(lower) & !is.na(upper) & lower > upper
       #
-      tmp.l <- lower.orig
-      lower.orig <- upper.orig
-      upper.orig <- tmp.l
+      tlower <- lower[wo]
+      lower[wo] <- upper[wo]
+      upper[wo] <- tlower
+      #
+      tlower <- lower.orig[wo]
+      lower.orig[wo] <- upper.orig[wo]
+      upper.orig[wo] <- tlower
     }
   }
   #
@@ -2275,7 +2278,7 @@ metagen <- function(TE, seTE, studlab,
       hcc <- hetcalc(TE[!exclude.ma], seTE[!exclude.ma],
                      method.tau, method.tau.ci, TE.tau,
                      method.I2, level.hetstat,
-                     subgroup = subgroup, control = control,
+                      subgroup = subgroup[!exclude.ma], control = control,
                      cluster = cluster[!exclude.ma], rho = rho)
     #
     # Different calculations for three-level models
@@ -3111,12 +3114,7 @@ metagen <- function(TE, seTE, studlab,
               tau2.calc = tau2.calc,
               rma.usw.c = if (usw.common & keeprma) m4.usw.c else NULL,
               rma.usw.r = if (usw.random & keeprma) m4.usw.r else NULL,
-              rma.three.level = if (three.level & keeprma) m4 else NULL,
-              # Deprecated list elements
-              zval = ci.study$statistic,
-              hakn = any(method.random.ci == "HK"),
-              zval.common = statistic.common,
-              zval.random = statistic.random
+              rma.three.level = if (three.level & keeprma) m4 else NULL
               )
   #
   if (is.pairwise | data.pairwise) {

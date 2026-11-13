@@ -32,27 +32,20 @@
 estimates, random effects estimates, and prediction intervals to print.}
 
 \item{overall}{A logical indicating whether overall summaries should be
-printed. No additional overall summaries are printed for component
-results without source subgroup analyses.
-For source subgroup analyses, selected overall effects can be shared
+printed. No additional overall summaries are printed for included
+meta-analyses without subgroup analyses.
+For subgroup analyses, selected overall effects can be shared
 independently of heterogeneity. Shared heterogeneity is printed only
-when its values and settings also agree across components.}
+when its values and settings also agree across included meta-analyses.
+Subgroup-difference statistics are headed \code{Q}, \code{F}, or
+\code{Q/F}, according to the tests in each displayed table. Both degrees
+of freedom are retained for F tests.}
 
 \item{backtransf}{A logical indicating whether results should be
 back-transformed. Different summary measures require back-transformation.}
 
 \item{print}{A named list controlling displayed information; see
-\code{\link{meta-formatting}}. Elements \code{func}, \code{sm},
-\code{method}, and \code{method.interval} accept \code{TRUE},
-\code{FALSE}, or \code{NULL} for automatic column selection within
-each result table. Element \code{func} identifies the originating
-meta-analysis function. Elements \code{level.ma}, \code{level.predict},
-and \code{level.hetstat} control confidence-level columns, which are
-shown automatically when the corresponding levels differ. Elements
-\code{backtransf} and \code{args.backtransf} control columns showing
-custom back-transformation functions and their named arguments, with
-headings \code{backtransf} and \code{args}. By default, these are
-shown when supplied; arguments are shown only with the function column.}
+\code{\link{meta-formatting}}.}
 
 \item{digits}{A named list controlling rounding; see
 \code{\link{meta-formatting}}. A scalar value is also accepted.}
@@ -70,8 +63,7 @@ the formatting of P values.}
 \item{text.tau}{Text printed to identify \eqn{\tau}, the square
 root of the between-study variance \eqn{\tau^2}.}
 
-\item{text.I2}{Text printed to identify heterogeneity statistic
-I\eqn{^2}.}
+\item{text.I2}{Text printed to identify heterogeneity statistic I\eqn{^2}.}
 
 \item{details.methods}{A logical specifying whether details on
 statistical methods should be printed.}
@@ -83,21 +75,55 @@ statistical methods should be printed.}
 Invisibly returns \code{NULL}.
 }
 \description{
-Prints common effect estimates, random effects estimates, prediction
-intervals, and heterogeneity information in separate tables.
+Print method for objects of class \code{metabind}.
+}
+\details{
+\subsection{Formatting defaults}{
+Unless listed below, defaults for supported formatting elements are
+described in \code{\link{meta-formatting}}.
+
+\tabular{ll}{
+\bold{Element} \tab \bold{Default} \cr
+\code{print$stat} \tab \code{TRUE}. \cr
+\code{print$I2}, \code{print$tau2} \tab Corresponding \code{gs("print.*")} setting. \cr
+\code{print$tau}, \code{print$Q} \tab Corresponding \code{gs("print.*")} setting. \cr
+\code{print$I2.ci}, \code{print$tau2.ci} \tab \code{FALSE}. \cr
+\code{print$tau.ci} \tab \code{FALSE}. \cr
+\code{print$pval.Q} \tab Follows \code{print$Q}. \cr
+\code{print$subgroup.name} \tab Whether subgroup results are present.
+}
+The named list \code{print} controls which columns are shown.
+Columns \code{func}, \code{sm}, \code{method}, and \code{method.interval}
+are selected automatically when their values differ within a result table.
+Confidence-level columns \code{level.ma}, \code{level.predict}, and
+\code{level.hetstat} are shown when the corresponding levels differ.
+Columns \code{backtransf} and \code{args.backtransf} are shown when
+custom back-transformation functions and arguments are supplied;
+arguments are shown only with the function column.
+}
 }
 \examples{
 data(Fleiss1993bin)
 ma1 <- metabin(d.asp, n.asp, d.plac, n.plac,
   data = Fleiss1993bin, studlab = study, sm = "RR", method = "I")
 ma2 <- update(ma1, method = "MH", random = FALSE)
+
+# Printout for individual meta-analyses
 ma1
 ma2
-metabind(ma1, ma2)
+
+# Standard printout
+metabind(ma1, ma2, name = c("IV method", "MH method"))
+
+# Print confidence intervals for tau^2 and tau and
+# suppress column on meta-analysis method
+print(metabind(ma1, ma2, name = c("IV method", "MH method")),
+  print = list(tau2.ci = TRUE, tau.ci = TRUE, method = FALSE))
 
 }
 \seealso{
-\code{\link{metabind}}, \code{\link{settings.meta}}
+\code{\link{metabind}}, \code{\link{forest.metabind}},
+   \code{\link{settings.meta}}
 }
 \author{
 Guido Schwarzer \email{guido.schwarzer@uniklinik-freiburg.de}

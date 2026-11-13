@@ -371,7 +371,10 @@ metareg.meta <- function(x, formula, method.tau = x$method.tau,
       #
       res <-
         runNN(rma.mv,
-              list(yi = TE[!exclude], V = seTE[!exclude]^2,
+              list(yi = TE[!exclude],
+                   V = vcalc(vi = seTE[!exclude]^2,
+                             cluster = dataset$.id, obs = dataset$.idx,
+                             rho = replaceNULL(..x[["rho"]], 0)),
                    data = dataset,
                    mods = formula, method = method.tau,
                    random = as.call(~ 1 | .id / .idx),

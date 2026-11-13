@@ -15,39 +15,6 @@ gm <- function(x, digits = 4, debug = FALSE) {
   # Get rid of warning 'Undefined global functions or variables'
   model <- NULL
   #
-  if (inherits(x, "metabind")) {
-    res <-
-      with(
-        x$data,
-        list(
-          meth =
-            func(
-              model, method, three.level,
-              k, k.all,
-              k.MH = replaceNULL(x$k.MH, NA),
-              k.study, k.TE,
-              k0 = replaceNULL(x$k0, NA),
-              method.tau, method.tau.ci,
-              tau = round(tau, digits), tau.preset,
-              method.I2,
-              method.common.ci,
-              method.random.ci,
-              df.random = replaceNULL(df.random),
-              adhoc.hakn.ci,
-              rho),
-          pred =
-            func(
-              model, method.predict,
-              df.predict = replaceNULL(df.predict), adhoc.hakn.pi)
-        )
-      )
-    #
-    res$meth <- subset(res$meth, model %in% c("common", "random"))
-    res$pred <- subset(res$pred, model == "predict")
-    #
-    return(res)
-  }
-  #
   if (inherits(x, c("metacum", "metainf"))) {
     if (x$pooled == "random") {
       df.randoms <-

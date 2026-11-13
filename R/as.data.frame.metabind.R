@@ -21,6 +21,20 @@
 #' @param \dots Other arguments (ignored).
 #' 
 #' @return A data frame is returned by the function \code{as.data.frame}.
+#'   For subgroup results, \code{df.Q.b} is a list column containing
+#'   the complete degrees of freedom for each subgroup-difference test.
+#'   Element \code{test.Q.b} identifies chi-squared (\code{"Q"}) and
+#'   F (\code{"F"}) tests; unavailable types are \code{NA}.
+#'   Variance fields \code{tau2}, \code{lower.tau2}, \code{upper.tau2},
+#'   \code{se.tau2}, \code{tau}, \code{lower.tau}, and \code{upper.tau}
+#'   are list columns containing the complete numeric vectors, including
+#'   length-one vectors for single-component analyses. Component order and
+#'   names are preserved.
+#'   For random effects and prediction results, column \code{interval.slot}
+#'   numbers the intervals within each meta-analysis and result type.
+#'   Repeated uses of the same method have different interval numbers.
+#'   Together, \code{id} and \code{interval.slot} link each subgroup result
+#'   to the corresponding overall result.
 #' 
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
@@ -72,6 +86,12 @@ as.data.frame.metabind <- function(x, row.names = NULL, optional = FALSE,
   if (subgroup) {
     full.common <- full.random <- full.predict <- NULL
     #
+    for (model in c(if (random) "random", if (prediction) "predict")) {
+      if (anyDuplicated(x[[model]][c("id", "interval.slot")]))
+        stop("Interval slots must uniquely identify pooled results ",
+             "within each meta-analysis and result family.", call. = FALSE)
+    }
+    #
     if (common)
       full.common <-
         left_join(x$subgroup$common, x$common,
@@ -79,14 +99,14 @@ as.data.frame.metabind <- function(x, row.names = NULL, optional = FALSE,
     #
     if (random)
       full.random <-
-        left_join(x$subgroup$random, x$random,
-                  by = c("id", "method.interval", "adhoc.hakn"),
+        left_join(select(x$subgroup$random, -method.interval, -adhoc.hakn), x$random,
+                  by = c("id", "interval.slot"),
                   suffix = c(".w", ""))
     #
     if (prediction)
       full.predict <-
-        left_join(x$subgroup$predict, x$predict,
-                  by = c("id", "method.interval", "adhoc.hakn"),
+        left_join(select(x$subgroup$predict, -method.interval, -adhoc.hakn), x$predict,
+                  by = c("id", "interval.slot"),
                   suffix = c(".w", ""))
     #
     full.results <- bind_rows(full.common, full.random, full.predict) %>%

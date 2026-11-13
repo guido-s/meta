@@ -28,13 +28,10 @@
 #'   treatment effects indicate a beneficial (\code{"desirable"}) or
 #'   harmful (\code{"undesirable"}), can be abbreviated.
 #' @param big.mark A character used as thousands separator.
-#' @param digits.cid Minimal number of significant digits for
-#'   CIDs / decision thresholds, see \code{print.default}.
-#' @param digits.percent Minimal number of significant digits for
-#'   expected proportions, printed as percentages, see \code{print.default}.
 #' @param details.methods A logical specifying whether details on
 #'   statistical methods should be printed.
-#' @param \dots Additional arguments (ignored)
+#' @param \dots Additional arguments. The print method accepts formatting
+#'   settings described in \code{\link{meta-formatting}}; otherwise ignored.
 #' 
 #' @details
 #' Expected proportions of comparable studies with clinically important
@@ -432,22 +429,44 @@ cidprop <- function(x, ...)
 
 
 #' @rdname cidprop
+#' @param digits A named list controlling rounding; see
+#'   \code{\link{meta-formatting}}. A scalar rounds thresholds.
 #' @method print cidprop
 #' @export
 
 print.cidprop <- function(x,
-                           digits.cid = gs("digits.cid"), digits.percent = 1,
+                           #
+                           digits = NULL,
+                           #
                            big.mark = gs("big.mark"),
                            details.methods = gs("details"),
                            ...) {
   
   #
   #
-  # (1) Check arguments
+  # (1) Check and set arguments
   #
   #
     
   chkclass(x, "cidprop")
+  #
+  args <- list(...)
+  #
+  # Digits used to round results
+  #
+  scalar.digits <- !is.null(digits) && !is.list(digits)
+  digits <- as_named_list(digits)
+  if (scalar.digits)
+    names(digits) <- "cid"
+  #
+  digits.list <-
+    merge_legacy(digits, args, list(cid = gs("digits.cid"), percent = 1))
+  #
+  digits <- digits.list$res
+  args <- digits.list$args
+  #
+  digits.cid <- digits$cid
+  digits.percent <- digits$percent
   #
   chknumeric(digits.cid, min = 0, length = 1)
   chknumeric(digits.percent, min = 0, length = 1)

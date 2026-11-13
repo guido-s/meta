@@ -436,6 +436,20 @@ update.meta <- function(object,
   #
   chkclass(object, "meta")
   #
+  if (update_needed(object$version, 9, 0, verbose)) {
+    for (i in c("metabind", "is.metabind", "metamerge")) {
+      if (inherits(object, i))
+        stop("Meta-analysis object was created with a version of R package 'meta' ",
+             "earlier than 9.0-0 and is no longer supported. ",
+             "Recreate it using the current version of 'meta'.",
+             if (!is.null(object$call))
+               paste0("\nOriginal call:\n",
+                      paste(deparse(object$call, width.cutoff = 80L),
+                            collapse = "\n")),
+             call. = FALSE)
+    }
+  }
+  #
   suitable <-
     chksuitable(object, "Update",
                 c("metabind", "metaadd", "metamerge", "metamiss"),
@@ -741,18 +755,6 @@ update.meta <- function(object,
         object$lower <- ir2ft(object$lower, object$time)
         object$upper <- ir2ft(object$upper, object$time)
       }
-      #
-      if (inherits(object, "metabind")) {
-        object$with.subgroups <- any(object$is.subgroup)
-        #
-        if (object$with.subgroups) {
-          object$data$Q.b.common <- object$data$Q.b
-          object$data$Q.b.random <- object$data$Q.b
-          #
-          object$data$pval.Q.b.common <- object$data$pval.Q.b
-          object$data$pval.Q.b.random <- object$data$pval.Q.b
-        }
-      }
     }
     #
     object$seTE.kero <-
@@ -815,11 +817,6 @@ update.meta <- function(object,
   if (update_needed(object$version, 9, 0, verbose)) {
     #
     # Changes for meta objects with version < 9.0
-    #
-    if (inherits(object, "metabind")) {
-      stop("Update not possible for metabind() objects before version 9.0.",
-           call. = FALSE)
-    }
     #
     if (inherits(object, "metaprop") && object$sm == "PFT") {
       exclude <- replaceNULL(object$exclude, rep(FALSE, length(object$n)))

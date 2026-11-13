@@ -62,17 +62,22 @@ right side of the forest plot (see Details).}
 
 \item{lab.NA}{A character string to label missing values.}
 
-\item{col}{A named list specifying colours used in the forest
-plot; see \code{\link{meta-formatting}}.}
+\item{col}{A named list specifying colours.
+A colour can also be supplied directly to set \code{col$col}.
+See Details for defaults specific to this function and
+\code{\link{meta-formatting}} for information on the elements.}
 
-\item{print}{A named list specifying which information to print in the forest
-plot; see \code{\link{meta-formatting}}.}
+\item{print}{A named list controlling displayed information.
+See Details for defaults specific to this function and
+\code{\link{meta-formatting}} for information on the elements.}
 
 \item{type}{A character string or vector specifying how to
 plot treatment effects and confidence intervals for meta-analysis results.}
 
 \item{digits}{A named list specifying digits used for displayed results; a
-scalar value is also accepted. See \code{\link{meta-formatting}}.}
+scalar value is also accepted.
+See Details for defaults specific to this function and
+\code{\link{meta-formatting}} for information on the elements.}
 
 \item{backtransf}{A logical indicating whether results should be
 back transformed in forest plots. If \code{backtransf = TRUE},
@@ -117,6 +122,13 @@ be printed in an existing graphics window.}
 \item{\dots}{Additional graphical arguments (passed on to
 \code{\link{forest.meta}}).}
 }
+\value{
+Invisibly returns a list with information about the forest plot,
+including the selected columns (\code{leftcols}, \code{rightcols}),
+their headings (\code{leftlabs}, \code{rightlabs}), formatted results,
+graphical settings (see \code{\link{forest.meta}}), and the dataset in
+element \code{data} used to create the forest plot.
+}
 \description{
 Draws a forest plot showing the results of omitting each study in turn,
 using the grid graphics system.
@@ -124,9 +136,9 @@ using the grid graphics system.
 \details{
 Each row of the forest plot represents a meta-analysis after omitting one
 study from the original meta-analysis. Results are shown in the order of
-the omitted studies. Common-effect or random-effects estimates, prediction
-intervals, heterogeneity statistics, and study-level information can be
-selected with the corresponding arguments.
+the omitted studies. The pooling model is determined by argument
+\code{pooled} in \code{\link{metainf}}. Prediction intervals and additional
+result columns can be selected when drawing the forest plot.
 
 A forest plot, also called a confidence interval plot, is drawn in the
 active graphics window using the grid graphics system. To save the plot,
@@ -134,16 +146,21 @@ specify a file name with argument \code{filename}; the graphics device is
 selected from the file extension by default (see \code{\link{forest.meta}}
 for examples).
 
-The named list \code{print} determines which result columns are shown in
-the forest plot. The argument \code{layout} determines the default
-placement of these columns on the left or right side. The columns and their
-placement are determined internally and cannot be changed by the user.
+The named list \code{print} determines the default result columns.
+Argument \code{layout} determines their default placement, which can be
+overridden with \code{leftcols} and \code{rightcols}.
 
 Arguments \code{leftcols} and \code{rightcols} can be used to specify
 columns printed on the left or right side, respectively. Arguments
 \code{leftlabs} and \code{rightlabs} can be used to provide headings for
 these columns. Use \code{NA} for a column heading to retain its default
 label.
+
+\subsection{Formatting defaults}{
+Formatting defaults are the same as in \code{\link{forest.metacum}}.
+General defaults and supported elements are described in
+\code{\link{meta-formatting}}.
+}
 }
 \examples{
 data(Fleiss1993bin)

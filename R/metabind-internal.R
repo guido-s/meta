@@ -150,13 +150,13 @@ extrMA <- function(id, x, name, type = "overall", outclab = NULL) {
     res$df.Q <- x$df.Q[1]
     res$pval.Q <- x$pval.Q[1]
     #
-    res$tau2 <- x$tau2
-    res$lower.tau2 <- x$lower.tau2
-    res$upper.tau2 <- x$upper.tau2
-    res$se.tau2 <- replaceNULL(x$se.tau2)
-    res$tau <- x$tau
-    res$lower.tau <- x$lower.tau
-    res$upper.tau <- x$upper.tau
+    res$tau2 <- list(x$tau2)
+    res$lower.tau2 <- list(x$lower.tau2)
+    res$upper.tau2 <- list(x$upper.tau2)
+    res$se.tau2 <- list(replaceNULL(x$se.tau2))
+    res$tau <- list(x$tau)
+    res$lower.tau <- list(x$lower.tau)
+    res$upper.tau <- list(x$upper.tau)
     #
     res$H <- x$H
     res$lower.H <- x$lower.H
@@ -235,6 +235,9 @@ extrMA <- function(id, x, name, type = "overall", outclab = NULL) {
     )
   }
   #
+  if (random || type == "prediction")
+    res$interval.slot <- seq_len(nrow(res))
+  #
   res
 }
 
@@ -247,6 +250,27 @@ extrSub <- function(id, x, type = "common") {
   #
   if (is.numeric(x$subgroup.levels))
     x$subgroup.levels <- as.character(x$subgroup.levels)
+  #
+  if (type != "prediction") {
+    n.method <- if (type == "common") 1L else length(x$method.random.ci)
+    Q <- replaceNULL(x[[paste0("Q.b.", type)]], numeric())
+    n.test <- length(Q)
+    if (n.test > n.method)
+      stop("More subgroup tests than interval methods.", call. = FALSE)
+    #
+    Q.by.method <- pval.by.method <- rep(NA_real_, n.method)
+    df.by.method <- rep(list(NA_real_), n.method)
+    #
+    if (n.test > 0L) {
+      dfs <- subgroup_test_df(
+        replaceNULL(x[[paste0("df.Q.b.", type)]], x[["df.Q.b"]]), n.test)
+      pvals <- replaceNULL(x[[paste0("pval.Q.b.", type)]], pval_subgroup(Q, dfs))
+      slots <- seq_len(n.test)
+      Q.by.method[slots] <- Q
+      df.by.method[slots] <- dfs
+      pval.by.method[slots] <- pvals[slots]
+    }
+  }
   #
   if (type == "common") {
     res <- data.frame(
@@ -263,17 +287,16 @@ extrSub <- function(id, x, type = "common") {
       statistic = matrix(list2mat(x$statistic.common.w), ncol = 1),
       pval = matrix(list2mat(x$pval.common.w), ncol = 1),
       #
-      Q.b = x$Q.b.common,
-      df.Q.b = unlist(x$df.Q.b.common),
-      pval.Q.b = x$pval.Q.b.common
+      Q.b = Q.by.method,
+      df.Q.b = NA_real_,
+      pval.Q.b = pval.by.method
     )
   }
   else if (type == "random") {
-    n.method <- length(x$method.random.ci)
-    #
     res <- data.frame(
       id = id,
       #
+      interval.slot = rep(seq_len(n.method), each = n.by),
       method.interval = rep(unname(x$method.random.ci), each = n.by),
       adhoc.hakn = rep(unname(x$adhoc.hakn.ci), each = n.by),
       #
@@ -289,9 +312,9 @@ extrSub <- function(id, x, type = "common") {
       statistic = matrix(list2mat(x$statistic.random.w), ncol = 1),
       pval = matrix(list2mat(x$pval.random.w), ncol = 1),
       #
-      Q.b = rep(x$Q.b.random, each = n.by),
-      df.Q.b = rep(unlist(x$df.Q.b.random), each = n.by),
-      pval.Q.b = rep(x$pval.Q.b.random, each = n.by)
+      Q.b = rep(Q.by.method, each = n.by),
+      df.Q.b = NA_real_,
+      pval.Q.b = rep(pval.by.method, each = n.by)
     )
   }
   else if (type == "prediction") {
@@ -300,6 +323,7 @@ extrSub <- function(id, x, type = "common") {
     res <- data.frame(
       id = id,
       #
+      interval.slot = rep(seq_len(n.method), each = n.by),
       method.interval = rep(unname(x$method.predict), each = n.by),
       adhoc.hakn = rep(unname(x$adhoc.hakn.pi), each = n.by),
       #
@@ -313,10 +337,53 @@ extrSub <- function(id, x, type = "common") {
     )
   }
   #
+  if (type != "prediction") {
+    df.rows <- rep(df.by.method, each = n.by)
+    #
+    if (length(df.rows) != nrow(res))
+      stop("Subgroup-test DF entries do not match the result rows.",
+           call. = FALSE)
+    #
+    res$df.Q.b <- df.rows
+    #
+    res$test.Q.b <- vapply(df.rows, function(df) {
+      if (length(df) == 0L || anyNA(df))
+        NA_character_
+      else if (length(df) == 1L)
+        "Q"
+      else if (length(df) == 2L)
+        "F"
+      else
+        NA_character_
+    }, character(1))
+  }
+  #
   res$n.harmonic.mean <- replaceNULL(x$n.harmonic.mean.w)
   res$t.harmonic.mean <- replaceNULL(x$t.harmonic.mean.w)
   #
   res
+}
+
+subgroup_test_df <- function(df, n.method) {
+  if (is.null(df))
+    df <- rep(list(NA_real_), n.method)
+  else if (!is.list(df)) {
+    if (n.method == 1L)
+      df <- list(df)
+    else if (length(df) == 1L)
+      df <- rep(list(df), n.method)
+    else
+      stop("Multiple subgroup tests require a list of ",
+           "method-specific degrees of freedom.",
+           call. = FALSE)
+  }
+  #
+  if (length(df) != n.method)
+    stop("Number of subgroup-test DF entries does not match ",
+         "the number of interval methods.",
+         call. = FALSE)
+  #
+  unname(df)
 }
 
 setClass <- function(x) {
@@ -355,6 +422,27 @@ format_args <- function(x, lab.NA = ".") {
     values[named] <- paste0(arg.names[named], " = ", values[named])
   }
   paste(values, collapse = ", ")
+}
+
+metabind_interval_occurrence <- function(dat, values) {
+  occurrence <- integer(nrow(dat))
+  ids <- replaceNULL(dat$id, rep(1L, nrow(dat)))
+  # Shared summaries acquire missing IDs when bound to source subgroup rows.
+  ids <- match(ids, unique(ids))
+  #
+  for (id in unique(ids)) {
+    rows <- which(ids == id)
+    if (isCol(dat, "interval.slot"))
+      rows <- rows[order(dat$interval.slot[rows])]
+    #
+    while (length(rows)) {
+      first <- !duplicated(values[rows, , drop = FALSE])
+      occurrence[rows] <- occurrence[rows] + 1L
+      rows <- rows[!first]
+    }
+  }
+  #
+  occurrence
 }
 
 map_metabind_subgroups <- function(ma, x, dat, display, shared.overall,
@@ -396,8 +484,11 @@ map_metabind_subgroups <- function(ma, x, dat, display, shared.overall,
     #
     if (family == "common")
       slots <- slots[seq_len(min(nrow(slots), 1L)), , drop = FALSE]
-    else
+    else {
+      occurrence <- metabind_interval_occurrence(dat[rows, , drop = FALSE], slots)
+      slots$.interval.occurrence <- occurrence
       slots <- unique(slots)
+    }
     #
     ns <- max(nrow(slots), 1L)
     #
@@ -407,7 +498,7 @@ map_metabind_subgroups <- function(ma, x, dat, display, shared.overall,
       slot[] <- 1L
     else {
       for (j in seq_len(nrow(slots))) {
-        same <- rep(TRUE, length(rows))
+        same <- occurrence == slots$.interval.occurrence[j]
         for (key in keys) {
           value <- dat[[key]][rows]
           target <- slots[[key]][j]
@@ -574,18 +665,38 @@ map_metabind_subgroups <- function(ma, x, dat, display, shared.overall,
     if (is.null(values))
       next
     #
+    if (is.list(values)) {
+      value <- values[[metadata[1]]]
+      # Native forest annotations use total variance, not component-wise CIs.
+      #
+      group.values <- vapply(values[metadata], function(value) {
+        if (length(value) == 1L)
+          value
+        else if (field == "tau2")
+          sum(value)
+        else if (field == "tau")
+          sqrt(sum(value^2))
+        else
+          NA_real_
+      }, numeric(1))
+    }
+    else {
+      value <- values[metadata[1]]
+      group.values <- values[metadata]
+    }
+    #
     if (shared.overall && shared.heterogeneity)
-      ma[[field]] <- values[metadata[1]]
+      ma[[field]] <- value
     else if (field %in% heterogeneity)
       ma[[field]] <- NA_real_
     else
-      ma[[field]] <- values[metadata[1]]
+      ma[[field]] <- value
     #
     if (shared.overall && shared.heterogeneity)
       ma[[paste0(field, ".w")]] <-
-        rep(if (is.numeric(values)) NA_real_ else NA_character_, n.by)
+        rep(if (is.numeric(value)) NA_real_ else NA_character_, n.by)
     else
-      ma[[paste0(field, ".w")]] <- values[metadata]
+      ma[[paste0(field, ".w")]] <- group.values
     #
     names(ma[[paste0(field, ".w")]]) <- groups
   }
@@ -602,6 +713,7 @@ map_metabind_subgroups <- function(ma, x, dat, display, shared.overall,
   ma$random <- random
   ma$prediction <- args$prediction
   ma$overall <- args$overall
+  ma$three.level <- any(x$overall[["three.level"]][metadata], na.rm = TRUE)
   ma$k.w.orig <- x$overall$k[metadata]
   #
   if (shared.overall)
@@ -629,6 +741,28 @@ map_metabind_subgroups <- function(ma, x, dat, display, shared.overall,
   args$data.pooled <- pooled
   #
   list(ma = ma, args = args)
+}
+
+format_metabind_variance <- function(x, digits, lab.NA = ".", big.mark = "",
+                                     upper = NULL) {
+  if (is.null(upper))
+    vapply(x, function(value) {
+      if (length(value) == 0L)
+        return(lab.NA)
+      #
+      paste(trimws(formatPT(value, digits = digits, lab.NA = lab.NA,
+                            big.mark = big.mark)),
+            collapse = ", ")
+    }, character(1), USE.NAMES = FALSE)
+  else
+    mapply(function(lower, upper) {
+      if (length(lower) == 0L || length(upper) == 0L)
+        return(lab.NA)
+      #
+      paste(trimws(formatCI(lower, upper, digits = digits, lab.NA = lab.NA,
+                            na.lab = TRUE, big.mark = big.mark)),
+            collapse = ", ")
+    }, x, upper, USE.NAMES = FALSE)
 }
 
 format_metabind_heterogeneity <- function(dat, print, digits,
@@ -665,17 +799,17 @@ format_metabind_heterogeneity <- function(dat, print, digits,
   #
   for (field in c("tau2", "tau")) {
     if (isCol(dat, field))
-      dat[[field]] <- formatPT(dat[[field]], digits = digits[[field]],
-                               lab.NA = lab.NA, big.mark = big.mark,
-                               keep.allNA = TRUE)
+      dat[[field]] <- format_metabind_variance(
+        dat[[field]], digits = digits[[field]],
+        lab.NA = lab.NA, big.mark = big.mark)
     #
     lower <- paste0("lower.", field)
     upper <- paste0("upper.", field)
     #
-    if (!(allNA(dat[[lower]]) && allNA(dat[[upper]])))
-      dat[[lower]] <- formatCI(dat[[lower]], dat[[upper]],
-                               digits = digits[[field]], lab.NA = lab.NA,
-                               na.lab = TRUE, big.mark = big.mark)
+    if (!(allNA(unlist(dat[[lower]])) && allNA(unlist(dat[[upper]]))))
+      dat[[lower]] <- format_metabind_variance(
+        dat[[lower]], upper = dat[[upper]], digits = digits[[field]],
+        lab.NA = lab.NA, big.mark = big.mark)
   }
   #
   if (!allNA(dat$I2)) {
@@ -766,6 +900,27 @@ format_metabind_heterogeneity <- function(dat, print, digits,
   drop_allNAs(dat)
 }
 
+format_df <- function(df, lab.NA = ".", big.mark = "") {
+  if (length(df) == 0L || all(is.na(df)))
+    return(lab.NA)
+  #
+  paste(vapply(df, function(value) {
+    digits <- if (is.finite(value) && is_wholenumber(value)) 0 else 2
+    #
+    trimws(formatN(value, digits = digits,
+                   lab.NA = lab.NA, big.mark = big.mark))
+  }, character(1)), collapse = ", ")
+}
+
+subgroup_test_heading <- function(test) {
+  test <- unique(test[test %in% c("Q", "F")])
+  #
+  if (length(test) == 1L)
+    test
+  else
+    "Q/F"
+}
+
 format_metabind_results <- function(dat, model, print, digits, sm.lab, lab.TE,
                                     with.subgroups = FALSE, lab.NA = ".",
                                     big.mark = gs("big.mark"),
@@ -786,14 +941,16 @@ format_metabind_results <- function(dat, model, print, digits, sm.lab, lab.TE,
   dat %<>% filter(type == result.type)
   #
   if (with.subgroups && model != "prediction") {
-    test.cols <- c("Q.b", "df.Q.b", "pval.Q.b")
+    test.cols <- c("Q.b", "df.Q.b", "pval.Q.b", "test.Q.b")
     #
     for (field in setdiff(test.cols, names(dat)))
-      dat[[field]] <- rep(NA_real_, nrow(dat))
+      dat[[field]] <-
+        rep(if (field == "test.Q.b") NA_character_ else NA_real_, nrow(dat))
     #
     if (print[["pval.Q.b"]]) {
       group.cols <- intersect(
-        c("id", "method.interval", "adhoc.hakn", "level.ma"), names(dat))
+        c("id", "interval.slot", "method.interval", "adhoc.hakn", "level.ma"),
+        names(dat))
       #
       dat %<>%
         group_by(across(all_of(group.cols))) %>%
@@ -832,7 +989,7 @@ format_metabind_results <- function(dat, model, print, digits, sm.lab, lab.TE,
                "seTE", "lower", "upper",
                if (model != "prediction") c("statistic", "pval"),
                if (model != "common") "df",
-               if (model != "prediction") c("Q.b", "df.Q.b", "pval.Q.b"))
+                if (model != "prediction") c("Q.b", "df.Q.b", "pval.Q.b", "test.Q.b"))
   #
   dat <- dat[, intersect(union(columns, keep), names(dat)), drop = FALSE]
   #
@@ -958,8 +1115,6 @@ format_metabind_results <- function(dat, model, print, digits, sm.lab, lab.TE,
   else
     dat$seTE <- NULL
   #
-  names(dat)[names(dat) == ".no_sm_provided"] <- ""
-  #
   if (with.subgroups && model != "prediction") {
     if (print[["pval.Q.b"]]) {
       dat$df <- NULL
@@ -968,15 +1123,15 @@ format_metabind_results <- function(dat, model, print, digits, sm.lab, lab.TE,
         mutate(
           Q.b = formatN(Q.b, digits = digits[["Q"]],
                         big.mark = big.mark, lab.NA = lab.NA),
-          df.Q.b = formatN(df.Q.b, digits = 0,
-                           big.mark = big.mark, lab.NA = lab.NA),
+          df.Q.b = vapply(df.Q.b, format_df, character(1),
+                          lab.NA = lab.NA, big.mark = big.mark),
           pval.Q.b = formatPT(pval.Q.b, digits = digits[["pval.Q"]],
                               lab.NA = lab.NA, scientific = scientific.pval,
                               zero = zero.pval, JAMA = JAMA.pval)) %>%
-        rename(Q = Q.b, "d.f." = df.Q.b, "p-value" = pval.Q.b)
+        rename("d.f." = df.Q.b, "p-value" = pval.Q.b)
     }
     else
-      dat[c("Q.b", "df.Q.b", "pval.Q.b")] <- NULL
+      dat[c("Q.b", "df.Q.b", "pval.Q.b", "test.Q.b")] <- NULL
   }
   #
   for (field in intersect(c("k", "df", "level"), names(dat))) {
@@ -1042,23 +1197,15 @@ prepare_metabind_subgroups <- function(x) {
   #
   dat = as.data.frame(x, subgroup = FALSE, drop_all_NA = FALSE)
   #
-  # Repeated parent settings must not multiply the source subgroup rows
-  pooled <- x
+  subdat <- as.data.frame(x, subgroup = TRUE, drop_all_NA = FALSE)
   #
-  for (i in c("common", "random", "predict")) {
-    if (!is.null(pooled[[i]]))
-      pooled[[i]] <- unique(pooled[[i]])
-  }
-  #
-  subdat <- as.data.frame(pooled, subgroup = TRUE, drop_all_NA = FALSE)
-  #
-  same.data <- inherits(x$data, "data.frame") &&
-    !".not_a_dataset" %in% names(x$data)
+  same.data <- x$samedata
   #
   same.results <- FALSE
   #
   # Compare selected effects separately from original heterogeneity metadata
-  ignore <- c("id", "name", "subgroup", "subgroup.name", "subgroup.levels",
+  ignore <- c("id", "interval.slot", "name", "subgroup", "subgroup.name",
+               "subgroup.levels",
                "common", "random", "prediction", "title", "complab", "outclab",
                "label.e", "label.c", "label.left", "label.right")
   #
@@ -1087,6 +1234,7 @@ prepare_metabind_subgroups <- function(x) {
     comparison[[i]] <- x$overall[[i]][rows]
   #
   comparison <- comparison[, setdiff(names(comparison), ignore), drop = FALSE]
+  comparison$.interval.occurrence <- metabind_interval_occurrence(dat, comparison)
   #
   ids <- unique(dat$id)
   #

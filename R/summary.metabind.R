@@ -1,19 +1,21 @@
 #' Summary method for objects of class metabind
-#' 
+#'
 #' @description
-#' Summary method for objects of class \code{metabind}.
-#' 
+#' Summary method for objects of class \code{metabind}. Summaries are printed
+#' using a wrapper for \code{\link{print.metabind}}, providing a standard
+#' \code{summary()} interface for combined meta-analysis results.
+#'
 #' @param object An object of class \code{metabind}.
-#' @param x An object of class \code{\link{metabind}}.
+#' @param x An object of class \code{"summary.metabind"}.
 #' @param common A logical indicating whether common effect estimates
-#'   should be plotted.
+#'   should be printed.
 #' @param random A logical indicating whether random effects estimates
-#'   should be plotted.
+#'   should be printed.
 #' @param prediction A logical indicating whether prediction intervals
-#'   should be plotted.
+#'   should be printed.
 #' @param overall A logical indicating whether overall summaries
-#'   should be plotted. This argument is useful in a meta-analysis
-#'   with subgroups if summaries should only be plotted on group
+#'   should be printed. This argument is useful in a meta-analysis
+#'   with subgroups if summaries should only be printed on group
 #'   level.
 #' @param print A named list specifying which information to print; see
 #'   \code{\link{meta-formatting}}.
@@ -37,18 +39,29 @@
 #'   standards.
 #' @param details.methods A logical specifying whether details on
 #'   statistical methods should be printed.
-#' @param \dots Additional arguments (passed on to \code{\link{print.metabind}}.
+#' @param \dots Additional arguments, ignored by \code{summary.metabind}
+#'   and passed to \code{\link{print.metabind}} by \code{print.summary.metabind}.
+#'
+#' @return
+#' An object of class \code{"summary.metabind"} with a corresponding print
+#' method.
 #' 
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
-#' @seealso \code{\link{metabind}}
-#' 
+#' @seealso \code{\link{metabind}}, \code{\link{print.metabind}}
+#'
 #' @examples
 #' data(Fleiss1993bin)
+#' #
 #' ma1 <- metabin(d.asp, n.asp, d.plac, n.plac,
 #'   data = Fleiss1993bin, studlab = study, sm = "RR", method = "I")
 #' ma2 <- update(ma1, method = "MH", random = FALSE)
-#' summary(metabind(ma1, ma2))
-#' 
+#' #
+#' mb <- metabind(ma1, ma2)
+#' #
+#' # Identical printouts
+#' summary(mb)
+#' mb
+#'
 #' @method summary metabind 
 #' @export
 

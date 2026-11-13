@@ -540,12 +540,12 @@ funnel.meta <- function(x,
     #
     if (!is.null(level)) {
       tl <- -ciTE$upper
-      ciTE$lower <- -ciTE$lower
-      ciTE$upper <- tl
+      ciTE$upper <- -ciTE$lower
+      ciTE$lower <- tl
       #
-      tr <- -ciTE.ref$upper
-      ciTE.ref$lower <- -ciTE.ref$lower
-      ciTE.ref$upper <- tr
+      tl <- -ciTE.ref$upper
+      ciTE.ref$upper <- -ciTE.ref$lower
+      ciTE.ref$lower <- tl
       #
       TE.xlim <- rev(-TE.xlim)
     }
@@ -711,6 +711,14 @@ funnel.meta <- function(x,
         ciContour$lower <- exp(ciContour$lower)
         ciContour$upper <- exp(ciContour$upper)
       }
+      else if (VE.backtransf) {
+        ciContour$TE <- -ciContour$TE
+        #
+        tl <- -ciContour$upper
+        ciContour$upper <- -ciContour$lower
+        ciContour$lower <- tl
+      }
+      #
       sel.l <- ciContour$lower > min(xlim) & ciContour$lower < max(xlim)
       sel.u <- ciContour$upper > min(xlim) & ciContour$upper < max(xlim)
       #

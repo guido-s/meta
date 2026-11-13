@@ -131,7 +131,6 @@ samedata <- function(x, y, stop = TRUE) {
   invisible(mismatch)
 }
 
-
 samesm <- function(x, y) {
   if (!is.null(x$sm) & !is.null(y$sm)) {
     if (is_relative_effect(x$sm) != is_relative_effect(y$sm))
@@ -149,7 +148,6 @@ samesm <- function(x, y) {
   invisible(NULL)
 }
 
-
 samesubgroups <- function(x, y) {
   if (!is.null(x$subgroup.levels) &
       !is.null(y$subgroup.levels)) {
@@ -166,7 +164,6 @@ samesubgroups <- function(x, y) {
   #
   invisible(NULL)
 }
-
 
 updateobj <- function(x,
                       label.common, label.random, label.predict,
@@ -274,6 +271,7 @@ updateobj <- function(x,
     res$pval.Q.b.common <- setname(res$pval.Q.b.common, label.subgroup)
     #
     res$Q.b.random <- setname(res$Q.b.random, label.subgroup)
+    res$df.Q.b.random <- setlistname(res$df.Q.b.random, label.subgroup)
     res$pval.Q.b.random <- setname(res$pval.Q.b.random, label.subgroup)
   }
   #
@@ -642,7 +640,6 @@ droppredict <- function(x) {
   res
 }
 
-
 expandmerge <- function(x, y, nc1 = 0, nr1 = 0, nc2 = 0, nr2 = 0) {
   n1 <- nc1 + nr1
   n2 <- nc2 + nr2
@@ -674,4 +671,192 @@ expandmerge <- function(x, y, nc1 = 0, nr1 = 0, nc2 = 0, nr2 = 0) {
   res <- c(x[seq_len(nc1)], y[seq_len(nc2)],
            x[nc1 + seq_len(nr1)], y[nc2 + seq_len(nr2)])
   res
+}
+
+normalize_overall_results <- function(x) {
+  for (model in c("common", "random")) {
+    lower <- paste0("lower.", model)
+    upper <- paste0("upper.", model)
+    #
+    n.result <- length(x[[lower]])
+    #
+    if (n.result == 0L)
+      next
+    #
+    if (length(x[[upper]]) != n.result)
+      stop("Overall lower and upper confidence limits have different lengths.",
+           call. = FALSE)
+    #
+    vars <-
+      paste0(c("TE", "seTE", "statistic", "pval", "text"), ".", model)
+    #
+    character.vars <- paste0("text.", model)
+    #
+    if (model == "random") {
+      vars <- c(vars, "df.random", "method.random.ci", "adhoc.hakn.ci")
+      character.vars <- c(character.vars,
+                            "method.random.ci", "adhoc.hakn.ci")
+    }
+    #
+    for (i in vars) {
+      var.i <- x[[i]]
+      #
+      if (is.null(var.i))
+        x[[i]] <-
+          rep(if (i %in% character.vars) NA_character_ else NA_real_, n.result)
+      else if (length(var.i) == 1L && n.result > 1L)
+        x[[i]] <- rep(var.i, n.result)
+      else if (length(var.i) != n.result)
+        stop("Length of '", i,
+             "' does not match the number of overall confidence intervals.",
+             call. = FALSE)
+    }
+  }
+  #
+  x
+}
+
+result_characteristics <- function(x) {
+  vars <- c("k", "n", "n.e", "n.c", "n.harmonic.mean", "t.harmonic.mean")
+  #
+  empty <-
+    as.data.frame(setNames(rep(list(numeric(0)), length(vars)), vars))
+  #
+  if (inherits(x, "metamerge")) {
+    res <- x[["result.characteristics"]]
+    #
+    if (is.null(res))
+      stop("Result characteristics are missing from the merged object.",
+           call. = FALSE)
+    #
+    for (model in c("common", "random", "predict")) {
+      nr <- length(x[[paste0("lower.", model)]])
+      #
+      if (nr == 0L)
+        res[[model]] <- list(overall = empty, subgroup = NULL)
+      else if (nrow(res[[model]]$overall) != nr)
+        stop("Result characteristics do not match the stored results.",
+             call. = FALSE)
+    }
+    #
+    return(res)
+  }
+  #
+  total <- function(x) {
+    if (is.null(x)) NULL else sum(x)
+  }
+  #
+  expand <- function(x, nr) {
+    if (nr == 0L)
+      numeric(0)
+    else if (is.null(x))
+      rep(NA_real_, nr)
+    else if (length(x) == 1L)
+      rep(unname(x), nr)
+    else if (length(x) == nr)
+      unname(x)
+    else
+      stop("Characteristic does not match the number of results.",
+           call. = FALSE)
+  }
+  #
+  overall <- list(
+    k = x[["k"]],
+    n = if (!is.null(x[["n"]]))
+      total(x[["n"]])
+    else if (!is.null(x[["n.e"]]) && !is.null(x[["n.c"]]))
+      total(x[["n.e"]] + x[["n.c"]])
+    else
+      NULL,
+    n.e = total(x[["n.e"]]),
+    n.c = total(x[["n.c"]]),
+    #
+    n.harmonic.mean = x[["n.harmonic.mean"]],
+    t.harmonic.mean = x[["t.harmonic.mean"]])
+  #
+  subgroup <- list(
+    k = x[["k.w"]],
+    n = if (!is.null(x[["n.w"]]))
+      x[["n.w"]]
+    else if (!is.null(x[["n.e.w"]]) && !is.null(x[["n.c.w"]]))
+      x[["n.e.w"]] + x[["n.c.w"]]
+    else
+      NULL,
+    n.e = x[["n.e.w"]],
+    n.c = x[["n.c.w"]],
+    n.harmonic.mean = x[["n.harmonic.mean.w"]],
+    t.harmonic.mean = x[["t.harmonic.mean.w"]])
+  #
+  res <- list()
+  #
+  for (model in c("common", "random", "predict")) {
+    nr <- length(x[[paste0("lower.", model)]])
+    #
+    if (nr == 0L) {
+      res[[model]] <- list(overall = empty, subgroup = NULL)
+      next
+    }
+    #
+    overall.model <- as.data.frame(lapply(overall, expand, nr = nr))
+    reference <- list2mat(x[[paste0("lower.", model, ".w")]])
+    #
+    subgroup.model <- NULL
+    #
+    if (!is.null(reference)) {
+      subgroup.model <- lapply(subgroup, function(x) {
+        if (length(x) == 1L && is.na(x))
+          x <- NULL
+        #
+        subgroup_result_matrix(x, reference)
+      })
+    }
+    #
+    res[[model]] <- list(
+      overall = overall.model,
+      subgroup = subgroup.model)
+  }
+  #
+  res
+}
+
+merge_result_characteristics <- function(x, y) {
+  first <- result_characteristics(x)
+  second <- result_characteristics(y)
+  #
+  res <- list()
+  #
+  for (model in c("common", "random", "predict")) {
+    overall <- rbind(first[[model]]$overall, second[[model]]$overall)
+    rownames(overall) <- NULL
+    #
+    a <- first[[model]]$subgroup
+    b <- second[[model]]$subgroup
+    subgroup <- NULL
+    #
+    if (!is.null(a) || !is.null(b)) {
+      vars <- names(overall)
+      subgroup <- setNames(lapply(vars, function(field) {
+        left <- a[[field]]
+        right <- b[[field]]
+        #
+        if (!is.null(left) && !is.null(right) &&
+            !identical(rownames(left), rownames(right)))
+          stop("Subgroup characteristics have different row ordering.",
+               call. = FALSE)
+        #
+        cbind(left, right)
+      }), vars)
+    }
+    #
+    res[[model]] <- list(overall = overall, subgroup = subgroup)
+  }
+  #
+  res
+}
+
+characteristic_rows <- function(x) {
+  if (is.null(x))
+    return(NULL)
+  #
+  as.data.frame(lapply(x, function(y) as.vector(t(y))))
 }

@@ -23,8 +23,7 @@ cidprop(x, ...)
 
 \method{print}{cidprop}(
   x,
-  digits.cid = gs("digits.cid"),
-  digits.percent = 1,
+  digits = NULL,
   big.mark = gs("big.mark"),
   details.methods = gs("details"),
   ...
@@ -59,13 +58,11 @@ same length as argument \code{cid.above.null} (or \code{cid}).}
 treatment effects indicate a beneficial (\code{"desirable"}) or
 harmful (\code{"undesirable"}), can be abbreviated.}
 
-\item{\dots}{Additional arguments (ignored)}
+\item{\dots}{Additional arguments. The print method accepts formatting
+settings described in \code{\link{meta-formatting}}; otherwise ignored.}
 
-\item{digits.cid}{Minimal number of significant digits for
-CIDs / decision thresholds, see \code{print.default}.}
-
-\item{digits.percent}{Minimal number of significant digits for
-expected proportions, printed as percentages, see \code{print.default}.}
+\item{digits}{A named list controlling rounding; see
+\code{\link{meta-formatting}}. A scalar rounds thresholds.}
 
 \item{big.mark}{A character used as thousands separator.}
 

@@ -2,12 +2,13 @@
 
 ### Major changes
 
-* The exact Mantel-Haenszel method is the new default for common effect
-  meta-analysis with a binary outcome; argument `MH.exact` in `metabin()` is now
-  `TRUE`. Thus, continuity corrections are no longer added to cell frequencies
-  when calculating Mantel-Haenszel pooled estimates for studies with zero cells.
-  For a single-study meta-analysis with a zero cell, a continuity correction
-  is still used. Use `settings.meta("meta8")` to restore the previous behaviour.
+* For common effect analyses using the Mantel-Haenszel method, argument
+  `MH.exact` in `metabin()` now defaults to `TRUE`, omitting continuity
+  corrections from pooling. Study-level estimates and inverse-variance
+  random effects analyses continue to follow the continuity-correction
+  settings. If only one eligible study remains, `MH.exact` is set to `FALSE`
+  and the configured continuity-correction settings apply. Use
+  `settings.meta("meta8")` to restore the previous default.
 
 * Defaults for forest plots have been revised. In the default layout
   (`layout = "meta"`), all default study-level columns are now printed on
@@ -27,8 +28,13 @@
 
   Forest-plot formatting arguments can now also be supplied as named lists,
   including `fs`, `ff`, `col`, `calcwidth`, `print`, `label`, `colgap`, `just`,
-  `digits`, `test`, `type`, `fill`, `pooled`, `text`, `lty`, and `lwd`. The
-  corresponding individual `list.element` arguments remain supported.
+  `digits`, `test`, `type`, `fill`, `pooled`, `text`, `lty`, `lwd`, `rob`,
+  `cid`, and `addrow`. The corresponding individual `list.element` arguments
+  remain supported.
+
+  Forest plots can now include a customisable main title. By default, it is
+  generated from the meta-analysis title, comparison label, and outcome
+  label, where available. Use `main = ""` to suppress it.
 
 * `metabind()` has been substantially redesigned, with a new object structure
   and dedicated `print.metabind()` and `forest.metabind()` methods. These
@@ -38,13 +44,13 @@
   Results using different, compatible summary measures can be displayed
   together, with appropriate back-transformation and scaling.
 
-  For subgroup analyses, identical selected overall results based on shared
-  data can be displayed once. Shared heterogeneity is assessed separately
-  and is displayed only when its values and settings also agree across
-  components.
+  For subgroup analyses, selected overall results can be displayed once when
+  the input datasets, results, and relevant analysis and interval settings
+  agree. Overall heterogeneity is assessed separately and is shared only when
+  its values and settings also agree.
 
-  To use the new implementation, recreate `metabind` objects generated with
-  earlier versions of R package **meta**.
+* Objects generated with `metabind()` or `metamerge()` before version 9.0-0
+  must be recreated using the current package version.
 
 * `metagen()` now always stores `null.effect` on the transformed analysis
   scale. If argument `transf = FALSE`, the supplied value is transformed
@@ -53,17 +59,21 @@
 * Function `asin2ir()` renamed to `ft2ir()` to reflect that it is the inverse
   of the Freeman-Tukey transformation of incidence rates.
 
-* Forest plots can now include a customisable main title, using the
-  meta-analysis title by default.
-
 * Cluster-robust variance estimators are now available for univariate random
-  effects meta-analysis and three-level models.
+  effects meta-analysis and three-level models
   ([Tipton and Pustejovsky, 2015](https://doi.org/10.3102/1076998615606099);
   [Pustejovsky and Tipton, 2022](https://doi.org/10.1007/s11121-021-01246-3)).
 
-* Cumulative meta-analysis and leave-one-out analyses now return random effects
-  results when prediction intervals are requested and both common effect and
-  random effects analyses are available.
+  These estimators are selected using `method.random.ci = "CR0"`, `"CR1"`,
+  or `"CR2"` for supported fitting methods. CR2 requires the optional package
+  **clubSandwich**. Univariate models use study labels to identify clusters;
+  three-level models use the supplied variable `cluster`.
+
+* Cumulative meta-analysis and leave-one-out analyses now default to random
+  effects results whenever prediction intervals are requested, either
+  explicitly or through the input meta-analysis object's prediction setting.
+  This also applies when random effects results were not selected in the
+  input object. Explicit choices of `pooled` remain unchanged.
 
 * R package **meta** now requires R (>= 4.1.0).
 
@@ -178,6 +188,10 @@
 * `print.meta()`:
   - print the type of meta-analysis in the details of the meta-analysis
   - always print the null hypothesis if argument `null.effect` is not `NA`
+  - report the test of residual heterogeneity separately, when available
+  - omit the "Within groups" row from random effects subgroup-difference
+    tables, as it does not form a Q decomposition with the random effects
+    subgroup-difference statistic; the common effect decomposition is unchanged
 
 * `metabias()`:
   - report the response variable used in meta-regression for linear regression
@@ -270,6 +284,12 @@
   - preserve `lab.NA` for missing values in additional columns on individual
     result rows when subgroups are displayed; previously, these labels were
     incorrectly replaced by empty strings
+  - correctly account for heterogeneity information when calculating
+    column widths with the default `calcwidth` settings in the RevMan5 layout
+    [(issue #108)](https://github.com/guido-s/meta/issues/108)
+  - correctly label GLMM subgroup-difference F tests and display both
+    numerator and denominator degrees of freedom
+    [(issue #109)](https://github.com/guido-s/meta/issues/109)
 
 * `bubble()`, `forest.meta()`, `metabin()`, `metagen()`, `metainc()`,
   `metaprop()`, `metarate()`, `print.meta()`, `print.summary.meta()`, `rd()`,
@@ -309,6 +329,17 @@
 * `print.meta()`, `forest.meta()`:
   - correctly back-transform `null.effect` from `metagen()` objects when
     argument `backtransf = TRUE`
+  - correctly identify F tests for subgroup differences and display both
+    numerator and denominator degrees of freedom
+
+* `metamerge()`:
+  - correctly align pooled estimates, standard errors, confidence intervals,
+    test statistics, P values, degrees of freedom, and labels when combining
+    analyses with different numbers of confidence interval methods
+  - preserve complete numerator and denominator degrees of freedom for
+    subgroup-difference F tests
+  - retain source-specific study counts and sample sizes for subsequent
+    result extraction, including subgroup results and nested merges
 
 * `metacum()`, `metainf()`, `subgroup()`:
   - correctly preserve all user-specified analysis settings and study-level
@@ -378,13 +409,23 @@
   - input to argument `xlim` determines the limits of the x-axis
     [(issue #94)](https://github.com/guido-s/meta/issues/94)
 
-* `estimates()`:
+* `estimates.meta()`:
+  - correctly align subgroup estimates, standard errors, confidence limits,
+    test statistics, P values, and degrees of freedom when multiple interval
+    methods are used
+  - return study counts and sample sizes matching each extracted overall,
+    subgroup, or prediction result, including merged objects and
+    prediction-only extraction
+  - use the corresponding study-specific values or pooled and subgroup
+    harmonic means when back-transforming Freeman-Tukey transformed
+    proportions (`sm = "PFT"`) or rates (`sm = "IRFT"`)
   - return correct order of lower and upper confidence limits for
     `sm = "VE"` and `backtransf = TRUE`
     [(issue #94)](https://github.com/guido-s/meta/issues/94)
 
-* `blup.meta()`, `print.blup.meta()`:
-  - return correct order of lower and upper confidence limits for `sm = "VE"`
+* `blup.meta()`, `print.blup.meta()`, `estimates.blup.meta()`:
+  - return correctly ordered lower and upper interval limits for
+    `sm = "VE"`, including explicit overrides of `backtransf`
     [(issue #94)](https://github.com/guido-s/meta/issues/94)
 
 * `ciClopperPearson()`, `ciPoisson()`:
@@ -394,14 +435,18 @@
 
 ### Internal changes
 
-* Use R package testthat for unit tests.
-
-* R package **testthat** added to Suggests.
-
 * Argument evaluation now uses `rlang::enquo()` and `rlang::eval_tidy()`
   instead of expressions extracted from `match.call()`. Captured expressions
   retain their evaluation environments, improving argument forwarding through
   wrapper functions. Subgroup labels are derived from the captured expressions.
+
+* Removed redundant legacy `*.fixed` list elements and the Hartung-Knapp
+  aliases `df.hakn`, `seTE.hakn`, and `seTE.hakn.adhoc` from `meta` objects.
+  Statistical results and standard printed output are unchanged.
+
+* Use R package testthat for unit tests.
+
+* R package **testthat** added to Suggests.
 
 * New internal function `layout_colors()` to define default colours for forest
   plots.

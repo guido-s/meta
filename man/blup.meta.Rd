@@ -13,14 +13,10 @@
 \method{print}{blup.meta}(
   x,
   backtransf = attr(x, "x")$backtransf,
-  digits = gs("digits"),
-  digits.se = gs("digits.se"),
-  digits.tau2 = gs("digits.tau2"),
-  digits.tau = gs("digits.tau"),
+  print = NULL,
+  digits = NULL,
   big.mark = gs("big.mark"),
   se = FALSE,
-  print.tau2 = gs("print.tau2"),
-  print.tau = gs("print.tau"),
   details = gs("details"),
   ...
 )
@@ -39,7 +35,13 @@
   ...
 )
 
-\method{print}{estimates.blup.meta}(x, big.mark = gs("big.mark"), details = gs("details"), ...)
+\method{print}{estimates.blup.meta}(
+  x,
+  digits = NULL,
+  big.mark = gs("big.mark"),
+  details = gs("details"),
+  ...
+)
 }
 \arguments{
 \item{x}{An object of class \code{meta}, \code{blup.meta}, or
@@ -54,8 +56,22 @@ back transformed. If \code{backtransf = TRUE}, results for
 
 \item{\dots}{Additional arguments (passed on to \code{\link{prmatrix}}).}
 
-\item{digits}{Minimal number of significant digits, see
-\code{print.default}.}
+\item{print}{A named list controlling displayed information in
+\code{print.blup.meta}; see \code{\link{meta-formatting}}. Elements
+\code{tau2} and \code{tau} select heterogeneity columns.}
+
+\item{digits}{A named list controlling rounding in print methods; see
+\code{\link{meta-formatting}}. A scalar rounds effects and limits.
+For \code{estimates.blup.meta}, a scalar giving the minimal number of
+significant digits.}
+
+\item{big.mark}{A character used as thousands separator.}
+
+\item{se}{A logical indicating whether standard errors should be
+printed / extracted.}
+
+\item{details}{A logical specifying whether details on
+statistical methods should be printed.}
 
 \item{digits.se}{Minimal number of significant digits for standard errors.}
 
@@ -65,21 +81,6 @@ between-study variance \eqn{\tau^2}, see \code{print.default}.}
 \item{digits.tau}{Minimal number of significant digits for
 \eqn{\tau}, the square root of the between-study variance
 \eqn{\tau^2}.}
-
-\item{big.mark}{A character used as thousands separator.}
-
-\item{se}{A logical indicating whether standard errors should be
-printed / extracted.}
-
-\item{print.tau2}{A logical specifying whether between-study
-variance \eqn{\tau^2} should be printed.}
-
-\item{print.tau}{A logical specifying whether \eqn{\tau}, the
-square root of the between-study variance \eqn{\tau^2}, should be
-printed.}
-
-\item{details}{A logical specifying whether details on
-statistical methods should be printed.}
 
 \item{writexl}{A logical indicating whether an Excel file should be
 created (R package \bold{writexl} must be available).}
@@ -101,6 +102,16 @@ Data frame with variables
 \description{
 Calculate best linear unbiased predictors (BLUPs) for meta-analysis object
 created with R package \bold{meta}.
+}
+\details{
+The print methods accept a named \code{digits} list with elements
+\code{digits}, \code{se}, \code{tau2}, and \code{tau}; see
+\code{\link{meta-formatting}}. A scalar rounds effects and limits only.
+The BLUP printer uses \code{gs("digits")} for effect rounding and
+\code{gs("print.tau2")} and \code{gs("print.tau")} for heterogeneity columns.
+The estimates printer defaults to rounding stored in the object and does
+not back-transform again.
+Extraction with \code{estimates.blup.meta} still uses scalar rounding arguments.
 }
 \examples{
 \dontrun{

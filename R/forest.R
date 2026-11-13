@@ -141,10 +141,10 @@
 #' @param ref A numerical giving the reference value to be plotted as
 #'   a line in the forest plot. No reference line is plotted if
 #'   argument \code{ref} is equal to \code{NA}.
-#' @param cid A numeric value or vector, or a named list specifying clinically important
-#'   differences (CID) / decision thresholds used to calculate probabilities
-#'   of clinically important benefit or harm, or not important effects
-#'   (see Details); see \code{\link{meta-formatting}}.
+#' @param cid A numeric value or vector, or a named list specifying clinically
+#'   important differences (CID) / decision thresholds used to calculate
+#'   probabilities of clinically important benefit or harm, or not important
+#'   effects (see Details); see \code{\link{meta-formatting}}.
 #' @param xlab A label for the x-axis. By default, no label is printed,
 #'   except for meta-analyses of single proportions, incidence rates,
 #'   risk differences, or rate differences if proportions or rates are
@@ -252,6 +252,14 @@
 #' \bold{meta} are based on the grid graphics system. Resize the
 #' graphics windows if the forest plot is too large or too small for
 #' the graphics window. Alternatively, save the forest plot in a file.
+#'
+#' \subsection{Formatting defaults}{
+#' Defaults for the named formatting lists \code{test}, \code{label},
+#' \code{rob}, \code{fs}, \code{ff}, \code{just}, \code{fill}, \code{col},
+#' \code{print}, \code{type}, \code{pooled}, \code{text}, \code{lty},
+#' \code{lwd}, \code{digits}, \code{calcwidth}, \code{colgap}, \code{cid},
+#' and \code{addrow} are described in \code{\link{meta-formatting}}.
+#' }
 #' 
 #' \subsection{Saving forest plots}{
 #' 
@@ -277,33 +285,26 @@
 #' If only argument \code{device} is provided, the filename will be equal to
 #' "Rplots.\code{device}".
 #' 
-#' By default, the height and width of the file containing the forest plot is
-#' determined automatically (values \code{.height} and \code{.width}).
-#' 
-#' The user can specify the height and width of the
-#' file using the arguments \code{height} and \code{width}. The input to these
-#' arguments can be either absolute values, e.g., \code{width = 10} for a
-#' graphics file with the width of 10 inches, or values relative to the
-#' automatically determined height and width, e.g., \code{width = .width * 1.05}
-#' will add 5 percent to the automatically determined width.
-#' 
-#' It is also possible to provide \code{NA} as input to arguments \code{height}
-#' and \code{width}. In this case, the size of the current graphics
-#' device is used.
-#' 
-#' For backward compatibility, the height of the file is determined using a
-#' different approach if argument \code{rows.gr} is provided to
-#' increase or decrease the number of rows shown in the forest plot
-#' (either to show missing information or to remove white space). It is
-#' recommended to not use argument \code{rows.gr}, but, to use
-#' argument \code{height = .height * 1.10} or similar.
-#' 
-#' Argument \code{dev.off} can be used to keep the current graphics device
-#' open in order to store additional forest plots in the file. Use the R
-#' function \code{\link{dev.off}} to close the graphics device / store the file.
-#' 
-#' Other arguments of graphics device functions can be provided as a list in
-#' the argument \code{device.args}.
+#' By default, the file dimensions are determined automatically
+#' (values \code{.height} and \code{.width}). Automatic sizing is recommended
+#' for most forest plots.
+#'
+#' Arguments \code{height} and \code{width} can adjust these dimensions.
+#' For example, \code{width = .width * 1.05} increases the automatically
+#' determined width by 5 percent. Absolute dimensions can also be supplied,
+#' e.g., \code{width = 10} for a file with a width of 10 inches.
+#' Setting either argument to \code{NA} uses the corresponding dimension
+#' of the current graphics device.
+#'
+#' The deprecated argument \code{rows.gr} uses a different approach to
+#' determine file height and is retained only for backward compatibility.
+#'
+#' Set \code{dev.off = FALSE} to keep the graphics device open and add
+#' further forest plots to the same file. Afterwards, call
+#' \code{\link{dev.off}} to close the device and finalize the file.
+#'
+#' Additional arguments to the graphics device function can be supplied
+#' as a named list in \code{device.args}.
 #' }
 #' 
 #' \subsection{Default forest plot layout}{
@@ -337,21 +338,18 @@
 #' \code{x$random} is \code{TRUE} and \code{x$common} is \code{FALSE}.
 #' The same square sizes are used if \code{weight.study = "same"}.
 #' 
-#' A prediction interval for treatment effect of a new study (Higgins
-#' et al., 2009) is given in the forest plot if arguments
-#' \code{prediction} and \code{random} are \code{TRUE}. For
-#' graphical presentation of prediction intervals the approach by
-#' Guddat et al. (2012) is used.
+#' If \code{prediction = TRUE}, a prediction interval for the treatment
+#' effect in a new study is shown (Higgins et al., 2009). The interval is
+#' displayed as a bar, following Guddat et al. (2012).
 #' }
-#'   
+#'
 #' \subsection{Columns printed on left side of forest plot}{
 #'
-#' Argument \code{leftcols} can be used to specify columns printed on the
-#' left side of the forest plot. By default, if \code{leftcols} is \code{NULL}
-#' and \code{layout = "meta"}, the following columns are printed on the
-#' left side of the forest plot. These column names can also be used
-#' in argument \code{leftcols} or \code{rightcols}:
-#' 
+#' Argument \code{leftcols} specifies the columns printed on the left side
+#' of the forest plot. If \code{leftcols = NULL} and \code{layout = "meta"},
+#' the following columns are printed by default. These column names can
+#' be used in \code{leftcols} or \code{rightcols}:
+#'
 #' \tabular{ll}{
 #' \bold{Column} \tab \bold{Description} \cr
 #' \code{"studlab"} \tab study labels \cr
@@ -362,9 +360,12 @@
 #' \code{"ci"} \tab confidence interval for the estimated effect
 #' }
 #'
-#' Depending on the outcome, i.e., the class of the meta-analysis object
-#' determined by the function used to create it, the following
-#' outcome-specific columns are printed:
+#' For three-level models, the cluster variable is printed next to the
+#' study labels. Use \code{"cluster"} in \code{leftcols} to select this column,
+#' for example, to change the order of variables.
+#'
+#' The following outcome-specific columns are printed, depending on the
+#' function used to create the meta-analysis object:
 #'
 #' \tabular{ll}{
 #' \bold{Function} \tab \bold{Default outcome-specific columns} \cr
@@ -381,10 +382,6 @@
 #' \code{\link{metarate}} \tab \code{"event"}, \code{"time"}, \code{"n"}
 #' }
 #'
-#' For three-level models, the cluster variable is printed next to the
-#' study labels. It is specified using \code{"cluster"} in argument
-#' \code{leftcols}.
-#' 
 #' By default, study labels and labels for pooled estimates and
 #' heterogeneity statistics will be printed in the first column on the
 #' left side of the forest plot. The character string \code{"studlab"}
@@ -784,7 +781,13 @@
 #' @note
 #' R function \code{.forestArgs} generates a character vector with all
 #' arguments of \code{forest.meta}.
-#' 
+#'
+#' @return
+#' Invisibly returns a list with information about the forest plot,
+#' including the selected columns (\code{leftcols}, \code{rightcols}),
+#' their headings (\code{leftlabs}, \code{rightlabs}), formatted results,
+#' and graphical settings (see Examples).
+#'
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de},
 #'   Nour Edin Darwish \email{nouredindarwish@gmail.com}
 #' 
@@ -816,202 +819,213 @@
 #' 
 #' 
 #' \dontrun{
-#' # Do standard (symmetric) forest plot
+#' # Draw a forest plot with the default layout
 #' #
 #' forest(ma1)
 #' }
 #' 
-#' # Layout of forest plot similar to Review Manager 5
-#' #
-#' # Furthermore, add labels on both sides of the forest plot and
-#' # a prediction interval
+#' # Review Manager 5 layout with directional labels, a prediction interval,
+#' # and a main title
 #' #
 #' forest(ma1, layout = "RevMan5", common = FALSE,
-#'   label.left = "Favours experimental", label.right = "Favours control",
+#'   label = list(left = "Favours experimental", right = "Favours control"),
 #'   col = list(label.left = "green", label.right = "red"),
-#'   prediction = TRUE)
+#'   prediction = TRUE,
+#'   main = paste("Meta-analysis on Thrombolytic Therapy",
+#'                "after Acute Myocardial Infarction"))
 #' 
 #' \dontrun{
 #' #
-#' # Create PDF files with the forest plot
+#' # Save forest plots to files
 #' #
 #' 
-#' # 1) Specify filename, here, pdf() is used due to the file extension ".pdf";
-#' #    height and width of the figure are automatically determined
+#' # 1) Specify a filename; the ".pdf" extension selects pdf()
+#' #    The height and width are determined automatically
 #' #
 #' forest(ma1, filename = "forest-ma1-1.pdf")
 #' 
-#' # 2) Specify the device; results in the creation of a file "Rplots.svg"
+#' # 2) Specify only the device; svg() creates "Rplots.svg"
 #' #
 #' forest(ma1, device = "svg")
 #' 
-#' # 3) Set title for PDF file and set background colour of forest plot
+#' # 3) Set the PDF metadata title and the plot background colour
+#' #
 #' forest(ma1, filename = "forest-ma1-2.pdf",
-#'   device.args = list(title = "My Forest Plot", bg = "green"))
-#' 
-#' # 4) Manually specify the width and height of the figure
+#'   device.args = list(title = "Forest plot created with R package meta",
+#'     bg = "green"))
+#'
+#' # 4) Specify the width and height in inches
 #' #
 #' forest(ma1, filename = "forest-ma1-3.pdf", width = 10, height = 3)
-#' }
-#' 
-#' \dontrun{
+#'
 #' #
 #' # More forest plots
 #' #
-#' 
-#' # Define equivalence limits: 0.75 and 1 / 0.75
+#'
+#' # Mark equivalence limits at 0.75 and 1 / 0.75
 #' #
 #' forest(ma1, layout = "RevMan5", common = FALSE,
 #'   cid = 0.75, fill = list(fill = "lightgray", cid = "white"))
-#' 
-#' # Fill regions with beneficial and detrimental effects
+#'
+#' # Shade regions indicating beneficial and harmful effects
 #' #
 #' forest(ma1, layout = "RevMan5", common = FALSE,
 #'   cid = 0.75,
 #'   fill = list(fill = "lightgray", cid = "white",
-#'     cid.below.null = "green", cid.above.null = "red"))
-#' 
-#' # Define thresholds for small, moderate and large effects
-#' # and use hcl.colors() to define colours to fill regions
+#'     cid.below.null = "green", cid.above.null = "red"),
+#'   label = list(left = "Desirable effect", right = "Undesirable effect"))
+#'
+#' # Define thresholds for small, moderate, and large effects
+#' # and shade the corresponding regions using hcl.colors()
 #' #
 #' thresholds <- c(0.25, 0.5, 0.75)
 #' n.cols <- length(thresholds)
+#' #
 #' forest(ma1, layout = "RevMan5", common = FALSE,
-#'   label.left = "Desirable effect", label.right = "Undesirable effect",
-#'   lty.cid = 3, col.cid = "darkgray",
 #'   cid.below.null = thresholds, cid.above.null = 1 / rev(thresholds),
 #'   fill = list(
 #'     cid.below.null = hcl.colors(n.cols, palette = "Blues 2", alpha = 0.6),
 #'     cid.above.null = hcl.colors(n.cols, palette = "Oranges", alpha = 0.6,
-#'       rev = TRUE))
-#' 
-#' # Conduct subgroup meta-analysis
-#' #
-#' ma2 <- update(ma1,
-#'   subgroup = ifelse(year < 1987, "Before 1987", "1987 and later"),
-#'   print.subgroup.name = FALSE)
-#' 
-#' # Show summary results for subgroups with at least two studies
-#' #
-#' forest(ma2, sortvar = -TE, random = FALSE)
-#' 
-#' # Show results for all subgroups
-#' #
-#' forest(ma2, sortvar = -TE, random = FALSE, subgroup = k.w >= 1)
-#' 
-#' # Forest plot specifying argument 'xlim'
+#'       rev = TRUE)),
+#'   lty = list(cid = 3), col = list(cid = "darkgray"),
+#'   label = list(left = "Desirable effect", right = "Undesirable effect"))
+#'
+#' # Specify the limits of the horizontal axis
 #' #
 #' forest(ma1, xlim = c(0.01, 10))
-#' 
-#' # Print results of test for overall effect
+#'
+#' # Show tests for overall effects
 #' #
-#' forest(ma1, test.overall.common = TRUE, test.overall.random = TRUE)
-#' 
-#' # Forest plot with 'classic' layout used in R package meta,
-#' # version < 1.6-0
+#' forest(ma1, test = list(overall.common = TRUE, overall.random = TRUE))
+#'
+#' # Use black squares and omit heterogeneity information
 #' #
-#' forest(ma1, col.square = "black", hetstat = FALSE)
-#' 
-#' # Change set of columns printed on left side of forest plot
-#' # (resulting in overlapping text)
+#' forest(ma1, col.square = "black", overall.hetstat = FALSE)
+#'
+#' # Inspect the columns and headings on both sides of the forest plot
 #' #
-#' forest(ma1, random = FALSE, leftcols = "studlab")
-#' 
-#' # Use argument 'addrows.below.overall' to manually add two empty
-#' # rows
+#' fdat <- forest(ma1)
 #' #
-#' forest(ma1, random = FALSE, leftcols = "studlab", addrows.below.overall = 2)
-#' 
-#' # Do not print columns on right side of forest plot
+#' fdat$leftcols
+#' fdat$leftlabs
+#' fdat$rightcols
+#' fdat$rightlabs
+#' # character(0) indicates that no columns or headings are present
+#'
+#' # Show only study labels on the left and effect estimates and
+#' # confidence intervals on the right
 #' #
-#' forest(ma1, rightcols = FALSE)
-#' 
-#' # Change study label to "Author"
+#' forest(ma1, random = FALSE,
+#'   leftcols = "studlab", rightcols = c("effect", "ci"))
+#'
+#' # Omit columns on the left and combine effect estimates and
+#' # confidence intervals in one column on the right
 #' #
-#' forest(ma1, random = FALSE, leftlabs = c("Author", NA, NA, NA, NA))
-#' 
-#' # Just give effect estimate and 95% confidence interval on right
-#' # side of forest plot (in one column)
+#' forest(ma1, leftcols = FALSE, rightcols = "effect.ci")
+#'
+#' # Change the study-label heading to "Author"
+#' # Use the columns and headings returned by forest(ma1) above
 #' #
-#' forest(ma1, rightcols = "effect.ci")
-#' 
-#' # Just give effect estimate and 95% confidence interval on right
-#' # side of forest plot
+#' lcols <- fdat$leftcols
+#' llabs <- fdat$leftlabs
+#' llabs[lcols == "studlab"] <- "Author"
 #' #
-#' forest(ma1, rightcols = c("effect", "ci"))
-#' 
-#' # 1. Change order of columns on left side
-#' # 2. Attach labels to columns 'event.e' and 'event.c' instead of
-#' #    columns 'n.e' and 'n.c'
-#' #
-#' forest(ma1,
-#'   leftcols = c("studlab", "n.e", "event.e", "n.c", "event.c"),
-#'   label.e.attach = "event.e", label.c.attach = "event.c")
-#' 
-#' # Specify column labels only for variables 'year' and 'author'
-#' # (and define digits for additional variables)
+#' forest(ma1, leftlabs = llabs)
+#'
+#' # Attach group labels to event counts rather than sample sizes
 #' #
 #' forest(ma1,
-#'   leftcols = c("studlab", "event.e", "n.e", "event.c", "n.c", "author", "year"),
-#'   leftlabs = c("Author", "Year of Publ"))
-#' 
+#'   label = list(e.attach = "event.e", c.attach = "event.c"))
+#'
+#' # Add 'author' and 'year', using their variable names as headings
+#' #
+#' forest(ma1, leftcols = c(lcols, "author", "year"))
+#'
+#' # Specify headings only for the newly added columns
+#' #
+#' forest(ma1, leftcols = c(lcols, "author", "year"),
+#'   leftlabs = c("Author", "Year of publication"))
+#'
+#' # Additional columns are centered by default
+#' # Left-align 'author' and right-align 'year'
+#' #
+#' forest(ma1, leftcols = c(lcols, "author", "year"),
+#'   leftlabs = c("Author", "Year of publication"),
+#'   just.addcols = c("left", "right"))
+#'
+#' # Draw the same plot using abbreviated justification values
+#' #
+#' forest(ma1, leftcols = c(lcols, "author", "year"),
+#'   leftlabs = c("Author", "Year of publication"),
+#'   just.addcols = c("l", "r"))
+#'
+#' # Center text in all columns except study labels
+#' #
+#' forest(ma1, leftcols = c(lcols, "author", "year"),
+#'   leftlabs = c("First author", "Year of publication"),
+#'   just = "center")
+#'
 #' # Center text in all columns
 #' #
-#' forest(ma1,
-#'   leftcols = c("studlab", "event.e", "n.e", "event.c", "n.c",
-#'                "author", "year"),
-#'   leftlabs = c("Author", "Year of Publ"), hetstat = FALSE,
-#'   just = "center", just.addcols = "center", just.studlab = "center")
-#' 
-#' # Same result
+#' forest(ma1, leftcols = c(lcols, "author", "year"),
+#'   leftlabs = c("First author", "Year of publication"),
+#'   just = list(just = "center", studlab = "center"))
+#'
+#' # Change font sizes and faces
 #' #
 #' forest(ma1,
-#'   leftcols = c("studlab", "event.e", "n.e", "event.c", "n.c",
-#'              "author", "year"),
-#'   leftlabs = c("Author", "Year of Publ"), hetstat = FALSE,
-#'   just = "c", just.addcols = "c", just.studlab = "c")
-#' 
-#' # Change some fontsizes and fontfaces
-#' #
-#' forest(ma1,
-#'   fs = list(study = 10, study.label = 11, axis = 5), 
-#'   ff = list(study = "italic", study.label = "bold",
+#'   fs = list(study = 10, study.labels = 11, axis = 5),
+#'   ff = list(study = "italic", study.labels = "bold",
 #'     axis = "italic", smlab = "bold.italic",
 #'     common = "plain", hetstat = "plain"))
-#' 
-#' # Change some colours
+#'
+#' # Change colours
 #' #
 #' forest(ma1,
 #'   col = list(diamond = "green", diamond.lines = "red",
 #'     study = c("green", "blue", "red", "orange"),
 #'     square = "pink", square.lines = "black"))
-#' 
-#' # Sort by weight in common effect model
+#'
+#' # Sort by increasing common-effect weight
 #' #
 #' forest(ma1, sortvar = w.common, random = FALSE)
-#' 
-#' # Sort by decreasing weight in common effect model
+#'
+#' # Sort by decreasing common-effect weight
 #' #
 #' forest(ma1, sortvar = -w.common, random = FALSE)
-#' 
-#' # Sort by size of treatment effect
+#'
+#' # Sort by increasing treatment effect
 #' #
 #' forest(ma1, sortvar = TE, random = FALSE)
-#' 
-#' # Sort by size of treatment effect
+#'
+#' # Sort by decreasing treatment effect
 #' #
 #' forest(ma1, sortvar = -TE, random = FALSE)
-#' 
-#' # Sort by decreasing year of publication
+#'
+#' # Sort by decreasing publication year
 #' #
 #' forest(ma1, sortvar = -year, random = FALSE)
 #' 
-#' # Print results of test for subgroup differences (random effects
-#' # model)
 #' #
-#' forest(ma2, sortvar = -TE, common = FALSE)
+#' # Forest plots for subgroup meta-analyses
+#' #
 #' 
-#' # Print only subgroup results
+#' # Conduct a subgroup meta-analysis
+#' #
+#' ma2 <- update(ma1,
+#'   subgroup = ifelse(year < 1987, "Before 1987", "1987 and later"),
+#'   print.subgroup.name = FALSE)
+#'
+#' # Omit subgroup summaries based on a single study (the default)
+#' #
+#' forest(ma2, random = FALSE)
+#'
+#' # Include subgroup summaries based on a single study
+#' # (identical to the individual study results)
+#' #
+#' forest(ma2, random = FALSE, subgroup = k.w > 0)
+#'
+#' # Show only subgroup results
 #' #
 #' forest(ma2, layout = "subgroup")
 #' }
@@ -1169,14 +1183,6 @@ forest.meta <- function(x,
   
   chkclass(x, "meta")
   x.name <- deparse(substitute(x))
-  #
-  if (inherits(x, "is.metabind"))
-    stop("Forest plots are not available for metabind objects created with ",
-         "versions of the R package 'meta' earlier than 9.0-0. Recreate the ",
-         "metabind object with the currently used meta version.\n",
-         "Original call:\n",
-         paste(deparse(x$call, width.cutoff = 80L), collapse = "\n"),
-         call. = FALSE)
   #
   x <- updateversion(x)
   #
@@ -1441,6 +1447,21 @@ forest.meta <- function(x,
   if (by) {
     n.by <- length(x$subgroup.levels)
     k.w.hetstat <- replaceNULL(x$k.w.orig, x$k.w)
+    #
+    # Align merged subgroup results by source and CI method before flattening.
+    #
+    for (model in c("common", "random", "predict")) {
+      reference <- x[[paste0("lower.", model, ".w")]]
+      #
+      if (is.list(reference)) {
+        for (field in c("lower", "upper",
+                        if (model != "predict") c("TE", "statistic", "pval"),
+                        if (model == "random") "df")) {
+          field <- paste0(field, ".", model, ".w")
+          x[[field]] <- subgroup_result_matrix(x[[field]], reference)
+        }
+      }
+    }
     #
     TE.common.w <- collapsemat(x$TE.common.w)
     statistic.common.w <- collapsemat(x$statistic.common.w)
@@ -2560,6 +2581,16 @@ forest.meta <- function(x,
   else
     chknumeric(ref, length = 1)
   #
+  # Back-transform the stored reference before checking CID thresholds
+  #
+  if (backtransf && ref.from.null && !null.effect.original) {
+    ref <- backtransf(ref, sm,
+                      n = makeunique(x$n.harmonic.mean),
+                      time = makeunique(x$t.harmonic.mean),
+                      func = x$func.backtransf,
+                      args = x$args.backtransf)
+  }
+  #
   avail.cid <- !is.null(cid[["cid"]]) & !all(is.na(cid[["cid"]]))
   chknumeric(cid[["cid"]], name = "cid")
   #
@@ -3057,16 +3088,6 @@ forest.meta <- function(x,
   xpos.label.c <- set_xpos(just[["label.c"]])
   xpos.rob <- set_xpos(just[["rob"]])
   #
-  # Back-transform reference value
-  #
-  if (backtransf && ref.from.null && !null.effect.original) {
-    ref <- backtransf(ref, sm,
-                      n = makeunique(x$n.harmonic.mean),
-                      time = makeunique(x$t.harmonic.mean),
-                      func = x$func.backtransf,
-                      args = x$args.backtransf)
-  }
-  #
   if (log.xaxis) {
     ref <- log(ref)
     cid$below.null <- log(cid[["below.null"]])
@@ -3377,6 +3398,12 @@ forest.meta <- function(x,
       cycles  = if (n_of_1) label[["cycles"]] else NA)
     #
     if (length(rightcols.new) > 0) {
+      if (avail.rightlabs && length(rightlabs) == length(rightcols.new)) {
+        rightlabs.new <- rightlabs
+        rightlabs <- rep(NA_character_, length(rightcols))
+        rightlabs[match(rightcols.new, rightcols)] <- rightlabs.new
+      }
+      #
       if (all(rightcols.new %in% colnames(rob[["rob"]]))) {
         rightlabs.new <- rightcols.new
         rightlabs.new[rightlabs.new %in% colnames(rob[["rob"]])] <- rob.labels
@@ -3433,6 +3460,12 @@ forest.meta <- function(x,
     }
     #
     if (length(leftcols.new) > 0) {
+      if (avail.leftlabs && length(leftlabs) == length(leftcols.new)) {
+        leftlabs.new <- leftlabs
+        leftlabs <- rep(NA_character_, length(leftcols))
+        leftlabs[match(leftcols.new, leftcols)] <- leftlabs.new
+      }
+      #
       if (!avail.leftlabs ||
           any(is.na(leftlabs[leftcols %in% leftcols.new]))) {
         leftlabs.new <- leftcols.new
@@ -4206,8 +4239,8 @@ forest.meta <- function(x,
   if (length(tau) > 1) {
     if (three.level) {
       tau <- sqrt(sum(tau^2))
-      lower.tau2 <- NA
-      upper.tau2 <- NA
+      lower.tau <- NA
+      upper.tau <- NA
     }
     else {
       tau <- tau[1]
@@ -4217,7 +4250,7 @@ forest.meta <- function(x,
   }
   #
   sign.lower.tau <- x$sign.lower.tau
-  sign.upper.tau <- x$sign.lower.tau
+  sign.upper.tau <- x$sign.upper.tau
   #
   if (is.null(lower.tau)) {
     lower.tau <- upper.tau <- NA
@@ -4250,7 +4283,6 @@ forest.meta <- function(x,
     Q.w.common <- x$Q.w.common
     #
     Q.b.random <- unlist(x$Q.b.random)
-    Q.w.random <- x$Q.w.random
     #
     Q.w <- x$Q.w
     #
@@ -4259,15 +4291,23 @@ forest.meta <- function(x,
     df.Q.b.common <- replaceNULL(x$df.Q.b.common, df.Q.b)
     df.Q.b.random <- replaceNULL(x$df.Q.b.random, df.Q.b)    
     #
-    pval.Q.b.common <-
-      replaceNULL(x$pval.Q.b.common, pvalQ(Q.b.common, df.Q.b.common))
+    if (test[["subgroup.common"]] && length(Q.b.common) > 0L) {
+      df.Q.b.common <- subgroup_test_df(df.Q.b.common, length(Q.b.common))
+      pval.Q.b.common <-
+        replaceNULL(x$pval.Q.b.common, pval_subgroup(Q.b.common, df.Q.b.common))
+    }
+    else
+      test$subgroup.common <- FALSE
     pval.Q.w.common <-
       replaceNULL(x$pval.Q.w.common, pvalQ(Q.w.common, df.Q.w))
     #
-    pval.Q.b.random <-
-      unlist(replaceNULL(x$pval.Q.b.random, pvalQ(Q.b.random, df.Q.b.random)))
-    pval.Q.w.random <-
-      unlist(replaceNULL(x$pval.Q.w.random, pvalQ(Q.w.random, df.Q.w)))
+    if (test[["subgroup.random"]] && length(Q.b.random) > 0L) {
+      df.Q.b.random <- subgroup_test_df(df.Q.b.random, length(Q.b.random))
+      pval.Q.b.random <-
+        unlist(replaceNULL(x$pval.Q.b.random, pval_subgroup(Q.b.random, df.Q.b.random)))
+    }
+    else
+      test$subgroup.random <- FALSE
     #
     Q.resid <- x$Q.resid
     df.Q.resid <- x$df.Q.resid
@@ -4280,11 +4320,37 @@ forest.meta <- function(x,
       tau2.resid <- x$tau.resid^2
       lower.tau2.resid <- upper.tau2.resid <- NA
     }
+    #
+    if (length(tau2.resid) > 1) {
+      if (three.level) {
+        tau2.resid <- sum(tau2.resid)
+        lower.tau2.resid <- upper.tau2.resid <- NA
+      }
+      else {
+        tau2.resid <- tau2.resid[1]
+        lower.tau2.resid <- lower.tau2.resid[1]
+        upper.tau2.resid <- upper.tau2.resid[1]
+      }
+    }
+    #
     tau.resid <- x$tau.resid
     lower.tau.resid <- x$lower.tau.resid
     upper.tau.resid <- x$upper.tau.resid
+    #
+    if (length(tau.resid) > 1) {
+      if (three.level) {
+        tau.resid <- sqrt(sum(tau.resid^2))
+        lower.tau.resid <- upper.tau.resid <- NA
+      }
+      else {
+        tau.resid <- tau.resid[1]
+        lower.tau.resid <- lower.tau.resid[1]
+        upper.tau.resid <- upper.tau.resid[1]
+      }
+    }
+    #
     sign.lower.tau.resid <- x$sign.lower.tau.resid
-    sign.upper.tau.resid <- x$sign.lower.tau.resid
+    sign.upper.tau.resid <- x$sign.upper.tau.resid
     if (is.null(lower.tau.resid)) {
       lower.tau.resid <- upper.tau.resid <- NA
       sign.lower.tau.resid <- sign.upper.tau.resid <- ""
@@ -4314,14 +4380,16 @@ forest.meta <- function(x,
     hetstat.tau2 <-
       paste0(formatPT(tau2, digits = digits[["tau2"]], big.mark = big.mark,
                       lab = TRUE, labval = "", lab.NA = "NA"),
-             if (print[["tau2.ci"]] && !(is.na(lower.tau2) | is.na(upper.tau2)))
+             if (print[["tau2.ci"]] && length(lower.tau2) == 1L &&
+                 length(upper.tau2) == 1L && !anyNA(c(lower.tau2, upper.tau2)))
                pasteCI(lower.tau2, upper.tau2, digits[["tau2"]], big.mark,
                        sign.lower.tau, sign.upper.tau, lab.NA))
     #
     hetstat.tau <-
       paste0(formatPT(tau, digits = digits[["tau"]], big.mark = big.mark,
                       lab = TRUE, labval = "", lab.NA = "NA"),
-             if (print[["tau.ci"]] && !(is.na(lower.tau) | is.na(upper.tau)))
+             if (print[["tau.ci"]] && length(lower.tau) == 1L &&
+                 length(upper.tau) == 1L && !anyNA(c(lower.tau, upper.tau)))
                pasteCI(lower.tau, upper.tau, digits[["tau"]], big.mark,
                        sign.lower.tau, sign.upper.tau, lab.NA))
     #
@@ -4383,7 +4451,7 @@ forest.meta <- function(x,
   #
   hetstat.resid <- ""
   #
-  if (by && (length(tau2.resid) == 0 || is.na(tau2.resid)))
+  if (by && allNA(tau2.resid))
     print.tau2.tau.resid <- FALSE
   else
     print.tau2.tau.resid <- print[["tau2.tau"]]
@@ -4403,8 +4471,9 @@ forest.meta <- function(x,
       paste0(formatPT(tau2.resid, digits = digits[["tau2"]],
                       big.mark = big.mark,
                       lab = TRUE, labval = "", lab.NA = "NA"),
-             if (print[["tau2.ci"]] &&
-                 !(is.na(lower.tau2.resid) | is.na(upper.tau2.resid)))
+             if (print[["tau2.ci"]] && length(lower.tau2.resid) == 1L &&
+                 length(upper.tau2.resid) == 1L &&
+                 !anyNA(c(lower.tau2.resid, upper.tau2.resid)))
                pasteCI(lower.tau2.resid, upper.tau2.resid, digits[["tau2"]],
                        big.mark,
                        sign.lower.tau.resid, sign.upper.tau.resid, lab.NA))
@@ -4412,8 +4481,9 @@ forest.meta <- function(x,
     hetstat.tau.resid <-
       paste0(formatPT(tau.resid, digits = digits[["tau"]], big.mark = big.mark,
                       lab = TRUE, labval = "", lab.NA = "NA"),
-             if (print[["tau.ci"]] &&
-                 !(is.na(lower.tau.resid) | is.na(upper.tau.resid)))
+             if (print[["tau.ci"]] && length(lower.tau.resid) == 1L &&
+                 length(upper.tau.resid) == 1L &&
+                 !anyNA(c(lower.tau.resid, upper.tau.resid)))
                pasteCI(lower.tau.resid, upper.tau.resid, digits[["tau"]],
                        big.mark,
                        sign.lower.tau.resid, sign.upper.tau.resid, lab.NA))
@@ -4694,66 +4764,72 @@ forest.meta <- function(x,
     hetstat.Q.b.common <- hetstat.pval.Q.b.common <-
     hetstat.Q.b.random <- hetstat.pval.Q.b.random <- NA
   #
-  for (i in seq_along(Q.b.common)) {
-    hetstat.i <-
-      paste0(hetseparator,
-             gsub(" ", "",
-                  formatN(Q.b.common[i], digits[["Q"]], "NA", big.mark = big.mark)),
-             if (!jama) ", df",
-             if (!jama) hetseparator,
-             if (!jama) df.Q.b.common[i])
-    #
-    pval.i <-
-      paste0(formatPT(pval.Q.b.common[i],
-                      lab = TRUE, labval = "",
-                      digits = digits[["pval.Q"]],
-                      zero = zero.pval, JAMA = JAMA.pval,
-                      scientific = scientific.pval,
-                      lab.NA = "NA"))
-    #
-    # Remove superfluous spaces
-    #
-    hetstat.i <- rmSpace(hetstat.i, end = TRUE)
-    pval.i <- rmSpace(pval.i, end = TRUE)
-    #
-    while(any(grepl("  ", hetstat.i)))
-      hetstat.i <- gsub("  ", " ", hetstat.i)
-    while(any(grepl("  ", pval.i)))
-      pval.i <- gsub("  ", " ", pval.i)
-    #
-    hetstat.Q.b.common <- c(hetstat.Q.b.common, hetstat.i)
-    hetstat.pval.Q.b.common <- c(hetstat.pval.Q.b.common, pval.i)
+  df.Q.b.common <- unlist(df.Q.b.common)
+  #
+  if (test[["subgroup.common"]]) {
+    for (i in seq_along(Q.b.common)) {
+      hetstat.i <-
+        paste0(hetseparator,
+               gsub(" ", "",
+                    formatN(Q.b.common[i], digits[["Q"]], "NA", big.mark = big.mark)),
+               if (!jama) ", df",
+               if (!jama) hetseparator,
+               if (!jama) df.Q.b.common[i])
+      #
+      pval.i <-
+        paste0(formatPT(pval.Q.b.common[i],
+                        lab = TRUE, labval = "",
+                        digits = digits[["pval.Q"]],
+                        zero = zero.pval, JAMA = JAMA.pval,
+                        scientific = scientific.pval,
+                        lab.NA = "NA"))
+      #
+      # Remove superfluous spaces
+      #
+      hetstat.i <- rmSpace(hetstat.i, end = TRUE)
+      pval.i <- rmSpace(pval.i, end = TRUE)
+      #
+      while(any(grepl("  ", hetstat.i)))
+        hetstat.i <- gsub("  ", " ", hetstat.i)
+      while(any(grepl("  ", pval.i)))
+        pval.i <- gsub("  ", " ", pval.i)
+      #
+      hetstat.Q.b.common <- c(hetstat.Q.b.common, hetstat.i)
+      hetstat.pval.Q.b.common <- c(hetstat.pval.Q.b.common, pval.i)
+    }
   }
   #
-  for (i in seq_along(Q.b.random)) {
-    hetstat.i <-
-      paste0(hetseparator,
-             gsub(" ", "",
-                  formatN(Q.b.random[i], digits[["Q"]], "NA", big.mark = big.mark)),
-             if (!jama) ", df",
-             if (!jama) hetseparator,
-             if (!jama) collapse(df.Q.b.random[[i]], quote = ""))
-    #
-    pval.i <-
-      paste0(formatPT(pval.Q.b.random[i],
-                      lab = TRUE, labval = "",
-                      digits = digits[["pval.Q"]],
-                      zero = zero.pval, JAMA = JAMA.pval,
-                      scientific = scientific.pval,
-                      lab.NA = "NA"))
-    #
-    # Remove superfluous spaces
-    #
-    hetstat.i <- rmSpace(hetstat.i, end = TRUE)
-    pval.i <- rmSpace(pval.i, end = TRUE)
-    #
-    while(any(grepl("  ", hetstat.i)))
-      hetstat.i <- gsub("  ", " ", hetstat.i)
-    while(any(grepl("  ", pval.i)))
-      pval.i <- gsub("  ", " ", pval.i)
-    #
-    hetstat.Q.b.random <- c(hetstat.Q.b.random, hetstat.i)
-    hetstat.pval.Q.b.random <- c(hetstat.pval.Q.b.random, pval.i)
+  if (test[["subgroup.random"]]) {
+    for (i in seq_along(Q.b.random)) {
+      hetstat.i <-
+        paste0(hetseparator,
+               gsub(" ", "",
+                    formatN(Q.b.random[i], digits[["Q"]], "NA", big.mark = big.mark)),
+               if (!jama) ", df",
+               if (!jama) hetseparator,
+               if (!jama) collapse(df.Q.b.random[[i]], quote = ""))
+      #
+      pval.i <-
+        paste0(formatPT(pval.Q.b.random[i],
+                        lab = TRUE, labval = "",
+                        digits = digits[["pval.Q"]],
+                        zero = zero.pval, JAMA = JAMA.pval,
+                        scientific = scientific.pval,
+                        lab.NA = "NA"))
+      #
+      # Remove superfluous spaces
+      #
+      hetstat.i <- rmSpace(hetstat.i, end = TRUE)
+      pval.i <- rmSpace(pval.i, end = TRUE)
+      #
+      while(any(grepl("  ", hetstat.i)))
+        hetstat.i <- gsub("  ", " ", hetstat.i)
+      while(any(grepl("  ", pval.i)))
+        pval.i <- gsub("  ", " ", pval.i)
+      #
+      hetstat.Q.b.random <- c(hetstat.Q.b.random, hetstat.i)
+      hetstat.pval.Q.b.random <- c(hetstat.pval.Q.b.random, pval.i)
+    }
   }
   #
   if (test[["subgroup.common"]]) {
@@ -5250,12 +5326,12 @@ forest.meta <- function(x,
       }
     }
     else {
-      TE.common.w <- lower.common.w <- upper.common.w <- NAs.by
+      TE.common.w <- lower.common.w <- upper.common.w <- NAs.com.w
       #
       w.common.w.p <- NAs.by
       #
       if (miss.text[["common.w"]])
-        text$common.w <- rep("Overall", n.com.w)
+        text$common.w <- rep("Overall", n.com)
     }
     #
     if (random) {
@@ -5278,10 +5354,10 @@ forest.meta <- function(x,
       }
     }
     else {
-      TE.random.w <- lower.random.w <- upper.random.w <- NAs.by
+      TE.random.w <- lower.random.w <- upper.random.w <- NAs.ran.w
       #
-      w.random.w.p <- NAs.ran.w
-      text$random.w <- blanks.ran.w
+      w.random.w.p <- NAs.by
+      text$random.w <- rep("", n.ran)
     }
     #
     hetstat.w <- vector("list", n.by)
@@ -9709,8 +9785,14 @@ forest.meta <- function(x,
   if (calcwidth[["predict"]])
     calcwidth.text.lines <- c(calcwidth.text.lines, predict.lines)
   #
-  overall.tests.lines <- 1 + n.com + n.ran + n.prd + seq(2)
-  hetstat.lines <- 1 + n.com + n.ran + n.prd + 2 + seq(2)
+  if (revman5) {
+    overall.tests.lines <- 1 + n.com + n.ran + n.prd + 2 + seq(2)
+    hetstat.lines <- 1 + n.com + n.ran + n.prd + seq(2)
+  }
+  else {
+    overall.tests.lines <- 1 + n.com + n.ran + n.prd + seq(2)
+    hetstat.lines <- 1 + n.com + n.ran + n.prd + 2 + seq(2)
+  }
   #
   del.lines <- c(del.lines, hetstat.lines)
   #
@@ -9912,10 +9994,13 @@ forest.meta <- function(x,
         list(label[["e.attach"]], label[["c.attach"]]), list(col.label.e, col.label.c),
         colgap[["studlab"]])
     #
-    width.left.total <- width.left.cols[[1]]
+    # Labels start at the study-label column, not at the first left column.
+    studlab.i <- match("col.studlab", leftcols)
+    label.cols <- seq.int(studlab.i, length(leftcols))
+    width.left.total <- width.left.cols[[studlab.i]]
     #
-    if (length(width.left.cols) > 1) {
-      for (i in 2:length(width.left.cols))
+    if (length(label.cols) > 1) {
+      for (i in label.cols[-1])
         width.left.total <-
           unit.c(width.left.total,
                  if (leftcols[[i - 1]] == "col.studlab")
@@ -9930,14 +10015,14 @@ forest.meta <- function(x,
           c(common.lines, if (by) common.lines.w),
           pooled.common.width.cols,
           calcwidth[["common"]],
-          leftcols, width.left.cols,
+          leftcols[label.cols], width.left.cols[label.cols],
           colgap[["left"]], colgap[["studlab"]],
           cols[["col.studlab"]]$labels, wcalc),
         calc_pooled_prefix_extra(
           c(random.lines, if (by) random.lines.w),
           pooled.random.width.cols,
           calcwidth[["random"]],
-          leftcols, width.left.cols,
+          leftcols[label.cols], width.left.cols[label.cols],
           colgap[["left"]], colgap[["studlab"]],
           cols[["col.studlab"]]$labels, wcalc))
     #
@@ -9957,7 +10042,6 @@ forest.meta <- function(x,
     #
     extra.calcwidth.text <- unit(0, "mm")
     if (!is.null(calcwidth.text.lines)) {
-      studlab.i <- match("col.studlab", leftcols)
       for (line.i in calcwidth.text.lines) {
         first.info.i <- NA_integer_
         if (studlab.i < length(leftcols)) {

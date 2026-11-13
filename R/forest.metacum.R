@@ -24,15 +24,20 @@
 #' @param rightlabs A character vector specifying labels for columns on the
 #'   right side of the forest plot (see Details).
 #' @param lab.NA A character string to label missing values.
-#' @param col A named list specifying colours used in the forest
-#'   plot; see \code{\link{meta-formatting}}.
-#' @param print A named list specifying which information to print in the forest
-#'   plot; see \code{\link{meta-formatting}}.
+#' @param col A named list specifying colours.
+#'   A colour can also be supplied directly to set \code{col$col}.
+#'   See Details for defaults specific to this function and
+#'   \code{\link{meta-formatting}} for information on the elements.
+#' @param print A named list controlling displayed information.
+#'   See Details for defaults specific to this function and
+#'   \code{\link{meta-formatting}} for information on the elements.
 #' @param type A character string or vector specifying how to
 #'   plot treatment effects and confidence intervals for cumulative
 #'   meta-analysis results.
 #' @param digits A named list specifying digits used for displayed results; a
-#'   scalar value is also accepted. See \code{\link{meta-formatting}}.
+#'   scalar value is also accepted.
+#'   See Details for defaults specific to this function and
+#'   \code{\link{meta-formatting}} for information on the elements.
 #' @param backtransf A logical indicating whether results should be
 #'   back transformed in forest plots. If \code{backtransf = TRUE},
 #'   results for \code{sm = "OR"} are presented as odds ratios rather
@@ -66,10 +71,10 @@
 #' @details
 #' Each row of the forest plot represents a meta-analysis based on the first
 #' \code{k} studies in the cumulative sequence. Results are shown in the order
-#' in which studies were added to the cumulative meta-analysis. Common-effect
-#' or random-effects estimates, prediction intervals, heterogeneity statistics,
-#' and study-level information can be selected with the corresponding
-#' arguments.
+#' in which studies were added to the cumulative meta-analysis. The pooling
+#' model is determined by argument \code{pooled} in \code{\link{metacum}}.
+#' Prediction intervals and additional result columns can be selected when
+#' drawing the forest plot.
 #'
 #' A forest plot, also called a confidence interval plot, is drawn in the
 #' active graphics window using the grid graphics system. To save the plot,
@@ -77,10 +82,9 @@
 #' selected from the file extension by default (see \code{\link{forest.meta}}
 #' for examples).
 #' 
-#' The named list \code{print} determines which result columns are shown in
-#' the forest plot. The argument \code{layout} determines the default
-#' placement of these columns on the left or right side. The columns and their
-#' placement are determined internally and cannot be changed by the user.
+#' The named list \code{print} determines the default result columns.
+#' Argument \code{layout} determines their default placement, which can be
+#' overridden with \code{leftcols} and \code{rightcols}.
 #'
 #' Arguments \code{leftcols} and \code{rightcols} can be used to specify
 #' columns printed on the left or right side, respectively. Arguments
@@ -88,8 +92,41 @@
 #' these columns. Use \code{NA} for a column heading to retain its default
 #' label.
 #'
-#' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
+#' \subsection{Formatting defaults}{
+#' Unless listed below, defaults for supported formatting elements are
+#' described in \code{\link{meta-formatting}}.
+#'
+#' \tabular{ll}{
+#' \bold{Element} \tab \bold{Default} \cr
+#' \code{print$I2}, \code{print$tau2}, \code{print$tau} \tab \code{TRUE}. \cr
+#' \code{print$stat}, \code{print$Q}, \code{print$pval.Q} \tab \code{FALSE}. \cr
+#' \code{print$I2.ci}, \code{print$tau2.ci}, \code{print$tau.ci} \tab \code{FALSE}.
+#' }
+#' The named list \code{col} controls colours using the following elements:
+#' \itemize{
+#' \item \code{col}: colour of confidence interval lines;
+#' \item \code{bg}: fill colour of result symbols;
+#' \item \code{border}: border colour of result symbols;
+#' \item \code{bg.predict}: fill colour of prediction intervals;
+#' \item \code{border.predict}: border colour of prediction intervals.
+#' }
+#' Each element defaults to \code{NULL}, with colours determined automatically
+#' from the layout and plotting symbol.
+#'
+#' Argument \code{type} defaults to \code{"square"}. Available values are
+#' \code{"square"}, \code{"diamond"}, \code{"circle"}, and
+#' \code{"squarediamond"}.
+#' }
 #' 
+#' @return
+#' Invisibly returns a list with information about the forest plot,
+#' including the selected columns (\code{leftcols}, \code{rightcols}),
+#' their headings (\code{leftlabs}, \code{rightlabs}), formatted results,
+#' and graphical settings (see \code{\link{forest.meta}}).
+#' Element \code{data} contains the dataset used to create the forest plot.
+#'
+#' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
+#'
 #' @seealso \code{\link{forest.meta}}, \code{\link{metacum}},
 #'   \code{\link{settings.meta}}
 #' 
@@ -200,10 +237,10 @@ forest.metacum <- function(x,
   cols <- col.list$res
   #
   col <- cols$col
-  col.bg <- cols$col.bg
-  col.border <- cols$col.border
+  col.bg <- cols$bg
+  col.border <- cols$border
   col.bg.predict <- cols$bg.predict
-  col.border.predict <- cols$col.border.predict
+  col.border.predict <- cols$border.predict
   #
   # Colour schemes for layouts:
   # - colors[1] - vertical line for common effect or random effects model
@@ -253,7 +290,7 @@ forest.metacum <- function(x,
   print.tau.ci <- print$tau.ci
   print.Q <- print$Q
   print.pval.Q <- print$pval.Q
-  print.cidprop <- print$cidprop
+  print.prob <- print$prob
   #
   chklogical(print.pval)
   chklogical(print.stat)
@@ -265,18 +302,18 @@ forest.metacum <- function(x,
   chklogical(print.tau.ci)
   chklogical(print.Q)
   chklogical(print.pval.Q)
-  chklogical(print.cidprop)
+  chklogical(print.prob)
   #
   print.tau2.ci <- print.tau2.ci && print.tau2
   print.tau.ci <- print.tau.ci && print.tau
   print.I2.ci <- print.I2.ci && print.I2
   #
-  print.cidprop.below.null <- print.cidprop &&
+  print.prob.below.null <- print.prob &&
     !is.null(x$prop.cid.below.null) && !(all(is.na(x$prop.cid.below.null)))
-  print.cidprop.above.null <- print.cidprop &&
+  print.prob.above.null <- print.prob &&
     !is.null(x$prop.cid.above.null) && !(all(is.na(x$prop.cid.above.null)))
   #
-  print.cidprop <- print.cidprop.below.null || print.cidprop.above.null
+  print.prob <- print.prob.below.null || print.prob.above.null
   #
   chklogical(backtransf)
   #
@@ -346,10 +383,10 @@ forest.metacum <- function(x,
       if (print.pval.Q)
         leftcols <- c(leftcols, "pval.Q")
       #
-      if (print.cidprop.below.null)
+      if (print.prob.below.null)
         leftcols <- c(leftcols, "prop.cid.below.null")
       #
-      if (print.cidprop.above.null)
+      if (print.prob.above.null)
         leftcols <- c(leftcols, "prop.cid.above.null")
       #
       if (layout == "RevMan5" || layout == "JAMA")
@@ -428,10 +465,10 @@ forest.metacum <- function(x,
       if (print.I2.ci)
         leftcols <- c(leftcols, "I2.ci")
       #
-      if (print.cidprop.below.null)
+      if (print.prob.below.null)
         rightcols <- c(rightcols, "prop.cid.below.null")
       #
-      if (print.cidprop.above.null)
+      if (print.prob.above.null)
         rightcols <- c(rightcols, "prop.cid.above.null")
     }
     else
@@ -494,7 +531,7 @@ forest.metacum <- function(x,
   statistic <- formatN(statistic, digits = digits.stat, lab.NA = lab.NA,
                        big.mark = big.mark)
   tau2 <- formatPT(tau2, digits = digits.tau2, lab.NA = lab.NA)
-  tau <- formatPT(tau, digits = digits.tau2, lab.NA = lab.NA)
+  tau <- formatPT(tau, digits = digits.tau, lab.NA = lab.NA)
   #
   I2 <- percent_label(I2, "", digits.I2, formatN, lab.NA = lab.NA)
   #
@@ -516,13 +553,13 @@ forest.metacum <- function(x,
                digits = digits.I2, lab.NA = lab.NA, na.lab = TRUE)
   }
   #
-  if (print.cidprop.below.null) {
+  if (print.prob.below.null) {
     prop.cid.below.null <-
       percent_label(prop.cid.below.null, "", digits.percent, formatPT,
                     lab.NA = lab.NA)
   }
   #
-  if (print.cidprop.above.null) {
+  if (print.prob.above.null) {
     prop.cid.above.null <-
       percent_label(prop.cid.above.null, "", digits.percent, formatPT,
                     lab.NA = lab.NA)
@@ -559,13 +596,13 @@ forest.metacum <- function(x,
       I2.ci <- I2.ci[-length(I2.ci)]
     }
     #
-    if (print.cidprop.above.null) {
+    if (print.prob.below.null) {
       prop.cid.below.null.pooled <-
         prop.cid.below.null[length(prop.cid.below.null)]
       prop.cid.below.null <- prop.cid.below.null[-length(prop.cid.below.null)]
     }
     #
-    if (print.cidprop.above.null) {
+    if (print.prob.above.null) {
       prop.cid.above.null.pooled <-
         prop.cid.above.null[length(prop.cid.above.null)]
       prop.cid.above.null <- prop.cid.above.null[-length(prop.cid.above.null)]
@@ -599,10 +636,10 @@ forest.metacum <- function(x,
             #
             forest = TRUE)
   #
-  if (print.cidprop)
+  if (print.prob)
     svd <- x$small.values == "desirable"
   #
-  if (print.cidprop.below.null) {
+  if (print.prob.below.null) {
     text.details <-
       paste0(text.details,
              paste0("\n- Lower decision threshold (",
@@ -612,7 +649,7 @@ forest.metacum <- function(x,
                             big.mark = big.mark)))
   }
   #
-  if (print.cidprop.above.null) {
+  if (print.prob.above.null) {
     text.details <-
       paste0(text.details,
              paste0("\n- Upper decision threshold (",
@@ -648,13 +685,13 @@ forest.metacum <- function(x,
                rep("", k.all)),
                ncol = k.all, byrow = TRUE))
     #
-    if (print.cidprop)
+    if (print.prob)
       prop.cid.below.null <- as.vector(
         matrix(c(x$prop.cid.below.null,
                  rep("", k.all)),
                ncol = k.all, byrow = TRUE))
     #
-    if (print.cidprop)
+    if (print.prob)
       prop.cid.above.null <- as.vector(
         matrix(c(x$prop.cid.above.null,
                  rep("", k.all)),
@@ -734,10 +771,10 @@ forest.metacum <- function(x,
     m$tau <- as.vector(matrix(c(tau, rep("", k.all)),
                               ncol = k.all, byrow = TRUE))[sel.pred]
     #
-    if (print.cidprop)
+    if (print.prob)
       m$prop.cid.below.null <- prop.cid.below.null[sel.pred]
     #
-    if (print.cidprop)
+    if (print.prob)
       m$prop.cid.above.null <- prop.cid.above.null[sel.pred]
     #
     type.study <- rep(c(type, "predict"), k.all)[sel.pred]
@@ -809,10 +846,10 @@ forest.metacum <- function(x,
     if (print.I2.ci)
       m$I2.ci <- I2.ci
     #
-    if (print.cidprop)
+    if (print.prob)
       m$prop.cid.below.null <- x$prop.cid.below.null
     #
-    if (print.cidprop)
+    if (print.prob)
       m$prop.cid.above.null <- x$prop.cid.above.null
     #
     type.study <- type
@@ -871,10 +908,10 @@ forest.metacum <- function(x,
     if (print.I2.ci)
       data.p$I2.ci <- I2.ci.pooled
     #
-    if (print.cidprop.below.null)
+    if (print.prob.below.null)
       data.p$prop.cid.below.null <- prop.cid.below.null.pooled
     #
-    if (print.cidprop.above.null)
+    if (print.prob.above.null)
       data.p$prop.cid.above.null <- prop.cid.above.null.pooled
   }
   else

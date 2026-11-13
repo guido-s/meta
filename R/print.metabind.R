@@ -1,8 +1,7 @@
 #' Print results of several meta-analyses
 #'
 #' @description
-#' Prints common effect estimates, random effects estimates, prediction
-#' intervals, and heterogeneity information in separate tables.
+#' Print method for objects of class \code{metabind}.
 #'
 #' @aliases print.metabind
 #'
@@ -10,33 +9,25 @@
 #' @param common,random,prediction Logical values selecting common effect
 #'   estimates, random effects estimates, and prediction intervals to print.
 #' @param overall A logical indicating whether overall summaries should be
-#'   printed. No additional overall summaries are printed for component
-#'   results without source subgroup analyses.
-#'   For source subgroup analyses, selected overall effects can be shared
+#'   printed. No additional overall summaries are printed for included
+#'   meta-analyses without subgroup analyses.
+#'   For subgroup analyses, selected overall effects can be shared
 #'   independently of heterogeneity. Shared heterogeneity is printed only
-#'   when its values and settings also agree across components.
+#'   when its values and settings also agree across included meta-analyses.
+#'   Subgroup-difference statistics are headed \code{Q}, \code{F}, or
+#'   \code{Q/F}, according to the tests in each displayed table. Both degrees
+#'   of freedom are retained for F tests.
 #' @param backtransf A logical indicating whether results should be
 #'   back-transformed. Different summary measures require back-transformation.
 #' @param print A named list controlling displayed information; see
-#'   \code{\link{meta-formatting}}. Elements \code{func}, \code{sm},
-#'   \code{method}, and \code{method.interval} accept \code{TRUE},
-#'   \code{FALSE}, or \code{NULL} for automatic column selection within
-#'   each result table. Element \code{func} identifies the originating
-#'   meta-analysis function. Elements \code{level.ma}, \code{level.predict},
-#'   and \code{level.hetstat} control confidence-level columns, which are
-#'   shown automatically when the corresponding levels differ. Elements
-#'   \code{backtransf} and \code{args.backtransf} control columns showing
-#'   custom back-transformation functions and their named arguments, with
-#'   headings \code{backtransf} and \code{args}. By default, these are
-#'   shown when supplied; arguments are shown only with the function column.
+#'   \code{\link{meta-formatting}}.
 #' @param digits A named list controlling rounding; see
 #'   \code{\link{meta-formatting}}. A scalar value is also accepted.
 #' @param text.tau2 Text printed to identify between-study variance
 #'   \eqn{\tau^2}.
 #' @param text.tau Text printed to identify \eqn{\tau}, the square
 #'   root of the between-study variance \eqn{\tau^2}.
-#' @param text.I2 Text printed to identify heterogeneity statistic
-#'   I\eqn{^2}.
+#' @param text.I2 Text printed to identify heterogeneity statistic I\eqn{^2}.
 #' @param lab.NA Label for missing values.
 #' @param big.mark Character used as thousands separator.
 #' @param scientific.pval,zero.pval,JAMA.pval Logical values controlling
@@ -46,20 +37,56 @@
 #' @param \dots Additional formatting arguments, including individual
 #'   \code{print.*} and \code{digits.*} arguments.
 #'
-#' @return Invisibly returns \code{NULL}.
+#' @details
+#' \subsection{Formatting defaults}{
+#' Unless listed below, defaults for supported formatting elements are
+#' described in \code{\link{meta-formatting}}.
+#'
+#' \tabular{ll}{
+#' \bold{Element} \tab \bold{Default} \cr
+#' \code{print$stat} \tab \code{TRUE}. \cr
+#' \code{print$I2}, \code{print$tau2} \tab Corresponding \code{gs("print.*")} setting. \cr
+#' \code{print$tau}, \code{print$Q} \tab Corresponding \code{gs("print.*")} setting. \cr
+#' \code{print$I2.ci}, \code{print$tau2.ci} \tab \code{FALSE}. \cr
+#' \code{print$tau.ci} \tab \code{FALSE}. \cr
+#' \code{print$pval.Q} \tab Follows \code{print$Q}. \cr
+#' \code{print$subgroup.name} \tab Whether subgroup results are present.
+#' }
+#' The named list \code{print} controls which columns are shown.
+#' Columns \code{func}, \code{sm}, \code{method}, and \code{method.interval}
+#' are selected automatically when their values differ within a result table.
+#' Confidence-level columns \code{level.ma}, \code{level.predict}, and
+#' \code{level.hetstat} are shown when the corresponding levels differ.
+#' Columns \code{backtransf} and \code{args.backtransf} are shown when
+#' custom back-transformation functions and arguments are supplied;
+#' arguments are shown only with the function column.
+#' }
+#'
+#' @return
+#' Invisibly returns \code{NULL}.
 #'
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #'
-#' @seealso \code{\link{metabind}}, \code{\link{settings.meta}}
+#' @seealso \code{\link{metabind}}, \code{\link{forest.metabind}},
+#'    \code{\link{settings.meta}}
 #'
 #' @examples
 #' data(Fleiss1993bin)
 #' ma1 <- metabin(d.asp, n.asp, d.plac, n.plac,
 #'   data = Fleiss1993bin, studlab = study, sm = "RR", method = "I")
 #' ma2 <- update(ma1, method = "MH", random = FALSE)
+#'
+#' # Printout for individual meta-analyses
 #' ma1
 #' ma2
-#' metabind(ma1, ma2)
+#'
+#' # Standard printout
+#' metabind(ma1, ma2, name = c("IV method", "MH method"))
+#'
+#' # Print confidence intervals for tau^2 and tau and
+#' # suppress column on meta-analysis method
+#' print(metabind(ma1, ma2, name = c("IV method", "MH method")),
+#'   print = list(tau2.ci = TRUE, tau.ci = TRUE, method = FALSE))
 #'
 #' @method print metabind
 #' @export
@@ -474,6 +501,7 @@ print.metabind <- function(x,
         "tau2",
         "lower.tau2",
         "upper.tau2",
+        "se.tau2",
         "tau",
         "lower.tau",
         "upper.tau",
@@ -484,7 +512,8 @@ print.metabind <- function(x,
         "lower.H",
         "upper.H"
       ))
-      subdat[[i]] <- NA_real_
+      subdat[[i]] <- if (is.list(subdat[[i]]))
+        rep(list(NA_real_), nrow(subdat)) else NA_real_
       #
       dat <- subdat
     }
@@ -503,13 +532,13 @@ print.metabind <- function(x,
     if (common && random) {
       sel.c <- dat$type == "Common effect model"
       #
-      dat$tau2[sel.c] <- NA
-      dat$lower.tau2[sel.c] <- NA
-      dat$upper.tau2[sel.c] <- NA
+      dat$tau2[sel.c] <- list(NA_real_)
+      dat$lower.tau2[sel.c] <- list(NA_real_)
+      dat$upper.tau2[sel.c] <- list(NA_real_)
       #
-      dat$tau[sel.c] <- NA
-      dat$lower.tau[sel.c] <- NA
-      dat$upper.tau[sel.c] <- NA
+      dat$tau[sel.c] <- list(NA_real_)
+      dat$lower.tau[sel.c] <- list(NA_real_)
+      dat$upper.tau[sel.c] <- list(NA_real_)
       #
       dat$I2[sel.c] <- NA
       dat$lower.I2[sel.c] <- NA
@@ -519,13 +548,13 @@ print.metabind <- function(x,
     if (prediction && (common || random)) {
       sel.p <- dat$type == "Prediction interval"
       #
-      dat$tau2[sel.p] <- NA
-      dat$lower.tau2[sel.p] <- NA
-      dat$upper.tau2[sel.p] <- NA
+      dat$tau2[sel.p] <- list(NA_real_)
+      dat$lower.tau2[sel.p] <- list(NA_real_)
+      dat$upper.tau2[sel.p] <- list(NA_real_)
       #
-      dat$tau[sel.p] <- NA
-      dat$lower.tau[sel.p] <- NA
-      dat$upper.tau[sel.p] <- NA
+      dat$tau[sel.p] <- list(NA_real_)
+      dat$lower.tau[sel.p] <- list(NA_real_)
+      dat$upper.tau[sel.p] <- list(NA_real_)
       #
       dat$I2[sel.p] <- NA
       dat$lower.I2[sel.p] <- NA
@@ -661,6 +690,8 @@ print.metabind <- function(x,
       name.c <- dat.c$name
       dat.c$name <- NULL
       #
+      names(dat.c)[names(dat.c) == ".no_sm_provided"] <- ""
+      #
       prmatrix(dat.c,
                quote = FALSE,
                right = TRUE,
@@ -675,6 +706,8 @@ print.metabind <- function(x,
       name.r <- dat.r$name
       dat.r$name <- NULL
       #
+      names(dat.r)[names(dat.r) == ".no_sm_provided"] <- ""
+      #
       prmatrix(dat.r,
                quote = FALSE,
                right = TRUE,
@@ -688,6 +721,8 @@ print.metabind <- function(x,
       #
       name.p <- dat.p$name
       dat.p$name <- NULL
+      #
+      names(dat.p)[names(dat.p) == ".no_sm_provided"] <- ""
       #
       prmatrix(dat.p,
                quote = FALSE,
@@ -811,6 +846,8 @@ print.metabind <- function(x,
       #
       pooled.all[is.na(pooled.all)] <- lab.NA
       #
+      names(pooled.all)[names(pooled.all) == ".no_sm_provided"] <- ""
+      #
       prmatrix(pooled.all,
                quote = FALSE,
                right = TRUE,
@@ -871,6 +908,12 @@ print.metabind <- function(x,
         #
         dat.i$subgroup.name <- NULL
         #
+        if (isCol(dat.i, "Q.b"))
+          names(dat.i)[names(dat.i) == "Q.b"] <-
+            subgroup_test_heading(dat.i[["test.Q.b"]])
+        #
+        dat.i$test.Q.b <- NULL
+        #
         if (isCol(dat.i, "level") &&
             length(unique(dat.i$level)) == 1 &&
             !anyNA(dat.i$level)) {
@@ -885,6 +928,8 @@ print.metabind <- function(x,
             lab.NA = lab.NA,
             big.mark = big.mark
           )
+        #
+        names(dat.i)[names(dat.i) == ".no_sm_provided"] <- ""
         #
         prmatrix(
           dat.i,
@@ -914,6 +959,12 @@ print.metabind <- function(x,
         #
         dat.i$subgroup.name <- NULL
         #
+        if (isCol(dat.i, "Q.b"))
+          names(dat.i)[names(dat.i) == "Q.b"] <-
+            subgroup_test_heading(dat.i[["test.Q.b"]])
+        #
+        dat.i$test.Q.b <- NULL
+        #
         if (isCol(dat.i, "level") &&
             length(unique(dat.i$level)) == 1 &&
             !anyNA(dat.i$level)) {
@@ -928,6 +979,8 @@ print.metabind <- function(x,
             lab.NA = lab.NA,
             big.mark = big.mark
           )
+        #
+        names(dat.i)[names(dat.i) == ".no_sm_provided"] <- ""
         #
         prmatrix(
           dat.i,
@@ -964,6 +1017,8 @@ print.metabind <- function(x,
             lab.NA = lab.NA,
             big.mark = big.mark
           )
+        #
+        names(dat.i)[names(dat.i) == ".no_sm_provided"] <- ""
         #
         prmatrix(
           dat.i,

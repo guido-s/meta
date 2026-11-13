@@ -335,12 +335,6 @@ drop_backward <- function(x) {
   res$text.fixed <- NULL
   res$text.w.fixed <- NULL
   #
-  res$zval <- NULL
-  res$zval.common <- NULL
-  res$zval.random <- NULL
-  #
-  res$hakn <- NULL
-  #
   res$df.hakn <- NULL
   res$seTE.hakn <- NULL
   res$seTE.hakn.adhoc <- NULL
@@ -409,8 +403,14 @@ setNAwithin <- function(x, condition) {
   res
 }
 
-drop_allNAs <- function(x) {
-  all_NA <- colSums(is.na(x)) == nrow(x)
+drop_allNAs <- function(x, keep = character()) {
+  all_NA <- vapply(x, function(column)
+    if (is.list(column))
+      all(vapply(column, function(value) !is.null(value) && allNA(value), logical(1)))
+    else
+      allNA(column),
+    logical(1))
+  all_NA[colnames(x) %in% keep] <- FALSE
   #
   res <- x[, !all_NA, drop = FALSE]
   colnames(res) <- colnames(x)[!all_NA]
@@ -1008,38 +1008,76 @@ setNA_ifnot <- function(x, y, unequal) {
 
 list2mat <- function(x, y = NULL) {
   if (is.list(x)) {
-    #
-    if (!is.null(y)) {
-      for (i in seq_len(length(x)))
-        x[[i]] <- matrix(x[[i]], nrow = length(x[[i]]),
-                         ncol = ncol(y) / length(x))
-    }
-    #
     lnames <- names(x)
-    #    
-    if (!is.null(dimnames(x[[1]])[[2]])) {
+    #
+    if (!is.null(y) &&
+        (!is.list(y) || length(y) != length(x)))
+      stop("Reference blocks must correspond to the result blocks.",
+           call. = FALSE)
+    #
+    for (i in seq_along(x)) {
+      value <- x[[i]]
+      #
+      if (is.null(value))
+        next
+      #
+      if (!is.matrix(value))
+        value <- matrix(value, ncol = 1,
+                        dimnames = list(names(value), NULL))
+      #
       if (!is.null(y)) {
-        for (i in seq_along(lnames)) {
-          dimnames(x[[i]]) <- dimnames(y)
-        }
+        reference <- y[[i]]
+        #
+        if (!is.matrix(reference))
+          reference <- matrix(
+            reference, ncol = 1,
+            dimnames = list(names(reference), NULL))
+        #
+        if (nrow(value) != nrow(reference))
+          stop("Result and reference blocks have different numbers of rows.",
+               call. = FALSE)
+        #
+        # A shared subgroup estimate is repeated across its own CI methods.
+        #
+        if (ncol(value) == 1L && ncol(reference) > 1L)
+          value <- matrix(rep(value, ncol(reference)),
+                          nrow = nrow(reference),
+                          ncol = ncol(reference))
+        #
+        if (!identical(dim(value), dim(reference)))
+          stop("Result and reference blocks have incompatible dimensions.",
+               call. = FALSE)
+        #
+        dimnames(value) <- dimnames(reference)
       }
-      else {
-        for (i in seq_along(lnames)) {
-          dimnames(x[[i]])[[2]] <-
-            paste(lnames[i], dimnames(x[[i]])[[2]], sep = "-")
-          #
-          dimnames(x[[i]])[[2]] <-
-            gsub("-classic$", "", dimnames(x[[i]])[[2]])
+      #
+      if (!is.null(lnames) &&
+          !is.na(lnames[i]) && nzchar(lnames[i])) {
+        cnames <- colnames(value)
+        #
+        if (is.null(cnames)) {
+          if (ncol(value) == 1L)
+            cnames <- lnames[i]
+          else
+            cnames <- paste(lnames[i], seq_len(ncol(value)), sep = "-")
         }
+        else
+          cnames <- gsub(
+            "-classic$", "",
+            paste(lnames[i], cnames, sep = "-"))
+        #
+        colnames(value) <- cnames
       }
+      #
+      x[i] <- list(value)
     }
     #
-    return(do.call("cbind", x))
+    do.call("cbind", x)
   }
   else if (is.vector(x))
-    return(matrix(x, ncol = 1))
+    matrix(x, ncol = 1)
   else
-    return(x)
+    x
 }
 
 list2vec <- function(x) {
@@ -1336,4 +1374,555 @@ addNAs2var <- function(x, n) {
   }
   #
   res
+}
+
+fs_defaults <- function(fontsize) {
+  list(
+    main = gs("fs.main"),
+    heading = fontsize,
+    common = gs("fs.common"),
+    random = gs("fs.random"),
+    predict = gs("fs.predict"),
+    common.labels = gs("fs.common.labels"),
+    random.labels = gs("fs.random.labels"),
+    predict.labels = gs("fs.predict.labels"),
+    study = fontsize,
+    study.labels = fontsize,
+    hetstat = gs("fs.hetstat"),
+    test.overall = gs("fs.test.overall"),
+    test.subgroup = gs("fs.test.subgroup"),
+    test.effect.subgroup = gs("fs.test.effect.subgroup"),
+    addline = gs("fs.addline"),
+    axis = fontsize - 1,
+    smlab = fontsize,
+    xlab = fontsize,
+    lr = fontsize,
+    rob = gs("fs.rob"),
+    rob.symbols = gs("fs.rob.symbols"),
+    details = fontsize - 1
+  )
+}
+
+ff_defaults <- function() {
+  list(
+    main = gs("ff.main"),
+    heading = "bold",
+    common = gs("ff.common"),
+    random = gs("ff.random"),
+    predict = gs("ff.predict"),
+    common.labels = gs("ff.common.labels"),
+    random.labels = gs("ff.random.labels"),
+    predict.labels = gs("ff.predict.labels"),
+    study = "plain",
+    study.labels = "plain",
+    hetstat = gs("ff.hetstat"),
+    test.overall = gs("ff.test.overall"),
+    test.subgroup = gs("ff.test.subgroup"),
+    test.effect.subgroup = gs("ff.test.effect.subgroup"),
+    addline = gs("ff.addline"),
+    axis = gs("ff.axis"),
+    smlab = gs("ff.smlab"),
+    xlab = gs("ff.xlab"),
+    lr = gs("ff.lr"),
+    rob = "plain",
+    rob.symbols = "bold",
+    details = "plain"
+  )
+}
+
+col_defaults <- function(x, class = "meta") {
+  if (class == "meta") {
+    col.inside <- gs("col.inside")
+    col.diamond <- gs("col.diamond")
+    col.diamond.lines <- gs("col.diamond.lines")
+    col.predict <- gs("col.predict")
+    col.predict.lines <- gs("col.predict.lines")
+    col.subgroup <- gs("col.subgroup")
+    col.lines <- gs("col.lines")
+    col.circle <- gs("col.circle")
+    #
+    res <- list(
+      main = gs("col.main"),
+      common = gs("col.common"),
+      random = gs("col.random"),
+      label = gs("col.label"),
+      study = gs("col.study"),
+      study.text = gs("col.study.text"),
+      square = gs("col.square"),
+      square.lines = gs("col.square.lines"),
+      circle = col.circle,
+      circle.lines = col.circle,
+      inside = col.inside,
+      inside.common = col.inside,
+      inside.random = col.inside,
+      diamond = col.diamond,
+      diamond.common = col.diamond,
+      diamond.common.subgroup = col.diamond,
+      diamond.random = col.diamond,
+      diamond.random.subgroup = col.diamond,
+      diamond.lines = col.diamond.lines,
+      diamond.lines.common = col.diamond.lines,
+      diamond.lines.common.subgroup = col.diamond.lines,
+      diamond.lines.random = col.diamond.lines,
+      diamond.lines.random.subgroup = col.diamond.lines,
+      predict = col.predict,
+      predict.subgroup = col.predict,
+      predict.lines = col.predict.lines,
+      predict.lines.subgroup = col.predict.lines,
+      subgroup = col.subgroup,
+      label.left = x$col.label.left,
+      label.right = x$col.label.right,
+      lines = col.lines,
+      header.line = col.lines,
+      jama.line = col.subgroup,
+      cid = gs("col.cid")
+    )
+  }
+  else if (class == "metacum" || class == "metainf") {
+    res <- list(
+      col = NULL,
+      bg = NULL,
+      border = NULL,
+      bg.predict = NULL,
+      border.predict = NULL)
+  }
+  else if (class == "metabind") {
+    res <- list(
+      square = NULL,
+      square.lines = NULL,
+      circle = NULL,
+      circle.lines = NULL,
+      diamond = NULL,
+      diamond.common = NULL,
+      diamond.random = NULL,
+      diamond.lines = NULL,
+      diamond.lines.common = NULL,
+      diamond.lines.random = NULL,
+      predict = NULL,
+      predict.lines = NULL)
+  }
+  #
+  res
+}
+
+calcwidth_defaults <- function(common, random, overall, subgroup) {
+  calcwidth.pooled <-
+    (common | random) & (overall | !is.null(subgroup))
+  #
+  list(
+    pooled = calcwidth.pooled,
+    common = calcwidth.pooled,
+    random = calcwidth.pooled,
+    predict = gs("calcwidth.predict"),
+    hetstat = gs("calcwidth.hetstat"),
+    tests = gs("calcwidth.tests"),
+    subgroup = gs("calcwidth.subgroup"),
+    addline = gs("calcwidth.addline"),
+    details = gs("calcwidth.details")
+  )
+}
+
+print_defaults <- function(x, class = "meta", func = "forest") {
+  if (class %in% c("meta", "summary.meta") && func == "print") {
+    res <- list(
+      subgroup.name = x$print.subgroup.name,
+      CMH = x$print.CMH,
+      tau2 = gs("print.tau2"),
+      tau2.ci = gs("print.tau2.ci"),
+      tau = gs("print.tau"),
+      tau.ci = gs("print.tau.ci"),
+      Q = gs("print.Q"),
+      I2 = gs("print.I2"),
+      I2.ci = gs("print.I2.ci"),
+      H = gs("print.H"),
+      Rb = gs("print.Rb"))
+  }
+  else if (class == "meta") {
+    res <- list(
+      subgroup.labels = TRUE,
+      subgroup.name = x$print.subgroup.name,
+      I2 = gs("forest.I2"),
+      I2.ci = gs("forest.I2.ci"),
+      tau2 = gs("forest.tau2"),
+      tau2.ci = gs("forest.tau2.ci"),
+      tau = gs("forest.tau"),
+      tau.ci = gs("forest.tau.ci"),
+      Q = gs("forest.Q"),
+      pval.Q = gs("forest.pval.Q"),
+      Rb = gs("forest.Rb"),
+      Rb.ci = gs("forest.Rb.ci"),
+      stat = gs("forest.stat"),
+      tau2.ci.subgroup = gs("print.tau2.ci.subgroup"),
+      tau.ci.subgroup = gs("print.tau.ci.subgroup"),
+      Q.subgroup = gs("forest.Q.subgroup"))
+  }
+  else if (class == "metacum" || class == "metainf") {
+    if (func == "print") {
+      res <- list(
+        stat = FALSE,
+        tau2 = TRUE,
+        tau2.ci = FALSE,
+        tau = TRUE,
+        tau.ci = FALSE,
+        I2 = TRUE,
+        I2.ci = FALSE,
+        prob = TRUE)
+    }
+    else
+      res <- list(
+        stat = FALSE,
+        pval = TRUE,
+        I2 = TRUE,
+        I2.ci = FALSE,
+        tau2 = TRUE,
+        tau2.ci = FALSE,
+        tau = TRUE,
+        tau.ci = FALSE,
+        Q = FALSE,
+        pval.Q = FALSE,
+        prob = FALSE)
+  }
+  else if (class == "metabind") {
+    func <- setchar(func, c("forest", "print"), length = 1)
+    #
+    if (func == "forest") {
+      res <- list(
+        studlab = TRUE,
+        type = NULL,
+        func = NULL,
+        method = NULL,
+        method.interval = NULL,
+        method.tau = NULL,
+        backtransf = NULL,
+        args.backtransf = NULL,
+        k = TRUE,
+        sm = NULL,
+        se = FALSE,
+        stat = NULL,
+        pval = NULL,
+        level.ma = NULL,
+        level.predict = NULL,
+        level.hetstat = NULL,
+        null.effect = FALSE,
+        I2 = FALSE,
+        I2.ci = FALSE,
+        tau2 = gs("forest.tau2"),
+        tau2.ci = gs("forest.tau2.ci"),
+        tau = gs("forest.tau"),
+        tau.ci = gs("forest.tau.ci"),
+        Q = FALSE,
+        pval.Q = NULL,
+        H = FALSE,
+        H.ci = FALSE,
+        Q.b = NULL,
+        pval.Q.b = NULL,
+        subgroup.name = FALSE)
+    }
+    else {
+      res <- list(
+        func = NULL,
+        method = NULL,
+        method.interval = NULL,
+        backtransf = NULL,
+        args.backtransf = NULL,
+        k = TRUE,
+        sm = NULL,
+        se = FALSE,
+        stat = TRUE,
+        pval = TRUE,
+        null.effect = FALSE,
+        level.ma = NULL,
+        level.predict = NULL,
+        level.hetstat = NULL,
+        I2 = gs("print.I2"),
+        I2.ci = FALSE,
+        tau2 = gs("print.tau2"),
+        tau2.ci = FALSE,
+        tau = gs("print.tau"),
+        tau.ci = FALSE,
+        Q = gs("print.Q"),
+        pval.Q = NULL,
+        H = FALSE,
+        H.ci = FALSE,
+        Q.b = NULL,
+        pval.Q.b = NULL,
+        subgroup.name = NULL)
+    }
+  }
+  #
+  res
+}
+
+label_defaults <- function(x) {
+  list(
+    e = x$label.e,
+    c = x$label.c,
+    e.attach = gs("label.e.attach"),
+    c.attach = gs("label.c.attach"),
+    left = x$label.left,
+    right = x$label.right,
+    n = gs("label.n"),
+    events = gs("label.events"),
+    mean = gs("label.mean"),
+    sd = gs("label.sd"),
+    cor = gs("label.cor"),
+    time = gs("label.time"),
+    pval = gs("label.pval"),
+    tau2 = gs("label.tau2"),
+    tau = gs("label.tau"),
+    I2 = gs("label.I2"),
+    cluster = gs("label.cluster"),
+    cycles = gs("label.cycles"),
+    test.overall.common = NULL,
+    test.overall.random = NULL,
+    test.subgroup.common = NULL,
+    test.subgroup.random = NULL,
+    test.effect.subgroup.common = NULL,
+    test.effect.subgroup.random = NULL
+  )
+}
+
+colgap_defaults <- function() {
+  colgap <- gs("colgap")
+  colgap.forest <- gs("colgap.forest")
+  #
+  list(
+    colgap = colgap,
+    left = colgap,
+    right = colgap,
+    studlab = colgap,
+    forest = colgap.forest,
+    forest.left = colgap.forest,
+    forest.right = colgap.forest,
+    rob = "1mm",
+    rob.overall = "2mm"
+  )
+}
+
+just_defaults <- function(layout) {
+  just <- if (layout == "JAMA") "left" else "right"
+  just.addcols <- gs("just.addcols")
+  #
+  list(
+    just = just,
+    main = gs("just.main"),
+    studlab = gs("just.studlab"),
+    addcols = just.addcols,
+    addcols.left = just.addcols,
+    addcols.right = just.addcols,
+    label.e = just,
+    label.c = just,
+    rob = "left"
+  )
+}
+
+digits_defaults <- function(class = "meta", func = "forest") {
+  if (class %in% c("meta", "summary.meta") && func == "print") {
+    res <- list(
+      digits = gs("digits"),
+      stat = gs("digits.stat"),
+      pval = max(gs("digits.pval"), 2),
+      tau2 = gs("digits.tau2"),
+      tau = gs("digits.tau"),
+      Q = gs("digits.Q"),
+      df = gs("digits.df"),
+      pval.Q = max(gs("digits.pval.Q"), 2),
+      H = gs("digits.H"),
+      I2 = gs("digits.I2"))
+    #
+    if (class == "summary.meta")
+      res <- c(res, list(se = gs("digits.se"),
+                         prop = gs("digits.prop"),
+                         weight = gs("digits.weight")))
+  }
+  else if (class == "meta") {
+    digits <- gs("digits.forest")
+    #
+    res <- list(
+      digits = digits,
+      se = gs("digits.se"),
+      stat = gs("digits.stat"),
+      pval = gs("digits.pval"),
+      pval.Q = gs("digits.pval.Q"),
+      Q = gs("digits.Q"),
+      tau2 = gs("digits.tau2"),
+      tau = gs("digits.tau"),
+      I2 = gs("digits.I2"),
+      weight = gs("digits.weight"),
+      mean = gs("digits.mean"),
+      sd = gs("digits.sd"),
+      cor = digits,
+      time = digits,
+      n = 0,
+      event = 0,
+      TE = gs("digits.TE.forest"),
+      addcols = digits,
+      addcols.right = digits,
+      addcols.left = digits)
+  }
+  else if (class == "metacum" || class == "metainf") {
+    res <- list(
+      digits = if (func == "print") gs("digits") else gs("digits.forest"),
+      stat = gs("digits.stat"),
+      pval = gs("digits.pval"),
+      tau2 = gs("digits.tau2"),
+      tau = gs("digits.tau"),
+      I2 = gs("digits.I2"),
+      cid = gs("digits.cid"),
+      percent = 1)
+  }
+  else if (class == "metabind") {
+    func <- setchar(func, c("forest", "print"), length = 1)
+    #
+    if (func == "forest") {
+      res <- list(
+        digits = gs("digits.forest"),
+        se = gs("digits.se"),
+        stat = gs("digits.stat"),
+        pval = max(gs("digits.pval") - 2, 2),
+        pval.Q = max(gs("digits.pval.Q") - 2, 2),
+        Q = gs("digits.Q"),
+        tau2 = gs("digits.tau2"),
+        tau = gs("digits.tau"),
+        I2 = gs("digits.I2"))
+    }
+    else {
+      res <- list(
+        digits = gs("digits.forest"),
+        se = gs("digits.se"),
+        stat = gs("digits.stat"),
+        pval = gs("digits.pval"),
+        pval.Q = gs("digits.pval.Q"),
+        Q = gs("digits.Q"),
+        tau2 = gs("digits.tau2"),
+        tau = gs("digits.tau"),
+        I2 = gs("digits.I2"))
+    }
+  }
+  #
+  res
+}
+
+test_defaults <- function(x, common, random, overall,
+                          test.overall.default = TRUE) {
+  test.overall <- replaceNULL(gs("test.overall"), test.overall.default)
+  test.subgroup <- replaceNULL(x$test.subgroup, TRUE)
+  #
+  list(
+    overall = test.overall,
+    overall.common = common & overall & test.overall,
+    overall.random = random & overall & test.overall,
+    subgroup = test.subgroup,
+    subgroup.common = test.subgroup & common,
+    subgroup.random = test.subgroup & random,
+    effect.subgroup = gs("test.effect.subgroup"),
+    effect.subgroup.common = NULL,
+    effect.subgroup.random = NULL
+  )
+}
+
+type_defaults <- function(study.results, class = "meta") {
+  if (class == "meta") {
+    type.subgroup <- ifelse(study.results, "diamond", "square")
+    #
+    res <- list(
+      study = gs("type.study"),
+      common = gs("type.common"),
+      random = gs("type.common"),
+      subgroup = type.subgroup,
+      subgroup.common = type.subgroup,
+      subgroup.random = type.subgroup
+    )
+  }
+  else if (class == "metabind") {
+    res <- list(
+      type = NULL,
+      common = NULL,
+      random = NULL,
+      predict = NULL)
+  }
+  #
+  res
+}
+
+fill_defaults <- function() {
+  fill.cid <- gs("fill.cid")
+  fill.equi <- gs("fill.equi")
+  #
+  list(
+    fill = gs("fill"),
+    cid = fill.cid,
+    cid.below.null = fill.cid,
+    cid.above.null = rev(fill.cid),
+    equi = fill.equi,
+    lower.equi = fill.equi,
+    upper.equi = rev(fill.equi)
+  )
+}
+
+cid_defaults <- function(x = NULL) {
+  list(
+    cid = gs("cid"),
+    below.null = gs("cid.below.null"),
+    above.null = gs("cid.above.null"),
+    pooled.only = gs("cid.pooled.only")
+  )
+}
+
+addrow_defaults <- function() {
+  list(
+    addrow = gs("addrow"),
+    overall = gs("addrow.overall"),
+    subgroup = gs("addrow.subgroups")
+  )
+}
+
+pooled_defaults <- function(common, random) {
+  list(
+    totals = common | random,
+    events = gs("pooled.events"),
+    times = gs("pooled.times")
+  )
+}
+
+text_defaults <- function(x) {
+  list(
+    common = x$text.common,
+    random = x$text.random,
+    w.common = x$text.w.common,
+    w.random = x$text.w.random,
+    predict = x$text.predict,
+    subgroup = NULL,
+    common.w = x$text.common,
+    random.w = x$text.random,
+    predict.w = x$text.predict,
+    subgroup.nohet = gs("text.subgroup.nohet"),
+    addline1 = NULL,
+    addline2 = NULL
+  )
+}
+
+lty_defaults <- function() {
+  list(
+    common = gs("lty.common"),
+    random = gs("lty.random"),
+    cid = gs("lty.cid")
+  )
+}
+
+lwd_defaults <- function() {
+  list(
+    lwd = gs("lwd"),
+    square = gs("lwd.square"),
+    diamond = gs("lwd.diamond")
+  )
+}
+
+rob_defaults <- function(x) {
+  list(
+    rob = x$rob,
+    text = "Risk of Bias",
+    legend = TRUE,
+    only = FALSE
+  )
 }

@@ -8,34 +8,38 @@
 #' @param layout Layout of the forest plot; see \code{\link{forest.meta}}.
 #' @param common,random,prediction Logical values selecting common effect
 #'   estimates, random effects estimates, and prediction intervals.
-#' @param overall A logical indicating whether overall summaries should
-#'   be plotted. No additional pooled estimates are calculated for the
-#'   component meta-analysis results.
+#' @param overall A logical value indicating whether overall summaries should
+#'   be plotted.
 #' @param studlab A variable containing labels for individual results,
-#'   evaluated in the combined result data and then the calling environment.
-#' @param subgroup A variable defining display groups, evaluated in the
-#'   combined result data and then the calling environment. For example,
-#'   \code{subgroup = type} groups results by result type. Unavailable when
-#'   the component meta-analyses contain subgroup results.
-#' @param hetstat,overall.hetstat Arguments passed to
-#'   \code{\link{forest.meta}} for stored heterogeneity text in source
-#'   subgroup plots, either for shared overall summaries or within each
-#'   component group. Otherwise heterogeneity text from the synthetic plotting
-#'   object is disabled; use \code{print} to display component heterogeneity
-#'   in columns.
+#'   evaluated in the combined results data frame or supplied as an external
+#'   vector. Available with or without subgroup results.
+#' @param subgroup For meta-analyses without subgroup results, a variable
+#'   defining display groups, evaluated in the combined results data frame or
+#'   supplied as an external vector. For example, \code{subgroup = type} groups
+#'   results by common effect model, random effects model, or prediction
+#'   interval. Unavailable when the included meta-analyses contain subgroup
+#'   results.
+#' @param overall.hetstat Ignored when meta-analyses have no subgroup results.
+#'   Otherwise, a logical value indicating whether to display a shared overall
+#'   heterogeneity row. The default \code{NULL} determines this automatically
+#'   from agreement of the overall results and heterogeneity.
+#' @param hetstat Ignored when meta-analyses have no subgroup results; use
+#'   \code{print} to display heterogeneity information in columns.
+#'   Otherwise, a logical value controlling separate heterogeneity rows,
+#'   defaulting to \code{TRUE}. Setting \code{FALSE} suppresses all such rows,
+#'   including the shared overall heterogeneity row.
 #' @param backtransf A logical indicating whether results should be
 #'   back-transformed. Different summary measures require back-transformation.
-#' @param test A named list controlling statistical test rows. Elements
-#'   \code{overall}, \code{overall.common}, and \code{overall.random} control
-#'   the stored overall-effect tests. Component test controls are also accepted
-#'   through \code{effect.subgroup} and its model-specific elements.
-#' @param label A named list controlling column and test labels; see
-#'   \code{\link{forest.meta}}. Logical values or character vectors control
-#'   the x-axis tick labels instead.
+#' @param test A named list controlling statistical test rows.
+#' @param label A named list controlling column and test labels. Logical values
+#'   or character vectors control the x-axis tick labels instead.
+#'   See Details for defaults specific to this function and
+#'   \code{\link{meta-formatting}} for information on the elements.
 #' @param col,print,type,text,digits Named lists controlling colours, displayed
-#'   information, graphical types, model text, and rounding; see
-#'   \code{\link{meta-formatting}}. Scalar values are also accepted for
-#'   \code{type} and \code{digits}.
+#'   information, graphical types, model text. Scalar values are also accepted
+#'   for \code{type} and \code{digits}.
+#'   See Details for defaults specific to this function and
+#'   \code{\link{meta-formatting}} for information on the elements.
 #' @param leftcols,rightcols Columns printed to the left or right of the
 #'   forest plot; see \code{\link{forest.meta}}. Explicit column selections
 #'   take precedence over automatic column selection.
@@ -44,124 +48,103 @@
 #' @param lab.NA Label for missing values.
 #' @param big.mark Character used as thousands separator.
 #' @param pscale A numeric giving scaling factor for printing of
-#'   single event probabilities or risk differences, i.e. if argument
-#'   \code{sm} is equal to \code{"PLOGIT"}, \code{"PLN"},
-#'   \code{"PRAW"}, \code{"PAS"}, \code{"PFT"}, or \code{"RD"}.
+#'   single event probabilities or risk differences
+#'   (see \code{\link{metaprop}}).
 #' @param irscale A numeric defining a scaling factor for printing of
-#'   single incidence rates or incidence rate differences, i.e. if
-#'   argument \code{sm} is equal to \code{"IR"}, \code{"IRLN"},
-#'   \code{"IRS"}, \code{"IRFT"}, or \code{"IRD"}.
+#'   single incidence rates or incidence rate differences
+#'   (see \code{\link{metarate}}).
 #' @param irunit A character specifying the time unit used to
-#'   calculate rates, e.g., person-years.
+#'   calculate rates, e.g., person-years (see \code{\link{metarate}}).
 #' @param scientific.pval,zero.pval,JAMA.pval Logical values controlling
-#'   the formatting of P values.
-#' @param addrow.subgroups A logical indicating whether an empty row is
-#'   printed between display groups.
+#'   the formatting of P values (see \code{\link{forest.meta}}).
 #' @param details A logical specifying whether method details are printed.
-#'   Defaults to \code{TRUE} for source subgroup results, and \code{FALSE}
-#'   otherwise.
+#'   Defaults to \code{TRUE} when the included meta-analyses contain subgroup
+#'   results, and \code{FALSE} otherwise.
 #' @param \dots Additional arguments passed to \code{\link{forest.meta}}.
 #'
 #' @details
-#' Automatic function, summary-measure, estimation-method, and interval-method
-#' columns are shown when their values differ within a display group, or
-#' across the selected results if no groups are specified. Set the
-#' corresponding element of \code{print} to \code{TRUE} or \code{FALSE}
-#' to override this behaviour. Element \code{method.tau} (or legacy argument
-#' \code{print.method.tau}) controls the heterogeneity estimator column
-#' independently of \code{print$method}. Without source subgroup results,
-#' statistics and P values are shown by default when P values are available.
+#' When the included meta-analyses contain subgroup results, the forest plot
+#' groups these results by meta-analysis. Overall summaries are shared when
+#' the datasets and selected overall results agree; otherwise they are shown
+#' separately for each meta-analysis. Shared heterogeneity information
+#' additionally requires agreement of the heterogeneity values and settings.
 #'
-#' Confidence and prediction intervals share a column. Its heading gives
-#' their levels when each interval kind has one level, for example,
-#' \code{95\% CI/PI} or \code{95\% CI/99\% PI}. Otherwise a generic
-#' heading and a level column are used.
+#' Confidence and prediction intervals share a column. Heterogeneity information
+#' is shown once per included meta-analysis, with tau and tau-squared
+#' information also shown on its prediction interval rows when random effects
+#' results are selected. Tau and tau-squared information is not shown on common
+#' effect rows.
 #'
-#' Heterogeneity information is shown once per component meta-analysis:
-#' on its first random effects row, falling back to its first common effect
-#' row and then its first prediction interval row. Tau and tau-squared
-#' information is also shown on prediction interval rows when random effects
-#' results for the same component are selected.
-#' Tau and tau-squared estimates and their confidence intervals are never
-#' shown on common effect rows.
+#' Back-transformations are applied separately using the settings stored for
+#' each meta-analysis, allowing results with different transformations
+#' to be displayed together.
 #'
-#' For meta-analyses containing subgroup results, each component defines a
-#' display group and its source subgroup results define the individual rows.
-#' Default study labels append \code{ (common)}, \code{ (random)}, or
-#' \code{ (prediction)} to the subgroup levels when more than one result type
-#' is selected. The separate type column is hidden by default.
-#' Stored overall summaries are shown once when the datasets and selected
-#' overall results agree, unless \code{overall = FALSE}. Heterogeneity is
-#' assessed separately: an overall heterogeneity row is shown only when its
-#' values and settings also agree; \code{hetstat = FALSE} disables it.
-#' Differing heterogeneity is omitted from shared effect summaries. When
-#' effects are not shared, stored component summaries and a heterogeneity
-#' row are shown within their respective groups.
-#' For source subgroup plots, \code{print$I2} defaults to \code{gs("print.I2")}
-#' (resolved to \code{TRUE} if \code{NULL}), and \code{print$pval.Q} defaults
-#' to \code{TRUE}, independently of \code{print$Q}. Displayed subgroup
-#' results are never pooled again and no between-component tests are calculated.
-#' Tests for overall effect are shown below shared overall summaries or,
-#' otherwise, within each component group, using the stored common effect
-#' and random effects test results. With several random-effects interval
-#' methods, each component's test row uses its first displayed method with
-#' an available P value.
-#' Effect-test rows are omitted for components without a defined null effect.
-#' The legacy arguments \code{test.overall}, \code{test.overall.common},
-#' and \code{test.overall.random} remain supported through \code{\dots}.
-#' Explicit component test settings override the corresponding overall-test
-#' defaults for nonshared summaries. Between-component tests are unavailable.
-#' Vector-valued component test controls follow the component order before
-#' display sorting.
-#' Named \code{label} and \code{text} settings override generated labels
-#' without suppressing unspecified defaults. A model text also supplies the
-#' corresponding component summary text unless it is overridden separately.
-#' Legacy individual arguments remain accepted; specifying the same setting
-#' both in a named list and as an individual argument gives an error.
-#' The stored tests for differences between source subgroups are shown in
-#' columns \code{Q.b}, \code{df.Q.b}, and \code{pval.Q.b} for common effect
-#' and random effects results, only on the first subgroup level of each
-#' component. Element \code{pval.Q.b} of \code{print}
-#' controls the P-value column. Prediction intervals and pooled summary rows
-#' do not display these tests.
+#' \subsection{Formatting defaults}{
+#' Unless listed below, defaults for supported formatting elements are
+#' described in \code{\link{meta-formatting}}.
 #'
-#' For shared overall summaries, method details are printed by default, and
-#' method and interval-method columns are selected according to variation
-#' within each result type (common effect, random effects, or prediction),
-#' not differences between result types. Statistic and P-value columns are
-#' omitted by default for all source subgroup plots; their tests are shown in
-#' overall-effect test rows. Degrees-of-freedom columns are also omitted for
-#' shared summaries or different datasets. Explicit display options take precedence.
+#' \tabular{ll}{
+#' \bold{Element} \tab \bold{Default} \cr
+#' \code{print$stat}, \code{print$pval} \tab Automatic. \cr
+#' \code{print$I2}, \code{print$pval.Q} \tab See below. \cr
+#' \code{print$I2.ci}, \code{print$Q} \tab \code{FALSE}. \cr
+#' \code{print$subgroup.name} \tab \code{FALSE}. \cr
+#' \code{type$common}, \code{type$random} \tab \code{NULL} (automatic). \cr
+#' \code{digits$pval} \tab \code{max(gs("digits.pval") - 2, 2)} \cr
+#' \code{digits$pval.Q} \tab \code{max(gs("digits.pval.Q") - 2, 2)} \cr
+#' }
+#' Fill and border colours are determined automatically from the layout.
+#' They can be overridden using the following elements of the named list
+#' \code{col}:
+#' \itemize{
+#' \item \code{square}, \code{square.lines}: square fill and border;
+#' \item \code{circle}, \code{circle.lines}: circle fill and border;
+#' \item \code{diamond}, \code{diamond.lines}: diamond fill and border;
+#' \item \code{diamond.common}, \code{diamond.lines.common}: common effect
+#'   diamond fill and border;
+#' \item \code{diamond.random}, \code{diamond.lines.random}: random effects
+#'   diamond fill and border;
+#' \item \code{predict}, \code{predict.lines}: prediction interval fill
+#'   and border.
+#' }
+#' 
+#' The named list \code{print} controls which columns are shown.
+#' Columns \code{func}, \code{sm}, \code{method}, and \code{method.interval}
+#' are selected automatically when their values differ between the displayed
+#' results. Heterogeneity-method columns \code{method.tau},
+#' \code{method.tau.ci}, and \code{method.I2} are selected similarly when
+#' the corresponding heterogeneity statistics are shown.
+#' Statistics and P values are shown when available, except in subgroup plots.
+#' 
+#' Without subgroup results, \code{print$I2} defaults to \code{FALSE},
+#' and \code{print$pval.Q} follows \code{print$Q}.
+#' With subgroup results, I-squared is shown by default. The global setting
+#' \code{settings.meta(print.I2 = FALSE)} suppresses it unless
+#' \code{print$I2} is set explicitly. Element \code{print$pval.Q}
+#' defaults to \code{TRUE} for subgroup plots.
+#' }
 #'
-#' With \code{backtransf = FALSE}, references for transformed single-outcome
-#' measures are passed on the original scale to \code{forest.meta()}.
-#' PFT and IRFT reference transformations use a shared harmonic mean when
-#' available; otherwise the arcsine and square-root transformations are used,
-#' respectively.
+#' @return
+#' Invisibly returns a list with information about the forest plot,
+#' including the selected columns (\code{leftcols}, \code{rightcols}),
+#' their headings (\code{leftlabs}, \code{rightlabs}), formatted results,
+#' and graphical settings (see \code{\link{forest.meta}}).
+#' Element \code{data} contains the dataset used to create the forest plot.
 #'
-#' Custom back-transformations are applied separately to each result. The
-#' logarithmic-axis shortcut is used only when all selected results use an
-#' exponential back-transformation; otherwise the plotting data are prepared
-#' on the displayed scale.
-#'
-#' Custom back-transformation functions and named arguments are displayed
-#' automatically when supplied. Elements \code{backtransf} and
-#' \code{args.backtransf} of \code{print} override this selection; the
-#' argument column is shown only with the function column. These columns
-#' precede effect and interval columns on the left, and follow them on the
-#' right. This controls column visibility independently of the logical
-#' \code{backtransf} argument controlling the result scale.
-#'
-#' @return Invisibly returns the result of \code{forest.meta()}, with the
-#'   prepared result data in element \code{data}.
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
+#'
 #' @seealso \code{\link{metabind}}, \code{\link{print.metabind}},
 #'   \code{\link{forest.meta}}
+#'
 #' @keywords hplot
+#'
 #' @examples
-#' ma <- metagen(1:3, 3:1, sm = "RR")
+#' ma <- metagen(1:3, 3:1, sm = "md")
+#' #
 #' mb <- metabind(ma, update(ma, method.random.ci = "HK"))
+#' #
 #' forest(mb)
+#' #
 #' forest(mb, subgroup = type)
 #'
 #' @method forest metabind
@@ -169,18 +152,27 @@
 
 forest.metabind <- function(x,
                             layout = gs("layout"),
+                            #
                             common = !is.null(x$common),
                             random = !is.null(x$random),
                             prediction = !is.null(x$predict),
                             overall = common || random || prediction,
+                            #
                             studlab = NULL, subgroup = NULL,
-                            hetstat = FALSE,
-                            overall.hetstat = x$overall.hetstat,
+                            #
+                            overall.hetstat = NULL,
+                            hetstat = !is.null(x$subgroup),
+                            #
                             backtransf = x$backtransf,
+                            #
                             test = NULL,
+                            label,
+                            col = NULL, print = NULL, type = NULL,
+                            text = NULL, digits = NULL,
+                            #
                             leftcols = NULL, rightcols = NULL,
                             leftlabs = NULL, rightlabs = NULL,
-                            label,
+                            #
                             lab.NA =
                               if (is.null(x$subgroup)) gs("lab.NA") else "",
                             #
@@ -192,10 +184,6 @@ forest.metabind <- function(x,
                             zero.pval = gs("zero.pval"),
                             JAMA.pval = gs("JAMA.pval"),
                             #
-                            col = NULL, print = NULL, type = NULL,
-                            text = NULL, digits = NULL,
-                            #
-                            addrow.subgroups = NULL,
                             details = FALSE, ...) {
   
   #
@@ -206,7 +194,9 @@ forest.metabind <- function(x,
   
   chkclass(x, "metabind")
   x <- updateversion(x)
+  #
   with.subgroups <- !is.null(x$subgroup)
+  #
   layout <- setchar(layout, gs("layout4forest"), length = 1)
   args <- list(...)
   missing.backtransf <- missing(backtransf)
@@ -214,7 +204,13 @@ forest.metabind <- function(x,
   chklogical(common)
   chklogical(random)
   chklogical(prediction)
+  chklogical(hetstat)
+  #
+  missing.overall.hetstat <- missing(overall.hetstat)
+  chklogical(overall.hetstat, NULL.ok = TRUE)
+  #
   chklogical(backtransf)
+  #
   selections <- list(common = common, random = random, predict = prediction)
   supplied <- c(common = !missing(common), random = !missing(random),
                 predict = !missing(prediction))
@@ -238,21 +234,31 @@ forest.metabind <- function(x,
     return(invisible(NULL))
   }
   #
-  if (!with.subgroups)
-    overall <- overall.hetstat <- FALSE
-  else
-    chklogical(overall)
+  chklogical(overall)
   #
-  if (!with.subgroups && !identical(hetstat, FALSE))
-    warning("Argument 'hetstat' ignored; use 'print' to display ",
-            "component heterogeneity information.",
-            call. = FALSE)
-  #
-  if (!with.subgroups)
-    hetstat <- FALSE
+  if (!with.subgroups) {
+    if (!missing.overall.hetstat && !is.null(overall.hetstat))
+      warning("Input to argument 'overall.hetstat' ignored for meta-analyses ",
+              "without subgroups.",
+              call. = FALSE)
+    #
+    if (hetstat)
+      warning("Input to argument 'hetstat' ignored for meta-analyses ",
+              "without subgroups; use 'print' to display ",
+              "heterogeneity information in columns.",
+              call. = FALSE)
+    #
+    if (!missing(overall) && overall)
+      warning("Input to argument 'overall' ignored for meta-analyses ",
+              "without subgroups.",
+              call. = FALSE)
+    #
+    overall <- overall.hetstat <- hetstat <- FALSE
+  }
   #
   chkchar(lab.NA)
   chkchar(big.mark, length = 1)
+  #
   chklogical(scientific.pval)
   chklogical(zero.pval)
   chklogical(JAMA.pval)
@@ -504,21 +510,23 @@ forest.metabind <- function(x,
     #
     # Parent heterogeneity belongs to summary rows, not source subgroup rows
     #
-    for (i in c("Q", "df.Q", "pval.Q", "tau2", "lower.tau2", "upper.tau2",
-                "tau", "lower.tau", "upper.tau", "I2", "lower.I2", "upper.I2",
+    for (i in c("Q", "df.Q", "pval.Q", "I2", "lower.I2", "upper.I2",
                 "H", "lower.H", "upper.H"))
       subdat[[i]] <- NA_real_
     #
-    plotdat <- subdat
+    for (i in c("tau2", "lower.tau2", "upper.tau2", "se.tau2",
+                "tau", "lower.tau", "upper.tau"))
+      subdat[[i]] <- rep(list(NA_real_), nrow(subdat))
     #
-    if (missing(hetstat))
-      hetstat <- TRUE
+    plotdat <- subdat
     #
     if (prepared$shared.overall && !prepared$shared.heterogeneity)
       hetstat <- FALSE
     #
-    overall.hetstat <- prepared$shared.overall && prepared$shared.heterogeneity &&
-      replaceNULL(overall.hetstat, TRUE) && !identical(hetstat, FALSE)
+    overall.hetstat <- prepared$shared.overall &&
+      prepared$shared.heterogeneity &&
+      hetstat &&
+      replaceNULL(overall.hetstat, TRUE)
   }
   else
     plotdat <- dat
@@ -620,8 +628,8 @@ forest.metabind <- function(x,
     order.het <- summary.rows[order(priority[summary.rows])]
     rows.het[order.het[!duplicated(plotdat$id[order.het])]] <- TRUE
     rows.tau <- rows.het | (seq_len(nrow(plotdat)) %in% summary.rows &
-                               is.predict & plotdat$id %in%
-                               plotdat$id[summary.rows[plotdat$type[summary.rows] == "Random effects model"]])
+                              is.predict & plotdat$id %in%
+                              plotdat$id[summary.rows[plotdat$type[summary.rows] == "Random effects model"]])
   }
   rows.tau[is.common] <- FALSE
   #
@@ -655,8 +663,6 @@ forest.metabind <- function(x,
     replaceNULL(print$args.backtransf, any(lengths(plotdat$args.backtransf) > 0))
   #
   print$subgroup.name <- replaceNULL(print$subgroup.name, FALSE)
-  addrow.subgroups <- replaceNULL(addrow.subgroups, !is.null(subgroup))
-  chklogical(addrow.subgroups)
   #
   levels.ci <- unique(round(plotdat$level.ma[!is.predict], 4))
   levels.pi <- unique(round(plotdat$level.predict[is.predict], 4))
@@ -900,7 +906,12 @@ forest.metabind <- function(x,
     else
       prec <- digits[[i]]
     #
-    plotdat[[paste0(i, ".ci")]] <-
+    if (i %in% c("tau2", "tau"))
+      plotdat[[paste0(i, ".ci")]] <-
+      format_metabind_variance(lower, upper = upper, digits = prec,
+                               lab.NA = lab.NA, big.mark = big.mark)
+    else
+      plotdat[[paste0(i, ".ci")]] <-
       formatCI(lower, upper, digits = prec, lab.NA = lab.NA, na.lab = TRUE,
                scale = if (i == "I2") 100 else 1,
                suffix = if (i == "I2") "%" else "", big.mark = big.mark)
@@ -913,8 +924,8 @@ forest.metabind <- function(x,
       plotdat[[i]] <- formatN(plotdat[[i]], digits = prec, lab.NA = lab.NA,
                               big.mark = big.mark)
     else
-      plotdat[[i]] <- formatPT(plotdat[[i]], digits = prec, lab.NA = lab.NA,
-                               big.mark = big.mark, lab = FALSE, trim = "left")
+      plotdat[[i]] <- format_metabind_variance(
+        plotdat[[i]], digits = prec, lab.NA = lab.NA, big.mark = big.mark)
   }
   #
   plotdat$Q <- formatN(plotdat$Q, digits = digits$Q, lab.NA = lab.NA,
@@ -925,29 +936,36 @@ forest.metabind <- function(x,
                              scientific = scientific.pval, zero = zero.pval,
                              JAMA = JAMA.pval, big.mark = big.mark)
   #
+  subgroup.stat.lab <- "Q"
+  #
   if (with.subgroups) {
     for (i in c("Q.b", "df.Q.b", "pval.Q.b")) {
       if (is.null(plotdat[[i]]))
-        plotdat[[i]] <- NA_real_
+        plotdat[[i]] <- rep(NA_real_, nrow(plotdat))
     }
     #
-    plotdat$Q.b <- formatN(plotdat$Q.b, digits = digits$Q, lab.NA = lab.NA,
-                           big.mark = big.mark)
-    #
-    plotdat$df.Q.b <- formatN(plotdat$df.Q.b, digits = 0, lab.NA = lab.NA,
-                              big.mark = big.mark)
-    #
-    plotdat$pval.Q.b <- formatPT(plotdat$pval.Q.b, digits = digits$pval.Q,
-                                 lab.NA = lab.NA, lab = FALSE, trim = "left",
-                                 scientific = scientific.pval, zero = zero.pval,
-                                 JAMA = JAMA.pval, big.mark = big.mark)
+    if (is.null(plotdat[["test.Q.b"]]))
+      plotdat$test.Q.b <- rep(NA_character_, nrow(plotdat))
     #
     first.level <- plotdat$subgroup.levels[match(plotdat$id, plotdat$id)]
     #
     keep <- !is.predict & !is.na(plotdat$subgroup.levels) &
       plotdat$subgroup.levels == first.level
     #
-    for (i in c("Q.b", "df.Q.b", "pval.Q.b"))
+    subgroup.stat.lab <- subgroup_test_heading(plotdat[["test.Q.b"]][keep])
+    #
+    plotdat$Q.b <- formatN(plotdat$Q.b, digits = digits$Q, lab.NA = lab.NA,
+                           big.mark = big.mark)
+    #
+    plotdat$df.Q.b <- vapply(plotdat$df.Q.b, format_df, character(1),
+                             lab.NA = lab.NA, big.mark = big.mark)
+    #
+    plotdat$pval.Q.b <- formatPT(plotdat$pval.Q.b, digits = digits$pval.Q,
+                                 lab.NA = lab.NA, lab = FALSE, trim = "left",
+                                 scientific = scientific.pval, zero = zero.pval,
+                                 JAMA = JAMA.pval, big.mark = big.mark)
+    #
+    for (i in c("Q.b", "df.Q.b", "pval.Q.b", "test.Q.b"))
       plotdat[[i]][!keep] <- lab.NA
   }
   #
@@ -1156,7 +1174,8 @@ forest.metabind <- function(x,
               Q = NA,
               df.Q = "df",
               pval.Q = paste(label[["pval"]], "Q-test", sep = "\n"),
-              Q.b = "Q",
+              Q.b = subgroup.stat.lab,
+              test.Q.b = "Test",
               df.Q.b = "df",
               pval.Q.b = paste("Interaction", label[["pval"]], sep = "\n"),
               tau2.ci = het.lab,
@@ -1262,7 +1281,6 @@ forest.metabind <- function(x,
       #
       pooled.totals = FALSE,
       weight.study = "same",
-      addrow.subgroups = addrow.subgroups,
       #
       col = col,
       #
@@ -1306,8 +1324,7 @@ forest.metabind <- function(x,
     #
     forest_args_specific$sort.subgroup <- FALSE
     #
-    forest_args_specific$subgroup.hetstat <- !shared.overall &&
-      !identical(hetstat, FALSE)
+    forest_args_specific$subgroup.hetstat <- !shared.overall && hetstat
     #
     if (shared.overall) {
       has.null <- !is.na(mapped$ma$null.effect)

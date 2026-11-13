@@ -43,6 +43,20 @@ only missing values.}
 }
 \value{
 A data frame is returned by the function \code{as.data.frame}.
+  For subgroup results, \code{df.Q.b} is a list column containing
+  the complete degrees of freedom for each subgroup-difference test.
+  Element \code{test.Q.b} identifies chi-squared (\code{"Q"}) and
+  F (\code{"F"}) tests; unavailable types are \code{NA}.
+  Variance fields \code{tau2}, \code{lower.tau2}, \code{upper.tau2},
+  \code{se.tau2}, \code{tau}, \code{lower.tau}, and \code{upper.tau}
+  are list columns containing the complete numeric vectors, including
+  length-one vectors for single-component analyses. Component order and
+  names are preserved.
+  For random effects and prediction results, column \code{interval.slot}
+  numbers the intervals within each meta-analysis and result type.
+  Repeated uses of the same method have different interval numbers.
+  Together, \code{id} and \code{interval.slot} link each subgroup result
+  to the corresponding overall result.
 }
 \description{
 The \code{as.data.frame} method returns a data frame containing

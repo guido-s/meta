@@ -494,6 +494,13 @@
 #'  of meta-analysis data sets.
 #' }
 #'
+#' @section AI assistance:
+#' OpenCode and ChatGPT were used to assist with code development,
+#' refactoring, test development, and documentation. All resulting
+#' contributions were reviewed and, where appropriate, modified and
+#' tested by the package authors, who take responsibility for the
+#' package contents.
+#'
 #' @note
 #' Balduzzi et al. (2019) is the preferred citation in publications
 #' for \bold{meta}. Type \code{citation("meta")} for a BibTeX entry of

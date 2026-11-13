@@ -530,6 +530,15 @@ To report problems and bugs
 The development version of \bold{meta} is available on GitHub
 \url{https://github.com/guido-s/meta/}.
 }
+\section{AI assistance}{
+
+OpenCode and ChatGPT were used to assist with code development,
+refactoring, test development, and documentation. All resulting
+contributions were reviewed and, where appropriate, modified and
+tested by the package authors, who take responsibility for the
+package contents.
+}
+
 \references{
 Balduzzi S, Rücker G, Schwarzer G (2019):
 How to perform a meta-analysis with R: a practical tutorial.

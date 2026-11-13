@@ -13,8 +13,10 @@
 #'   back transformed. If \code{backtransf = TRUE}, results for
 #'   \code{sm = "OR"} will be odds ratios rather than log odds ratios,
 #'    for example.
-#' @param digits Minimal number of significant digits, see
-#'   \code{print.default}.
+#' @param digits A named list controlling rounding in print methods; see
+#'   \code{\link{meta-formatting}}. A scalar rounds effects and limits.
+#'   For \code{estimates.blup.meta}, a scalar giving the minimal number of
+#'   significant digits.
 #' @param digits.se Minimal number of significant digits for standard errors.
 #' @param digits.tau2 Minimal number of significant digits for
 #'   between-study variance \eqn{\tau^2}, see \code{print.default}.
@@ -24,11 +26,6 @@
 #' @param big.mark A character used as thousands separator.
 #' @param se A logical indicating whether standard errors should be
 #'   printed / extracted.
-#' @param print.tau2 A logical specifying whether between-study
-#'   variance \eqn{\tau^2} should be printed.
-#' @param print.tau A logical specifying whether \eqn{\tau}, the
-#'   square root of the between-study variance \eqn{\tau^2}, should be
-#'   printed.
 #' @param details A logical specifying whether details on
 #'   statistical methods should be printed.
 #' @param writexl A logical indicating whether an Excel file should be
@@ -228,13 +225,7 @@ blup.meta <- function(x, level = x$level, backtransf = x$backtransf,
         res <- rbind(res, res.i)
     }
   }
-  #
-  if (x$sm == "VE" & backtransf) {
-    tlower <- res$lower
-    res$lower <- res$upper
-    res$upper <- tlower
-  }
-  
+
   #
   # (5) Return BLUPs
   #
@@ -254,28 +245,41 @@ blup.meta <- function(x, level = x$level, backtransf = x$backtransf,
 
 
 #' @rdname blup.meta
+#' @param print A named list controlling displayed information in
+#'   \code{print.blup.meta}; see \code{\link{meta-formatting}}. Elements
+#'   \code{tau2} and \code{tau} select heterogeneity columns.
+#' @details
+#' The print methods accept a named \code{digits} list with elements
+#' \code{digits}, \code{se}, \code{tau2}, and \code{tau}; see
+#' \code{\link{meta-formatting}}. A scalar rounds effects and limits only.
+#' The BLUP printer uses \code{gs("digits")} for effect rounding and
+#' \code{gs("print.tau2")} and \code{gs("print.tau")} for heterogeneity columns.
+#' The estimates printer defaults to rounding stored in the object and does
+#' not back-transform again.
+#' Extraction with \code{estimates.blup.meta} still uses scalar rounding arguments.
 #' @method print blup.meta
 #' @export
 
 print.blup.meta <- function(x, backtransf = attr(x, "x")$backtransf,
                             #
-                            digits = gs("digits"),
-                            digits.se = gs("digits.se"),
-                            digits.tau2 = gs("digits.tau2"),
-                            digits.tau = gs("digits.tau"),
+                            print = NULL,
+                            digits = NULL,
+                            #
                             big.mark = gs("big.mark"),
                             #
                             se = FALSE,
-                            print.tau2 = gs("print.tau2"),
-                            print.tau = gs("print.tau"),
                             #
                             details = gs("details"),
                             ...) {
   
   #
-  # (1) Check arguments
+  #
+  # (1) Check and set arguments
+  #
   #
   chkclass(x, "blup.meta")
+  #
+  args <- list(...)
   #
   meta <- attr(x, "x")
   #
@@ -293,6 +297,34 @@ print.blup.meta <- function(x, backtransf = attr(x, "x")$backtransf,
   #
   print.se <- se
   #
+  # Columns shown when printing
+  #
+  print.list <-
+    merge_legacy(print, args,
+                 list(tau2 = gs("print.tau2"), tau = gs("print.tau")))
+  #
+  print <- print.list$res
+  args <- print.list$args
+  #
+  print.tau2 <- print$tau2
+  print.tau <- print$tau
+  #
+  # Digits used to round results
+  #
+  digits <- as_named_list(digits)
+  digits.list <-
+    merge_legacy(digits, args,
+                 list(digits = gs("digits"), se = gs("digits.se"),
+                      tau2 = gs("digits.tau2"), tau = gs("digits.tau")))
+  #
+  digits <- digits.list$res
+  args <- digits.list$args
+  #
+  digits.se <- digits$se
+  digits.tau2 <- digits$tau2
+  digits.tau <- digits$tau
+  digits <- digits$digits
+  #
   chknumeric(digits, min = 0, length = 1)
   chknumeric(digits.se, min = 0, length = 1)
   chknumeric(digits.tau2, min = 0, length = 1)
@@ -303,8 +335,11 @@ print.blup.meta <- function(x, backtransf = attr(x, "x")$backtransf,
   chklogical(details)
   
   #
+  #
   # (2) Back-transform and round results
   #
+  #
+
   sm.lab <- smlab(sm, backtransf, pscale, irscale)
   sm.lab.se <- smlab(sm, FALSE)
   #
@@ -318,10 +353,12 @@ print.blup.meta <- function(x, backtransf = attr(x, "x")$backtransf,
   lower <- round(x$lower, digits)
   upper <- round(x$upper, digits)
   #
-  if (sm == "VE" & backtransf != meta$backtransf) {
-    tlower <- lower
-    lower <- upper
-    upper <- tlower
+  if (backtransf) {
+    wo <- !is.na(lower) & !is.na(upper) & lower > upper
+    #
+    tlower <- lower[wo]
+    lower[wo] <- upper[wo]
+    upper[wo] <- tlower
   }
   #
   if (print.se) {
@@ -343,8 +380,11 @@ print.blup.meta <- function(x, backtransf = attr(x, "x")$backtransf,
   by <- !is.null(meta$subgroup)
   
   #
+  #
   # (3) Print results
   #
+  #
+
   crtitle(meta)
   #
   j <- 0
@@ -398,7 +438,7 @@ print.blup.meta <- function(x, backtransf = attr(x, "x")$backtransf,
         cat("\n")
       cat(text.random[j], "\n")
     }
-    prmatrix(res.i, quote = FALSE, right = TRUE, ...)
+    do.call(prmatrix, c(list(res.i, quote = FALSE, right = TRUE), args))
   }
   #
   if (details)
@@ -471,6 +511,12 @@ estimates.blup.meta <- function(x,
     res$blup <- backtransf(res$blup, meta$sm, res$n, res$time)
     res$lower <- backtransf(res$lower, meta$sm, res$n, res$time)
     res$upper <- backtransf(res$upper, meta$sm, res$n, res$time)
+    #
+    wo <- !is.na(res$lower) & !is.na(res$upper) & res$lower > res$upper
+    #
+    tlower <- res$lower[wo]
+    res$lower[wo] <- res$upper[wo]
+    res$upper[wo] <- tlower
   }
   #
   sm.lab <- smlab(meta$sm, backtransf, meta$pscale, meta$irscale)
@@ -552,23 +598,56 @@ estimates.blup.meta <- function(x,
 #' @export
 
 print.estimates.blup.meta <- function(x,
+                                      #
+                                      digits = NULL,
+                                      #
                                       big.mark = gs("big.mark"),
                                       details = gs("details"),
                                       ...) {
   
+  #
+  #
+  # (1) Check and set arguments
+  #
+  #
+
   chkclass(x, "estimates.blup.meta")
+  #
+  args <- list(...)
   
   meta <- attr(x, "x")
   #
-  digits <- attr(x, "digits")
-  digits.se <- attr(x, "digits.se")
-  digits.tau2 <- attr(x, "digits.tau2")
-  digits.tau <- attr(x, "digits.tau")
+  # Digits used to round results
+  #
+  digits <- as_named_list(digits)
+  digits.list <-
+    merge_legacy(digits, args,
+                 list(digits = attr(x, "digits"), se = attr(x, "digits.se"),
+                      tau2 = attr(x, "digits.tau2"), tau = attr(x, "digits.tau")))
+  #
+  digits <- digits.list$res
+  args <- digits.list$args
+  #
+  digits.se <- digits$se
+  digits.tau2 <- digits$tau2
+  digits.tau <- digits$tau
+  digits <- digits$digits
+  #
+  chknumeric(digits, min = 0, length = 1)
+  chknumeric(digits.se, min = 0, length = 1)
+  chknumeric(digits.tau2, min = 0, length = 1)
+  chknumeric(digits.tau, min = 0, length = 1)
   #
   backtransf <- meta$backtransf
   #
   se <- isCol(x, "se.blup")
-  
+
+  #
+  #
+  # (2) Round and format results
+  #
+  #
+
   sm.lab <- smlab(meta$sm, backtransf, meta$pscale, meta$irscale)
   #
   ci.lab <- percent_label(meta$level, "PI")
@@ -608,9 +687,15 @@ print.estimates.blup.meta <- function(x,
       colnames(x)[colnames(x) == "se.blup"] <- "SE"
   }
   
+  #
+  #
+  # (3) Print results
+  #
+  #
+
   crtitle(meta)
   #
-  prmatrix(x, quote = FALSE, right = TRUE, ...)
+  do.call(prmatrix, c(list(x, quote = FALSE, right = TRUE), args))
   #
   if (details)
     details <-

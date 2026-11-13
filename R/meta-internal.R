@@ -203,8 +203,12 @@ collapse2 <- function(x, quote = "", collapse = ", ", br1 = "", br2 = "",
   res
 }
 
-condense <- function(x, var)
-  unlist(lapply(x, "[[" , var))
+condense <- function(x, var, value = NULL) {
+  if (is.null(value))
+    unlist(lapply(x, "[[", var))
+  else
+    vapply(x, "[[", value, var, USE.NAMES = FALSE)
+}
 
 cathet <- function(k,
                    method.tau, detail.tau,
