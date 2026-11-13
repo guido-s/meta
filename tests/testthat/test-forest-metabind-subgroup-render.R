@@ -76,7 +76,7 @@ test_that("shared common effects do not present differing heterogeneity as share
     expect_false(drawn$args$hetstat)
     expect_false(drawn$args$subgroup.hetstat)
     expect_true(is.na(drawn$args$x$Q))
-    expect_equal(unname(drawn$args$x$tau2.w), x$overall$tau2)
+    expect_equal(unname(drawn$args$x$tau2.w), unlist(x$overall$tau2))
     expect_true(all(c("I2", "tau2") %in% names(drawn$args$data.pooled)))
     for (field in c("I2", "tau2"))
       expect_true(all(is.na(drawn$args$data.pooled[[field]]) |
@@ -317,7 +317,7 @@ test_that("pooled display columns follow global then family and component row or
     random <- which(pooled$type == "Random effects model")
     first.random <- random[if (grouped) c(1, 3) else 1]
     expect_equal(trimws(pooled$tau2[first.random]),
-                 sprintf("%.4f", x$overall$tau2[if (grouped) 1:2 else 1]))
+                 sprintf("%.4f", unlist(x$overall$tau2[if (grouped) 1:2 else 1])))
     expect_equal(drawn$result$data.pooled, pooled)
     expect_equal(drawn$result$leftcols,
                  c("studlab", "k", "method.interval", "tau2", "effect", "ci"))
@@ -458,7 +458,8 @@ test_that("source subgroup tests are displayed for common and random results", {
     expect_equal(dat$Q.b[model],
                  meta:::formatN(raw$Q.b[model], digits = 3, lab.NA = ""))
     expect_equal(dat$df.Q.b[model],
-                 meta:::formatN(raw$df.Q.b[model], digits = 0, lab.NA = ""))
+                 vapply(raw$df.Q.b[model], meta:::format_df,
+                        character(1), lab.NA = ""))
     expect_equal(dat$pval.Q.b[model],
                  meta:::formatPT(raw$pval.Q.b[model], digits = 4,
                                  lab.NA = "", lab = FALSE, trim = "left",

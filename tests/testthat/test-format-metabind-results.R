@@ -105,7 +105,8 @@ test_that("subgroup tests retain one result per component and method before hidi
   dat <- metabind_format_fixture()[rep(c(3, 4, 3, 4), each = 2), ]
   dat$id <- rep(c(1, 1, 2, 2), each = 2)
   dat$Q.b <- rep(c(0.375, 0.0778, 0.2, 0.1), each = 2)
-  dat$df.Q.b <- 1
+  dat$df.Q.b <- rep(list(1), nrow(dat))
+  dat$test.Q.b <- "Q"
   dat$pval.Q.b <- rep(c(0.5403, 0.7803, 0.6547, 0.7518), each = 2)
   flags <- list(stat = TRUE, pval = TRUE, se = FALSE, method.interval = FALSE,
                  pval.Q.b = TRUE)
@@ -117,17 +118,35 @@ test_that("subgroup tests retain one result per component and method before hidi
     formatted <- format_metabind_test_results(
       dat, "random", print = flags, with.subgroups = TRUE)
     first <- c(1, 3, 5, 7)
-    expect_equal(trimws(formatted$Q[first]),
+    expect_equal(trimws(formatted[["Q.b"]][first]),
                   trimws(meta:::formatN(dat$Q.b[first], digits = 2)))
-    expect_true(all(trimws(formatted$Q[-first]) == "."))
+    expect_true(all(trimws(formatted[["Q.b"]][-first]) == "."))
     expect_true(all(trimws(formatted[["d.f."]][first]) == "1"))
     expect_true(all(trimws(formatted[["d.f."]][-first]) == "."))
     expect_equal(trimws(formatted[["p-value"]][first]),
                   trimws(meta:::formatPT(dat$pval.Q.b[first], digits = 4)))
-    expect_false(any(c("interval", "adhoc.hakn", "df", "Q.b", "df.Q.b", "pval.Q.b") %in%
+    expect_true(all(formatted$test.Q.b[first] == "Q"))
+    expect_true(all(is.na(formatted$test.Q.b[-first])))
+    expect_false(any(c("interval", "adhoc.hakn", "df", "df.Q.b", "pval.Q.b") %in%
                        names(formatted)))
     expect_false(anyDuplicated(names(formatted)) > 0)
   }
+})
+
+test_that("identical method occurrences retain their own subgroup test rows", {
+  dat <- metabind_format_fixture()[rep(4, 4), ]
+  dat$interval.slot <- rep(1:2, each = 2)
+  dat$subgroup.levels <- rep(c("A", "B"), 2)
+  dat$Q.b <- rep(c(0.25, 0.75), each = 2)
+  dat$df.Q.b <- rep(list(c(1, 6.42)), 4)
+  dat$test.Q.b <- "F"
+  dat$pval.Q.b <- rep(c(0.6, 0.4), each = 2)
+  formatted <- format_metabind_test_results(
+    dat, "random", with.subgroups = TRUE,
+    print = list(stat = TRUE, pval = TRUE, se = FALSE, pval.Q.b = TRUE))
+  expect_identical(trimws(formatted$Q.b), c("0.25", ".", "0.75", "."))
+  expect_identical(trimws(formatted[["d.f."]]), c("1, 6.42", ".", "1, 6.42", "."))
+  expect_false("interval.slot" %in% names(formatted))
 })
 
 test_that("unavailable subgroup tests remain missing without requiring raw columns", {
@@ -136,7 +155,7 @@ test_that("unavailable subgroup tests remain missing without requiring raw colum
   for (model in c("common", "random")) {
     formatted <- format_metabind_test_results(
       dat, model, print = flags, with.subgroups = TRUE)
-    expect_true(all(trimws(formatted$Q) == "."))
+    expect_true(all(trimws(formatted[["Q.b"]]) == "."))
     expect_true(all(trimws(formatted[["d.f."]]) == "."))
     expect_true(all(trimws(formatted[["p-value"]]) == "."))
   }

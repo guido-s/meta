@@ -80,7 +80,7 @@ test_that("zero heterogeneity does not collapse different tau methods", {
   x <- forest_metabind_subgroup_fixture()
   x <- metabind(x$meta[[1]], update(x$meta[[2]], method.tau = "REML"))
   dat <- as.data.frame(x, subgroup = FALSE, drop_all_NA = FALSE)
-  expect_equal(dat$tau2, c(0, 0))
+  expect_equal(dat$tau2, list(0, 0))
   expect_equal(dat$TE, c(0, 0))
   expect_equal(dat$lower[1], dat$lower[2])
   expect_equal(dat$upper[1], dat$upper[2])
@@ -119,7 +119,8 @@ test_that("hidden random-model metadata does not prevent common-effect sharing",
 })
 
 test_that("overall result sets ignore order but retain distinct CI methods", {
-  x <- forest_metabind_subgroup_fixture(method.random.ci = c("classic", "HK"))
+  x <- forest_metabind_subgroup_fixture(method.random.ci = c("classic", "HK"),
+                                         adhoc.hakn.ci = "se")
   x$random <- x$random[c(1, 2, 4, 3), , drop = FALSE]
   dat <- as.data.frame(x, subgroup = FALSE, drop_all_NA = FALSE)
   subdat <- as.data.frame(x, drop_all_NA = FALSE)
@@ -137,8 +138,9 @@ test_that("overall result sets ignore order but retain distinct CI methods", {
 })
 
 test_that("identical numbers do not erase CI methods within an ID", {
-  x <- forest_metabind_subgroup_fixture(method.random.ci = c("classic", "HK"))
-  values <- setdiff(names(x$random), c("id", "method.interval"))
+  x <- forest_metabind_subgroup_fixture(method.random.ci = c("classic", "HK"),
+                                         adhoc.hakn.ci = "se")
+  values <- setdiff(names(x$random), c("id", "interval.slot", "method.interval"))
   for (id in unique(x$random$id)) {
     rows <- which(x$random$id == id)
     x$random[rows[2], values] <- x$random[rows[1], values]
@@ -153,7 +155,8 @@ test_that("identical numbers do not erase CI methods within an ID", {
 })
 
 test_that("selected result sets must match in their entirety", {
-  x <- forest_metabind_subgroup_fixture(method.random.ci = c("classic", "HK"))
+  x <- forest_metabind_subgroup_fixture(method.random.ci = c("classic", "HK"),
+                                         adhoc.hakn.ci = "se")
   x$random <- x$random[-4, , drop = FALSE]
   x$subgroup$random <- subset(x$subgroup$random,
                               !(id == 2 & method.interval == "HK"))
@@ -192,28 +195,19 @@ test_that("different selected CI methods prevent sharing even when estimates agr
   expect_equal(nrow(res$dat), 2L)
 })
 
-test_that("exact duplicate parents never multiply source subgroup rows", {
+test_that("duplicate pooled interval identities are rejected before subgroup joins", {
   for (shared in c(TRUE, FALSE)) {
     x <- forest_metabind_subgroup_fixture()
     if (!shared)
       x$data <- list(x$data, x$data)
     x$subgroup$random <- rbind(x$subgroup$random, x$subgroup$random[1, ])
     expected <- as.data.frame(x, drop_all_NA = FALSE)
-    dat <- as.data.frame(x, subgroup = FALSE, drop_all_NA = FALSE)
+    expect_equal(nrow(expected), 5L)
     x$random <- rbind(x$random, x$random[1, ], x$random[2, ])
-
-    res <- meta:::prepare_metabind_subgroups(x)
-    expect_identical(res$shared.overall, shared)
-    expect_identical(res$same.results, shared)
-    expect_equal(nrow(res$dat), if (shared) 1L else 2L)
-    expect_equal(res$dat,
-                 expected_metabind_data(dat, shared = shared))
-    if (!shared)
-      expect_identical(res$dat$id, dat$id)
-    expect_equal(res$subdat, expected_metabind_subgroup_data(expected))
-    expect_equal(nrow(res$subdat), 5L)
-    expect_identical(res$subdat$id, expected$id)
-    expect_equal(as.list(res$subdat[1, ]), as.list(res$subdat[5, ]))
+    expect_error(as.data.frame(x), "Interval slots must uniquely identify pooled results",
+                 fixed = TRUE)
+    expect_error(meta:::prepare_metabind_subgroups(x),
+                 "Interval slots must uniquely identify pooled results", fixed = TRUE)
   }
 })
 
