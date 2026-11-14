@@ -94,6 +94,8 @@
 #'   data = Fleiss1993bin, studlab = study, sm = "RR", method = "I")
 #' ma1
 #' metacum(ma1)
+#' 
+#' \dontrun{
 #' metacum(ma1, pooled = "random")
 #' 
 #' forest(metacum(ma1))
@@ -109,6 +111,7 @@
 #' ma3 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
 #'   data = Fleiss1993cont, sm = "SMD")
 #' metacum(ma3)
+#' }
 #' 
 #' @rdname metacum
 #' @method metacum meta

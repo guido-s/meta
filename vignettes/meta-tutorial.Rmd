@@ -80,7 +80,7 @@ str(joy)
 ## Section 'Fixed effect and random effects meta-analysis'
 
 ```{r}
-m.publ = metabin(resp.h, resp.h + fail.h, resp.p, resp.p + fail.p,
+ma.publ = metabin(resp.h, resp.h + fail.h, resp.p, resp.p + fail.p,
   data = joy, studlab = paste0(author, " (", year, ")"),
   label.e = "Haloperidol", label.c = "Placebo",
   label.left = "Favours placebo", label.right = "Favours haloperidol")
@@ -89,19 +89,19 @@ m.publ = metabin(resp.h, resp.h + fail.h, resp.p, resp.p + fail.p,
 Print results of meta-analysis (Figure 1).
 
 ```{r}
-summary(m.publ)
+summary(ma.publ)
 ```
 
 Same printout (result not shown)
 
 ```{r, eval = FALSE}
-print(summary(m.publ))
+print(summary(ma.publ))
 ```
 
 Create Figure 2 (file 'figure2.pdf').
 
 ```{r}
-forest(m.publ, sortvar = year, prediction = TRUE,
+forest(ma.publ, sortvar = year, prediction = TRUE,
   digits.pval.Q = 3, file = "figure2.pdf")
 ```
 
@@ -114,14 +114,14 @@ knitr::include_graphics("figure2.pdf")
 ### Subgroup analysis of studies with and without missing data
 
 ```{r}
-m.publ.sub = update(m.publ, subgroup = miss, print.subgroup.name = FALSE)
-m.publ.sub
+ma.publ.sub = update(ma.publ, subgroup = miss, print.subgroup.name = FALSE)
+ma.publ.sub
 ```
 
 Create Figure 3 (file 'figure3.pdf').
 
 ```{r}
-forest(m.publ.sub, sortvar = year,
+forest(ma.publ.sub, sortvar = year,
   xlim = c(0.1, 100), at = c(0.1, 0.3, 1, 3, 10, 30, 100),
   digits.pval.Q = 3, test.subgroup.common = FALSE,
   label.test.subgroup.random = "Test for subgroup differences:",
@@ -136,25 +136,25 @@ knitr::include_graphics("figure3.pdf")
 
 ```{r, eval = FALSE}
 # Impute as no events (ICA-0) - default
-mmiss.0 = metamiss(m.publ, drop.h, drop.p)
+mmiss.0 = metamiss(ma.publ, drop.h, drop.p)
 # Impute as events (ICA-1)
-mmiss.1 = metamiss(m.publ, drop.h, drop.p, method = "1")
+mmiss.1 = metamiss(ma.publ, drop.h, drop.p, method = "1")
 # Observed risk in control group (ICA-pc)
-mmiss.pc = metamiss(m.publ, drop.h, drop.p, method = "pc")
+mmiss.pc = metamiss(ma.publ, drop.h, drop.p, method = "pc")
 # Observed risk in experimental group (ICA-pe)
-mmiss.pe = metamiss(m.publ, drop.h, drop.p, method = "pe")
+mmiss.pe = metamiss(ma.publ, drop.h, drop.p, method = "pe")
 # Observed group-specific risks (ICA-p)
-mmiss.p = metamiss(m.publ, drop.h, drop.p, method = "p")
+mmiss.p = metamiss(ma.publ, drop.h, drop.p, method = "p")
 # Best-case scenario (ICA-b)
-mmiss.b = metamiss(m.publ, drop.h, drop.p, method = "b", small.values = "bad")
+mmiss.b = metamiss(ma.publ, drop.h, drop.p, method = "b", small.values = "bad")
 # Worst-case scenario (ICA-w)
-mmiss.w = metamiss(m.publ, drop.h, drop.p, method = "w", small.values = "bad")
+mmiss.w = metamiss(ma.publ, drop.h, drop.p, method = "w", small.values = "bad")
 # Gamble-Hollis method
-mmiss.gh = metamiss(m.publ, drop.h, drop.p, method = "GH")
+mmiss.gh = metamiss(ma.publ, drop.h, drop.p, method = "GH")
 # IMOR.e = 2 and IMOR.c = 2 (same as available case analysis)
-mmiss.imor2 = metamiss(m.publ, drop.h, drop.p, method = "IMOR", IMOR.e = 2)
+mmiss.imor2 = metamiss(ma.publ, drop.h, drop.p, method = "IMOR", IMOR.e = 2)
 # IMOR.e = 0.5 and IMOR.c = 0.5
-mmiss.imor0.5 = metamiss(m.publ, drop.h, drop.p, method = "IMOR", IMOR.e = 0.5)
+mmiss.imor0.5 = metamiss(ma.publ, drop.h, drop.p, method = "IMOR", IMOR.e = 0.5)
 ```
 
 Summarise results using R function *metabind()*.
@@ -170,9 +170,9 @@ meths = c("Available case analysis (ACA)",
   "IMOR.e = 2, IMOR.c = 2", "IMOR.e = 0.5, IMOR.c = 0.5")
 # Use inverse-variance method for pooling (which is used for
 # imputation methods)
-m.publ.iv = update(m.publ, method = "Inverse")
+ma.publ.iv = update(ma.publ, method = "Inverse")
 # Combine results (random effects)
-mbr = metabind(m.publ.iv,
+mbr = metabind(ma.publ.iv,
   mmiss.0, mmiss.1,
   mmiss.pc, mmiss.pe, mmiss.p,
   mmiss.b, mmiss.w, mmiss.gh,
@@ -199,20 +199,20 @@ knitr::include_graphics("figure4.pdf")
 ### Funnel plot
 
 ```{r, eval = FALSE}
-funnel(m.publ)
+funnel(ma.publ)
 ```
 
 ### Harbord's score test for funnel plot asymmetry
 
 ```{r}
-metabias(m.publ, method.bias = "score")
+metabias(ma.publ, method.bias = "score")
 ```
 
 
 ### Trim-and-fill method
 
 ```{r}
-tf.publ = trimfill(m.publ)
+tf.publ = trimfill(ma.publ)
 tf.publ
 ```
 
@@ -228,7 +228,7 @@ funnel(tf.publ)
 ### Limit meta-analysis
 
 ```{r, eval = FALSE}
-l1.publ = limitmeta(m.publ)
+l1.publ = limitmeta(ma.publ)
 ```
 
 Note, the printout for the limit meta-analysis is not shown in this
@@ -246,13 +246,13 @@ pdf("figure5.pdf", width = 10, height = 10)
 par(mfrow = c(2, 2), pty = "s",
     oma = c(0, 0, 0, 0), mar = c(4.1, 3.1, 2.1, 1.1))
 #
-funnel(m.publ, xlim = c(0.05, 50), axes = FALSE)
+funnel(ma.publ, xlim = c(0.05, 50), axes = FALSE)
 axis(1, at = c(0.1, 0.2, 0.5, 1, 2, 5, 10, 50))
 axis(2, at = c(0, 0.5, 1, 1.5))
 box()
 title(main = "Panel A: Funnel plot", adj = 0)
 #
-funnel(m.publ, xlim = c(0.05, 50), axes = FALSE,
+funnel(ma.publ, xlim = c(0.05, 50), axes = FALSE,
        contour.levels = c(0.9, 0.95, 0.99),
        col.contour = c("darkgray", "gray", "lightgray"))
 legend("topright",

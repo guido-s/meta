@@ -271,6 +271,7 @@
 #'   text.common2 = "Inverse variance method",
 #'   keep.w = TRUE)
 #' summary(ma123)
+#' 
 #' \dontrun{
 #' forest(ma123, digits = 6)
 #' 

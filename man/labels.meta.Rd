@@ -44,15 +44,17 @@ data(Fleiss1993bin)
 
 refs <- 20 + 1:7
 
-m <- metabin(d.asp, n.asp, d.plac, n.plac, data = Fleiss1993bin,
+ma <- metabin(d.asp, n.asp, d.plac, n.plac, data = Fleiss1993bin,
  studlab = study, sm = "OR", random = FALSE)
 
-forest(m,
-  studlab = labels(m, year = year, citation = refs, layout = "JAMA"),
+forest(ma,
+  studlab = labels(ma, year = year, citation = refs, layout = "JAMA"),
   layout = "JAMA", fontfamily = "Times", fontsize = 10)
 
-forest(m,
+\dontrun{
+forest(ma,
   studlab = labels(m, year = year, citation = refs, layout = "Lancet"))
+}
 
 }
 \seealso{

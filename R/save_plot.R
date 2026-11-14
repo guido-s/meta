@@ -209,6 +209,8 @@ validate_device <- function(device, filename = NULL, dpi = 300,
     pdf = function(filename, ..., version = "1.4") {
       pdf(file = filename, ..., version = version)
     },
+    cairo_pdf = grDevices::cairo_pdf,
+    cairo_ps = grDevices::cairo_ps,
     svg = function(filename, ...) {
       if (is_installed_package("svglite", stop = FALSE))
         return(svglite::svglite(file = filename, ...))

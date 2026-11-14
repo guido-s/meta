@@ -266,6 +266,7 @@
 #' #
 #' forest(ma1)
 #'
+#' \dontrun{
 #' # Forest plot with Fisher's z transformed correlations
 #' #
 #' forest(ma1, backtransf = FALSE)
@@ -273,7 +274,6 @@
 #' ma2 <- update(ma1, sm = "cor")
 #' summary(ma2)
 #'
-#' \dontrun{
 #' # Identical forest plots (as back transformation is the identity
 #' # transformation)
 #' forest(ma2)
