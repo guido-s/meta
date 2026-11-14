@@ -277,6 +277,7 @@ addHet <- function(x, hcc, within = TRUE) {
 backward <- function(x) {
   res <- x
   #
+  res$zval <- res$statistic
   res$zval.common <- res$statistic.common
   res$zval.random <- res$statistic.random
   #
@@ -292,6 +293,7 @@ backward <- function(x) {
   res$text.fixed <- res$text.common
   res$text.w.fixed <- res$text.w.common
   #
+  res$hakn <- any(res$method.random.ci == "HK")
   res$df.hakn <- res$df.hakn.ci
   res$seTE.hakn <- res$seTE.hakn.ci
   res$seTE.hakn.adhoc <- res$seTE.hakn.adhoc.ci
@@ -326,6 +328,7 @@ backward <- function(x) {
 drop_backward <- function(x) {
   res <- x
   #
+  res$zval <- NULL
   res$zval.common <- NULL
   res$zval.random <- NULL
   #
@@ -341,6 +344,7 @@ drop_backward <- function(x) {
   res$text.fixed <- NULL
   res$text.w.fixed <- NULL
   #
+  res$hakn <- NULL
   res$df.hakn <- NULL
   res$seTE.hakn <- NULL
   res$seTE.hakn.adhoc <- NULL
