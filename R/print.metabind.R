@@ -75,18 +75,22 @@
 #' ma1 <- metabin(d.asp, n.asp, d.plac, n.plac,
 #'   data = Fleiss1993bin, studlab = study, sm = "RR", method = "I")
 #' ma2 <- update(ma1, method = "MH", random = FALSE)
+#' #
+#' mb12 <- metabind(ma1, ma2, name = c("IV method", "MH method"))
 #'
 #' # Printout for individual meta-analyses
+#' #
 #' ma1
 #' ma2
 #'
 #' # Standard printout
-#' metabind(ma1, ma2, name = c("IV method", "MH method"))
+#' #
+#' mb12
 #'
 #' # Print confidence intervals for tau^2 and tau and
 #' # suppress column on meta-analysis method
-#' print(metabind(ma1, ma2, name = c("IV method", "MH method")),
-#'   print = list(tau2.ci = TRUE, tau.ci = TRUE, method = FALSE))
+#' #
+#' print(mb12, print = list(tau2.ci = TRUE, tau.ci = TRUE, method = FALSE))
 #'
 #' @method print metabind
 #' @export

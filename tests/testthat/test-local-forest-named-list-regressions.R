@@ -12,6 +12,31 @@ forest_named_regression_plot <- function(x, ...) {
   list(result = result, args = observed)
 }
 
+test_that("Cairo devices work as names and functions", {
+  skip_if_not(capabilities("cairo"))
+  ma <- metagen(1:3, 3:1)
+  files <- c(tempfile(fileext = ".pdf"), tempfile(fileext = ".pdf"),
+              tempfile(fileext = ".ps"), tempfile(fileext = ".ps"))
+  on.exit(unlink(files))
+  devices <- list("cairo_pdf", grDevices::cairo_pdf,
+                   "cairo_ps", grDevices::cairo_ps)
+  headers <- rep(c("%PDF-", "%!PS-"), each = 2)
+  results <- vector("list", length(devices))
+  #
+  for (i in seq_along(devices)) {
+    results[[i]] <- forest(ma, filename = files[i], device = devices[[i]])
+    expect_true(file.exists(files[i]))
+    expect_gt(file.info(files[i])$size, 0)
+    expect_identical(rawToChar(readBin(files[i], "raw", n = 5)), headers[i])
+  }
+  for (i in c(1, 3)) {
+    expect_equal(results[[i]]$width, results[[i + 1]]$width)
+    expect_equal(results[[i]]$height, results[[i + 1]]$height)
+  }
+  expect_error(meta:::validate_device("unknown_device", files[1]),
+                "Unknown graphics device")
+})
+
 test_that("character hetstat preserves complete model-row expressions", {
   datas <- data.frame(a_n = c(60, 70, 100), a_mean = c(8, 7, 10),
                       a_sd = c(11, 11, 13), study = c("s1", "s2", "s3"))

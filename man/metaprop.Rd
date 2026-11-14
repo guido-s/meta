@@ -536,13 +536,13 @@ ma4
 ma5
 #
 forest(ma1)
+
 \dontrun{
 forest(ma2)
 forest(ma3)
 forest(ma3, pscale = 100)
 forest(ma4)
 forest(ma5)
-}
 
 # Do not back transform results, e.g. print logit transformed
 # proportions if sm = "PLOGIT" and store old settings
@@ -556,13 +556,11 @@ ma9  <- update(ma6, sm = "PLN")
 ma10 <- update(ma6, sm = "PFT")
 #
 forest(ma6)
-\dontrun{
 forest(ma7)
 forest(ma8)
 forest(ma8, pscale = 100)
 forest(ma9)
 forest(ma10)
-}
 
 # Use old settings
 #
@@ -576,10 +574,8 @@ ma12 <- metaprop(c(0, 0, 10, 10), rep(100, 4), incr = 0.1, method = "Inverse")
 ma11
 ma12
 #
-\dontrun{
 forest(ma11)
 forest(ma12)
-}
 
 # Example from Miller (1978):
 #
@@ -663,6 +659,7 @@ round(log(c(0.3079848, 0.2569522, 0.3691529)), 4)
 #
 print(metaprop(6:8, c(100, 1200, 1000), method = "Inverse"),
   pscale = 1000, digits = 1)
+}
 
 }
 \references{

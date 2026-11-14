@@ -99,15 +99,15 @@
 #' metainf(ma1, pooled = "random")
 #' 
 #' forest(metainf(ma1))
-#' forest(metainf(ma1, pooled = "random"))
 #' 
 #' \dontrun{
+#' forest(metainf(ma1, pooled = "random"))
+#' 
 #' # Create a PDF file with a forest plot containing UTF-8 characters
 #' # for tau^2, tau, and I^2
 #' forest(metainf(ma1, pooled = "random"),
 #'   label.tau2 = "\u03c4\u00b2", label.tau = "\u03c4", label.I2 = "I\u00b2",
-#'   file = "forest_with_unicode.pdf", width = 8.5, func.gr = "cairo_pdf")
-#' }
+#'   file = "forest_with_unicode.pdf", device = "cairo_pdf")
 #' 
 #' metainf(ma1, sortvar = study)
 #' metainf(ma1, sortvar = 7:1)
@@ -119,6 +119,7 @@
 #' ma3 <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
 #'   data = Fleiss1993cont, sm = "SMD")
 #' metainf(ma3)
+#' }
 #' 
 #' @rdname metainf
 #' @method metainf meta
