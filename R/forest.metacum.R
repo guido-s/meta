@@ -98,9 +98,9 @@
 #'
 #' \tabular{ll}{
 #' \bold{Element} \tab \bold{Default} \cr
-#' \code{print$I2}, \code{print$tau2}, \code{print$tau} \tab \code{TRUE}. \cr
-#' \code{print$stat}, \code{print$Q}, \code{print$pval.Q} \tab \code{FALSE}. \cr
-#' \code{print$I2.ci}, \code{print$tau2.ci}, \code{print$tau.ci} \tab \code{FALSE}.
+#' \code{print$I2}, \code{print$tau2}, \code{print$tau} \tab \code{TRUE} \cr
+#' \code{print$stat}, \code{print$Q}, \code{print$pval.Q} \tab \code{FALSE} \cr
+#' \code{print$I2.ci}, \code{print$tau2.ci}, \code{print$tau.ci} \tab \code{FALSE}
 #' }
 #' The named list \code{col} controls colours using the following elements:
 #' \itemize{

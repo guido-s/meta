@@ -829,11 +829,11 @@ update.meta <- function(object,
       sel.harmonic <- !exclude & !is.na(object$event) & !is.na(object$time)
       object$t.harmonic.mean <- 1 / mean(1 / object$time[sel.harmonic])
     }
-    #
-    # Drop list elements stored for backward compatability
-    #
-    object <- drop_backward(object)
   }
+  #
+  # Drop list elements stored for backward compatability
+  #
+  #object <- drop_backward(object)
   
   
   #

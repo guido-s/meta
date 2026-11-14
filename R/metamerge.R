@@ -1103,8 +1103,11 @@ metamerge <- function(meta1, meta2,
   #
   res$call <- match.call()
   #
+  # Backward compatibility (still required by R package metaumbrella)
+  #
+  res <- backward(res)
+  #
   class(res) <- unique(class(res))
-  
-  
+    
   res
 }

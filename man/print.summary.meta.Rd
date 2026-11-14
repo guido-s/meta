@@ -16,6 +16,7 @@
   pscale = x$pscale,
   irscale = x$irscale,
   irunit = x$irunit,
+  test = NULL,
   print = NULL,
   digits = NULL,
   scientific.pval = gs("scientific.pval"),
@@ -75,6 +76,10 @@ argument \code{sm} is equal to \code{"IR"}, \code{"IRLN"},
 \item{irunit}{A character specifying the time unit used to
 calculate rates, e.g. person-years.}
 
+\item{test}{A named list controlling tests for subgroup differences;
+see \code{\link{meta-formatting}}. Defaults are as in
+\code{\link{print.meta}}.}
+
 \item{print}{A named list controlling displayed information; see
 \code{\link{meta-formatting}}. Defaults are as in \code{print.meta}.}
 
@@ -120,8 +125,8 @@ statistical methods should be printed.}
 
 \item{warn.backtransf}{Deprecated argument (ignored).}
 
-\item{\dots}{Additional arguments, including individual \code{print.*}
-and \code{digits.*} settings (passed on to
+\item{\dots}{Additional arguments, including individual \code{test.*},
+\code{print.*}, and \code{digits.*} settings (passed on to
 \code{\link{print.meta}} called internally).}
 }
 \description{

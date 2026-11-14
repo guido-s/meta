@@ -3204,8 +3204,11 @@ metagen <- function(TE, seTE, studlab,
     ifelse(is.na(res$lower.predict) & is.na(res$upper.predict),
            "", res$adhoc.hakn.pi)
   #
+  # Backward compatibility (still required by R package metaumbrella)
+  #
+  res <- backward(res)
+  #
   class(res) <- c(fun, "meta")
-
-
+  
   res
 }

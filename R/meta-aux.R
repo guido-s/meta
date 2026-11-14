@@ -277,6 +277,9 @@ addHet <- function(x, hcc, within = TRUE) {
 backward <- function(x) {
   res <- x
   #
+  res$zval.common <- res$statistic.common
+  res$zval.random <- res$statistic.random
+  #
   res$w.fixed <- res$w.common
   res$TE.fixed <- res$TE.common
   res$seTE.fixed <- res$seTE.common
@@ -322,6 +325,9 @@ backward <- function(x) {
 
 drop_backward <- function(x) {
   res <- x
+  #
+  res$zval.common <- NULL
+  res$zval.random <- NULL
   #
   res$w.fixed <- NULL
   res$TE.fixed <- NULL
@@ -1804,7 +1810,12 @@ digits_defaults <- function(class = "meta", func = "forest") {
 }
 
 test_defaults <- function(x, common, random, overall,
-                          test.overall.default = TRUE) {
+                          test.overall.default = TRUE, func = "forest") {
+  if (func == "print")
+    return(list(subgroup = x$test.subgroup,
+                subgroup.common = NULL,
+                subgroup.random = NULL))
+  #
   test.overall <- replaceNULL(gs("test.overall"), test.overall.default)
   test.subgroup <- replaceNULL(x$test.subgroup, TRUE)
   #

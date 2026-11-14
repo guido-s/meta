@@ -494,13 +494,6 @@
 #'  of meta-analysis data sets.
 #' }
 #'
-#' @section AI assistance:
-#' OpenCode and ChatGPT were used to assist with code development,
-#' refactoring, test development, and documentation. All resulting
-#' contributions were reviewed and, where appropriate, modified and
-#' tested by the package authors, who take responsibility for the
-#' package contents.
-#'
 #' @note
 #' Balduzzi et al. (2019) is the preferred citation in publications
 #' for \bold{meta}. Type \code{citation("meta")} for a BibTeX entry of
@@ -520,7 +513,13 @@
 #' \item estimate three-level models,
 #' \item estimate generalised linear mixed models.
 #' }
-#' 
+#'
+#' Since version 9.0-0, OpenCode and ChatGPT have been used to assist with
+#' code development, refactoring, test development, and documentation in
+#' \bold{meta}. All resulting contributions have been reviewed and, where
+#' appropriate, modified and tested by the package maintainer, who takes
+#' responsibility for the package contents.
+#'
 #' To report problems and bugs
 #' \itemize{
 #' \item type \code{bug.report(package = "meta")} if you do not use

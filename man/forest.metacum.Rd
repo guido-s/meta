@@ -127,8 +127,8 @@ be printed in an existing graphics window.}
 Invisibly returns a list with information about the forest plot,
 including the selected columns (\code{leftcols}, \code{rightcols}),
 their headings (\code{leftlabs}, \code{rightlabs}), formatted results,
-graphical settings (see \code{\link{forest.meta}}), and the dataset in
-element \code{data} used to create the forest plot.
+and graphical settings (see \code{\link{forest.meta}}).
+Element \code{data} contains the dataset used to create the forest plot.
 }
 \description{
 Draws a forest plot showing the results as studies are cumulatively added,
@@ -164,12 +164,20 @@ described in \code{\link{meta-formatting}}.
 
 \tabular{ll}{
 \bold{Element} \tab \bold{Default} \cr
-\code{print$I2}, \code{print$tau2}, \code{print$tau} \tab \code{TRUE}. \cr
-\code{print$stat}, \code{print$Q}, \code{print$pval.Q} \tab \code{FALSE}. \cr
-\code{print$I2.ci}, \code{print$tau2.ci}, \code{print$tau.ci} \tab \code{FALSE}.
+\code{print$I2}, \code{print$tau2}, \code{print$tau} \tab \code{TRUE} \cr
+\code{print$stat}, \code{print$Q}, \code{print$pval.Q} \tab \code{FALSE} \cr
+\code{print$I2.ci}, \code{print$tau2.ci}, \code{print$tau.ci} \tab \code{FALSE}
 }
-Colour settings of \code{NULL} use defaults determined by the layout
-and plotting symbol.
+The named list \code{col} controls colours using the following elements:
+\itemize{
+\item \code{col}: colour of confidence interval lines;
+\item \code{bg}: fill colour of result symbols;
+\item \code{border}: border colour of result symbols;
+\item \code{bg.predict}: fill colour of prediction intervals;
+\item \code{border.predict}: border colour of prediction intervals.
+}
+Each element defaults to \code{NULL}, with colours determined automatically
+from the layout and plotting symbol.
 
 Argument \code{type} defaults to \code{"square"}. Available values are
 \code{"square"}, \code{"diamond"}, \code{"circle"}, and

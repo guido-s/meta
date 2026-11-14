@@ -2345,8 +2345,11 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
     res$version.brglm2 <- packageDescription("brglm2")$Version
   }
   #
+  # Backward compatibility (still required by R package metaumbrella)
+  #
+  res <- backward(res)
+  #
   class(res) <- c(fun, "meta")
-
-
+  
   res
 }

@@ -1606,8 +1606,11 @@ metaprop <- function(event, n, studlab,
     res <- setNAwithin(res, res$three.level | is.glmm)
   }
   #
+  # Backward compatibility (still required by R package metaumbrella)
+  #
+  res <- backward(res)
+  #
   class(res) <- c(fun, "meta")
-
-
+  
   res
 }

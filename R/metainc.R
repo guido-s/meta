@@ -1719,7 +1719,11 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   if (res$method.random %in% c("MH", "Cochran"))
     res$method.random <- "Inverse"
   #
+  # Backward compatibility (still required by R package metaumbrella)
+  #
+  res <- backward(res)
+  #
   class(res) <- c(fun, "meta")
-
+  
   res
 }

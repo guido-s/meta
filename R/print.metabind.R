@@ -44,13 +44,13 @@
 #'
 #' \tabular{ll}{
 #' \bold{Element} \tab \bold{Default} \cr
-#' \code{print$stat} \tab \code{TRUE}. \cr
-#' \code{print$I2}, \code{print$tau2} \tab Corresponding \code{gs("print.*")} setting. \cr
-#' \code{print$tau}, \code{print$Q} \tab Corresponding \code{gs("print.*")} setting. \cr
-#' \code{print$I2.ci}, \code{print$tau2.ci} \tab \code{FALSE}. \cr
-#' \code{print$tau.ci} \tab \code{FALSE}. \cr
-#' \code{print$pval.Q} \tab Follows \code{print$Q}. \cr
-#' \code{print$subgroup.name} \tab Whether subgroup results are present.
+#' \code{print$stat} \tab \code{TRUE} \cr
+#' \code{print$I2}, \code{print$tau2} \tab Corresponding \code{gs("print.*")} setting \cr
+#' \code{print$tau}, \code{print$Q} \tab Corresponding \code{gs("print.*")} setting \cr
+#' \code{print$I2.ci}, \code{print$tau2.ci} \tab \code{FALSE} \cr
+#' \code{print$tau.ci} \tab \code{FALSE} \cr
+#' \code{print$pval.Q} \tab Follows \code{print$Q} \cr
+#' \code{print$subgroup.name} \tab Whether subgroup results are present
 #' }
 #' The named list \code{print} controls which columns are shown.
 #' Columns \code{func}, \code{sm}, \code{method}, and \code{method.interval}

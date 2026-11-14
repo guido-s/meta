@@ -69,8 +69,15 @@ A BibTeX entry for LaTeX users is provided by
 citation(package = "meta")
 ```
 
+## AI Assistance
 
-### Bug Reports:
+Since version 9.0-0, OpenCode and ChatGPT have been used to assist with
+code development, refactoring, test development, and documentation in
+**meta**. All resulting contributions have been reviewed and, where
+appropriate, modified and tested by the package maintainer, who takes
+responsibility for the package contents.
+
+## Bug Reports:
 
 You can report bugs on GitHub under
 [Issues](https://github.com/guido-s/meta/issues)

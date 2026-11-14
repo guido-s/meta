@@ -1,4 +1,8 @@
-## meta, version 9.0-0 (2026-mm-dd)
+## meta, version 9.0-0 (2026-11-13)
+
+**The Voorhees Release**
+
+Released on Friday the 13th, November 2026.
 
 ### Major changes
 
@@ -45,7 +49,7 @@
   together, with appropriate back-transformation and scaling.
 
   For subgroup analyses, selected overall results can be displayed once when
-  the input datasets, results, and relevant analysis and interval settings
+  the included datasets, results, and relevant analysis and interval settings
   agree. Overall heterogeneity is assessed separately and is shared only when
   its values and settings also agree.
 
@@ -75,6 +79,17 @@
   This also applies when random effects results were not selected in the
   input object. Explicit choices of `pooled` remain unchanged.
 
+* Formatting arguments can now be supplied through named lists `print`
+  and `digits` in `print.meta()`, `print.summary.meta()`, `print.metacum()`,
+  `print.metainf()`, and `print.blup.meta()`. Named list `digits` is also
+  supported by `print.cidprop()` and `print.estimates.blup.meta()`.
+  Named list `test` controls tests for subgroup differences in `print.meta()`
+  and `print.summary.meta()`.
+  Corresponding individual formatting arguments remain supported.
+
+  The new help page `meta-formatting` describes supported elements,
+  their availability across functions, and general defaults.
+
 * R package **meta** now requires R (>= 4.1.0).
 
 ### User-visible changes
@@ -89,19 +104,17 @@
   - column spacing has been improved for `layout = "meta8"`
   - for all layouts but `layout = "RevMan5"`, information on tests for an
     overall effect are printed before heterogeneity statistics
-  - new arguments `main`, `just.main`, `xpos.main`, `gap.main`, `fs.main`,
-    `ff.main`, `col.main`, and `lineheight.main` can be used to add and format
-    a main title
-  - arguments `smlab`, `xlab`, `label.left`, and `label.right` can contain
-    more than two lines
+  - new arguments `main`, `xpos.main`, `gap.main`, and `lineheight.main`,
+    together with element `main` of the `just`, `fs`, `ff`, and `col` lists,
+    can be used to add and format a main title
+  - arguments `smlab` and `xlab` and elements `left` and `right` of `label`
+    can contain more than two lines
   - visible labels for pooled estimates, heterogeneity statistics, tests,
     subgroup results, additional lines, and details are considered when
-    calculating horizontal spacing; new defaults for arguments:
-    `calcwidth.predict`, `calcwidth.hetstat`, `calcwidth.tests`,
-    `calcwidth.subgroup`, `calcwidth.addline`, and `calcwidth.details` are
-    `TRUE`
-  - argument `calcwidth.pooled` prevents pooled labels from overlapping columns
-    containing pooled-row information by reserving additional space
+    calculating horizontal spacing; elements `predict`, `hetstat`, `tests`,
+    `subgroup`, `addline`, and `details` of `calcwidth` now default to `TRUE`
+  - element `pooled` of `calcwidth` prevents pooled labels from overlapping
+    columns containing pooled-row information by reserving additional space
   - consider the width of treatment group labels (arguments `label.e` and
     `label.c` in meta-analysis functions) attached to columns when calculating
     column widths, and suppress these labels if the attached column already has
@@ -112,13 +125,13 @@
   - less vertical space is added below overall results in JAMA layout
   - allow different colours for multiple overall common effect and
     random effects diamonds, prediction intervals, and their outlines
-  - new argument `col.study.text` to specify colours for text in individual
-    study rows; excluded studies are printed in lightgrey by default
+  - new element `study.text` of `col` to specify colours for text in
+    individual study rows; excluded studies are printed in lightgrey by default
   - allow different colours for subgroup diamonds and prediction intervals
-    compared with overall results; new arguments `col.diamond.common.subgroup`,
-    `col.diamond.random.subgroup`, `col.diamond.lines.common.subgroup`,
-    `col.diamond.lines.random.subgroup`, `col.predict.subgroup`, and
-    `col.predict.lines.subgroup`
+    compared with overall results; new elements `diamond.common.subgroup`,
+    `diamond.random.subgroup`, `diamond.lines.common.subgroup`,
+    `diamond.lines.random.subgroup`, `predict.subgroup`, and
+    `predict.lines.subgroup` of `col`
   - arguments `random.subgroup` and `prediction.subgroup` can be logical
     matrices to select subgroup random effects estimates or prediction intervals
     separately for each available confidence- or prediction-interval method,
@@ -126,8 +139,8 @@
   - center combined treatment-group headers over both columns in BMJ layout for
     meta-analyses of binary outcomes, continuous outcomes, or incidence rates
   - left-align the risk-of-bias table header
-  - new argument `just.rob` to specify the justification of the risk-of-bias
-    table heading; the heading now spans all risk-of-bias columns
+  - new element `rob` of `just` to specify the justification of the
+    risk-of-bias table heading; the heading now spans all risk-of-bias columns
   - print labels for pooled estimates and heterogeneity statistics or details on
     the left side if study labels are printed on the right side, and suppress
     these labels if argument `leftcols` is `FALSE`
@@ -138,21 +151,27 @@
     x-axis (argument `xlab`) instead of above the forest plot (argument `smlab`)
     [(related to issue #106)](https://github.com/guido-s/meta/issues/106)
   - deprecated arguments `*.fixed` and `*.fixed.*` have been removed. Use
-    the corresponding elements `*.common` and `*.common.*` of the
+    the corresponding common-effect elements of the
     `fs`, `ff`, `col`, and `label` lists instead.
 
 * `forest.metacum()`:
   - new arguments `layout` and `main` to select the forest plot layout and
     specify its title
-  - new arguments to control printing of heterogeneity statistics, their
-    confidence intervals, and CID probabilities:
-    `print.I2`, `print.I2.ci`, `print.tau2`, `print.tau2.ci`,
-    `print.tau`, `print.tau.ci`, `print.Q`, `print.pval.Q`, and `print.cidprop`
+  - named list `print` controls the display of heterogeneity statistics,
+    their confidence intervals, and CID probabilities through elements
+    `I2`, `I2.ci`, `tau2`, `tau2.ci`, `tau`, `tau.ci`, `Q`, `pval.Q`,
+    and `prob`
   - use default colours for squares regardless of layout
     [(issue #96)](https://github.com/guido-s/meta/issues/96)
   - print the title "Cumulative Meta-Analysis"
 
 * `forest.metainf()`:
+  - new arguments `layout` and `main` to select the forest plot layout and
+    specify its title
+  - named list `print` controls the display of heterogeneity statistics,
+    their confidence intervals, and CID probabilities through elements
+    `I2`, `I2.ci`, `tau2`, `tau2.ci`, `tau`, `tau.ci`, `Q`, `pval.Q`,
+    and `prob`
   - print the title "Leave-One-Out Meta-Analysis"
 
 * `metagen()`:
@@ -244,8 +263,9 @@
     for the main title of a forest plot
 
 * `forest.meta()`, `settings.meta()`:
-  - font face arguments `ff.xyz` are checked against values accepted by
-    `grid::gpar()` and also allow integer values 1 to 4
+  - font face elements of `ff` in `forest.meta()` and the corresponding
+    individual `ff.*` settings in `settings.meta()` are checked against values
+    accepted by `grid::gpar()` and also allow integer values 1 to 4
 
 ### Bug fixes
 
@@ -273,10 +293,10 @@
     [(issue #98)](https://github.com/guido-s/meta/issues/98)
   - correctly clip diamonds for pooled estimates if argument `xlim` excludes
     the pooled estimate but includes one confidence limit
-  - automatically accounts for the widths of x-axis tick labels, input to
-    arguments `smlab`, `xlab`, `label.left`, and `label.right` when calculating
-    forest plot spacing. User-specified values for arguments
-    `colgap.forest.left` and `colgap.forest.right` take precedence over the
+  - automatically account for the widths of x-axis tick labels, arguments
+    `smlab` and `xlab`, and elements `left` and `right` of `label` when
+    calculating forest plot spacing. User-specified values for elements
+    `forest.left` and `forest.right` of `colgap` take precedence over the
     automatic calculation
   - correctly align p-value and test-statistic columns in forest plots with
     subgroups, including subgroup estimates; previously, these columns could
@@ -440,10 +460,6 @@
   retain their evaluation environments, improving argument forwarding through
   wrapper functions. Subgroup labels are derived from the captured expressions.
 
-* Removed redundant legacy `*.fixed` list elements and the Hartung-Knapp
-  aliases `df.hakn`, `seTE.hakn`, and `seTE.hakn.adhoc` from `meta` objects.
-  Statistical results and standard printed output are unchanged.
-
 * Use R package testthat for unit tests.
 
 * R package **testthat** added to Suggests.
@@ -458,6 +474,11 @@
   ignored arguments supplied via `...`.
 
 * New internal function `percent_label()` to format percentage labels.
+
+* New internal function `drop_backward()` for removing redundant legacy
+  `*.fixed` list elements and the Hartung-Knapp aliases `df.hakn`,
+  `seTE.hakn`, and `seTE.hakn.adhoc` from `meta` objects. Its use is deferred
+  to a future update to maintain compatibility with R package **metaumbrella**.
 
 * `chkchar()`, `chkcolor()`, `chklevel()`, `chknumeric()`:
   - removed deprecated argument `single`; replaced by argument `length`

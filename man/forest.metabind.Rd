@@ -153,11 +153,11 @@ described in \code{\link{meta-formatting}}.
 
 \tabular{ll}{
 \bold{Element} \tab \bold{Default} \cr
-\code{print$stat}, \code{print$pval} \tab Automatic. \cr
-\code{print$I2}, \code{print$pval.Q} \tab See below. \cr
-\code{print$I2.ci}, \code{print$Q} \tab \code{FALSE}. \cr
-\code{print$subgroup.name} \tab \code{FALSE}. \cr
-\code{type$common}, \code{type$random} \tab \code{NULL} (automatic). \cr
+\code{print$stat}, \code{print$pval} \tab Automatic \cr
+\code{print$I2}, \code{print$pval.Q} \tab See below \cr
+\code{print$I2.ci}, \code{print$Q} \tab \code{FALSE} \cr
+\code{print$subgroup.name} \tab \code{FALSE} \cr
+\code{type$common}, \code{type$random} \tab \code{NULL} (automatic) \cr
 \code{digits$pval} \tab \code{max(gs("digits.pval") - 2, 2)} \cr
 \code{digits$pval.Q} \tab \code{max(gs("digits.pval.Q") - 2, 2)} \cr
 }

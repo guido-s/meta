@@ -35,6 +35,9 @@
 #'   \code{"IRS"}, \code{"IRFT"}, or \code{"IRD"}.
 #' @param irunit A character specifying the time unit used to
 #'   calculate rates, e.g. person-years.
+#' @param test A named list controlling tests for subgroup differences;
+#'   see \code{\link{meta-formatting}}. Defaults are as in
+#'   \code{\link{print.meta}}.
 #' @param print A named list controlling displayed information; see
 #'   \code{\link{meta-formatting}}. Defaults are as in \code{print.meta}.
 #' @param digits A named list controlling rounding; see
@@ -66,8 +69,8 @@
 #' @param details.methods A logical specifying whether details on
 #'   statistical methods should be printed.
 #' @param warn.backtransf Deprecated argument (ignored).
-#' @param \dots Additional arguments, including individual \code{print.*}
-#'   and \code{digits.*} settings (passed on to
+#' @param \dots Additional arguments, including individual \code{test.*},
+#'   \code{print.*}, and \code{digits.*} settings (passed on to
 #'   \code{\link{print.meta}} called internally).
 #' 
 #' @details
@@ -136,6 +139,7 @@ print.summary.meta <- function(x,
                                irscale = x$irscale,
                                irunit = x$irunit,
                                #
+                               test = NULL,
                                print = NULL,
                                digits = NULL,
                                #
@@ -173,7 +177,8 @@ print.summary.meta <- function(x,
   #
   args <- list(...)
   #
-  if (anyDuplicated(names(args)) || anyDuplicated(names(print)) ||
+  if (anyDuplicated(names(args)) || anyDuplicated(names(test)) ||
+      anyDuplicated(names(print)) ||
       anyDuplicated(names(digits)))
     stop("Formatting arguments must not be duplicated.", call. = FALSE)
   #
@@ -617,9 +622,10 @@ print.summary.meta <- function(x,
         (inherits(x, c("metacont", "metamean")) && x$method.ci == "t"))) {
     do.call(
       print.meta,
-      c(list(x.meta,
-             header = FALSE,
-             print = print.settings,
+       c(list(x.meta,
+              header = FALSE,
+              test = test,
+              print = print.settings,
              digits = digits.settings,
              #
              backtransf = backtransf, pscale = pscale,
@@ -1036,9 +1042,10 @@ print.summary.meta <- function(x,
       attr(x.meta, ".print.study.results.") <- max(k.all, na.rm = TRUE) > 1
       do.call(
         print.meta,
-        c(list(x.meta,
-               header = FALSE,
-               print = print.settings,
+         c(list(x.meta,
+                header = FALSE,
+                test = test,
+                print = print.settings,
                digits = digits.settings,
                #
                common = common, random = random,

@@ -157,3 +157,74 @@ test_that("formatting duplicates and invalid values are rejected", {
     expect_error(print(model, digits = list(pval = -1)), "must be")
   }
 })
+
+test_that("named subgroup-test settings preserve individual controls", {
+  ma <- metagen(c(0.1, 0.3, 0.5, 0.2), c(0.1, 0.2, 0.15, 0.1),
+                  subgroup = c("A", "A", "B", "B"), method.tau = "DL")
+  controls <- list(list(subgroup = FALSE),
+                    list(subgroup.common = FALSE, subgroup.random = TRUE),
+                    list(subgroup = FALSE, subgroup.common = TRUE),
+                    list(subgroup = NULL, subgroup.random = NULL))
+  for (model in list(ma, summary(ma))) {
+    for (overall in c(FALSE, TRUE)) {
+      for (settings in controls) {
+        extra <- list(overall = overall, details.methods = FALSE)
+        modern <- capture.output(do.call(print, c(
+          list(model, test = settings), extra)))
+        legacy <- capture.output(do.call(print, c(
+          list(model), setNames(settings, paste0("test.", names(settings))),
+          extra)))
+        expect_identical(modern, legacy)
+      }
+    }
+  }
+  expect_false(any(c("test.subgroup", "test.subgroup.common",
+                     "test.subgroup.random") %in% names(formals(meta:::print.meta))))
+})
+
+test_that("subgroup-test list defaults follow the object and selected models", {
+  ma <- metagen(c(0.1, 0.3, 0.5, 0.2), c(0.1, 0.2, 0.15, 0.1),
+                  subgroup = c("A", "A", "B", "B"), method.tau = "DL")
+  for (setting in list(TRUE, FALSE, NULL, NA)) {
+    ma["test.subgroup"] <- list(setting)
+    enabled <- if (is.null(setting)) TRUE else isTRUE(setting)
+    for (model in list(ma, summary(ma))) {
+      for (common in c(FALSE, TRUE)) {
+        extra <- list(common = common, random = !common, details.methods = FALSE)
+        expected <- capture.output(do.call(print, c(
+          list(model, test.subgroup = enabled,
+               test.subgroup.common = enabled & common,
+               test.subgroup.random = enabled & !common), extra)))
+        expect_identical(capture.output(do.call(print, c(list(model), extra))),
+                         expected)
+        expect_identical(capture.output(do.call(print, c(
+          list(model, test = list()), extra))), expected)
+      }
+    }
+  }
+})
+
+test_that("subgroup-test lists reject duplicates and invalid controls", {
+  ma <- metagen(c(0.1, 0.3, 0.5, 0.2), c(0.1, 0.2, 0.15, 0.1),
+                  subgroup = c("A", "A", "B", "B"), method.tau = "DL")
+  for (model in list(ma, summary(ma))) {
+    expect_error(capture.output(print(model, test = TRUE)), "named list")
+    expect_error(capture.output(print(model, test = list(FALSE))), "named list")
+    expect_error(capture.output(print(model, test = list(subgroup = "invalid"))),
+                  "logical")
+    expect_error(capture.output(print(model, test = list(subgroup.common = NA))),
+                  "logical")
+    expect_error(capture.output(print(model, test = list(subgroup = FALSE),
+                                      test.subgroup = FALSE)),
+                  "cannot both be specified")
+    expect_error(capture.output(print(model, test = list(subgroup.random = TRUE),
+                                      test.subgroup.random = FALSE)),
+                  "cannot both be specified")
+    expect_error(capture.output(print(model, test = list(subgroup = TRUE,
+                                                        subgroup = FALSE))),
+                  "duplicated")
+    expect_error(capture.output(print(model, test.subgroup = TRUE,
+                                      test.subgroup = FALSE)),
+                  "duplicated")
+  }
+})

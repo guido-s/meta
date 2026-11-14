@@ -1497,7 +1497,11 @@ metamean <- function(n, mean, sd, studlab,
   if (is.null(res$approx.sd))
     res$method.sd <- ""
   #
+  # Backward compatibility (still required by R package metaumbrella)
+  #
+  res <- backward(res)
+  #
   class(res) <- c(fun, "meta")
-
+  
   res
 }

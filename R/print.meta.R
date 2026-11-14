@@ -40,14 +40,9 @@
 #'   argument is useful in a meta-analysis with subgroups if
 #'   heterogeneity statistics should only be printed on subgroup
 #'   level.
-#' @param test.subgroup A logical value indicating whether to print
-#'   results of test for subgroup differences.
-#' @param test.subgroup.common A logical value indicating whether to
-#'   print results of test for subgroup differences (based on common
-#'   effect model).
-#' @param test.subgroup.random A logical value indicating whether to
-#'   print results of test for subgroup differences (based on random
-#'   effects model).
+#' @param test A named list controlling tests for subgroup differences; see
+#'   \code{\link{meta-formatting}}. Defaults follow the setting in \code{x}
+#'   and the models selected for printing.
 #' @param prediction.subgroup A single logical or logical vector
 #'   indicating whether / which prediction intervals should be printed
 #'   for subgroups.
@@ -124,8 +119,8 @@
 #'   separator and upper confidence limit should be printed.
 #' @param warn.deprecated A logical indicating whether warnings should
 #'   be printed if deprecated arguments are used.
-#' @param \dots Additional arguments, including individual \code{print.*}
-#'   and \code{digits.*} settings. Remaining arguments are passed to
+#' @param \dots Additional arguments, including individual \code{test.*},
+#'   \code{print.*}, and \code{digits.*} settings. Remaining arguments are passed to
 #'   \code{prmatrix}.
 #' 
 #' @rdname print.meta
@@ -139,9 +134,6 @@ print.meta <- function(x,
                        overall = x$overall,
                        overall.hetstat = x$overall.hetstat,
                        #
-                       test.subgroup = x$test.subgroup,
-                       test.subgroup.common = test.subgroup & common,
-                       test.subgroup.random = test.subgroup & random,
                        prediction.subgroup = x$prediction.subgroup,
                        #
                        backtransf = x$backtransf,
@@ -160,6 +152,7 @@ print.meta <- function(x,
                        #
                        header = TRUE,
                        #
+                       test = NULL,
                        print = NULL,
                        digits = NULL,
                        #
@@ -194,9 +187,21 @@ print.meta <- function(x,
   #
   args <- list(...)
   #
-  if (anyDuplicated(names(args)) || anyDuplicated(names(print)) ||
+  if (anyDuplicated(names(args)) || anyDuplicated(names(test)) ||
+      anyDuplicated(names(print)) ||
       anyDuplicated(names(digits)))
     stop("Formatting arguments must not be duplicated.", call. = FALSE)
+  #
+  # Tests for subgroup differences
+  #
+  test.list <- merge_legacy(test, args, test_defaults(x, func = "print"))
+  #
+  test <- test.list$res
+  args <- test.list$args
+  #
+  test.subgroup <- test[["subgroup"]]
+  test.subgroup.common <- test[["subgroup.common"]]
+  test.subgroup.random <- test[["subgroup.random"]]
   #
   # Columns shown when printing
   #
@@ -332,9 +337,13 @@ print.meta <- function(x,
   if (is.na(test.subgroup))
     test.subgroup <- FALSE
   chklogical(test.subgroup)
-  test.subgroup.common <- replaceNULL(test.subgroup.common, test.subgroup)
+  test.subgroup.common <- replaceNULL(test.subgroup.common,
+                                      if (test.list$miss[["subgroup.common"]])
+                                        test.subgroup & common else test.subgroup)
   chklogical(test.subgroup.common)
-  test.subgroup.random <- replaceNULL(test.subgroup.random, test.subgroup)
+  test.subgroup.random <- replaceNULL(test.subgroup.random,
+                                      if (test.list$miss[["subgroup.random"]])
+                                        test.subgroup & random else test.subgroup)
   chklogical(test.subgroup.random)
   #
   missing.prediction.subgroup <- missing(prediction.subgroup)

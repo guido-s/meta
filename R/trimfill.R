@@ -755,8 +755,15 @@ trimfill.meta <- function(x, left = NULL, ma.common = TRUE,
   call <- match.call()
   res$version <- packageDescription("meta")$Version
   #
-  class(res) <- c("metagen", "meta", "trimfill")
+  # Backward compatibility (still required by R package metaumbrella)
   #
+  res$ma.fixed <- res$ma.common
+  res$hakn <- m$hakn
+  #
+  res <- backward(res)
+  #
+  class(res) <- c("metagen", "meta", "trimfill")
+  
   res
 }
 

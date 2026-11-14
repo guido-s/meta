@@ -519,6 +519,12 @@ R package \bold{meta} imports R functions from \bold{metafor}
 \item estimate generalised linear mixed models.
 }
 
+Since version 9.0-0, OpenCode and ChatGPT have been used to assist with
+code development, refactoring, test development, and documentation in
+\bold{meta}. All resulting contributions have been reviewed and, where
+appropriate, modified and tested by the package maintainer, who takes
+responsibility for the package contents.
+
 To report problems and bugs
 \itemize{
 \item type \code{bug.report(package = "meta")} if you do not use
@@ -530,15 +536,6 @@ To report problems and bugs
 The development version of \bold{meta} is available on GitHub
 \url{https://github.com/guido-s/meta/}.
 }
-\section{AI assistance}{
-
-OpenCode and ChatGPT were used to assist with code development,
-refactoring, test development, and documentation. All resulting
-contributions were reviewed and, where appropriate, modified and
-tested by the package authors, who take responsibility for the
-package contents.
-}
-
 \references{
 Balduzzi S, Rücker G, Schwarzer G (2019):
 How to perform a meta-analysis with R: a practical tutorial.

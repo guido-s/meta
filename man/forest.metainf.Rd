@@ -126,8 +126,8 @@ be printed in an existing graphics window.}
 Invisibly returns a list with information about the forest plot,
 including the selected columns (\code{leftcols}, \code{rightcols}),
 their headings (\code{leftlabs}, \code{rightlabs}), formatted results,
-graphical settings (see \code{\link{forest.meta}}), and the dataset in
-element \code{data} used to create the forest plot.
+and graphical settings (see \code{\link{forest.meta}}).
+Element \code{data} contains the dataset used to create the forest plot.
 }
 \description{
 Draws a forest plot showing the results of omitting each study in turn,

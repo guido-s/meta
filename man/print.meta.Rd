@@ -12,9 +12,6 @@
   prediction = x$prediction,
   overall = x$overall,
   overall.hetstat = x$overall.hetstat,
-  test.subgroup = x$test.subgroup,
-  test.subgroup.common = test.subgroup & common,
-  test.subgroup.random = test.subgroup & random,
   prediction.subgroup = x$prediction.subgroup,
   backtransf = x$backtransf,
   pscale = x$pscale,
@@ -28,6 +25,7 @@
   sort.het = NULL,
   sort.Q = NULL,
   header = TRUE,
+  test = NULL,
   print = NULL,
   digits = NULL,
   big.mark = gs("big.mark"),
@@ -73,17 +71,6 @@ heterogeneity measures for overall treatment comparisons. This
 argument is useful in a meta-analysis with subgroups if
 heterogeneity statistics should only be printed on subgroup
 level.}
-
-\item{test.subgroup}{A logical value indicating whether to print
-results of test for subgroup differences.}
-
-\item{test.subgroup.common}{A logical value indicating whether to
-print results of test for subgroup differences (based on common
-effect model).}
-
-\item{test.subgroup.random}{A logical value indicating whether to
-print results of test for subgroup differences (based on random
-effects model).}
 
 \item{prediction.subgroup}{A single logical or logical vector
 indicating whether / which prediction intervals should be printed
@@ -134,6 +121,10 @@ heterogeneity.}
 meta-analysis, comparison and outcome should be printed at the
 beginning of the printout.}
 
+\item{test}{A named list controlling tests for subgroup differences; see
+\code{\link{meta-formatting}}. Defaults follow the setting in \code{x}
+and the models selected for printing.}
+
 \item{print}{A named list controlling displayed information; see
 \code{\link{meta-formatting}}. Heterogeneity settings default to
 the corresponding \code{gs("print.*")} settings; \code{CMH} and
@@ -180,8 +171,8 @@ statistical methods should be printed.}
 \item{warn.deprecated}{A logical indicating whether warnings should
 be printed if deprecated arguments are used.}
 
-\item{\dots}{Additional arguments, including individual \code{print.*}
-and \code{digits.*} settings. Remaining arguments are passed to
+\item{\dots}{Additional arguments, including individual \code{test.*},
+\code{print.*}, and \code{digits.*} settings. Remaining arguments are passed to
 \code{prmatrix}.}
 
 \item{bracket}{A character with bracket symbol to print lower

@@ -2242,8 +2242,11 @@ metacont <- function(n.e, mean.e, sd.e, n.c, mean.c, sd.c, studlab,
   if (is.null(res$approx.sd.e) & is.null(res$approx.sd.c))
     res$method.sd <- ""
   #
+  # Backward compatibility (still required by R package metaumbrella)
+  #
+  res <- backward(res)
+  #
   class(res) <- c(fun, "meta")
-
-
+  
   res
 }
