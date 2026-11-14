@@ -1,99 +1,132 @@
 #' Forest plot to display the result of a cumulative meta-analysis
 #' 
 #' @description
-#' Draws a forest plot in the active graphics window (using grid
-#' graphics system).
+#' Draws a forest plot showing the results as studies are cumulatively added,
+#' using the grid graphics system.
 #' 
 #' @aliases forest.metacum
 #' 
 #' @param x An object of class \code{\link{metacum}}.
-#' @param leftcols A character vector specifying (additional) columns
-#'   to be plotted on the left side of the forest plot or a logical
-#'   value.
-#' @param leftlabs A character vector specifying labels for
-#'   (additional) columns on left side of the forest plot.
-#' @param rightcols A character vector specifying (additional) columns
-#'   to be plotted on the right side of the forest plot or a logical
-#'   value.
-#' @param rightlabs A character vector specifying labels for
-#'   (additional) columns on right side of the forest plot.
+#' @param layout A character string specifying the layout of the
+#'   forest plot (see \code{\link{forest.meta}}).
 #' @param prediction A logical indicating whether prediction
 #'   intervals should be printed.
 #' @param overall A logical indicating whether overall results should be
 #'   shown.
-#' @param just.addcols Justification of text for additional columns
-#'   (possible values: "left", "right", "center").
-#' @param smlab A label for the summary measure (printed at top of
-#'   figure).
+#' @param leftcols A character vector specifying columns to be printed on the
+#'   left side of the forest plot or a logical value; see
+#'   \code{\link{forest.meta}}.
+#' @param rightcols A character vector specifying columns to be printed on the
+#'   right side of the forest plot or a logical value; see
+#'   \code{\link{forest.meta}}.
+#' @param leftlabs A character vector specifying labels for columns on the left
+#'   side of the forest plot (see Details).
+#' @param rightlabs A character vector specifying labels for columns on the
+#'   right side of the forest plot (see Details).
+#' @param lab.NA A character string to label missing values.
+#' @param col A named list specifying colours.
+#'   A colour can also be supplied directly to set \code{col$col}.
+#'   See Details for defaults specific to this function and
+#'   \code{\link{meta-formatting}} for information on the elements.
+#' @param print A named list controlling displayed information.
+#'   See Details for defaults specific to this function and
+#'   \code{\link{meta-formatting}} for information on the elements.
 #' @param type A character string or vector specifying how to
 #'   plot treatment effects and confidence intervals for cumulative
 #'   meta-analysis results.
-#' @param layout A character string specifying the layout of the
-#'   forest plot (see \code{\link{forest.meta}}).
-#' @param lab.NA A character string to label missing values.
+#' @param digits A named list specifying digits used for displayed results; a
+#'   scalar value is also accepted.
+#'   See Details for defaults specific to this function and
+#'   \code{\link{meta-formatting}} for information on the elements.
 #' @param backtransf A logical indicating whether results should be
 #'   back transformed in forest plots. If \code{backtransf = TRUE},
 #'   results for \code{sm = "OR"} are presented as odds ratios rather
 #'   than log odds ratios, for example.
 #' @param big.mark A character used as thousands separator.
-#' @param digits Minimal number of significant digits for treatment
-#'   effects, see \code{print.default}.
-#' @param digits.pval Minimal number of significant digits for
-#'   p-values.
-#' @param digits.tau2 Minimal number of significant digits for
-#'   between-study variance.
-#' @param digits.tau Minimal number of significant digits for square
-#'   root of between-study variance.
-#' @param digits.I2 Minimal number of significant digits for I-squared
-#'   statistic.
-#' @param digits.cid Minimal number of significant digits for
-#'   CID / decision thresholds, see \code{print.default}.
-#' @param digits.percent Minimal number of significant digits for
-#'   probabilities, printed as percentages, see \code{print.default}.
-#' @param col The colour for cumulative meta-analysis results (only considered
-#'   if \code{type = "square"}).
-#' @param col.bg The background colour for squares and diamonds of
-#'   cumulative meta-analysis results.
-#' @param col.border The colour for the outer lines of squares and diamonds of
-#'   cumulative meta-analysis results.
-#' @param col.bg.predict The background colour for prediction intervals of
-#'   cumulative meta-analysis results.
-#' @param col.border.predict The colour for the outer lines of prediction
-#'   intervals of cumulative meta-analysis results.
-#' @param addrows.below.overall A numeric value indicating how many
-#'   empty rows are printed between meta-analysis results and
-#'   meta-analysis details.
-#' @param details A logical specifying whether details on statistical
-#'   methods should be printed.
+#' @param main A title for the forest plot.
+#' @param filename File name to store forest plot.
+#' @param path Path of the directory to save plot to: `path` and `filename` are
+#'   combined to create the fully qualified file name. Defaults to the working
+#'   directory.
+#' @param device Device to use. Can either be a device function (e.g.,
+#'   \code{\link{png}}), or one of \code{"eps"}, \code{"ps"},
+#'   \code{"tex"} (pictex), \code{"pdf"}, \code{"jpeg"}, \code{"tiff"},
+#'   \code{"png"}, \code{"bmp"}, \code{"svg"} or \code{"wmf"} (Windows only).
+#'   By default, the device is guessed based on the `filename` extension.
+#' @param device.args List with additional graphical parameters passed on
+#'   to graphics function.
+#' @param units Units of the `width` and `height` of the file containing the
+#'   forest plot. One of \code{"in"} (for inches, default), \code{"cm"},
+#'   \code{"mm"}, or \code{"px"} (for pixels), can be abbreviated.
+#' @param height Height of the graphics file.
+#' @param width Width of the graphics file.
+#' @param dpi Plot resolution.
+#' @param dev.off A logical to specify whether current graphics device
+#'   should be shut down.
+#' @param new A logical value indicating whether a new figure should
+#'   be printed in an existing graphics window.
 #' @param \dots Additional graphical arguments (passed on to
 #'   \code{\link{forest.meta}}).
 #' 
 #' @details
-#' A forest plot, also called confidence interval plot, is drawn in
-#' the active graphics window. The forest functions in R package
-#' \bold{meta} are based on the grid graphics system. In order to
-#' print the forest plot, resize the graphics window and either use
-#' \code{\link{dev.copy2eps}} or \code{\link{dev.copy2pdf}}. Another
-#' possibility is to create a file using \code{\link{pdf}},
-#' \code{\link{png}}, or \code{\link{svg}} and to specify the width
-#' and height of the graphic (see \code{\link{forest.meta}} examples).
+#' Each row of the forest plot represents a meta-analysis based on the first
+#' \code{k} studies in the cumulative sequence. Results are shown in the order
+#' in which studies were added to the cumulative meta-analysis. The pooling
+#' model is determined by argument \code{pooled} in \code{\link{metacum}}.
+#' Prediction intervals and additional result columns can be selected when
+#' drawing the forest plot.
+#'
+#' A forest plot, also called a confidence interval plot, is drawn in the
+#' active graphics window using the grid graphics system. To save the plot,
+#' specify a file name with argument \code{filename}; the graphics device is
+#' selected from the file extension by default (see \code{\link{forest.meta}}
+#' for examples).
 #' 
-#' The arguments \code{leftcols} and \code{rightcols} can be used to
-#' specify columns which are plotted on the left and right side of the
-#' forest plot, respectively.
+#' The named list \code{print} determines the default result columns.
+#' Argument \code{layout} determines their default placement, which can be
+#' overridden with \code{leftcols} and \code{rightcols}.
+#'
+#' Arguments \code{leftcols} and \code{rightcols} can be used to specify
+#' columns printed on the left or right side, respectively. Arguments
+#' \code{leftlabs} and \code{rightlabs} can be used to provide headings for
+#' these columns. Use \code{NA} for a column heading to retain its default
+#' label.
+#'
+#' \subsection{Formatting defaults}{
+#' Unless listed below, defaults for supported formatting elements are
+#' described in \code{\link{meta-formatting}}.
+#'
+#' \tabular{ll}{
+#' \bold{Element} \tab \bold{Default} \cr
+#' \code{print$I2}, \code{print$tau2}, \code{print$tau} \tab \code{TRUE} \cr
+#' \code{print$stat}, \code{print$Q}, \code{print$pval.Q} \tab \code{FALSE} \cr
+#' \code{print$I2.ci}, \code{print$tau2.ci}, \code{print$tau.ci} \tab \code{FALSE}
+#' }
+#' The named list \code{col} controls colours using the following elements:
+#' \itemize{
+#' \item \code{col}: colour of confidence interval lines;
+#' \item \code{bg}: fill colour of result symbols;
+#' \item \code{border}: border colour of result symbols;
+#' \item \code{bg.predict}: fill colour of prediction intervals;
+#' \item \code{border.predict}: border colour of prediction intervals.
+#' }
+#' Each element defaults to \code{NULL}, with colours determined automatically
+#' from the layout and plotting symbol.
+#'
+#' Argument \code{type} defaults to \code{"square"}. Available values are
+#' \code{"square"}, \code{"diamond"}, \code{"circle"}, and
+#' \code{"squarediamond"}.
+#' }
 #' 
-#' The arguments \code{leftlabs} and \code{rightlabs} can be used to
-#' specify column headings which are plotted on left and right side of
-#' the forest plot, respectively. For certain columns predefined
-#' labels exist. For other columns, the column name will be used as a
-#' label. It is possible to only provide labels for new columns (see
-#' \code{\link{forest.meta}} examples). Otherwise the length of
-#' \code{leftlabs} and \code{rightlabs} must be the same as the number
-#' of printed columns, respectively. The value \code{NA} can be used
-#' to specify columns which should use default labels.
-#' 
+#' @return
+#' Invisibly returns a list with information about the forest plot,
+#' including the selected columns (\code{leftcols}, \code{rightcols}),
+#' their headings (\code{leftlabs}, \code{rightlabs}), formatted results,
+#' and graphical settings (see \code{\link{forest.meta}}).
+#' Element \code{data} contains the dataset used to create the forest plot.
+#'
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
-#' 
+#'
 #' @seealso \code{\link{forest.meta}}, \code{\link{metacum}},
 #'   \code{\link{settings.meta}}
 #' 
@@ -116,41 +149,37 @@
 
 forest.metacum <- function(x,
                            #
-                           leftcols = NULL, leftlabs = NULL,
-                           rightcols = NULL, rightlabs = NULL,
+                           layout = gs("layout"),
                            #
                            prediction = x$prediction,
                            overall = x$overall,
-                           just.addcols = "right",
-                           smlab = "Cumulative Meta-Analysis",
+                           #
+                           leftcols = NULL, rightcols = NULL,
+                           leftlabs = NULL, rightlabs = NULL,
+                           #
+                           lab.NA = gs("lab.NA"),
+                           #
+                           col = NULL,
+                           print = NULL,
                            type = "square",
-                           layout = gs("layout"),
-                           lab.NA = ".",
+                           digits = NULL,
                            #
                            backtransf = x$backtransf,
-                           #
                            big.mark = gs("big.mark"),
-                           digits = gs("digits.forest"),
-                           digits.pval = gs("digits.pval"),
-                           digits.tau2 = gs("digits.tau2"),
-                           digits.tau = gs("digits.tau"),
-                           digits.I2 = gs("digits.I2"),
-                           digits.cid = gs("digits.cid"),
-                           digits.percent = 1,
                            #
-                           col = gs("col.study"),
-                           col.bg = 
-                             ifelse(type == "diamond",
-                                  gs("col.diamond"), gs("col.square")),
-                           col.border =
-                             ifelse(type == "diamond",
-                                    gs("col.diamond.lines"),
-                                    gs("col.square.lines")),
-                           col.bg.predict = gs("col.predict"),
-                           col.border.predict = gs("col.predict.lines"),
+                           main = "Cumulative Meta-Analysis",
                            #
-                           addrows.below.overall = 1L * details,
-                           details = gs("forest.details"),
+                           # Output
+                           #
+                           filename = NULL,
+                           path = NULL,
+                           device = NULL, device.args = NULL,
+                           units = "in",
+                           height = NULL, width = NULL,
+                           dpi = 300,
+                           dev.off = NULL,
+                           new = TRUE,
+                           #
                            ...) {
   
   #
@@ -162,27 +191,29 @@ forest.metacum <- function(x,
   chkclass(x, c("metacum", "metainf"))
   x <- updateversion(x)
   #
-  type <- setchar(type, c("square", "diamond", "circle", "squarediamond"))
-  #
-  just.addcols <- setchar(just.addcols, c("left", "center", "right"))
-  #
-  sfsp <- sys.frame(sys.parent())
-  mc <- match.call()
+  layout <- setchar(layout, c(gs("layout4forest"), "subgroup"), length = 1)
   #
   common <- x$pooled == "common"
   #
-  if (!missing(prediction))
-    prediction <- catch("prediction", mc, x, sfsp)
-  #
   k.all <- length(x$TE)
   #
-  if (length(prediction) > 1 && length(prediction) != k.all)
-    stop("Argument 'prediction' must be of length 1 or number of studies.",
-         call. = FALSE)
+  # Drop internally used arguments from '...'
   #
-  if (!is.logical(prediction))
-    stop("Argument 'prediction' must be of type logical.",
-         call. = FALSE)
+  drop_args <- c(
+    "col.study", "col.square", "col.square.lines", "type.study",
+    "weight.study", "common", "random", "overall.hetstat",
+    "test.overall", "test.overall.common", "test.overall.random",
+    "data.pooled")
+  #
+  replace_args <- list(col.study = "col", col.square = "col.bg",
+                       col.square.lines = "col.border")
+  #
+  args <- drop_from_dots(list(...), drop_args, replace_args)
+  #
+  if (!missing(prediction))
+    prediction <- catch(enquo(prediction), x)
+  #
+  chklogical(prediction, length = c(1, k.all))
   #
   if (length(prediction) == 1)
     prediction <- rep(prediction, k.all)
@@ -191,84 +222,391 @@ forest.metacum <- function(x,
   #
   chklogical(overall)
   #
-  layout <- setchar(layout, c("meta", "BMJ", "RevMan5", "JAMA"))
+  just.addcols <- "right"
+  #
+  type <- setchar(type, c("square", "diamond", "circle", "squarediamond"))
+  #
+  # Define colours
+  #
+  col <- as_named_list(col)
+  col.list <- merge_legacy(col, args, col_defaults(x, "metacum"))
+  #
+  col <- col.list$res
+  args <- col.list$args
+  #
+  cols <- col.list$res
+  #
+  col <- cols$col
+  col.bg <- cols$bg
+  col.border <- cols$border
+  col.bg.predict <- cols$bg.predict
+  col.border.predict <- cols$border.predict
+  #
+  # Colour schemes for layouts:
+  # - colors[1] - vertical line for common effect or random effects model
+  # - colors[2] - diamond for meta-analysis results
+  # - colors[3] - outer lines of diamonds
+  # - colors[4] - square  colour
+  # - colors[5] - outer lines of squares
+  # - colors[6] - line color (axes, reference line, header lines)
+  # - colors[7] - prediction interval
+  # - colors[8] - outer lines of prediction intervals
+  # - colors[9] - subgroups
+  # - colors[10] - color within squares or circles
+  # - colors[11] - color of circles and outer lines of circles
+  #
+  colors <- layout_colors(layout)
+  #
+  col <- replaceNULL(col, colors[1])
+  #
+  if (is.null(col.bg))
+    col.bg <- ifelse(type == "diamond", colors[2],
+                     ifelse(type == "circle", colors[11], colors[4]))
+  #
+  if (is.null(col.border))
+    col.border <- ifelse(type == "diamond", colors[3],
+                         ifelse(type == "circle", colors[11], colors[5]))
+  #
+  if (is.null(col.bg.predict))
+    col.bg.predict <- colors[7]
+  #
+  if (is.null(col.border.predict))
+    col.border.predict = colors[8]
+  #
+  # Print information
+  #
+  print.list <- merge_legacy(print, args, print_defaults(x, "metacum"))
+  #
+  print <- print.list$res
+  args <- print.list$args
+  #
+  print.pval <- print$pval
+  print.stat <- print$stat
+  print.I2 <- print$I2
+  print.I2.ci <- print$I2.ci
+  print.tau2 <- print$tau2
+  print.tau2.ci <- print$tau2.ci
+  print.tau <- print$tau
+  print.tau.ci <- print$tau.ci
+  print.Q <- print$Q
+  print.pval.Q <- print$pval.Q
+  print.prob <- print$prob
+  #
+  chklogical(print.pval)
+  chklogical(print.stat)
+  chklogical(print.I2)
+  chklogical(print.I2.ci)
+  chklogical(print.tau2)
+  chklogical(print.tau2.ci)
+  chklogical(print.tau)
+  chklogical(print.tau.ci)
+  chklogical(print.Q)
+  chklogical(print.pval.Q)
+  chklogical(print.prob)
+  #
+  print.tau2.ci <- print.tau2.ci && print.tau2
+  print.tau.ci <- print.tau.ci && print.tau
+  print.I2.ci <- print.I2.ci && print.I2
+  #
+  print.prob.below.null <- print.prob &&
+    !is.null(x$prop.cid.below.null) && !(all(is.na(x$prop.cid.below.null)))
+  print.prob.above.null <- print.prob &&
+    !is.null(x$prop.cid.above.null) && !(all(is.na(x$prop.cid.above.null)))
+  #
+  print.prob <- print.prob.below.null || print.prob.above.null
   #
   chklogical(backtransf)
+  #
+  # Digits
+  #
+  digits <- as_named_list(digits)
+  digits.list <- merge_legacy(digits, args, digits_defaults("metacum"))
+  #
+  digitss <- digits.list$res
+  args <- digits.list$args
+  #
+  digits <- digitss$digits
+  digits.pval <- digitss$pval
+  digits.stat <- digitss$stat
+  digits.tau2 <- digitss$tau2
+  digits.tau <- digitss$tau
+  digits.I2 <- digitss$I2
+  digits.cid <- digitss$cid
+  digits.percent <- digitss$percent
+  #
   chknumeric(digits, min = 0, length = 1)
   chknumeric(digits.pval, min = 0, length = 1)
+  chknumeric(digits.stat, min = 0, length = 1)
   chknumeric(digits.tau2, min = 0, length = 1)
   chknumeric(digits.tau, min = 0, length = 1)
   chknumeric(digits.I2, min = 0, length = 1)
   chknumeric(digits.cid, min = 0, length = 1)
   chknumeric(digits.percent, min = 0, length = 1)
-  chknumeric(addrows.below.overall, length = 1)
   #
-  chklogical(details)
-  #
-  missing.leftcols <- missing(leftcols)
-  missing.rightcols <- missing(rightcols)
-  #
-  missing.col.bg <- missing(col.bg)
-  missing.col.border <- missing(col.border)
+  print.pval <- print.pval && ! all(is.na(x$pval))
+  print.stat <- print.stat && !all(is.na(x$statistic))
   
   
-  avail.prop.cid.below.null <-
-    !is.null(x$prop.cid.below.null) && !(all(is.na(x$prop.cid.below.null)))
-  avail.prop.cid.above.null <-
-    !is.null(x$prop.cid.above.null) && !(all(is.na(x$prop.cid.above.null)))
   #
-  avail.prop.cid <- avail.prop.cid.below.null | avail.prop.cid.above.null
   #
-  pvalNA <- all(is.na(x$pval))
+  # (2) Columns and labels shown in forest plot
   #
-  if (is.null(leftcols))
+  #
+  
+  # Columns and labels on the left side
+  #
+  if (is.null(leftcols)) {
     leftcols <- "studlab"
+    #
+    if (layout != "meta8") {
+      if (print.tau2)
+        leftcols <- c(leftcols, "tau2")
+      #
+      if (print.tau2.ci)
+        leftcols <- c(leftcols, "tau2.ci")
+      #
+      if (print.tau)
+        leftcols <- c(leftcols, "tau")
+      #
+      if (print.tau.ci)
+        leftcols <- c(leftcols, "tau.ci")
+      #
+      if (print.I2)
+        leftcols <- c(leftcols, "I2")
+      #
+      if (print.I2.ci)
+        leftcols <- c(leftcols, "I2.ci")
+      #
+      if (print.Q)
+        leftcols <- c(leftcols, "Q")
+      #
+      if (print.pval.Q)
+        leftcols <- c(leftcols, "pval.Q")
+      #
+      if (print.prob.below.null)
+        leftcols <- c(leftcols, "prop.cid.below.null")
+      #
+      if (print.prob.above.null)
+        leftcols <- c(leftcols, "prop.cid.above.null")
+      #
+      if (layout == "RevMan5" || layout == "JAMA")
+        leftcols <- c(leftcols, "effect.ci")
+      else if (layout != "BMJ")
+        leftcols <- c(leftcols, "effect", "ci")
+      #
+      if (print.stat && !(layout == "BMJ" || layout == "meta8"))
+        leftcols <- c(leftcols, "statistic")
+      #
+      if (print.pval && !(layout == "BMJ" || layout == "meta8"))
+        leftcols <- c(leftcols, "pval")
+    }
+  }
+  #
+  # Argument leftlabs
   #
   if (is.null(leftlabs))
-    leftlabs <- rep(NA, length(leftcols))
+    leftlabs <- rep_len(NA, length(leftcols))
+  else {
+    if (length(leftlabs) != length(leftcols))
+      stop("Argument 'leftlabs' must provide ", length(leftcols),
+           " labels (leftcols: ",
+           paste(leftcols, collapse = ", "), ")",
+           call. = FALSE)
+  }
+  #
+  if (print.tau2.ci && "tau2.ci" %in% leftcols &&
+      is.na(leftlabs[leftcols == "tau2.ci"]))
+    leftlabs[leftcols == "tau2.ci"] <- percent_label(x$level.hetstat)
+  #
+  if (print.tau.ci && "tau.ci" %in% leftcols &&
+      is.na(leftlabs[leftcols == "tau.ci"]))
+    leftlabs[leftcols == "tau.ci"] <- percent_label(x$level.hetstat)
+  #
+  if (print.I2.ci && "I2.ci" %in% leftcols &&
+      is.na(leftlabs[leftcols == "I2.ci"]))
+    leftlabs[leftcols == "I2.ci"] <- percent_label(x$level.hetstat)
+  
+  # Columns and labels on the right side
   #
   if (is.null(rightcols)) {
-    rightcols <- c("effect", "ci", if (!pvalNA) "pval", "tau2", "tau", "I2")
-    #
-    if (avail.prop.cid.below.null)
-      rightcols <- c(rightcols, "prop.cid.below.null")
-    #
-    if (avail.prop.cid.above.null)
-      rightcols <- c(rightcols, "prop.cid.above.null")
+    if (layout == "BMJ") {
+      rightcols <- c("effect.ci")
+      #
+      if (print.stat)
+        rightcols <- c(rightcols, "statistic")
+      #
+      if (print.pval)
+        rightcols <- c(rightcols, "pval")
+    }
+    else if (layout == "meta8") {
+      rightcols <- c("effect", "ci")
+      #
+      if (print.stat)
+        rightcols <- c(rightcols, "statistic")
+      #
+      if (print.pval)
+        rightcols <- c(rightcols, "pval")
+      #
+      if (print.tau2)
+        rightcols <- c(rightcols, "tau2")
+      #
+      if (print.tau2.ci)
+        leftcols <- c(leftcols, "tau2.ci")
+      #
+      if (print.tau)
+        rightcols <- c(rightcols, "tau")
+      #
+      if (print.tau.ci)
+        leftcols <- c(leftcols, "tau.ci")
+      #
+      if (print.I2)
+        rightcols <- c(rightcols, "I2")
+      #
+      if (print.I2.ci)
+        leftcols <- c(leftcols, "I2.ci")
+      #
+      if (print.prob.below.null)
+        rightcols <- c(rightcols, "prop.cid.below.null")
+      #
+      if (print.prob.above.null)
+        rightcols <- c(rightcols, "prop.cid.above.null")
+    }
+    else
+      rightcols <- FALSE
   }
+  #
+  # Argument rightlabs
   #
   if (is.null(rightlabs))
-    rightlabs <- rep(NA, length(rightcols))
-  #
-  print.tau2 <- any(c("tau2" %in% leftcols, "tau2" %in% rightcols))
-  print.tau <- any(c("tau" %in% leftcols, "tau" %in% rightcols))
-  print.I2 <- any(c("I2" %in% leftcols, "I2" %in% rightcols))
-  #
-  print.cid.below.null <- any(c("prop.cid.below.null" %in% leftcols,
-                                "prop.cid.below.null" %in% rightcols))
-  #
-  print.cid.above.null <- any(c("prop.cid.above.null" %in% leftcols,
-                                "prop.cid.above.null" %in% rightcols))
-  #
-  pval <- formatPT(x$pval, digits = digits.pval, lab.NA = lab.NA)
-  tau2 <- formatPT(x$tau2, digits = digits.tau2, lab.NA = lab.NA)
-  tau <- formatPT(x$tau, digits = digits.tau2, lab.NA = lab.NA)
-  I2 <- ifelse(is.na(x$I2), lab.NA,
-               paste0(formatPT(100 * x$I2, digits = digits.I2,
-                               lab.NA = lab.NA), "%"))
-  #
-  if (avail.prop.cid.below.null) {
-    x$prop.cid.below.null <-
-      ifelse(is.na(x$prop.cid.below.null), lab.NA,
-             paste0(formatPT(100 * x$prop.cid.below.null,
-                             digits = digits.percent), "%"))
+    rightlabs <- rep_len(NA, length(rightcols))
+  else {
+    if (length(rightlabs) != length(rightcols))
+      stop("Argument 'rightlabs' must provide ", length(rightcols),
+           " labels (rightcols: ",
+           paste(rightcols, collapse = ", "), ")",
+           call. = FALSE)
   }
   #
-  if (avail.prop.cid.above.null) {
-    x$prop.cid.above.null <-
-      ifelse(is.na(x$prop.cid.above.null), lab.NA,
-             paste0(formatPT(100 * x$prop.cid.above.null,
-                             digits = digits.percent), "%"))
+  if (print.tau2.ci && "tau2.ci" %in% rightcols &&
+      is.na(rightlabs[rightcols == "tau2.ci"]))
+    rightlabs[rightcols == "tau2.ci"] <- percent_label(x$level.hetstat)
+  #
+  if (print.tau.ci && "tau.ci" %in% 
+      rightcols && is.na(rightlabs[rightcols == "tau.ci"]))
+    rightlabs[rightcols == "tau.ci"] <- percent_label(x$level.hetstat)
+  #
+  if (print.I2.ci && "I2.ci" %in% rightcols &&
+      is.na(rightlabs[rightcols == "I2.ci"]))
+    rightlabs[rightcols == "I2.ci"] <- percent_label(x$level.hetstat)
+
+
+  #
+  #
+  # (3) Round and format results
+  #
+  #
+  
+  pval <- c(x$pval, if (overall) x$pval.pooled)
+  statistic <- c(x$statistic, if (overall) x$statistic.pooled)
+  #
+  tau2 <- c(x$tau2, if (overall) x$tau2.pooled)
+  tau <- c(x$tau, if (overall) x$tau.pooled)
+  I2 <- c(x$I2, if (overall) x$I2.pooled)
+  #
+  lower.tau2 <- c(x$lower.tau2, if (overall) x$lower.tau2.pooled)
+  upper.tau2 <- c(x$upper.tau2, if (overall) x$upper.tau2.pooled)
+  lower.tau <- c(x$lower.tau, if (overall) x$lower.tau.pooled)
+  upper.tau <- c(x$upper.tau, if (overall) x$upper.tau.pooled)
+  lower.I2 <- c(x$lower.I2, if (overall) x$lower.I2.pooled)
+  upper.I2 <- c(x$upper.I2, if (overall) x$upper.I2.pooled)
+  #
+  prop.cid.below.null <-
+    c(x$prop.cid.below.null, if (overall) x$prop.cid.below.null.pooled)
+  prop.cid.above.null <-
+    c(x$prop.cid.above.null, if (overall) x$prop.cid.above.null.pooled)
+  #
+  # Format statistics
+  #
+  pval <- formatPT(pval, digits = digits.pval, lab.NA = lab.NA)
+  statistic <- formatN(statistic, digits = digits.stat, lab.NA = lab.NA,
+                       big.mark = big.mark)
+  tau2 <- formatPT(tau2, digits = digits.tau2, lab.NA = lab.NA)
+  tau <- formatPT(tau, digits = digits.tau, lab.NA = lab.NA)
+  #
+  I2 <- percent_label(I2, "", digits.I2, formatN, lab.NA = lab.NA)
+  #
+  if (print.tau2.ci) {
+    tau2.ci <-
+      formatCI(lower.tau2, upper.tau2,
+               digits = digits.tau2, lab.NA = lab.NA, na.lab = TRUE)
+  }
+  #
+  if (print.tau.ci) {
+    tau.ci <-
+      formatCI(lower.tau, upper.tau,
+               digits = digits.tau, lab.NA = lab.NA, na.lab = TRUE)
+  }
+  #
+  if (print.I2.ci) {
+    I2.ci <-
+      formatCI(lower.I2, upper.I2, scale = 100, suffix = "%",
+               digits = digits.I2, lab.NA = lab.NA, na.lab = TRUE)
+  }
+  #
+  if (print.prob.below.null) {
+    prop.cid.below.null <-
+      percent_label(prop.cid.below.null, "", digits.percent, formatPT,
+                    lab.NA = lab.NA)
+  }
+  #
+  if (print.prob.above.null) {
+    prop.cid.above.null <-
+      percent_label(prop.cid.above.null, "", digits.percent, formatPT,
+                    lab.NA = lab.NA)
+  }
+  #
+  if (overall) {
+    pval.pooled <- pval[length(pval)]
+    pval <- pval[-length(pval)]
+    #
+    statistic.pooled <- statistic[length(statistic)]
+    statistic <- statistic[-length(statistic)]
+    #
+    tau2.pooled <- tau2[length(tau2)]
+    tau2 <- tau2[-length(tau2)]
+    #
+    tau.pooled <- tau[length(tau)]
+    tau <- tau[-length(tau)]
+    #
+    I2.pooled <- I2[length(I2)]
+    I2 <- I2[-length(I2)]
+    #
+    if (print.tau2.ci) {
+      tau2.ci.pooled <- tau2.ci[length(tau2.ci)]
+      tau2.ci <- tau2.ci[-length(tau2.ci)]
+    }
+    #
+    if (print.tau.ci) {
+      tau.ci.pooled <- tau.ci[length(tau.ci)]
+      tau.ci <- tau.ci[-length(tau.ci)]
+    }
+    #
+    if (print.I2.ci) {
+      I2.ci.pooled <- I2.ci[length(I2.ci)]
+      I2.ci <- I2.ci[-length(I2.ci)]
+    }
+    #
+    if (print.prob.below.null) {
+      prop.cid.below.null.pooled <-
+        prop.cid.below.null[length(prop.cid.below.null)]
+      prop.cid.below.null <- prop.cid.below.null[-length(prop.cid.below.null)]
+    }
+    #
+    if (print.prob.above.null) {
+      prop.cid.above.null.pooled <-
+        prop.cid.above.null[length(prop.cid.above.null)]
+      prop.cid.above.null <- prop.cid.above.null[-length(prop.cid.above.null)]
+    }
   }
   #
   x.tmp <- x
@@ -288,9 +626,9 @@ forest.metacum <- function(x,
             text.tau = gs("text.tau"), text.tau2 = gs("text.tau2"),
             #
             print.tau2 = print.tau2 | x$pooled == "random",
-            print.tau2.ci = FALSE,
+            print.tau2.ci = print.tau2.ci,
             print.tau = print.tau | x$pooled == "random",
-            print.tau.ci = FALSE,
+            print.tau.ci = print.tau.ci,
             #
             print.I2 = print.I2, text.I2 = gs("text.I2"),
             #
@@ -298,10 +636,10 @@ forest.metacum <- function(x,
             #
             forest = TRUE)
   #
-  if (avail.prop.cid)
+  if (print.prob)
     svd <- x$small.values == "desirable"
   #
-  if (avail.prop.cid.below.null) {
+  if (print.prob.below.null) {
     text.details <-
       paste0(text.details,
              paste0("\n- Lower decision threshold (",
@@ -311,7 +649,7 @@ forest.metacum <- function(x,
                             big.mark = big.mark)))
   }
   #
-  if (avail.prop.cid.above.null) {
+  if (print.prob.above.null) {
     text.details <-
       paste0(text.details,
              paste0("\n- Upper decision threshold (",
@@ -320,7 +658,6 @@ forest.metacum <- function(x,
                     formatN(x$cid.above.null, digits = digits.cid,
                             big.mark = big.mark)))
   }
-  
   
   #
   # Print prediction intervals in separate rows
@@ -348,13 +685,13 @@ forest.metacum <- function(x,
                rep("", k.all)),
                ncol = k.all, byrow = TRUE))
     #
-    if (print.cid.below.null)
+    if (print.prob)
       prop.cid.below.null <- as.vector(
         matrix(c(x$prop.cid.below.null,
                  rep("", k.all)),
                ncol = k.all, byrow = TRUE))
     #
-    if (print.cid.above.null)
+    if (print.prob)
       prop.cid.above.null <- as.vector(
         matrix(c(x$prop.cid.above.null,
                  rep("", k.all)),
@@ -362,27 +699,40 @@ forest.metacum <- function(x,
     #
     if (!is.null(col.bg))
       col.bg <- as.vector(
-        matrix(c(rep(col.bg, k.all),
-                 rep(col.bg.predict, k.all)),
+        matrix(c(rep(col.bg, k.all), rep(col.bg.predict, k.all)),
                ncol = k.all, byrow = TRUE))
     #
     if (!is.null(col.border))
       col.border <- as.vector(
-        matrix(c(rep(col.border, k.all),
-                 rep(col.border.predict, k.all)),
+        matrix(c(rep(col.border, k.all), rep(col.border.predict, k.all)),
                ncol = k.all, byrow = TRUE))
     #
     sel.pred <- as.vector(
       matrix(c(rep(TRUE, k.all), prediction),
              ncol = k.all, byrow = TRUE))
     #
-    m <- metagen(TE[sel.pred], seTE[sel.pred], studlab = studlab[sel.pred],
+    m <- metagen(TE[sel.pred], seTE[sel.pred],
+                 lower = lower[sel.pred],
+                 upper = upper[sel.pred],
+                 studlab = studlab[sel.pred],
+                 #
                  common = common, random = !common,
                  prediction = any(prediction),
                  overall = overall,
+                 #
                  sm = x$sm,
+                 transf = TRUE,
                  backtransf = backtransf,
                  func.backtransf = x$func.backtransf,
+                 #
+                 pscale = x$pscale, irscale = x$irscale, irunit = x$irunit,
+                 #
+                 level = x$level,
+                 level.ma = x$level.ma,
+                 level.predict = x$level.predict,
+                 level.hetstat = x$level.hetstat,
+                 #
+                 method.I2 = x$method.I2,
                  #
                  null.effect = x$null.effect,
                  #
@@ -391,35 +741,46 @@ forest.metacum <- function(x,
                  #
                  method.tau = "DL")
     #
-    m$lower <- lower[sel.pred]
-    m$upper <- upper[sel.pred]
+    if (x$sm == "PFT") {
+      m$n.harmonic.mean <- as.vector(
+        matrix(c(x$n.harmonic.mean, x$n.harmonic.mean),
+               ncol = k.all, byrow = TRUE))[sel.pred]
+      m$n.harmonic.mean.pooled <- x$n.harmonic.mean.pooled
+    }
+    else if (x$sm == "IRFT") {
+      m$t.harmonic.mean <- as.vector(
+        matrix(c(x$t.harmonic.mean, x$t.harmonic.mean),
+               ncol = k.all, byrow = TRUE))[sel.pred]
+      m$t.harmonic.mean.pooled <- x$t.harmonic.mean.pooled
+    }
     #
     m$pval <- as.vector(
       matrix(c(pval, rep("", k.all)),
              ncol = k.all, byrow = TRUE))[sel.pred]
     #
-    m$I2 <- as.vector(
-      matrix(c(I2, rep("", k.all)),
-             ncol = k.all, byrow = TRUE))[sel.pred]
-    m$tau2 <- as.vector(
-      matrix(c(tau2, rep("", k.all)),
-             ncol = k.all, byrow = TRUE))[sel.pred]
-    m$tau <- as.vector(
-      matrix(c(tau, rep("", k.all)),
+    m$statistic <- as.vector(
+      matrix(c(statistic, rep("", k.all)),
              ncol = k.all, byrow = TRUE))[sel.pred]
     #
-    if (print.cid.below.null)
+    m$I2 <- as.vector(matrix(c(I2, rep("", k.all)),
+                             ncol = k.all, byrow = TRUE))[sel.pred]
+    #
+    m$tau2 <- as.vector(matrix(c(tau2, rep("", k.all)),
+                               ncol = k.all, byrow = TRUE))[sel.pred]
+    #
+    m$tau <- as.vector(matrix(c(tau, rep("", k.all)),
+                              ncol = k.all, byrow = TRUE))[sel.pred]
+    #
+    if (print.prob)
       m$prop.cid.below.null <- prop.cid.below.null[sel.pred]
     #
-    if (print.cid.above.null)
+    if (print.prob)
       m$prop.cid.above.null <- prop.cid.above.null[sel.pred]
     #
     type.study <- rep(c(type, "predict"), k.all)[sel.pred]
     #
-    if (!is.null(col.bg))
-      col.bg <- col.bg[sel.pred]
-    if (!is.null(col.border))
-      col.border <- col.border[sel.pred]
+    col.bg <- col.bg[sel.pred]
+    col.border <- col.border[sel.pred]
   }
   #
   else {
@@ -431,33 +792,64 @@ forest.metacum <- function(x,
     #
     studlab <- x$studlab
     #
-    m <- metagen(TE, seTE, studlab = studlab,
+    m <- metagen(TE, seTE,
+                 lower = lower, upper = upper,
+                 studlab = studlab,
+                 #
                  common = common, random = !common,
                  prediction = any(prediction),
                  overall = overall,
+                 #
                  sm = x$sm,
+                 #
+                 transf = TRUE,
                  backtransf = backtransf,
                  func.backtransf = x$func.backtransf,
                  #
                  null.effect = x$null.effect,
+                 #
+                 pscale = x$pscale, irscale = x$irscale, irunit = x$irunit,
+                 #
+                 level = x$level,
+                 level.ma = x$level.ma,
+                 level.predict = x$level.predict,
+                 level.hetstat = x$level.hetstat,
+                 #
+                 method.I2 = x$method.I2,
                  #
                  label.left = x$label.left,
                  label.right = x$label.right,
                  #
                  method.tau = "DL")
     #
-    m$lower <- lower
-    m$upper <- upper
+    if (x$sm == "PFT") {
+      m$n.harmonic.mean <- x$n.harmonic.mean
+      m$n.harmonic.mean.pooled <- x$n.harmonic.mean.pooled
+    }
+    else if (x$sm == "IRFT") {
+      m$t.harmonic.mean <- x$t.harmonic.mean
+      m$t.harmonic.mean.pooled <- x$t.harmonic.mean.pooled
+    }
     #
     m$pval <- pval
+    m$statistic <- statistic
     m$I2 <- I2
     m$tau2 <- tau2
     m$tau <- tau
     #
-    if (print.cid.below.null)
+    if (print.tau2.ci)
+      m$tau2.ci <- tau2.ci
+    #
+    if (print.tau.ci)
+      m$tau.ci <- tau.ci
+    #
+    if (print.I2.ci)
+      m$I2.ci <- I2.ci
+    #
+    if (print.prob)
       m$prop.cid.below.null <- x$prop.cid.below.null
     #
-    if (print.cid.below.null)
+    if (print.prob)
       m$prop.cid.above.null <- x$prop.cid.above.null
     #
     type.study <- type
@@ -466,14 +858,14 @@ forest.metacum <- function(x,
   m$TE.common <- x$TE.pooled
   m$lower.common <- x$lower.pooled
   m$upper.common <- x$upper.pooled
-  m$statistic.common <- x$statistic.pooled
-  m$pval.common <- x$pval.pooled
+  m$statistic.common <- statistic.pooled
+  m$pval.common <- pval.pooled
   #
   m$TE.random <- x$TE.pooled
   m$lower.random <- x$lower.pooled
   m$upper.random <- x$upper.pooled
-  m$statistic.random <- x$statistic.pooled
-  m$pval.random <- x$pval.pooled
+  m$statistic.random <- statistic.pooled
+  m$pval.random <- pval.pooled
   #
   m$df.random <- x$df.random.pooled
   #
@@ -482,9 +874,6 @@ forest.metacum <- function(x,
     m$upper.predict <- x$upper.predict.pooled
     m$method.predict <- x$method.predict
   }
-  #
-  m$level <- x$level.ma <- x$level.ma
-  m$level.predict <- x$level.predict
   #
   m$method <- x$method
   m$method.random <- x$method.random
@@ -498,177 +887,90 @@ forest.metacum <- function(x,
   m$tau.preset <- x$tau.preset
   m$TE.tau <- x$TE.tau
   #
-  m$method.I2 <- x$method.I2
-  #
   m$k <- x$k.pooled
   m$k.study <- x$k.study.pooled
   m$k.all <- x$k.all.pooled
   m$k <- x$k.TE.pooled
   #
-  if (any(rightcols %in% c("ci", "effect.ci")) |
-      any(leftcols %in% c("ci", "effect.ci"))) {
-    level.ma <- x$level.ma
-    level.predict <- x$level.predict
-    #
-    if (any(prediction)) {
-      if (level.ma == level.predict)
-        ci.lab <- paste0(100 * level.ma, "% CI/PI")
-      else
-        ci.lab <-
-          paste0(100 * level.ma, "% CI / ", 100 * level.predict, "% PI")
-    }
-    else
-      ci.lab <- paste0(100 * level.ma, "% CI")
-    #
-    sel.left <- leftcols == "ci"
-    #
-    if (any(sel.left) && is.na(leftlabs[sel.left]))
-      leftlabs[sel.left] <- ci.lab
-    #
-    sel.right <- rightcols == "ci"
-    #
-    if (any(sel.right) && is.na(rightlabs[sel.right]))
-      rightlabs[sel.right] <- ci.lab
-    #
-    sel.left <- leftcols == "effect.ci"
-    #
-    if (any(sel.left) && is.na(leftlabs[sel.left]))
-      leftlabs[sel.left] <-
-        paste(smlab(x$sm, backtransf, x$pscale, x$irscale), ci.lab)
-    #
-    sel.right <- rightcols == "effect.ci"
-    #
-    if (any(sel.right) && is.na(rightlabs[sel.right]))
-      rightlabs[sel.right] <-
-        paste(smlab(x$sm, backtransf, x$pscale, x$irscale), ci.lab)
-  }
-  #
-  # Set column labels for decision threshold probabilites
-  #
-  if (print.cid.below.null) {
-    sel.left <- leftcols == "prop.cid.below.null"
-    #
-    if (any(sel.left) && is.na(leftlabs[sel.left]))
-      leftlabs[sel.left] <-
-        paste0("P(",
-               if (x$small.values == "desirable") "benefit" else "harm",
-               ")")
-    #
-    sel.right <- rightcols == "prop.cid.below.null"
-    #
-    if (any(sel.right) && is.na(rightlabs[sel.right]))
-      rightlabs[sel.right] <-
-      paste0("P(",
-             if (x$small.values == "desirable") "benefit" else "harm",
-             ")")
-  }
-  #
-  if (print.cid.above.null) {
-    sel.left <- leftcols == "prop.cid.above.null"
-    #
-    if (any(sel.left) && is.na(leftlabs[sel.left]))
-      leftlabs[sel.left] <-
-        paste0("P(",
-               if (x$small.values == "desirable") "harm" else "benefit",
-               ")")
-    #
-    sel.right <- rightcols == "prop.cid.above.null"
-    #
-    if (any(sel.right) && is.na(rightlabs[sel.right]))
-      rightlabs[sel.right] <-
-      paste0("P(",
-             if (x$small.values == "desirable") "harm" else "benefit",
-             ")")
-  }
-  #
   m$.text.details.methods <- text.details
+  
+  # Row with overall results
   #
-  # Move columns to left side of forest plot for JAMA and RevMan5 layouts
-  #
-  if (missing.leftcols & missing.rightcols & layout %in% c("JAMA", "RevMan5")) {
-    leftcols <- c(leftcols, rightcols[-(1:2)], rightcols[1:2])
-    rightcols <- NULL
-    leftlabs <- c(leftlabs, rightlabs[-(1:2)], rightlabs[1:2])
-    rightlabs <- NULL
+  if (overall) {
+    data.p <- data.frame(tau2 = tau2.pooled, tau = tau.pooled, I2 = I2.pooled)
+    #
+    if (print.tau2.ci)
+      data.p$tau2.ci <- tau2.ci.pooled
+    #
+    if (print.tau.ci)
+      data.p$tau.ci <- tau.ci.pooled
+    #
+    if (print.I2.ci)
+      data.p$I2.ci <- I2.ci.pooled
+    #
+    if (print.prob.below.null)
+      data.p$prop.cid.below.null <- prop.cid.below.null.pooled
+    #
+    if (print.prob.above.null)
+      data.p$prop.cid.above.null <- prop.cid.above.null.pooled
   }
+  else
+    data.p <- NULL
+
+
   #
-  # Use default colours for JAMA and RevMan5 layouts
   #
-  if (missing.col.bg & layout %in% c("JAMA", "RevMan5"))
-    col.bg <- NULL
+  # (4) Create forest plot
   #
-  if (missing.col.border & layout %in% c("JAMA", "RevMan5"))
-    col.border <- NULL
-  
-  
-  data.p <-
-    data.frame(pval = formatPT(x$pval.pooled, digits = digits.pval,
-                               lab.NA = lab.NA),
-               tau2 = formatPT(x$tau2.pooled, digits = digits.tau2,
-                               lab.NA = lab.NA),
-               tau = formatPT(x$tau.pooled, digits = digits.tau,
-                              lab.NA = lab.NA),
-               I2 = ifelse(is.na(x$I2.pooled), lab.NA,
-                           paste0(formatPT(100 * x$I2.pooled,
-                                           digits = digits.I2,
-                                           lab.NA = lab.NA), "%")))
   #
-  if (avail.prop.cid.below.null) {
-    data.p$prop.cid.below.null <-
-      ifelse(is.na(x$prop.cid.below.null.pooled), lab.NA,
-             paste0(formatPT(100 * x$prop.cid.below.null.pooled,
-                             digits = digits.percent), "%"))
-  }
-  #
-  if (avail.prop.cid.above.null) {
-    data.p$prop.cid.above.null <-
-      ifelse(is.na(x$prop.cid.above.null.pooled), lab.NA,
-             paste0(formatPT(100 * x$prop.cid.above.null.pooled,
-                             digits = digits.percent), "%"))
-  }
-  
-  
+
   class(m) <- c(class(m), class(x))
   m$classes <- x$classes
   #
-  dots_list <- drop_from_dots(list(...),
-                              c("col.study", "col.square", "col.square.lines",
-                                "overall.hetstat", "overall.hetstat",
-                                "data.pooled"),
-                              c("col", "col.bg", "col.border",
-                                "col.bg.predict", "col.border.predict",
-                                ""))
-  #
-  args_list <-
+  forest_args <-
     list(x = m,
-         leftcols = leftcols, leftlabs = leftlabs,
-         rightcols = rightcols, rightlabs = rightlabs,
-         overall.hetstat = FALSE,
-         type.study = type.study,
-         weight.study = "same",
-         lab.NA = lab.NA, smlab = smlab,
-         data.pooled = data.p,
-         just.addcols = just.addcols,
          #
          layout = layout,
+         #
+         leftcols = leftcols, leftlabs = leftlabs,
+         rightcols = rightcols, rightlabs = rightlabs,
+         #
+         test.overall = FALSE,
+         test.overall.common = FALSE, test.overall.random = FALSE,
+         overall.hetstat = FALSE,
+         #
+         type.study = type.study,
+         weight.study = "same",
+         lab.NA = lab.NA,
+         #
+         main = main,
+         data.pooled = data.p,
+         just.addcols = just.addcols,
          #
          backtransf = backtransf,
          #
          big.mark = big.mark,
          #
-         digits = digits,
-         digits.tau2 = digits.tau2,
-         digits.tau = digits.tau,
-         digits.I2 = digits.I2,
+         col = list(study = col, square = col.bg, square.lines = col.border),
          #
-         addrows.below.overall = addrows.below.overall,
+         digits = list(digits = digits,
+                       pval = digits.pval, stat = digits.stat,
+                       tau2 = digits.tau2, tau = digits.tau,
+                       I2 = digits.I2),
          #
-         col.study = col,
-         col.square = col.bg, col.square.lines = col.border,
+         # Output
          #
-         details = details)
+         filename = filename,
+         path = path,
+         device = device, device.args = device.args,
+         units = units,
+         height = height, width = width,
+         dpi = dpi,
+         dev.off = dev.off,
+         new = new
+    )
   #
-  res <- do.call("forest.meta", c(args_list, dots_list))
+  res <- do.call("forest.meta", c(forest_args, args))
   #
   invisible(res)
 }

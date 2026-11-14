@@ -44,8 +44,8 @@
 #'   \code{"if0all"}, or \code{"all"}), see \code{\link{metabin}}.
 #' @param allstudies A logical indicating if studies with zero or all
 #'   events in two treatment arms are to be included in the
-#'   meta-analysis (applies only if \code{sm} is equal to \code{"RR"}
-#'   or \code{"OR"}).
+#'   meta-analysis (applies only if \code{sm} is equal to \code{"OR"},
+#'   \code{"DOR"}, \code{"RR"}, or \code{"VE"}).
 #' @param relative.effects A logical indicating whether treatment estimates
 #'   and standard errors provided in \code{TE} and \code{seTE} are relative
 #'   treatment effects.
@@ -493,6 +493,11 @@ pairwise <- function(treat,
   missing.keep.all.comparisons <- missing(keep.all.comparisons)
   missing.varnames <- missing(varnames)
   #
+  if (!is.null(sm) && is_single(sm))
+    stop("Summary measure '", sm, "' is only available for single-arm ",
+         "meta-analysis and cannot be used in pairwise().",
+         call. = FALSE)
+  #
   chknumeric(incr, min = 0, length = 1)
   chklogical(allstudies)
   #
@@ -557,16 +562,11 @@ pairwise <- function(treat,
   #
   
   nulldata <- is.null(data)
-  sfsp <- sys.frame(sys.parent())
-  mc <- match.call()
-  #
-  if (nulldata)
-    data <- sfsp
   #
   #
   # Catch studlab, treat, agent, dose, event, n, mean, sd, time from data:
   #
-  treat <- catch("treat", mc, data, sfsp)
+  treat <- catch(enquo(treat), data)
   #
   if (inherits(treat, "pairwise")) {
     is.pairwise <- TRUE
@@ -632,18 +632,18 @@ pairwise <- function(treat,
       keep.all.comparisons <- TRUE
     chklogical(keep.all.comparisons)
     #
-    agent <- catch("agent", mc, data, sfsp)
-    dose <- catch("dose", mc, data, sfsp)
+    agent <- catch(enquo(agent), data)
+    dose <- catch(enquo(dose), data)
     #
-    studlab <- catch("studlab", mc, data, sfsp)
+    studlab <- catch(enquo(studlab), data)
     #
-    event <- catch("event", mc, data, sfsp)
-    n <- catch("n", mc, data, sfsp)
-    mean <- catch("mean", mc, data, sfsp)
-    sd <- catch("sd", mc, data, sfsp)
-    TE <- catch("TE", mc, data, sfsp)
-    seTE <- catch("seTE", mc, data, sfsp)
-    time <- catch("time", mc, data, sfsp)
+    event <- catch(enquo(event), data)
+    n <- catch(enquo(n), data)
+    mean <- catch(enquo(mean), data)
+    sd <- catch(enquo(sd), data)
+    TE <- catch(enquo(TE), data)
+    seTE <- catch(enquo(seTE), data)
+    time <- catch(enquo(time), data)
     #
     avail.studlab <- !is.null(studlab)
     #
@@ -1595,8 +1595,10 @@ pairwise <- function(treat,
         #
         sparse <- switch(sm,
                          OR = (n.zeros > 0) | (n.all > 0),
-                         RD = (n.zeros > 0) | (n.all > 0),
+                         DOR = (n.zeros > 0) | (n.all > 0),
                          RR = (n.zeros > 0) | (n.all > 0),
+                         VE = (n.zeros > 0) | (n.all > 0),
+                         RD = (n.zeros > 0) | (n.all > 0),
                          ASD = rep(FALSE, length(n.zeros)))
         #
         if (!allincr & !addincr)

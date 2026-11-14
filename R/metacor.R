@@ -1,10 +1,10 @@
 #' Meta-analysis of correlations
-#' 
+#'
 #' @description
 #' Calculation of common effect and random effects estimates for
 #' meta-analyses with correlations; inverse variance weighting is used
 #' for pooling.
-#' 
+#'
 #' @param cor Correlations.
 #' @param n Number of observations.
 #' @param studlab An optional vector with study labels.
@@ -65,8 +65,8 @@
 #' @param method.common.ci A character string indicating which method
 #'   is used to calculate confidence interval and test statistic for
 #'   common effect estimate (see \code{\link{meta-package}}).
-#' @param method.random.ci A character string indicating which method
-#'   is used to calculate confidence interval and test statistic for
+#' @param method.random.ci A character string or vector indicating which methods
+#'   are used to calculate confidence intervals and test statistics for the
 #'   random effects estimate (see \code{\link{meta-package}}).
 #' @param adhoc.hakn.ci A character string indicating whether an
 #'   \emph{ad hoc} variance correction should be applied in the case
@@ -138,7 +138,7 @@
 #'   estimate the between-study variance \eqn{\tau^2}. This argument
 #'   is passed on to \code{\link[metafor]{rma.uni}}.
 #' @param \dots Additional arguments (to catch deprecated arguments).
-#' 
+#'
 #' @details
 #' This function conducts common effect and random effects meta-analysis of
 #' correlations based either on Fisher's z transformation of correlations
@@ -146,36 +146,44 @@
 #' (\code{sm = "COR"}) (see Cooper et al., 2009, p264-5 and p273-4). Note, the
 #' input to argument \code{cor} is always correlations and not Fisher's z
 #' transformed correlations if \code{sm = "ZCOR"}.
-#' 
+#'
 #' Only few statisticians would advocate the use of untransformed correlations
 #' unless sample sizes are very large (see Cooper et al., 2009, p265). The
 #' artificial example given below shows that the smallest study gets the largest
 #' weight if correlations are combined directly because the correlation is
 #' closest to 1.
-#' 
+#'
 #' A three-level random effects meta-analysis model (Van den Noortgate
 #' et al., 2013) is utilised if argument \code{cluster} is used and at
 #' least one cluster provides more than one estimate. Internally,
 #' \code{\link[metafor]{rma.mv}} is called to conduct the analysis and
 #' \code{\link[metafor]{weights.rma.mv}} with argument \code{type =
 #' "rowsum"} is used to calculate random effects weights.
-#' 
+#'
+#' Cluster-robust variance estimators (Tipton and Pustejovsky, 2015;
+#' Pustejovsky and Tipton, 2022) are available for univariate random effects
+#' and three-level models (argument \code{method.random.ci} equal to
+#' \code{"CR0"}, \code{"CR1"}, or \code{"CR2"}). Internally,
+#' \code{\link[metafor]{rma.uni}} or \code{\link[metafor]{rma.mv}} is called
+#' and then passed to \code{\link[metafor]{robust}}. For univariate random
+#' effects models, study labels (argument \code{studlab}) are used as clusters.
+#'
 #' Default settings are utilised for several arguments (assignments
 #' using \code{\link{gs}} function). These defaults can be changed for
 #' the current R session using the \code{\link{settings.meta}}
 #' function.
-#' 
+#'
 #' Furthermore, R function \code{\link{update.meta}} can be used to
 #' rerun a meta-analysis with different settings.
 #'
 #' \subsection{Subgroup analysis}{
-#' 
+#'
 #' Argument \code{subgroup} can be used to conduct subgroup analysis for
 #' a categorical covariate. The \code{\link{metareg}} function can be
 #' used instead for more than one categorical covariate or continuous
 #' covariates.
 #' }
-#' 
+#'
 #' \subsection{Exclusion of studies from meta-analysis}{
 #'
 #' Arguments \code{subset} and \code{exclude} can be used to exclude
@@ -185,9 +193,9 @@
 #' \code{exclude} (see Examples in \code{\link{metagen}}).
 #' Meta-analysis results are the same for both arguments.
 #' }
-#' 
+#'
 #' \subsection{Presentation of meta-analysis results}{
-#' 
+#'
 #' Internally, both common effect and random effects models are
 #' calculated regardless of values choosen for arguments
 #' \code{common} and \code{random}. Accordingly, the estimate
@@ -203,53 +211,65 @@
 #' A prediction interval will only be shown if \code{prediction =
 #' TRUE}.
 #' }
-#' 
+#'
 #' @note
 #' The function \code{\link{metagen}} is called internally to
 #' calculate individual and overall treatment estimates and standard
 #' errors.
-#' 
+#'
 #' @return
 #' An object of class \code{c("metacor", "meta")} with corresponding
 #' generic functions (see \code{\link{meta-object}}).
-#' 
+#'
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
-#' 
+#'
 #' @seealso \code{\link{meta-package}}, \code{\link{update.meta}},
 #'   \code{\link{metacont}}, \code{\link{metagen}},
 #'   \code{\link{print.meta}}
-#' 
+#'
 #' @references
 #' Cooper H, Hedges LV, Valentine JC (2009):
 #' \emph{The Handbook of Research Synthesis and Meta-Analysis},
 #' 2nd Edition.
 #' New York: Russell Sage Foundation
 #'
+#' Pustejovsky JE, Tipton E (2022):
+#' Meta-Analysis with robust variance estimation: Expanding the range of
+#' working models.
+#' \emph{Prevention Science},
+#' \bold{23}, 425--38
+#'
+#' Tipton E, Pustejovsky JE (2015):
+#' Small-sample adjustments for tests of moderators and model fit using
+#' robust variance estimation in meta-regression.
+#' \emph{Journal of Educational and Behavioral Statistics},
+#' \bold{40}, 604--34
+#'
 #' Van den Noortgate W, López-López JA, Marín-Martínez F, Sánchez-Meca J (2013):
 #' Three-level meta-analysis of dependent effect sizes.
 #' \emph{Behavior Research Methods},
 #' \bold{45}, 576--94
-#' 
+#'
 #' @examples
 #' ma1 <- metacor(c(0.85, 0.7, 0.95), c(20, 40, 10))
-#' 
+#'
 #' # Print correlations (back transformed from Fisher's z
 #' # transformation)
 #' #
 #' summary(ma1)
-#' 
-#' # Print Fisher's z transformed correlations 
+#'
+#' # Print Fisher's z transformed correlations
 #' #
 #' print(summary(ma1), backtransf = FALSE)
-#' 
+#'
 #' # Forest plot with back transformed correlations
 #' #
 #' forest(ma1)
-#' 
+#'
 #' # Forest plot with Fisher's z transformed correlations
 #' #
 #' forest(ma1, backtransf = FALSE)
-#' 
+#'
 #' ma2 <- update(ma1, sm = "cor")
 #' summary(ma2)
 #'
@@ -259,7 +279,7 @@
 #' forest(ma2)
 #' forest(ma2, backtransf = FALSE)
 #' }
-#' 
+#'
 #' @export metacor
 
 metacor <- function(cor, n, studlab,
@@ -280,7 +300,7 @@ metacor <- function(cor, n, studlab,
                       if (is.null(gs("overall.hetstat")))
                         common | random
                       else
-                        gs("overall.hetstat"),   
+                        gs("overall.hetstat"),
                     prediction = gs("prediction") | !missing(method.predict),
                     #
                     method.tau = gs("method.tau"),
@@ -337,21 +357,27 @@ metacor <- function(cor, n, studlab,
                     control = NULL,
                     ...) {
   
-  
   #
   #
   # (1) Check arguments
   #
+  #
+  
+  missing.subgroup <- missing(subgroup)
+  missing.byvar <- missing(byvar)
+  #
+  subgroup.expr <- enquo(subgroup)
+  byvar.expr <- enquo(byvar)
   #
   chknumeric(rho, min = -1, max = 1)
   #
   chknull(sm)
   chklevel(level)
   #
-  method.common.ci <- setchar(method.common.ci, gs("meth4common.ci"))
+  method.common.ci <- setchar(method.common.ci, gs("meth4common.ci"), length = 1)
   #
   missing.method.tau <- missing(method.tau)
-  method.tau <- setchar(method.tau, gs("meth4tau"))
+  method.tau <- setchar(method.tau, gs("meth4tau"), length = 1)
   #
   missing.tau.common <- missing(tau.common)
   tau.common <- replaceNULL(tau.common, FALSE)
@@ -376,7 +402,7 @@ metacor <- function(cor, n, studlab,
   #
   adhoc.hakn.pi <- setchar(replaceNA(adhoc.hakn.pi, ""), gs("adhoc4hakn.pi"))
   #
-  chknumeric(null.effect, length = 1)
+  chknumeric(null.effect, min = -1, max = 1, length = 1)
   #
   method.bias <- setmethodbias(method.bias)
   #
@@ -418,12 +444,18 @@ metacor <- function(cor, n, studlab,
   method.random.ci <-
     deprecated(method.random.ci, missing(method.random.ci),
                args, "hakn", warn.deprecated)
+  #
   if (is.logical(method.random.ci))
     if (method.random.ci)
       method.random.ci <- "HK"
     else
       method.random.ci <- "classic"
+  #
   method.random.ci <- setchar(method.random.ci, gs("meth4random.ci"))
+  #
+  if (any(method.random.ci == "CR2"))
+    is_installed_package("clubSandwich", argument = "method.random.ci",
+                         value = "CR2")
   #
   adhoc.hakn.ci <-
     deprecated2(adhoc.hakn.ci, missing(adhoc.hakn.ci),
@@ -458,48 +490,41 @@ metacor <- function(cor, n, studlab,
   fun <- "metacor"
   sm <- setchar(sm, gs("sm4cor"))
   
-  
   #
   #
   # (2) Read data
   #
   #
+  
   nulldata <- is.null(data)
-  sfsp <- sys.frame(sys.parent())
-  mc <- match.call()
-  #
-  if (nulldata)
-    data <- sfsp
   #
   # Catch 'cor' and 'n' from data:
   #
-  cor <- catch("cor", mc, data, sfsp)
+  cor <- catch(enquo(cor), data)
   chknull(cor)
   k.All <- length(cor)
   #
-  n <- catch("n", mc, data, sfsp)
+  n <- catch(enquo(n), data)
   chknull(n)
   #
   # Catch 'studlab', 'subgroup', 'subset', 'exclude' and 'cluster'
   # from data:
   #
-  studlab <- catch("studlab", mc, data, sfsp)
+  studlab <- catch(enquo(studlab), data)
   studlab <- setstudlab(studlab, k.All)
   #
-  missing.subgroup <- missing(subgroup)
-  subgroup <- catch("subgroup", mc, data, sfsp)
-  missing.byvar <- missing(byvar)
-  byvar <- catch("byvar", mc, data, sfsp)
+  subgroup <- catch(subgroup.expr, data)
+  byvar <- catch(byvar.expr, data)
   subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar)
   by <- !is.null(subgroup)
   #
-  subset <- catch("subset", mc, data, sfsp)
+  subset <- catch(enquo(subset), data)
   missing.subset <- is.null(subset)
   #
-  exclude <- catch("exclude", mc, data, sfsp)
+  exclude <- catch(enquo(exclude), data)
   missing.exclude <- is.null(exclude)
   #
-  cluster <- catch("cluster", mc, data, sfsp)
+  cluster <- catch(enquo(cluster), data)
   with.cluster <- !is.null(cluster)
   #
   # Additional checks
@@ -518,11 +543,11 @@ metacor <- function(cor, n, studlab,
   # Catch 'weights', 'weights.common', and 'weights.random' from data:
   #
   if (!missing(weights))
-    weights <- catch("weights", mc, data, sfsp)
+    weights <- catch(enquo(weights), data)
   if (!missing(weights.common))
-    weights.common <- catch("weights.common", mc, data, sfsp)
+    weights.common <- catch(enquo(weights.common), data)
   if (!missing(weights.random))
-    weights.random <- catch("weights.random", mc, data, sfsp)
+    weights.random <- catch(enquo(weights.random), data)
   #
   if (!is.null(weights) & is.null(weights.common))
     weights.common <- weights
@@ -539,12 +564,12 @@ metacor <- function(cor, n, studlab,
   if (usw.random)
     chknumeric(weights.random, min = 0)
   
-  
   #
   #
   # (3) Check length of essential variables
   #
   #
+  
   chklength(n, k.All, fun)
   chklength(studlab, k.All, fun)
   if (with.cluster)
@@ -570,12 +595,12 @@ metacor <- function(cor, n, studlab,
     chklogical(prediction.subgroup)
   }
   
-  
   #
   #
   # (4) Subset, exclude studies, and subgroups
   #
   #
+  
   if (!missing.subset)
     if ((is.logical(subset) & (sum(subset) > k.All)) ||
         (length(subset) > k.All))
@@ -593,13 +618,13 @@ metacor <- function(cor, n, studlab,
   else
     exclude <- rep(FALSE, k.All)
   
-  
   #
   #
   # (5) Store complete dataset in list object data
   #     (if argument keepdata is TRUE)
   #
   #
+  
   if (keepdata) {
     if (nulldata)
       data <- data.frame(.cor = cor)
@@ -634,12 +659,12 @@ metacor <- function(cor, n, studlab,
       data$.weights.random <- weights.random
   }
   
-  
   #
   #
   # (6) Use subset for analysis
   #
   #
+  
   if (!missing.subset) {
     cor <- cor[subset]
     n   <- n[subset]
@@ -680,40 +705,40 @@ metacor <- function(cor, n, studlab,
   if (by) {
     chkmiss(subgroup)
     #
-    if (missing.subgroup.name & is.null(subgroup.name)) {
+    if (missing.subgroup.name && is.null(subgroup.name)) {
       if (!missing.subgroup)
-        subgroup.name <- byvarname("subgroup", mc)
+        subgroup.name <- subgroup_name(subgroup.expr)
       else if (!missing.byvar)
-        subgroup.name <- byvarname("byvar", mc)
+        subgroup.name <- subgroup_name(byvar.expr)
     }
   }
   #
   if (!is.null(subgroup.name))
     chkchar(subgroup.name, length = 1)
   
-  
   #
   #
   # (7) Calculate results for individual studies
   #
   #
+  
   if (sm == "ZCOR") {
     TE   <- cor2z(cor)
     seTE <- sqrt(1 / (n - 3))
     transf.null.effect <- 0.5 * log((1 + null.effect) / (1 - null.effect))
   }
-  if (sm == "COR") {
+  else if (sm == "COR") {
     TE <- cor
     seTE <- sqrt((1 - cor^2)^2 / (n - 1))
     transf.null.effect <- null.effect
   }
-  
-  
+   
   #
   #
   # (8) Additional checks for three-level model
   #
   #
+  
   three.level <- FALSE
   sel.ni <- !is.infinite(TE) & !is.infinite(seTE)
   #
@@ -734,12 +759,12 @@ metacor <- function(cor, n, studlab,
       method.tau <- "REML"
   }
   
-  
   #
   #
   # (9) Do meta-analysis
   #
   #
+  
   m <- metagen(TE, seTE, studlab,
                exclude = if (missing.exclude) NULL else exclude,
                cluster = cluster, rho = rho,
@@ -802,12 +827,12 @@ metacor <- function(cor, n, studlab,
     hcc <- hetcalc(TE, seTE, method.tau, "", TE.tau,
                    method.I2, level.hetstat, subgroup, control)
   
+  #
+  #
+  # (10) Generate R object
+  #
+  #
   
-  #
-  #
-  # (9) Generate R object
-  #
-  #
   res <- list(cor = cor, n = n)
   #
   # Add meta-analysis results
@@ -892,12 +917,11 @@ metacor <- function(cor, n, studlab,
     res <- setNAwithin(res, res$three.level)
   }
   #
-  # Backward compatibility
+  # Backward compatibility (still required by R package metaumbrella)
   #
   res <- backward(res)
   #
   class(res) <- c(fun, "meta")
-  
   
   res
 }

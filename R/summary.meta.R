@@ -61,29 +61,19 @@ summary.meta <- function(object, ...) {
   
   chkclass(object, "meta")
   #
+  warn_ignore_dots(list(...), "summary.meta")
+  #
   if (inherits(object, c("metacum", "metainf")))
     return(object)
   #
   object <- updateversion(object)
   #
-  metaprop <- inherits(class(object), "metaprop")
-  metarate <- inherits(class(object), "metarate")
+  metaprop <- inherits(object, "metaprop")
+  metarate <- inherits(object, "metarate")
   
   #
   #
-  # (2) Check other arguments
-  #
-  #
-  
-  addargs <- names(list(...))
-  #
-  if (length(addargs) > 0)
-    warning("Additional arguments provided in '...' are ignored.",
-            call. = FALSE)
-  
-  #
-  #
-  # (3) Results for individual studies
+  # (2) Results for individual studies
   #
   #
   
@@ -107,7 +97,7 @@ summary.meta <- function(object, ...) {
   
   #
   #
-  # (4) Results for meta-analysis
+  # (3) Results for meta-analysis
   #
   #
   
@@ -119,9 +109,9 @@ summary.meta <- function(object, ...) {
                p = object$pval.common,
                level = object$level.ma)
   if (metaprop)
-    ci.c$harmonic.mean <- 1 / mean(1 / object$n)
+    ci.c$harmonic.mean <- object$n.harmonic.mean
   else if (metarate)
-    ci.c$harmonic.mean <- 1 / mean(1 / object$time)
+    ci.c$harmonic.mean <- object$t.harmonic.mean
   #
   ci.r <- list(TE = object$TE.random,
                seTE = object$seTE.random,
@@ -132,9 +122,9 @@ summary.meta <- function(object, ...) {
                level = object$level.ma,
                df = object$df.random)
   if (metaprop)
-    ci.r$harmonic.mean <- 1 / mean(1 / object$n)
+    ci.r$harmonic.mean <- object$n.harmonic.mean
   else if (metarate)
-    ci.r$harmonic.mean <- 1 / mean(1 / object$time)
+    ci.r$harmonic.mean <- object$t.harmonic.mean
   #
   ci.p <- list(TE = NA,
                seTE = object$seTE.predict,
@@ -147,7 +137,7 @@ summary.meta <- function(object, ...) {
   
   #
   #
-  # (5) Generate R object
+  # (4) Generate R object
   #
   #
   
@@ -199,8 +189,10 @@ summary.meta <- function(object, ...) {
                          df = object$df.predict.w,
                          harmonic.mean = object$n.harmonic.mean.w)
     #
-    if (metarate)
+    if (metarate) {
       ci.random.w$harmonic.mean <- object$t.harmonic.mean.w
+      ci.predict.w$harmonic.mean <- object$t.harmonic.mean.w
+    }
     #
     res$within.common  <- ci.common.w
     res$within.random  <- ci.random.w

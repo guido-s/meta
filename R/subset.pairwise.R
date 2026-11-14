@@ -37,12 +37,10 @@ subset.pairwise <- function(x, subset, ...){
   if (missing(subset))
     return(x)
   #
-  sfsp <- sys.frame(sys.parent())
-  mc <- match.call()
+  subset <- catch(enquo(subset), x)
   #
-  subset <- catch("subset", mc, x, sfsp)
   if (is.null(subset))
-    subset <- catch("subset", mc, x$data, sfsp)
+    subset <- catch(enquo(subset), x$data)
   
   
   # Select subset

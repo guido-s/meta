@@ -1,31 +1,45 @@
-smlab <- function(sm, backtransf, pscale, irscale) {
+smlab <- function(sm, backtransf, pscale, irscale,
+                  func.backtransf = NULL, forest = FALSE,
+                  fallback = "") {
+  
   res <- sm
   #
   if (backtransf) {
-    if (sm == "ZCOR")
-      res <- "COR"
+    if (is_cor(sm))
+      res <- "correlation"
+    #
     else if (is_mean(sm))
       res <- "mean"
-    else if (is_prop(sm)) {
+    #
+    else if (is_prop(sm) || sm == "proportion") {
       if (pscale == 1)
         res <- "proportion"
       else
         res <- "events"
     }
+    #
     else if (is_rate(sm)) {
       if (irscale == 1)
         res <- "rate"
       else
         res <- "events"
     }
+    #
+    # Print first letter in upper case
+    #
+    res <- str_replace(res, "^.", str_to_upper)
   }
   else {
-    if (is_relative_effect(sm))
-      res <- paste0("ln", sm)
-    else if (sm == "VE")
-      res <- "lnVR"
+    if (sm == "VE")
+      res <- paste0(gs("log.prefix"), "VR")
+    else if (is_relative_effect(sm))
+      res <- paste0(gs("log.prefix"), sm)
+    else if (!is.null(func.backtransf) && func.backtransf == "exp")
+      res <- paste0(gs("log.prefix"), "(", sm, ")")
   }
+  #
+  if (res == "" && fallback != "")
+    res <- fallback
   #
   res
 }
-

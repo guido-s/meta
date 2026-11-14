@@ -40,14 +40,9 @@
 #'   argument is useful in a meta-analysis with subgroups if
 #'   heterogeneity statistics should only be printed on subgroup
 #'   level.
-#' @param test.subgroup A logical value indicating whether to print
-#'   results of test for subgroup differences.
-#' @param test.subgroup.common A logical value indicating whether to
-#'   print results of test for subgroup differences (based on common
-#'   effect model).
-#' @param test.subgroup.random A logical value indicating whether to
-#'   print results of test for subgroup differences (based on random
-#'   effects model).
+#' @param test A named list controlling tests for subgroup differences; see
+#'   \code{\link{meta-formatting}}. Defaults follow the setting in \code{x}
+#'   and the models selected for printing.
 #' @param prediction.subgroup A single logical or logical vector
 #'   indicating whether / which prediction intervals should be printed
 #'   for subgroups.
@@ -69,9 +64,6 @@
 #'   calculate rates, e.g. person-years.
 #' @param subgroup.name A character string with a name for the
 #'   grouping variable.
-#' @param print.subgroup.name A logical indicating whether the name of
-#'   the grouping variable should be printed in front of the group
-#'   labels.
 #' @param sep.subgroup A character string defining the separator
 #'   between label and levels of grouping variable.
 #' @param nchar.subgroup A numeric specifying the number of characters
@@ -87,30 +79,15 @@
 #' @param header A logical indicating whether information on title of
 #'   meta-analysis, comparison and outcome should be printed at the
 #'   beginning of the printout.
-#' @param print.CMH A logical indicating whether result of the
-#'   Cochran-Mantel-Haenszel test for overall effect should be
-#'   printed.
-#' @param digits Minimal number of significant digits, see
-#'   \code{print.default}.
-#' @param digits.stat Minimal number of significant digits for z- or
-#'   t-value of test for overall effect, see \code{print.default}.
-#' @param digits.pval Minimal number of significant digits for p-value
-#'   of overall treatment effect, see \code{print.default}.
-#' @param digits.tau2 Minimal number of significant digits for
-#'   between-study variance \eqn{\tau^2}, see \code{print.default}.
-#' @param digits.tau Minimal number of significant digits for
-#'   \eqn{\tau}, the square root of the between-study variance
-#'   \eqn{\tau^2}.
-#' @param digits.Q Minimal number of significant digits for
-#'   heterogeneity statistic Q, see \code{print.default}.
-#' @param digits.df Minimal number of significant digits for degrees
-#'   of freedom.
-#' @param digits.pval.Q Minimal number of significant digits for
-#'   p-value of heterogeneity test, see \code{print.default}.
-#' @param digits.I2 Minimal number of significant digits for I-squared
-#'   and Rb statistic, see \code{print.default}.
-#' @param digits.H Minimal number of significant digits for H
-#'   statistic, see \code{print.default}.
+#' @param print A named list controlling displayed information; see
+#'   \code{\link{meta-formatting}}. Heterogeneity settings default to
+#'   the corresponding \code{gs("print.*")} settings; \code{CMH} and
+#'   \code{subgroup.name} default
+#'   to the corresponding settings in \code{x}.
+#' @param digits A named list controlling rounding; see
+#'   \code{\link{meta-formatting}}. A scalar value is also accepted.
+#'   The main default is \code{gs("digits")}; P-value defaults are
+#'   \code{max(gs("digits.pval"), 2)} and \code{max(gs("digits.pval.Q"), 2)}.
 #' @param big.mark A character used as thousands separator.
 #' @param scientific.pval A logical specifying whether p-values should
 #'   be printed in scientific notation, e.g., 1.2345e-01 instead of
@@ -120,25 +97,6 @@
 #' @param JAMA.pval A logical specifying whether p-values for test of
 #'   overall effect should be printed according to JAMA reporting
 #'   standards.
-#' @param print.tau2 A logical specifying whether between-study
-#'   variance \eqn{\tau^2} should be printed.
-#' @param print.tau2.ci A logical value indicating whether to print
-#'   the confidence interval of \eqn{\tau^2}.
-#' @param print.tau A logical specifying whether \eqn{\tau}, the
-#'   square root of the between-study variance \eqn{\tau^2}, should be
-#'   printed.
-#' @param print.tau.ci A logical value indicating whether to print the
-#'   confidence interval of \eqn{\tau}.
-#' @param print.Q A logical value indicating whether to print the
-#'   results of the test of heterogeneity.
-#' @param print.I2 A logical specifying whether heterogeneity
-#'   statistic I\eqn{^2} should be printed.
-#' @param print.I2.ci A logical specifying whether confidence interval for
-#'   heterogeneity statistic I\eqn{^2} should be printed.
-#' @param print.H A logical specifying whether heterogeneity statistic
-#'   H should be printed.
-#' @param print.Rb A logical specifying whether heterogeneity
-#'   statistic R\eqn{_b} should be printed.
 #' @param text.tau2 Text printed to identify between-study variance
 #'   \eqn{\tau^2}.
 #' @param text.tau Text printed to identify \eqn{\tau}, the square
@@ -161,7 +119,9 @@
 #'   separator and upper confidence limit should be printed.
 #' @param warn.deprecated A logical indicating whether warnings should
 #'   be printed if deprecated arguments are used.
-#' @param \dots Additional arguments (passed on to \code{prmatrix}).
+#' @param \dots Additional arguments, including individual \code{test.*},
+#'   \code{print.*}, and \code{digits.*} settings. Remaining arguments are passed to
+#'   \code{prmatrix}.
 #' 
 #' @rdname print.meta
 #' @method print meta
@@ -174,9 +134,6 @@ print.meta <- function(x,
                        overall = x$overall,
                        overall.hetstat = x$overall.hetstat,
                        #
-                       test.subgroup = x$test.subgroup,
-                       test.subgroup.common = test.subgroup & common,
-                       test.subgroup.random = test.subgroup & random,
                        prediction.subgroup = x$prediction.subgroup,
                        #
                        backtransf = x$backtransf,
@@ -185,7 +142,6 @@ print.meta <- function(x,
                        irunit = x$irunit,
                        #
                        subgroup.name = x$subgroup.name,
-                       print.subgroup.name = x$print.subgroup.name,
                        sep.subgroup = x$sep.subgroup,
                        nchar.subgroup = 35,
                        #
@@ -195,37 +151,15 @@ print.meta <- function(x,
                        sort.Q = NULL,
                        #
                        header = TRUE,
-                       print.CMH = x$print.CMH,
                        #
-                       digits = gs("digits"),
-                       digits.stat = gs("digits.stat"),
-                       digits.pval = max(gs("digits.pval"), 2),
-                       #
-                       digits.tau2 = gs("digits.tau2"),
-                       digits.tau = gs("digits.tau"),
-                       #
-                       digits.Q = gs("digits.Q"),
-                       digits.df = gs("digits.df"),
-                       digits.pval.Q = max(gs("digits.pval.Q"), 2),
-                       #
-                       digits.H = gs("digits.H"),
-                       digits.I2 = gs("digits.I2"),
+                       test = NULL,
+                       print = NULL,
+                       digits = NULL,
                        #
                        big.mark = gs("big.mark"),
                        scientific.pval = gs("scientific.pval"),
                        zero.pval = gs("zero.pval"),
                        JAMA.pval = gs("JAMA.pval"),
-                       #
-                       print.tau2 = gs("print.tau2"),
-                       print.tau2.ci = gs("print.tau2.ci"),
-                       print.tau = gs("print.tau"),
-                       print.tau.ci = gs("print.tau.ci"),
-                       #
-                       print.Q = gs("print.Q"),
-                       print.I2 = gs("print.I2"),
-                       print.I2.ci = gs("print.I2.ci"),
-                       print.H = gs("print.H"),
-                       print.Rb = gs("print.Rb"),
                        #
                        text.tau2 = gs("text.tau2"),
                        text.tau = gs("text.tau"),
@@ -251,7 +185,64 @@ print.meta <- function(x,
   if (inherits(x, "metainf"))
     return(invisible(NULL))
   #
-  is.metabind <- inherits(x, "metabind")
+  args <- list(...)
+  #
+  if (anyDuplicated(names(args)) || anyDuplicated(names(test)) ||
+      anyDuplicated(names(print)) ||
+      anyDuplicated(names(digits)))
+    stop("Formatting arguments must not be duplicated.", call. = FALSE)
+  #
+  # Tests for subgroup differences
+  #
+  test.list <- merge_legacy(test, args, test_defaults(x, func = "print"))
+  #
+  test <- test.list$res
+  args <- test.list$args
+  #
+  test.subgroup <- test[["subgroup"]]
+  test.subgroup.common <- test[["subgroup.common"]]
+  test.subgroup.random <- test[["subgroup.random"]]
+  #
+  # Columns shown when printing
+  #
+  print.list <-
+    merge_legacy(print, args, print_defaults(x, func = "print"))
+  #
+  print.settings <- print.list$res
+  args <- print.list$args
+  #
+  print.subgroup.name <- print.settings[["subgroup.name"]]
+  print.CMH <- print.settings[["CMH"]]
+  print.tau2 <- print.settings[["tau2"]]
+  print.tau2.ci <- print.settings[["tau2.ci"]]
+  print.tau <- print.settings[["tau"]]
+  print.tau.ci <- print.settings[["tau.ci"]]
+  print.Q <- print.settings[["Q"]]
+  print.I2 <- print.settings[["I2"]]
+  print.I2.ci <- print.settings[["I2.ci"]]
+  print.H <- print.settings[["H"]]
+  print.Rb <- print.settings[["Rb"]]
+  #
+  # Digits used to round results
+  #
+  digits <- as_named_list(digits)
+  digits.list <-
+    merge_legacy(digits, args, digits_defaults(func = "print"))
+  #
+  digits.settings <- digits.list$res
+  args <- digits.list$args
+  #
+  digits <- digits.settings[["digits"]]
+  digits.stat <- digits.settings[["stat"]]
+  digits.pval <- digits.settings[["pval"]]
+  digits.tau2 <- digits.settings[["tau2"]]
+  digits.tau <- digits.settings[["tau"]]
+  digits.Q <- digits.settings[["Q"]]
+  digits.df <- digits.settings[["df"]]
+  digits.pval.Q <- digits.settings[["pval.Q"]]
+  digits.H <- digits.settings[["H"]]
+  digits.I2 <- digits.settings[["I2"]]
+  #
   is.netpairwise <- inherits(x, "netpairwise")
   #
   method <- x$method
@@ -259,8 +250,13 @@ print.meta <- function(x,
   #
   by <- !is.null(x$subgroup)
   #
-  if (by)
+  if (by) {
     n.by <- length(x$subgroup.levels)
+    #
+    Q.resid <- replaceNULL(x$Q.resid)
+    df.Q.resid <- replaceNULL(x$df.Q.resid)
+    pval.Q.resid <- replaceNULL(x$pval.Q.resid)
+  }
   #
   method.random.ci <- replaceNULL(x$method.random.ci, "")
   method.predict <- replaceNULL(x$method.predict, "")
@@ -281,9 +277,6 @@ print.meta <- function(x,
   #
   # (2) Check and set other arguments
   #
-  #
-  sfsp <- sys.frame(sys.parent())
-  mc <- match.call()
   #
   chknumeric(digits, min = 0, length = 1)
   chknumeric(digits.tau2, min = 0, length = 1)
@@ -324,16 +317,12 @@ print.meta <- function(x,
   chklogical(warn.deprecated)
   #
   missing.pscale <- missing(pscale)
-  if (!is.null(pscale))
-    chknumeric(pscale, length = 1)
-  else
-    pscale <- 1
+  pscale <- replaceNULL(pscale, 1)
+  chknumeric_strict(pscale, min = 1, length = 1)
   #
   missing.irscale <- missing(irscale)
-  if (!is.null(irscale))
-    chknumeric(irscale, length = 1)
-  else
-    irscale <- 1
+  irscale <- replaceNULL(irscale, 1)
+  chknumeric_strict(irscale, min = 1, length = 1)
   if (!is.null(irunit) && !is.na(irunit))
     chkchar(irunit)
   #
@@ -348,9 +337,13 @@ print.meta <- function(x,
   if (is.na(test.subgroup))
     test.subgroup <- FALSE
   chklogical(test.subgroup)
-  test.subgroup.common <- replaceNULL(test.subgroup.common, test.subgroup)
+  test.subgroup.common <- replaceNULL(test.subgroup.common,
+                                      if (test.list$miss[["subgroup.common"]])
+                                        test.subgroup & common else test.subgroup)
   chklogical(test.subgroup.common)
-  test.subgroup.random <- replaceNULL(test.subgroup.random, test.subgroup)
+  test.subgroup.random <- replaceNULL(test.subgroup.random,
+                                      if (test.list$miss[["subgroup.random"]])
+                                        test.subgroup & random else test.subgroup)
   chklogical(test.subgroup.random)
   #
   missing.prediction.subgroup <- missing(prediction.subgroup)
@@ -361,7 +354,7 @@ print.meta <- function(x,
     x$df.predict.w <- list2mat(x$df.predict.w)
     #
     if (!missing.prediction.subgroup)
-      prediction.subgroup <- catch("prediction.subgroup", mc, x, sfsp)
+      prediction.subgroup <- catch(enquo(prediction.subgroup), x)
     #
     prediction.subgroup <- replaceNULL(prediction.subgroup, FALSE)
     #
@@ -404,7 +397,7 @@ print.meta <- function(x,
       prediction.w <- prediction.subgroup.logical
     #
     prediction.w[is.na(prediction.w)] <- FALSE
-    prediction.w <- any(prediction.w) & !is.metabind
+    prediction.w <- any(prediction.w)
   }
   else
     prediction.w <- FALSE
@@ -412,15 +405,15 @@ print.meta <- function(x,
   if (!is.null(print.CMH))
     chklogical(print.CMH)
   #
-  sort.tau <- catch("sort.tau", mc, x, sfsp)
+  sort.tau <- catch(enquo(sort.tau), x)
   if (is.list(sort.tau))
     sort.tau <- unlist(sort.tau)
   #
-  sort.het <- catch("sort.het", mc, x, sfsp)
+  sort.het <- catch(enquo(sort.het), x)
   if (is.list(sort.het))
     sort.het <- unlist(sort.het)
   #
-  sort.Q <- catch("sort.Q", mc, x, sfsp)
+  sort.Q <- catch(enquo(sort.Q), x)
   if (is.list(sort.Q))
     sort.Q <- unlist(sort.Q)
   #
@@ -429,8 +422,6 @@ print.meta <- function(x,
   chklogical(details.methods)
   #
   # Check for deprecated arguments in '...'
-  #
-  args  <- list(...)
   #
   missing.common <- missing(common)
   common <- deprecated(common, missing.common, args, "comb.fixed",
@@ -446,7 +437,7 @@ print.meta <- function(x,
     deprecated(subgroup.name, missing(subgroup.name), args, "bylab", FALSE)
   #
   print.subgroup.name <-
-    deprecated(print.subgroup.name, missing(print.subgroup.name),
+    deprecated(print.subgroup.name, print.list$miss[["subgroup.name"]],
                args, "print.byvar", FALSE)
   #
   sep.subgroup <-
@@ -505,25 +496,18 @@ print.meta <- function(x,
   metaprop <- inherits(x, "metaprop")
   metarate <- inherits(x, "metarate")
   #
-  null.effect <- x$null.effect
-  null.given <- !is.null(null.effect) && !is.na(null.effect)
-  #
-  if (null.given & !backtransf) {
-    #
-    if (sm %in% c("PFT", "PAS"))
-      null.effect <- asin(sqrt(null.effect))
-    else if (is_log_effect(sm))
-      null.effect <- log(null.effect)
-    else if (sm == c("PLOGIT"))
-      null.effect <- log(null.effect / (1 - null.effect))
-    else if (sm %in% c("IRS", "IRFT"))
-      null.effect <- sqrt(null.effect)
-    else if (sm == "ZCOR")
-      null.effect <- 0.5 * log((1 + null.effect) / (1 - null.effect))
+  if (inherits(x, "trimfill")) {
+    harmonic.mean <- NULL
   }
+  else if (sm == "IRFT")
+    harmonic.mean <- x$t.harmonic.mean
+  else
+    harmonic.mean <- replaceNULL(x$n.harmonic.mean)
   #
-  x$null.effect <- null.effect
-  #    
+  # Null-effect display conversion is handled by catmeth()
+  #
+  null.given <- !is.null(x$null.effect) && !is.na(x$null.effect)
+  #
   if (is.null(prediction) || is.na(prediction))
     prediction <- FALSE
   #
@@ -573,11 +557,11 @@ print.meta <- function(x,
     text.random.br <- text.random
   #
   if (common | random)
-    ci.lab <- paste0(round(100 * x$level.ma, 1), "% CI")
+    ci.lab <- percent_label(x$level.ma)
   else if (prediction)
-    ci.lab <- paste0(round(100 * x$level.predict, 1), "% PI")
+    ci.lab <- percent_label(x$level.predict, "PI")
   else if (all(k.all == 1))
-    ci.lab <- paste0(round(100 * x$level.ma, 1), "% CI")
+    ci.lab <- percent_label(x$level.ma)
   else
     ci.lab <- ""
   #
@@ -623,13 +607,14 @@ print.meta <- function(x,
     uppTE.common.w <- list2mat(x$upper.common.w)
     pval.common.w  <- list2mat(x$pval.common.w)
     #
+    TE.random.w    <- list2mat(x$TE.random.w, x$lower.random.w)
     lowTE.random.w <- list2mat(x$lower.random.w)
-    TE.random.w    <- list2mat(x$TE.random.w, lowTE.random.w)
-    #
     uppTE.random.w <- list2mat(x$upper.random.w)
     pval.random.w  <- list2mat(x$pval.random.w)
     #
-    if (!is.matrix(TE.random.w) & is.matrix(lowTE.random.w)) {
+    if (is.matrix(lowTE.random.w) &&
+        (!is.matrix(TE.random.w) ||
+         (ncol(TE.random.w) == 1 && ncol(lowTE.random.w) > 1))) {
       TE.random.w <-
         matrix(TE.random.w,
                nrow = nrow(lowTE.random.w),
@@ -641,14 +626,16 @@ print.meta <- function(x,
     lowTE.predict.w <- x$lower.predict.w
     uppTE.predict.w <- x$upper.predict.w
     #
-    harmonic.mean.w <- x$n.harmonic.mean.w
+    harmonic.mean.w <- if (sm == "IRFT")
+                         x$t.harmonic.mean.w
+                       else
+                         x$n.harmonic.mean.w
     #
     Q.b.common <- unlist(x$Q.b.common)
     names(Q.b.common) <- colnames(lowTE.common.w)
     Q.w.common <- x$Q.w.common
     #
     Q.b.random <- unlist(x$Q.b.random)
-    Q.w.random <- x$Q.w.random
     #
     Q.w <- x$Q.w
     #
@@ -657,31 +644,22 @@ print.meta <- function(x,
     df.Q.b.common <- replaceNULL(x$df.Q.b.common, df.Q.b)
     df.Q.b.random <- replaceNULL(x$df.Q.b.random, df.Q.b)    
     #
-    pval.Q.b.common <-
-      replaceNULL(x$pval.Q.b.common, pvalQ(Q.b.common, df.Q.b.common))
+    if (common && test.subgroup.common && length(Q.b.common) > 0L) {
+      df.Q.b.common <- subgroup_test_df(df.Q.b.common, length(Q.b.common))
+      pval.Q.b.common <-
+        replaceNULL(x$pval.Q.b.common, pval_subgroup(Q.b.common, df.Q.b.common))
+    }
     pval.Q.w.common <-
       replaceNULL(x$pval.Q.w.common, pvalQ(Q.w.common, df.Q.w))
     #
-    pval.Q.b.random <-
-      unlist(replaceNULL(x$pval.Q.b.random, pvalQ(Q.b.random, df.Q.b.random)))
-    pval.Q.w.random <-
-      unlist(replaceNULL(x$pval.Q.w.random, pvalQ(Q.w.random, df.Q.w)))
+    if (random && test.subgroup.random && length(Q.b.random) > 0L) {
+      df.Q.b.random <- subgroup_test_df(df.Q.b.random, length(Q.b.random))
+      pval.Q.b.random <-
+        unlist(replaceNULL(x$pval.Q.b.random, pval_subgroup(Q.b.random, df.Q.b.random)))
+    }
   }
   #
   if (backtransf) {
-    if (sm == "IRFT") {
-      if (is.metabind)
-        harmonic.mean <- x$t.harmonic.mean.ma
-      else
-        harmonic.mean <- 1 / mean(1 / x$time)
-    }
-    else {
-      if (is.metabind)
-        harmonic.mean <- x$n.harmonic.mean.ma
-      else
-        harmonic.mean <- 1 / mean(1 / x$n)
-    }
-    #
     TE.common <-
       backtransf(TE.common, sm, harmonic.mean, harmonic.mean, fbt, abt)
     lowTE.common <-
@@ -734,15 +712,18 @@ print.meta <- function(x,
   # Apply argument 'pscale' to proportions / risk differences and
   # 'irscale' to rates / incidence rate differences
   #
-  if (pscale != 1 || irscale != 1) {
-    if (pscale != 1 && irscale != 1)
-      stop("Provide either arguments 'pscale' or 'irscale' but not ",
-           "both arguments.",
-           call. = FALSE)
-    if (pscale != 1)
-      scale <- pscale
-    else
-      scale <- irscale
+  scale <- 1
+  #
+  if (pscale != 1 && irscale != 1)
+    stop("Provide either arguments 'pscale' or 'irscale' but not both arguments.",
+         call. = FALSE)
+  #
+  if ((is_prop(sm) || sm == "RD") && pscale != 1)
+    scale <- pscale
+  else if ((is_rate(sm) || sm == "IRD") && irscale != 1)
+    scale <- irscale
+  #
+  if (scale != 1) {
     #
     TE.common    <- scale * TE.common
     lowTE.common <- scale * lowTE.common
@@ -771,35 +752,52 @@ print.meta <- function(x,
     }
   }
   #
-  # Switch lower and upper limit for VE if results have been
-  # backtransformed
+  # Switch reversed lower and upper limits after back-transformation
   #
-  if (backtransf & sm == "VE") {
-    tmp.l <- lowTE.common
-    lowTE.common <- uppTE.common
-    uppTE.common <- tmp.l
+  if (backtransf) {
+    wo <- !is.na(lowTE.common) & !is.na(uppTE.common) &
+      lowTE.common > uppTE.common
     #
-    tmp.l <- lowTE.random
-    lowTE.random <- uppTE.random
-    uppTE.random <- tmp.l
+    tmp.l <- lowTE.common[wo]
+    lowTE.common[wo] <- uppTE.common[wo]
+    uppTE.common[wo] <- tmp.l
     #
-    tmp.l <- lowTE.predict
-    lowTE.predict <- uppTE.predict
-    uppTE.predict <- tmp.l
+    wo <- !is.na(lowTE.random) & !is.na(uppTE.random) &
+      lowTE.random > uppTE.random
+    #
+    tmp.l <- lowTE.random[wo]
+    lowTE.random[wo] <- uppTE.random[wo]
+    uppTE.random[wo] <- tmp.l
+    #
+    wo <- !is.na(lowTE.predict) & !is.na(uppTE.predict) &
+      lowTE.predict > uppTE.predict
+    #
+    tmp.l <- lowTE.predict[wo]
+    lowTE.predict[wo] <- uppTE.predict[wo]
+    uppTE.predict[wo] <- tmp.l
     #
     if (by) {
-      tmp.l <- lowTE.common.w
-      lowTE.common.w <- uppTE.common.w
-      uppTE.common.w <- tmp.l
-      #   
-      tmp.l <- lowTE.random.w
-      lowTE.random.w <- uppTE.random.w
-      uppTE.random.w <- tmp.l
-      #   
+      wo <- !is.na(lowTE.common.w) & !is.na(uppTE.common.w) &
+        lowTE.common.w > uppTE.common.w
+      #
+      tmp.l <- lowTE.common.w[wo]
+      lowTE.common.w[wo] <- uppTE.common.w[wo]
+      uppTE.common.w[wo] <- tmp.l
+      #
+      wo <- !is.na(lowTE.random.w) & !is.na(uppTE.random.w) &
+        lowTE.random.w > uppTE.random.w
+      #
+      tmp.l <- lowTE.random.w[wo]
+      lowTE.random.w[wo] <- uppTE.random.w[wo]
+      uppTE.random.w[wo] <- tmp.l
+      #
       if (prediction.w) {
-        tmp.l <- lowTE.predict.w
-        lowTE.predict.w <- uppTE.predict.w
-        uppTE.predict.w <- tmp.l
+        wo <- !is.na(lowTE.predict.w) & !is.na(uppTE.predict.w) &
+          lowTE.predict.w > uppTE.predict.w
+        #
+        tmp.l <- lowTE.predict.w[wo]
+        lowTE.predict.w[wo] <- uppTE.predict.w[wo]
+        uppTE.predict.w[wo] <- tmp.l
       }
     }
   }
@@ -930,25 +928,23 @@ print.meta <- function(x,
         overall.hetstat | by)
       method <- ifelse(method == "Peto", method, "")
     #
-    if (!is.metabind) {
-      if (is.metamiss)
-        cat("\n")
-      else if (sel.n)
-        catobsev(if (is.null(x$exclude)) x$n else x$n[!x$exclude],
-                 type = "n")
-      else
-        catobsev(if (is.null(x$exclude)) x$n.e else x$n.e[!x$exclude],
-                 if (is.null(x$exclude)) x$n.c else x$n.c[!x$exclude],
-                 type = "n")
-      #
-      if (sel.ev)
-        catobsev(if (is.null(x$exclude)) x$event else x$event[!x$exclude],
-                 type = "e", addrow = TRUE)
-      else if (!is.metamiss)
-        catobsev(if (is.null(x$exclude)) x$event.e else x$event.e[!x$exclude],
-                 if (is.null(x$exclude)) x$event.c else x$event.c[!x$exclude],
-                 type = "e", addrow = TRUE)
-    }
+    if (is.metamiss)
+      cat("\n")
+    else if (sel.n)
+      catobsev(if (is.null(x$exclude)) x$n else x$n[!x$exclude],
+               type = "n")
+    else
+      catobsev(if (is.null(x$exclude)) x$n.e else x$n.e[!x$exclude],
+               if (is.null(x$exclude)) x$n.c else x$n.c[!x$exclude],
+               type = "n")
+    #
+    if (sel.ev)
+      catobsev(if (is.null(x$exclude)) x$event else x$event[!x$exclude],
+               type = "e", addrow = TRUE)
+    else if (!is.metamiss)
+      catobsev(if (is.null(x$exclude)) x$event.e else x$event.e[!x$exclude],
+               if (is.null(x$exclude)) x$event.c else x$event.c[!x$exclude],
+               type = "e", addrow = TRUE)
     #
     res <- cbind(formatN(TE.common, digits, "NA",
                          big.mark = big.mark),
@@ -966,7 +962,7 @@ print.meta <- function(x,
                           c(sm.lab, ci.lab,
                             if (null.given) "z",
                             if (null.given) "p-value"))
-    prmatrix(res, quote = FALSE, right = TRUE, ...)
+    do.call(prmatrix, c(list(res, quote = FALSE, right = TRUE), args))
     #
     # Print information on meta-analysis method:
     #
@@ -1019,7 +1015,9 @@ print.meta <- function(x,
                        collapse = ""))
           else {
             if (any(k.study != k, na.rm = TRUE)) {
-              cat(paste0("Number of studies: n = ",
+              cat(paste0("Number of ",
+                         if (three.level) "clusters" else "studies",
+                         ": n = ",
                          format(cond(x$k.study, digits = 0),
                                 big.mark = big.mark), "\n",
                          collapse = ""))
@@ -1045,27 +1043,25 @@ print.meta <- function(x,
                      " added studies)\n",
                      collapse = ""))
         #
-        if (!is.metabind) {
-          if (is.metamiss)
-            cat("\n")
-          else if (sel.n)
-            catobsev(if (is.null(x$exclude)) x$n else x$n[!x$exclude],
-                     type = "n")
-          else
-            catobsev(if (is.null(x$exclude)) x$n.e else x$n.e[!x$exclude],
-                     if (is.null(x$exclude)) x$n.c else x$n.c[!x$exclude],
-                     type = "n")
-          #
-          if (sel.ev)
-            catobsev(if (is.null(x$exclude)) x$event else x$event[!x$exclude],
-                     type = "e", addrow = TRUE)
-          else if (!is.metamiss)
-            catobsev(if (is.null(x$exclude)) x$event.e
-                     else x$event.e[!x$exclude],
-                     if (is.null(x$exclude)) x$event.c
-                     else x$event.c[!x$exclude],
-                     type = "e", addrow = TRUE)
-        }
+        if (is.metamiss)
+          cat("\n")
+        else if (sel.n)
+          catobsev(if (is.null(x$exclude)) x$n else x$n[!x$exclude],
+                   type = "n")
+        else
+          catobsev(if (is.null(x$exclude)) x$n.e else x$n.e[!x$exclude],
+                   if (is.null(x$exclude)) x$n.c else x$n.c[!x$exclude],
+                   type = "n")
+        #
+        if (sel.ev)
+          catobsev(if (is.null(x$exclude)) x$event else x$event[!x$exclude],
+                   type = "e", addrow = TRUE)
+        else if (!is.metamiss)
+          catobsev(if (is.null(x$exclude)) x$event.e
+                   else x$event.e[!x$exclude],
+                   if (is.null(x$exclude)) x$event.c
+                   else x$event.c[!x$exclude],
+                   type = "e", addrow = TRUE)
         #
         res <- cbind(formatN(c(if (common) TE.common,
                                if (random) TE.random,
@@ -1102,8 +1098,10 @@ print.meta <- function(x,
             res[seq, 3:4] <- ""
         }
         #
-        if (any(method.random.ci %in% c("HK", "KR"))) {
-          if ((common & random) | any(method.random.ci == "classic"))
+        methci.t <- method.random.ci %in% c("HK", "KR", "CR0", "CR1", "CR2")
+        #
+        if (any(methci.t)) {
+          if ((common & random) | any(!methci.t))
             zlab <- "z|t"
           else if (common & !random)
             zlab <- "z"
@@ -1113,13 +1111,13 @@ print.meta <- function(x,
         else
           zlab <- "z"
         #
-        if (prediction)
+        if (prediction) {
           if (x$level.ma == x$level.predict)
             lab.predict <- text.predict
           else
-            lab.predict <-
-              paste0(text.predict,
-                    " (", round(100 * x$level.predict, 1), "% PI)")
+            lab.predict <- paste0(text.predict, " (",
+                                  percent_label(x$level.predict, "PI"), ")")
+        }
         #
         dimnames(res) <- list(c(if (common) text.common,
                                 if (random) text.random,
@@ -1133,8 +1131,9 @@ print.meta <- function(x,
         if (prediction & !(common | random))
           res <- res[, ci.lab, drop = FALSE]
         #
-        prmatrix(res[sort.overall, , drop = FALSE],
-                 quote = FALSE, right = TRUE, ...)
+        do.call(prmatrix,
+                c(list(res[sort.overall, , drop = FALSE],
+                       quote = FALSE, right = TRUE), args))
         #
         if (metabin && print.CMH) {
           Qdata <- cbind(formatN(round(Q.CMH, digits.Q), digits.Q, "NA",
@@ -1147,7 +1146,7 @@ print.meta <- function(x,
           dimnames(Qdata) <- list("", c("Q", "d.f.", "p-value"))
           #
           cat("\nCochran-Mantel-Haenszel (CMH) test for overall effect: \n")
-          prmatrix(Qdata, quote = FALSE, right = TRUE, ...)
+          do.call(prmatrix, c(list(Qdata, quote = FALSE, right = TRUE), args))
         }
       }
       else {
@@ -1171,25 +1170,23 @@ print.meta <- function(x,
                      format(cond(k, digits = 0),
                             big.mark = big.mark), "\n"))
         #
-        if (!is.metabind) {
-          if (is.metamiss)
-            cat("\n")
-          else if (sel.n)
-            catobsev(if (is.null(x$exclude)) x$n else x$n[!x$exclude],
-                     type = "n")
-          else
-            catobsev(if (is.null(x$exclude)) x$n.e else x$n.e[!x$exclude],
-                     if (is.null(x$exclude)) x$n.c else x$n.c[!x$exclude],
-                     type = "n")
-          #
-          if (sel.ev)
-            catobsev(if (is.null(x$exclude)) x$event else x$event[!x$exclude],
-                     type = "e")
-          else if (!is.metamiss)
-            catobsev(if (is.null(x$exclude)) x$event.e else x$event.e[!x$exclude],
-                     if (is.null(x$exclude)) x$event.c else x$event.c[!x$exclude],
-                     type = "e")
-        }
+        if (is.metamiss)
+          cat("\n")
+        else if (sel.n)
+          catobsev(if (is.null(x$exclude)) x$n else x$n[!x$exclude],
+                   type = "n")
+        else
+          catobsev(if (is.null(x$exclude)) x$n.e else x$n.e[!x$exclude],
+                   if (is.null(x$exclude)) x$n.c else x$n.c[!x$exclude],
+                   type = "n")
+        #
+        if (sel.ev)
+          catobsev(if (is.null(x$exclude)) x$event else x$event[!x$exclude],
+                   type = "e")
+        else if (!is.metamiss)
+          catobsev(if (is.null(x$exclude)) x$event.e else x$event.e[!x$exclude],
+                   if (is.null(x$exclude)) x$event.c else x$event.c[!x$exclude],
+                   type = "e")
       }
     }
     #
@@ -1213,7 +1210,7 @@ print.meta <- function(x,
       cat(paste0("\nQuantifying heterogeneity",
                  if (!(is.null(x$level.hetstat) || is.na(x$level.hetstat)) &
                      (print.tau2.ci | print.tau.ci | print.I2.ci))
-                   paste0(" (with ", 100 * x$level.hetstat, "% CI",
+                   paste0(" (with ", percent_label(x$level.hetstat),
                           if (print.tau2.ci + print.tau.ci +
                               print.I2.ci + print.H * print.I2.ci > 1) "s",
                           ")"),
@@ -1242,10 +1239,9 @@ print.meta <- function(x,
       #
       # Print information on residual heterogeneity
       #
-      if (by & !is.metabind) {
+      if (by) {
         #
-        Q.resid <- x$Q.w.common
-        k.resid <- x$df.Q.w + 1
+        k.resid <- df.Q.resid + 1
         #
         if (print.H) {
           H.resid <- round(replaceNULL(x$H.resid), digits.H)
@@ -1275,7 +1271,7 @@ print.meta <- function(x,
           cat(paste0("\nQuantifying residual heterogeneity",
                      if (!(is.null(x$level.hetstat) || is.na(x$level.hetstat)) &
                          (print.tau2.ci | print.tau.ci | print.I2.ci))
-                       paste0(" (with ", 100 * x$level.hetstat, "% CI",
+                       paste0(" (with ", percent_label(x$level.hetstat),
                               if (print.tau2.ci + print.tau.ci +
                                   print.I2.ci + print.H * print.I2.ci > 1) "s",
                               ")"),
@@ -1324,7 +1320,28 @@ print.meta <- function(x,
           Qdata <- Qdata[sort.Q, , drop = FALSE]
           #
           cat("\nTest of heterogeneity:\n")
-          prmatrix(Qdata, quote = FALSE, right = TRUE, ...)
+          do.call(prmatrix, c(list(Qdata, quote = FALSE, right = TRUE), args))
+        }
+      }
+      # Test of residual heterogeneity
+      #
+      if (by && print.Q && (common || random)) {
+        if (length(Q.resid) == 1L &&
+            length(df.Q.resid) == 1L &&
+            !is.na(Q.resid) && !is.na(df.Q.resid) &&
+            df.Q.resid > 0) {
+          Qdata <- cbind(
+            formatN(Q.resid, digits.Q, "NA", big.mark = big.mark),
+            formatN(df.Q.resid, digits = 0, big.mark = big.mark),
+            formatPT(pval.Q.resid,
+                     digits = digits.pval.Q,
+                     scientific = scientific.pval,
+                     zero = zero.pval, JAMA = JAMA.pval))
+          #
+          dimnames(Qdata) <- list("", c("Q", "d.f.", "p-value"))
+          #
+          cat("\nTest of residual heterogeneity:\n")
+          do.call(prmatrix, c(list(Qdata, quote = FALSE, right = TRUE), args))
         }
       }
     }
@@ -1342,9 +1359,7 @@ print.meta <- function(x,
     # Print information for subgroup analysis
     #
     if (by) {
-      if (is.metabind)
-        anaunit <- "meta-analyses"
-      else if (is.netpairwise)
+      if (is.netpairwise)
         anaunit <- "pairwise comparisons"
       else
         anaunit <- "subgroups"
@@ -1365,11 +1380,6 @@ print.meta <- function(x,
         }
         #
         n.common <- ncol(TE.common.w)
-        #
-        if (!is.list(df.Q.b.common))
-          df.Q.b.common <- list(df.Q.b.common)
-        #
-        df.Q.b.common <- do.call("c", df.Q.b.common)
         #
         for (i in seq_len(n.common)) {
           Tdata <- cbind(format(k.w, big.mark = big.mark),
@@ -1408,42 +1418,30 @@ print.meta <- function(x,
                                print.subgroup.name, sep.subgroup,
                                big.mark = big.mark)
           #
-          dimnames(Tdata) <- list(bylab.txt,
-                                  c(if (is.netpairwise | pairwise)
-                                      "  m" else "  k",
-                                    sm.lab, ci.lab,
-                                    if (print.Q) "Q",
-                                    if (print.I2) text.I2,
-                                    if (print.Rb) text.Rb,
-                                    if (print.tau2 & !random) text.tau2,
-                                    if (print.tau & !random) text.tau)
-                                  )
-          #
-          if (is.metabind & !is.null(x$common.meta))
-            Tdata <- Tdata[x$common.meta, , drop = FALSE]
+          dimnames(Tdata) <- list(
+            bylab.txt,
+            c(if (is.netpairwise | pairwise) "  m" else "  k",
+              sm.lab, ci.lab,
+              if (print.Q) "Q",
+              if (print.I2) text.I2,
+              if (print.Rb) text.Rb,
+              if (print.tau2 & !random & !is.list(x$tau.w)) text.tau2,
+              if (print.tau & !random & !is.list(x$tau.w)) text.tau)
+          )
           #
           cat(paste0("\nResults for ", anaunit,
                      paste0(" (", text.common.br[i], "):\n")))
           #
-          prmatrix(Tdata, quote = FALSE, right = TRUE, ...)
+          do.call(prmatrix, c(list(Tdata, quote = FALSE, right = TRUE), args))
           #
-          df.i <- df.Q.b.common[[i]]
-          #
-          if (length(df.i) > 1) {
-            dfs.b.i <-
-              rmSpace(paste(formatN(unlist(df.i), digits = 0,
-                                    big.mark = big.mark),
-                            collapse = ", "), end = TRUE)
-            Q.lab <- "F"
-          }
-          else {
-            dfs.b.i <- formatN(df.i, digits = 0, big.mark = big.mark)
-            Q.lab <- "Q"
-          }
-          #
-          if (test.subgroup.common & !is.metabind) {
+          if (test.subgroup.common && i <= length(Q.b.common)) {
+            df.i <- df.Q.b.common[[i]]
+            dfs.b.i <- format_df(df.i, lab.NA = "NA", big.mark = big.mark)
+            Q.lab <- if (length(df.i) == 2L) "F" else "Q"
+            #
             cat(paste0("\nTest for subgroup differences (",
                        text.common.br[i], "):\n"))
+            #
             if (any(method == "MH") | all(is.na(Q.w.common))) {
               Qdata <- cbind(formatN(round(Q.b.common[i], digits.Q),
                                      digits.Q, "NA", big.mark = big.mark),
@@ -1455,7 +1453,7 @@ print.meta <- function(x,
                                       zero = zero.pval, JAMA = JAMA.pval))
               dimnames(Qdata) <- list("Between groups",
                                       c(Q.lab, "d.f.", "p-value"))
-              prmatrix(Qdata, quote = FALSE, right = TRUE, ...)
+              do.call(prmatrix, c(list(Qdata, quote = FALSE, right = TRUE), args))
             }
             else {
               Qs  <- c(Q.b.common[i], Q.w.common[i])
@@ -1475,7 +1473,7 @@ print.meta <- function(x,
                                       zero = zero.pval, JAMA = JAMA.pval))
               dimnames(Qdata) <- list(c("Between groups", "Within groups"),
                                       c(Q.lab, "d.f.", "p-value"))
-              prmatrix(Qdata, quote = FALSE, right = TRUE, ...)
+              do.call(prmatrix, c(list(Qdata, quote = FALSE, right = TRUE), args))
             }
           }
         }
@@ -1500,11 +1498,6 @@ print.meta <- function(x,
         #
         if (!is.list(x$tau.w))
           x$tau.w <- list(x$tau.w)
-        #
-        if (!is.list(df.Q.b.random))
-          df.Q.b.random <- list(df.Q.b.random)
-        #
-        df.Q.b.random <- do.call("c", df.Q.b.random)
         #
         for (i in seq_len(n.random)) {
           tau.i <- length(x$tau.w) >= i
@@ -1559,64 +1552,34 @@ print.meta <- function(x,
                                     if (i == 1 & !common & print.Rb) text.Rb)
                                   )
           #
-          if (is.metabind & !is.null(x$random.meta))
-            Tdata <- Tdata[x$random.meta, , drop = FALSE]
-          #
           cat(paste0("\nResults for ", anaunit,
                      paste0(" (", text.random.br[i], "):\n")))
           #
-          prmatrix(Tdata, quote = FALSE, right = TRUE, ...)
+          do.call(prmatrix, c(list(Tdata, quote = FALSE, right = TRUE), args))
           #
-          df.i <- df.Q.b.random[[i]]
-          #
-          if (length(df.i) > 1) {
-            dfs.b.i <-
-              rmSpace(paste(formatN(df.i, digits = 0,
-                                    big.mark = big.mark),
-                            collapse = ", "), end = TRUE)
-            Q.lab <- "F"
-          }
-          else {
-            dfs.b.i <- formatN(df.i, digits = 0, big.mark = big.mark)
-            Q.lab <- "Q"
-          }
-          #
-          if (test.subgroup.random & !is.na(Q.b.random[i]) & !is.metabind) {
+          if (test.subgroup.random && i <= length(Q.b.random) && !is.na(Q.b.random[i])) {
+            df.i <- df.Q.b.random[[i]]
+            dfs.b.i <- format_df(df.i, lab.NA = "NA", big.mark = big.mark)
+            Q.lab <- if (length(df.i) == 2L) "F" else "Q"
+            #
             cat(paste0("\nTest for subgroup differences (",
                        text.random.br[i],
                        "):\n"))
-            if (all(is.na(Q.w.random))) {
-              Qdata <- cbind(formatN(round(Q.b.random[i], digits.Q),
-                                     digits.Q, "NA", big.mark = big.mark),
-                             formatN(dfs.b.i, digits = 0,
-                                     big.mark = big.mark),
-                             formatPT(pval.Q.b.random[i],
-                                      digits = digits.pval.Q,
-                                      scientific = scientific.pval,
-                                      zero = zero.pval, JAMA = JAMA.pval))
-              dimnames(Qdata) <- list("Between groups",
-                                      c(Q.lab, "d.f.", "p-value"))
-            }
-            else {
-              Qs  <- c(Q.b.random[i], Q.w.random[i])
-              dfs <- c(dfs.b.i,
-                       formatN(df.Q.w, digits = 0, big.mark = big.mark))
-              Q.lab <-
-                ifelse((three.level | is.glmm) && Q.lab == "F", "F/Q", Q.lab)
-              #
-              pvals <- c(pval.Q.b.random[i], pval.Q.w.random[i])
-              #
-              Qdata <- cbind(formatN(round(Qs, digits.Q), digits.Q, "NA",
-                                     big.mark = big.mark),
-                             dfs,
-                             formatPT(pvals,
-                                      digits = digits.pval.Q,
-                                      scientific = scientific.pval,
-                                      zero = zero.pval, JAMA = JAMA.pval))
-              dimnames(Qdata) <- list(c("Between groups", "Within groups"),
-                                      c(Q.lab, "d.f.", "p-value"))
-            }
-            prmatrix(Qdata, quote = FALSE, right = TRUE, ...)
+            #
+            Qdata <- cbind(
+              formatN(round(Q.b.random[i], digits.Q),
+                      digits.Q, "NA", big.mark = big.mark),
+              dfs.b.i,
+              formatPT(pval.Q.b.random[i],
+                       digits = digits.pval.Q,
+                       scientific = scientific.pval,
+                       zero = zero.pval, JAMA = JAMA.pval))
+            #
+            dimnames(Qdata) <- list(
+              "Between groups",
+              c(Q.lab, "d.f.", "p-value"))
+            #
+            do.call(prmatrix, c(list(Qdata, quote = FALSE, right = TRUE), args))
           }
         }
       }
@@ -1643,13 +1606,13 @@ print.meta <- function(x,
             bylabel(subgroup.name, subgroup.levels,
                     print.subgroup.name, sep.subgroup,
                     big.mark = big.mark)
-          lab.predict <- paste0(round(100 * x$level.predict, 1), "% PI")
+          lab.predict <- percent_label(x$level.predict, "PI")
           dimnames(Pdata) <- list(bylab.txt, lab.predict)
           #
           Pdata <- Pdata[prediction.subgroup.logical, , drop = FALSE]
           #
           cat(paste0("\n", text.predict[i], " for subgroups:\n"))
-          prmatrix(Pdata, quote = FALSE, right = TRUE, ...)
+          do.call(prmatrix, c(list(Pdata, quote = FALSE, right = TRUE), args))
         }
       }
     }

@@ -2,274 +2,209 @@
 % Please edit documentation in R/forest.metabind.R
 \name{forest.metabind}
 \alias{forest.metabind}
-\title{Forest plot to display the result of a meta-analysis}
+\title{Forest plot to display the results of several meta-analyses}
 \usage{
 \method{forest}{metabind}(
   x,
-  leftcols,
-  leftlabs,
-  rightcols = c("effect", "ci"),
-  rightlabs,
-  common = x$common,
-  random = x$random,
-  overall = x$overall,
-  subgroup = FALSE,
-  hetstat = FALSE,
-  overall.hetstat = x$overall.hetstat,
-  prediction = x$prediction,
-  lab.NA = "",
-  col.square = gs("col.square"),
-  col.square.lines = col.square,
-  col.circle = gs("col.circle"),
-  col.circle.lines = col.circle,
-  col.diamond = gs("col.diamond"),
-  col.diamond.common = col.diamond,
-  col.diamond.random = col.diamond,
-  col.diamond.lines = gs("col.diamond.lines"),
-  col.diamond.lines.common = col.diamond.lines,
-  col.diamond.lines.random = col.diamond.lines,
-  col.predict = gs("col.predict"),
-  col.predict.lines = gs("col.predict.lines"),
+  layout = gs("layout"),
+  common = !is.null(x$common),
+  random = !is.null(x$random),
+  prediction = !is.null(x$predict),
+  overall = common || random || prediction,
+  studlab = NULL,
+  subgroup = NULL,
+  overall.hetstat = NULL,
+  hetstat = !is.null(x$subgroup),
+  backtransf = x$backtransf,
+  test = NULL,
+  label,
+  col = NULL,
+  print = NULL,
   type = NULL,
-  type.common = NULL,
-  type.random = NULL,
-  type.predict = NULL,
-  digits = gs("digits.forest"),
-  digits.se = gs("digits.se"),
-  digits.stat = gs("digits.stat"),
-  digits.pval = max(gs("digits.pval") - 2, 2),
-  digits.pval.Q = max(gs("digits.pval.Q") - 2, 2),
-  digits.Q = gs("digits.Q"),
-  digits.tau2 = gs("digits.tau2"),
-  digits.tau = gs("digits.tau"),
-  digits.I2 = max(gs("digits.I2") - 1, 0),
-  scientific.pval = gs("scientific.pval"),
+  text = NULL,
+  digits = NULL,
+  leftcols = NULL,
+  rightcols = NULL,
+  leftlabs = NULL,
+  rightlabs = NULL,
+  lab.NA = if (is.null(x$subgroup)) gs("lab.NA") else "",
   big.mark = gs("big.mark"),
-  print.subgroup.labels = x$with.subgroups,
-  addrow.subgroups = print.subgroup.labels,
-  smlab,
-  calcwidth.pooled = overall,
-  warn.deprecated = gs("warn.deprecated"),
+  pscale = NULL,
+  irscale = NULL,
+  irunit = NULL,
+  scientific.pval = gs("scientific.pval"),
+  zero.pval = gs("zero.pval"),
+  JAMA.pval = gs("JAMA.pval"),
+  details = FALSE,
   ...
 )
 }
 \arguments{
 \item{x}{An object of class \code{\link{metabind}}.}
 
-\item{leftcols}{A character vector specifying (additional) columns
-to be plotted on the left side of the forest plot or a logical
-value (see Details).}
+\item{layout}{Layout of the forest plot; see \code{\link{forest.meta}}.}
 
-\item{leftlabs}{A character vector specifying labels for
-(additional) columns on left side of the forest plot (see
-Details).}
+\item{common, random, prediction}{Logical values selecting common effect
+estimates, random effects estimates, and prediction intervals.}
 
-\item{rightcols}{A character vector specifying (additional) columns
-to be plotted on the right side of the forest plot or a logical
-value (see Details).}
+\item{overall}{A logical value indicating whether overall summaries should
+be plotted.}
 
-\item{rightlabs}{A character vector specifying labels for
-(additional) columns on right side of the forest plot (see
-Details).}
+\item{studlab}{A variable containing labels for individual results,
+evaluated in the combined results data frame or supplied as an external
+vector. Available with or without subgroup results.}
 
-\item{common}{A logical indicating whether common effect estimates
-should be plotted.}
+\item{subgroup}{For meta-analyses without subgroup results, a variable
+defining display groups, evaluated in the combined results data frame or
+supplied as an external vector. For example, \code{subgroup = type} groups
+results by common effect model, random effects model, or prediction
+interval. Unavailable when the included meta-analyses contain subgroup
+results.}
 
-\item{random}{A logical indicating whether random effects estimates
-should be plotted.}
+\item{overall.hetstat}{Ignored when meta-analyses have no subgroup results.
+Otherwise, a logical value indicating whether to display a shared overall
+heterogeneity row. The default \code{NULL} determines this automatically
+from agreement of the overall results and heterogeneity.}
 
-\item{overall}{A logical indicating whether overall summaries
-should be plotted. This argument is useful in a meta-analysis
-with subgroups if summaries should only be plotted on group
-level.}
+\item{hetstat}{Ignored when meta-analyses have no subgroup results; use
+\code{print} to display heterogeneity information in columns.
+Otherwise, a logical value controlling separate heterogeneity rows,
+defaulting to \code{TRUE}. Setting \code{FALSE} suppresses all such rows,
+including the shared overall heterogeneity row.}
 
-\item{subgroup}{A logical indicating whether subgroup results
-should be shown in forest plot. This argument is useful in a
-meta-analysis with subgroups if summaries should not be plotted
-on group level.}
+\item{backtransf}{A logical indicating whether results should be
+back-transformed. Different summary measures require back-transformation.}
 
-\item{hetstat}{Either a logical value indicating whether to print
-results for heterogeneity measures at all or a character string
-(see Details).}
+\item{test}{A named list controlling statistical test rows.}
 
-\item{overall.hetstat}{A logical value indicating whether to print
-heterogeneity measures for overall treatment comparisons. This
-argument is useful in a meta-analysis with subgroups if
-heterogeneity statistics should only be printed on subgroup
-level.}
+\item{label}{A named list controlling column and test labels. Logical values
+or character vectors control the x-axis tick labels instead.
+See Details for defaults specific to this function and
+\code{\link{meta-formatting}} for information on the elements.}
 
-\item{prediction}{A logical indicating whether prediction
-interval(s) should be printed.}
+\item{col, print, type, text, digits}{Named lists controlling colours, displayed
+information, graphical types, model text. Scalar values are also accepted
+for \code{type} and \code{digits}.
+See Details for defaults specific to this function and
+\code{\link{meta-formatting}} for information on the elements.}
 
-\item{lab.NA}{A character string to label missing values.}
+\item{leftcols, rightcols}{Columns printed to the left or right of the
+forest plot; see \code{\link{forest.meta}}. Explicit column selections
+take precedence over automatic column selection.}
 
-\item{col.square}{The colour for squares reflecting study's weight
-in the meta-analysis.}
+\item{leftlabs, rightlabs}{Column headings. Use \code{NA} to retain a
+default heading.}
 
-\item{col.square.lines}{The colour for the outer lines of squares
-reflecting study's weight in the meta-analysis.}
+\item{lab.NA}{Label for missing values.}
 
-\item{col.circle}{The colour for circles reflecting study weights
-in the meta-analysis.}
+\item{big.mark}{Character used as thousands separator.}
 
-\item{col.circle.lines}{The colour for the outer lines of circles
-reflecting study's weight in the meta-analysis.}
+\item{pscale}{A numeric giving scaling factor for printing of
+single event probabilities or risk differences
+(see \code{\link{metaprop}}).}
 
-\item{col.diamond}{The colour of diamonds representing the results
-for common effect and random effects models.}
+\item{irscale}{A numeric defining a scaling factor for printing of
+single incidence rates or incidence rate differences
+(see \code{\link{metarate}}).}
 
-\item{col.diamond.common}{The colour of diamonds for common effect
-estimates.}
+\item{irunit}{A character specifying the time unit used to
+calculate rates, e.g., person-years (see \code{\link{metarate}}).}
 
-\item{col.diamond.random}{The colour of diamonds for random effects
-estimates.}
+\item{scientific.pval, zero.pval, JAMA.pval}{Logical values controlling
+the formatting of P values (see \code{\link{forest.meta}}).}
 
-\item{col.diamond.lines}{The colour of the outer lines of diamonds
-representing the results for common effect and random effects
-models.}
+\item{details}{A logical specifying whether method details are printed.
+Defaults to \code{TRUE} when the included meta-analyses contain subgroup
+results, and \code{FALSE} otherwise.}
 
-\item{col.diamond.lines.common}{The colour of the outer lines of
-diamond for common effect estimates.}
-
-\item{col.diamond.lines.random}{The colour of the outer lines of
-diamond for random effects estimates.}
-
-\item{col.predict}{Background colour of prediction intervals.}
-
-\item{col.predict.lines}{Colour of outer lines of prediction
-intervals.}
-
-\item{type}{A character string or vector specifying how to
-plot estimates.}
-
-\item{type.common}{A single character string specifying how to
-plot common effect estimates.}
-
-\item{type.random}{A single character string specifying how to
-plot random effects estimates.}
-
-\item{type.predict}{A single character string specifying how to
-plot prediction intervals.}
-
-\item{digits}{Minimal number of significant digits for treatment
-effects, see \code{print.default}.}
-
-\item{digits.se}{Minimal number of significant digits for standard
-errors, see \code{print.default}.}
-
-\item{digits.stat}{Minimal number of significant digits for z- or
-t-statistic for test of overall effect, see \code{print.default}.}
-
-\item{digits.pval}{Minimal number of significant digits for p-value
-of overall treatment effect, see \code{print.default}.}
-
-\item{digits.pval.Q}{Minimal number of significant digits for
-p-value of heterogeneity test, see \code{print.default}.}
-
-\item{digits.Q}{Minimal number of significant digits for
-heterogeneity statistic Q, see \code{print.default}.}
-
-\item{digits.tau2}{Minimal number of significant digits for
-between-study variance, see \code{print.default}.}
-
-\item{digits.tau}{Minimal number of significant digits for square
-root of between-study variance, see \code{print.default}.}
-
-\item{digits.I2}{Minimal number of significant digits for I-squared
-statistic, see \code{print.default}.}
-
-\item{scientific.pval}{A logical specifying whether p-values should
-be printed in scientific notation, e.g., 1.2345e-01 instead of
-0.12345.}
-
-\item{big.mark}{A character used as thousands separator.}
-
-\item{print.subgroup.labels}{A logical indicating whether subgroup
-label should be printed.}
-
-\item{addrow.subgroups}{A logical value indicating whether an empty
-row is printed between results for subgroups.}
-
-\item{smlab}{A label for the summary measurex (printed at top of
-figure).}
-
-\item{calcwidth.pooled}{A logical indicating whether text for
-common effect and random effects model should be considered to
-calculate width of the column with study labels.}
-
-\item{warn.deprecated}{A logical indicating whether warnings should
-be printed if deprecated arguments are used.}
-
-\item{\dots}{Additional graphical arguments (passed on to
-\code{\link{forest.meta}}).}
+\item{\dots}{Additional arguments passed to \code{\link{forest.meta}}.}
+}
+\value{
+Invisibly returns a list with information about the forest plot,
+including the selected columns (\code{leftcols}, \code{rightcols}),
+their headings (\code{leftlabs}, \code{rightlabs}), formatted results,
+and graphical settings (see \code{\link{forest.meta}}).
+Element \code{data} contains the dataset used to create the forest plot.
 }
 \description{
-Draws a forest plot in the active graphics window (using grid
-graphics system).
+Draws a forest plot combining common effect estimates, random effects
+estimates, and prediction intervals from a metabind object.
 }
 \details{
-A forest plot, also called confidence interval plot, is drawn in
-the active graphics window. The forest functions in R package
-\bold{meta} are based on the grid graphics system. In order to
-print the forest plot, resize the graphics window and either use
-\code{\link{dev.copy2eps}} or \code{\link{dev.copy2pdf}}. Another
-possibility is to create a file using \code{\link{pdf}},
-\code{\link{png}}, or \code{\link{svg}} and to specify the width
-and height of the graphic (see \code{\link{forest.meta}} examples).
+When the included meta-analyses contain subgroup results, the forest plot
+groups these results by meta-analysis. Overall summaries are shared when
+the datasets and selected overall results agree; otherwise they are shown
+separately for each meta-analysis. Shared heterogeneity information
+additionally requires agreement of the heterogeneity values and settings.
 
-The arguments \code{leftcols} and \code{rightcols} can be used to
-specify columns which are plotted on the left and right side of the
-forest plot, respectively.
+Confidence and prediction intervals share a column. Heterogeneity information
+is shown once per included meta-analysis, with tau and tau-squared
+information also shown on its prediction interval rows when random effects
+results are selected. Tau and tau-squared information is not shown on common
+effect rows.
 
-The arguments \code{leftlabs} and \code{rightlabs} can be used to
-specify column headings which are plotted on left and right side of
-the forest plot, respectively. For certain columns predefined
-labels exist. For other columns, the column name will be used as a
-label. It is possible to only provide labels for new columns (see
-\code{\link{forest.meta}} examples). Otherwise the length of
-\code{leftlabs} and \code{rightlabs} must be the same as the number
-of printed columns, respectively. The value \code{NA} can be used
-to specify columns which should use default labels.
+Back-transformations are applied separately using the settings stored for
+each meta-analysis, allowing results with different transformations
+to be displayed together.
 
-Argument \code{hetstat} can be a character string to specify where
-to print heterogeneity information:
-\itemize{
-\item row with results for common effect model (\code{hetstat =
-"common"}),
-\item row with results for random effects model (\code{hetstat =
-"random"}),
-\item rows with 'study' information (\code{hetstat = "study"}).
+\subsection{Formatting defaults}{
+Unless listed below, defaults for supported formatting elements are
+described in \code{\link{meta-formatting}}.
+
+\tabular{ll}{
+\bold{Element} \tab \bold{Default} \cr
+\code{print$stat}, \code{print$pval} \tab Automatic \cr
+\code{print$I2}, \code{print$pval.Q} \tab See below \cr
+\code{print$I2.ci}, \code{print$Q} \tab \code{FALSE} \cr
+\code{print$subgroup.name} \tab \code{FALSE} \cr
+\code{type$common}, \code{type$random} \tab \code{NULL} (automatic) \cr
+\code{digits$pval} \tab \code{max(gs("digits.pval") - 2, 2)} \cr
+\code{digits$pval.Q} \tab \code{max(gs("digits.pval.Q") - 2, 2)} \cr
 }
-Otherwise, information on heterogeneity is printed in dedicated rows.
+Fill and border colours are determined automatically from the layout.
+They can be overridden using the following elements of the named list
+\code{col}:
+\itemize{
+\item \code{square}, \code{square.lines}: square fill and border;
+\item \code{circle}, \code{circle.lines}: circle fill and border;
+\item \code{diamond}, \code{diamond.lines}: diamond fill and border;
+\item \code{diamond.common}, \code{diamond.lines.common}: common effect
+  diamond fill and border;
+\item \code{diamond.random}, \code{diamond.lines.random}: random effects
+  diamond fill and border;
+\item \code{predict}, \code{predict.lines}: prediction interval fill
+  and border.
+}
+
+The named list \code{print} controls which columns are shown.
+Columns \code{func}, \code{sm}, \code{method}, and \code{method.interval}
+are selected automatically when their values differ between the displayed
+results. Heterogeneity-method columns \code{method.tau},
+\code{method.tau.ci}, and \code{method.I2} are selected similarly when
+the corresponding heterogeneity statistics are shown.
+Statistics and P values are shown when available, except in subgroup plots.
+
+Without subgroup results, \code{print$I2} defaults to \code{FALSE},
+and \code{print$pval.Q} follows \code{print$Q}.
+With subgroup results, I-squared is shown by default. The global setting
+\code{settings.meta(print.I2 = FALSE)} suppresses it unless
+\code{print$I2} is set explicitly. Element \code{print$pval.Q}
+defaults to \code{TRUE} for subgroup plots.
+}
 }
 \examples{
-data(Fleiss1993cont)
-
-# Add some (fictitious) grouping variables:
+ma <- metagen(1:3, 3:1, sm = "md")
 #
-Fleiss1993cont$age <- c(55, 65, 55, 65, 55)
-Fleiss1993cont$region <- c("Europe", "Europe", "Asia", "Asia", "Europe")
-
-ma <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
-  data = Fleiss1993cont, sm = "SMD")
-
-# Conduct two subgroup analyses
+mb <- metabind(ma, update(ma, method.random.ci = "HK"))
 #
-ma1 <- update(ma, subgroup = age, subgroup.name = "Age group")
-ma2 <- update(ma, subgroup = region, subgroup.name = "Region")
-
-# Combine subgroup meta-analyses and show forest plot with subgroup
-# results
-#
-mb <- metabind(ma1, ma2)
-mb
 forest(mb)
+#
+forest(mb, subgroup = type)
 
 }
 \seealso{
-\code{\link{forest.meta}}, \code{\link{metabin}},
-  \code{\link{metacont}}, \code{\link{metagen}},
-  \code{\link{metabind}}, \code{\link{settings.meta}}
+\code{\link{metabind}}, \code{\link{print.metabind}},
+  \code{\link{forest.meta}}
 }
 \author{
 Guido Schwarzer \email{guido.schwarzer@uniklinik-freiburg.de}

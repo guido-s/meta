@@ -53,7 +53,7 @@ ciClopperPearson <- function(event, n, level, null.effect) {
   lower <- upper <- statistic <- pval <- rep(NA, k)
   #
   for (i in seq_len(k)) {
-    if (!is.na(event[i] & !is.na(n[i]))) {
+    if (!is.na(event[i]) && !is.na(n[i])) {
       cint <- binom.test(event[i], n[i], conf.level = level,
                          p = if (!is.na(null.effect)) null.effect else 0.5)
       #
@@ -172,7 +172,7 @@ ciPoisson <- function(event, time, level, null.effect) {
   chknumeric(event, 0)
   chknumeric(time, 0, zero = TRUE)
   chklevel(level)
-  chknumeric(null.effect, min = 0, max = 1, length = 1)
+  chknumeric(null.effect, min = 0, length = 1)
   #
   if (length(event) == 1 & length(time) > 1)
     event <- rep(event, length(time))
@@ -187,7 +187,7 @@ ciPoisson <- function(event, time, level, null.effect) {
   lower <- upper <- statistic <- pval <- rep(NA, k)
   #
   for (i in seq_len(k)) {
-    if (!is.na(event[i] & !is.na(time[i]))) {
+    if (!is.na(event[i]) && !is.na(time[i])) {
       cint <-
         poisson.test(event[i], time[i], conf.level = level,
                      r = if (!is.na(null.effect)) null.effect else 1)

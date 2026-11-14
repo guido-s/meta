@@ -150,7 +150,7 @@ correction method should be used (\code{"only0"},
 \item{allstudies}{A logical indicating if studies with zero or all
 events in both groups are to be included in the meta-analysis
 (applies only if \code{sm} is equal to \code{"RR"}, \code{"OR"},
-or \code{"DOR"}).}
+\code{"DOR"}, or \code{"VE"}).}
 
 \item{incr.e}{Continuity correction in experimental group, see Details.}
 
@@ -166,9 +166,10 @@ method.}
 
 \item{RR.Cochrane}{A logical indicating if 2*\code{incr} instead of
 1*\code{incr} is to be added to \code{n.e} and \code{n.c} in the
-calculation of the risk ratio (i.e., \code{sm="RR"}) for studies
-with a zero cell. This is used in RevMan 5, the program for
-preparing and maintaining Cochrane reviews.}
+calculation of the risk ratio or vaccine efficacy / effectiveness
+(i.e., \code{sm="RR"} or \code{sm="VE"}) for studies with a zero
+cell. This is used in RevMan 5, the program for preparing and
+maintaining Cochrane reviews.}
 
 \item{Q.Cochrane}{A logical indicating if the Mantel-Haenszel
 estimate is used in the calculation of the heterogeneity
@@ -232,8 +233,8 @@ for meta-analysis estimates.}
 is used to calculate confidence interval and test statistic for
 common effect estimate (see \code{\link{meta-package}}).}
 
-\item{method.random.ci}{A character string indicating which method
-is used to calculate confidence interval and test statistic for
+\item{method.random.ci}{A character string or vector indicating which methods
+are used to calculate confidence intervals and test statistics for the
 random effects estimate (see \code{\link{meta-package}}).}
 
 \item{adhoc.hakn.ci}{A character string indicating whether an
@@ -262,11 +263,12 @@ funnel plot asymmetry is to be used. Either \code{"Begg"},
 abbreviated. See function \code{\link{metabias}.}}
 
 \item{backtransf}{A logical indicating whether results for odds
-ratio (\code{sm="OR"}), risk ratio (\code{sm="RR"}), or
-diagnostic odds ratio (\code{sm="DOR"}) should be back
-transformed in printouts and plots. If TRUE (default), results
-will be presented as odds ratios and risk ratios; otherwise log
-odds ratios and log risk ratios will be shown.}
+ratio (\code{sm="OR"}), risk ratio (\code{sm="RR"}),
+diagnostic odds ratio (\code{sm="DOR"}), or vaccine efficacy /
+effectiveness (\code{sm="VE"}) should be back transformed in
+printouts and plots. If TRUE (default), results will be presented
+as odds ratios and risk ratios; otherwise log odds ratios and log
+risk ratios will be shown.}
 
 \item{pscale}{A numeric defining a scaling factor for printing of
 risk differences.}
@@ -404,6 +406,14 @@ least one cluster provides more than one estimate. Internally,
 \code{\link[metafor]{weights.rma.mv}} with argument \code{type =
 "rowsum"} is used to calculate random effects weights.
 
+Cluster-robust variance estimators (Tipton and Pustejovsky, 2015;
+Pustejovsky and Tipton, 2022) are available for univariate random effects
+and three-level models (argument \code{method.random.ci} equal to
+\code{"CR0"}, \code{"CR1"}, or \code{"CR2"}). Internally,
+\code{\link[metafor]{rma.uni}} or \code{\link[metafor]{rma.mv}} is called
+and then passed to \code{\link[metafor]{robust}}. For univariate random
+effects models, study labels (argument \code{studlab}) are used as clusters.
+
 Default settings are utilised for several arguments (assignments
 using \code{\link{gs}} function). These defaults can be changed for
 the current R session using the \code{\link{settings.meta}}
@@ -438,8 +448,8 @@ ratio, i.e. \code{(O-E) / V} and its standard error \code{sqrt(1 /
 V)} with \code{O-E} and \code{V} denoting "Observed minus Expected"
 and its variance, are utilised in the random effects
 model. Accordingly, results of a random effects model using
-\code{sm = "Peto"} can be different to results from a random
-effects model using \code{sm = "MH"} or \code{sm =
+\code{method = "Peto"} can be different to results from a random
+effects model using \code{method = "MH"} or \code{method =
 "Inverse"}. Note, the random effects estimate is based on the
 inverse variance method for all methods discussed so far.
 
@@ -452,10 +462,10 @@ be utilised in a meta-analysis of binary outcomes (Stijnen et al.,
 
 R package \bold{brglma2} must be available to fit a one-stage logistic
 regression model with penalised likelihood (Evrenoglou et al., 2022).
-The estimation of the summary odds ratio relies on the maximisation of the 
+The estimation of the summary odds ratio relies on the maximisation of the
 likelihood function, penalised using a Firth-type correction. This
 penalisation aims to reduce bias in cases with rare events and a small
-number of available studies. However, this method is not restricted 
+number of available studies. However, this method is not restricted
 to only such cases and can be applied more generally to binary data. Note,
 with this type of penalisation, all studies can be included in the analysis,
 regardless of the total number of observed events. This allows both single
@@ -470,7 +480,7 @@ Generalised linear mixed models are available
 (argument \code{method = "GLMM"}) for the odds ratio as summary measure for
 the common effect and random effects model by calling the
 \code{\link[metafor]{rma.glmm}} function from R package
-\bold{metafor} internally. 
+\bold{metafor} internally.
 
 Four different GLMMs are available for
 meta-analysis with binary outcomes using argument \code{model.glmm}
@@ -537,11 +547,12 @@ For studies with a zero cell count, by default, 0.5 (argument
 \code{incr}) is added to all cell frequencies for the odds ratio or
 only the number of events for the risk ratio (argument
 \code{RR.Cochrane = FALSE}, default). The increment is added to all
-cell frequencies for the risk ratio if argument \code{RR.Cochrane =
-TRUE}. For the risk difference, \code{incr} is only added to all
-cell frequencies to calculate the standard error. Finally, a
-treatment arm continuity correction is used if \code{incr = "TACC"}
-(Sweeting et al., 2004; Diamond et al., 2007).
+cell frequencies for the risk ratio or vaccine efficacy / effectiveness
+if argument \code{RR.Cochrane = TRUE}. For the risk difference,
+\code{incr} is only added to all cell frequencies to calculate the
+standard error. Finally, a treatment arm continuity correction is used
+if \code{incr = "TACC"} (Sweeting et al., 2004; Diamond et al.,
+2007).
 
 For odds ratio and risk ratio, treatment estimates and standard
 errors are only calculated for studies with zero or all events in
@@ -644,8 +655,8 @@ ma3
 ma4 <- update(ma3, method = "MH")
 ma4
 
-# Meta-analysis based on Peto method (only available for odds ratio
-# as summary measure)
+# Meta-analysis based on Peto method (only available for odds ratio or
+# diagnostic odds ratio as summary measure)
 #
 ma5 <- update(ma3, method = "Peto")
 ma5
@@ -737,6 +748,12 @@ Estimation of a common effect parameter from sparse follow-up data.
 \emph{Biometrics},
 \bold{41}, 55--68
 
+Pustejovsky JE, Tipton E (2022):
+Meta-Analysis with robust variance estimation: Expanding the range of
+working models.
+\emph{Prevention Science},
+\bold{23}, 425--38
+
 \emph{Review Manager (RevMan)} [Computer program]. Version 5.4.
 The Cochrane Collaboration, 2020
 
@@ -774,6 +791,12 @@ What to add to nothing? Use and avoidance of continuity corrections
 in meta-analysis of sparse data.
 \emph{Statistics in Medicine},
 \bold{23}, 1351--75
+
+Tipton E, Pustejovsky JE (2015):
+Small-sample adjustments for tests of moderators and model fit using
+robust variance estimation in meta-regression.
+\emph{Journal of Educational and Behavioral Statistics},
+\bold{40}, 604--34
 
 Van den Noortgate W, López-López JA, Marín-Martínez F, Sánchez-Meca J (2013):
 Three-level meta-analysis of dependent effect sizes.

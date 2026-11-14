@@ -28,13 +28,10 @@
 #'   treatment effects indicate a beneficial (\code{"desirable"}) or
 #'   harmful (\code{"undesirable"}), can be abbreviated.
 #' @param big.mark A character used as thousands separator.
-#' @param digits.cid Minimal number of significant digits for
-#'   CIDs / decision thresholds, see \code{print.default}.
-#' @param digits.percent Minimal number of significant digits for
-#'   expected proportions, printed as percentages, see \code{print.default}.
 #' @param details.methods A logical specifying whether details on
 #'   statistical methods should be printed.
-#' @param \dots Additional arguments (ignored)
+#' @param \dots Additional arguments. The print method accepts formatting
+#'   settings described in \code{\link{meta-formatting}}; otherwise ignored.
 #' 
 #' @details
 #' Expected proportions of comparable studies with clinically important
@@ -57,6 +54,11 @@
 #' Thresholds based on argument \code{cid} will always be symmetric. Asymmetric
 #' thresholds can be defined using arguments \code{cid.below.null} and
 #' \code{cid.above.null}.
+#' 
+#' Note, the input to arguments \code{cid}, \code{cid.below.null}, and
+#' \code{cid.above.null} is always on the scale of the outcome measure.
+#' For example, risk ratios instead of log risk ratios have to be provided for
+#' the risk ratio as summary measure.
 #'
 #' @return
 #' A list with elements
@@ -117,7 +119,8 @@ cidprop.meta <- function(x,
                          label.cid.below.null = NULL,
                          label.cid.above.null = NULL,
                          #
-                         small.values = "desirable",
+                         small.values =
+                           if (x$sm != "VE") "desirable" else "undesirable",
                          ...) {
   
   #
@@ -128,18 +131,27 @@ cidprop.meta <- function(x,
   
   chkclass(x, "meta")
   #
+  warn_ignore_dots(list(...), "cidprop")
+  #
   sm <- x$sm
   is_relative <- is_relative_effect(sm)
+  is_VE <- sm == "VE"
+  n.pft <- if (sm == "PFT") x$n.harmonic.mean else NULL
+  time.irft <- if (sm == "IRFT") x$t.harmonic.mean else NULL
+  use.transf <- sm %in% c("PLOGIT", "PLN", "PAS", "PFT",
+                          "IRLN", "IRS", "IRFT", "MLN", "ZCOR")
   #
   missing.cid <- missing(cid)
   #
-  if (is_prop(sm) | is_rate(sm) | is_mean(sm)) {
+  if (is_single(sm)) {
     if (is_prop(sm))
       outcome <- "proportions"
-    else if (is_prop(sm))
+    else if (is_rate(sm))
       outcome <- "rates"
-    else
+    else if (is_mean(sm))
       outcome <- "means"
+    else
+      outcome <- "correlations"
     #
     ref <- replaceNULL(x$null.effect)
     #
@@ -172,8 +184,8 @@ cidprop.meta <- function(x,
       stop("At least one decision threshold (argument 'cid', ",
            "'cid.below.null', or 'cid.above.null') must be specified.",
            call. = FALSE)
-    else if (!(is_prop(x$sm) | is_rate(x$sm) | is_mean(x$sm)))
-      cid <- backtransf(cid, x$sm)
+    else if (!is_single(sm))
+      cid <- backtransf(cid, sm)
     #
     avail.cid <- TRUE
   }
@@ -205,7 +217,7 @@ cidprop.meta <- function(x,
            "smaller or larger than reference value of ", ref, ".",
            call. = FALSE)
     #
-    if (is_prop(x$sm) | is_rate(x$sm) | is_mean(x$sm)) {
+    if (is_single(sm)) {
         cid.below.null <- cid
         cid.above.null <- cid
     }
@@ -214,11 +226,13 @@ cidprop.meta <- function(x,
         cid.below.null <- cid
         cid.above.null <- cid
       }
-      else if (all(cid < ref)) {
+      else if (all(cid <= ref)) {
         cid.below.null <- cid
         #
         if (is_relative)
           cid.above.null <- rev(1 / cid)
+        else if (is_VE)
+          cid.above.null <- rev(logVR2VE(-VE2logVR(cid)))
         else
           cid.above.null <- rev(-cid)
       }
@@ -227,6 +241,8 @@ cidprop.meta <- function(x,
         #
         if (is_relative)
           cid.below.null <- rev(1 / cid)
+        else if (is_VE)
+          cid.below.null <- rev(logVR2VE(-VE2logVR(cid)))
         else
           cid.below.null <- rev(-cid)
       }
@@ -243,6 +259,10 @@ cidprop.meta <- function(x,
     #
     if (is_relative)
       cid.below.null.transf <- log(cid.below.null)
+    else if (use.transf) {
+      cid.below.null.transf <-
+        transf(cid.below.null, sm, n = n.pft, time = time.irft)
+    }
   }
   else {
     cid.below.null <- NA
@@ -256,10 +276,19 @@ cidprop.meta <- function(x,
     #
     if (is_relative)
       cid.above.null.transf <- log(cid.above.null)
+    else if (use.transf) {
+      cid.above.null.transf <-
+        transf(cid.above.null, sm, n = n.pft, time = time.irft)
+    }
   }
   else {
     cid.above.null <- NA
     cid.above.null.transf <- NA
+  }
+  #
+  if (is_VE) {
+    cid.below.null.transf <- VE2logVR(cid.above.null)
+    cid.above.null.transf <- VE2logVR(cid.below.null)
   }
   #
   # CID labels
@@ -295,7 +324,6 @@ cidprop.meta <- function(x,
     else if (avail.label.cid.above.null)
       warning("Argument 'label.cid.above.null' ignored as argument 'label.cid' is provided.",
               call. = FALSE)
-    #
     #
     if (all(cid < ref)) {
       label.cid.below.null <- label.cid
@@ -356,6 +384,12 @@ cidprop.meta <- function(x,
   #
   if (is_zero(prop.within.cid))
     prop.within.cid <- 0
+  #
+  if (is_VE) {
+    prop.tmp <- prop.cid.below.null
+    prop.cid.below.null <- prop.cid.above.null
+    prop.cid.above.null <- prop.tmp
+  }
   
   
   #
@@ -395,22 +429,44 @@ cidprop <- function(x, ...)
 
 
 #' @rdname cidprop
+#' @param digits A named list controlling rounding; see
+#'   \code{\link{meta-formatting}}. A scalar rounds thresholds.
 #' @method print cidprop
 #' @export
 
 print.cidprop <- function(x,
-                           digits.cid = gs("digits.cid"), digits.percent = 1,
+                           #
+                           digits = NULL,
+                           #
                            big.mark = gs("big.mark"),
                            details.methods = gs("details"),
                            ...) {
   
   #
   #
-  # (1) Check arguments
+  # (1) Check and set arguments
   #
   #
     
   chkclass(x, "cidprop")
+  #
+  args <- list(...)
+  #
+  # Digits used to round results
+  #
+  scalar.digits <- !is.null(digits) && !is.list(digits)
+  digits <- as_named_list(digits)
+  if (scalar.digits)
+    names(digits) <- "cid"
+  #
+  digits.list <-
+    merge_legacy(digits, args, list(cid = gs("digits.cid"), percent = 1))
+  #
+  digits <- digits.list$res
+  args <- digits.list$args
+  #
+  digits.cid <- digits$cid
+  digits.percent <- digits$percent
   #
   chknumeric(digits.cid, min = 0, length = 1)
   chknumeric(digits.percent, min = 0, length = 1)
@@ -440,8 +496,12 @@ print.cidprop <- function(x,
   #
   if (!is.null(x$x)) {
     if (!x$x$backtransf) {
-      cid.below.null <- transf(cid.below.null, x$x$sm)
-      cid.above.null <- transf(cid.above.null, x$x$sm)
+      n.pft <- if (x$x$sm == "PFT") x$x$n.harmonic.mean else NULL
+      time.irft <- if (x$x$sm == "IRFT") x$x$t.harmonic.mean else NULL
+      cid.below.null <-
+        transf(cid.below.null, x$x$sm, n = n.pft, time = time.irft)
+      cid.above.null <-
+        transf(cid.above.null, x$x$sm, n = n.pft, time = time.irft)
     }
     #
     if (x$x$sm == "")
@@ -452,6 +512,8 @@ print.cidprop <- function(x,
       smlab <- "R "
     else if (is_mean(x$x$sm))
       smlab <- "Mean "
+    else if (is_cor(x$x$sm))
+      smlab <- "Cor "
     else
       smlab <-
         paste0(smlab(x$x$sm, x$x$backtransf), " ")
@@ -535,7 +597,7 @@ print.cidprop <- function(x,
   #
   dat.cid %<>%
     mutate(Threshold = formatN(Threshold, digits = digits.cid,
-                               big.mark = big.mark, text.NA = ""))
+                               big.mark = big.mark, lab.NA = ""))
   #
   if (three.categories) {
     dat.cid %<>%
@@ -551,7 +613,7 @@ print.cidprop <- function(x,
   #
   dat.cid %<>%
     mutate(
-      prop = paste0(formatPT(100 * prop, digits = digits.percent), "%"),
+      prop = percent_label(prop, "", digits.percent, formatPT),
       category =
         if_else(label == "", category, paste(category, label)),
       category = paste0(category, " ")) %>%

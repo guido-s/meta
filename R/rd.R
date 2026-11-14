@@ -121,9 +121,6 @@ rd <- function(x, ...)
   UseMethod("rd")
 
 
-
-
-
 #' @rdname rd
 #' @method rd meta
 #' @export
@@ -134,7 +131,6 @@ rd.meta <- function(x, p.c,
                     small.values = "desirable",
                     pscale = 1,
                     ...) {
-  
   
   #
   # (1) Check for meta object and summary measure
@@ -147,7 +143,10 @@ rd.meta <- function(x, p.c,
          "risk ratio, odds ratio, or hazard ratio as summary measure ",
          "(argument 'sm').")
   #
-  chknumeric(pscale, length = 1)
+  warn_ignore_dots(list(...), "rd.meta")
+  #
+  pscale <- replaceNULL(pscale, 1)
+  chknumeric_strict(pscale, min = 1, length = 1)
   
   
   #
@@ -281,9 +280,6 @@ rd.meta <- function(x, p.c,
 }
 
 
-
-
-
 #' @rdname rd
 #' @method rd default
 #' @export
@@ -304,6 +300,8 @@ rd.default <- function(x, p.c, sm, lower, upper,
   if (missing(sm))
     stop("Argument 'sm' is mandatory.")
   #
+  warn_ignore_dots(list(...), "rd.default")
+  #
   sm <- setchar(sm, c("RD", "RR", "OR", "HR"))
   #
   chklevel(level)
@@ -317,7 +315,8 @@ rd.default <- function(x, p.c, sm, lower, upper,
   #
   chknumeric(p.c, 0, 1)
   #
-  chknumeric(pscale, length = 1)
+  pscale <- replaceNULL(pscale, 1)
+  chknumeric_strict(pscale, min = 1, length = 1)
   #
   missing.lower <- missing(lower)
   if (!missing.lower)
@@ -419,9 +418,6 @@ rd.default <- function(x, p.c, sm, lower, upper,
 }
 
 
-
-
-
 #' @rdname rd
 #' @method print rd.meta
 #' @export
@@ -436,31 +432,33 @@ print.rd.meta <- function(x,
                           details = gs("details"),
                           ...) {
   
-  
   #
   # (1) Check for rd.meta object
   #
-  chkclass(x, "rd.meta")
   
+  chkclass(x, "rd.meta")
+  #
+  warn_ignore_dots(list(...), "print.rd.meta")
   
   #
   # (2) Check arguments
   #
+  
   chklogical(common)
   chklogical(random)
   #
-  chknumeric(pscale, length = 1)
+  pscale <- replaceNULL(pscale, 1)
+  chknumeric_strict(pscale, min = 1, length = 1)
   #
   chknumeric(digits, min = 0, length = 1)
   chknumeric(digits.prop, min = 0, length = 1)
   #
   chklogical(details)
   
-  
   sm <- attributes(x)$sm
   sv <- attributes(x)$small.values
   #
-  ci.lab <- paste0(round(100 * replaceNULL(attributes(x)$level), 1), "% CI")
+  ci.lab <- percent_label(replaceNULL(attributes(x)$level))
   p.lab <- if (sm == "HR") "Surv.c" else "Risk.c"
   
   if (common) {
@@ -735,9 +733,6 @@ print.rd.meta <- function(x,
 }
 
 
-
-
-
 #' @rdname rd
 #' @method print rd.default
 #' @export
@@ -752,7 +747,10 @@ print.rd.default <- function(x,
   #
   # (1) Check for rd.default object
   #
+  
   chkclass(x, "rd.default")
+  #
+  warn_ignore_dots(list(...), "print.rd.default")
   
   res <- vector("list")
   res$common <- x
@@ -772,9 +770,6 @@ print.rd.default <- function(x,
   #
   invisible(NULL)
 }
-
-
-
 
 
 #

@@ -14,33 +14,71 @@ catmeth <- function(x,
                     print.df = TRUE,
                     #
                     forest = FALSE) {
-
+  
   #
   #
   # (1) Some settings
   #
   #
   
-  metacum.metainf <- inherits(x, "metacum") | inherits(x, "metainf")
-  metabind <- inherits(x, "metabind")
+  sm <- x$sm
   #
-  metabin  <- inherits(x, "metabin") & !metacum.metainf
-  metacont <- inherits(x, "metacont") & !metacum.metainf
-  metacor  <- inherits(x, "metacor") & !metacum.metainf
-  metagen  <- inherits(x, "metagen") & !metacum.metainf
-  metainc  <- inherits(x, "metainc") & !metacum.metainf
-  metamean <- inherits(x, "metamean") & !metacum.metainf
-  metaprop <- inherits(x, "metaprop") & !metacum.metainf
-  metarate <- inherits(x, "metarate") & !metacum.metainf
+  metacum.metainf <- inherits(x, "metacum") || inherits(x, "metainf")
+  #
+  metabin  <- inherits(x, "metabin") && !metacum.metainf
+  metacont <- inherits(x, "metacont") && !metacum.metainf
+  metainc  <- inherits(x, "metainc") && !metacum.metainf
+  #
+  metagen  <- inherits(x, "metagen") && !metacum.metainf
+  #
+  metacor  <- inherits(x, "metacor") && !metacum.metainf
+  metamean <- inherits(x, "metamean") && !metacum.metainf
+  metaprop <- inherits(x, "metaprop") && !metacum.metainf
+  metarate <- inherits(x, "metarate") && !metacum.metainf
+  #
+  classes <-
+    if (metacum.metainf)
+      unique(unlist(x$classes, use.names = FALSE))
+    else
+      character()
+  type.classes <-
+    if (metacum.metainf)
+      unique(unlist(x$classes, use.names = FALSE))
+    else
+      character()
+  #
+  metabin.cc <- metabin || "metabin" %in% classes
+  metacont.cc <- metacont || "metacont" %in% classes
+  metainc.cc <- metainc || "metainc" %in% classes
+  metaprop.cc <- metaprop || "metaprop" %in% classes
+  metarate.cc <- metarate || "metarate" %in% classes
   #
   trimfill <- inherits(x, "trimfill") & !metacum.metainf
   metamiss <- inherits(x, "metamiss") & !metacum.metainf
+  #
+  bin.cont.inc <- metabin || metacont || metainc ||
+    any(classes %in% c("metabin", "metacont", "metainc"))
+  #
+  type.bin.cont.inc <- metabin || metacont || metainc ||
+    any(type.classes %in% c("metabin", "metacont", "metainc"))
+  #
+  single <- is_single(sm) ||
+    any(classes %in% c("metacor", "metamean", "metaprop", "metarate"))
+  #
+  type.single <- is_single(sm) ||
+    any(type.classes %in% c("metacor", "metamean", "metaprop", "metarate"))
   #
   by <- !is.null(x$subgroup)
   #
   gm <- gm(x)
   meth <- gm$meth
   pred <- gm$pred
+  #
+  # Preserve binary-outcome method details for cumulative and influence results
+  #
+  if (metacum.metainf && "metabin" %in% classes &&
+      !"MH.exact" %in% names(meth))
+    meth$MH.exact <- x$x$MH.exact
   #
   selmod <-
     if (!common & !random)
@@ -54,39 +92,34 @@ catmeth <- function(x,
   #
   bothmod <- length(selmod) > 1
   #
-  # Print information on meta-analysis of n-of-1-trials first
-  #
-  if (!is.null(x$cycles)) {
-    details <-
-      paste0("\n- ",
-             if (any(x$k.all > 1)) "Meta-a" else "A",
-             "nalysis of n-of-1 trials (pooled SD=",
-             x$sd.n_of_1,
-             ")")
-  }
-  else
-    details <- NULL
-  #
   width <- options()$width
   #
-  if (metabin)
-    method <- "metabin"
+  if (metacum.metainf) {
+    type.meta <- type.classes[
+      type.classes %in%
+        c("metabin", "metacont", "metainc", "metacor", "metamean",
+          "metaprop", "metarate", "metagen")
+    ]
+    type.meta <- if (length(type.meta) > 0) type.meta[1] else NULL
+  }
+  else if (metabin)
+    type.meta <- "metabin"
   else if (metacont)
-    method <- "metacont"
-  else if (metacor)
-    method <- "metacor"
-  else if (metagen)
-    method <- "metagen"
+    type.meta <- "metacont"
   else if (metainc)
-    method <- "metainc"
-  else if (metamean)
-    method <- "metamean"
-  else if (metaprop)
-    method <- "metaprop"
-  else if (metarate)
-    method <- "metarate"
-  else if (metacum.metainf | metabind)
-    method <- x$classes
+    type.meta <- "metainc"
+  else if (metacor || is_cor(sm))
+    type.meta <- "metacor"
+  else if (metamean || is_mean(sm))
+    type.meta <- "metamean"
+  else if (metaprop || is_prop(sm))
+    type.meta <- "metaprop"
+  else if (metarate || is_rate(sm))
+    type.meta <- "metarate"
+  else if (metagen)
+    type.meta <- "metagen"
+  else
+    type.meta <- NULL
   #
   if (forest) {
     text.tau2 <- "tau^2"
@@ -97,12 +130,42 @@ catmeth <- function(x,
   #
   text.t <- ""
   #
-  if (print.tau2 | metabind | metacum.metainf)
+  if (print.tau2 | metacum.metainf)
     text.t <- text.tau2
   else if (print.tau)
     text.t <- text.tau
   #
   method.I2 <- replaceNULL(x$method.I2, "Q")
+  #
+  # Print information on meta-analysis
+  #
+  if (!is.null(x$cycles)) {
+    # N-of-1-trials
+    details <-
+      paste0("\n- ",
+             if (any(x$k.all > 1)) "Meta-a" else "A",
+             "nalysis of n-of-1 trials (pooled SD=",
+             x$sd.n_of_1,
+             ")")
+  }
+  else if (!is.null(type.meta) && any(x$k.all > 1)) {
+    # Other types of meta-analysis
+    details <-
+      paste0("\n- Meta-analysis ",
+             if (type.bin.cont.inc) "comparing two groups with ",
+             if (type.single) "of single ",
+             recode(type.meta,
+                    metabin = "binary outcomes",
+                    metacont = "continuous outcomes",
+                    metainc = "incidence rates",
+                    metacor = "correlations",
+                    metamean = "means",
+                    metaprop = "proportions",
+                    metarate = "rates",
+                    metagen = "using the generic inverse variance method"))
+  }
+  else
+    details <- NULL
   
   
   #
@@ -111,11 +174,14 @@ catmeth <- function(x,
   #
   #
     
-  if (overall | metabind | metacum.metainf | by) {
-    
+  if (overall | metacum.metainf | by) {
+        
     meth.ma <- meth[meth$model %in% selmod, , drop = FALSE]
     #
     vars.ma <- c("model", "method")
+    #
+    if ("metabin" %in% type.classes)
+      vars.ma <- c(vars.ma, "MH.exact")
     #
     if ((metabin | metainc) & any(meth.ma$method == "GLMM"))
       vars.ma <- c(vars.ma, "model.glmm")
@@ -136,7 +202,7 @@ catmeth <- function(x,
     #
     details.i <- vector("character", length = nrow(meth.ma))
     for (i in seq_len(nrow(meth.ma)))
-      details.i[i] <- text_meth(meth.ma, i, random, method)
+      details.i[i] <- text_meth(meth.ma, i, random, type.meta)
     #
     details <- paste(c(details, unique(details.i)), collapse = "")
     #
@@ -162,7 +228,7 @@ catmeth <- function(x,
   #
   #
   if (((random | (metacum.metainf & (print.tau2 | print.tau))) & 
-       (overall | metabind | by)) | overall.hetstat) {
+       (overall | by)) | overall.hetstat) {
     if (metacum.metainf)
       sel.mt <- meth$model %in% c("common", "random")
     else
@@ -182,7 +248,7 @@ catmeth <- function(x,
     #
     method.tau <- unique(dat.mt$method.tau[is.na(dat.mt$tau.preset)])
     #
-    if ((print.tau2 | print.tau | metabind) & length(method.tau) >= 1) {
+    if ((print.tau2 | print.tau) & length(method.tau) >= 1) {
       for (mti in method.tau) {
         details <-
           paste0(details,
@@ -339,11 +405,14 @@ catmeth <- function(x,
     #
     dat.rc.ckr <- subset(dat.rc, dat.rc$method.random.ci == "classic-KR")
     dat.rc.kr <- subset(dat.rc, dat.rc$method.random.ci == "KR")
+    dat.rc.cr <-
+      subset(dat.rc, dat.rc$method.random.ci %in% c("CR0", "CR1", "CR2"))
     #
     more.ci <- sum(1L * (nrow(dat.rc.hk) > 0) +
-                   1L * (nrow(dat.rc.hk.tdist) > 0) +
-                   1L * (nrow(dat.rc.ckr) > 0) +
-                   1L * (nrow(dat.rc.kr) > 0)) > 1
+                    1L * (nrow(dat.rc.hk.tdist) > 0) +
+                    1L * (nrow(dat.rc.ckr) > 0) +
+                    1L * (nrow(dat.rc.kr) > 0) +
+                    1L * (nrow(dat.rc.cr) > 0)) > 1
     #
     if (nrow(dat.rc.hk) > 0) {
       details <-
@@ -394,6 +463,26 @@ catmeth <- function(x,
           if (print.df)
             paste0(" (df = ", cond(dat.rc.kr$df.random), ")")
         )
+    #
+    if (nrow(dat.rc.cr) > 0) {
+      for (i in seq_len(nrow(dat.rc.cr))) {
+        df.cr <- dat.rc.cr$df.random[i]
+        details <-
+          paste0(
+            details,
+            "\n- Cluster-robust variance estimator (",
+            dat.rc.cr$method.random.ci[i],
+            if (print.df)
+              paste0(
+                ", df = ",
+                cond(df.cr,
+                     digits = if (is.finite(df.cr) && df.cr == round(df.cr))
+                       0
+                     else
+                       2)),
+            ")")
+      }
+    }
   }
   
   
@@ -607,17 +696,17 @@ catmeth <- function(x,
   # (11) Information on effect measure
   #
   #
-  
-  sm <- x$sm
-  #
+    
   details <-
     paste0(details,
            if (sm == "ZCOR")
              "\n- Fisher's z transformation of correlations"
            else if (sm == "COR")
              "\n- Untransformed correlations"
-           else if (sm == "PFT" | sm == "IRFT")
+           else if (sm == "PFT")
              "\n- Freeman-Tukey double arcsine transformation"
+           else if (sm == "IRFT")
+             "\n- Freeman-Tukey transformation"
            else if (sm == "PAS")
              "\n- Arcsine transformation"
            else if (is_log_effect(sm))
@@ -735,15 +824,20 @@ catmeth <- function(x,
   #
   #
   
-  if (metabin | metainc | metaprop | metarate) {
+  if (metabin.cc | metainc.cc | metaprop.cc | metarate.cc) {
+    x.cc <- if (metacum.metainf && !is.null(x$x)) x$x else x
+    meth.cc <- if (metacum.metainf && !is.null(x$x)) gm(x$x)$meth else meth
     vars <- c("method", "incr", "method.incr", "sparse", "k.all")
     #
-    if (metabin)
+    if (metabin.cc)
       vars <- c(vars, "allstudies", "doublezeros", "MH.exact", "RR.Cochrane")
     #
-    dat.cc <- unique(meth[meth$model %in% selmod, vars])
+    dat.cc <- unique(meth.cc[meth.cc$model %in% selmod, vars])
     #
-    if (!(metabin & sm == "ASD")) {
+    cc.used <- logical(nrow(dat.cc))
+    cc.only.individual <- logical(nrow(dat.cc))
+    #
+    if (!(metabin.cc & sm == "ASD")) {
       details.cc <- ""
       #
       for (i in seq_len(nrow(dat.cc))) {
@@ -758,7 +852,7 @@ catmeth <- function(x,
         #
         details.rr <- NULL
         #
-        if (metabin) {
+        if (metabin.cc) {
           txtCC.ind.i <-
             (dat.cc$method[i] == "MH" & dat.cc$MH.exact[i]) |
             dat.cc$method[i] %in% c("GLMM", "LRP")
@@ -779,13 +873,17 @@ catmeth <- function(x,
         # No continuity correction for generalized linear mixed model and
         # argument 'method.ci != "NAsm"'
         #
-        if (!(txtCC.ind.i &
-              (!is.null(x$method.ci) && x$method.ci != "NAsm"))) {
+        if (!(metacum.metainf && txtCC.ind.i) &&
+            !(txtCC.ind.i &
+              (!is.null(x.cc$method.ci) && x.cc$method.ci != "NAsm"))) {
           if (method.incr.i == "user") {
-            if (incr.i != 0)
+            if (incr.i != 0) {
               details.cc <- "\n- User-defined continuity correction"
+              cc.used[i] <- TRUE
+              cc.only.individual[i] <- txtCC.ind.i
+            }
           }
-          else  if (method.incr.i == "all") {
+          else if (method.incr.i == "all") {
             if (incr.i == "TACC") {
               details.cc <- c(
                 details.cc,
@@ -793,15 +891,20 @@ catmeth <- function(x,
                   "\n- Treatment arm continuity correction in all studies"
                 else
                   "\n- Treatment arm continuity correction")
+              cc.used[i] <- TRUE
+              cc.only.individual[i] <- txtCC.ind.i
             }
-            else if (incr.i != 0)
+            else if (incr.i != 0) {
               details.cc <- c(
                 details.cc,
                 paste0("\n- Continuity correction of ",
                        incr.i,
-                       if (k.all.i > 1)
-                         " in all studies",
-                       details.rr))
+                        if (k.all.i > 1)
+                          " in all studies",
+                        details.rr))
+              cc.used[i] <- TRUE
+              cc.only.individual[i] <- txtCC.ind.i
+            }
           }
           else if (sparse.i) {
             if (incr.i == "TACC") {
@@ -818,9 +921,11 @@ catmeth <- function(x,
                     " "
                   else
                     "\n  ",
-                  "zero cell frequencies",
-                  details.rr
-                ))
+                   "zero cell frequencies",
+                   details.rr
+                 ))
+              cc.used[i] <- TRUE
+              cc.only.individual[i] <- txtCC.ind.i
             }
             else if (incr.i != 0) {
               details.cc <- c(
@@ -834,20 +939,16 @@ catmeth <- function(x,
                     " "
                   else if (k.all.i > 1 & !forest)
                     "\n  ",
-                  if (k.all.i > 1)
-                    "zero cell frequencies",
-                  details.rr))
+                   if (k.all.i > 1)
+                     "zero cell frequencies",
+                   details.rr))
+              cc.used[i] <- TRUE
+              cc.only.individual[i] <- txtCC.ind.i
             }
-            #
-            if ((incr.i == "TACC" || incr.i != 0) && txtCC.ind.i)
-              details.cc <- c(
-                details.cc,
-                if (forest) " " else "\n  ",
-                "(only used to calculate individual study results)")
           }
         }
         #
-        if (metabin & method.incr.i != "user") {
+        if (metabin.cc & method.incr.i != "user") {
           if ((!is.na(dat.cc$allstudies[i]) && dat.cc$allstudies[i]) &
               (!is.na(dat.cc$doublezeros[i]) && dat.cc$doublezeros[i]))
             details.cc <- c(
@@ -858,6 +959,12 @@ catmeth <- function(x,
                 "\n- Study with double zeros considered")
         }
       }
+      #
+      if (any(cc.used) && all(cc.only.individual[cc.used]))
+        details.cc <- c(
+          details.cc,
+          if (forest) " " else "\n  ",
+          "(only used to calculate individual study results)")
       #
       details.cc <- paste0(unique(details.cc), collapse = "")
       details <- paste0(details, details.cc)
@@ -875,36 +982,48 @@ catmeth <- function(x,
   irscale <- x$irscale
   irunit <- x$irunit
   #
-  if (!is.null(pscale) && pscale != 1)
-    if (is_prop(sm) || sm == "RD")
-      details <-
-        paste0(details,
-               "\n- Events per ",
-               format(pscale, scientific = FALSE, big.mark = big.mark),
-               " observations")
-    else
-      details <-
-        paste0(details,
-               "\n- Scaling factor for results: ",
-               format(pscale, scientific = FALSE, big.mark = big.mark))   
+  if (!is.null(pscale) && pscale != 1 && (is_prop(sm) || sm == "RD"))
+    details <-
+      paste0(details,
+             "\n- Events per ",
+             format(pscale, scientific = FALSE, big.mark = big.mark),
+             " observations")
   #
-  if (!is.null(irscale) && irscale != 1)
-    if (is_rate(sm) || sm == "IRD")
-      details <-
-        paste0(details,
-               "\n- Events per ",
-               format(irscale, scientific = FALSE, big.mark = big.mark),
-               " ", irunit)
-    else
-      details <-
-        paste0(details,
-               "\n- Scaling factor for results: ",
-               format(irscale, scientific = FALSE, big.mark = big.mark))   
+  if (!is.null(irscale) && irscale != 1 && (is_rate(sm) || sm == "IRD"))
+    details <-
+      paste0(details,
+             "\n- Events per ",
+             format(irscale, scientific = FALSE, big.mark = big.mark),
+             " ", irunit)
   #
   null.effect <- x$null.effect
   #
-  if (!is.na(null.effect) && (null.effect != 0 | metaprop | metarate)) {
-    details <- paste0(details, "\n- Null hypothesis: effect is equal to ")
+  null.effect.original <-
+    inherits(x, c("metacor", "metamean", "metaprop", "metarate"))
+  #
+  if (!is.null(null.effect) && !is.na(null.effect)) {
+    if (!backtransf && null.effect.original)
+      null.effect <-
+        transf(null.effect, sm,
+               n =
+                 if (sm == "PFT") makeunique(x$n.harmonic.mean) else NULL,
+               time =
+                 if (sm == "IRFT") makeunique(x$t.harmonic.mean) else NULL,
+               func = x$func.transf,
+               args = x$args.transf)
+    else if (backtransf && !null.effect.original)
+      null.effect <-
+        backtransf(null.effect, sm,
+                   n =
+                     if (sm == "PFT") makeunique(x$n.harmonic.mean) else NULL,
+                   time =
+                     if (sm == "IRFT") makeunique(x$t.harmonic.mean) else NULL,
+                   func = x$func.backtransf,
+                   args = x$args.backtransf)
+  }
+  #
+  if (!is.na(null.effect) && overall) {
+    details <- paste0(details, "\n- Null hypothesis: ")
     #
     if (!is.null(pscale) && pscale != 1)
       details <-
@@ -922,10 +1041,19 @@ catmeth <- function(x,
                " events per ",
                format(irscale, scientific = FALSE, big.mark = big.mark),
                " ", irunit)
-    else
+    else {
+      sm.lab <- smlab(sm, pscale = 1, irscale = 1, forest = forest,
+                      backtransf, func.backtransf = func.backtransf)
+      #
+      if (sm.lab == "")
+        sm.lab <- "effect"
+      #
       details <- paste0(details,
+                        sm.lab,
+                        " = ",
                         format(null.effect, scientific = FALSE,
                                big.mark = big.mark))
+    }
   }
   
   

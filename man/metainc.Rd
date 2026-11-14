@@ -201,8 +201,8 @@ for meta-analysis estimates.}
 is used to calculate confidence interval and test statistic for
 common effect estimate (see \code{\link{meta-package}}).}
 
-\item{method.random.ci}{A character string indicating which method
-is used to calculate confidence interval and test statistic for
+\item{method.random.ci}{A character string or vector indicating which methods
+are used to calculate confidence intervals and test statistics for the
 random effects estimate (see \code{\link{meta-package}}).}
 
 \item{adhoc.hakn.ci}{A character string indicating whether an
@@ -368,6 +368,14 @@ least one cluster provides more than one estimate. Internally,
 \code{\link[metafor]{rma.mv}} is called to conduct the analysis and
 \code{\link[metafor]{weights.rma.mv}} with argument \code{type =
 "rowsum"} is used to calculate random effects weights.
+
+Cluster-robust variance estimators (Tipton and Pustejovsky, 2015;
+Pustejovsky and Tipton, 2022) are available for univariate random effects
+and three-level models (argument \code{method.random.ci} equal to
+\code{"CR0"}, \code{"CR1"}, or \code{"CR2"}). Internally,
+\code{\link[metafor]{rma.uni}} or \code{\link[metafor]{rma.mv}} is called
+and then passed to \code{\link[metafor]{robust}}. For univariate random
+effects models, study labels (argument \code{studlab}) are used as clusters.
 
 Default settings are utilised for several arguments (assignments
 using \code{\link{gs}} function). These defaults can be changed for
@@ -552,12 +560,24 @@ Estimation of a common effect parameter from sparse follow-up data.
 \emph{Biometrics},
 \bold{41}, 55--68
 
+Pustejovsky JE, Tipton E (2022):
+Meta-Analysis with robust variance estimation: Expanding the range of
+working models.
+\emph{Prevention Science},
+\bold{23}, 425--38
+
 Stijnen T, Hamza TH, Ozdemir P (2010):
 Random effects meta-analysis of event outcome in the framework of
 the generalized linear mixed model with applications in sparse
 data.
 \emph{Statistics in Medicine},
 \bold{29}, 3046--67
+
+Tipton E, Pustejovsky JE (2015):
+Small-sample adjustments for tests of moderators and model fit using
+robust variance estimation in meta-regression.
+\emph{Journal of Educational and Behavioral Statistics},
+\bold{40}, 604--34
 
 Van den Noortgate W, López-López JA, Marín-Martínez F, Sánchez-Meca J (2013):
 Three-level meta-analysis of dependent effect sizes.

@@ -40,3 +40,9 @@ is_prop <- function(x)
 
 is_rate <- function(x)
   x %in% gs("sm4rate")
+
+is_single <- function(x)
+  is_prop(x) | is_rate(x) | is_mean(x) | is_cor(x)
+
+is_null_empty <- function(x)
+  length(x) == 0L

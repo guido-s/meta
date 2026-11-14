@@ -39,16 +39,20 @@ forest_dims_internal <- function(x, units = "in") {
   #
   width <- convertWidth(sum(layout$widths), grid_unit, valueOnly = TRUE)
   
-  # Heights: single unit recycled across nrow — expand then sum
+  # Heights: exact per-row units, sum directly
   #
-  height <-
-    convertHeight(sum(rep(layout$heights, layout$nrow)),
-                  grid_unit, valueOnly = TRUE)
+  height <- convertHeight(sum(layout$heights), grid_unit, valueOnly = TRUE)
   
-  # Hardcoded padding to prevent clipping of axis labels
-  #
   extra_width <- inches2units(0.3, units)
-  extra_height <- inches2units(0.8, units)
+  extra_height.default <- inches2units(0.3, units)
+  overhang <- x$top.depth.lines + x$bottom.depth.lines
+  extra_height <-
+    if (overhang == 0)
+      if (isTRUE(attr(x, "details"))) 0 else extra_height.default
+    else
+      max(extra_height.default,
+          convertHeight(unit(overhang, "lines"),
+                        grid_unit, valueOnly = TRUE))
   #
   res <- list(width = width + extra_width, height = height + extra_height,
               units = units)

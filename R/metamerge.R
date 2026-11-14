@@ -708,12 +708,18 @@ metamerge <- function(meta1, meta2,
   #
   #
   
+  meta1 <- normalize_overall_results(meta1)
+  meta2 <- normalize_overall_results(meta2)
+  #
   res <- meta1
   #
-  ncom1 <- length(meta1$TE.common)
-  nran1 <- length(meta1$TE.random)
-  ncom2 <- length(meta2$TE.common)
-  nran2 <- length(meta2$TE.random)
+  res$result.characteristics <- merge_result_characteristics(meta1, meta2)
+  #
+  ncom1 <- length(meta1$lower.common)
+  nran1 <- length(meta1$lower.random)
+  #
+  ncom2 <- length(meta2$lower.common)
+  nran2 <- length(meta2$lower.random)
   #
   # Individual study weights
   #
@@ -1086,15 +1092,7 @@ metamerge <- function(meta1, meta2,
   
   #
   #
-  # (8) Backward compatibility
-  #
-  #
-  res <- backward(res)
-  
-  
-  #
-  #
-  # (9) Set class
+  # (8) Set class
   #
   #
   #  
@@ -1105,8 +1103,11 @@ metamerge <- function(meta1, meta2,
   #
   res$call <- match.call()
   #
+  # Backward compatibility (still required by R package metaumbrella)
+  #
+  res <- backward(res)
+  #
   class(res) <- unique(class(res))
-  
-  
+    
   res
 }

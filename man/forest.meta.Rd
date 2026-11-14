@@ -12,49 +12,87 @@
   sortvar,
   studlab = TRUE,
   layout = gs("layout"),
+  data.pooled = NULL,
   common = x$common,
   random = x$random,
-  overall = x$overall,
-  text.common = x$text.common,
-  text.random = x$text.random,
-  lty.common = gs("lty.common"),
-  lty.random = gs("lty.random"),
-  col.common = gs("col.common"),
-  col.random = gs("col.random"),
-  text.w.common = x$text.w.common,
-  text.w.random = x$text.w.random,
   prediction = x$prediction,
-  text.predict = x$text.predict,
+  overall = x$overall,
+  overall.hetstat = x$overall.hetstat & !inherits(x, "metamerge"),
+  hetstat = common | random | overall.hetstat,
+  resid.hetstat = gs("resid.hetstat"),
   subgroup = TRUE,
   subgroup.hetstat = subgroup & (is.character(hetstat) || hetstat),
-  print.subgroup.labels = TRUE,
+  common.subgroup = common,
+  random.subgroup = random,
+  prediction.subgroup = x$prediction.subgroup,
   subgroup.name = x$subgroup.name,
-  print.subgroup.name = x$print.subgroup.name,
   sep.subgroup = x$sep.subgroup,
-  text.subgroup = NULL,
-  text.common.w = text.common,
-  text.random.w = text.random,
-  text.predict.w = text.predict,
   sort.subgroup = gs("sort.subgroup"),
-  pooled.totals = common | random,
-  pooled.events = gs("pooled.events"),
-  pooled.times = gs("pooled.times"),
   study.results = gs("study.results"),
-  rob = x$rob,
-  rob.text = "Risk of Bias",
-  rob.xpos = 0,
-  rob.legend = TRUE,
-  rob.only = FALSE,
-  xlab = "",
+  allstudies = TRUE,
+  weight.study = NULL,
+  test = NULL,
+  LRT = gs("LRT"),
+  leftcols = gs("leftcols"),
+  rightcols = gs("rightcols"),
+  leftlabs = gs("leftlabs"),
+  rightlabs = gs("rightlabs"),
+  label,
+  hetlab = gs("hetlab"),
+  resid.hetlab = gs("resid.hetlab"),
+  lab.NA = gs("lab.NA"),
+  lab.NA.effect = gs("lab.NA.effect"),
+  lab.NA.weight = gs("lab.NA.weight"),
+  rob = NULL,
+  fontfamily = gs("fontfamily"),
+  fontsize = gs("fontsize"),
+  fs = NULL,
+  ff = NULL,
+  just = NULL,
+  fill = NULL,
+  col = NULL,
+  print = NULL,
+  type = NULL,
+  pooled = NULL,
+  text = NULL,
+  lty = NULL,
+  lwd = NULL,
+  digits = NULL,
+  calcwidth = NULL,
+  colgap = NULL,
+  ref,
+  cid = NULL,
+  xlab = NULL,
   xlab.pos,
   smlab = NULL,
   smlab.pos,
   xlim,
-  allstudies = TRUE,
-  weight.study = NULL,
+  at = NULL,
+  bottom.lr = gs("bottom.lr"),
+  details = gs("forest.details"),
+  header.line,
+  addrow = NULL,
+  addrows.below.overall = gs("addrows.below.overall"),
+  arrow.type = gs("arrow.type"),
+  arrow.length = gs("arrow.length"),
+  spacing = gs("spacing"),
+  squaresize = if (layout == "BMJ") 0.9/spacing else 0.8/spacing,
+  plotwidth = if (layout \%in\% c("BMJ", "JAMA")) "8cm" else "6cm",
+  bmj.text = NULL,
+  bmj.sep = " / ",
+  backtransf = x$backtransf,
+  big.mark = gs("big.mark"),
   pscale = x$pscale,
   irscale = x$irscale,
   irunit = x$irunit,
+  scientific.pval = gs("scientific.pval"),
+  zero.pval = if (layout == "JAMA") FALSE else gs("zero.pval"),
+  JAMA.pval = if (layout == "JAMA") TRUE else gs("JAMA.pval"),
+  main,
+  main.prefix = gs("main.prefix"),
+  xpos.main = gs("xpos.main"),
+  gap.main = gs("gap.main"),
+  lineheight.main = gs("lineheight.main"),
   filename = NULL,
   path = NULL,
   device = NULL,
@@ -64,231 +102,8 @@
   width = NULL,
   dpi = 300,
   dev.off = NULL,
-  rows.gr = NULL,
-  ref,
-  cid = gs("cid"),
-  cid.below.null = gs("cid.below.null"),
-  cid.above.null = gs("cid.above.null"),
-  lty.cid = gs("lty.cid"),
-  col.cid = gs("col.cid"),
-  fill.cid = gs("fill.cid"),
-  fill.cid.below.null = fill.cid,
-  fill.cid.above.null = rev(fill.cid),
-  cid.pooled.only = gs("cid.pooled.only"),
-  fill = gs("fill"),
-  fill.equi = gs("fill.equi"),
-  fill.lower.equi = fill.equi,
-  fill.upper.equi = rev(fill.equi),
-  leftcols = gs("leftcols"),
-  rightcols = gs("rightcols"),
-  leftlabs = gs("leftlabs"),
-  rightlabs = gs("rightlabs"),
-  label.e = x$label.e,
-  label.c = x$label.c,
-  label.e.attach = gs("label.e.attach"),
-  label.c.attach = gs("label.c.attach"),
-  label.left = x$label.left,
-  label.right = x$label.right,
-  bottom.lr = gs("bottom.lr"),
-  lab.NA = gs("lab.NA"),
-  lab.NA.effect = gs("lab.NA.effect"),
-  lab.NA.weight = gs("lab.NA.weight"),
-  lwd = gs("lwd"),
-  at = NULL,
-  label = TRUE,
-  col.label = gs("col.label"),
-  type.study = gs("type.study"),
-  type.common = gs("type.common"),
-  type.random = type.common,
-  type.subgroup = ifelse(study.results, "diamond", "square"),
-  type.subgroup.common = type.subgroup,
-  type.subgroup.random = type.subgroup,
-  col.study = gs("col.study"),
-  col.square = gs("col.square"),
-  col.square.lines = gs("col.square.lines"),
-  col.circle = gs("col.circle"),
-  col.circle.lines = col.circle,
-  col.inside = gs("col.inside"),
-  col.inside.common = col.inside,
-  col.inside.random = col.inside,
-  col.diamond = gs("col.diamond"),
-  col.diamond.common = col.diamond,
-  col.diamond.random = col.diamond,
-  col.diamond.lines = gs("col.diamond.lines"),
-  col.diamond.lines.common = col.diamond.lines,
-  col.diamond.lines.random = col.diamond.lines,
-  col.predict = gs("col.predict"),
-  col.predict.lines = gs("col.predict.lines"),
-  col.subgroup = gs("col.subgroup"),
-  col.label.left = x$col.label.left,
-  col.label.right = x$col.label.right,
-  hetstat = common | random | overall.hetstat,
-  overall.hetstat = x$overall.hetstat & !inherits(x, "metamerge"),
-  hetlab = gs("hetlab"),
-  resid.hetstat = gs("resid.hetstat"),
-  resid.hetlab = gs("resid.hetlab"),
-  print.I2 = gs("forest.I2"),
-  print.I2.ci = gs("forest.I2.ci"),
-  print.tau2 = gs("forest.tau2"),
-  print.tau2.ci = gs("forest.tau2.ci"),
-  print.tau = gs("forest.tau"),
-  print.tau.ci = gs("forest.tau.ci"),
-  print.Q = gs("forest.Q"),
-  print.pval.Q = gs("forest.pval.Q"),
-  print.Rb = gs("forest.Rb"),
-  print.Rb.ci = gs("forest.Rb.ci"),
-  label.n = gs("label.n"),
-  label.events = gs("label.events"),
-  label.mean = gs("label.mean"),
-  label.sd = gs("label.sd"),
-  label.cor = gs("label.cor"),
-  label.time = gs("label.time"),
-  label.pval = gs("label.pval"),
-  label.tau2 = gs("label.tau2"),
-  label.tau = gs("label.tau"),
-  label.I2 = gs("label.I2"),
-  label.cluster = gs("label.cluster"),
-  label.cycles = gs("label.cycles"),
-  text.subgroup.nohet = gs("text.subgroup.nohet"),
-  LRT = gs("LRT"),
-  test.overall = gs("test.overall"),
-  test.overall.common = common & overall & test.overall,
-  test.overall.random = random & overall & test.overall,
-  label.test.overall.common,
-  label.test.overall.random,
-  print.stat = gs("forest.stat"),
-  test.subgroup = x$test.subgroup,
-  test.subgroup.common = test.subgroup & common,
-  test.subgroup.random = test.subgroup & random,
-  common.subgroup = common,
-  random.subgroup = random,
-  prediction.subgroup = x$prediction.subgroup,
-  print.tau2.ci.subgroup = gs("print.tau2.ci.subgroup"),
-  print.tau.ci.subgroup = gs("print.tau.ci.subgroup"),
-  print.Q.subgroup = gs("forest.Q.subgroup"),
-  label.test.subgroup.common,
-  label.test.subgroup.random,
-  test.effect.subgroup = gs("test.effect.subgroup"),
-  test.effect.subgroup.common,
-  test.effect.subgroup.random,
-  label.test.effect.subgroup.common,
-  label.test.effect.subgroup.random,
-  text.addline1,
-  text.addline2,
-  details = gs("forest.details"),
-  col.lines = gs("col.lines"),
-  header.line,
-  col.header.line = col.lines,
-  col.jama.line = col.subgroup,
-  data.pooled = NULL,
-  fontsize = gs("fontsize"),
-  fontfamily = gs("fontfamily"),
-  fs.heading = fontsize,
-  fs.common = gs("fs.common"),
-  fs.random = gs("fs.random"),
-  fs.predict = gs("fs.predict"),
-  fs.common.labels = gs("fs.common.labels"),
-  fs.random.labels = gs("fs.random.labels"),
-  fs.predict.labels = gs("fs.predict.labels"),
-  fs.study = fontsize,
-  fs.study.labels = fs.study,
-  fs.hetstat = gs("fs.hetstat"),
-  fs.test.overall = gs("fs.test.overall"),
-  fs.test.subgroup = gs("fs.test.subgroup"),
-  fs.test.effect.subgroup = gs("fs.test.effect.subgroup"),
-  fs.addline = gs("fs.addline"),
-  fs.axis = fontsize,
-  fs.smlab = fontsize,
-  fs.xlab = fontsize,
-  fs.lr = fontsize,
-  fs.rob = fontsize,
-  fs.rob.symbols = fontsize,
-  fs.details = fontsize,
-  ff.heading = "bold",
-  ff.common = gs("ff.common"),
-  ff.random = gs("ff.random"),
-  ff.predict = gs("ff.predict"),
-  ff.common.labels = gs("ff.common.labels"),
-  ff.random.labels = gs("ff.random.labels"),
-  ff.predict.labels = gs("ff.predict.labels"),
-  ff.study = "plain",
-  ff.study.labels = ff.study,
-  ff.hetstat = gs("ff.hetstat"),
-  ff.test.overall = gs("ff.test.overall"),
-  ff.test.subgroup = gs("ff.test.subgroup"),
-  ff.test.effect.subgroup = gs("ff.test.effect.subgroup"),
-  ff.addline = gs("ff.addline"),
-  ff.axis = gs("ff.axis"),
-  ff.smlab = gs("ff.smlab"),
-  ff.xlab = gs("ff.xlab"),
-  ff.lr = gs("ff.lr"),
-  ff.rob = "plain",
-  ff.rob.symbols = "bold",
-  ff.details = "plain",
-  squaresize = if (layout == "BMJ") 0.9/spacing else 0.8/spacing,
-  lwd.square = gs("lwd.square"),
-  lwd.diamond = gs("lwd.diamond"),
-  arrow.type = gs("arrow.type"),
-  arrow.length = gs("arrow.length"),
-  plotwidth = if (layout \%in\% c("BMJ", "JAMA")) "8cm" else "6cm",
-  colgap = gs("colgap"),
-  colgap.left = colgap,
-  colgap.right = colgap,
-  colgap.studlab = colgap.left,
-  colgap.forest = gs("colgap.forest"),
-  colgap.forest.left = colgap.forest,
-  colgap.forest.right = colgap.forest,
-  colgap.rob = "1mm",
-  colgap.rob.overall = "2mm",
-  calcwidth.pooled = (common | random) & (overall | !is.null(x$subgroup)),
-  calcwidth.common = calcwidth.pooled,
-  calcwidth.random = calcwidth.pooled,
-  calcwidth.predict = gs("calcwidth.predict"),
-  calcwidth.hetstat = gs("calcwidth.hetstat"),
-  calcwidth.tests = gs("calcwidth.tests"),
-  calcwidth.subgroup = gs("calcwidth.subgroup"),
-  calcwidth.addline = gs("calcwidth.addline"),
-  just = if (layout == "JAMA") "left" else "right",
-  just.studlab = gs("just.studlab"),
-  just.addcols = gs("just.addcols"),
-  just.addcols.left = just.addcols,
-  just.addcols.right = just.addcols,
-  just.label.e = just,
-  just.label.c = just,
-  bmj.text = NULL,
-  bmj.xpos = 0,
-  bmj.sep = " / ",
-  spacing = gs("spacing"),
-  addrow = gs("addrow"),
-  addrow.overall = gs("addrow.overall"),
-  addrow.subgroups = gs("addrow.subgroups"),
-  addrows.below.overall = gs("addrows.below.overall"),
   new = TRUE,
-  backtransf = x$backtransf,
-  digits = gs("digits.forest"),
-  digits.se = gs("digits.se"),
-  digits.stat = gs("digits.stat"),
-  digits.pval = gs("digits.pval"),
-  digits.pval.Q = gs("digits.pval.Q"),
-  digits.Q = gs("digits.Q"),
-  digits.tau2 = gs("digits.tau2"),
-  digits.tau = gs("digits.tau"),
-  digits.I2 = gs("digits.I2"),
-  digits.weight = gs("digits.weight"),
-  digits.mean = gs("digits.mean"),
-  digits.sd = gs("digits.sd"),
-  digits.cor = digits,
-  digits.time = digits,
-  digits.n = 0,
-  digits.event = 0,
-  digits.TE = gs("digits.TE.forest"),
-  digits.addcols = digits,
-  digits.addcols.right = digits.addcols,
-  digits.addcols.left = digits.addcols,
-  scientific.pval = gs("scientific.pval"),
-  big.mark = gs("big.mark"),
-  zero.pval = if (layout == "JAMA") FALSE else gs("zero.pval"),
-  JAMA.pval = if (layout == "JAMA") TRUE else gs("JAMA.pval"),
+  rows.gr = NULL,
   warn.deprecated = gs("warn.deprecated"),
   ...
 )
@@ -310,42 +125,36 @@ provided (must be of same length as the vector with estimates \code{x$TE}).}
 \item{layout}{A character string specifying the layout of the
 forest plot (see Details).}
 
+\item{data.pooled}{Data set with information for line(s) with pooled
+results (see Details).}
+
 \item{common}{A logical indicating whether common effect estimate
 should be plotted.}
 
 \item{random}{A logical indicating whether random effects estimate
 should be plotted.}
 
+\item{prediction}{A logical indicating whether a prediction
+interval should be printed.}
+
 \item{overall}{A logical indicating whether overall summaries
 should be plotted. This argument is useful in a meta-analysis
 with subgroups if summaries should only be plotted on group
 level.}
 
-\item{text.common}{A character string used in the plot to label the
-pooled common effect estimate.}
+\item{overall.hetstat}{A logical value indicating whether to print
+heterogeneity measures for overall treatment comparisons. This
+argument is useful in a meta-analysis with subgroups if
+heterogeneity statistics should only be printed on subgroup
+level.}
 
-\item{text.random}{A character string used in the plot to label the
-pooled random effects estimate.}
+\item{hetstat}{Either a logical value indicating whether to print
+results for heterogeneity measures at all or a character string
+(see Details).}
 
-\item{lty.common}{Line type of pooled common effect estimate.}
-
-\item{lty.random}{Line type of pooled random effects estimate.}
-
-\item{col.common}{Line colour of pooled common effect estimate.}
-
-\item{col.random}{Line colour of pooled random effects estimate.}
-
-\item{text.w.common}{A character string used to label weights of
-common effect model.}
-
-\item{text.w.random}{A character string used to label weights of
-random effects model.}
-
-\item{prediction}{A logical indicating whether a prediction
-interval should be printed.}
-
-\item{text.predict}{A character string used in the plot to label
-the prediction interval.}
+\item{resid.hetstat}{A logical value indicating whether to print
+measures of residual heterogeneity in a meta-analysis with
+subgroups.}
 
 \item{subgroup}{A single logical or logical vector indicating
 whether / which subgroup results should be shown in forest
@@ -358,80 +167,30 @@ subgroups should be shown in forest plot. This argument is useful
 in a meta-analysis with subgroups if heterogeneity statistics
 should not be printed for (some) subgroups.}
 
-\item{print.subgroup.labels}{A logical indicating whether subgroup
-label should be printed.}
+\item{common.subgroup}{A single logical or logical vector
+indicating whether / which common effect estimates should be
+printed for subgroups.}
 
-\item{subgroup.name}{A character string with a label for the
-grouping variable.}
+\item{random.subgroup}{A single logical, logical vector, or logical matrix
+indicating whether / which random effects estimates should be printed for
+subgroups.}
 
-\item{print.subgroup.name}{A logical indicating whether the name of
-the grouping variable should be printed in front of the group
-labels.}
+\item{prediction.subgroup}{A single logical, logical vector, or logical
+matrix indicating whether / which prediction intervals should be printed
+for subgroups.}
 
-\item{sep.subgroup}{A character string defining the separator
-between label and levels of grouping variable.}
+\item{subgroup.name}{A character string with a label for the grouping
+variable.}
 
-\item{text.subgroup}{A character vector or expression to label the subgroups.
-The vector must be of the same length as the number of subgroups. Labels
-are printed from top to bottom in the forest plot.}
-
-\item{text.common.w}{A character string to label the pooled common
-effect estimate within subgroups, or a character vector of same
-length as number of subgroups with corresponging labels.}
-
-\item{text.random.w}{A character string to label the pooled random
-effect estimate within subgroups, or a character vector of same
-length as number of subgroups with corresponging labels.}
-
-\item{text.predict.w}{A character string to label the prediction
-interval within subgroups, or a character vector of same length
-as number of subgroups with corresponging labels.}
+\item{sep.subgroup}{A character string defining the separator between label
+and levels of grouping variable.}
 
 \item{sort.subgroup}{A logical indicating whether groups should be
 ordered alphabetically.}
 
-\item{pooled.totals}{A logical indicating whether total number of
-observations should be given in the figure.}
-
-\item{pooled.events}{A logical indicating whether total number of
-events should be given in the figure.}
-
-\item{pooled.times}{A logical indicating whether total person time
-at risk should be given in the figure.}
-
 \item{study.results}{A logical indicating whether results for
 individual studies should be shown in the figure (useful to only
 plot subgroup results).}
-
-\item{rob}{Risk of bias (RoB) assessment.}
-
-\item{rob.text}{Column heading for RoB table.}
-
-\item{rob.xpos}{A numeric specifying the horizontal position of the
-risk of bias label in RoB table heading. The value is a so called
-normalised parent coordinate in the horizontal direction (see
-\code{\link[grid]{unit}}).}
-
-\item{rob.legend}{A logical specifying whether a legend with RoB
-domains should be printed.}
-
-\item{rob.only}{A logical indicating whether the risk of bias
-assessment is the only information printed on the right side of
-the forest plot.}
-
-\item{xlab}{A label for the x-axis.}
-
-\item{xlab.pos}{A numeric specifying the center of the label on the
-x-axis.}
-
-\item{smlab}{A label for the summary measure (printed at top of
-figure).}
-
-\item{smlab.pos}{A numeric specifying the center of the label for
-the summary measure.}
-
-\item{xlim}{The x limits (min,max) of the plot, or the character
-string "symmetric" to produce symmetric forest plots.}
 
 \item{allstudies}{A logical indicating whether studies with
 inestimable treatment effects should be included in the forest
@@ -445,6 +204,177 @@ be abbreviated. Plot symbols have the same size for all studies
 or represent study weights from common effect or random effects
 model.}
 
+\item{test}{A named list specifying which results of statistical tests
+should be printed; see \code{\link{meta-formatting}}.}
+
+\item{LRT}{A logical value indicating whether to report
+Likelihood-Ratio or Wald-type test of heterogeneity for
+generalised linear mixed models.}
+
+\item{leftcols}{A character vector specifying (additional) columns
+to be printed on the left side of the forest plot or a logical
+value (see Details).}
+
+\item{rightcols}{A character vector specifying (additional) columns
+to be printed on the right side of the forest plot or a logical
+value (see Details).}
+
+\item{leftlabs}{A character vector specifying labels for
+(additional) columns on left side of the forest plot (see
+Details).}
+
+\item{rightlabs}{A character vector specifying labels for
+(additional) columns on right side of the forest plot (see
+Details).}
+
+\item{label}{A logical value indicating whether to draw the labels
+on the tick marks, or an expression or character vector which
+specify the labels to use. See \code{\link{grid.xaxis}}. A named list
+can also be supplied to specify column labels; see
+\code{\link{meta-formatting}}.}
+
+\item{hetlab}{Label printed in front of results for heterogeneity
+measures.}
+
+\item{resid.hetlab}{Label printed in front of results for residual
+heterogeneity measures.}
+
+\item{lab.NA}{A character string to label missing values.}
+
+\item{lab.NA.effect}{A character string to label missing values in
+individual treatment estimates and confidence intervals.}
+
+\item{lab.NA.weight}{A character string to label missing weights.}
+
+\item{rob}{Risk-of-bias (RoB) assessment, or a named list specifying the
+assessment, table heading, legend, and right-side display; see
+\code{\link{meta-formatting}}.}
+
+\item{fontfamily}{The font family, see \code{\link{gpar}}.}
+
+\item{fontsize}{The size of text (in points), see \code{\link{gpar}}.}
+
+\item{fs}{A named list specifying font sizes for elements of the forest
+plot; see \code{\link{meta-formatting}}.}
+
+\item{ff}{A named list specifying fontfaces for elements of the forest
+plot; see \code{\link{meta-formatting}}.}
+
+\item{just}{A named list specifying justification settings; a character
+string is also accepted for the common justification. See
+\code{\link{meta-formatting}}.}
+
+\item{fill}{A named list specifying fill settings; a scalar value is also
+accepted. See \code{\link{meta-formatting}}.}
+
+\item{col}{A named list specifying colours used in the forest
+plot; see \code{\link{meta-formatting}}.}
+
+\item{print}{A named list specifying which information to print in the forest
+plot; see \code{\link{meta-formatting}}.}
+
+\item{type}{A named list specifying graphical types for study, pooled, and
+subgroup results; see \code{\link{meta-formatting}}.}
+
+\item{pooled}{A named list specifying pooled totals and event/time settings;
+see \code{\link{meta-formatting}}.}
+
+\item{text}{A named list specifying text for pooled results, subgroup
+results, and additional lines; see \code{\link{meta-formatting}}.}
+
+\item{lty}{A named list specifying line types; see
+\code{\link{meta-formatting}}.}
+
+\item{lwd}{The line width, see \code{\link{par}}, or a named list
+specifying line widths; see \code{\link{meta-formatting}}.}
+
+\item{digits}{A named list specifying digits used for displayed results; a
+scalar value is also accepted. See \code{\link{meta-formatting}}.}
+
+\item{calcwidth}{A named list specifying which text is considered when
+calculating column widths; see \code{\link{meta-formatting}}.}
+
+\item{colgap}{A named list specifying gaps between columns; a scalar value
+is also accepted. See \code{\link{meta-formatting}}.}
+
+\item{ref}{A numerical giving the reference value to be plotted as
+a line in the forest plot. No reference line is plotted if
+argument \code{ref} is equal to \code{NA}.}
+
+\item{cid}{A numeric value or vector, or a named list specifying clinically
+important differences (CID) / decision thresholds used to calculate
+probabilities of clinically important benefit or harm, or not important
+effects (see Details); see \code{\link{meta-formatting}}.}
+
+\item{xlab}{A label for the x-axis. By default, no label is printed,
+except for meta-analyses of single proportions, incidence rates,
+risk differences, or rate differences if proportions or rates are
+expressed as events per a specified number of observations or time
+units using \code{pscale} or \code{irscale}.}
+
+\item{xlab.pos}{A numeric specifying the center of the label on the
+x-axis.}
+
+\item{smlab}{A label for the summary measure (printed at top of
+figure). By default, no label is printed for single proportions or
+incidence rates.}
+
+\item{smlab.pos}{A numeric specifying the center of the label for
+the summary measure.}
+
+\item{xlim}{The x limits (min,max) of the plot, or the character
+string "symmetric" to produce symmetric forest plots.}
+
+\item{at}{The points at which tick-marks are to be drawn, see
+\code{grid.xaxis}.}
+
+\item{bottom.lr}{A logical indicating whether labels on right and
+left side should be printed at bottom or top of forest plot.}
+
+\item{details}{A logical specifying whether details on statistical
+methods should be printed.}
+
+\item{header.line}{A logical value indicating whether to print a
+header line or a character string ("both", "below", "").}
+
+\item{addrow}{A logical value indicating whether an empty row is
+printed above study results, or a named list specifying row-spacing
+settings; see \code{\link{meta-formatting}}.}
+
+\item{addrows.below.overall}{A numeric value indicating how many
+empty rows are printed between meta-analysis results and
+heterogeneity statistics and test results.}
+
+\item{arrow.type}{A character string indicating whether arrows
+printed for results outside the forest plot should be
+\code{"open"}, or \code{"closed"}, can be abbreviated.}
+
+\item{arrow.length}{The length of arrows in inches.}
+
+\item{spacing}{A numeric determining line spacing in a forest plot.}
+
+\item{squaresize}{A numeric used to increase or decrease the size
+of squares in the forest plot.}
+
+\item{plotwidth}{Either a character string, e.g., "8cm", "60mm", or
+"3inch", or a \code{\link[grid]{unit}} object specifying width of
+the forest plot.}
+
+\item{bmj.text}{A character string used in the plot with BMJ layout
+to label the group specific information.}
+
+\item{bmj.sep}{A character string used to separate sample sizes
+from number of events or means / standard deviations.}
+
+\item{backtransf}{A logical indicating whether results should be
+back transformed in forest plots. If \code{backtransf = TRUE},
+results for \code{sm = "OR"} are presented as odds ratios rather
+than log odds ratios and results for \code{sm = "ZCOR"} are
+presented as correlations rather than Fisher's z transformed
+correlations, for example.}
+
+\item{big.mark}{A character used as thousands separator.}
+
 \item{pscale}{A numeric giving scaling factor for printing of
 single event probabilities or risk differences, i.e. if argument
 \code{sm} is equal to \code{"PLOGIT"}, \code{"PLN"},
@@ -457,6 +387,29 @@ argument \code{sm} is equal to \code{"IR"}, \code{"IRLN"},
 
 \item{irunit}{A character specifying the time unit used to
 calculate rates, e.g., person-years.}
+
+\item{scientific.pval}{A logical specifying whether p-values should
+be printed in scientific notation, e.g., 1.2345e-01 instead of
+0.12345.}
+
+\item{zero.pval}{A logical specifying whether p-values should be
+printed with a leading zero.}
+
+\item{JAMA.pval}{A logical specifying whether p-values for test of
+overall effect should be printed according to JAMA reporting
+standards.}
+
+\item{main}{A title for the forest plot (see Details).}
+
+\item{main.prefix}{A logical indicating whether to add a pre-defined prefix
+to title lines (see Details).}
+
+\item{xpos.main}{Horizontal position of title.}
+
+\item{gap.main}{Number of empty rows between title and column headings.}
+
+\item{lineheight.main}{Line height for the main title,
+see \code{\link{gpar}}.}
 
 \item{filename}{File name to store forest plot.}
 
@@ -486,744 +439,22 @@ forest plot. One of \code{"in"} (for inches, default), \code{"cm"},
 \item{dev.off}{A logical to specify whether current graphics device
 should be shut down.}
 
-\item{rows.gr}{Deprecated argument to add rows to the forest plot to change
-the height of the graphics file; only provided for backward compatibility.}
-
-\item{ref}{A numerical giving the reference value to be plotted as
-a line in the forest plot. No reference line is plotted if
-argument \code{ref} is equal to \code{NA}.}
-
-\item{cid}{A numeric value or vector specifying clinically important
-differences (CID) / decision thresholds used to calculate probabilities
-of clinically important benefit or harm, or not important effects
-(see Details).}
-
-\item{cid.below.null}{A numeric value or vector specifying CID limits below
-the null effect (see Details).}
-
-\item{cid.above.null}{A numeric value or vector specifying CID limits above
-the null effect (see Details).}
-
-\item{lty.cid}{Line type for CID lines.}
-
-\item{col.cid}{Line colour for CID lines.}
-
-\item{fill.cid}{Colour(s) for regions below or above CID limits.}
-
-\item{fill.cid.below.null}{Colour of CID regions below null effect /
-reference value. Can be equal to the number of lower limits or
-the number of limits plus 1 (in this case the region between
-minimum and smallest limit is also filled).}
-
-\item{fill.cid.above.null}{Colour of CID regions above null effect /
-reference value. Can be equal to the number of upper limits or the
-number of limits plus 1 (in this case the region between largest
-limit and maximum is also filled).}
-
-\item{cid.pooled.only}{A logical indicating whether CID regions should only
-be visible for pooled estimates or also individual studies.}
-
-\item{fill}{Colour for background of confidence interval plot (also used
-as colour for region between CID limits if argument \code{fill.equi} was
-not provided).}
-
-\item{fill.equi}{Colour(s) for region between limits of equivalence defined
-by arguments \code{cid}, \code{cid.lower} or \code{cid.upper}.}
-
-\item{fill.lower.equi}{Colour of region between lower limit(s) and
-reference value. Can be equal to the number of lower limits or
-the number of limits plus 1 (in this case the the region between
-minimum and smallest limit is also filled).}
-
-\item{fill.upper.equi}{Colour of region between reference value and
-upper limit(s). Can be equal to the number of upper limits or the
-number of limits plus 1 (in this case the region between largest
-limit and maximum is also filled).}
-
-\item{leftcols}{A character vector specifying (additional) columns
-to be printed on the left side of the forest plot or a logical
-value (see Details).}
-
-\item{rightcols}{A character vector specifying (additional) columns
-to be printed on the right side of the forest plot or a logical
-value (see Details).}
-
-\item{leftlabs}{A character vector specifying labels for
-(additional) columns on left side of the forest plot (see
-Details).}
-
-\item{rightlabs}{A character vector specifying labels for
-(additional) columns on right side of the forest plot (see
-Details).}
-
-\item{label.e}{Label to be used for experimental group in table
-heading.}
-
-\item{label.c}{Label to be used for control group in table heading.}
-
-\item{label.e.attach}{A character string or vector specifying the column
-name(s) where label \code{label.e} should be attached to in table heading.}
-
-\item{label.c.attach}{A character string or vector specifying the column
-name(s) where label \code{label.c} should be attached to in table heading.}
-
-\item{label.left}{Graph label on left side of null effect.}
-
-\item{label.right}{Graph label on right side of null effect.}
-
-\item{bottom.lr}{A logical indicating whether labels on right and
-left side should be printed at bottom or top of forest plot.}
-
-\item{lab.NA}{A character string to label missing values.}
-
-\item{lab.NA.effect}{A character string to label missing values in
-individual treatment estimates and confidence intervals.}
-
-\item{lab.NA.weight}{A character string to label missing weights.}
-
-\item{lwd}{The line width, see \code{\link{par}}.}
-
-\item{at}{The points at which tick-marks are to be drawn, see
-\code{grid.xaxis}.}
-
-\item{label}{A logical value indicating whether to draw the labels
-on the tick marks, or an expression or character vector which
-specify the labels to use. See \code{\link{grid.xaxis}}.}
-
-\item{col.label}{The colour of labels on the x-axis.}
-
-\item{type.study}{A character string or vector specifying how to
-plot treatment effects and confidence intervals for individual
-studies (see Details).}
-
-\item{type.common}{A character string specifying how to plot
-treatment effect and confidence interval for common effect
-meta-analysis (see Details).}
-
-\item{type.random}{A character string specifying how to plot
-treatment effect and confidence interval for random effects
-meta-analysis (see Details).}
-
-\item{type.subgroup}{A character string specifying how to plot
-treatment effect and confidence interval for subgroup results
-(see Details).}
-
-\item{type.subgroup.common}{A character string specifying how to
-plot treatment effect and confidence interval for subgroup
-results (common effect model).}
-
-\item{type.subgroup.random}{A character string specifying how to
-plot treatment effect and confidence interval for subgroup
-results (random effects model).}
-
-\item{col.study}{The colour for individual study results and
-confidence limits.}
-
-\item{col.square}{The colour for squares reflecting study's weight
-in the meta-analysis.}
-
-\item{col.square.lines}{The colour for the outer lines of squares
-reflecting study's weight in the meta-analysis.}
-
-\item{col.circle}{The colour for circles reflecting study weights
-in the meta-analysis.}
-
-\item{col.circle.lines}{The colour for the outer lines of circles
-reflecting study's weight in the meta-analysis.}
-
-\item{col.inside}{The colour for individual study results and
-confidence limits if confidence limits are completely within
-squares.}
-
-\item{col.inside.common}{The colour for result of common effect
-meta-analysis if confidence limit lies completely within square.}
-
-\item{col.inside.random}{The colour for result of random effects
-meta-analysis if confidence limit lies completely within square.}
-
-\item{col.diamond}{The colour of diamonds representing the results
-for common effect and random effects models.}
-
-\item{col.diamond.common}{The colour(s) of diamonds for common effect
-estimates.}
-
-\item{col.diamond.random}{The colour(s) of diamonds for random effects
-estimates.}
-
-\item{col.diamond.lines}{The colour of the outer lines of diamonds
-representing the results for common effect and random effects
-models.}
-
-\item{col.diamond.lines.common}{The colour(s) of the outer lines of
-diamond for common effect estimate.}
-
-\item{col.diamond.lines.random}{The colour(s) of the outer lines of
-diamond for random effects estimate.}
-
-\item{col.predict}{Background colour(s) of prediction intervals.}
-
-\item{col.predict.lines}{Colour(s) of outer lines of prediction
-intervals.}
-
-\item{col.subgroup}{The colour to print information on subgroups.}
-
-\item{col.label.left}{The colour of the label on the left side of the null
-effect.}
-
-\item{col.label.right}{The colour of the label on the right side of the null
-effect.}
-
-\item{hetstat}{Either a logical value indicating whether to print
-results for heterogeneity measures at all or a character string
-(see Details).}
-
-\item{overall.hetstat}{A logical value indicating whether to print
-heterogeneity measures for overall treatment comparisons. This
-argument is useful in a meta-analysis with subgroups if
-heterogeneity statistics should only be printed on subgroup
-level.}
-
-\item{hetlab}{Label printed in front of results for heterogeneity
-measures.}
-
-\item{resid.hetstat}{A logical value indicating whether to print
-measures of residual heterogeneity in a meta-analysis with
-subgroups.}
-
-\item{resid.hetlab}{Label printed in front of results for residual
-heterogeneity measures.}
-
-\item{print.I2}{A logical value indicating whether to print the
-value of the I-squared statistic.}
-
-\item{print.I2.ci}{A logical value indicating whether to print the
-confidence interval of the I-squared statistic.}
-
-\item{print.tau2}{A logical value indicating whether to print the
-value of the between-study variance \eqn{\tau^2}.}
-
-\item{print.tau2.ci}{A logical value indicating whether to print
-the confidence interval of \eqn{\tau^2}.}
-
-\item{print.tau}{A logical value indicating whether to print
-\eqn{\tau}, the square root of the between-study variance
-\eqn{\tau^2}.}
-
-\item{print.tau.ci}{A logical value indicating whether to print the
-confidence interval of \eqn{\tau}.}
-
-\item{print.Q}{A logical value indicating whether to print the
-value of the heterogeneity statistic Q.}
-
-\item{print.pval.Q}{A logical value indicating whether to print the
-p-value of the heterogeneity statistic Q.}
-
-\item{print.Rb}{A logical value indicating whether to print the
-value of the I-squared statistic.}
-
-\item{print.Rb.ci}{A logical value indicating whether to print the
-confidence interval of the I-squared statistic.}
-
-\item{label.n}{A character string specifying the column label for
-the sample size.}
-
-\item{label.events}{A character string specifying the column label for
-the number of events.}
-
-\item{label.mean}{A character string specifying the column label for
-means.}
-
-\item{label.sd}{A character string specifying the column label for
-standard deviations.}
-
-\item{label.cor}{A character string specifying the column label for
-correlations.}
-
-\item{label.time}{A character string specifying the column label for
-times.}
-
-\item{label.pval}{A character string specifying the column label for
-p-values.}
-
-\item{label.tau2}{A character string specifying the column label for
-the between-study variance.}
-
-\item{label.tau}{A character string specifying the column label for
-the between-study standard deviation.}
-
-\item{label.I2}{A character string specifying the column label for
-the heterogeneity statistic I2.}
-
-\item{label.cluster}{A character string specifying the column label for
-the cluster variable.}
-
-\item{label.cycles}{A character string specifying the column label for
-the number of cycles.}
-
-\item{text.subgroup.nohet}{A logical value or character string
-which is printed to indicate subgroups with less than two studies
-contributing to meta-analysis (and thus without
-heterogeneity). If FALSE, heterogeneity statistics are printed
-(with NAs).}
-
-\item{LRT}{A logical value indicating whether to report
-Likelihood-Ratio or Wald-type test of heterogeneity for
-generalised linear mixed models.}
-
-\item{test.overall}{A logical value indicating whether to print
-results of test for overall effect.}
-
-\item{test.overall.common}{A logical value indicating whether to
-print results of test for overall effect (common effect model).}
-
-\item{test.overall.random}{A logical value indicating whether to
-print results of test for overall effect (random effects model).}
-
-\item{label.test.overall.common}{Label printed in front of results
-of test for overall effect (common effect model).}
-
-\item{label.test.overall.random}{Label printed in front of results
-of test for overall effect (random effects model).}
-
-\item{print.stat}{A logical value indicating whether z- or t-value
-for test of treatment effect should be printed.}
-
-\item{test.subgroup}{A logical value indicating whether to print
-results of test for subgroup differences.}
-
-\item{test.subgroup.common}{A logical value indicating whether to
-print results of test for subgroup differences (common effect
-model).}
-
-\item{test.subgroup.random}{A logical value indicating whether to
-print results of test for subgroup differences (random effects
-model).}
-
-\item{common.subgroup}{A single logical or logical vector
-indicating whether / which common effect estimates should be
-printed for subgroups.}
-
-\item{random.subgroup}{A single logical or logical vector
-indicating whether / which random effects estimates should be
-printed for subgroups.}
-
-\item{prediction.subgroup}{A single logical or logical vector
-indicating whether / which prediction intervals should be printed
-for subgroups.}
-
-\item{print.tau2.ci.subgroup}{A single logical or logical vector
-indicating whether / which confidence intervals for between-study
-variances should be printed for subgroups.}
-
-\item{print.tau.ci.subgroup}{A single logical or logical vector
-indicating whether / which confidence intervals for between-study
-standard deviations should be printed for subgroups.}
-
-\item{print.Q.subgroup}{A logical value indicating whether to print
-the value of the heterogeneity statistic Q (test for subgroup
-differences).}
-
-\item{label.test.subgroup.common}{Label printed in front of results
-of test for subgroup differences (common effect model).}
-
-\item{label.test.subgroup.random}{Label printed in front of results
-of test for subgroup differences (random effects model).}
-
-\item{test.effect.subgroup}{A single logical or logical vector
-indicating whether / which tests for effect in subgroups should
-be printed.}
-
-\item{test.effect.subgroup.common}{A single logical or logical
-vector indicating whether / which tests for effect in subgroups
-should be printed (common effect model).}
-
-\item{test.effect.subgroup.random}{A single logical or logical
-vector indicating whether / which tests for effect in subgroups
-should be printed (random effects model).}
-
-\item{label.test.effect.subgroup.common}{Label printed in front of
-results of test for effect in subgroups (common effect model).}
-
-\item{label.test.effect.subgroup.random}{Label printed in front of
-results of test for effect in subgroups (random effects model).}
-
-\item{text.addline1}{Text for first additional line (below
-meta-analysis results).}
-
-\item{text.addline2}{Text for second additional line (below
-meta-analysis results).}
-
-\item{details}{A logical specifying whether details on statistical
-methods should be printed.}
-
-\item{col.lines}{The colour of lines.}
-
-\item{header.line}{A logical value indicating whether to print a
-header line or a character string ("both", "below", "").}
-
-\item{col.header.line}{Colour of the header line(s).}
-
-\item{col.jama.line}{Colour of the additional JAMA lines.}
-
-\item{data.pooled}{Data set with information for line(s) with pooled
-results (see Details).}
-
-\item{fontsize}{The size of text (in points), see
-\code{\link{gpar}}.}
-
-\item{fontfamily}{The font family, see \code{\link{gpar}}.}
-
-\item{fs.heading}{The size of text for column headings, see
-\code{\link{gpar}}.}
-
-\item{fs.common}{The size of text for results of common effect
-model, see \code{\link{gpar}}.}
-
-\item{fs.random}{The size of text for results of random effects
-model, see \code{\link{gpar}}.}
-
-\item{fs.predict}{The size of text for results of prediction
-interval, see \code{\link{gpar}}.}
-
-\item{fs.common.labels}{The size of text for label of common effect
-model, see \code{\link{gpar}}.}
-
-\item{fs.random.labels}{The size of text for label of random
-effects model, see \code{\link{gpar}}.}
-
-\item{fs.predict.labels}{The size of text for label of prediction
-interval, see \code{\link{gpar}}.}
-
-\item{fs.study}{The size of text for results of individual studies,
-see \code{\link{gpar}}.}
-
-\item{fs.study.labels}{The size of text for labels of individual
-studies, see \code{\link{gpar}}.}
-
-\item{fs.hetstat}{The size of text for heterogeneity measures, see
-\code{\link{gpar}}.}
-
-\item{fs.test.overall}{The size of text of test for overall effect,
-see \code{\link{gpar}}.}
-
-\item{fs.test.subgroup}{The size of text of test of subgroup
-differences, see \code{\link{gpar}}.}
-
-\item{fs.test.effect.subgroup}{The size of text of test of effect
-in subgroups, see \code{\link{gpar}}.}
-
-\item{fs.addline}{The size of text for additional lines, see
-\code{\link{gpar}}.}
-
-\item{fs.axis}{The size of text on x-axis, see \code{\link{gpar}}.}
-
-\item{fs.smlab}{The size of text of label for summary measure, see
-\code{\link{gpar}}.}
-
-\item{fs.xlab}{The size of text of label on x-axis, see
-\code{\link{gpar}}.}
-
-\item{fs.lr}{The size of text of label on left and right side of
-forest plot, see \code{\link{gpar}}.}
-
-\item{fs.rob}{The size of text of risk of bias items in the legend,
-see \code{\link{gpar}}.}
-
-\item{fs.rob.symbols}{The size of risk of bias symbols, see
-\code{\link{gpar}}.}
-
-\item{fs.details}{The size of text for details on (meta-analysis)
-methods, see \code{\link{gpar}}.}
-
-\item{ff.heading}{The fontface for column headings, see
-\code{\link{gpar}}.}
-
-\item{ff.common}{The fontface of text for results of common effect
-model, see \code{\link{gpar}}.}
-
-\item{ff.random}{The fontface of text for results of random effects
-model, see \code{\link{gpar}}.}
-
-\item{ff.predict}{The fontface of text for results of prediction
-interval, see \code{\link{gpar}}.}
-
-\item{ff.common.labels}{The fontface of text for label of common
-effect model, see \code{\link{gpar}}.}
-
-\item{ff.random.labels}{The fontface of text for label of random
-effects model, see \code{\link{gpar}}.}
-
-\item{ff.predict.labels}{The fontface of text for label of
-prediction interval, see \code{\link{gpar}}.}
-
-\item{ff.study}{The fontface of text for results of individual
-studies, see \code{\link{gpar}}.}
-
-\item{ff.study.labels}{The fontface of text for labels of
-individual studies, see \code{\link{gpar}}.}
-
-\item{ff.hetstat}{The fontface of text for heterogeneity measures,
-see \code{\link{gpar}}.}
-
-\item{ff.test.overall}{The fontface of text of test for overall
-effect, see \code{\link{gpar}}.}
-
-\item{ff.test.subgroup}{The fontface of text for test of subgroup
-differences, see \code{\link{gpar}}.}
-
-\item{ff.test.effect.subgroup}{The fontface of text for test of
-effect in subgroups, see \code{\link{gpar}}.}
-
-\item{ff.addline}{The fontface of text for additional lines, see
-\code{\link{gpar}}.}
-
-\item{ff.axis}{The fontface of text on x-axis, see
-\code{\link{gpar}}.}
-
-\item{ff.smlab}{The fontface of text of label for summary measure,
-see \code{\link{gpar}}.}
-
-\item{ff.xlab}{The fontface of text of label on x-axis, see
-\code{\link{gpar}}.}
-
-\item{ff.lr}{The fontface of text of label on left and right side
-of forest plot, see \code{\link{gpar}}.}
-
-\item{ff.rob}{The fontface of text of risk of bias items, see
-\code{\link{gpar}}.}
-
-\item{ff.rob.symbols}{The fontface of risk of bias symbols, see
-\code{\link{gpar}}.}
-
-\item{ff.details}{The fontface for details on (meta-analysis)
-methods, see \code{\link{gpar}}.}
-
-\item{squaresize}{A numeric used to increase or decrease the size
-of squares in the forest plot.}
-
-\item{lwd.square}{The line width of the border around squares.}
-
-\item{lwd.diamond}{The line width of the border around diamonds.}
-
-\item{arrow.type}{A character string indicating whether arrows
-printed for results outside the forest plot should be
-\code{"open"}, or \code{"closed"}, can be abbreviated.}
-
-\item{arrow.length}{The length of arrows in inches.}
-
-\item{plotwidth}{Either a character string, e.g., "8cm", "60mm", or
-"3inch", or a \code{\link[grid]{unit}} object specifying width of
-the forest plot.}
-
-\item{colgap}{Either a character string or a
-\code{\link[grid]{unit}} object specifying gap between columns
-printed on left and right side of forest plot.}
-
-\item{colgap.left}{Either a character string or a
-\code{\link[grid]{unit}} object specifying gap between columns
-printed on left side of forest plot.}
-
-\item{colgap.right}{Either a character string or a
-\code{\link[grid]{unit}} object specifying gap between columns
-printed on right side of forest plot.}
-
-\item{colgap.studlab}{Either a character string or a
-\code{\link[grid]{unit}} object specifying gap between column
-with study labels and subsequent column.}
-
-\item{colgap.forest}{Either a character string or a
-\code{\link[grid]{unit}} object specifying gap between column
-adjacent to forest plot and the forest plot.}
-
-\item{colgap.forest.left}{Either a character string or a
-\code{\link[grid]{unit}} object specifying gap between column on
-the left side of forest plot and the forest plot.}
-
-\item{colgap.forest.right}{Either a character string or a
-\code{\link[grid]{unit}} object specifying gap between column on
-the right side of forest plot and the forest plot.}
-
-\item{colgap.rob}{Either a character string or a
-\code{\link[grid]{unit}} object specifying gap between risk of
-bias columns.}
-
-\item{colgap.rob.overall}{Either a character string or a
-\code{\link[grid]{unit}} object specifying gap before column with
-overall risk of bias assessment.}
-
-\item{calcwidth.pooled}{A logical indicating whether text for
-common effect and random effects model should be considered to
-calculate width of the column with study labels.}
-
-\item{calcwidth.common}{A logical indicating whether text given in
-arguments \code{text.common} and \code{text.common.w} should be
-considered to calculate width of the column with study labels.}
-
-\item{calcwidth.random}{A logical indicating whether text given in
-arguments \code{text.random} and \code{text.random.w} should be
-considered to calculate width of the column with study labels.}
-
-\item{calcwidth.predict}{A logical indicating whether text given in
-argument \code{text.predict} and \code{text.predict.w} should be
-considered to calculate width of the column with study labels.}
-
-\item{calcwidth.hetstat}{A logical indicating whether text for
-heterogeneity statistics should be considered to calculate width
-of the column with study labels.}
-
-\item{calcwidth.tests}{A logical indicating whether text for tests
-of overall effect or subgroup differences should be considered to
-calculate width of the column with study labels.}
-
-\item{calcwidth.subgroup}{A logical indicating whether text with
-subgroup labels should be considered to calculate width of the
-column with study labels.}
-
-\item{calcwidth.addline}{A logical indicating whether text for
-additional lines should be considered to calculate width of the
-column with study labels.}
-
-\item{just}{Justification of text in all columns but columns with
-study labels and additional variables (possible values: "left",
-"right", "center").}
-
-\item{just.studlab}{Justification of text for study labels
-(possible values: "left", "right", "center").}
-
-\item{just.addcols}{Justification of text for additional columns
-(possible values: "left", "right", "center").}
-
-\item{just.addcols.left}{Justification of text for additional
-columns on left side of forest plot (possible values: "left",
-"right", "center"). Can be of same length as number of additional
-columns on left side of forest plot.}
-
-\item{just.addcols.right}{Justification of text for additional
-columns on right side of forest plot (possible values: "left",
-"right", "center"). Can be of same length as number of additional
-columns on right side of forest plot.}
-
-\item{just.label.e}{Justification of text for experimental group in table
-heading (possible values: "left", "right", "center").}
-
-\item{just.label.c}{Justification of text for control group in table
-heading (possible values: "left", "right", "center").}
-
-\item{bmj.text}{A character string used in the plot with BMJ layout
-to label the group specific information.}
-
-\item{bmj.xpos}{A numeric specifying the horizontal position of the
-BMJ label. The value is a so called normalised parent coordinate
-in the horizontal direction (see \code{\link[grid]{unit}}).}
-
-\item{bmj.sep}{A character string used to separate sample sizes
-from number of events or means / standard deviations.}
-
-\item{spacing}{A numeric determining line spacing in a forest plot.}
-
-\item{addrow}{A logical value indicating whether an empty row is
-printed above study results.}
-
-\item{addrow.overall}{A logical value indicating whether an empty
-row is printed above overall meta-analysis results.}
-
-\item{addrow.subgroups}{A logical value indicating whether an empty
-row is printed between results for subgroups.}
-
-\item{addrows.below.overall}{A numeric value indicating how many
-empty rows are printed between meta-analysis results and
-heterogeneity statistics and test results.}
-
 \item{new}{A logical value indicating whether a new figure should
 be printed in an existing graphics window.}
 
-\item{backtransf}{A logical indicating whether results should be
-back transformed in forest plots. If \code{backtransf = TRUE},
-results for \code{sm = "OR"} are presented as odds ratios rather
-than log odds ratios and results for \code{sm = "ZCOR"} are
-presented as correlations rather than Fisher's z transformed
-correlations, for example.}
-
-\item{digits}{Minimal number of significant digits for treatment
-effects, see \code{print.default}.}
-
-\item{digits.se}{Minimal number of significant digits for standard
-errors.}
-
-\item{digits.stat}{Minimal number of significant digits for z- or
-t-statistic for test of overall effect.}
-
-\item{digits.pval}{Minimal number of significant digits for p-value
-of overall treatment effect.}
-
-\item{digits.pval.Q}{Minimal number of significant digits for
-p-value of heterogeneity test.}
-
-\item{digits.Q}{Minimal number of significant digits for
-heterogeneity statistic Q.}
-
-\item{digits.tau2}{Minimal number of significant digits for
-between-study variance.}
-
-\item{digits.tau}{Minimal number of significant digits for square
-root of between-study variance.}
-
-\item{digits.I2}{Minimal number of significant digits for I-squared
-statistic.}
-
-\item{digits.weight}{Minimal number of significant digits for
-weights.}
-
-\item{digits.mean}{Minimal number of significant digits for means;
-only applies to \code{\link{metacont}} objects.}
-
-\item{digits.sd}{Minimal number of significant digits for standard
-deviations; only applies to \code{\link{metacont}} objects.}
-
-\item{digits.cor}{Minimal number of significant digits for
-correlations; only applies to \code{\link{metacor}} objects.}
-
-\item{digits.time}{Minimal number of significant digits for times;
-only applies to \code{\link{metainc}} and \code{\link{metarate}}
-objects.}
-
-\item{digits.n}{Minimal number of significant digits for sample
-sizes.}
-
-\item{digits.event}{Minimal number of significant digits for event
-numbers.}
-
-\item{digits.TE}{Minimal number of significant digits for list
-element 'TE'.}
-
-\item{digits.addcols}{A vector or scalar with minimal number of
-significant digits for additional columns.}
-
-\item{digits.addcols.right}{A vector or scalar with minimal number
-of significant digits for additional columns on right side of
-forest plot.}
-
-\item{digits.addcols.left}{A vector or scalar with minimal number
-of significant digits for additional columns on left side of
-forest plot.}
-
-\item{scientific.pval}{A logical specifying whether p-values should
-be printed in scientific notation, e.g., 1.2345e-01 instead of
-0.12345.}
-
-\item{big.mark}{A character used as thousands separator.}
-
-\item{zero.pval}{A logical specifying whether p-values should be
-printed with a leading zero.}
-
-\item{JAMA.pval}{A logical specifying whether p-values for test of
-overall effect should be printed according to JAMA reporting
-standards.}
+\item{rows.gr}{Deprecated argument to add rows to the forest plot to change
+the height of the graphics file; only provided for backward compatibility.}
 
 \item{warn.deprecated}{A logical indicating whether warnings should
 be printed if deprecated arguments are used.}
 
 \item{\dots}{Additional graphical arguments.}
+}
+\value{
+Invisibly returns a list with information about the forest plot,
+including the selected columns (\code{leftcols}, \code{rightcols}),
+their headings (\code{leftlabs}, \code{rightlabs}), formatted results,
+and graphical settings (see Examples).
 }
 \description{
 Draw a forest plot (using grid graphics system) in the active
@@ -1235,6 +466,14 @@ the active graphics window. The forest functions in R package
 \bold{meta} are based on the grid graphics system. Resize the
 graphics windows if the forest plot is too large or too small for
 the graphics window. Alternatively, save the forest plot in a file.
+
+\subsection{Formatting defaults}{
+Defaults for the named formatting lists \code{test}, \code{label},
+\code{rob}, \code{fs}, \code{ff}, \code{just}, \code{fill}, \code{col},
+\code{print}, \code{type}, \code{pooled}, \code{text}, \code{lty},
+\code{lwd}, \code{digits}, \code{calcwidth}, \code{colgap}, \code{cid},
+and \code{addrow} are described in \code{\link{meta-formatting}}.
+}
 
 \subsection{Saving forest plots}{
 
@@ -1260,47 +499,47 @@ against the most common graphics device drivers:
 If only argument \code{device} is provided, the filename will be equal to
 "Rplots.\code{device}".
 
-By default, the height and width of the file containing the forest plot is
-determined automatically (values \code{.height} and \code{.width}).
+By default, the file dimensions are determined automatically
+(values \code{.height} and \code{.width}). Automatic sizing is recommended
+for most forest plots.
 
-The user can specify the height and width of the
-file using the arguments \code{height} and \code{width}. The input to these
-arguments can be either absolute values, e.g., \code{width = 10} for a
-graphics file with the width of 10 inches, or values relative to the
-automatically determined height and width, e.g., \code{width = .width * 1.05}
-will add 5 percent to the automatically determined width.
+Arguments \code{height} and \code{width} can adjust these dimensions.
+For example, \code{width = .width * 1.05} increases the automatically
+determined width by 5 percent. Absolute dimensions can also be supplied,
+e.g., \code{width = 10} for a file with a width of 10 inches.
+Setting either argument to \code{NA} uses the corresponding dimension
+of the current graphics device.
 
-It is also possible to provide \code{NA} as input to arguments \code{height}
-and \code{width}. In this case, the size of the current graphics
-device is used.
+The deprecated argument \code{rows.gr} uses a different approach to
+determine file height and is retained only for backward compatibility.
 
-For backward compatibility, the height of the file is determined using a
-different approach if argument \code{rows.gr} is provided to
-increase or decrease the number of rows shown in the forest plot
-(either to show missing information or to remove white space). It is
-recommended to not use argument \code{rows.gr}, but, to use
-argument \code{height = .height * 1.10} or similar.
+Set \code{dev.off = FALSE} to keep the graphics device open and add
+further forest plots to the same file. Afterwards, call
+\code{\link{dev.off}} to close the device and finalize the file.
 
-Argument \code{dev.off} can be used to keep the current graphics device
-open in order to store additional forest plots in the file. Use the R
-function \code{\link{dev.off}} to close the graphics device / store the file.
-
-Other arguments of graphics device functions can be provided as a list in
-the argument \code{device.args}.
+Additional arguments to the graphics device function can be supplied
+as a named list in \code{device.args}.
 }
 
-\subsection{Default layout for studies and pooled effects}{
+\subsection{Default forest plot layout}{
 
 By default, treatment estimates and confidence intervals are
-plotted in the following way:
+plotted in the following way. The plot types can be specified with the
+named list \code{type}; see \code{\link{meta-formatting}} for the
+available list elements. The individual arguments \code{type.study},
+\code{type.common}, \code{type.random}, \code{type.subgroup},
+\code{type.subgroup.common}, and \code{type.subgroup.random} are also
+supported.
 \itemize{
 \item For an individual study, a square with treatment estimate in
-  the center and confidence interval as line extending either side
+  the center and confidence interval as a line extending either side
   of the square (\code{type.study = "square"})
-\item For meta-analysis results, a diamond with treatment estimate
-  in the center and right and left side corresponding to lower and
-  upper confidence limits (\code{type.common = "diamond"},
-  \code{type.random = "diamond"}, and \code{type.subgroup = "diamond"})
+\item For overall meta-analysis results, a diamond is used by default
+  (\code{type.common = "diamond"} and \code{type.random = "diamond"}).
+\item For subgroup results, a diamond is used by default if individual
+  study results are shown; otherwise, a square is used
+  (\code{type.subgroup}, \code{type.subgroup.common},
+  \code{type.subgroup.random}, and \code{study.results}).
 }
 
 In a forest plot, size of the squares typically reflects the precision of
@@ -1313,40 +552,49 @@ from the common effect model are used if argument \code{x$common} is
 \code{x$random} is \code{TRUE} and \code{x$common} is \code{FALSE}.
 The same square sizes are used if \code{weight.study = "same"}.
 
-A prediction interval for treatment effect of a new study (Higgins
-et al., 2009) is given in the forest plot if arguments
-\code{prediction} and \code{random} are \code{TRUE}. For
-graphical presentation of prediction intervals the approach by
-Guddat et al. (2012) is used.
+If \code{prediction = TRUE}, a prediction interval for the treatment
+effect in a new study is shown (Higgins et al., 2009). The interval is
+displayed as a bar, following Guddat et al. (2012).
 }
 
 \subsection{Columns printed on left side of forest plot}{
 
-Argument \code{leftcols} can be used to specify columns which are
-printed on the left side of the forest plot. By default, i.e. if
-argument \code{leftcols} is \code{NULL} and \code{layout = "meta"},
-and depending on the class of the meta-analysis object (which is
-defined by the R function used to generate the object) a different
-set of \emph{\bold{columns}} is printed \emph{\bold{on the left
-side of the forest plot}}:
+Argument \code{leftcols} specifies the columns printed on the left side
+of the forest plot. If \code{leftcols = NULL} and \code{layout = "meta"},
+the following columns are printed by default. These column names can
+be used in \code{leftcols} or \code{rightcols}:
+
 \tabular{ll}{
-\bold{Function} \tab \bold{Value of argument leftcols} \cr
-\code{\link{metabin}} \tab \code{c("studlab", "event.e", "n.e",
-  "event.c", "n.c")} \cr
-\code{\link{metacont}} \tab \code{c("studlab", "n.e", "mean.e",
-  "sd.e", "n.c", "mean.c", "sd.c")} \cr
-\code{\link{metacor}} \tab \code{c("studlab", "n")} \cr
-\code{\link{metagen}} \tab \code{c("studlab", "TE", "seTE")} \cr
-\code{\link{metainc}} \tab \code{c("studlab", "event.e", "time.e",
-  "event.c", "time.c")} \cr
-\code{\link{metamean}} \tab \code{c("studlab", "n", "mean", "sd")}
-  \cr
-\code{\link{metaprop}} \tab \code{c("studlab", "event", "n")} \cr
-\code{\link{metarate}} \tab \code{c("studlab", "event", "time", "n")}
+\bold{Column} \tab \bold{Description} \cr
+\code{"studlab"} \tab study labels \cr
+\ldots \tab outcome-specific columns \cr
+\code{"w.common"} \tab weights from the common effect model, if applicable \cr
+\code{"w.random"} \tab weights from the random-effects model, if applicable \cr
+\code{"effect"} \tab estimated effect in the study \cr
+\code{"ci"} \tab confidence interval for the estimated effect
 }
 
 For three-level models, the cluster variable is printed next to the
-study labels (value \code{"cluster"} in argument \code{leftcols}).
+study labels. Use \code{"cluster"} in \code{leftcols} to select this column,
+for example, to change the order of variables.
+
+The following outcome-specific columns are printed, depending on the
+function used to create the meta-analysis object:
+
+\tabular{ll}{
+\bold{Function} \tab \bold{Default outcome-specific columns} \cr
+\code{\link{metabin}} \tab \code{"event.e"}, \code{"n.e"},
+  \code{"event.c"}, \code{"n.c"} \cr
+\code{\link{metacont}} \tab \code{"n.e"}, \code{"mean.e"}, \code{"sd.e"},
+  \code{"n.c"}, \code{"mean.c"}, \code{"sd.c"} \cr
+\code{\link{metacor}} \tab \code{"n"} \cr
+\code{\link{metagen}} \tab \code{"TE"}, \code{"seTE"} \cr
+\code{\link{metainc}} \tab \code{"event.e"}, \code{"time.e"},
+  \code{"event.c"}, \code{"time.c"} \cr
+\code{\link{metamean}} \tab \code{"n"}, \code{"mean"}, \code{"sd"} \cr
+\code{\link{metaprop}} \tab \code{"event"}, \code{"n"} \cr
+\code{\link{metarate}} \tab \code{"event"}, \code{"time"}, \code{"n"}
+}
 
 By default, study labels and labels for pooled estimates and
 heterogeneity statistics will be printed in the first column on the
@@ -1354,60 +602,53 @@ left side of the forest plot. The character string \code{"studlab"}
 is used to identify study labels as this is the name of the list
 element of a meta-analysis object.
 
-If the character string \code{"studlab"} is not provided in
-\code{leftcols} and \code{rightcols}, the first \emph{additional}
-variable specified by the user is used as study labels (and labels
-for pooled estimates are printed in this column). Additional
-variables are any variables not mentioned in the section on
-predefined column names below. For example, \code{leftcols =
-"studlab"} and \code{leftcols = "study"} would result in the same
-forest plot if the variable \code{"study"} was used in the command
-to conduct the meta-analysis. If no additional variable is provided
-by the user, no study labels will be printed.
-}
-
-\subsection{Overlapping information on left side of forest plot}{
-
-Depending on the number of columns printed on the left side of the
-forest plot, information on heterogeneity measures or statistical
-tests (see below) can be overlapping with the x-axis. Argument
-\code{addrows.below.overall} can be used to specify the number of
-empty rows that are printed between meta-analysis results and
-information on heterogeneity measures and statistical tests. By
-default, no additional rows are added to the forest plot. If
-\code{addrows.below.overall = NULL}, the function tries to add a
-sufficient number of empty rows to prevent overlapping
-text. Another possibility is to manually increase the space between
-the columns on the left side (argument \code{colgap.left}) or
-between the columns on the left side and the forest plot (argument
-\code{colgap.forest.left}).
+If the character string \code{"studlab"} is not provided in either
+\code{leftcols} or \code{rightcols}, the first \emph{additional}
+variable specified by the user is used as the study labels. Labels
+for pooled estimates are also printed in this column. Additional
+variables are variables not listed among the predefined column names
+below. For example, \code{leftcols = "studlab"} and
+\code{leftcols = "study"} produce the same forest plot if
+\code{"study"} contains the study labels used in the meta-analysis.
+If no additional variable is provided, no study labels are printed.
 }
 
 \subsection{Columns printed on right side of forest plot}{
 
-Argument \code{rightcols} can be used to
-specify columns which are printed on the right side of the
-forest plot. If argument \code{rightcols} is
-\code{FALSE}, no columns will be printed on the right side. By
-default, i.e. if argument \code{rightcols} is
-\code{NULL} and \code{layout = "meta"}, the following
-\emph{\bold{columns}} will be printed \emph{\bold{on the right side
-of the forest plot}}:
-\tabular{ll}{
-\bold{Meta-analysis results} \tab \bold{Value of argument
-  rightcols} \cr
-No summary \tab \code{c("effect", "ci")} \cr
-Only common effect model \tab \code{c("effect", "ci", "w.common")}
-  \cr
-Only random effects model \tab \code{c("effect", "ci", "w.random")}
-  \cr
-Both models \tab \code{c("effect", "ci", "w.common", "w.random")}
+Argument \code{rightcols} can be used to specify columns printed on the
+right side of the forest plot. By default, if \code{rightcols} is
+\code{NULL} and \code{layout = "meta"}, no columns are printed on the
+right side; internally, \code{rightcols} is set to \code{FALSE}.
 }
 
-By default, estimated treatment effect and corresponding confidence
-interval will be printed. Depending on arguments \code{common} and
-\code{random}, weights of the common effect and/or random effects
-model will be given too.
+\subsection{Previous default forest plot layout (\code{layout = "meta8"})}{
+
+If \code{layout = "meta8"} is specified and both \code{leftcols} and
+\code{rightcols} are \code{NULL}, the previous default forest plot layout
+is used.
+
+The following columns are printed on the left side of the forest plot.
+These column names can also be used in argument \code{leftcols} or
+\code{rightcols}:
+
+\tabular{ll}{
+\bold{Column} \tab \bold{Description} \cr
+\code{"studlab"} \tab study labels \cr
+\ldots \tab outcome-specific columns
+}
+
+See the section on the default forest plot layout (\code{layout = "meta"})
+for the outcome-specific columns.
+
+The following columns are printed on the right side of the forest plot:
+
+\tabular{ll}{
+\bold{Column} \tab \bold{Description} \cr
+\code{"effect"} \tab estimated effect in the study \cr
+\code{"ci"} \tab confidence interval for the estimated effect \cr
+\code{"w.common"} \tab weights from the common effect model, if applicable \cr
+\code{"w.random"} \tab weights from the random effects model, if applicable
+}
 }
 
 \subsection{Predefined columns and column labels}{
@@ -1418,27 +659,18 @@ the forest plot. For certain columns predefined labels exist which
 are used by default, i.e., if arguments \code{leftlabs} and
 \code{rightlabs} are \code{NULL}:
 \tabular{rccc}{
-Column: \tab \code{n.e}, \code{n.c}, \code{n} \tab
-  \code{mean.e}, \code{mean.c}, \code{mean} \tab
-  \code{sd.e}, \code{sd.c}, \code{sd} \cr 
-Label: \tab \code{gs("label.n")} \tab
-  \code{gs("label.mean")} \tab \code{gs("label.sd")} \cr
-\cr
-Column: \tab \code{event.e}, \code{event.c}, \code{event} \tab
-  \code{time.e}, \code{time.c}, \code{time} \tab \code{cor} \cr
-Label: \tab \code{gs("label.events")} \tab \code{gs("label.time")} \tab
-  \code{gs("label.cor")} \cr
-\cr
+Column: \tab \code{n.e}, \code{n.c}, \code{n} \tab \code{mean.e}, \code{mean.c}, \code{mean} \tab \code{sd.e}, \code{sd.c}, \code{sd} \cr
+Label: \tab \code{gs("label.n")} \tab \code{gs("label.mean")} \tab \code{gs("label.sd")} \cr
+Column: \tab \code{event.e}, \code{event.c}, \code{event} \tab \code{time.e}, \code{time.c}, \code{time} \tab \code{cor} \cr
+Label: \tab \code{gs("label.events")} \tab \code{gs("label.time")} \tab \code{gs("label.cor")} \cr
 Column: \tab \code{effect} \tab \code{ci} \tab \code{effect.ci} \cr
 Label: \tab \code{x$sm} \tab \code{x$level}"\% CI" \tab \emph{effect+ci} \cr
-\cr
-Column: \tab \code{cluster} \tab \code{cycles} \tab \code{pval} \cr
-Label: \tab \code{gs("label.cluster")} \tab \code{gs("label.cycles")} \tab
-  \code{gs("label.pval")} \cr
-\cr
+Column: \tab \code{cluster} \tab \code{cycles} \cr
+Label: \tab \code{gs("label.cluster")} \tab \code{gs("label.cycles")} \cr
+Column: \tab \code{pval} \tab \code{statistic} \cr
+Label: \tab \code{gs("label.pval")} \tab "z", "t", or "z|t" \cr
 Column: \tab \code{tau2} \tab \code{tau} \tab \code{I2} \cr
-Label: \tab \code{gs("label.tau2")} \tab \code{gs("label.tau")} \tab
-  \code{gs("label.I2")}
+Label: \tab \code{gs("label.tau2")} \tab \code{gs("label.tau")} \tab \code{gs("label.I2")} \cr
 }
 
 For the columns \code{studlab} (study labels), \code{TE}
@@ -1462,6 +694,43 @@ label columns belonging to the two treatment groups. By default,
 labels defined in the meta-analysis object are used. The columns
 where treatment labels are attached can be changed using arguments
 \code{label.e.attach} and \code{label.c.attach}.
+}
+
+\subsection{Spacing and width calculation}{
+Information on heterogeneity measures and statistical tests is printed
+below the meta-analysis results. Argument \code{addrows.below.overall} can
+be used to specify the number of empty rows between these results and the
+information below them. By default, no extra space is added.
+
+The width of information printed in the leftmost column is automatically
+included when calculating the width of the forest plot. Consequently, this
+information does not overlap with the forest plot or x-axis by default. The
+automatic calculation can be disabled using the relevant elements of
+\code{calcwidth}; see \code{\link{meta-formatting}}. Gaps between
+columns and plot elements can be adjusted with the named list
+\code{colgap} or the corresponding individual arguments.
+
+The widths of x-axis tick labels, \code{smlab}, \code{xlab},
+\code{label.left}, and \code{label.right} are also considered
+automatically. Additional space is allocated through the corresponding
+forest-plot gaps to avoid overlap with columns, statistics, details, or
+other plot elements. User-specified values supplied through either the
+\code{colgap} list elements \code{forest.left} and \code{forest.right} or
+the individual arguments \code{colgap.forest.left} and
+\code{colgap.forest.right} take precedence over the automatic calculation.
+}
+
+\subsection{Title of forest plot}{
+A title for the forest plot can be provided via argument \code{main}.
+If \code{main} is not specified, the title is generated from the general
+title, comparison label, and outcome label, i.e., the \code{title},
+\code{complab}, and \code{outclab} components of meta-analysis object
+\code{x}.
+
+If \code{main.prefix = TRUE} (the default), the prefixes
+\code{"Review:"}, \code{"Comparison:"}, and \code{"Outcome:"} are added
+automatically to the corresponding title lines. This can be prevented by
+setting \code{title.prefixes = FALSE}.
 }
 
 \subsection{Risk of bias assessment}{
@@ -1500,8 +769,14 @@ the meta-analysis results if argument \code{overall.hetstat = TRUE}
 (default). The heterogeneity measures to print can be specified
 (see list of arguments following \code{overall.hetstat}).
 
-In addition, the following arguments can be used to print results
-for various statistical tests:
+In addition, results for various statistical tests can be printed using
+the named list \code{test}; see \code{\link{meta-formatting}} for the
+available list elements. The individual arguments \code{test.overall},
+\code{test.overall.common}, \code{test.overall.random},
+\code{test.subgroup}, \code{test.subgroup.common},
+\code{test.subgroup.random}, \code{test.effect.subgroup},
+\code{test.effect.subgroup.common}, and
+\code{test.effect.subgroup.random} are also supported:
 \tabular{ll}{
 \bold{Argument} \tab \bold{Statistical test} \cr
 \code{test.overall.common} \tab Test for overall effect (common
@@ -1518,12 +793,11 @@ for various statistical tests:
   model)
 }
 
-By default, these arguments are \code{FALSE} with exception of
-tests for subgroup differences which are \code{TRUE}. R function
-\code{\link{settings.meta}} can be used to change this default for
-the entire R session. For example, use the following command to
-always print results of tests for an overall effect:
-\code{settings.meta(test.overall = TRUE)}.
+By default, tests for an overall effect and tests for subgroup
+differences are printed if the corresponding models or subgroup analyses
+are available. Tests can be suppressed with the relevant arguments.
+R function \code{\link{settings.meta}} can be used to change this default
+for the entire R session.
 }
 
 \subsection{Highlight regions corresponding to minimal clinically important
@@ -1531,9 +805,10 @@ differences}{
 
 Regions corresponding to minimal clinically important differences can be
 added to the forest plot using either argument \code{cid} or
-\code{cid.below.null} and \code{cid.above.null}. Input for the later arguments will
-be ignored if argument \code{cid} was specified. In this case, the values
-of \code{cid.below.null} and \code{cid.above.null} will be equal to
+\code{cid.below.null} and \code{cid.above.null}. Input for the later
+arguments will be ignored if argument \code{cid} was specified. In this case,
+the values of \code{cid.below.null} and \code{cid.above.null} will be equal
+to
 \itemize{
 \item \code{cid} and \code{1 / cid} for ratio measures,
 \item \code{cid} and \code{-cid} for difference measures.
@@ -1551,8 +826,8 @@ printed for subgroups. A logical vector of length equal to the
 number of subgroups can be provided to determine which subgroup
 summaries are printed. By default, only subgroup results based on
 at least two studies are printed which is identical to use argument
-\code{subgroup = k.w > 1}. The order of the logical vector
-corresponds to the order of subgroups in list element 'subgroup.levels' of a
+\code{subgroup = k.w > 1}. The order of the logical vector corresponds to
+the order of subgroups in list element 'subgroup.levels' of a
 meta-analysis object. Argument \code{subgroup = k.w >= 1} can be
 used to show results for all subgroups (including those with a
 single study).
@@ -1560,19 +835,15 @@ single study).
 The following arguments can be used in a similar way:
 
 \itemize{
-\item \code{subgroup.hetstat} (heterogeneity statistic in
-  subgroups),
-\item \code{common.subgroup} (common effect estimates in
-  subgroups),
-\item \code{random.subgroup} (random effects estimates in
-  subgroups),
-\item \code{prediction.subgroup} (prediction interval in
-  subgroups),
+\item \code{subgroup.hetstat} (heterogeneity statistic in subgroups),
+\item \code{common.subgroup} (common effect estimates in subgroups),
+\item \code{random.subgroup} (random effects estimates in subgroups),
+\item \code{prediction.subgroup} (prediction interval in subgroups),
 \item \code{test.effect.subgroup} (test for effect in subgroups),
-\item \code{test.effect.subgroup.common} (test for effect in
-  subgroups, common effect model),
-\item \code{test.effect.subgroup.random} (test for effect in
-  subgroups, random effects model).
+\item \code{test.effect.subgroup.common} (test for effect in subgroups,
+  common effect model),
+\item \code{test.effect.subgroup.random} (test for effect in subgroups,
+  random effects model).
 }
 }
 
@@ -1599,10 +870,12 @@ order for subgroup results is the same as see in the forest plot.
 
 \subsection{Additional general settings}{
 
-Arguments \code{text.common}, \code{text.random}, and
-\code{text.predict} can be used to change the label to identify
-overall results (common effect and random effects model as well as
-prediction interval). By default the following text is printed:
+The named list \code{text} can be used to change labels identifying
+overall results (common-effect and random-effects models) and prediction
+intervals; see \code{\link{meta-formatting}} for the available list
+elements. The individual arguments \code{text.common},
+\code{text.random}, and \code{text.predict} are also supported. By
+default, the following text is printed:
 \itemize{
 \item "Common effect model" (argument \code{text.common})
 \item "Random effects model" (\code{text.random})
@@ -1638,17 +911,18 @@ Cochrane reviews (which were generated with Review Manager 5) is reproduced:
 \enumerate{
 \item All columns are printed on the left side of the forest plot
   (see arguments \code{leftcols} and \code{rightcols})
+\item The main title is left aligned (\code{just.main})
 \item Tests for overall effect and subgroup differences are printed
-  (\code{test.overall}, \code{test.effect.subgroup},
-  \code{test.subgroup})
+  (\code{test.overall}, \code{test.subgroup})
 \item Diamonds representing meta-analysis results are printed in
-  black (\code{diamond.common}, \code{diamond.random})
+  black (\code{col.diamond.common}, \code{col.diamond.random})
 \item Colour of squares depends on the meta-analysis object
   (\code{col.square}, \code{col.square.lines})
 \item Information on effect measure and meta-analysis method is
   printed above the forest plot (\code{smlab})
 \item Label "Study or Subgroup" is printed for meta-analysis with
   subgroups (\code{leftlabs})
+\item Details on meta-analysis methods are not printed (\code{details})
 }
 }
 
@@ -1658,6 +932,9 @@ If argument \code{layout = "JAMA"} (and arguments \code{leftcols} and
 \code{rightcols} are \code{NULL}), instructions for authors of the
 \emph{Journal of the American Medical Association} are taken into account:
 \enumerate{
+\item All columns are printed on the left side of the forest plot
+  (see arguments \code{leftcols} and \code{rightcols})
+\item The main title is left aligned (\code{just.main})
 \item Graph labels on right and left side are printed in bold font
   at top of forest plot (see arguments \code{bottom.lr} and
   \code{ff.lr})
@@ -1665,7 +942,7 @@ If argument \code{layout = "JAMA"} (and arguments \code{leftcols} and
   interval is printed at bottom of forest plot (\code{xlab})
 \item Tests for overall effect are printed (\code{test.overall})
 \item Diamonds representing meta-analysis results are printed in
-  lightblue (\code{diamond.common}, \code{diamond.random})
+  lightblue (\code{col.diamond.common}, \code{col.diamond.random})
 \item Squares representing individual study results are printed in
   darkblue (\code{col.square}, \code{col.square.lines})
 \item Between-study variance \eqn{\tau^2} is not printed
@@ -1675,9 +952,28 @@ If argument \code{layout = "JAMA"} (and arguments \code{leftcols} and
 \item P-values are printed without leading zeros (\code{zero.pval})
 \item P-values are rounded to three digits (for 0.001 < p \eqn{\le}
   0.01) or two digits (p > 0.01) (\code{JAMA.pval})
+\item Details on meta-analysis methods are not printed (\code{details})
 }
 Study labels according to JAMA guidelines can be generated using
 \code{\link{labels.meta}}.
+}
+
+\subsection{Forest plots in BMJ layout}{
+
+If argument \code{layout = "BMJ"} (and arguments \code{leftcols} and
+\code{rightcols} are \code{NULL}), the following features of forest plots
+for the \emph{British Medical Journal} are taken into account:
+\enumerate{
+\item Columns are printed on the left and right side of the forest plot
+  (see arguments \code{leftcols} and \code{rightcols})
+\item The main title is center aligned (\code{just.main})
+\item Combined treatment-group headers are centered over both columns for
+  binary outcomes, continuous outcomes, and incidence rates
+\item Prediction intervals are shown if requested (\code{prediction})
+\item Tests for overall effect and subgroup differences are printed
+  (\code{test.overall}, \code{test.subgroup})
+\item Details on meta-analysis methods are not printed (\code{details})
+}
 }
 
 \subsection{Forest plots showing results of subgroups}{
@@ -1709,228 +1005,215 @@ ma1 <- metabin(ev.exp, n.exp, ev.cont, n.cont,
 
 
 \dontrun{
-# Do standard (symmetric) forest plot
+# Draw a forest plot with the default layout
 #
 forest(ma1)
 }
 
-# Layout of forest plot similar to Review Manager 5
-#
-# Furthermore, add labels on both sides of forest plot and
-# prediction interval
+# Review Manager 5 layout with directional labels, a prediction interval,
+# and a main title
 #
 forest(ma1, layout = "RevMan5", common = FALSE,
-  label.left = "Favours experimental", col.label.left = "green",
-  label.right = "Favours control", col.label.right = "red",
-  prediction = TRUE)
-
+  label = list(left = "Favours experimental", right = "Favours control"),
+  col = list(label.left = "green", label.right = "red"),
+  prediction = TRUE,
+  main = paste("Meta-analysis on Thrombolytic Therapy",
+               "after Acute Myocardial Infarction"))
 
 \dontrun{
 #
-# Create PDF files with the forest plot
+# Save forest plots to files
 #
 
-# 1) Specify filename, here, pdf() is used due to the file extension ".pdf";
-#    height and width of the figure are automatically determined
+# 1) Specify a filename; the ".pdf" extension selects pdf()
+#    The height and width are determined automatically
 #
 forest(ma1, filename = "forest-ma1-1.pdf")
 
-# 2) Specify the device; results in the creation of a file "Rplots.pdf"
+# 2) Specify only the device; svg() creates "Rplots.svg"
 #
-forest(ma1, device = pdf)
+forest(ma1, device = "svg")
 
-# 3) Manually set width to 10 inches; a different method is used to
-#    determine the height of the forest plot
+# 3) Set the PDF metadata title and the plot background colour
 #
-forest(ma1, filename = "forest-ma1-2.pdf", width = 10)
+forest(ma1, filename = "forest-ma1-2.pdf",
+  device.args = list(title = "Forest plot created with R package meta",
+    bg = "green"))
 
-# 4) Set title for PDF file and set background colour of forest plot
-forest(ma1, filename = "forest-ma1-3.pdf",
-  device.args = list(title = "My Forest Plot", bg = "green"))
-
-# 5) Manually specify the height of the figure
+# 4) Specify the width and height in inches
 #
-forest(ma1, filename = "forest-ma1-4.pdf", width = 10, height = 3)
-}
+forest(ma1, filename = "forest-ma1-3.pdf", width = 10, height = 3)
 
-\dontrun{
 #
 # More forest plots
 #
 
-# Define equivalence limits: 0.75 and 1 / 0.75
+# Mark equivalence limits at 0.75 and 1 / 0.75
 #
-forest(ma1, layout = "RevMan5", common = FALSE, cid = 0.75,
-  fill = "lightgray", fill.cid = "white")
+forest(ma1, layout = "RevMan5", common = FALSE,
+  cid = 0.75, fill = list(fill = "lightgray", cid = "white"))
 
-# Fill regions with beneficial and detrimental effects
+# Shade regions indicating beneficial and harmful effects
 #
-forest(ma1, layout = "RevMan5", common = FALSE, cid = 0.75,
-  fill = "lightgray",
-  fill.cid.below.null = "green",
-  fill.cid.above.null = "red")
+forest(ma1, layout = "RevMan5", common = FALSE,
+  cid = 0.75,
+  fill = list(fill = "lightgray", cid = "white",
+    cid.below.null = "green", cid.above.null = "red"),
+  label = list(left = "Desirable effect", right = "Undesirable effect"))
 
-# Define thresholds for small, moderate and large effects
-# and use hcl.colors() to define colours to fill regions
+# Define thresholds for small, moderate, and large effects
+# and shade the corresponding regions using hcl.colors()
 #
 thresholds <- c(0.25, 0.5, 0.75)
 n.cols <- length(thresholds)
+#
 forest(ma1, layout = "RevMan5", common = FALSE,
-  label.left = "Desirable effect", 
-  label.right = "Undesirable effect", 
-  lty.cid = 3, col.cid = "darkgray",
   cid.below.null = thresholds, cid.above.null = 1 / rev(thresholds),
-  fill.cid.below.null =
-    hcl.colors(n.cols, palette = "Blues 2", alpha = 0.6),
-  fill.cid.above.null =
-    hcl.colors(n.cols, palette = "Oranges", alpha = 0.6, rev = TRUE))
+  fill = list(
+    cid.below.null = hcl.colors(n.cols, palette = "Blues 2", alpha = 0.6),
+    cid.above.null = hcl.colors(n.cols, palette = "Oranges", alpha = 0.6,
+      rev = TRUE)),
+  lty = list(cid = 3), col = list(cid = "darkgray"),
+  label = list(left = "Desirable effect", right = "Undesirable effect"))
 
-# Conduct subgroup meta-analysis
+# Specify the limits of the horizontal axis
+#
+forest(ma1, xlim = c(0.01, 10))
+
+# Show tests for overall effects
+#
+forest(ma1, test = list(overall.common = TRUE, overall.random = TRUE))
+
+# Use black squares and omit heterogeneity information
+#
+forest(ma1, col.square = "black", overall.hetstat = FALSE)
+
+# Inspect the columns and headings on both sides of the forest plot
+#
+fdat <- forest(ma1)
+#
+fdat$leftcols
+fdat$leftlabs
+fdat$rightcols
+fdat$rightlabs
+# character(0) indicates that no columns or headings are present
+
+# Show only study labels on the left and effect estimates and
+# confidence intervals on the right
+#
+forest(ma1, random = FALSE,
+  leftcols = "studlab", rightcols = c("effect", "ci"))
+
+# Omit columns on the left and combine effect estimates and
+# confidence intervals in one column on the right
+#
+forest(ma1, leftcols = FALSE, rightcols = "effect.ci")
+
+# Change the study-label heading to "Author"
+# Use the columns and headings returned by forest(ma1) above
+#
+lcols <- fdat$leftcols
+llabs <- fdat$leftlabs
+llabs[lcols == "studlab"] <- "Author"
+#
+forest(ma1, leftlabs = llabs)
+
+# Attach group labels to event counts rather than sample sizes
+#
+forest(ma1,
+  label = list(e.attach = "event.e", c.attach = "event.c"))
+
+# Add 'author' and 'year', using their variable names as headings
+#
+forest(ma1, leftcols = c(lcols, "author", "year"))
+
+# Specify headings only for the newly added columns
+#
+forest(ma1, leftcols = c(lcols, "author", "year"),
+  leftlabs = c("Author", "Year of publication"))
+
+# Additional columns are centered by default
+# Left-align 'author' and right-align 'year'
+#
+forest(ma1, leftcols = c(lcols, "author", "year"),
+  leftlabs = c("Author", "Year of publication"),
+  just.addcols = c("left", "right"))
+
+# Draw the same plot using abbreviated justification values
+#
+forest(ma1, leftcols = c(lcols, "author", "year"),
+  leftlabs = c("Author", "Year of publication"),
+  just.addcols = c("l", "r"))
+
+# Center text in all columns except study labels
+#
+forest(ma1, leftcols = c(lcols, "author", "year"),
+  leftlabs = c("First author", "Year of publication"),
+  just = "center")
+
+# Center text in all columns
+#
+forest(ma1, leftcols = c(lcols, "author", "year"),
+  leftlabs = c("First author", "Year of publication"),
+  just = list(just = "center", studlab = "center"))
+
+# Change font sizes and faces
+#
+forest(ma1,
+  fs = list(study = 10, study.labels = 11, axis = 5),
+  ff = list(study = "italic", study.labels = "bold",
+    axis = "italic", smlab = "bold.italic",
+    common = "plain", hetstat = "plain"))
+
+# Change colours
+#
+forest(ma1,
+  col = list(diamond = "green", diamond.lines = "red",
+    study = c("green", "blue", "red", "orange"),
+    square = "pink", square.lines = "black"))
+
+# Sort by increasing common-effect weight
+#
+forest(ma1, sortvar = w.common, random = FALSE)
+
+# Sort by decreasing common-effect weight
+#
+forest(ma1, sortvar = -w.common, random = FALSE)
+
+# Sort by increasing treatment effect
+#
+forest(ma1, sortvar = TE, random = FALSE)
+
+# Sort by decreasing treatment effect
+#
+forest(ma1, sortvar = -TE, random = FALSE)
+
+# Sort by decreasing publication year
+#
+forest(ma1, sortvar = -year, random = FALSE)
+
+#
+# Forest plots for subgroup meta-analyses
+#
+
+# Conduct a subgroup meta-analysis
 #
 ma2 <- update(ma1,
   subgroup = ifelse(year < 1987, "Before 1987", "1987 and later"),
   print.subgroup.name = FALSE)
 
-# Show summary results for subgroups with at least two studies
+# Omit subgroup summaries based on a single study (the default)
 #
-forest(ma2, sortvar = -TE, random = FALSE)
+forest(ma2, random = FALSE)
 
-# Show results for all subgroups
+# Include subgroup summaries based on a single study
+# (identical to the individual study results)
 #
-forest(ma2, sortvar = -TE, random = FALSE, subgroup = k.w >= 1)
+forest(ma2, random = FALSE, subgroup = k.w > 0)
 
-# Forest plot specifying argument xlim
-#
-forest(ma1, xlim = c(0.01, 10))
-
-# Print results of test for overall effect
-#
-forest(ma1, test.overall.common = TRUE, test.overall.random = TRUE)
-
-# Forest plot with 'classic' layout used in R package meta,
-# version < 1.6-0
-#
-forest(ma1, col.square = "black", hetstat = FALSE)
-
-# Change set of columns printed on left side of forest plot
-# (resulting in overlapping text)
-#
-forest(ma1, random = FALSE, leftcols = "studlab")
-
-# Use argument 'calcwidth.hetstat' to consider text for heterogeneity
-# measures in width of column with study labels
-#
-forest(ma1, random = FALSE, leftcols = "studlab",
-  calcwidth.hetstat = TRUE)
-
-# Use argument 'addrows.below.overall' to manually add two empty
-# rows
-#
-forest(ma1, random = FALSE, leftcols = "studlab", addrows = 2)
-
-# Do not print columns on right side of forest plot
-#
-forest(ma1, rightcols = FALSE)
-
-# Change study label to "Author"
-#
-forest(ma1, random = FALSE, leftlabs = c("Author", NA, NA, NA, NA))
-
-# Just give effect estimate and 95\% confidence interval on right
-# side of forest plot (in one column)
-#
-forest(ma1, rightcols = "effect.ci")
-
-# Just give effect estimate and 95\% confidence interval on right
-# side of forest plot
-#
-forest(ma1, rightcols = c("effect", "ci"))
-
-# 1. Change order of columns on left side
-# 2. Attach labels to columns 'event.e' and 'event.c' instead of
-#    columns 'n.e' and 'n.c'
-#
-forest(ma1,
-  leftcols = c("studlab", "n.e", "event.e", "n.c", "event.c"),
-  label.e.attach = "event.e", label.c.attach = "event.c")
-
-# Specify column labels only for variables 'year' and 'author'
-# (and define digits for additional variables)
-#
-forest(ma1,
-  leftcols = c("studlab", "event.e", "n.e", "event.c", "n.c", "author", "year"),
-  leftlabs = c("Author", "Year of Publ"))
-
-# Center text in all columns
-#
-forest(ma1,
-  leftcols = c("studlab", "event.e", "n.e", "event.c", "n.c",
-               "author", "year"),
-  leftlabs = c("Author", "Year of Publ"), hetstat = FALSE,
-  just = "center", just.addcols = "center", just.studlab = "center")
-
-# Same result
-#
-forest(ma1,
-  leftcols = c("studlab", "event.e", "n.e", "event.c", "n.c",
-             "author", "year"),
-  leftlabs = c("Author", "Year of Publ"), hetstat = FALSE,
-  just = "c", just.addcols = "c", just.studlab = "c")
-
-# Change some fontsizes and fontfaces
-#
-forest(ma1,
-  fs.study = 10, ff.study = "italic",
-  fs.study.label = 11, ff.study.label = "bold",
-  fs.axis = 5, ff.axis = "italic",
-  ff.smlab = "bold.italic",
-  ff.common = "plain", ff.hetstat = "plain")
-
-# Change some colours
-#
-forest(ma1,
-  col.diamond = "green", col.diamond.lines = "red",
-  col.study = c("green", "blue", "red", "orange"),
-  col.square = "pink", col.square.lines = "black")
-
-# Sort by weight in common effect model
-#
-forest(ma1, sortvar = w.common, random = FALSE)
-
-# Sort by decreasing weight in common effect model
-#
-forest(ma1, sortvar = -w.common, random = FALSE)
-
-# Sort by size of treatment effect
-#
-forest(ma1, sortvar = TE, random = FALSE)
-
-# Sort by size of treatment effect
-#
-forest(ma1, sortvar = -TE, random = FALSE)
-
-# Sort by decreasing year of publication
-#
-forest(ma1, sortvar = -year, random = FALSE)
-
-# Print results of test for subgroup differences (random effects
-# model)
-#
-forest(ma2, sortvar = -TE, common = FALSE)
-
-# Print only subgroup results
+# Show only subgroup results
 #
 forest(ma2, layout = "subgroup")
-
-# Print only subgroup results (and consider text for tests of
-# subgroup differences in width of subgroup column)
-#
-forest(ma2, layout = "subgroup", calcwidth.tests = TRUE)
-
-# Print only subgroup results (and consider text for heterogeneity
-# in width of subgroup column)
-#
-forest(ma2, layout = "subgroup", calcwidth.hetstat = TRUE)
 }
 
 }
@@ -1947,7 +1230,8 @@ A re-evaluation of random-effects meta-analysis.
 \bold{172}, 137-59
 }
 \seealso{
-\code{\link{metabin}}, \code{\link{metacont}},
+\code{\link{meta-formatting}},
+  \code{\link{metabin}}, \code{\link{metacont}},
   \code{\link{metagen}}, \code{\link{forest.metabind}},
   \code{\link{settings.meta}}, \code{\link{labels.meta}}
 }

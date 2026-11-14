@@ -12,3 +12,4 @@ internal-functions.md
 ^\.Rproj\.user$
 ^\.positai$
 ^\.claude$
+^tests/testthat/(test|helper)-local-.*[.]R$

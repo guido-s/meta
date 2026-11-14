@@ -2,7 +2,8 @@ is_installed_package <- function(pkg, func, argument, value,
                                  chksettings = FALSE, stop = TRUE,
                                  version = NULL) {
   
-  pkginstalled <- requireNamespace(pkg, quietly = TRUE)
+  pkginstalled <-
+    suppressPackageStartupMessages(requireNamespace(pkg, quietly = TRUE))
   
   oldpkg <- pkginstalled && !is.null(version) && packageVersion(pkg) < version
   

@@ -110,35 +110,25 @@ or2smd <- function(lnOR, selnOR, studlab,
   }
   else {
     #
-    # Read data
-    #
-    nulldata <- is.null(data)
-    sfsp <- sys.frame(sys.parent())
-    mc <- match.call()
-    #
-    if (nulldata)
-      data <- sfsp
-    #
     # Catch 'lnOR' and 'selnOR' from data:
     #
-    lnOR <- catch("lnOR", mc, data, sfsp)
-    #
-    selnOR <- catch("selnOR", mc, data, sfsp)
+    lnOR <- catch(enquo(lnOR), data)
+    selnOR <- catch(enquo(selnOR), data)
     #
     k.All <- length(lnOR)
     chknull(lnOR)
     #
     # Catch 'studlab', 'subset', and 'exclude' from data:
     #
-    studlab <- catch("studlab", mc, data, sfsp)
+    studlab <- catch(enquo(studlab), data)
     studlab <- setstudlab(studlab, k.All)
     print(studlab)
     #
     missing.subset <- missing(subset)
-    subset <- catch("subset", mc, data, sfsp)
+    subset <- catch(enquo(subset), data)
     #
     missing.exclude <- missing(exclude)
-    exclude <- catch("exclude", mc, data, sfsp)
+    exclude <- catch(enquo(exclude), data)
     #
     # Check length of essential variables
     #
@@ -159,6 +149,8 @@ or2smd <- function(lnOR, selnOR, studlab,
           (length(exclude) > k.All))
         stop("Length of argument 'exclude' is larger than number of studies.")
   }
+  #
+  warn_ignore_dots(list(...), "or2smd")
   
   
   method <- setchar(method, c("HH", "CS"))

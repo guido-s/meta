@@ -12,10 +12,9 @@
 \item{row.names}{\code{NULL} or a character vector giving the row
 names for the data frame.}
 
-\item{optional}{logical. If \code{TRUE}, setting row names and
-converting column names (to syntactic names) is optional.}
+\item{optional}{Argument is ignored.}
 
-\item{\dots}{other arguments}
+\item{\dots}{Other arguments (ignored).}
 }
 \value{
 A data frame is returned by the function \code{as.data.frame}.

@@ -35,32 +35,15 @@
 #'   \code{"IRS"}, \code{"IRFT"}, or \code{"IRD"}.
 #' @param irunit A character specifying the time unit used to
 #'   calculate rates, e.g. person-years.
-#' @param digits Minimal number of significant digits, see
-#'   \code{print.default}.
-#' @param digits.se Minimal number of significant digits for standard
-#'   deviations and standard errors, see \code{print.default}.
-#' @param digits.stat Minimal number of significant digits for z- or
-#'   t-value of test for effect, see \code{print.default}.
-#' @param digits.pval Minimal number of significant digits for p-value
-#'   of test of treatment effect, see \code{print.default}.
-#' @param digits.tau2 Minimal number of significant digits for
-#'   between-study variance, see \code{print.default}.
-#' @param digits.tau Minimal number of significant digits for square
-#'   root of between-study variance, see \code{print.default}.
-#' @param digits.Q Minimal number of significant digits for
-#'   heterogeneity statistic Q, see \code{print.default}.
-#' @param digits.df Minimal number of significant digits for degrees
-#'   of freedom.
-#' @param digits.pval.Q Minimal number of significant digits for
-#'   p-value of heterogeneity test, see \code{print.default}.
-#' @param digits.I2 Minimal number of significant digits for I-squared
-#'   and Rb statistic, see \code{print.default}.
-#' @param digits.H Minimal number of significant digits for H
-#'   statistic, see \code{print.default}.
-#' @param digits.prop Minimal number of significant digits for
-#'   proportions, see \code{print.default}.
-#' @param digits.weight Minimal number of significant digits for
-#'   weights, see \code{print.default}.
+#' @param test A named list controlling tests for subgroup differences;
+#'   see \code{\link{meta-formatting}}. Defaults are as in
+#'   \code{\link{print.meta}}.
+#' @param print A named list controlling displayed information; see
+#'   \code{\link{meta-formatting}}. Defaults are as in \code{print.meta}.
+#' @param digits A named list controlling rounding; see
+#'   \code{\link{meta-formatting}}. A scalar value is also accepted.
+#'   Defaults are as in \code{print.meta}, with additional \code{se},
+#'   \code{prop}, and \code{weight} settings from \code{settings.meta()}.
 #' @param scientific.pval A logical specifying whether p-values should
 #'   be printed in scientific notation, e.g., 1.2345e-01 instead of
 #'   0.12345.
@@ -70,25 +53,6 @@
 #'   overall effect should be printed according to JAMA reporting
 #'   standards.
 #' @param big.mark A character used as thousands separator.
-#' @param print.tau2 A logical specifying whether between-study
-#'   variance \eqn{\tau^2} should be printed.
-#' @param print.tau2.ci A logical value indicating whether to print
-#'   the confidence interval of \eqn{\tau^2}.
-#' @param print.tau A logical specifying whether \eqn{\tau}, the
-#'   square root of the between-study variance \eqn{\tau^2}, should be
-#'   printed.
-#' @param print.tau.ci A logical value indicating whether to print the
-#'   confidence interval of \eqn{\tau}.
-#' @param print.Q A logical value indicating whether to print the
-#'   results of the test of heterogeneity.
-#' @param print.I2 A logical specifying whether heterogeneity
-#'   statistic I\eqn{^2} should be printed.
-#' @param print.I2.ci A logical specifying whether confidence interval for
-#'   heterogeneity statistic I\eqn{^2} should be printed.
-#' @param print.H A logical specifying whether heterogeneity statistic
-#'   H should be printed.
-#' @param print.Rb A logical specifying whether heterogeneity
-#'   statistic R\eqn{_b} should be printed.
 #' @param text.tau2 Text printed to identify between-study variance
 #'   \eqn{\tau^2}.
 #' @param text.tau Text printed to identify \eqn{\tau}, the square
@@ -105,7 +69,8 @@
 #' @param details.methods A logical specifying whether details on
 #'   statistical methods should be printed.
 #' @param warn.backtransf Deprecated argument (ignored).
-#' @param \dots Additional arguments (passed on to
+#' @param \dots Additional arguments, including individual \code{test.*},
+#'   \code{print.*}, and \code{digits.*} settings (passed on to
 #'   \code{\link{print.meta}} called internally).
 #' 
 #' @details
@@ -174,40 +139,15 @@ print.summary.meta <- function(x,
                                irscale = x$irscale,
                                irunit = x$irunit,
                                #
-                               digits = gs("digits"),
-                               digits.se = gs("digits.se"),
-                               digits.stat = gs("digits.stat"),
-                               digits.pval = max(gs("digits.pval"), 2),
-                               #
-                               digits.tau2 = gs("digits.tau2"),
-                               digits.tau = gs("digits.tau"),
-                               #
-                               digits.Q = gs("digits.Q"),
-                               digits.df = gs("digits.df"),
-                               digits.pval.Q = max(gs("digits.pval.Q"), 2),
-                               #
-                               digits.H = gs("digits.H"),
-                               digits.I2 = gs("digits.I2"),
-                               #
-                               digits.prop = gs("digits.prop"),
-                               digits.weight = gs("digits.weight"),
+                               test = NULL,
+                               print = NULL,
+                               digits = NULL,
                                #
                                scientific.pval = gs("scientific.pval"),
                                zero.pval = gs("zero.pval"),
                                JAMA.pval = gs("JAMA.pval"),
                                #
                                big.mark = gs("big.mark"),
-                               #
-                               print.tau2 = gs("print.tau2"),
-                               print.tau2.ci = gs("print.tau2.ci"),
-                               print.tau = gs("print.tau"),
-                               print.tau.ci = gs("print.tau.ci"),
-                               #
-                               print.Q = gs("print.Q"),
-                               print.I2 = gs("print.I2"),
-                               print.I2.ci = gs("print.I2.ci"),
-                               print.H = gs("print.H"),
-                               print.Rb = gs("print.Rb"),
                                #
                                text.tau2 = gs("text.tau2"),
                                text.tau = gs("text.tau"),
@@ -235,6 +175,58 @@ print.summary.meta <- function(x,
   #
   x.meta <- updateversion(x$x)
   #
+  args <- list(...)
+  #
+  if (anyDuplicated(names(args)) || anyDuplicated(names(test)) ||
+      anyDuplicated(names(print)) ||
+      anyDuplicated(names(digits)))
+    stop("Formatting arguments must not be duplicated.", call. = FALSE)
+  #
+  # Columns shown when printing
+  #
+  print.list <-
+    merge_legacy(print, args,
+                 print_defaults(x.meta, "summary.meta", func = "print"))
+  #
+  print.settings <- print.list$res
+  args <- print.list$args
+  #
+  if (print.list$miss[["subgroup.name"]])
+    print.settings["subgroup.name"] <- NULL
+  #
+  print.tau2 <- print.settings[["tau2"]]
+  print.tau2.ci <- print.settings[["tau2.ci"]]
+  print.tau <- print.settings[["tau"]]
+  print.tau.ci <- print.settings[["tau.ci"]]
+  print.Q <- print.settings[["Q"]]
+  print.I2 <- print.settings[["I2"]]
+  print.I2.ci <- print.settings[["I2.ci"]]
+  print.H <- print.settings[["H"]]
+  print.Rb <- print.settings[["Rb"]]
+  #
+  # Digits used to round results
+  #
+  digits <- as_named_list(digits)
+  digits.list <-
+    merge_legacy(digits, args, digits_defaults("summary.meta", func = "print"))
+  #
+  digits.settings <- digits.list$res
+  args <- digits.list$args
+  #
+  digits <- digits.settings[["digits"]]
+  digits.se <- digits.settings[["se"]]
+  digits.stat <- digits.settings[["stat"]]
+  digits.pval <- digits.settings[["pval"]]
+  digits.tau2 <- digits.settings[["tau2"]]
+  digits.tau <- digits.settings[["tau"]]
+  digits.Q <- digits.settings[["Q"]]
+  digits.df <- digits.settings[["df"]]
+  digits.pval.Q <- digits.settings[["pval.Q"]]
+  digits.H <- digits.settings[["H"]]
+  digits.I2 <- digits.settings[["I2"]]
+  digits.prop <- digits.settings[["prop"]]
+  digits.weight <- digits.settings[["weight"]]
+  #
   fbt <- x$x$func.backtransf
   abt <- x$x$args.backtransf
   
@@ -244,14 +236,9 @@ print.summary.meta <- function(x,
   # (2) Check other arguments
   #
   #
-  sfsp <- sys.frame(sys.parent())
-  mc <- match.call()
-  error <-
-    try(sortvar <-
-          catch("sortvar", mc, x.meta, sfsp),
-        silent = TRUE)
+  error <- try(sortvar <- catch(enquo(sortvar), x.meta), silent = TRUE)
   if (inherits(error, "try-error")) {
-    sortvar <- catch("sortvar", mc, x$data,  NULL)
+    sortvar <- catch(enquo(sortvar), x$data)
     if (isCol(x$data, ".subset"))
       sortvar <- sortvar[x$data$.subset]
   }
@@ -273,19 +260,15 @@ print.summary.meta <- function(x,
   #
   chklogical(details.methods)
   #
-  if (!is.null(pscale))
-    chknumeric(pscale, length = 1)
-  else
-    pscale <- 1
+  pscale <- replaceNULL(pscale, 1)
+  chknumeric_strict(pscale, min = 1, length = 1)
   if (!backtransf & pscale != 1 & !is_untransformed(x$sm)) {
     warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.")
     pscale <- 1
   }
   #
-  if (!is.null(irscale))
-    chknumeric(irscale, length = 1)
-  else
-    irscale <- 1
+  irscale <- replaceNULL(irscale, 1)
+  chknumeric_strict(irscale, min = 1, length = 1)
   if (!backtransf & irscale != 1 & !is_untransformed(x$sm)) {
     warning("Argument 'irscale' set to 1 as argument 'backtransf' is FALSE.")
     irscale <- 1
@@ -341,10 +324,10 @@ print.summary.meta <- function(x,
   #
   missing.truncate <- missing(truncate)
   if (!missing.truncate) {
-    truncate <- catch("truncate", mc, x.meta, sfsp)
+    truncate <- catch(enquo(truncate), x.meta)
     #
     if (is.null(truncate))
-      truncate <- catch("truncate", mc, x$data, sfsp)
+      truncate <- catch(enquo(truncate), x$data)
     #
     if (length(truncate) > k.all)
       stop("Length of argument 'truncate' is too long.",
@@ -377,8 +360,6 @@ print.summary.meta <- function(x,
   #
   # Check for deprecated arguments in '...'
   #
-  args  <- list(...)
-  #
   missing.common <- missing(common)
   common <- replaceNULL(common, x$comb.common)
   common <- deprecated(common, missing.common, args, "comb.fixed", FALSE)
@@ -392,7 +373,6 @@ print.summary.meta <- function(x,
   # More checks ...
   #
   cl <- paste0("update.meta() or ", class(x)[1], "()")
-  addargs <- names(list(...))
   #
   level <- x$level
   level.ma <- replaceNULL(x$level.ma, x$level.comb)
@@ -404,7 +384,7 @@ print.summary.meta <- function(x,
   # (3) Some additional settings
   #
   #
-  ci.lab <- paste0(round(100 * level, 1), "% CI")
+  ci.lab <- percent_label(level)
   #
   sm <- x$sm
   #
@@ -636,22 +616,28 @@ print.summary.meta <- function(x,
   #
   if (k.all == 1 &&
       !(inherits(x, c("metaprop", "metarate")) |
-        (inherits(x, "metabin") && x$sm == "RR" && !x$RR.Cochrane &&
+        (inherits(x, "metabin") && x$sm %in% c("RR", "VE") &&
+         !x$RR.Cochrane &&
          !is_zero(x$TE - x$TE.common)) |
         (inherits(x, c("metacont", "metamean")) && x$method.ci == "t"))) {
-    print.meta(x.meta,
-               header = FALSE,
-               digits = digits,
-               backtransf = backtransf, pscale = pscale,
-               irscale = irscale, irunit = irunit,
-               #
-               text.tau2 = text.tau2, text.tau = text.tau, text.I2 = text.I2,
-               #
-               scientific.pval = scientific.pval, big.mark = big.mark,
-               zero.pval = zero.pval, JAMA.pval = JAMA.pval,
-               #
-               details.methods = details.methods,
-               ...)
+    do.call(
+      print.meta,
+       c(list(x.meta,
+              header = FALSE,
+              test = test,
+              print = print.settings,
+             digits = digits.settings,
+             #
+             backtransf = backtransf, pscale = pscale,
+             irscale = irscale, irunit = irunit,
+             #
+             text.tau2 = text.tau2, text.tau = text.tau, text.I2 = text.I2,
+             #
+             scientific.pval = scientific.pval, big.mark = big.mark,
+             zero.pval = zero.pval, JAMA.pval = JAMA.pval,
+             #
+             details.methods = details.methods), args)
+    )
   }
   else {
     TE <- x$TE
@@ -660,13 +646,14 @@ print.summary.meta <- function(x,
     uppTE <- x$upper
     #
     if (k.all == 1 &&
-        inherits(x, "metabin") && x$sm == "RR" && !x$RR.Cochrane &&
+        inherits(x, "metabin") && x$sm %in% c("RR", "VE") &&
+        !x$RR.Cochrane &&
         !is_zero(x$TE - x$TE.common))
       x$method.ci <- "!RR.Cochrane"
     #
     if (backtransf) {
-      # Freeman-Tukey Arcsin transformation
-      if (metainf.metacum | inherits(x, "metabind")) {
+      # Freeman-Tukey transformations
+      if (metainf.metacum) {
         if (sm == "IRFT")
           harmonic.mean <- x$t.harmonic.mean
         else
@@ -694,11 +681,12 @@ print.summary.meta <- function(x,
       lowTE <- scale * lowTE
       uppTE <- scale * uppTE
       #
-      if (sm == "VE") {
-        tmp.l <- lowTE
-        lowTE <- uppTE
-        uppTE <- tmp.l
-      }
+      # Switch reversed lower and upper limits after back-transformation
+      #
+      swap <- !is.na(lowTE) & !is.na(uppTE) & lowTE > uppTE
+      tmp.l <- lowTE[swap]
+      lowTE[swap] <- uppTE[swap]
+      uppTE[swap] <- tmp.l
     }
     #
     TE <- round(TE, digits)
@@ -840,7 +828,7 @@ print.summary.meta <- function(x,
                 print.tau2 = print.tau2, print.tau = print.tau,
                 print.I2 = print.I2)
     }
-    else if (!(inherits(x, "metabind") && !x$show.studies)) {
+    else {
       show.w.common  <-
         (overall | by) &
         (common && !all(is.na(w.common.p)))
@@ -1052,35 +1040,28 @@ print.summary.meta <- function(x,
         cat("\n")
       #
       attr(x.meta, ".print.study.results.") <- max(k.all, na.rm = TRUE) > 1
-      print.meta(x.meta,
-                 header = FALSE,
-                 digits = digits,
-                 common = common, random = random,
-                 overall = overall,
-                 backtransf = backtransf, pscale = pscale,
-                 irscale = irscale, irunit = irunit,
-                 #
-                 print.tau2 = print.tau2, print.tau2.ci = print.tau2.ci,
-                 digits.tau2 = digits.tau2,
-                 #
-                 print.tau = print.tau, print.tau.ci = print.tau.ci,
-                 digits.tau = digits.tau,
-                 #
-                 print.Q = print.Q, digits.Q = digits.Q,
-                 print.I2 = print.I2, digits.I2 = digits.I2,
-                 print.I2.ci = print.I2.ci,
-                 print.H = print.H, digits.H = digits.H,
-                 print.Rb = print.Rb,
-                 #
-                 scientific.pval = scientific.pval, big.mark = big.mark,
-                 zero.pval = zero.pval, JAMA.pval = JAMA.pval,
-                 #
-                 text.tau2 = text.tau2, text.tau = text.tau,
-                 text.I2 = text.I2, text.Rb = text.Rb,
-                 #
-                 details.methods = details.methods,
-                 warn.deprecated = FALSE,
-                 ...)
+      do.call(
+        print.meta,
+         c(list(x.meta,
+                header = FALSE,
+                test = test,
+                print = print.settings,
+               digits = digits.settings,
+               #
+               common = common, random = random,
+               overall = overall,
+               backtransf = backtransf, pscale = pscale,
+               irscale = irscale, irunit = irunit,
+               #
+               scientific.pval = scientific.pval, big.mark = big.mark,
+               zero.pval = zero.pval, JAMA.pval = JAMA.pval,
+               #
+               text.tau2 = text.tau2, text.tau = text.tau,
+               text.I2 = text.I2, text.Rb = text.Rb,
+               #
+               details.methods = details.methods,
+               warn.deprecated = FALSE), args)
+      )
     }
   }
   

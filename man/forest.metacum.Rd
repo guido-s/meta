@@ -6,52 +6,39 @@
 \usage{
 \method{forest}{metacum}(
   x,
-  leftcols = NULL,
-  leftlabs = NULL,
-  rightcols = NULL,
-  rightlabs = NULL,
+  layout = gs("layout"),
   prediction = x$prediction,
   overall = x$overall,
-  just.addcols = "right",
-  smlab = "Cumulative Meta-Analysis",
+  leftcols = NULL,
+  rightcols = NULL,
+  leftlabs = NULL,
+  rightlabs = NULL,
+  lab.NA = gs("lab.NA"),
+  col = NULL,
+  print = NULL,
   type = "square",
-  layout = gs("layout"),
-  lab.NA = ".",
+  digits = NULL,
   backtransf = x$backtransf,
   big.mark = gs("big.mark"),
-  digits = gs("digits.forest"),
-  digits.pval = gs("digits.pval"),
-  digits.tau2 = gs("digits.tau2"),
-  digits.tau = gs("digits.tau"),
-  digits.I2 = gs("digits.I2"),
-  digits.cid = gs("digits.cid"),
-  digits.percent = 1,
-  col = gs("col.study"),
-  col.bg = ifelse(type == "diamond", gs("col.diamond"), gs("col.square")),
-  col.border = ifelse(type == "diamond", gs("col.diamond.lines"), gs("col.square.lines")),
-  col.bg.predict = gs("col.predict"),
-  col.border.predict = gs("col.predict.lines"),
-  addrows.below.overall = 1L * details,
-  details = gs("forest.details"),
+  main = "Cumulative Meta-Analysis",
+  filename = NULL,
+  path = NULL,
+  device = NULL,
+  device.args = NULL,
+  units = "in",
+  height = NULL,
+  width = NULL,
+  dpi = 300,
+  dev.off = NULL,
+  new = TRUE,
   ...
 )
 }
 \arguments{
 \item{x}{An object of class \code{\link{metacum}}.}
 
-\item{leftcols}{A character vector specifying (additional) columns
-to be plotted on the left side of the forest plot or a logical
-value.}
-
-\item{leftlabs}{A character vector specifying labels for
-(additional) columns on left side of the forest plot.}
-
-\item{rightcols}{A character vector specifying (additional) columns
-to be plotted on the right side of the forest plot or a logical
-value.}
-
-\item{rightlabs}{A character vector specifying labels for
-(additional) columns on right side of the forest plot.}
+\item{layout}{A character string specifying the layout of the
+forest plot (see \code{\link{forest.meta}}).}
 
 \item{prediction}{A logical indicating whether prediction
 intervals should be printed.}
@@ -59,20 +46,39 @@ intervals should be printed.}
 \item{overall}{A logical indicating whether overall results should be
 shown.}
 
-\item{just.addcols}{Justification of text for additional columns
-(possible values: "left", "right", "center").}
+\item{leftcols}{A character vector specifying columns to be printed on the
+left side of the forest plot or a logical value; see
+\code{\link{forest.meta}}.}
 
-\item{smlab}{A label for the summary measure (printed at top of
-figure).}
+\item{rightcols}{A character vector specifying columns to be printed on the
+right side of the forest plot or a logical value; see
+\code{\link{forest.meta}}.}
+
+\item{leftlabs}{A character vector specifying labels for columns on the left
+side of the forest plot (see Details).}
+
+\item{rightlabs}{A character vector specifying labels for columns on the
+right side of the forest plot (see Details).}
+
+\item{lab.NA}{A character string to label missing values.}
+
+\item{col}{A named list specifying colours.
+A colour can also be supplied directly to set \code{col$col}.
+See Details for defaults specific to this function and
+\code{\link{meta-formatting}} for information on the elements.}
+
+\item{print}{A named list controlling displayed information.
+See Details for defaults specific to this function and
+\code{\link{meta-formatting}} for information on the elements.}
 
 \item{type}{A character string or vector specifying how to
 plot treatment effects and confidence intervals for cumulative
 meta-analysis results.}
 
-\item{layout}{A character string specifying the layout of the
-forest plot (see \code{\link{forest.meta}}).}
-
-\item{lab.NA}{A character string to label missing values.}
+\item{digits}{A named list specifying digits used for displayed results; a
+scalar value is also accepted.
+See Details for defaults specific to this function and
+\code{\link{meta-formatting}} for information on the elements.}
 
 \item{backtransf}{A logical indicating whether results should be
 back transformed in forest plots. If \code{backtransf = TRUE},
@@ -81,79 +87,102 @@ than log odds ratios, for example.}
 
 \item{big.mark}{A character used as thousands separator.}
 
-\item{digits}{Minimal number of significant digits for treatment
-effects, see \code{print.default}.}
+\item{main}{A title for the forest plot.}
 
-\item{digits.pval}{Minimal number of significant digits for
-p-values.}
+\item{filename}{File name to store forest plot.}
 
-\item{digits.tau2}{Minimal number of significant digits for
-between-study variance.}
+\item{path}{Path of the directory to save plot to: `path` and `filename` are
+combined to create the fully qualified file name. Defaults to the working
+directory.}
 
-\item{digits.tau}{Minimal number of significant digits for square
-root of between-study variance.}
+\item{device}{Device to use. Can either be a device function (e.g.,
+\code{\link{png}}), or one of \code{"eps"}, \code{"ps"},
+\code{"tex"} (pictex), \code{"pdf"}, \code{"jpeg"}, \code{"tiff"},
+\code{"png"}, \code{"bmp"}, \code{"svg"} or \code{"wmf"} (Windows only).
+By default, the device is guessed based on the `filename` extension.}
 
-\item{digits.I2}{Minimal number of significant digits for I-squared
-statistic.}
+\item{device.args}{List with additional graphical parameters passed on
+to graphics function.}
 
-\item{digits.cid}{Minimal number of significant digits for
-CID / decision thresholds, see \code{print.default}.}
+\item{units}{Units of the `width` and `height` of the file containing the
+forest plot. One of \code{"in"} (for inches, default), \code{"cm"},
+\code{"mm"}, or \code{"px"} (for pixels), can be abbreviated.}
 
-\item{digits.percent}{Minimal number of significant digits for
-probabilities, printed as percentages, see \code{print.default}.}
+\item{height}{Height of the graphics file.}
 
-\item{col}{The colour for cumulative meta-analysis results (only considered
-if \code{type = "square"}).}
+\item{width}{Width of the graphics file.}
 
-\item{col.bg}{The background colour for squares and diamonds of
-cumulative meta-analysis results.}
+\item{dpi}{Plot resolution.}
 
-\item{col.border}{The colour for the outer lines of squares and diamonds of
-cumulative meta-analysis results.}
+\item{dev.off}{A logical to specify whether current graphics device
+should be shut down.}
 
-\item{col.bg.predict}{The background colour for prediction intervals of
-cumulative meta-analysis results.}
-
-\item{col.border.predict}{The colour for the outer lines of prediction
-intervals of cumulative meta-analysis results.}
-
-\item{addrows.below.overall}{A numeric value indicating how many
-empty rows are printed between meta-analysis results and
-meta-analysis details.}
-
-\item{details}{A logical specifying whether details on statistical
-methods should be printed.}
+\item{new}{A logical value indicating whether a new figure should
+be printed in an existing graphics window.}
 
 \item{\dots}{Additional graphical arguments (passed on to
 \code{\link{forest.meta}}).}
 }
+\value{
+Invisibly returns a list with information about the forest plot,
+including the selected columns (\code{leftcols}, \code{rightcols}),
+their headings (\code{leftlabs}, \code{rightlabs}), formatted results,
+and graphical settings (see \code{\link{forest.meta}}).
+Element \code{data} contains the dataset used to create the forest plot.
+}
 \description{
-Draws a forest plot in the active graphics window (using grid
-graphics system).
+Draws a forest plot showing the results as studies are cumulatively added,
+using the grid graphics system.
 }
 \details{
-A forest plot, also called confidence interval plot, is drawn in
-the active graphics window. The forest functions in R package
-\bold{meta} are based on the grid graphics system. In order to
-print the forest plot, resize the graphics window and either use
-\code{\link{dev.copy2eps}} or \code{\link{dev.copy2pdf}}. Another
-possibility is to create a file using \code{\link{pdf}},
-\code{\link{png}}, or \code{\link{svg}} and to specify the width
-and height of the graphic (see \code{\link{forest.meta}} examples).
+Each row of the forest plot represents a meta-analysis based on the first
+\code{k} studies in the cumulative sequence. Results are shown in the order
+in which studies were added to the cumulative meta-analysis. The pooling
+model is determined by argument \code{pooled} in \code{\link{metacum}}.
+Prediction intervals and additional result columns can be selected when
+drawing the forest plot.
 
-The arguments \code{leftcols} and \code{rightcols} can be used to
-specify columns which are plotted on the left and right side of the
-forest plot, respectively.
+A forest plot, also called a confidence interval plot, is drawn in the
+active graphics window using the grid graphics system. To save the plot,
+specify a file name with argument \code{filename}; the graphics device is
+selected from the file extension by default (see \code{\link{forest.meta}}
+for examples).
 
-The arguments \code{leftlabs} and \code{rightlabs} can be used to
-specify column headings which are plotted on left and right side of
-the forest plot, respectively. For certain columns predefined
-labels exist. For other columns, the column name will be used as a
-label. It is possible to only provide labels for new columns (see
-\code{\link{forest.meta}} examples). Otherwise the length of
-\code{leftlabs} and \code{rightlabs} must be the same as the number
-of printed columns, respectively. The value \code{NA} can be used
-to specify columns which should use default labels.
+The named list \code{print} determines the default result columns.
+Argument \code{layout} determines their default placement, which can be
+overridden with \code{leftcols} and \code{rightcols}.
+
+Arguments \code{leftcols} and \code{rightcols} can be used to specify
+columns printed on the left or right side, respectively. Arguments
+\code{leftlabs} and \code{rightlabs} can be used to provide headings for
+these columns. Use \code{NA} for a column heading to retain its default
+label.
+
+\subsection{Formatting defaults}{
+Unless listed below, defaults for supported formatting elements are
+described in \code{\link{meta-formatting}}.
+
+\tabular{ll}{
+\bold{Element} \tab \bold{Default} \cr
+\code{print$I2}, \code{print$tau2}, \code{print$tau} \tab \code{TRUE} \cr
+\code{print$stat}, \code{print$Q}, \code{print$pval.Q} \tab \code{FALSE} \cr
+\code{print$I2.ci}, \code{print$tau2.ci}, \code{print$tau.ci} \tab \code{FALSE}
+}
+The named list \code{col} controls colours using the following elements:
+\itemize{
+\item \code{col}: colour of confidence interval lines;
+\item \code{bg}: fill colour of result symbols;
+\item \code{border}: border colour of result symbols;
+\item \code{bg.predict}: fill colour of prediction intervals;
+\item \code{border.predict}: border colour of prediction intervals.
+}
+Each element defaults to \code{NULL}, with colours determined automatically
+from the layout and plotting symbol.
+
+Argument \code{type} defaults to \code{"square"}. Available values are
+\code{"square"}, \code{"diamond"}, \code{"circle"}, and
+\code{"squarediamond"}.
+}
 }
 \examples{
 data(Fleiss1993bin)

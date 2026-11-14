@@ -20,40 +20,54 @@ bylabel <- function(subgroup.name, subgroup.levels, print.subgroup.name,
   res
 }
 
-crtitle <- function(x) {
-  tl <- options()$width - 12
-  newline <- FALSE
-  #  
-  if (!is.null(x$title)) {
-    if (x$title != "") {
-      newline <- TRUE
-      if (nchar(x$title) <= tl)
-        cat(paste0("Review:     ", x$title, "\n"))
-      else
-        cat(paste0("Review:     ", substring(x$title, 1, tl - 4), " ...\n"))
-    }
-  }
-  if (!is.null(x$complab)) {
-    if (x$complab != "") {
-      newline <- TRUE
-      if (nchar(x$complab) <= tl)
-        cat(paste0("Comparison: ", x$complab, "\n"))
-      else
-        cat(paste0("Comparison: ", substring(x$complab, 1, tl - 4), " ...\n"))
-    }
-  }
-  if (!is.null(x$outclab)) {
-    if (x$outclab != "") {
-      newline <- TRUE
-      if (nchar(x$outclab) <= tl)
-        cat(paste0("Outcome:    ", x$outclab, "\n"))
-      else
-        cat(paste0("Outcome:    ", substring(x$outclab, 1, tl - 4), " ...\n"))
-    }
-  }
+crtitle <- function(x, prefix = NULL, forest = FALSE) {
+  avail <- function(value)
+    !(is.null(value) || identical(value, ""))
   #
-  if (newline)
-    cat("\n")
+  title_line <- function(value, prefix = NULL, gap = 0) {
+    if (!avail(value))
+      return(character(0))
+    #
+    if (nchar(value) > tl)
+      value <- paste0(substring(value, 1, max(1, tl - 4)), " ...")
+    #
+    paste0(prefix, if (!is.null(prefix)) strrep(" ", gap), value)
+  }
+  
+  tl <- if (forest) 666 else getOption("width") - 12
+  
+  # Define prefixes and gaps
+  #
+  prefix <- replaceNULL(prefix, avail(x$complab) || avail(x$outclab))
+  #
+  if (!prefix) {
+    prefixes <- rep(NULL, 3)
+    gaps <- rep(0, 3)
+  }
+  else {
+    prefixes <- c("Review:", "Comparison:", "Outcome:")
+    #
+    gaps <- if (forest)
+      rep(1, 3)
+    else {
+      c(max(1, 5 * avail(x$complab), 2 * avail(x$outclab)),
+        1,
+        max(1, 4 * avail(x$complab)))
+    }
+  }
+  
+  # Title lines
+  #
+  lines <- c(title_line(x$title, prefixes[1], gaps[1]),
+             title_line(x$complab, prefixes[2], gaps[2]),
+             title_line(x$outclab, prefixes[3], gaps[3]))
+  #
+  text <- paste(lines, collapse = "\n")
+  #
+  if (forest)
+    text
+  else if (length(lines) > 0)
+    cat(text, "\n\n", sep = "")
 }
 
 formatCI <- function(lower, upper,
@@ -64,15 +78,19 @@ formatCI <- function(lower, upper,
                      justify.upper = justify.lower,
                      lower.blank = gs("CIlower.blank"),
                      upper.blank = gs("CIupper.blank"),
-                     ...
-                     ) {
+                     #
+                     digits = NULL,
+                     lab.NA = gs("lab.NA"),
+                     big.mark = "",
+                     scale = 1,
+                     suffix = "",
+                     na.lab = FALSE,
+                     ...) {
   
   # Change layout of CIs
   #
   chkchar(bracket.left, length = 1)
   chkchar(separator, length = 1)
-  if (!missing(bracket.right))
-    chkchar(bracket.right, length = 1)
   #
   if (missing(bracket.left)) {
     bracktype <- setchar(bracket.left, c("[", "(", "{", ""))
@@ -89,51 +107,95 @@ formatCI <- function(lower, upper,
       bracketLeft <- "{"
       bracketRight <- "}"
     }
-    else if (bracktype == "") {
+    else {
       bracketLeft <- ""
       bracketRight <- ""
     }
     #
     bracket.left <- bracketLeft
   }
+  else {
+    bracketRight <- switch(bracket.left,
+                           "[" = "]",
+                           "(" = ")",
+                           "{" = "}",
+                           "")
+  }
   #
-  if (missing(bracket.right))
+  if (!missing(bracket.right))
+    chkchar(bracket.right, length = 1)
+  else
     bracket.right <- bracketRight
   
-  format.lower <- format(lower, justify = justify.lower)
-  format.upper <- format(upper, justify = justify.upper)
+  # Identify missing limits before formatting
+  #
+  missing.lower <- is.na(lower)
+  missing.upper <- is.na(upper)
+  #
+  if (is.character(lower))
+    missing.lower <- missing.lower | lower == "NA"
+  #
+  if (is.character(upper))
+    missing.upper <- missing.upper | upper == "NA"
+  #
+  missing.ci <- missing.lower | missing.upper
+  
+  # Format limits
+  #
+  if (is.null(digits)) {
+    format.lower <- format(lower, justify = justify.lower)
+    format.upper <- format(upper, justify = justify.upper)
+  }
+  else {
+    format.lower <-
+      formatN(scale * lower, digits = digits, lab.NA = lab.NA,
+              big.mark = big.mark)
+    format.upper <-
+      formatN(scale * upper, digits = digits, lab.NA = lab.NA,
+              big.mark = big.mark)
+    #
+    format.lower <- paste0(format.lower, suffix)
+    format.upper <- paste0(format.upper, suffix)
+  }
+  
+  # Change layout of CIs
   #
   if (!lower.blank)
     format.lower <- rmSpace(format.lower)
   if (!upper.blank)
     format.upper <- rmSpace(format.upper)
   #
-  if (separator == "-")
+  if (separator == "-") {
     format.upper <-
       paste0(ifelse(substring(format.upper, 1, 1) == "-", " ", ""),
              format.upper)
+  }
+  
+  res <- paste0(bracket.left, format.lower,
+                separator,
+                format.upper, bracket.right)
   #
-  res <- ifelse(lower != "NA" & upper != "NA",
-                paste0(bracket.left,
-                       format.lower,
-                       separator,
-                       format.upper,
-                       bracket.right),
-                "")
+  if (na.lab)
+    res[missing.ci] <- lab.NA
+  else
+    res[missing.ci] <- ""
   #
   res
 }
 
-formatN <- function(x, digits = 2, text.NA = "--", big.mark = "",
+formatN <- function(x, digits = 2, lab.NA = "--", big.mark = "",
                     format.whole.numbers = TRUE,
-                    monospaced = FALSE) {
+                    monospaced = FALSE, keep.allNA = FALSE) {
+  
+  if (keep.allNA && allNA(x))
+    return(x)
   
   outdec <- options()$OutDec  
 
   if (!monospaced) {
     if (format.whole.numbers) {
       res <- format(ifelse(is.na(x),
-                           text.NA,
+                           lab.NA,
                            formatC(x, decimal.mark = outdec,
                                    format = "f", digits = digits,
                                    big.mark = big.mark)
@@ -142,7 +204,7 @@ formatN <- function(x, digits = 2, text.NA = "--", big.mark = "",
     }
     else {
       res <- format(ifelse(is.na(x),
-                           text.NA,
+                           lab.NA,
                     ifelse(is_wholenumber(x),
                            x,
                            formatC(x, decimal.mark = outdec,
@@ -156,7 +218,7 @@ formatN <- function(x, digits = 2, text.NA = "--", big.mark = "",
   else {
     x <- round(x, digits)
     res <- ifelse(is.na(x),
-                  text.NA,
+                  lab.NA,
                   format(x, decimal.mark = outdec, big.mark = big.mark))
   }
   #
@@ -168,10 +230,13 @@ formatN <- function(x, digits = 2, text.NA = "--", big.mark = "",
 formatPT <- function(x, lab = FALSE, labval = "p", noblanks = FALSE,
                      digits = 4, zero = TRUE, scientific = FALSE,
                      lab.NA = "--", big.mark = "",
-                     JAMA = FALSE) {
+                     JAMA = FALSE, trim = NULL, keep.allNA = FALSE) {
   
   if (is.null(x))
     return("")
+  
+  if (keep.allNA && allNA(x))
+    return(x)
   
   outdec <- options()$OutDec
   
@@ -289,95 +354,37 @@ formatPT <- function(x, lab = FALSE, labval = "p", noblanks = FALSE,
       res <- formatC(x, decimal.mark = outdec,
                      big.mark = big.mark, format = "e", digits = digits)
   }
+  
+  # Remove any whitespace
   #
   if (noblanks)
     res <- gsub(" ", "", res)
   if (!zero)
     res <- gsub("0\\.", "\\.", res)
-  #
+  
   # Treat NaNs as NAs
   #
   res[grep("NaN", res)] <- lab.NA
   
-  res
-}
-
-p.ci <- function(lower, upper, rmspace = TRUE,
-                 bracket.left = gs("CIbracket"),
-                 separator = gs("CIseparator"),
-                 bracket.right = "]",
-                 justify.lower = "right",
-                 justify.upper = justify.lower,
-                 ...
-                 ) {
+  # Trim whitespace
+  #
+  if (!is.null(trim)) {
+    res <- trimws(res, which = trim)
+  }
   
-  warning("Use of function p.ci() from R package meta is deprecated; ",
-          "use instead formatCI().")
-  
-  # Change layout of CIs
-  #
-  ibracktype <- charmatch(gs("CIbracket"),
-                          c("[", "(", "{", ""), nomatch = NA)
-  if (is.na(ibracktype) | ibracktype == 0) {
-    warning("No valid bracket type specified globally for R package meta: ",
-            gs("CIbracket"),
-            "\n  Using default bracket type: '['. See help page on ",
-            "R command 'cilayout' for further information.")
-    bracktype <- "["
-  }
-  else
-    bracktype <- c("[", "(", "{", "")[ibracktype]
-  #
-  if (bracktype == "[") {
-    bracketLeft <- "["
-    bracketRight <- "]"
-  }
-  else if (bracktype == "(") {
-    bracketLeft <- "("
-    bracketRight <- ")"
-  }
-  else if (bracktype == "{") {
-    bracketLeft <- "{"
-    bracketRight <- "}"
-  }
-  else if (bracktype == "") {
-    bracketLeft <- ""
-    bracketRight <- ""
-  }
-  #
-  if (missing(bracket.left))
-    bracket.left <- bracketLeft
-  #
-  if (missing(bracket.right))
-    bracket.right <- bracketRight
-  #
-  
-  if (rmspace) {
-    lower <- rmSpace(lower)
-    upper <- rmSpace(upper)
-  }
-  #
-  res <- ifelse(lower != "NA" & upper != "NA",
-                paste0(bracket.left,
-                       format(lower, justify = justify.lower),
-                       separator,
-                       format(upper, justify = justify.upper),
-                       bracket.right),
-                "")
-  #
   res
 }
 
 pasteCI <- function(lower, upper, digits, big.mark,
-                    sign.lower = "", sign.upper = "", text.NA = "NA",
+                    sign.lower = "", sign.upper = "", lab.NA = "NA",
                     unit = "")
   paste0(" ",
          formatCI(paste0(sign.lower,
                          formatN(lower, digits, big.mark = big.mark,
-                                 text.NA = text.NA), unit),
+                                 lab.NA = lab.NA), unit),
                   paste0(sign.upper,
                          formatN(upper, digits, big.mark = big.mark,
-                                 text.NA = text.NA), unit)))
+                                 lab.NA = lab.NA), unit)))
 
 rmSpace <- function(x, end = FALSE, pat = " ") {
   

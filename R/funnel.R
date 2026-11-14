@@ -20,6 +20,7 @@
 #'   estimate should be plotted.
 #' @param axes A logical indicating whether axes should be drawn on
 #'   the plot.
+#' @param at Points at which tick-marks are to be drawn on the x-axis.
 #' @param pch The plotting symbol(s) used for individual studies.
 #' @param text A character vector specifying the text to be used
 #'   instead of plotting symbol.
@@ -71,12 +72,12 @@
 #' @param col.ref Colour of line representing reference value.
 #' @param lty.ref.triangle Line type (confidence intervals of
 #'   reference value).
-#' @param backtransf A logical indicating whether results for relative
-#'   summary measures (argument \code{sm} equal to \code{"OR"},
-#'   \code{"RR"}, \code{"HR"}, or \code{"IRR"}) should be back
-#'   transformed in funnel plots. If \code{backtransf=TRUE}, results
-#'   for \code{sm="OR"} are printed as odds ratios rather than log
-#'   odds ratios, for example.
+#' @param backtransf A logical indicating whether results should be back
+#'   transformed in funnel plots. If \code{backtransf = TRUE}, results for
+#'   \code{sm = "OR"} are printed as odds ratios rather than log odds ratios,
+#'   for example. For transformed proportions, rates, means, and correlations,
+#'   funnel plots are drawn on the analysis scale with back-transformed tick
+#'   marks on the x-axis.
 #' @param warn.deprecated A logical indicating whether warnings should
 #'   be printed if deprecated arguments are used.
 #' @param vals Vector with values used in \code{setvals} (see Examples).
@@ -196,6 +197,7 @@ funnel.meta <- function(x,
                         common = x$common, random = x$random,
                         #
                         axes = TRUE,
+                        at = NULL,
                         pch = if (!inherits(x, "trimfill"))
                                 21 else ifelse(x$trimfill, 1, 21),
                         text = NULL, cex = 1,
@@ -212,7 +214,7 @@ funnel.meta <- function(x,
                           if (type == "contour")
                             c("gray80", "gray70", "gray60") else NULL,
                         #
-                        ref = ifelse(is_relative_effect(x$sm), 1, 0),
+                        ref,
                         #
                         level = if (common | random) x$level else NULL,
                         studlab = FALSE, cex.studlab = 0.8, pos.studlab = 2,
@@ -227,12 +229,12 @@ funnel.meta <- function(x,
                         warn.deprecated = gs("warn.deprecated"),
                         ...) {
   
-  
   #
   #
   # (1) Check for meta object and upgrade older meta object
   #
   #
+  
   chkclass(x, "meta")
   chksuitable(x, "Funnel plot", "metamerge", check.mlm = FALSE)
   #
@@ -245,6 +247,7 @@ funnel.meta <- function(x,
   # (2) Check other arguments
   #
   #
+  
   type <- setchar(type, c("standard", "contour"))
   #
   args  <- list(...)
@@ -255,14 +258,13 @@ funnel.meta <- function(x,
   chklogical(common)
   chklogical(random)
   chklogical(axes)
-  #
-  sfsp <- sys.frame(sys.parent())
-  mc <- match.call()
+  if (!is.null(at))
+    chknumeric(at)
   #
   if (!missing(pch)) {
-    error <- try(pch <- catch("pch", mc, x, sfsp), silent = TRUE)
+    error <- try(pch <- catch(enquo(pch), x), silent = TRUE)
     if (inherits(error, "try-error")) {
-      pch <- catch("pch", mc, x$data, sfsp)
+      pch <- catch(enquo(pch), x$data)
       if (isCol(x$data, ".subset"))
         pch <- pch[x$data$.subset]
     }
@@ -270,18 +272,18 @@ funnel.meta <- function(x,
   chknumeric(pch)
   #
   if (!missing(text)) {
-    error <- try(text <- catch("text", mc, x, sfsp), silent = TRUE)
+    error <- try(text <- catch(enquo(text), x), silent = TRUE)
     if (inherits(error, "try-error")) {
-      text <- catch("text", mc, x$data, sfsp)
+      text <- catch(enquo(text), x$data)
       if (isCol(x$data, ".subset"))
         text <- text[x$data$.subset]
     }
   }
   #
   if (!missing(cex)) {
-    error <- try(cex <- catch("cex", mc, x, sfsp), silent = TRUE)
+    error <- try(cex <- catch(enquo(cex), x), silent = TRUE)
     if (inherits(error, "try-error")) {
-      cex <- catch("cex", mc, x$data, sfsp)
+      cex <- catch(enquo(cex), x$data)
       if (isCol(x$data, ".subset"))
         cex <- cex[x$data$.subset]
     }
@@ -301,9 +303,9 @@ funnel.meta <- function(x,
   chknumeric(lwd.random, length = 1)
   #
   if (!missing(col)) {
-    error <- try(col <- catch("col", mc, x, sfsp), silent = TRUE)
+    error <- try(col <- catch(enquo(col), x), silent = TRUE)
     if (inherits(error, "try-error")) {
-      col <- catch("col", mc, x$data, sfsp)
+      col <- catch(enquo(col), x$data)
       if (isCol(x$data, ".subset"))
         col <- col[x$data$.subset]
     }
@@ -313,9 +315,9 @@ funnel.meta <- function(x,
     col <- rep(col, length(x$TE))
   #
   if (!missing(bg)) {
-    error <- try(bg <- catch("bg", mc, x, sfsp), silent = TRUE)
+    error <- try(bg <- catch(enquo(bg), x), silent = TRUE)
     if (inherits(error, "try-error")) {
-      bg <- catch("bg", mc, x$data, sfsp)
+      bg <- catch(enquo(bg), x$data)
       if (isCol(x$data, ".subset"))
         bg <- bg[x$data$.subset]
     }
@@ -330,26 +332,52 @@ funnel.meta <- function(x,
   col.common <- deprecated(col.common, missing(col.common), args, "col.fixed",
                            warn.deprecated)
   #
+  sm <- x$sm
+  #
   if (missing(yaxis))
-    if (inherits(x, "metabin") && x$sm == "DOR")
+    if (inherits(x, "metabin") && sm == "DOR")
       yaxis <- "ess"
-    else
-      yaxis <- "se"
+  else
+    yaxis <- "se"
   #
   yaxis <- setchar(yaxis, c("se", "invse", "invvar",
                             "size", "invsqrtsize", "ess"))
   #
   if (!is.null(contour.levels))
     chklevel(contour.levels, length = 0, ci = FALSE)
-  chknumeric(ref)
+  chklogical(backtransf)
+  #
+  x.backtransf <- is_relative_effect(sm) & backtransf
+  VE.backtransf <- sm == "VE" & backtransf
+  axis.only.backtransf <-
+    backtransf && sm %in% c("ZCOR",
+                            "PLOGIT", "PLN", "PAS", "PFT",
+                            "IRLN", "IRS", "IRFT",
+                            "MLN")
+  #
+  miss.ref <- missing(ref)
+  if (miss.ref) {
+    if (is_single(sm)) {
+      if (!is.null(x$null.effect))
+        ref <- x$null.effect
+      else
+        ref <- NA
+    }
+    else if (x.backtransf)
+      ref <- 1
+    else
+      ref <- 0
+  }
+  else
+    chknumeric(ref, length = 1)
   if (!is.null(level))
     chklevel(level)
   #
   if (!missing(cex.studlab)) {
     error <-
-      try(cex.studlab <- catch("cex.studlab", mc, x, sfsp), silent = TRUE)
+      try(cex.studlab <- catch(enquo(cex.studlab), x), silent = TRUE)
     if (inherits(error, "try-error")) {
-      cex.studlab <- catch("cex.studlab", mc, x$data, sfsp)
+      cex.studlab <- catch(enquo(cex.studlab), x$data)
       if (isCol(x$data, ".subset"))
         cex.studlab <- cex.studlab[x$data$.subset]
     }
@@ -363,7 +391,6 @@ funnel.meta <- function(x,
   chknumeric(lty.ref, length = 1)
   chknumeric(lwd.ref, length = 1)
   chknumeric(lty.ref.triangle, length = 1)
-  chklogical(backtransf)
   
   
   #
@@ -371,6 +398,7 @@ funnel.meta <- function(x,
   # (3) Check length of essential variables
   #
   #
+  
   TE <- x$TE
   k.All <- length(TE)
   seTE <- x$seTE
@@ -381,8 +409,8 @@ funnel.meta <- function(x,
       slab <- TRUE
       studlab <- x$studlab
     }
-    else
-      slab <- FALSE
+  else
+    slab <- FALSE
   else
     slab <- TRUE
   #
@@ -422,15 +450,15 @@ funnel.meta <- function(x,
   # (4) Further assignments
   #
   #
+  
   TE.common <- x$TE.common
   TE.random <- x$TE.random
-  sm <- x$sm
   #
   if (missing(log))
-    if (backtransf & is_relative_effect(sm))
+    if (x.backtransf)
       log <- "x"
-    else
-      log <- ""
+  else
+    log <- ""
   #  
   if (yaxis == "se")
     seTE.min <- 0
@@ -439,8 +467,22 @@ funnel.meta <- function(x,
   #
   seTE.max <- max(seTE, na.rm = TRUE)
   #
-  if (is_relative_effect(sm))
+  if (x.backtransf)
     ref <- log(ref)
+  else if (sm == "PFT") {
+    if (inherits(x, "trimfill"))
+      ref <- transf(ref, "PAS")
+    else
+      ref <- transf(ref, sm, n = x$n.harmonic.mean)
+  }
+  else if (sm == "IRFT") {
+    if (inherits(x, "trimfill"))
+      ref <- transf(ref, "IRS")
+    else
+      ref <- transf(ref, sm, time = x$t.harmonic.mean)
+  }
+  else if (is_single(sm))
+    ref <- transf(ref, sm)
   #
   ref.contour <- ref
   #
@@ -474,7 +516,7 @@ funnel.meta <- function(x,
                  xlim.upper * ifelse(xlim.upper > 0, 1.025, 1 / 1.025))
   }
   #
-  if (backtransf & is_relative_effect(sm)) {
+  if (x.backtransf) {
     TE <- exp(TE)
     TE.common <- exp(TE.common)
     TE.random <- exp(TE.random)
@@ -490,7 +532,7 @@ funnel.meta <- function(x,
       TE.xlim <- exp(TE.xlim)
     }
   }
-  else if (sm == "VE" & backtransf) {
+  else if (VE.backtransf) {
     TE <- -TE
     TE.common <- -TE.common
     TE.random <- -TE.random
@@ -498,17 +540,16 @@ funnel.meta <- function(x,
     #
     if (!is.null(level)) {
       tl <- -ciTE$upper
-      ciTE$lower <- -ciTE$lower
-      ciTE$upper <- tl
+      ciTE$upper <- -ciTE$lower
+      ciTE$lower <- tl
       #
-      tr <- -ciTE.ref$upper
-      ciTE.ref$lower <- -ciTE.ref$lower
-      ciTE.ref$upper <- tr
+      tl <- -ciTE.ref$upper
+      ciTE.ref$upper <- -ciTE.ref$lower
+      ciTE.ref$lower <- tl
       #
       TE.xlim <- rev(-TE.xlim)
     }
   }
-  #
   # y-value: weight
   #
   if (yaxis == "se")
@@ -551,18 +592,42 @@ funnel.meta <- function(x,
   #
   # x-axis: labels / xlim
   #
-  if (is.null(xlab))
-    if (is_relative_effect(sm) | sm == "VE")
+  if (is.null(xlab)) {
+    if (backtransf) {
       xlab <- xlab_meta(sm, backtransf)
-    else if (sm == "PRAW")
-      xlab <- "Proportion"
+      #
+      if (xlab == "") {
+        if (is_prop(sm))
+          xlab <- "Proportion"
+        else if (is_rate(sm))
+          xlab <- "Incidence Rate"
+        else if (is_mean(sm))
+          xlab <- "Mean"
+      }
+    }
     else
       xlab <- xlab_meta(sm, FALSE)
+  }
+  #
+  if (axis.only.backtransf & !is.null(xlim)) {
+    xlim.transf <- transf_xvals(xlim, sm, x)
+    xlim.fallback <-
+      if (!is.null(level) &
+          (yaxis == "se" |
+           yaxis == "invse" |
+           yaxis == "invvar"))
+        TE.xlim
+    else
+      range(TE, na.rm = TRUE)
+    xlim.transf[!is.finite(xlim.transf)] <-
+      xlim.fallback[!is.finite(xlim.transf)]
+    xlim <- xlim.transf
+  }
   #
   if (is.null(xlim) & !is.null(level) &
       (yaxis == "se" |
-         yaxis == "invse" |
-           yaxis == "invvar"))
+       yaxis == "invse" |
+       yaxis == "invvar"))
     xlim <- TE.xlim
   else if (is.null(xlim))
     xlim <- range(TE, na.rm = TRUE)
@@ -584,7 +649,8 @@ funnel.meta <- function(x,
   #
   if (is.null(ylim) & yaxis %in% c("se", "invsqrtsize", "ess"))
     ylim <- c(max(weight, na.rm = TRUE), 0)
-  if (is.null(ylim)) ylim <- range(weight, na.rm = TRUE)
+  if (is.null(ylim))
+    ylim <- range(weight, na.rm = TRUE)
   
   
   #
@@ -592,6 +658,7 @@ funnel.meta <- function(x,
   # (5) Produce funnel plot
   #
   #
+  
   args$x <- TE
   args$y <- weight
   args$type <- "n"
@@ -600,11 +667,7 @@ funnel.meta <- function(x,
   args$xlab <- xlab
   args$ylab <- ylab
   #
-  if (sm == "VE" & backtransf) {
-    axes.orig <- axes
-    axes <- FALSE
-  }
-  args$axes <- axes
+  args$axes <- FALSE
   #
   args$log <- log
   #
@@ -613,14 +676,10 @@ funnel.meta <- function(x,
   args$lwd.fixed <- NULL
   args$col.fixed <- NULL
   #
-  do.call(plot, args)
+  do.call("plot", args)
   #
-  if (sm == "VE" & backtransf && axes.orig) {
-    xs <- sort(c(0, TE))
-    axis(1, at = xs, labels = round(logVR2VE(-xs), 1))
-    axis(2)
-    box()
-  }
+  if (axes)
+    axes_ticks1(xlim, sm, x, at, VE.backtransf, axis.only.backtransf)
   #
   # Add contour shades (enhanced funnel plots)
   #
@@ -630,8 +689,8 @@ funnel.meta <- function(x,
     if (is.null(col.contour))
       if (length(contour.levels) < 2)
         col.contour <- "gray60"
-      else
-        col.contour <- gray(seq(0.6, 0.9, len = length(contour.levels)))
+    else
+      col.contour <- gray(seq(0.6, 0.9, len = length(contour.levels)))
     #
     if (length(contour.levels) != length(col.contour))
       stop("Arguments 'contour.levels' and 'col.contour' must be of ",
@@ -647,11 +706,19 @@ funnel.meta <- function(x,
       #
       ciContour <- ci(ref.contour, seTE.cont, i)
       #
-      if (backtransf & is_relative_effect(sm)) {
+      if (x.backtransf) {
         ciContour$TE    <- exp(ciContour$TE)
         ciContour$lower <- exp(ciContour$lower)
         ciContour$upper <- exp(ciContour$upper)
       }
+      else if (VE.backtransf) {
+        ciContour$TE <- -ciContour$TE
+        #
+        tl <- -ciContour$upper
+        ciContour$upper <- -ciContour$lower
+        ciContour$lower <- tl
+      }
+      #
       sel.l <- ciContour$lower > min(xlim) & ciContour$lower < max(xlim)
       sel.u <- ciContour$upper > min(xlim) & ciContour$upper < max(xlim)
       #
@@ -826,6 +893,7 @@ funnel.meta <- function(x,
   # (6) Return information on funnel plot
   #
   #
+  
   res <- list(xvals = TE, yvals = weight,
               pch = pch, text = text, cex = cex, col = col,
               bg = bg, cex.studlab = cex.studlab)
