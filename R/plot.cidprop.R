@@ -186,12 +186,49 @@ plot.cidprop <- function(x,
   
   chkclass(x, "cidprop")
   #
-  missing.xlim <- missing(xlim)
+  warn_ignore_dots(list(...), "plot.cidprop")
   #
   chklogical(legend)
   chklogical(studies)
   chklogical(random)
   chklogical(prediction)
+  #
+  layout <- gs("layout")
+  #
+  # Colour schemes for layouts:
+  # - colors[1] - vertical line for common effect or random effects model
+  # - colors[2] - diamond for meta-analysis results
+  # - colors[3] - outer lines of diamonds
+  # - colors[4] - square  colour
+  # - colors[5] - outer lines of squares
+  # - colors[6] - line color (axes, reference line, header lines)
+  # - colors[7] - prediction interval
+  # - colors[8] - outer lines of prediction intervals
+  # - colors[9] - subgroups
+  # - colors[10] - color within squares or circles
+  # - colors[11] - color of circles and outer lines of circles
+  #
+  colors <- layout_colors(layout)
+  #
+  if (missing(col.diamond))
+    col.diamond <- colors[2]
+  else
+    chkcolor(col.diamond, length = 1)
+  #
+  if (missing(col.diamond.lines))
+    col.diamond.lines <- colors[3]
+  else
+    chkcolor(col.diamond.lines, length = 1)
+  #
+  if (missing(col.predict))
+    col.predict <- colors[7]
+  else
+    chkcolor(col.predict, length = 1)
+  #
+  if (missing(col.predict.lines))
+    col.predict.lines <- colors[8]
+  else
+    chkcolor(col.predict.lines, length = 1)
   #
   chknumeric(digits.cid, min = 0, length = 1)
   chknumeric(digits.percent, min = 0, length = 1)
@@ -206,6 +243,7 @@ plot.cidprop <- function(x,
       legend <- FALSE
     }
   }
+  
   
   #
   #
@@ -264,12 +302,13 @@ plot.cidprop <- function(x,
     }
   }
   
+  
   #
   #
   # (3) Extract results from cidprop-object
   #
   #
-    
+  
   x.meta <- x$x
   #
   sm <- x.meta$sm
@@ -282,6 +321,7 @@ plot.cidprop <- function(x,
     ylab <- "Density"
   #
   is_relative <- is_relative_effect(sm)
+  is_VE <- sm == "VE"
   #
   cid.below.null <- x$cid.below.null
   cid.above.null <- x$cid.above.null
@@ -289,6 +329,10 @@ plot.cidprop <- function(x,
   if (is_relative) {
     cid.below.null.transf <- log(cid.below.null)
     cid.above.null.transf <- log(cid.above.null)
+  }
+  else if (is_VE) {
+    cid.below.null.transf <- VE2logVR(cid.below.null)
+    cid.above.null.transf <- VE2logVR(cid.above.null)
   }
   else {
     cid.below.null.transf <- cid.below.null
@@ -321,6 +365,7 @@ plot.cidprop <- function(x,
   #
   avail.cid.below.null <- !all(is.na(cid.below.null))
   avail.cid.above.null <- !all(is.na(cid.above.null))
+  
   
   #
   #
@@ -376,6 +421,7 @@ plot.cidprop <- function(x,
   if (length(fill) != 1)
     stop("Argument 'fill' must be a single colour",
          call. = FALSE)
+  
   
   #
   #
@@ -451,15 +497,17 @@ plot.cidprop <- function(x,
   #
   dat.cid %<>%
     mutate(Threshold = formatN(Threshold, digits = digits.cid,
-                               big.mark = big.mark, text.NA = ""),
+                               big.mark = big.mark, lab.NA = ""),
            Threshold = if_else(category != "Not important effect",
                                paste0(sign, Threshold), within.cid),
-           prop = paste0(formatPT(100 * prop, digits = digits.percent), "%"),
+           prop = percent_label(prop, "", digits.percent, formatPT,
+                                lab.NA = "NA"),
            category =
              if_else(label == "", category, paste(category, label))) %>%
     column_to_rownames("category") %>%
     rename(Percent = prop) %>%
     select(-label, -sign)
+  
   
   #
   #
@@ -471,94 +519,213 @@ plot.cidprop <- function(x,
   #
   cid.category <- xval <- yval <- y <- NULL
   #
-  vals <- c(lower, upper, lower.predict, upper.predict)
+  asVE <- function(x, isVE) {
+    if (isVE)
+      return(logVR2VE(x))
+    else
+      return(x)
+  }
   #
-  if (missing.xlim) {
+  asVR <- function(x, isVE) {
+    if (isVE)
+      return(VE2logVR(x))
+    else
+      return(x)
+  }
+  #
+  vals <- c(lower, upper)
+  #
+  if (random)
+    vals <- c(vals, lower.random, upper.random)
+  #
+  if (prediction)
+    vals <- c(vals, lower.predict, upper.predict)
+  #
+  if (is.null(xlim)) {
     from <- min(vals, na.rm = TRUE)
     to <- max(vals, na.rm = TRUE)
+    #
+    if (is_VE) {
+      tfrom <- from
+      from <- logVR2VE(to)
+      to <- logVR2VE(tfrom)
+    }
   }
   else {
-    chknumeric(xlim, length = 2)
+    if (is_VE)
+      chknumeric(xlim, length = 2, max = 100)
+    else
+      chknumeric(xlim, length = 2)
     #
-    from <- if (is_relative) log(xlim[1]) else xlim[1]
-    to <- if (is_relative) log(xlim[2]) else xlim[2]
+    if (xlim[2] <= xlim[1])
+      stop("Limits for x-axis must be in increasing order.",
+           call. = FALSE)
+    #
+    if (is_relative)
+      xlim <- log(xlim)
+    #
+    from <- xlim[1]
+    to <- xlim[2]
   }
   #
-  by <- (to - from) / 1000
+  if (random) {
+    from <- min(from, asVE(TE.random, is_VE) - 1e-8, na.rm = TRUE)
+    to <- max(to, asVE(TE.random, is_VE) + 1e-8, na.rm = TRUE)
+  }
   #
-  seq <- c(seq(from, to, by),
-           TE.random + c(-1e-8, 0, 1e-8), 
-           lower.predict + c(-1e-8, 0, 1e-8),
-           upper.predict + c(-1e-8, 0, 1e-8))
+  if (prediction) {
+    if (is_VE) {
+      from <- min(from, logVR2VE(upper.predict) - 1e-8, na.rm = TRUE)
+      to <- max(to, logVR2VE(lower.predict) + 1e-8, na.rm = TRUE)
+    }
+    else {
+      from <- min(from, lower.predict - 1e-8, na.rm = TRUE)
+      to <- max(to, upper.predict + 1e-8, na.rm = TRUE)
+    }
+  }
   #
   if (avail.cid.below.null) {
-    for (i in seq_along(cid.below.null))
-      seq <- c(seq, cid.below.null.transf[i] + c(-1e-8, 0, 1e-8))
+    if (is_VE)
+      from <- min(from, cid.below.null, na.rm = TRUE)
+    else
+      from <- min(from, cid.below.null.transf, na.rm = TRUE)
   }
   #
   if (avail.cid.above.null) {
-    for (i in seq_along(cid.above.null))
-      seq <- c(seq, cid.above.null.transf[i] + c(-1e-8, 0, 1e-8))
+    if (is_VE)
+      to <- max(to, cid.above.null, na.rm = TRUE)
+    else
+      to <- max(to, cid.above.null.transf, na.rm = TRUE)
   }
   #
-  seq <- unique(sort(seq))
+  if (is.null(xlim))
+    xlim <- c(from, to)
+  #
+  seq <- seq(xlim[1], xlim[2], (xlim[2] - xlim[1]) / 1000)
+  #
+  seq <- c(seq,
+           if (random) asVE(TE.random, is_VE) + c(-1e-8, 0, 1e-8),
+           if (prediction) asVE(lower.predict, is_VE) + c(-1e-8, 0, 1e-8),
+           if (prediction) asVE(upper.predict, is_VE) + c(-1e-8, 0, 1e-8))
+  #
+  if (avail.cid.below.null) {
+    if (is_VE) {
+      for (i in seq_along(cid.below.null))
+        seq <- c(seq, cid.below.null[i] + c(-1e-8, 0, 1e-8))
+    }
+    else {
+      for (i in seq_along(cid.below.null))
+        seq <-
+          c(seq, asVE(cid.below.null.transf[i], is_VE) + c(-1e-8, 0, 1e-8))
+    }
+  }
+  #
+  if (avail.cid.above.null) {
+    if (is_VE) {
+      for (i in seq_along(cid.above.null))
+        seq <- c(seq, cid.above.null[i] + c(-1e-8, 0, 1e-8))
+    }
+    else {
+      for (i in seq_along(cid.above.null))
+        seq <-
+          c(seq, asVE(cid.above.null.transf[i], is_VE) + c(-1e-8, 0, 1e-8))
+    }
+  }
+  #
+  seq <- sort(unique(seq))
   #
   # Calculate density
   #
-  dens <- dt((seq - TE.random) / seTE.predict, df.predict)
+  dens <- dt((asVR(seq, is_VE) - TE.random) / seTE.predict, df.predict)
   #
   dat <- tibble(xval = seq, yval = dens)
   #
-  if (avail.cid.below.null & avail.cid.above.null) {
-    dat$cid.category <-
-      cut(dat$xval,
-          breaks = unique(c(-Inf, cid.below.null.transf,
-                            cid.above.null.transf, Inf)))
+  if (is_VE) {
+    if (avail.cid.below.null & avail.cid.above.null) {
+      dat$cid.category <-
+        cut(dat$xval,
+            breaks = unique(c(-Inf, cid.below.null,
+                              cid.above.null, Inf)))
+      #
+      if (prop.within.cid == 0)
+        fill.category <- c(fill.cid.below.null, fill.cid.above.null)
+      else
+        fill.category <- c(fill.cid.below.null, fill, fill.cid.above.null)
+    }
+    else if (avail.cid.below.null) {
+      dat$cid.category <-
+        cut(dat$xval, breaks = c(-Inf, cid.below.null, Inf))
+      #
+      fill.category <- c(fill.cid.below.null, fill)
+    }
     #
-    if (prop.within.cid == 0)
-      fill.category <- c(fill.cid.below.null, fill.cid.above.null)
-    else
-      fill.category <- c(fill.cid.below.null, fill, fill.cid.above.null)
+    else if (avail.cid.above.null) {
+      dat$cid.category <-
+        cut(dat$xval, breaks = c(-Inf, cid.above.null, Inf))
+      #
+      fill.category <- c(fill, fill.cid.above.null)
+    }
   }
-  else if (avail.cid.below.null) {
-    dat$cid.category <-
-      cut(dat$xval, breaks = c(-Inf, cid.below.null.transf, Inf))
+  else {
+    if (avail.cid.below.null & avail.cid.above.null) {
+      dat$cid.category <-
+        cut(dat$xval,
+            breaks = unique(c(-Inf, cid.below.null.transf,
+                              cid.above.null.transf, Inf)))
+      #
+      if (prop.within.cid == 0)
+        fill.category <- c(fill.cid.below.null, fill.cid.above.null)
+      else
+        fill.category <- c(fill.cid.below.null, fill, fill.cid.above.null)
+    }
+    else if (avail.cid.below.null) {
+      dat$cid.category <-
+        cut(dat$xval, breaks = c(-Inf, cid.below.null.transf, Inf))
+      #
+      fill.category <- c(fill.cid.below.null, fill)
+    }
     #
-    fill.category <- c(fill.cid.below.null, fill)
-  }
-  #
-  else if (avail.cid.above.null) {
-    dat$cid.category <-
-      cut(dat$xval, breaks = c(-Inf, cid.above.null.transf, Inf))
-    #
-    fill.category <- c(fill, fill.cid.above.null)
+    else if (avail.cid.above.null) {
+      dat$cid.category <-
+        cut(dat$xval, breaks = c(-Inf, cid.above.null.transf, Inf))
+      #
+      fill.category <- c(fill, fill.cid.above.null)
+    }
   }
   #
   if (is_relative) {
     dat$xval <- exp(dat$xval)
-    #
-    seq <- exp(seq)
+    xlim <- exp(xlim)
   }
   #
   # Only keep values within limits of x-axis
   #
-  if (!missing.xlim)
-    dat %<>% filter(xval >= xlim[1] & xval <= xlim[2])
+  dat %<>% filter(xval >= xlim[1] & xval <= xlim[2])
   #
   # Data for diamond of random effects model
   #
   x.diamond <- c(TE.random, upper.random, TE.random, lower.random)
   dat.diamond <- data.frame(
-    x = if (is_relative) exp(x.diamond) else x.diamond,
+    x =
+      if (is_relative) exp(x.diamond)
+      else if (is_VE) logVR2VE(x.diamond)
+      else x.diamond,
     y = -0.03 + c(0.005, 0, -0.005, 0)
   )
   #
   # Data for prediction interval
   #
   dat.predict <- data.frame(
-    x1 = if (is_relative) exp(lower.predict) else lower.predict,
-    x2 = if (is_relative) exp(upper.predict) else upper.predict,
+    x1 = 
+      if (is_relative) exp(lower.predict)
+      else if (is_VE) logVR2VE(upper.predict)
+      else lower.predict,
+    x2 =
+      if (is_relative) exp(upper.predict)
+      else if (is_VE) logVR2VE(lower.predict)
+      else upper.predict,
     y1 = -0.045, y2 = -0.05)
+  
   
   #
   #
@@ -569,16 +736,30 @@ plot.cidprop <- function(x,
   p <- ggplot(dat, aes(xval, yval)) +
     geom_line() +
     geom_area(fill = fill) +
-    # Add diamond for random effects model
-    geom_polygon(data = dat.diamond, aes(x, y), 
-                 fill = col.diamond, color = col.diamond.lines) +
-    # Add prediction interval
-    annotate("rect",
-             xmin = if (is_relative) exp(lower.predict) else lower.predict,
-             xmax = if (is_relative) exp(upper.predict) else upper.predict,
-             ymin = -0.05, ymax = -0.045,
-             fill = col.predict, color = col.predict.lines) +
-  xlab(xlab) + ylab(ylab)
+    coord_cartesian(xlim = xlim)
+  #
+  # Add prediction interval
+  #
+  if (prediction)
+    p <- p + annotate("rect",
+                      xmin =
+                        if (is_relative) exp(lower.predict)
+                      else if (is_VE) logVR2VE(upper.predict)
+                      else lower.predict,
+                      xmax =
+                        if (is_relative) exp(upper.predict)
+                      else if (is_VE) logVR2VE(lower.predict)
+                      else upper.predict,
+                      ymin = -0.05, ymax = -0.045,
+                      fill = col.predict, color = col.predict.lines)
+  #
+  # Add diamond for random effects model
+  #
+  if (random)
+    p <- p + geom_polygon(data = dat.diamond, aes(x, y), 
+                          fill = col.diamond, color = col.diamond.lines)
+  #
+  p <- p + xlab(xlab) + ylab(ylab)
   #
   if (avail.cid.below.null | avail.cid.above.null) {
     levs.category <- levels(dat$cid.category)
@@ -594,11 +775,11 @@ plot.cidprop <- function(x,
   #
   if (studies) {
     dat.TE <-
-      data.frame(TE = if (is_relative) exp(TE) else TE,
-                 yval = 0, size = 10 * w.random / max(w.random))
-    #
-    if (!missing.xlim)
-      dat.TE %<>% filter(TE >= xlim[1] & TE <= xlim[2])
+      data.frame(TE = TE, yval = 0, size = 10 * w.random / max(w.random)) %>%
+      mutate(TE = if (is_relative) exp(TE)
+             else if (is_VE) logVR2VE(TE)
+             else TE) %>%
+      filter(TE >= xlim[1] & TE <= xlim[2])
     #
     p <- p +
       geom_point(data = dat.TE, aes(x = TE, y = yval),

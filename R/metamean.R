@@ -1,10 +1,10 @@
 #' Meta-analysis of single means
-#' 
+#'
 #' @description
 #' Calculation of an overall mean from studies reporting a single mean
 #' using the inverse variance method for pooling; inverse variance
 #' weighting is used for pooling.
-#' 
+#'
 #' @param n Number of observations.
 #' @param mean Estimated mean.
 #' @param sd Standard deviation.
@@ -86,8 +86,8 @@
 #' @param method.common.ci A character string indicating which method
 #'   is used to calculate confidence interval and test statistic for
 #'   common effect estimate (see \code{\link{meta-package}}).
-#' @param method.random.ci A character string indicating which method
-#'   is used to calculate confidence interval and test statistic for
+#' @param method.random.ci A character string or vector indicating which methods
+#'   are used to calculate confidence intervals and test statistics for the
 #'   random effects estimate (see \code{\link{meta-package}}).
 #' @param adhoc.hakn.ci A character string indicating whether an
 #'   \emph{ad hoc} variance correction should be applied in the case
@@ -164,7 +164,7 @@
 #'   estimate the between-study variance \eqn{\tau^2}. This argument
 #'   is passed on to \code{\link[metafor]{rma.uni}}.
 #' @param \dots Additional arguments (to catch deprecated arguments).
-#' 
+#'
 #' @details
 #' Common effect and random effects meta-analysis of single means to
 #' calculate an overall mean; inverse variance weighting is used for
@@ -172,19 +172,27 @@
 #' compare means of pairwise comparisons instead of using
 #' \code{metamean} for each treatment arm separately which will break
 #' randomisation in randomised controlled trials.
-#' 
+#'
 #' A three-level random effects meta-analysis model (Van den Noortgate
 #' et al., 2013) is utilised if argument \code{cluster} is used and at
 #' least one cluster provides more than one estimate. Internally,
 #' \code{\link[metafor]{rma.mv}} is called to conduct the analysis and
 #' \code{\link[metafor]{weights.rma.mv}} with argument \code{type =
 #' "rowsum"} is used to calculate random effects weights.
-#' 
+#'
+#' Cluster-robust variance estimators (Tipton and Pustejovsky, 2015;
+#' Pustejovsky and Tipton, 2022) are available for univariate random effects
+#' and three-level models (argument \code{method.random.ci} equal to
+#' \code{"CR0"}, \code{"CR1"}, or \code{"CR2"}). Internally,
+#' \code{\link[metafor]{rma.uni}} or \code{\link[metafor]{rma.mv}} is called
+#' and then passed to \code{\link[metafor]{robust}}. For univariate random
+#' effects models, study labels (argument \code{studlab}) are used as clusters.
+#'
 #' Default settings are utilised for several arguments (assignments
 #' using \code{\link{gs}} function). These defaults can be changed for
 #' the current R session using the \code{\link{settings.meta}}
 #' function.
-#' 
+#'
 #' Furthermore, R function \code{\link{update.meta}} can be used to
 #' rerun a meta-analysis with different settings.
 #'
@@ -194,15 +202,15 @@
 #' \item Raw, i.e. untransformed, means (\code{sm = "MRAW"}, default)
 #' \item Log transformed means (\code{sm = "MLN"})
 #' }
-#' 
+#'
 #' Calculations are conducted on the log scale if \code{sm =
 #' "MLN"}. Accordingly, list elements \code{TE}, \code{TE.common}, and
 #' \code{TE.random} contain the logarithm of means. In printouts and
 #' plots these values are back transformed if argument
 #' \code{backtransf = TRUE} (default).
-#' 
+#'
 #' \subsection{Approximate means from sample sizes, medians and other statistics}{
-#' 
+#'
 #' Missing means can be derived from
 #' \enumerate{
 #' \item sample size, median, interquartile range and range (arguments
@@ -213,21 +221,21 @@
 #' \item sample size, median and range (arguments \code{n},
 #'   \code{median}, \code{min}, and \code{max}).
 #' }
-#' 
+#'
 #' By default, methods described in Luo et al. (2018) are utilised
 #' (argument \code{method.mean = "Luo"}):
 #' \itemize{
-#' \item equation (15) if sample size, median, interquartile range and 
+#' \item equation (15) if sample size, median, interquartile range and
 #'   range are available,
 #' \item equation (11) if sample size, median and interquartile range
 #'   are available,
 #' \item equation (7) if sample size, median and range are available.
 #' }
-#' 
+#'
 #' Instead the methods described in Wan et al. (2014) are used if
 #' argument \code{method.mean = "Wan"}:
 #' \itemize{
-#' \item equation (10) if sample size, median, interquartile range and 
+#' \item equation (10) if sample size, median, interquartile range and
 #'   range are available,
 #' \item equation (14) if sample size, median and interquartile range
 #'   are available,
@@ -260,7 +268,7 @@
 #' }
 #'
 #' \subsection{Approximate standard deviations from sample sizes, medians and other statistics}{
-#' 
+#'
 #' Missing standard deviations can be derived from
 #' \enumerate{
 #' \item sample size, median, interquartile range and range (arguments
@@ -271,7 +279,7 @@
 #' \item sample size, median and range (arguments \code{n},
 #'   \code{median}, \code{min} and \code{max}).
 #' }
-#' 
+#'
 #' Wan et al. (2014) describe methods to estimate the standard
 #' deviation from the sample size, median and additional
 #' statistics. Shi et al. (2020) provide an improved estimate of the
@@ -309,9 +317,9 @@
 #' \item sample size, median and range (\code{"range"}).
 #' }
 #' }
-#' 
+#'
 #' \subsection{Confidence intervals for individual studies}{
-#' 
+#'
 #' For untransformed means (argument \code{sm = "MRAW"}), the
 #' confidence interval for individual studies can be based on the
 #' \itemize{
@@ -319,15 +327,15 @@
 #' \item t-distribution (\code{method.ci = "t"}).
 #' }
 #' }
-#' 
+#'
 #' \subsection{Subgroup analysis}{
-#' 
+#'
 #' Argument \code{subgroup} can be used to conduct subgroup analysis for
 #' a categorical covariate. The \code{\link{metareg}} function can be
 #' used instead for more than one categorical covariate or continuous
 #' covariates.
 #' }
-#' 
+#'
 #' \subsection{Exclusion of studies from meta-analysis}{
 #'
 #' Arguments \code{subset} and \code{exclude} can be used to exclude
@@ -337,9 +345,9 @@
 #' \code{exclude} (see Examples in \code{\link{metagen}}).
 #' Meta-analysis results are the same for both arguments.
 #' }
-#' 
+#'
 #' \subsection{Presentation of meta-analysis results}{
-#' 
+#'
 #' Internally, both common effect and random effects models are
 #' calculated regardless of values choosen for arguments
 #' \code{common} and \code{random}. Accordingly, the estimate
@@ -355,28 +363,28 @@
 #' A prediction interval will only be shown if \code{prediction =
 #' TRUE}.
 #' }
-#' 
+#'
 #' @note
 #' The function \code{\link{metagen}} is called internally to
 #' calculate individual and overall treatment estimates and standard
 #' errors.
-#' 
+#'
 #' @return
 #' An object of class \code{c("metamean", "meta")} with corresponding
 #' generic functions (see \code{\link{meta-object}}).
-#' 
+#'
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
-#' 
+#'
 #' @seealso \code{\link{meta-package}}, \code{\link{update.meta}},
 #'   \code{\link{metamean}}, \code{\link{metagen}}
-#' 
+#'
 #' @references
 #' Cai S, Zhou J, Pan J (2021):
 #' Estimating the sample mean and standard deviation from order
 #' statistics and sample size in meta-analysis.
 #' \emph{Statistical Methods in Medical Research},
 #' \bold{30}, 2701--2719
-#' 
+#'
 #' Luo D, Wan X, Liu J, Tong T (2018):
 #' Optimally estimating the sample mean from the sample size, median,
 #' mid-range, and/or mid-quartile range.
@@ -389,12 +397,24 @@
 #' reported quantiles in meta-analysis.
 #' \emph{Statistical Methods in Medical Research},
 #' \bold{29}, 2520--2537
-#' 
+#'
+#' Pustejovsky JE, Tipton E (2022):
+#' Meta-Analysis with robust variance estimation: Expanding the range of
+#' working models.
+#' \emph{Prevention Science},
+#' \bold{23}, 425--38
+#'
 #' Shi J, Luo D, Weng H, Zeng X-T, Lin L, Chu H, et al. (2020):
 #' Optimally estimating the sample standard deviation from the
 #' five-number summary.
 #' \emph{Research Synthesis Methods}.
-#' 
+#'
+#' Tipton E, Pustejovsky JE (2015):
+#' Small-sample adjustments for tests of moderators and model fit using
+#' robust variance estimation in meta-regression.
+#' \emph{Journal of Educational and Behavioral Statistics},
+#' \bold{40}, 604--34
+#'
 #' Van den Noortgate W, López-López JA, Marín-Martínez F, Sánchez-Meca
 #' J (2013):
 #' Three-level meta-analysis of dependent effect sizes.
@@ -406,26 +426,26 @@
 #' size, median, range and/or interquartile range.
 #' \emph{BMC Medical Research Methodology},
 #' \bold{14}, 135
-#' 
+#'
 #' @examples
 #' ma1 <- metamean(rep(100, 3), 1:3, rep(1, 3))
 #' ma1
-#' 
+#'
 #' ma2 <- update(ma1, sm = "MLN")
 #' ma2
-#' 
+#'
 #' # With test for overall mean equal to 2
 #' #
 #' update(ma1, null.effect = 2)
 #' update(ma2, null.effect = 2)
-#' 
+#'
 #' # Print results without back-transformation
 #' #
 #' update(ma1, backtransf = FALSE)
 #' update(ma2, backtransf = FALSE)
 #' update(ma1, null.effect = 2, backtransf = FALSE)
 #' update(ma2, null.effect = 2, backtransf = FALSE)
-#' 
+#'
 #' @export metamean
 
 metamean <- function(n, mean, sd, studlab,
@@ -451,7 +471,7 @@ metamean <- function(n, mean, sd, studlab,
                        if (is.null(gs("overall.hetstat")))
                          common | random
                        else
-                         gs("overall.hetstat"),   
+                         gs("overall.hetstat"),
                      prediction = gs("prediction") | !missing(method.predict),
                      #
                      method.tau = gs("method.tau"),
@@ -506,23 +526,29 @@ metamean <- function(n, mean, sd, studlab,
                      #
                      control = NULL,
                      ...) {
-  
-  
+
+
   #
   #
   # (1) Check arguments
   #
   #
-  
+
+  missing.subgroup <- missing(subgroup)
+  missing.byvar <- missing(byvar)
+  #
+  subgroup.expr <- enquo(subgroup)
+  byvar.expr <- enquo(byvar)
+  #
   chknumeric(rho, min = -1, max = 1)
   #
   chknull(sm)
   chklevel(level)
   #
-  method.common.ci <- setchar(method.common.ci, gs("meth4common.ci"))
+  method.common.ci <- setchar(method.common.ci, gs("meth4common.ci"), length = 1)
   #
   missing.method.tau <- missing(method.tau)
-  method.tau <- setchar(method.tau, gs("meth4tau"))
+  method.tau <- setchar(method.tau, gs("meth4tau"), length = 1)
   #
   missing.tau.common <- missing(tau.common)
   tau.common <- replaceNULL(tau.common, FALSE)
@@ -545,7 +571,10 @@ metamean <- function(n, mean, sd, studlab,
   #
   adhoc.hakn.pi <- setchar(adhoc.hakn.pi, gs("adhoc4hakn.pi"))
   #
-  chknumeric(null.effect, length = 1)
+  if (sm == "MLN")
+    chknumeric(null.effect, min = 0, zero = TRUE, length = 1)
+  else
+    chknumeric(null.effect, length = 1)
   #
   method.bias <- setmethodbias(method.bias)
   #
@@ -609,12 +638,18 @@ metamean <- function(n, mean, sd, studlab,
   method.random.ci <-
     deprecated(method.random.ci, missing(method.random.ci),
                args, "hakn", warn.deprecated)
+  #
   if (is.logical(method.random.ci))
     if (method.random.ci)
       method.random.ci <- "HK"
     else
       method.random.ci <- "classic"
+  #
   method.random.ci <- setchar(method.random.ci, gs("meth4random.ci"))
+  #
+  if (any(method.random.ci == "CR2"))
+    is_installed_package("clubSandwich", argument = "method.random.ci",
+                         value = "CR2")
   #
   adhoc.hakn.ci <-
     deprecated2(adhoc.hakn.ci, missing(adhoc.hakn.ci),
@@ -643,20 +678,15 @@ metamean <- function(n, mean, sd, studlab,
   #
   chklogical(overall)
   chklogical(overall.hetstat)
-  
-  
+
+
   #
   #
   # (2) Read data
   #
   #
-  
+
   nulldata <- is.null(data)
-  sfsp <- sys.frame(sys.parent())
-  mc <- match.call()
-  #
-  if (nulldata)
-    data <- sfsp
   #
   # Catch 'n', 'mean', and 'sd' from data:
   #
@@ -679,17 +709,17 @@ metamean <- function(n, mean, sd, studlab,
          "arguments 'q1' & 'q3' or 'min & 'max'.",
          call. = FALSE)
   #
-  n <- catch("n", mc, data, sfsp)
+  n <- catch(enquo(n), data)
   chknull(n)
   k.All <- length(n)
   #
-  mean <- catch("mean", mc, data, sfsp)
+  mean <- catch(enquo(mean), data)
   if (!missing.mean)
     chknull(mean)
   else
     mean <- rep(NA, k.All)
   #
-  sd <- catch("sd", mc, data, sfsp)
+  sd <- catch(enquo(sd), data)
   if (!missing.sd)
     chknull(sd)
   else
@@ -698,35 +728,33 @@ metamean <- function(n, mean, sd, studlab,
   # Catch 'studlab', 'subgroup', 'subset', 'exclude' and 'cluster'
   # from data:
   #
-  studlab <- catch("studlab", mc, data, sfsp)
+  studlab <- catch(enquo(studlab), data)
   studlab <- setstudlab(studlab, k.All)
   #
-  missing.subgroup <- missing(subgroup)
-  subgroup <- catch("subgroup", mc, data, sfsp)
-  missing.byvar <- missing(byvar)
-  byvar <- catch("byvar", mc, data, sfsp)
+  subgroup <- catch(subgroup.expr, data)
+  byvar <- catch(byvar.expr, data)
   #
   subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
                           warn.deprecated)
   by <- !is.null(subgroup)
   #
-  subset <- catch("subset", mc, data, sfsp)
+  subset <- catch(enquo(subset), data)
   missing.subset <- is.null(subset)
   #
-  exclude <- catch("exclude", mc, data, sfsp)
+  exclude <- catch(enquo(exclude), data)
   missing.exclude <- is.null(exclude)
   #
-  cluster <- catch("cluster", mc, data, sfsp)
+  cluster <- catch(enquo(cluster), data)
   with.cluster <- !is.null(cluster)
   #
   # Catch 'weights', 'weights.common', and 'weights.random' from data:
   #
   if (!missing(weights))
-    weights <- catch("weights", mc, data, sfsp)
+    weights <- catch(enquo(weights), data)
   if (!missing(weights.common))
-    weights.common <- catch("weights.common", mc, data, sfsp)
+    weights.common <- catch(enquo(weights.common), data)
   if (!missing(weights.random))
-    weights.random <- catch("weights.random", mc, data, sfsp)
+    weights.random <- catch(enquo(weights.random), data)
   #
   if (!is.null(weights) & is.null(weights.common))
     weights.common <- weights
@@ -746,15 +774,15 @@ metamean <- function(n, mean, sd, studlab,
   # Catch 'median', 'q1', 'q3', 'min', 'max', 'approx.mean', and
   # 'approx.sd', from data:
   #
-  median <- catch("median", mc, data, sfsp)
+  median <- catch(enquo(median), data)
   #
-  q1 <- catch("q1", mc, data, sfsp)
+  q1 <- catch(enquo(q1), data)
   #
-  q3 <- catch("q3", mc, data, sfsp)
+  q3 <- catch(enquo(q3), data)
   #
-  min <- catch("min", mc, data, sfsp)
+  min <- catch(enquo(min), data)
   #
-  max <- catch("max", mc, data, sfsp)
+  max <- catch(enquo(max), data)
   #
   avail.median <- !(missing.median || is.null(median))
   avail.q1 <- !(missing.q1 || is.null(q1))
@@ -763,22 +791,22 @@ metamean <- function(n, mean, sd, studlab,
   avail.max <- !(missing.max || is.null(max))
   #
   missing.approx.mean <- missing(approx.mean)
-  approx.mean <- catch("approx.mean", mc, data, sfsp)
+  approx.mean <- catch(enquo(approx.mean), data)
   avail.approx.mean <-
     !(missing.approx.mean || is.null(approx.mean)) && any(approx.mean != "")
   #
   missing.approx.sd <- missing(approx.sd)
-  approx.sd <- catch("approx.sd", mc, data, sfsp)
+  approx.sd <- catch(enquo(approx.sd), data)
   avail.approx.sd <-
     !(missing.approx.sd || is.null(approx.sd)) && any(approx.sd != "")
-  
-  
+
+
   #
   #
   # (3) Check length of essential variables
   #
   #
-  
+
   chklength(mean, k.All, fun)
   chklength(sd, k.All, fun)
   chklength(studlab, k.All, fun)
@@ -851,14 +879,14 @@ metamean <- function(n, mean, sd, studlab,
             "argument tau.preset is not NULL.")
     tau.common <- TRUE
   }
-  
-  
+
+
   #
   #
   # (4) Subset, exclude studies, and subgroups
   #
   #
-  
+
   if (!missing.subset)
     if ((is.logical(subset) & (sum(subset) > k.All)) ||
         (length(subset) > k.All))
@@ -875,15 +903,15 @@ metamean <- function(n, mean, sd, studlab,
   }
   else
     exclude <- rep(FALSE, k.All)
-  
-  
+
+
   #
   #
   # (5) Store complete dataset in list object data
   #     (if argument keepdata is TRUE)
   #
   #
-  
+
   if (keepdata) {
     if (nulldata)
       data <- data.frame(.n = n)
@@ -932,14 +960,14 @@ metamean <- function(n, mean, sd, studlab,
     if (usw.random)
       data$.weights.random <- weights.random
   }
-  
-  
+
+
   #
   #
   # (6) Use subset for analysis
   #
   #
-  
+
   if (!missing.subset) {
     n <- n[subset]
     mean <- mean[subset]
@@ -1024,23 +1052,23 @@ metamean <- function(n, mean, sd, studlab,
   if (by) {
     chkmiss(subgroup)
     #
-    if (missing.subgroup.name & is.null(subgroup.name)) {
+    if (missing.subgroup.name && is.null(subgroup.name)) {
       if (!missing.subgroup)
-        subgroup.name <- byvarname("subgroup", mc)
+        subgroup.name <- subgroup_name(subgroup.expr)
       else if (!missing.byvar)
-        subgroup.name <- byvarname("byvar", mc)
+        subgroup.name <- subgroup_name(byvar.expr)
     }
   }
   #
   if (!is.null(subgroup.name))
     chkchar(subgroup.name, length = 1)
-  
+
   #
   #
   # (7) Calculate means from other information
   #
   #
-  
+
   if (!avail.approx.mean) {
     #
     # (a) Use IQR and range
@@ -1093,14 +1121,14 @@ metamean <- function(n, mean, sd, studlab,
                                  method.mean)$mean
     }
   }
-  
-  
+
+
   #
   #
   # (8) Calculate standard deviation from other information
   #
   #
-  
+
   if (!avail.median) {
     median.sd <- mean
     avail.median <- TRUE
@@ -1181,14 +1209,14 @@ metamean <- function(n, mean, sd, studlab,
         data$.approx.sd[data$.subset] <- approx.sd
     }
   }
-  
-  
+
+
   #
   #
   # (9) Calculate results for individual studies
   #
   #
-  
+
   npn.n <- npn(n)
   #
   if (any(npn.n) & warn)
@@ -1234,14 +1262,14 @@ metamean <- function(n, mean, sd, studlab,
             "no weight in meta-analysis.")
   #
   seTE[sel] <- NA
-  
-  
+
+
   #
   #
   # (10) Additional checks for three-level model
   #
   #
-  
+
   three.level <- FALSE
   sel.ni <- !is.infinite(TE) & !is.infinite(seTE)
   #
@@ -1261,14 +1289,14 @@ metamean <- function(n, mean, sd, studlab,
     if (!(method.tau %in% c("REML", "ML")))
       method.tau <- "REML"
   }
-  
-  
+
+
   #
   #
   # (11) Do meta-analysis
   #
   #
-  
+
   m <- metagen(TE, seTE, studlab,
                exclude = if (missing.exclude) NULL else exclude,
                cluster = cluster, rho = rho,
@@ -1330,14 +1358,14 @@ metamean <- function(n, mean, sd, studlab,
   if (by & tau.common)
     hcc <- hetcalc(TE, seTE, method.tau, "", TE.tau,
                    method.I2, level.hetstat, subgroup, control)
-  
-  
+
+
   #
   #
   # (12) Generate R object
   #
   #
-  
+
   res <- list(n = n, mean = mean, sd = sd,
               method.ci = method.ci,
               method.mean = method.mean, method.sd = method.sd)
@@ -1469,7 +1497,7 @@ metamean <- function(n, mean, sd, studlab,
   if (is.null(res$approx.sd))
     res$method.sd <- ""
   #
-  # Backward compatibility
+  # Backward compatibility (still required by R package metaumbrella)
   #
   res <- backward(res)
   #

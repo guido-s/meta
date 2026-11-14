@@ -12,16 +12,12 @@
   prediction = x$prediction,
   overall = x$overall,
   overall.hetstat = x$overall.hetstat,
-  test.subgroup = x$test.subgroup,
-  test.subgroup.common = test.subgroup & common,
-  test.subgroup.random = test.subgroup & random,
   prediction.subgroup = x$prediction.subgroup,
   backtransf = x$backtransf,
   pscale = x$pscale,
   irscale = x$irscale,
   irunit = x$irunit,
   subgroup.name = x$subgroup.name,
-  print.subgroup.name = x$print.subgroup.name,
   sep.subgroup = x$sep.subgroup,
   nchar.subgroup = 35,
   sort.overall = NULL,
@@ -29,30 +25,13 @@
   sort.het = NULL,
   sort.Q = NULL,
   header = TRUE,
-  print.CMH = x$print.CMH,
-  digits = gs("digits"),
-  digits.stat = gs("digits.stat"),
-  digits.pval = max(gs("digits.pval"), 2),
-  digits.tau2 = gs("digits.tau2"),
-  digits.tau = gs("digits.tau"),
-  digits.Q = gs("digits.Q"),
-  digits.df = gs("digits.df"),
-  digits.pval.Q = max(gs("digits.pval.Q"), 2),
-  digits.H = gs("digits.H"),
-  digits.I2 = gs("digits.I2"),
+  test = NULL,
+  print = NULL,
+  digits = NULL,
   big.mark = gs("big.mark"),
   scientific.pval = gs("scientific.pval"),
   zero.pval = gs("zero.pval"),
   JAMA.pval = gs("JAMA.pval"),
-  print.tau2 = gs("print.tau2"),
-  print.tau2.ci = gs("print.tau2.ci"),
-  print.tau = gs("print.tau"),
-  print.tau.ci = gs("print.tau.ci"),
-  print.Q = gs("print.Q"),
-  print.I2 = gs("print.I2"),
-  print.I2.ci = gs("print.I2.ci"),
-  print.H = gs("print.H"),
-  print.Rb = gs("print.Rb"),
   text.tau2 = gs("text.tau2"),
   text.tau = gs("text.tau"),
   text.I2 = gs("text.I2"),
@@ -93,17 +72,6 @@ argument is useful in a meta-analysis with subgroups if
 heterogeneity statistics should only be printed on subgroup
 level.}
 
-\item{test.subgroup}{A logical value indicating whether to print
-results of test for subgroup differences.}
-
-\item{test.subgroup.common}{A logical value indicating whether to
-print results of test for subgroup differences (based on common
-effect model).}
-
-\item{test.subgroup.random}{A logical value indicating whether to
-print results of test for subgroup differences (based on random
-effects model).}
-
 \item{prediction.subgroup}{A single logical or logical vector
 indicating whether / which prediction intervals should be printed
 for subgroups.}
@@ -131,10 +99,6 @@ calculate rates, e.g. person-years.}
 \item{subgroup.name}{A character string with a name for the
 grouping variable.}
 
-\item{print.subgroup.name}{A logical indicating whether the name of
-the grouping variable should be printed in front of the group
-labels.}
-
 \item{sep.subgroup}{A character string defining the separator
 between label and levels of grouping variable.}
 
@@ -157,40 +121,20 @@ heterogeneity.}
 meta-analysis, comparison and outcome should be printed at the
 beginning of the printout.}
 
-\item{print.CMH}{A logical indicating whether result of the
-Cochran-Mantel-Haenszel test for overall effect should be
-printed.}
+\item{test}{A named list controlling tests for subgroup differences; see
+\code{\link{meta-formatting}}. Defaults follow the setting in \code{x}
+and the models selected for printing.}
 
-\item{digits}{Minimal number of significant digits, see
-\code{print.default}.}
+\item{print}{A named list controlling displayed information; see
+\code{\link{meta-formatting}}. Heterogeneity settings default to
+the corresponding \code{gs("print.*")} settings; \code{CMH} and
+\code{subgroup.name} default
+to the corresponding settings in \code{x}.}
 
-\item{digits.stat}{Minimal number of significant digits for z- or
-t-value of test for overall effect, see \code{print.default}.}
-
-\item{digits.pval}{Minimal number of significant digits for p-value
-of overall treatment effect, see \code{print.default}.}
-
-\item{digits.tau2}{Minimal number of significant digits for
-between-study variance \eqn{\tau^2}, see \code{print.default}.}
-
-\item{digits.tau}{Minimal number of significant digits for
-\eqn{\tau}, the square root of the between-study variance
-\eqn{\tau^2}.}
-
-\item{digits.Q}{Minimal number of significant digits for
-heterogeneity statistic Q, see \code{print.default}.}
-
-\item{digits.df}{Minimal number of significant digits for degrees
-of freedom.}
-
-\item{digits.pval.Q}{Minimal number of significant digits for
-p-value of heterogeneity test, see \code{print.default}.}
-
-\item{digits.H}{Minimal number of significant digits for H
-statistic, see \code{print.default}.}
-
-\item{digits.I2}{Minimal number of significant digits for I-squared
-and Rb statistic, see \code{print.default}.}
+\item{digits}{A named list controlling rounding; see
+\code{\link{meta-formatting}}. A scalar value is also accepted.
+The main default is \code{gs("digits")}; P-value defaults are
+\code{max(gs("digits.pval"), 2)} and \code{max(gs("digits.pval.Q"), 2)}.}
 
 \item{big.mark}{A character used as thousands separator.}
 
@@ -204,34 +148,6 @@ printed with a leading zero.}
 \item{JAMA.pval}{A logical specifying whether p-values for test of
 overall effect should be printed according to JAMA reporting
 standards.}
-
-\item{print.tau2}{A logical specifying whether between-study
-variance \eqn{\tau^2} should be printed.}
-
-\item{print.tau2.ci}{A logical value indicating whether to print
-the confidence interval of \eqn{\tau^2}.}
-
-\item{print.tau}{A logical specifying whether \eqn{\tau}, the
-square root of the between-study variance \eqn{\tau^2}, should be
-printed.}
-
-\item{print.tau.ci}{A logical value indicating whether to print the
-confidence interval of \eqn{\tau}.}
-
-\item{print.Q}{A logical value indicating whether to print the
-results of the test of heterogeneity.}
-
-\item{print.I2}{A logical specifying whether heterogeneity
-statistic I\eqn{^2} should be printed.}
-
-\item{print.I2.ci}{A logical specifying whether confidence interval for
-heterogeneity statistic I\eqn{^2} should be printed.}
-
-\item{print.H}{A logical specifying whether heterogeneity statistic
-H should be printed.}
-
-\item{print.Rb}{A logical specifying whether heterogeneity
-statistic R\eqn{_b} should be printed.}
 
 \item{text.tau2}{Text printed to identify between-study variance
 \eqn{\tau^2}.}
@@ -255,7 +171,9 @@ statistical methods should be printed.}
 \item{warn.deprecated}{A logical indicating whether warnings should
 be printed if deprecated arguments are used.}
 
-\item{\dots}{Additional arguments (passed on to \code{prmatrix}).}
+\item{\dots}{Additional arguments, including individual \code{test.*},
+\code{print.*}, and \code{digits.*} settings. Remaining arguments are passed to
+\code{prmatrix}.}
 
 \item{bracket}{A character with bracket symbol to print lower
 confidence interval: "[", "(", "\{", "".}

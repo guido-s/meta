@@ -60,7 +60,7 @@ text_Inverse <- function(x, i, random, method) {
   #
   txt <- "\n- Inverse variance method"
   #
-  if (meth.i$three.level)
+  if (isTRUE(meth.i$three.level))
     txt <-
       paste0(txt,
              " (three-level model",

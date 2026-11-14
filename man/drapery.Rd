@@ -42,12 +42,14 @@ drapery(
   bg = "white",
   bty = "o",
   backtransf = x$backtransf,
-  xlab,
-  ylab,
-  xlim,
-  ylim,
+  xlim = NULL,
+  ylim = NULL,
+  xlab = NULL,
+  ylab = NULL,
+  ylab.right = NULL,
   lwd.max = 2.5,
   lwd.study.weight = if (random) "random" else "common",
+  axes = TRUE,
   at = NULL,
   n.grid = if (type == "zvalue") 10000 else 1000,
   mar = c(5.1, 4.1, 4.1, 4.1),
@@ -155,16 +157,20 @@ printed.}
 \item{backtransf}{A logical indicating whether results should be
 back transformed on the x-axis. For example, if \code{backtransf
 = FALSE}, log odds ratios instead of odds ratios are shown on the
-x-axis.}
-
-\item{xlab}{A label for the x-axis.}
-
-\item{ylab}{A label for the y-axis.}
+x-axis. For transformed proportions, rates, means, and correlations,
+drapery plots are drawn on the analysis scale with back-transformed tick
+marks on the x-axis.}
 
 \item{xlim}{The x limits (min, max) of the plot.}
 
 \item{ylim}{The y limits (min, max) of the plot (ignored if
 \code{type = "pvalue"}).}
+
+\item{xlab}{A label for the x-axis.}
+
+\item{ylab}{A label for the y-axis.}
+
+\item{ylab.right}{A label for the right y-axis.}
 
 \item{lwd.max}{The maximum line width (only considered if argument
 \code{layout} is equal to \code{"linewidth"}).}
@@ -174,6 +180,9 @@ determine line width for individual studies using weights from
 common effect (\code{"common"}) or random effects model
 (\code{"random"}), can be abbreviated (only considered if
 argument \code{layout} is equal to \code{"linewidth"}).}
+
+\item{axes}{A logical indicating whether axes should be drawn on
+the plot.}
 
 \item{at}{Points at which tick-marks are to be drawn on the x-axis.}
 

@@ -10,9 +10,10 @@
   x,
   formula,
   method.tau = x$method.tau,
-  hakn = x$method.random.ci == "HK",
+  method.random.ci = x$method.random.ci,
   level.ma = x$level.ma,
   intercept = TRUE,
+  hakn = method.random.ci == "HK",
   ...
 )
 
@@ -31,9 +32,9 @@ used to estimate the between-study variance tau-squared. Either
 \code{"HS"}, \code{"SJ"}, \code{"HE"}, or \code{"EB"}, can be
 abbreviated.}
 
-\item{hakn}{A logical indicating whether the method by Hartung and
-Knapp should be used to adjust test statistics and confidence
-intervals.}
+\item{method.random.ci}{A character string indicating which method
+is used to calculate the confidence interval and test statistic for
+the random effects estimate (see \code{\link{meta-package}}).}
 
 \item{level.ma}{The level used to calculate confidence intervals
 for parameter estimates in the meta-regression model.}
@@ -41,17 +42,21 @@ for parameter estimates in the meta-regression model.}
 \item{intercept}{A logical indicating whether an intercept should
 be included in the meta-regression model.}
 
+\item{hakn}{Deprecated argument (replaced by 'method.random.ci').}
+
 \item{\dots}{Additional arguments passed to R function
-\code{\link[metafor]{rma.uni}}.}
+\code{\link[metafor]{rma.uni}}, \code{\link[metafor]{rma.glmm}}, and
+\code{\link[metafor]{rma.mv}}.}
 }
 \value{
-An object of class \code{c("metareg", "rma.uni", "rma")}. Please
-look at the help page of R function \code{\link[metafor]{rma.uni}}
-for more details on the output from this function.
+An object of class \code{c("metareg", "rma")}. Please
+look at the help pages of R functions \code{\link[metafor]{rma.uni}},
+\code{\link[metafor]{rma.glmm}}, and \code{\link[metafor]{rma.mv}}
+for more details on the output from these functions.
 
 In addition, a list \code{.meta} is added to the output containing
 the following components:
-\item{x, formula, method.tau, hakn, level.ma, intercept}{As
+\item{x, formula, method.tau, method.random.ci, hakn, level.ma, intercept}{As
   defined above.}
 \item{dots}{Information provided in argument '\dots{}'.}
 \item{call}{Function call.}
@@ -62,13 +67,18 @@ the following components:
 }
 \description{
 Meta-regression for objects of class \code{meta}. This is a wrapper
-function for the R function \code{\link[metafor]{rma.uni}} in the R
+function for the R functions \code{\link[metafor]{rma.uni}},
+\code{\link[metafor]{rma.glmm}}, and \code{\link[metafor]{rma.mv}} in the R
 package \bold{metafor} (Viechtbauer 2010).
 }
 \details{
-This R function is a wrapper function for R function
-\code{\link[metafor]{rma.uni}} in the R package \bold{metafor}
+This R function is a wrapper function for R functions
+\code{\link[metafor]{rma.uni}}, \code{\link[metafor]{rma.glmm}}, and
+\code{\link[metafor]{rma.mv}} in the R package \bold{metafor}
 (Viechtbauer 2010).
+
+If argument \code{method.random.ci} is a vector, only the first element is
+considered as the R functions in \bold{metafor} expect a single method.
 
 Note, results are not back-transformed in printouts of
 meta-analyses using summary measures with transformations, e.g.,
@@ -77,10 +87,12 @@ log risk ratios are printed instead of the risk ratio if argument
 argument \code{sm = "PLOGIT"}.
 
 Argument '\dots{}' can be used to pass additional arguments to R
-function \code{\link[metafor]{rma.uni}}. For example, argument
+functions \code{\link[metafor]{rma.uni}}, \code{\link[metafor]{rma.glmm}},
+and \code{\link[metafor]{rma.mv}}. For example, argument
 \code{control} to provide a list of control values for the
-iterative estimation algorithm. See help page of R function
-\code{\link[metafor]{rma.uni}} for more details.
+iterative estimation algorithm. See help page of R functions
+\code{\link[metafor]{rma.uni}}, \code{\link[metafor]{rma.glmm}}, and
+\code{\link[metafor]{rma.mv}}, for more details.
 }
 \examples{
 data(Fleiss1993cont)

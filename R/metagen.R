@@ -1,5 +1,5 @@
 #' Generic inverse variance meta-analysis
-#' 
+#'
 #' @description
 #' Common effect and random effects meta-analysis based on estimates
 #' (e.g. log hazard ratios) and their standard errors. The inverse
@@ -8,7 +8,7 @@
 #' Three-level random effects meta-analysis (Van den Noortgate et al., 2013) is
 #' available by internally calling \code{\link[metafor]{rma.mv}} function from
 #' R package \bold{metafor} (Viechtbauer, 2010).
-#' 
+#'
 #' @param TE Estimate of treatment effect, e.g., log hazard ratio or
 #'   risk difference or an R object created with \code{\link{pairwise}}.
 #' @param seTE Standard error of treatment estimate or standard deviation of
@@ -78,8 +78,8 @@
 #' @param method.common.ci A character string indicating which method
 #'   is used to calculate confidence interval and test statistic for
 #'   common effect estimate (see \code{\link{meta-package}}).
-#' @param method.random.ci A character string indicating which method
-#'   is used to calculate confidence interval and test statistic for
+#' @param method.random.ci A character string or vector indicating which methods
+#'   are used to calculate confidence intervals and test statistics for the
 #'   random effects estimate (see \code{\link{meta-package}}).
 #' @param adhoc.hakn.ci A character string indicating whether an
 #'   \emph{ad hoc} variance correction should be applied in the case
@@ -103,7 +103,9 @@
 #'   \code{\link{metabias}}.
 #' @param n.e Number of observations in experimental group (or total
 #'   sample size in study).
-#' @param n.c Number of observations in control group.
+#' @param n.c Number of observations in control group. This argument must not
+#'   be provided for meta-analysis of single proportions, rates, means, or
+#'   correlations.
 #' @param pval P-value (used to estimate the standard error).
 #' @param df Degrees of freedom (used in test or to construct
 #'   confidence intervals).
@@ -132,13 +134,13 @@
 #'   estimate (see Details).
 #' @param approx.seTE Approximation method to estimate standard error
 #'   (see Details).
-#' @param transf A logical indicating whether inputs for arguments
-#'   \code{TE}, \code{lower} and \code{upper} are already
-#'   appropriately transformed to conduct the meta-analysis or on the
-#'   original scale. If \code{transf = TRUE} (default), inputs are
-#'   expected to be log odds ratios instead of odds ratios for
-#'   \code{sm = "OR"} and Fisher's z transformed correlations instead
-#'   of correlations for \code{sm = "ZCOR"}, for example.
+#' @param transf A logical indicating whether the inputs to arguments
+#'   \code{TE}, \code{lower}, \code{upper}, and \code{null.effect} are already
+#'   appropriately transformed for the meta-analysis or are on the original
+#'   scale. If \code{transf = TRUE} (default), inputs are expected to be on
+#'   the analysis scale, e.g., log odds ratios instead of odds ratios for
+#'   \code{sm = "OR"} and Fisher's z-transformed correlations instead of
+#'   correlations for \code{sm = "ZCOR"}.
 #' @param backtransf A logical indicating whether results should be
 #'   back transformed in printouts and plots. If \code{backtransf =
 #'   TRUE} (default), results for \code{sm = "OR"} are printed as odds
@@ -217,7 +219,7 @@
 #'   is passed on to \code{\link[metafor]{rma.uni}} or
 #'   \code{\link[metafor]{rma.mv}}.
 #' @param \dots Additional arguments (to catch deprecated arguments).
-#' 
+#'
 #' @details
 #' This function provides the \emph{generic inverse variance method}
 #' for meta-analysis which requires treatment estimates and their
@@ -227,7 +229,7 @@
 #' be used to provide treatment estimates and standard errors
 #' directly. However, it is possible to derive these quantities from
 #' other information.
-#' 
+#'
 #' Argument \code{cycles} can be used to conduct a meta-analysis of n-of-1
 #' trials according to Senn (2024). In this case, argument \code{seTE} does
 #' not contain the standard error but standard deviation for individual
@@ -237,7 +239,7 @@
 #' Senn (2024). Note, arguments used in the approximation of means or
 #' standard errors, like \code{lower} and \code{upper}, or \code{df}, are
 #' ignored for the meta-analysis of n-of-1 trials.
-#' 
+#'
 #' A three-level random effects meta-analysis model (Van den Noortgate
 #' et al., 2013) is utilised if argument \code{cluster} is used and at
 #' least one cluster provides more than one estimate. Internally,
@@ -245,16 +247,24 @@
 #' \code{\link[metafor]{weights.rma.mv}} with argument \code{type =
 #' "rowsum"} is used to calculate random effects weights.
 #'
+#' Cluster-robust variance estimators (Tipton and Pustejovsky, 2015;
+#' Pustejovsky and Tipton, 2022) are available for univariate random effects
+#' and three-level models (argument \code{method.random.ci} equal to
+#' \code{"CR0"}, \code{"CR1"}, or \code{"CR2"}). Internally,
+#' \code{\link[metafor]{rma.uni}} or \code{\link[metafor]{rma.mv}} is called
+#' and then passed to \code{\link[metafor]{robust}}. For univariate random
+#' effects models, study labels (argument \code{studlab}) are used as clusters.
+#'
 #' Default settings are utilised for several arguments (assignments
 #' using \code{\link{gs}} function). These defaults can be changed for
 #' the current R session using the \code{\link{settings.meta}}
 #' function.
-#' 
+#'
 #' Furthermore, R function \code{\link{update.meta}} can be used to
 #' rerun a meta-analysis with different settings.
-#' 
+#'
 #' \subsection{Approximate treatment estimates}{
-#' 
+#'
 #' Missing treatment estimates can be derived from
 #' \enumerate{
 #' \item confidence limits provided by arguments \code{lower} and
@@ -282,7 +292,7 @@
 #' \item equation (15) if sample size, median, range and interquartile
 #'   range are available.
 #' }
-#' 
+#'
 #' Instead the methods described in Wan et al. (2014) are used if
 #' argument \code{method.mean = "Wan"}:
 #' \itemize{
@@ -319,7 +329,7 @@
 #' }
 #'
 #' \subsection{Approximate standard errors}{
-#' 
+#'
 #' Missing standard errors can be derived from
 #' \enumerate{
 #' \item p-value provided by arguments \code{pval} and (optional)
@@ -339,6 +349,15 @@
 #' on the standard normal or \emph{t}-distribution if argument
 #' \code{df} is provided. Furthermore, argument \code{level.ci} can be
 #' used to provide the level of the confidence interval.
+#'
+#' If arguments \code{TE}, \code{lower}, and \code{upper} are provided,
+#' \code{metagen} checks whether \code{TE} is approximately halfway between the
+#' confidence limits. A warning is printed if the absolute difference between
+#' \code{TE} and the confidence interval midpoint, divided by the confidence
+#' interval width, is larger than 0.1. This may indicate that the confidence
+#' interval was not calculated as a symmetric Wald-type confidence interval on
+#' the analysis scale, that values were reported on a different scale, or that
+#' the impact of rounding is substantial.
 #'
 #' Wan et al. (2014) describe methods to estimate the standard
 #' deviation (and thus the standard error by deviding the standard
@@ -375,7 +394,7 @@
 #' these method, e.g., p-value before confidence limits before
 #' interquartile range and range. Argument \code{approx.seTE} can be
 #' used to overwrite this default for each individual study:
-#' 
+#'
 #' \itemize{
 #' \item Use standard error directly (entry \code{""} in argument
 #'   \code{approx.seTE});
@@ -388,7 +407,7 @@
 #' }
 #'
 #' \subsection{Confidence intervals for individual studies}{
-#' 
+#'
 #' For the mean difference (argument \code{sm = "MD"}), the confidence
 #' interval for individual studies can be based on the
 #' \itemize{
@@ -398,57 +417,68 @@
 #'
 #' By default, the first method is used if argument \code{df} is
 #' missing and the second method otherwise.
-#' 
+#'
 #' Note, this choice does not affect the results of the common effect
 #' and random effects meta-analysis.
 #' }
 #'
 #' \subsection{Subgroup analysis}{
-#' 
+#'
 #' Argument \code{subgroup} can be used to conduct subgroup analysis for
 #' a categorical covariate. The \code{\link{metareg}} function can be
 #' used instead for more than one categorical covariate or continuous
 #' covariates.
 #' }
-#' 
+#'
 #' \subsection{Specify the null hypothesis of test for an overall effect}{
 #'
-#' Argument \code{null.effect} can be used to specify the (treatment)
-#' effect under the null hypothesis in a test for an overall
-#' effect.
+#' Argument \code{null.effect} can be used to specify the effect under
+#' the null hypothesis for a test of an overall effect.
 #'
-#' By default (\code{null.effect = 0}), the null hypothesis
-#' corresponds to "no difference" (which is obvious for absolute
-#' effect measures like the mean difference (\code{sm = "MD"}) or
-#' standardised mean difference (\code{sm = "SMD"})). For relative
-#' effect measures, e.g., risk ratio (\code{sm = "RR"}) or odds ratio
-#' (\code{sm = "OR"}), the null effect is defined on the log scale,
-#' i.e., \emph{log}(RR) = 0 or \emph{log}(OR) = 0 which is equivalent
-#' to testing RR = 1 or OR = 1.
+#' For absolute effect measures, such as the mean difference (\code{sm = "MD"})
+#' or standardised mean difference (\code{sm = "SMD"}), the default null effect
+#' is 0, corresponding to "no difference". For relative effect measures, such
+#' as the risk ratio (\code{sm = "RR"}) or odds ratio (\code{sm = "OR"}), the
+#' null effect is defined on the log scale: \emph{log}(RR) = 0 or
+#' \emph{log}(OR) = 0, which is equivalent to testing RR = 1 or OR = 1.
 #'
-#' Use of argument \code{null.effect} is especially useful for summary
-#' measures without a "natural" null effect, i.e., in situations
-#' without a second (treatment) group. For example, an overall
-#' proportion of 50\% could be tested in the meta-analysis of single
-#' proportions with argument \code{null.effect = 0.5}.
+#' A null effect is not defined by default for meta-analyses of single
+#' means, proportions, or rates, i.e., if \code{sm} is one of
+#' \code{gs("sm4mean")}, \code{gs("sm4prop")}, or \code{gs("sm4rate")}.
+#'
+#' The argument \code{null.effect} is especially useful for summary
+#' measures without a natural null effect, for example, in a meta-analysis
+#' of single proportions. An overall proportion of 50\% can be tested by
+#' specifying \code{null.effect = 0.5}.
+#'
+#' The value of \code{null.effect} is stored on the transformed analysis scale
+#' in the returned object. If \code{transf = FALSE}, \code{null.effect} is
+#' supplied on the original scale and transformed internally. If
+#' \code{transf = TRUE}, it must already be supplied on the transformed
+#' analysis scale.
 #'
 #' Note, all tests for an overall effect are two-sided with the
-#' alternative hypothesis that the effect is unequal to
-#' \code{null.effect}.
+#' alternative hypothesis that the effect is unequal to \code{null.effect}.
 #' }
 #' 
 #' \subsection{Exclusion of studies from meta-analysis}{
-#'
+#' 
 #' Arguments \code{subset} and \code{exclude} can be used to exclude
 #' studies from the meta-analysis. Studies are removed completely from
 #' the meta-analysis using argument \code{subset}, while excluded
 #' studies are shown in printouts and forest plots using argument
-#' \code{exclude} (see Examples).
-#' Meta-analysis results are the same for both arguments.
+#' \code{exclude} (see Examples). Meta-analysis results are the same for
+#' both arguments.
+#' 
+#' Studies with missing or non-finite treatment effect estimates or standard
+#' errors, such as infinite values resulting from a transformation, are not
+#' considered in meta-analysis calculations. Studies with non-positive
+#' standard errors are also not considered. These studies remain available in
+#' the returned object and can be identified by their zero weights.
 #' }
 #' 
 #' \subsection{Presentation of meta-analysis results}{
-#' 
+#'
 #' Internally, both common effect and random effects models are
 #' calculated regardless of values choosen for arguments \code{common}
 #' and \code{random}. Accordingly, the estimate for the random effects
@@ -459,7 +489,7 @@
 #' \code{random}. For example, functions \code{\link{print.meta}} and
 #' \code{\link{forest.meta}} will not show results for the random
 #' effects model if \code{random = FALSE}.
-#'
+#' 
 #' A prediction interval will only be shown if \code{prediction =
 #' TRUE}.
 #' 
@@ -467,7 +497,7 @@
 #' risk differences, e.g. \code{pscale = 1000} means that proportions
 #' are expressed as events per 1000 observations. This is useful in
 #' situations with (very) low event probabilities.
-#' 
+#'
 #' Argument \code{irscale} can be used to rescale single rates or rate
 #' differences, e.g. \code{irscale = 1000} means that rates are
 #' expressed as events per 1000 time units, e.g. person-years. This is
@@ -486,17 +516,17 @@
 #' R function \code{\link[metafor]{rma.uni}} from R package
 #' \pkg{metafor} (Viechtbauer 2010) is called internally to estimate
 #' the between-study variance \eqn{\tau^2}.
-#' 
+#'
 #' @return
 #' An object of class \code{c("metagen", "meta")} with corresponding
 #' generic functions (see \code{\link{meta-object}}).
-#' 
+#'
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
-#' 
+#'
 #' @seealso \code{\link{meta-package}}, \code{\link{update.meta}},
 #'   \code{\link{metabin}}, \code{\link{metacont}}, \code{\link{pairwise}},
 #'   \code{\link{print.meta}}, \code{\link{settings.meta}}
-#' 
+#'
 #' @references
 #' Borenstein M, Hedges LV, Higgins JP, Rothstein HR (2010):
 #' A basic introduction to fixed-effect and random-effects models for
@@ -509,7 +539,7 @@
 #' statistics and sample size in meta-analysis.
 #' \emph{Statistical Methods in Medical Research},
 #' \bold{30}, 2701--2719
-#' 
+#'
 #' Luo D, Wan X, Liu J, Tong T (2018):
 #' Optimally estimating the sample mean from the sample size, median,
 #' mid-range, and/or mid-quartile range.
@@ -522,18 +552,30 @@
 #' reported quantiles in meta-analysis.
 #' \emph{Statistical Methods in Medical Research},
 #' \bold{29}, 2520--2537
-#' 
+#'
+#' Pustejovsky JE, Tipton E (2022):
+#' Meta-Analysis with robust variance estimation: Expanding the range of
+#' working models.
+#' \emph{Prevention Science},
+#' \bold{23}, 425--38
+#'
 #' Senn S (2024):
 #' The analysis of continuous data from n-of-1 trials using paired cycles:
 #' a simple tutorial.
 #' \emph{Trials},
 #' \bold{25}.
-#' 
+#'
 #' Shi J, Luo D, Weng H, Zeng X-T, Lin L, Chu H, et al. (2020):
 #' Optimally estimating the sample standard deviation from the
 #' five-number summary.
 #' \emph{Research Synthesis Methods}.
-#' 
+#'
+#' Tipton E, Pustejovsky JE (2015):
+#' Small-sample adjustments for tests of moderators and model fit using
+#' robust variance estimation in meta-regression.
+#' \emph{Journal of Educational and Behavioral Statistics},
+#' \bold{40}, 604--34
+#'
 #' Viechtbauer W (2010):
 #' Conducting Meta-Analyses in R with the metafor Package.
 #' \emph{Journal of Statistical Software},
@@ -549,13 +591,13 @@
 #' size, median, range and/or interquartile range.
 #' \emph{BMC Medical Research Methodology},
 #' \bold{14}, 135
-#' 
+#'
 #' @examples
 #' data(Fleiss1993bin)
 #' ma <- metabin(d.asp, n.asp, d.plac, n.plac, study,
 #'   data = Fleiss1993bin, sm = "RR", method = "I")
 #' ma
-#' 
+#'
 #' # Identical results using the generic inverse variance method with
 #' # log risk ratio and its standard error:
 #' # Note, argument 'n.e' in metagen() is used to provide the total
@@ -564,17 +606,17 @@
 #' ma.gen <- metagen(TE, seTE, studlab, n.e = n.e + n.c, data = ma, sm = "RR")
 #' ma.gen
 #' forest(ma.gen, leftcols = c("studlab", "n.e", "TE", "seTE"))
-#' 
+#'
 #' # Meta-analysis with prespecified between-study variance
 #' #
 #' metagen(ma$TE, ma$seTE, sm = "RR", tau.preset = sqrt(0.1))
-#' 
+#'
 #' # Meta-analysis of survival data:
 #' #
 #' logHR <- log(c(0.95, 1.5))
 #' selogHR <- c(0.25, 0.35)
 #' metagen(logHR, selogHR, sm = "HR")
-#' 
+#'
 #' # Paule-Mandel method to estimate between-study variance for data
 #' # from Paule & Mandel (1982)
 #' #
@@ -582,7 +624,7 @@
 #' variance <- c(0.003, 0.076, 0.464, 0.003, 0.014)
 #' #
 #' metagen(average, sqrt(variance), sm = "MD", method.tau = "PM")
-#' 
+#'
 #' # Conduct meta-analysis using hazard ratios and 95% confidence intervals
 #' #
 #' # Data from Steurer et al. (2006), Analysis 1.1 Overall survival
@@ -649,17 +691,24 @@
 #'   subset = (n.asp + n.plac) > 1500,
 #'   exclude = grep("MRC", study))
 #'
-#' \dontrun{
+#' \donttest{
 #' if (requireNamespace("metadat", quietly = TRUE)) {
 #' # Three-level model: effects of modified school calendars on
 #' # student achievement
 #' data(dat.konstantopoulos2011, package = "metadat")
-#' metagen(yi, sqrt(vi), studlab = study, data = dat.konstantopoulos2011,
+#' ma3 <- metagen(yi, sqrt(vi), studlab = study, data = dat.konstantopoulos2011,
 #'   sm = "SMD",
 #'   cluster = district, detail.tau = c("district", "district/school"))
+#' # Cluster-robust variance estimators
+#' clro <- suppressPackageStartupMessages(
+#'   requireNamespace("clubSandwich", quietly = TRUE))
+#' if (!clro)
+#'   update(ma3, method.random.ci = c("classic", "CR0", "CR1"))
+#' if (clro)
+#'   update(ma3, method.random.ci = c("classic", "CR0", "CR1", "CR2"))
 #' }
 #' }
-#' 
+#'
 #' @export metagen
 
 metagen <- function(TE, seTE, studlab,
@@ -684,7 +733,7 @@ metagen <- function(TE, seTE, studlab,
                       if (is.null(gs("overall.hetstat")))
                         common | random
                       else
-                        gs("overall.hetstat"),   
+                        gs("overall.hetstat"),
                     prediction = gs("prediction") | !missing(method.predict),
                     #
                     method.tau = gs("method.tau"),
@@ -706,7 +755,7 @@ metagen <- function(TE, seTE, studlab,
                     adhoc.hakn.pi = gs("adhoc.hakn.pi"),
                     seed.predict = NULL,
                     #
-                    null.effect = 0,
+                    null.effect,
                     #
                     method.bias = gs("method.bias"),
                     #
@@ -750,7 +799,7 @@ metagen <- function(TE, seTE, studlab,
                     prediction.subgroup = gs("prediction.subgroup"),
                     seed.predict.subgroup = NULL,
                     #
-                    byvar, id, adhoc.hakn,
+                    byvar = NULL, id, adhoc.hakn,
                     #
                     keepdata = gs("keepdata"),
                     keeprma = gs("keeprma"),
@@ -760,17 +809,18 @@ metagen <- function(TE, seTE, studlab,
                     #
                     control = NULL,
                     ...) {
-  
-  
+
+
   #
   #
   # (1) Check arguments
   #
   #
-  
+
   missing.studlab <- missing(studlab)
   missing.sm <- missing(sm)
   missing.subgroup <- missing(subgroup)
+  missing.byvar <- missing(byvar)
   missing.overall <- missing(overall)
   missing.overall.hetstat <- missing(overall.hetstat)
   missing.test.subgroup <- missing(test.subgroup)
@@ -789,6 +839,9 @@ metagen <- function(TE, seTE, studlab,
   missing.args.transf <- missing(args.transf)
   missing.func.backtransf <- missing(func.backtransf)
   missing.args.backtransf <- missing(args.backtransf)
+  #
+  subgroup.expr <- enquo(subgroup)
+  byvar.expr <- enquo(byvar)
   #
   sm <- replaceNULL(sm, "")
   sm <- setchar(sm,
@@ -817,9 +870,9 @@ metagen <- function(TE, seTE, studlab,
   if (length(method.common.ci) != 1)
     stop("Argument 'method.common.ci' must be of length 1.",
          call. = FALSE)
-  method.common.ci <- setchar(method.common.ci, gs("meth4common.ci"))
+  method.common.ci <- setchar(method.common.ci, gs("meth4common.ci"), length = 1)
   #
-  method.tau <- setchar(method.tau, gs("meth4tau"))
+  method.tau <- setchar(method.tau, gs("meth4tau"), length = 1)
   #
   tau.common <- replaceNULL(tau.common, FALSE)
   chklogical(tau.common)
@@ -848,9 +901,8 @@ metagen <- function(TE, seTE, studlab,
   if (!is.null(seed.predict))
     chknumeric(seed.predict, length = 1)
   #
-  chknumeric(null.effect, length = 1)
-  #
   chklogical(transf)
+  #
   chklogical(backtransf)
   #
   avail.func.transf <- !missing.func.transf && !is.null(func.transf)
@@ -874,7 +926,7 @@ metagen <- function(TE, seTE, studlab,
     args.transf <- NULL
   #
   if (avail.func.backtransf) {
-    chkfunc(func.backtransf)    
+    chkfunc(func.backtransf)
     if (is.function(func.backtransf))
       func.backtransf <- deparse(substitute(func.backtransf))
   }
@@ -882,7 +934,7 @@ metagen <- function(TE, seTE, studlab,
     func.backtransf <- NULL
   #
   if (avail.args.backtransf)
-    chklist(args.backtransf)    
+    chklist(args.backtransf)
   else
     args.backtransf <- NULL
   #
@@ -919,7 +971,8 @@ metagen <- function(TE, seTE, studlab,
   }
   #
   missing.pscale <- missing(pscale)
-  chknumeric(pscale, length = 1)
+  pscale <- replaceNULL(pscale, 1)
+  chknumeric_strict(pscale, min = 1, length = 1)
   if (!backtransf & pscale != 1) {
     if (!missing.pscale)
       warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.",
@@ -927,12 +980,34 @@ metagen <- function(TE, seTE, studlab,
     pscale <- 1
   }
   missing.irscale <- missing(irscale)
-  chknumeric(irscale, length = 1)
+  irscale <- replaceNULL(irscale, 1)
+  chknumeric_strict(irscale, min = 1, length = 1)
   if (!backtransf & irscale != 1) {
     if (!missing.irscale)
       warning("Argument 'irscale' set to 1 as argument 'backtransf' is FALSE.",
               call. = FALSE)
     irscale <- 1
+  }
+  #
+  if (missing(null.effect)) {
+    if (is_mean(sm) || is_prop(sm) || is_rate(sm))
+      null.effect <- NA
+    else
+      null.effect <- 0
+  }
+  else {
+    if (is_prop(sm) && (!transf || sm == "PRAW"))
+      chknumeric(null.effect, min = 0, max = 1, length = 1)
+    else if (is_rate(sm) && (!transf || sm == "IR"))
+      chknumeric(null.effect, min = 0, length = 1)
+    else if (sm == "MLN" && !transf)
+      chknumeric(null.effect, min = 0, zero = TRUE, length = 1)
+    else if (is_mean(sm))
+      chknumeric(null.effect, length = 1)
+    else if (is_cor(sm) && (!transf || sm == "COR"))
+      chknumeric(null.effect, min = -1, max = 1, length = 1)
+    else
+      chknumeric(null.effect, length = 1)
   }
   #
   if (!is.null(text.common))
@@ -980,12 +1055,18 @@ metagen <- function(TE, seTE, studlab,
   method.random.ci <-
     deprecated(method.random.ci, missing(method.random.ci),
                args, "hakn", warn.deprecated)
+  #
   if (is.logical(method.random.ci))
     if (method.random.ci)
       method.random.ci <- "HK"
     else
       method.random.ci <- "classic"
+  #
   method.random.ci <- setchar(method.random.ci, gs("meth4random.ci"))
+  #
+  if (any(method.random.ci == "CR2"))
+    is_installed_package("clubSandwich", argument = "method.random.ci",
+                         value = "CR2")
   #
   missing.adhoc.hakn.ci <- missing(adhoc.hakn.ci)
   adhoc.hakn.ci <-
@@ -1015,30 +1096,24 @@ metagen <- function(TE, seTE, studlab,
   #
   chklogical(overall)
   chklogical(overall.hetstat)
-  
-  
+
+
   #
   #
   # (2) Read data
   #
   #
-  
+
   nulldata <- is.null(data)
-  sfsp <- sys.frame(sys.parent())
-  mc <- match.call()
   #
   if (nulldata) {
-    data <- sfsp
     data.pairwise <- FALSE
   }
   else
     data.pairwise <- inherits(data, "pairwise")
   #
-  missing.byvar <- missing(byvar)
-  byvar <- catch("byvar", mc, data, sfsp)
-  #
   # Catch 'TE', 'seTE', 'median', 'lower', 'upper', 'n.e', 'n.c', and
-  # 'cluster' from data:
+  # 'cluster' from data
   #
   missing.TE <- missing(TE)
   missing.seTE <- missing(seTE)
@@ -1052,7 +1127,7 @@ metagen <- function(TE, seTE, studlab,
          "or arguments 'lower' and 'upper'.",
          call. = FALSE)
   #
-  TE <- catch("TE", mc, data, sfsp)
+  TE <- catch(enquo(TE), data)
   avail.TE <- !(missing.TE || is.null(TE))
   #
   if (inherits(TE, "pairwise")) {
@@ -1118,7 +1193,7 @@ metagen <- function(TE, seTE, studlab,
       }
     }
     #
-    if (missing.subgroup) {
+    if (missing.subgroup && missing.byvar) {
       subgroup <- paste(treat1, treat2, sep = " vs ")
       #
       if (length(unique(subgroup)) == 1) {
@@ -1141,8 +1216,6 @@ metagen <- function(TE, seTE, studlab,
           test.subgroup <- FALSE
       }
     }
-    else
-      subgroup <- catch("subgroup", mc, data, sfsp)
   }
   else {
     is.pairwise <- FALSE
@@ -1153,37 +1226,81 @@ metagen <- function(TE, seTE, studlab,
     else
       sm <- ""
     #
-    seTE <- catch("seTE", mc, data, sfsp)
+    seTE <- catch(enquo(seTE), data)
     #
-    studlab <- catch("studlab", mc, data, sfsp)
-    #
-    subgroup <- catch("subgroup", mc, data, sfsp)
-    subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
-                            warn.deprecated)
+    studlab <- catch(enquo(studlab), data)
     #
     if (!missing(n.e))
-      n.e <- catch("n.e", mc, data, sfsp)
+      n.e <- catch(enquo(n.e), data)
     if (!missing(n.c))
-      n.c <- catch("n.c", mc, data, sfsp)
+      n.c <- catch(enquo(n.c), data)
+  }
+  #
+  if (!is.pairwise || !missing.subgroup || !missing.byvar) {
+    subgroup <- catch(subgroup.expr, data)
+    byvar <- catch(byvar.expr, data)
+    #
+    subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
+                            warn.deprecated)
   }
   #
   method.bias <- setmethodbias(method.bias)
   #
   by <- !is.null(subgroup)
   #
-  median <- catch("median", mc, data, sfsp)
-  lower <- catch("lower", mc, data, sfsp)
-  upper <- catch("upper", mc, data, sfsp)
+  median <- catch(enquo(median), data)
+  lower <- catch(enquo(lower), data)
+  upper <- catch(enquo(upper), data)
   #
   avail.median <- !(missing.median || is.null(median))
   avail.lower <- !(missing.lower || is.null(lower))
   avail.upper <- !(missing.upper || is.null(upper))
   #
   if (!avail.TE & !avail.median & (!avail.lower | !avail.upper))
-    stop("Treatment estimates missing. ",
-         "Provide either argument 'TE' or 'median', ",
-         "or arguments 'lower' and 'upper'.",
+    stop("Treatment estimates missing. Provide either argument 'TE' or ",
+         "'median', or arguments 'lower' and 'upper'.",
          call. = FALSE)
+  #
+  if (is_single(sm) && !is.null(n.c))
+    stop("Argument 'n.c' must not be provided for meta-analysis of ",
+         "single proportions, rates, means, or correlations.",
+         call. = FALSE)
+  #
+  n.pft <- NULL
+  #
+  if (sm == "PFT" && !transf) {
+    if (is.null(n.e))
+      stop("Argument 'n.e' must be provided if argument 'sm = \"PFT\"' ",
+           "and 'transf = FALSE'.",
+           call. = FALSE)
+    #
+    n.pft <- n.e
+    #
+    if (avail.TE && length(n.pft) != length(TE))
+      stop("Length of argument 'n.e' must match length of argument 'TE' ",
+           "if argument 'sm = \"PFT\"' and 'transf = FALSE'.",
+           call. = FALSE)
+    if (avail.lower && length(n.pft) != length(lower))
+      stop("Length of argument 'n.e' must match length of argument 'lower' ",
+           "if argument 'sm = \"PFT\"' and 'transf = FALSE'.",
+           call. = FALSE)
+    if (avail.upper && length(n.pft) != length(upper))
+      stop("Length of argument 'n.e' must match length of argument 'upper' ",
+           "if argument 'sm = \"PFT\"' and 'transf = FALSE'.",
+           call. = FALSE)
+  }
+  else if (sm == "IRFT" && !transf)
+    stop("Argument 'transf = FALSE' not available if argument 'sm = \"IRFT\"'.",
+         call. = FALSE)
+  #
+  # Transform null effect
+  #
+  if (!transf) {
+    transf.null.effect <-
+      transf(null.effect, sm, func = func.transf, args = args.transf, n = n.pft)
+  }
+  else
+    transf.null.effect <- null.effect
   #
   TE.orig <- NULL
   lower.orig <- NULL
@@ -1192,31 +1309,37 @@ metagen <- function(TE, seTE, studlab,
   if (!transf) {
     if (avail.TE) {
       TE.orig <- TE
-      TE <- transf(TE, sm, func.transf, args.transf)
+      TE <-
+        transf(TE, sm, func = func.transf, args = args.transf, n = n.pft)
     }
     if (avail.lower) {
       lower.orig <- lower
-      lower <- transf(lower, sm, func.transf, args.transf)
+      lower <-
+        transf(lower, sm, func = func.transf, args = args.transf, n = n.pft)
     }
     if (avail.upper) {
       upper.orig <- upper
-      upper <- transf(upper, sm, func.transf, args.transf)
+      upper <-
+        transf(upper, sm, func = func.transf, args = args.transf, n = n.pft)
     }
-    if (sm == "VE" && avail.lower & avail.upper) {
-      tmp.l <- lower
-      lower <- upper
-      upper <- tmp.l
+    #
+    if (avail.lower && avail.upper) {
+      wo <- !is.na(lower) & !is.na(upper) & lower > upper
       #
-      tmp.l <- lower.orig
-      lower.orig <- upper.orig
-      upper.orig <- tmp.l
-    }   
+      tlower <- lower[wo]
+      lower[wo] <- upper[wo]
+      upper[wo] <- tlower
+      #
+      tlower <- lower.orig[wo]
+      lower.orig[wo] <- upper.orig[wo]
+      upper.orig[wo] <- tlower
+    }
   }
   #
   missing.cluster <- missing(cluster)
-  cluster <- catch("cluster", mc, data, sfsp)
+  cluster <- catch(enquo(cluster), data)
   missing.id <- missing(id)
-  id <- catch("id", mc, data, sfsp)
+  id <- catch(enquo(id), data)
   #
   cluster <- deprecated2(cluster, missing.cluster, id, missing.id,
                          warn.deprecated)
@@ -1226,15 +1349,15 @@ metagen <- function(TE, seTE, studlab,
     idx <- seq_along(cluster)
   #
   missing.cycles <- missing(cycles)
-  cycles <- catch("cycles", mc, data, sfsp)
+  cycles <- catch(enquo(cycles), data)
   with.cycles <- !is.null(cycles)
   #
   if (!missing(weights))
-    weights <- catch("weights", mc, data, sfsp)
+    weights <- catch(enquo(weights), data)
   if (!missing(weights.common))
-    weights.common <- catch("weights.common", mc, data, sfsp)
+    weights.common <- catch(enquo(weights.common), data)
   if (!missing(weights.random))
-    weights.random <- catch("weights.random", mc, data, sfsp)
+    weights.random <- catch(enquo(weights.random), data)
   #
   if (!is.null(weights) & is.null(weights.common))
     weights.common <- weights
@@ -1286,59 +1409,59 @@ metagen <- function(TE, seTE, studlab,
   #
   # Catch subset', and 'exclude' from data:
   #
-  subset <- catch("subset", mc, data, sfsp)
+  subset <- catch(enquo(subset), data)
   missing.subset <- is.null(subset)
   #
-  exclude <- catch("exclude", mc, data, sfsp)
+  exclude <- catch(enquo(exclude), data)
   missing.exclude <- is.null(exclude)
   #
   # Catch 'pval', 'df', 'level.ci', 'q1', 'q3', 'min', 'max',
   # 'approx.TE' and 'approx.seTE', from data:
   #
   missing.pval <- missing(pval)
-  pval <- catch("pval", mc, data, sfsp)
+  pval <- catch(enquo(pval), data)
   avail.pval <- !(missing.pval || is.null(pval))
   #
   missing.df <- missing(df)
-  df <- catch("df", mc, data, sfsp)
+  df <- catch(enquo(df), data)
   avail.df <- !(missing.df || is.null(df))
   #
   if (!missing(level.ci))
-    level.ci <- catch("level.ci", mc, data, sfsp)
+    level.ci <- catch(enquo(level.ci), data)
   #
   missing.q1 <- missing(q1)
-  q1 <- catch("q1", mc, data, sfsp)
+  q1 <- catch(enquo(q1), data)
   avail.q1 <- !(missing.q1 || is.null(q1))
   #
   missing.q3 <- missing(q3)
-  q3 <- catch("q3", mc, data, sfsp)
+  q3 <- catch(enquo(q3), data)
   avail.q3 <- !(missing.q3 || is.null(q3))
   #
   missing.min <- missing(min)
-  min <- catch("min", mc, data, sfsp)
+  min <- catch(enquo(min), data)
   avail.min <- !(missing.min || is.null(min))
   #
   missing.max <- missing(max)
-  max <- catch("max", mc, data, sfsp)
+  max <- catch(enquo(max), data)
   avail.max <- !(missing.max || is.null(max))
   #
   missing.approx.TE <- missing(approx.TE)
-  approx.TE <- catch("approx.TE", mc, data, sfsp)
+  approx.TE <- catch(enquo(approx.TE), data)
   avail.approx.TE <- !(missing.approx.TE || is.null(approx.TE))
   #
   missing.approx.seTE <- missing(approx.seTE)
-  approx.seTE <- catch("approx.seTE", mc, data, sfsp)
+  approx.seTE <- catch(enquo(approx.seTE), data)
   avail.approx.seTE <- !(missing.approx.seTE || is.null(approx.seTE))
   #
   missing.text.random <- missing(text.random)
-  
-  
+
+
   #
   #
   # (3) Check length of essential variables
   #
   #
-  
+
   arg <- if (avail.TE) "TE" else "median"
   chklength(seTE, k.All, arg)
   chklength(studlab, k.All, arg)
@@ -1428,19 +1551,19 @@ metagen <- function(TE, seTE, studlab,
     chklength(max, k.All, arg)
   if (with.cycles)
     chklength(cycles, k.All, arg)
-  
-  
+
+
   #
   #
   # (4) Subset, exclude studies, and subgroups
   #
   #
-  
+
   if (!missing.subset)
     if ((is.logical(subset) & (sum(subset) > k.All)) ||
         (length(subset) > k.All))
       stop("Length of argument 'subset' is larger than number of studies.")
-  #  
+  #
   if (!missing.exclude) {
     if ((is.logical(exclude) & (sum(exclude) > k.All)) ||
         (length(exclude) > k.All))
@@ -1452,15 +1575,15 @@ metagen <- function(TE, seTE, studlab,
   }
   else
     exclude <- rep(FALSE, k.All)
-  
-  
+
+
   #
   #
   # (5) Store complete dataset in list object data
   #     (if argument keepdata is TRUE)
   #
   #
-  
+
   if (keepdata) {
     if (inherits(data, "meta")) {
       data <- data$data
@@ -1551,14 +1674,14 @@ metagen <- function(TE, seTE, studlab,
     if (!is.null(upper.orig))
       data$.upper.orig <- upper.orig
   }
-  
-  
+
+
   #
   #
   # (6) Use subset for analysis
   #
   #
-  
+
   if (!missing.subset) {
     TE <- TE[subset]
     seTE <- seTE[subset]
@@ -1625,8 +1748,8 @@ metagen <- function(TE, seTE, studlab,
         overall.hetstat <- TRUE
     }
   }
-    
-  
+
+
   #
   # Determine total number of studies
   #
@@ -1656,14 +1779,14 @@ metagen <- function(TE, seTE, studlab,
   #
   chknumeric(TE)
   chknumeric(seTE, 0)
-  
-  
+
+
   #
   #
   # (7) Calculate standard error from other information
   #
   #
-  
+
   if (!with.cycles) {
     if (!avail.approx.seTE) {
       approx.seTE <- rep_len("", length(TE))
@@ -1808,14 +1931,14 @@ metagen <- function(TE, seTE, studlab,
       }
     }
   }
-  
-  
+
+
   #
   #
   # (8) Calculate treatment estimate from other information
   #
   #
-  
+
   if (!with.cycles) {
     if (!avail.approx.TE) {
       approx.TE <- rep_len("", length(TE))
@@ -1963,14 +2086,14 @@ metagen <- function(TE, seTE, studlab,
       }
     }
   }
-  
-  
+
+
   #
   #
   # (9) Check standard errors
   #
   #
-  
+
   TE   <- int2num(TE)
   seTE <- int2num(seTE)
   #
@@ -1980,8 +2103,13 @@ metagen <- function(TE, seTE, studlab,
     seTE[!is.na(seTE) & seTE == 0] <- NA
   }
   #
+  TE[is.nan(TE)] <- NA
+  seTE[is.nan(seTE)] <- NA
+  #
+  sel.noninf <- !is.infinite(TE) & !is.infinite(seTE)
+  exclude.ma <- exclude | !sel.noninf
+  #
   tau2.calc <- NA
-  
   
   #
   #
@@ -1990,14 +2118,13 @@ metagen <- function(TE, seTE, studlab,
   #
   
   three.level <- FALSE
-  sel.ni <- !is.infinite(TE) & !is.infinite(seTE)
   #
   # Only conduct three-level meta-analysis if variable 'cluster'
   # contains duplicate values after removing inestimable study
   # results standard errors
   #
   if (with.cluster &&
-      length(unique(cluster[sel.ni])) != length(cluster[sel.ni]))
+      length(unique(cluster[sel.noninf])) != length(cluster[sel.noninf]))
     three.level <- TRUE
   #
   if (is.null(method.tau.ci))
@@ -2008,7 +2135,7 @@ metagen <- function(TE, seTE, studlab,
     else
       method.tau.ci <- "QP"
   #
-  method.tau.ci <- setchar(method.tau.ci, gs("meth4tau.ci"))
+  method.tau.ci <- setchar(method.tau.ci, gs("meth4tau.ci"), length = 1)
   #
   if (!three.level & method.tau.ci == "PL") {
     if (method.tau == "DL")
@@ -2018,6 +2145,8 @@ metagen <- function(TE, seTE, studlab,
   }
   #
   chklevel(level.hetstat)
+  #
+  CRs <- c("CR0", "CR1", "CR2")
   #
   if (three.level) {
     chkmlm(method.tau, missing.method.tau, method.predict)
@@ -2031,14 +2160,13 @@ metagen <- function(TE, seTE, studlab,
   if (by) {
     chkmiss(subgroup)
     #
-    if (missing.subgroup.name & is.null(subgroup.name)) {
+    if (missing.subgroup.name && is.null(subgroup.name)) {
       if (!missing.subgroup)
-        subgroup.name <- byvarname("subgroup", mc)
+        subgroup.name <- subgroup_name(subgroup.expr)
       else if (!missing.byvar)
-        subgroup.name <- byvarname("byvar", mc)
+        subgroup.name <- subgroup_name(byvar.expr)
     }
   }
-  #
   if (!is.null(subgroup.name))
     chkchar(subgroup.name, length = 1)
   
@@ -2048,7 +2176,7 @@ metagen <- function(TE, seTE, studlab,
   # (11) Additional checks and calculations for n-of-1 trials
   #
   #
-  
+
   if (with.cycles) {
     df.n_of_1 <- cycles - 1
     sd.n_of_1 <-
@@ -2066,20 +2194,19 @@ metagen <- function(TE, seTE, studlab,
     }
   }
   
-  
   #
   #
   # (12) Do meta-analysis
   #
   #
   
-  k <- sum(!is.na(TE[!exclude]) & !is.na(seTE[!exclude]))
+  k <- sum(!is.na(TE[!exclude.ma]) & !is.na(seTE[!exclude.ma]))
   #
   if (three.level) {
-    cluster.incl <- cluster[!exclude]
+    cluster.incl <- cluster[!exclude.ma]
     k.study <-
       length(unique(
-        cluster.incl[!is.na(TE[!exclude]) & !is.na(seTE[!exclude])]))
+        cluster.incl[!is.na(TE[!exclude.ma]) & !is.na(seTE[!exclude.ma])]))
   }
   else
     k.study <- k
@@ -2127,11 +2254,12 @@ metagen <- function(TE, seTE, studlab,
     # method
     if (k == 1) {
       method.random.ci <-
-        ifelse(method.random.ci %in% c("HK", "KR"), "classic",
-               method.random.ci)
+        ifelse(method.random.ci %in% c("HK", "KR", "CR0", "CR1", "CR2"),
+               "classic", method.random.ci)
       #
-      method.predict <- 
-        ifelse(method.predict %in% c("HK", "KR"), "V", method.predict)
+      method.predict <-
+        ifelse(method.predict %in% c("HK", "KR", "CR0", "CR1", "CR2"),
+               "V", method.predict)
       #
       adhoc.hakn.ci <- ""
       adhoc.hakn.pi <- ""
@@ -2139,19 +2267,19 @@ metagen <- function(TE, seTE, studlab,
     #
     # Estimate tau-squared
     #
-    hc <- hetcalc(TE[!exclude], seTE[!exclude],
+    hc <- hetcalc(TE[!exclude.ma], seTE[!exclude.ma],
                   method.tau, method.tau.ci, TE.tau,
                   method.I2, level.hetstat, control = control,
-                  cluster = cluster[!exclude], rho = rho)
+                  cluster = cluster[!exclude.ma], rho = rho)
     #
     # Estimate common tau-squared across subgroups
     #
     if (by & tau.common)
-      hcc <- hetcalc(TE[!exclude], seTE[!exclude],
+      hcc <- hetcalc(TE[!exclude.ma], seTE[!exclude.ma],
                      method.tau, method.tau.ci, TE.tau,
                      method.I2, level.hetstat,
-                     subgroup = subgroup, control = control,
-                     cluster = cluster[!exclude], rho = rho)
+                      subgroup = subgroup[!exclude.ma], control = control,
+                     cluster = cluster[!exclude.ma], rho = rho)
     #
     # Different calculations for three-level models
     #
@@ -2180,7 +2308,7 @@ metagen <- function(TE, seTE, studlab,
         # Classic meta-analysis (Cooper & Hedges, 1994, p. 265-6)
         #
         w.common <- 1 / seTE^2
-        w.common[is.na(w.common) | is.na(TE) | exclude] <- 0
+        w.common[is.na(w.common) | is.na(TE) | exclude.ma] <- 0
         #
         TE.common <- weighted.mean(TE, w.common, na.rm = TRUE)
         #
@@ -2195,7 +2323,7 @@ metagen <- function(TE, seTE, studlab,
           seTE.common <- NA
         #
         ci.c <- ci(TE.common, seTE.common, level = level.ma,
-                   null.effect = null.effect)
+                   null.effect = transf.null.effect)
         statistic.common <- ci.c$statistic
         pval.common <- ci.c$p
         lower.common <- ci.c$lower
@@ -2205,7 +2333,7 @@ metagen <- function(TE, seTE, studlab,
         #
         # Conduct common effect meta-analysis with user-specified weights
         #
-        sel.4 <- !is.na(TE) & !is.na(seTE) & !exclude
+        sel.4 <- !is.na(TE) & !is.na(seTE) & !exclude.ma
         #
         m4.usw.c <-
           runUSW(list(yi = TE[sel.4], sei = seTE[sel.4],
@@ -2215,7 +2343,7 @@ metagen <- function(TE, seTE, studlab,
                  level = level.ma,
                  control = control)
         #
-        res.usw.c <- extrUSW(m4.usw.c, "FE", null.effect)
+        res.usw.c <- extrUSW(m4.usw.c, "FE", transf.null.effect)
         #
         w.common <- res.usw.c$w.common
         TE.common <- res.usw.c$TE.common
@@ -2238,7 +2366,7 @@ metagen <- function(TE, seTE, studlab,
         # Classic meta-analysis (Cooper & Hedges, 1994, p. 265, 274-5)
         #
         w.random <- 1 / (seTE^2 + tau2.calc)
-        w.random[is.na(w.random) | is.na(TE) | exclude] <- 0
+        w.random[is.na(w.random) | is.na(TE) | exclude.ma] <- 0
         #
         TE.random   <- weighted.mean(TE, w.random, na.rm = TRUE)
         seTE.random <- sqrt(1 / sum(w.random, na.rm = TRUE))
@@ -2272,6 +2400,26 @@ metagen <- function(TE, seTE, studlab,
         #
         ci.r <- as.data.frame(ci(1, NA, level = 0.99999))
         #
+        if (any(method.random.ci %in% CRs)) {
+          sel.4 <- !is.na(TE) & !is.na(seTE) & !exclude.ma
+          meth.cr <- method.random.ci[method.random.ci %in% CRs]
+          #
+          m4.uni <-
+            runCRuni(list(yi = TE[sel.4], sei = seTE[sel.4],
+                          data = data.frame(studlab = studlab[sel.4])),
+                     method.tau = method.tau,
+                     method.random.ci = meth.cr,
+                     level = level.ma,
+                     tau2 = tau2.calc,
+                     control = control)
+          #
+          res.uni <-
+            extrCRuni(m4.uni, k, length(TE), sel.4,
+                      meth.cr, method.predict,
+                      level.ma, level.predict)
+          j.cr <- 0
+        }
+        #
         if (length(adhoc.hakn.ci) == 1) {
           adhoc.hakn.ci <- ifelse(method.random.ci == "HK", adhoc.hakn.ci, "")
         }
@@ -2295,7 +2443,7 @@ metagen <- function(TE, seTE, studlab,
         for (i in seq_along(method.random.ci)) {
           if (method.random.ci[i] %in% c("classic", "classic-KR")) {
             ci.r.i <- ci(TE.random, seTE.classic, level = level.ma,
-                         null.effect = null.effect)
+                         null.effect = transf.null.effect)
             #
             seTE.hakn.adhoc.ci[i] <- NA
           }
@@ -2348,11 +2496,25 @@ metagen <- function(TE, seTE, studlab,
             #
             ci.r.i <- ci(TE.random, seTE.hakn.adhoc.ci[i],
                          level = level.ma, df = df.hakn.ci[i],
-                         null.effect = null.effect)
+                         null.effect = transf.null.effect)
           }
           else if (method.random.ci[i] == "KR") {
             ci.r.i <- ci(TE.random, seTE.kero, level = level.ma, df = df.kero,
-                         null.effect = null.effect)
+                         null.effect = transf.null.effect)
+          }
+          else if (method.random.ci[i] %in% CRs) {
+            j.cr <- j.cr + 1
+            ci.r.i <- list(TE = res.uni$TE.random,
+                           seTE = res.uni$seTE.random[j.cr],
+                           lower = res.uni$lower.random[j.cr],
+                           upper = res.uni$upper.random[j.cr],
+                            statistic = if (is.na(transf.null.effect)) NA else
+                              res.uni$statistic.random[j.cr],
+                            p = if (is.na(transf.null.effect)) NA else
+                              res.uni$pval.random[j.cr],
+                           level = level.ma,
+                           df = res.uni$df.random[j.cr],
+                           null.effect = transf.null.effect)
           }
           #
           ci.r <- rbind(ci.r, as.data.frame(ci.r.i))
@@ -2374,15 +2536,17 @@ metagen <- function(TE, seTE, studlab,
                    text.random,
                    ifelse(method.random.ci %in% c("KR", "classic-KR"),
                           paste0(text.random, " (", method.random.ci, ")"),
-                          paste0(text.random, " (HK")))
+                          ifelse(method.random.ci %in% CRs,
+                                 paste0(text.random, " (", method.random.ci, ")"),
+                                 paste0(text.random, " (HK"))))
           text.random <-
             paste0(text.random,
                    ifelse(method.random.ci != "HK",
                           "",
-                          ifelse(adhoc.hakn.ci == "",
-                                 ")",
-                                 paste0("-", toupper(substring(adhoc.hakn.ci, 1, 2)),
-                                        ")"))))
+                           ifelse(adhoc.hakn.ci == "",
+                                  ")",
+                                  paste0("-", toupper(substring(adhoc.hakn.ci, 1, 2)),
+                                         ")"))))
         }
         #
         # Prediction interval
@@ -2458,7 +2622,7 @@ metagen <- function(TE, seTE, studlab,
                        level.predict, df.kero - 1)
           }
           else if (method.predict[i] == "NNF") {
-            res.pima <- pimeta::pima(TE[!exclude], seTE[!exclude],
+            res.pima <- pimeta::pima(TE[!exclude.ma], seTE[!exclude.ma],
                                      method = "boot",
                                      alpha = 1 - level.predict,
                                      seed = seed.predict)
@@ -2503,7 +2667,7 @@ metagen <- function(TE, seTE, studlab,
         #
         # Conduct random effect meta-analysis with user-specified weights
         #
-        sel.4 <- !is.na(TE) & !is.na(seTE) & !exclude
+        sel.4 <- !is.na(TE) & !is.na(seTE) & !exclude.ma
         #
         m4.usw.r <-
           runUSW(list(yi = TE[sel.4], sei = seTE[sel.4],
@@ -2514,7 +2678,7 @@ metagen <- function(TE, seTE, studlab,
                  control = control)
         #
         res.usw.r <-
-          extrUSW(m4.usw.r, method.tau, null.effect,
+          extrUSW(m4.usw.r, method.tau, transf.null.effect,
                   k, length(TE), sel.4,
                   method.random.ci, method.predict,
                   level.ma, level.predict)
@@ -2589,26 +2753,26 @@ metagen <- function(TE, seTE, studlab,
       #
       # Conduct three-level meta-analysis
       #
-      sel.4 <- !is.na(TE) & !is.na(seTE) & !exclude
+      sel.4 <- !is.na(TE) & !is.na(seTE) & !exclude.ma
       #
       list.mlm <- list(yi = TE[sel.4],
                        V = vcalc(vi = seTE[sel.4]^2,
                                  cluster = cluster[sel.4],
                                  obs = idx[sel.4], rho = rho))
-             
       #
       m4 <- runMLM(c(list.mlm,
-                     list(data = data.frame(cluster = cluster[sel.4],
-                                            idx = idx[sel.4]))),
-                   method.tau = method.tau,
-                   method.random.ci = method.random.ci,
-                   level = level.ma,
-                   control = control)
+                      list(data = data.frame(cluster = cluster[sel.4],
+                                             idx = idx[sel.4]))),
+                    method.tau = method.tau,
+                    method.random.ci = method.random.ci,
+                    level = level.ma,
+                    control = control)
+      seTE.classic <- m4[[1]]$se
       #
       res.mlm <-
         extrMLM(m4, k, length(TE), sel.4,
                 method.random.ci, method.predict,
-                level.ma, level.predict, null.effect)
+                level.ma, level.predict, transf.null.effect)
       #
       w.random <- res.mlm$w.random
       tau2.calc <- sum(res.mlm$tau2)
@@ -2617,23 +2781,28 @@ metagen <- function(TE, seTE, studlab,
       #
       TE.random <- res.mlm$TE.random
       seTE.random <- res.mlm$seTE.random
+      #
       lower.random <- res.mlm$lower.random
       upper.random <- res.mlm$upper.random
+      #
       statistic.random <- res.mlm$statistic.random
+      df.random <- res.mlm$df.random
+      df.hakn <- res.mlm$df.hakn
       pval.random <- res.mlm$pval.random
-      #
-      seTE.classic <- m4[[1]]$se
-      #
-      df.random <- df.hakn <- ifelse(method.random.ci == "HK", k - 1, NA)
       #
       if (missing(text.random) ||
           (length(text.random) == 1 & length(method.random.ci) > 1))
         text.random <-
-          ifelse(method.random.ci == "classic",
-                 text.random,
-          ifelse(method.random.ci == "HK",
-                 paste0(text.random, " (T)"),
-                 ""))
+          if (length(method.random.ci) == 1)
+            text.random
+          else
+            ifelse(method.random.ci == "classic",
+                   text.random,
+                   ifelse(method.random.ci == "HK",
+                          paste0(text.random, " (T)"),
+                          ifelse(method.random.ci %in% CRs,
+                                 paste0(text.random,
+                                        " (", method.random.ci, ")"), "")))
       #
       # Prediction interval
       #
@@ -2655,21 +2824,20 @@ metagen <- function(TE, seTE, studlab,
       text.predict <- paste0(text.predict, " (", method.predict)
       text.predict <-
         paste0(text.predict,
-               ifelse(method.predict != "HK",
-                      ")",
-               ifelse(adhoc.hakn.pi == "",
-                      ")",
-                      paste0("-", toupper(adhoc.hakn.pi), ")"))))
+               ifelse(method.predict != "HK", ")",
+                      ifelse(adhoc.hakn.pi == "",
+                             ")",
+                             paste0("-", toupper(adhoc.hakn.pi), ")"))))
     }
   }
-  
-  
+
+
   #
   #
   # (13) Heterogeneity measures
   #
   #
-  
+
   #
   # Calculate Rb (but not for three-level model)
   #
@@ -2678,8 +2846,8 @@ metagen <- function(TE, seTE, studlab,
                 tau2.calc, hc$Q, hc$df.Q, level.ma)
   else
     Rbres <- list(TE = NA, lower = NA, upper = NA)
-  
-  
+
+
   #
   #
   # (14) Generate R object
@@ -2689,7 +2857,7 @@ metagen <- function(TE, seTE, studlab,
     if (k != k.study)
       detail.tau <- c("between cluster", "within cluster")
     else
-      detail.tau <- ""
+      detail.tau <- NULL
   }
   #
   ci.study <- ci(TE, seTE, level = level,
@@ -2698,14 +2866,64 @@ metagen <- function(TE, seTE, studlab,
                      df
                    else
                      NULL,
-                 null.effect = null.effect)
+                 null.effect = transf.null.effect)
   #
   # Keep original confidence limits
   #
+  if (warn && avail.TE && avail.lower && avail.upper) {
+    ci.width <- upper - lower
+    ci.midpoint.diff <- abs((upper + lower) / 2 - TE) / ci.width
+    sel.asymmetric <- !is.na(ci.midpoint.diff) & ci.width > 0 &
+      ci.midpoint.diff > 0.1
+    #
+    if (any(sel.asymmetric)) {
+      studlab.asymmetric <- unique(studlab[sel.asymmetric])
+      #
+      warning("In the following stud",
+              if (length(studlab.asymmetric) == 1) "y" else "ies",
+              ", the treatment estimate is not halfway between ",
+              "the confidence limits: ",
+              paste0("'", studlab.asymmetric, "'", collapse = ", "),
+              call. = FALSE)
+    }
+  }
+  #
+  level.study <- rep_len(level, length(TE))
+  level.ci.study <- if (is.null(level.ci)) level.study else level.ci
+  #
+  known.level <- !is.na(level.ci.study) & !is.na(level.study)
+  same.level <- known.level & is_zero(level.ci.study - level.study)
+  different.level <- known.level & !same.level
+  #
+  sel.recalc <- rep(FALSE, length(TE))
   if (avail.lower)
-    ci.study$lower[!is.na(lower)] <- lower[!is.na(lower)]
+    sel.recalc <- sel.recalc | (!is.na(lower) & different.level)
   if (avail.upper)
-    ci.study$upper[!is.na(upper)] <- upper[!is.na(upper)]
+    sel.recalc <- sel.recalc | (!is.na(upper) & different.level)
+  #
+  if (any(sel.recalc)) {
+    ci.study.z <- ci(TE, seTE, level = level, null.effect = transf.null.effect)
+    ci.study$lower[sel.recalc] <- ci.study.z$lower[sel.recalc]
+    ci.study$upper[sel.recalc] <- ci.study.z$upper[sel.recalc]
+    #
+    studlab.recalc <- studlab[sel.recalc]
+    #
+    if (warn)
+      warning("In the following stud",
+              if (length(studlab.recalc) == 1) "y" else "ies",
+              ", the confidence limits are recalculated ",
+              "using a normal approximation because arguments ",
+              "'level' and 'level.ci' differ: ",
+              paste0("'", studlab.recalc, "'", collapse = ", "),
+              call. = FALSE)
+  }
+  #
+  if (avail.lower)
+    ci.study$lower[!is.na(lower) & same.level] <-
+      lower[!is.na(lower) & same.level]
+  if (avail.upper)
+    ci.study$upper[!is.na(upper) & same.level] <-
+      upper[!is.na(upper) & same.level]
   #
   if (length(lower.random) > 1) {
     methci <- paste(method.random.ci,
@@ -2749,7 +2967,7 @@ metagen <- function(TE, seTE, studlab,
   res <- list(studlab = studlab,
               #
               sm = sm,
-              null.effect = null.effect,
+              null.effect = transf.null.effect,
               #
               TE = TE, seTE = seTE,
               statistic = ci.study$statistic,
@@ -2880,7 +3098,7 @@ metagen <- function(TE, seTE, studlab,
               n.c = n.c,
               pscale = pscale,
               irscale = irscale, irunit = irunit,
-              method.ci = method.ci,              
+              method.ci = method.ci,
               method.mean = method.mean,
               approx.TE = if (all(approx.TE == "")) NULL else approx.TE,
               approx.seTE = if (all(approx.seTE == "")) NULL else approx.seTE,
@@ -2896,12 +3114,7 @@ metagen <- function(TE, seTE, studlab,
               tau2.calc = tau2.calc,
               rma.usw.c = if (usw.common & keeprma) m4.usw.c else NULL,
               rma.usw.r = if (usw.random & keeprma) m4.usw.r else NULL,
-              rma.three.level = if (three.level & keeprma) m4 else NULL,
-              # Deprecated list elements
-              zval = ci.study$statistic,
-              hakn = any(method.random.ci == "HK"),
-              zval.common = statistic.common,
-              zval.random = statistic.random
+              rma.three.level = if (three.level & keeprma) m4 else NULL
               )
   #
   if (is.pairwise | data.pairwise) {
@@ -2991,12 +3204,11 @@ metagen <- function(TE, seTE, studlab,
     ifelse(is.na(res$lower.predict) & is.na(res$upper.predict),
            "", res$adhoc.hakn.pi)
   #
-  # Backward compatibility
+  # Backward compatibility (still required by R package metaumbrella)
   #
   res <- backward(res)
   #
   class(res) <- c(fun, "meta")
-  
   
   res
 }

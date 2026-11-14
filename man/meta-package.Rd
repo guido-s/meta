@@ -9,7 +9,7 @@
 R package \bold{meta} is a user-friendly general package providing
 standard methods for meta-analysis and supporting Schwarzer et
 al. (2015),
-\url{https://link.springer.com/book/10.1007/978-3-319-21416-0}.
+\url{https://link.springer.com/book/10.1007/978-3-319-21416-0}:
 }
 \details{
 R package \bold{meta} (Schwarzer, 2007; Balduzzi et al., 2019)
@@ -39,7 +39,7 @@ provides the following statistical methods for meta-analysis.
   (\code{\link{bubble.metareg}})
 }
 \item Three-level meta-analysis model (Van den Noortgate et al.,
-  2013)
+  2013),
 \item Generalised linear mixed models (GLMMs) for binary and count
   data (Stijnen et al., 2010) (\code{\link{metabin}},
   \code{\link{metainc}}, \code{\link{metaprop}}, and
@@ -48,22 +48,24 @@ provides the following statistical methods for meta-analysis.
   (Evrenoglou et al., 2022) (\code{\link{metabin}},
 \item Various estimators for the between-study variance
  \eqn{\tau^2} in a random effects model (Veroniki et al., 2016);
- see description of argument \code{method.tau} below
+ see description of argument \code{method.tau}
 \item Two methods to estimate the I-squared statistic
   (Higgins and Thompson, 2002); see description of argument
-  \code{method.I2} below
+  \code{method.I2}
 \item Hartung-Knapp method for random effects meta-analysis
- (Hartung & Knapp, 2001a,b), see description of arguments
- \code{method.random.ci} and \code{adhoc.hakn.ci} below
+ (Hartung & Knapp, 2001a,b); see description of arguments
+ \code{method.random.ci} and \code{adhoc.hakn.ci}
 \item Kenward-Roger method for random effects meta-analysis
- (Partlett and Riley, 2017), see description of arguments
- \code{method.random.ci} and \code{method.predict} below
-\item Inverse variance heterogeneity method (Doi et al., 2015),
- see description of argument \code{method.common.ci} below
+ (Partlett and Riley, 2017); see description of arguments
+ \code{method.random.ci} and \code{method.predict}
+\item Inverse variance heterogeneity method (Doi et al., 2015);
+ see description of argument \code{method.common.ci}
+\item Cluster-robust variance estimators for univariate random effects
+  and three-level models (Tipton and Pustejovsky, 2015; Pustejovsky and Tipton, 2022); see description of
+  argument \code{method.random.ci}
 \item Prediction interval for the treatment effect of a new study
  (Veroniki et al., 2019; Higgins et al., 2009; Partlett and Riley, 2017;
- Nagashima et al., 2019), see description of argument \code{method.predict}
- below
+ Nagashima et al., 2019); see description of argument \code{method.predict}
 \item Expected proportion of comparable studies with clinically important
  benefit or harm derived from the prediction distribution
  (Siemens et al., 2025)
@@ -75,7 +77,7 @@ provides the following statistical methods for meta-analysis.
 \item Cumulative meta-analysis (\code{\link{metacum}}) and
   leave-one-out meta-analysis (\code{\link{metainf}})
 \item Import data from RevMan Web (\code{\link{read.cdir}}), RevMan
-  5 (\code{\link{read.rm5}}), see also \code{\link{metacr}} to
+  5 (\code{\link{read.rm5}}); see also \code{\link{metacr}} to
   conduct meta-analysis for a single comparison and outcome from a
   Cochrane review
 }
@@ -193,7 +195,8 @@ to calculate a confidence interval for the common effect estimate.
 \code{method.common.ci = "classic"} \tab Based on standard normal
   quantile \cr
 \code{method.common.ci = "IVhet"} \tab Method by Doi et al. (2015) going
-  back to Henmi and Copas (2010) \cr
+  back to \cr
+\tab Henmi and Copas (2010)
 }
 
 The inverse variance heterogeneity method (IVhet) uses the weights under the
@@ -213,7 +216,16 @@ to calculate a confidence interval for the random effects estimate.
 \code{method.random.ci = "HK"} \tab Method by Hartung and Knapp
   (2001a/b) \cr
 \code{method.random.ci = "KR"} \tab Kenward-Roger method (Partlett and
-  Riley, 2017)
+  Riley, 2017) \cr
+\code{method.random.ci = "CR0"} \tab Original cluster-robust (sandwich)
+  covariance \cr
+  \tab estimator (Tipton and Pustejovsky, 2015; Pustejovsky and Tipton, 2022) \cr
+\code{method.random.ci = "CR1"} \tab Bias-adjusted version of CR0 \cr
+  \tab (Tipton and Pustejovsky, 2015; Pustejovsky and Tipton, 2022) \cr
+\code{method.random.ci = "CR2"} \tab Cluster-robust covariance estimator
+  with \cr
+  \tab Satterthwaite degrees of freedom \cr
+  \tab (Tipton and Pustejovsky, 2015; Pustejovsky and Tipton, 2022)
 }
 
 DerSimonian and Laird (1986) introduced the classic random effects
@@ -285,6 +297,22 @@ hoc} correction for the Hartung-Knapp (HK) method:
 
 For GLMMs and three-level models, the \emph{ad hoc} variance
 corrections are not available.
+
+The cluster-robust variance estimators are calculated by internally calling
+the \code{\link[metafor]{robust}} function from R package \bold{metafor}:
+\tabular{ll}{
+\bold{Argument} \tab \bold{Arguments in \code{\link[metafor]{robust}}} \cr
+\code{method.random.ci = "CR0"} \tab \code{adjust = FALSE} and
+  \code{clubSandwich = FALSE} \cr
+\code{method.random.ci = "CR1"} \tab \code{adjust = TRUE} and
+  \code{clubSandwich = FALSE} \cr
+\code{method.random.ci = "CR2"} \tab \code{clubSandwich = TRUE}
+}
+The cluster-robust variance estimator with Satterthwaite degrees of freedom
+(\code{method.random.ci = "CR2"}) is only available if R package
+\bold{clubSandwich} is installed.
+In a univariate random effects meta-analysis, study labels are used as
+clusters.
 }
 
 \subsection{Prediction interval}{
@@ -491,6 +519,12 @@ R package \bold{meta} imports R functions from \bold{metafor}
 \item estimate generalised linear mixed models.
 }
 
+Since version 9.0-0, OpenCode and ChatGPT have been used to assist with
+code development, refactoring, test development, and documentation in
+\bold{meta}. All resulting contributions have been reviewed and, where
+appropriate, modified and tested by the package maintainer, who takes
+responsibility for the package contents.
+
 To report problems and bugs
 \itemize{
 \item type \code{bug.report(package = "meta")} if you do not use
@@ -604,6 +638,18 @@ random-effects meta-analyses.
 \emph{Research Synthesis Methods},
 \bold{10}, 83--98
 
+Nagashima K, Noma H, Furukawa TA (2019):
+Prediction intervals for random-effects meta-analysis: A confidence
+distribution approach.
+\emph{Statistical Methods in Medical Research},
+\bold{28}, 1689--702
+
+Pustejovsky JE, Tipton E (2022):
+Meta-Analysis with robust variance estimation: Expanding the range of
+working models.
+\emph{Prevention Science},
+\bold{23}, 425--38
+
 Schwarzer G (2007):
 meta: An R package for meta-analysis.
 \emph{R News},
@@ -631,6 +677,12 @@ the generalized linear mixed model with applications in sparse
 data.
 \emph{Statistics in Medicine},
 \bold{29}, 3046--67
+
+Tipton E, Pustejovsky JE (2015):
+Small-sample adjustments for tests of moderators and model fit using
+robust variance estimation in meta-regression.
+\emph{Journal of Educational and Behavioral Statistics},
+\bold{40}, 604--34
 
 Veroniki AA, Jackson D, Viechtbauer W, Bender R, Bowden J, Knapp G,
 et al. (2016):

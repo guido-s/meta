@@ -64,12 +64,15 @@
 #' @param backtransf A logical indicating whether results should be
 #'   back transformed on the x-axis. For example, if \code{backtransf
 #'   = FALSE}, log odds ratios instead of odds ratios are shown on the
-#'   x-axis.
-#' @param xlab A label for the x-axis.
-#' @param ylab A label for the y-axis.
+#'   x-axis. For transformed proportions, rates, means, and correlations,
+#'   drapery plots are drawn on the analysis scale with back-transformed tick
+#'   marks on the x-axis.
 #' @param xlim The x limits (min, max) of the plot.
 #' @param ylim The y limits (min, max) of the plot (ignored if
 #'   \code{type = "pvalue"}).
+#' @param xlab A label for the x-axis.
+#' @param ylab A label for the y-axis.
+#' @param ylab.right A label for the right y-axis.
 #' @param lwd.max The maximum line width (only considered if argument
 #'   \code{layout} is equal to \code{"linewidth"}).
 #' @param lwd.study.weight A character string indicating whether to
@@ -77,6 +80,8 @@
 #'   common effect (\code{"common"}) or random effects model
 #'   (\code{"random"}), can be abbreviated (only considered if
 #'   argument \code{layout} is equal to \code{"linewidth"}).
+#' @param axes A logical indicating whether axes should be drawn on
+#'   the plot.
 #' @param at Points at which tick-marks are to be drawn on the x-axis.
 #' @param n.grid The number of grid points to calculate the p-value or
 #'   test statistic functions.
@@ -221,10 +226,11 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
                     bg = "white", bty = "o",
                     #
                     backtransf = x$backtransf,
-                    xlab, ylab,
-                    xlim, ylim,
+                    xlim = NULL, ylim = NULL, xlab = NULL, ylab = NULL,
+                    ylab.right = NULL,
                     lwd.max = 2.5,
                     lwd.study.weight = if (random) "random" else "common",
+                    axes = TRUE,
                     at = NULL,
                     n.grid = if (type == "zvalue") 10000 else 1000,
                     mar = c(5.1, 4.1, 4.1, 4.1),
@@ -235,10 +241,8 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
                     #
                     ...) {
   
-  
   pvf <- function(x, TE, seTE)
     2 * pnorm(abs(TE - x) / seTE, lower.tail = FALSE)
-  
   
   if (plot) {
     oldpar <- par(mar = mar)
@@ -251,6 +255,7 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
   # (1) Check and set arguments
   #
   #
+  
   chkclass(x, "meta")
   x <- updateversion(x)
   #
@@ -262,9 +267,10 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
   #
   types <- c("zvalue", "pvalue", "surprisal")
   type <- setchar(type, types)
-  layout <- setchar(layout, c("grayscale", "linewidth", "equal"))
+  layout <- setchar(layout, c("grayscale", "linewidth", "equal"), length = 1)
   #
   chklogical(study.results)
+  chklogical(axes)
   #
   # Argument lty.study
   #
@@ -407,14 +413,24 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
   bty <- setchar(bty, c("o", "n"))
   chklogical(backtransf)
   #
-  if (missing(xlab)) {
-    xlab <- ""
-    xlab <- xlab_meta(x$sm, backtransf = backtransf)
+  sm <- x$sm
+  #
+  if (is.null(xlab)) {
+    xlab <- xlab_meta(sm, backtransf = backtransf)
+    #
+    if (xlab == "") {
+      if (sm == "PRAW" | (backtransf & is_prop(sm)))
+        xlab <- "Proportion"
+      else if (sm == "IR" | (backtransf & is_rate(sm)))
+        xlab <- "Incidence Rate"
+      else if (sm == "MRAW" | (backtransf & is_mean(sm)))
+        xlab <- "Mean"
+    }
   }
   else
     chkchar(xlab, length = 1)
   #
-  if (missing(ylab))
+  if (is.null(ylab))
     ylab <- c("Test statistic",
               "P-value",
               "Binary S-value / surprisal")[charmatch(type, types)]
@@ -440,7 +456,8 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
   # (2) Set variables for plotting
   #
   #
-  if (missing(ylim))
+  
+  if (is.null(ylim))
     ylim <-
       if (type == "pvalue") c(0, 1)
       else if (type == "zvalue") c(qnorm(0.0005), 0)
@@ -451,22 +468,39 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
       ylim <- c(0, 1)
     }
   #
-  x.backtransf <- is_relative_effect(x$sm) & backtransf
-  #
-  missing.xlim <- missing(xlim)
+  x.backtransf <- is_relative_effect(sm) & backtransf
+  VE.backtransf <- sm == "VE" & backtransf
+  axis.only.backtransf <-
+    backtransf && sm %in% c("ZCOR",
+                            "PLOGIT", "PLN", "PAS", "PFT",
+                            "IRLN", "IRS", "IRFT",
+                            "MLN")
+  missing.xlim <- is.null(xlim)
   #
   if (missing.xlim) {
-    mn <- min(x$lower, na.rm = TRUE)
-    mx <- max(x$upper, na.rm = TRUE)
+    if (!VE.backtransf) {
+      mn <- min(x$lower, na.rm = TRUE)
+      mx <- max(x$upper, na.rm = TRUE)
+    }
+    else {
+      mn <- max(x$upper, na.rm = TRUE)
+      mx <- min(x$lower, na.rm = TRUE)
+    }
     #
     xlim <- c(mn, mx)
   }
   else {
+    chknumeric(xlim, length = 2)
+    #
     if (x.backtransf)
       xlim <- log(xlim)
+    else if (VE.backtransf)
+      xlim <- VE2logVR(xlim)
+    else if (axis.only.backtransf)
+      xlim <- transf_xvals(xlim, sm, x)
     #
-    mn <- min(xlim)
-    mx <- max(xlim)
+    mn <- xlim[1]
+    mx <- xlim[2]
   }
   #
   grid <- c(seq(mn, mx, length.out = n.grid), x$TE, x$TE.common, x$TE.random)
@@ -488,6 +522,17 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
     x.grid <- exp(grid)
     xlim <- exp(xlim)
     null.effect <- exp(x$null.effect)
+  }
+  else if (VE.backtransf) {
+    mn <- logVR2VE(mn)
+    mx <- logVR2VE(mx)
+    x.grid <- logVR2VE(grid)
+    xlim <- logVR2VE(xlim)
+    null.effect <- logVR2VE(x$null.effect)
+  }
+  else if (axis.only.backtransf) {
+    x.grid <- grid
+    null.effect <- transf_xvals(x$null.effect, sm, x)
   }
   else {
     x.grid <- grid
@@ -579,47 +624,35 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
   # (3) Generate drapery plot
   #
   #
+  
   if (plot) {
-    plot(x.grid, y.common,
-         xlab = xlab, ylab = ylab, xlim = xlim, ylim = ylim,
-         type = "n", las = 1, if (x.backtransf) log = "x" else log = "",
-         axes = FALSE, ...)
-    axis(1, at = at)
-    axis(2)
-    box()
+    args <- list(...)
+    args$x <- x.grid
+    args$y <- y.common
+    args$xlab <- xlab
+    args$ylab <- ylab
+    args$xlim <- xlim
+    args$ylim <- ylim
+    args$type <- "n"
+    args$las <- 1
+    args$log <- if (x.backtransf) "x" else ""
+    args$axes <- FALSE
+    #
+    do.call("plot", args)
+    #
+    if (axes)
+      axes_ticks1(xlim, sm, x, at, VE.backtransf, axis.only.backtransf)
     #
     # Add prediction region
     #
     if (prediction) {
-      polygon(x.grid[sel.predict], y.predict[sel.predict],
+      x.predict <- x.grid[sel.predict]
+      #
+      polygon(c(x.predict[1], x.predict, x.predict[length(x.predict)]),
+              c(if (type != "surprisal") ylim[1] else ylim[2],
+                y.predict[sel.predict],
+                if (type != "surprisal") ylim[1] else ylim[2]),
               col = col.predict, border = NA)
-      #
-      if (type != "surprisal")
-        polygon(c(min(x.grid[sel.predict]),
-                  max(x.grid[sel.predict]),
-                  max(x.grid[sel.predict])),
-                c(min(y.predict[sel.predict]),
-                  min(y.predict[sel.predict]),
-                  tail(y.predict[sel.predict], n = 1)),
-                col = col.predict, border = NA)
-      else
-        polygon(c(max(x.grid[sel.predict]),
-                  min(x.grid[sel.predict]),
-                  min(x.grid[sel.predict])),
-                c(max(y.predict[sel.predict]),
-                  max(y.predict[sel.predict]),
-                  head(y.predict[sel.predict], n = 1)),
-                col = col.predict, border = NA)
-      #
-      if (all(y.predict > min(ylim)) & type != "surprisal") {
-        x.min <- min(x.grid)
-        x.max <- max(x.grid)
-        y.min <- min(ylim)
-        y.max <- min(y.predict)
-        polygon(c(x.min, x.min, x.max, x.max),
-                c(y.min, y.max, y.max, y.min),
-                col = col.predict, border = NA)
-      }
     }
     #
     # Add studies
@@ -627,10 +660,12 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
     if (study.results) {
       for (i in k.all:1) {
         y.i <- pvf(grid, TE[i], seTE[i])
+        #
         if (type == "zvalue")
           y.i <- qnorm(y.i / 2)
         else if (type == "surprisal")
           y.i <- -log(y.i, base = 2)
+        #
         sel.i <- y.i >= min(ylim)
         lines(x.grid[sel.i], y.i[sel.i],
               lty = lty.study[i], lwd = lwd.study[i], col = col.study[i])
@@ -665,7 +700,9 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
             else
               adj.i <- if (srt.labels[i] > 0) c(1, y.adj) else c(0, y.adj)
             #
-            text(if (x.backtransf) exp(TE[i]) else TE[i],
+            text(if (x.backtransf) exp(TE[i])
+                 else if (VE.backtransf) logVR2VE(TE[i])
+                 else TE[i],
                  yval,
                  labels = if (labels == "id") seq.TE[i] else studlab[i],
                  col = col.labels[i], cex = cex.labels[i],
@@ -710,7 +747,7 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
     if (type != "surprisal")
       for (i in seq(along = y.alpha))
         text(mx, y.alpha[i] + (ylim[2] - ylim[1]) / 200,
-             paste0(100 * (1 - alpha[i]), "% CI"),
+             percent_label(1 - alpha[i]),
              cex = cex.alpha, col = col.alpha, adj = c(1, 0))
     #
     # Add legend
@@ -730,29 +767,36 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
     #
     # Add y-axis on right side
     #
-    if (type == "pvalue") {
-      par(new = TRUE)
-      plot(x.grid, y.common,
-           xlab = xlab, ylab = ylab,
-           xlim = xlim, ylim = rev(ylim),
-           type = "n", las = 1, if (x.backtransf) log = "x" else log = "",
-           axes = FALSE,
-           ...)
-      axis(4, las = 1)
-    }
-    else if (type == "zvalue") {
-      axis(4, las = 1,
-           at = qnorm(c(0.001, 0.01, 0.05) / 2),
-           labels = 1 - c(0.001, 0.01, 0.05))
-      axis(4, las = 1,
-           at = qnorm(seq(0.2, 1, by = 0.2) / 2),
-           labels = format(seq(0.8, 0, by = -0.2)))
+    if (axes) {
+      if (type == "pvalue") {
+        par(new = TRUE)
+        plot(x.grid, y.common,
+             xlab = xlab, ylab = ylab,
+             xlim = xlim, ylim = rev(ylim),
+             type = "n", las = 1, if (x.backtransf) log = "x" else log = "",
+             axes = FALSE,
+             ...)
+        axis(4, las = 1)
+      }
+      else if (type == "zvalue") {
+        axis(4, las = 1,
+             at = qnorm(c(0.001, 0.01, 0.05) / 2),
+             labels = 1 - c(0.001, 0.01, 0.05))
+        axis(4, las = 1,
+             at = qnorm(seq(0.2, 1, by = 0.2) / 2),
+             labels = format(seq(0.8, 0, by = -0.2)))
+      }
     }
     #
-    if (type %in% c("pvalue", "zvalue"))
-      mtext("Confidence level", 4, line = 3)
+    if (type %in% c("pvalue", "zvalue")) {
+      if (is.null(ylab.right)) {
+        ylab.right <- "Confidence level"
+        #
+        chkchar(ylab.right, length = 1)
+      }
+      mtext(ylab.right, 4, line = 3)
+    }
   }
-  
   
   if (study.results) {
     res <- data.frame(ID = seq.TE, studlab = studlab,
@@ -770,7 +814,6 @@ drapery <- function(x, type = "zvalue", layout = "grayscale",
   }
   else
     res <- NULL
-  
   
   invisible(res)
 }

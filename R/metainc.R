@@ -1,5 +1,5 @@
 #' Meta-analysis of incidence rates
-#' 
+#'
 #' @description
 #' Calculation of common effect and random effects estimates (incidence
 #' rate ratio or incidence rate difference) for meta-analyses with
@@ -8,7 +8,7 @@
 #' pooling. For GLMMs, the \code{\link[metafor]{rma.glmm}} function
 #' from R package \bold{metafor} (Viechtbauer 2010) is called
 #' internally.
-#' 
+#'
 #' @param event.e Number of events in experimental group or an R object
 #'   created with \code{\link{pairwise}}.
 #' @param time.e Person time at risk in experimental group.
@@ -87,8 +87,8 @@
 #' @param method.common.ci A character string indicating which method
 #'   is used to calculate confidence interval and test statistic for
 #'   common effect estimate (see \code{\link{meta-package}}).
-#' @param method.random.ci A character string indicating which method
-#'   is used to calculate confidence interval and test statistic for
+#' @param method.random.ci A character string or vector indicating which methods
+#'   are used to calculate confidence intervals and test statistics for the
 #'   random effects estimate (see \code{\link{meta-package}}).
 #' @param adhoc.hakn.ci A character string indicating whether an
 #'   \emph{ad hoc} variance correction should be applied in the case
@@ -178,11 +178,11 @@
 #' @param \dots Additional arguments passed on to
 #'   \code{\link[metafor]{rma.glmm}} function and to catch deprecated
 #'   arguments.
-#' 
+#'
 #' @details
 #' Calculation of common and random effects estimates for meta-analyses
 #' comparing two incidence rates.
-#' 
+#'
 #' The following measures of treatment effect are available:
 #' \itemize{
 #' \item Incidence Rate Ratio (\code{sm = "IRR"})
@@ -196,24 +196,32 @@
 #' (logVR) are mathematical identical, however, back-transformed
 #' results differ as vaccine efficacy or effectiveness is defined as
 #' \code{VE = 100 * (1 - IRR)}.
-#' 
+#'
 #' A three-level random effects meta-analysis model (Van den Noortgate
 #' et al., 2013) is utilised if argument \code{cluster} is used and at
 #' least one cluster provides more than one estimate. Internally,
 #' \code{\link[metafor]{rma.mv}} is called to conduct the analysis and
 #' \code{\link[metafor]{weights.rma.mv}} with argument \code{type =
 #' "rowsum"} is used to calculate random effects weights.
-#' 
+#'
+#' Cluster-robust variance estimators (Tipton and Pustejovsky, 2015;
+#' Pustejovsky and Tipton, 2022) are available for univariate random effects
+#' and three-level models (argument \code{method.random.ci} equal to
+#' \code{"CR0"}, \code{"CR1"}, or \code{"CR2"}). Internally,
+#' \code{\link[metafor]{rma.uni}} or \code{\link[metafor]{rma.mv}} is called
+#' and then passed to \code{\link[metafor]{robust}}. For univariate random
+#' effects models, study labels (argument \code{studlab}) are used as clusters.
+#'
 #' Default settings are utilised for several arguments (assignments
 #' using \code{\link{gs}} function). These defaults can be changed for
 #' the current R session using the \code{\link{settings.meta}}
 #' function.
-#' 
+#'
 #' Furthermore, R function \code{\link{update.meta}} can be used to
 #' rerun a meta-analysis with different settings.
-#' 
+#'
 #' \subsection{Meta-analysis method}{
-#' 
+#'
 #' By default, both common effect and random effects models are
 #' considered (see arguments \code{common} and \code{random}). If
 #' \code{method} is \code{"MH"} (default), the Mantel-Haenszel method
@@ -223,7 +231,7 @@
 #' \code{"Cochran"}, the Cochran method is used for pooling
 #' (Bayne-Jones, 1964, Chapter 8). For these three methods, the random
 #' effects estimate is always based on the inverse variance method.
-#' 
+#'
 #' A distinctive and frequently overlooked advantage of incidence
 #' rates is that individual patient data (IPD) can be extracted from
 #' count data. Accordingly, statistical methods for IPD, i.e.,
@@ -262,7 +270,7 @@
 #' common effect model (with fixed treatment effect) and random effects
 #' model (with random treatment effects).
 #' }
-#' 
+#'
 #' \subsection{Continuity correction}{
 #'
 #' Four approaches are available to apply a continuity correction:
@@ -287,15 +295,15 @@
 #' number of events is zero in all studies either in the experimental
 #' or control group.
 #' }
-#' 
+#'
 #' \subsection{Subgroup analysis}{
-#' 
+#'
 #' Argument \code{subgroup} can be used to conduct subgroup analysis for
 #' a categorical covariate. The \code{\link{metareg}} function can be
 #' used instead for more than one categorical covariate or continuous
 #' covariates.
 #' }
-#' 
+#'
 #' \subsection{Exclusion of studies from meta-analysis}{
 #'
 #' Arguments \code{subset} and \code{exclude} can be used to exclude
@@ -305,9 +313,9 @@
 #' \code{exclude} (see Examples in \code{\link{metagen}}).
 #' Meta-analysis results are the same for both arguments.
 #' }
-#' 
+#'
 #' \subsection{Presentation of meta-analysis results}{
-#' 
+#'
 #' Internally, both common effect and random effects models are
 #' calculated regardless of values choosen for arguments
 #' \code{common} and \code{random}. Accordingly, the estimate
@@ -322,28 +330,34 @@
 #' A prediction interval will only be shown if \code{prediction =
 #' TRUE}.
 #' }
-#' 
+#'
 #' @return
 #' An object of class \code{c("metainc", "meta")} with corresponding
 #' generic functions (see \code{\link{meta-object}}).
-#' 
+#'
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
-#' 
+#'
 #' @seealso \code{\link{meta-package}}, \code{\link{metabin}},
 #'   \code{\link{update.meta}}, \code{\link{print.meta}}
-#' 
+#'
 #' @references
 #' Bayne-Jones S et al. (1964):
 #' Smoking and Health: Report of the Advisory Committee to the Surgeon
 #' General of the United States.
 #' U-23 Department of Health, Education, and Welfare.
 #' Public Health Service Publication No. 1103.
-#' 
+#'
 #' Greenland S & Robins JM (1985):
 #' Estimation of a common effect parameter from sparse follow-up data.
 #' \emph{Biometrics},
 #' \bold{41}, 55--68
-#' 
+#'
+#' Pustejovsky JE, Tipton E (2022):
+#' Meta-Analysis with robust variance estimation: Expanding the range of
+#' working models.
+#' \emph{Prevention Science},
+#' \bold{23}, 425--38
+#'
 #' Stijnen T, Hamza TH, Ozdemir P (2010):
 #' Random effects meta-analysis of event outcome in the framework of
 #' the generalized linear mixed model with applications in sparse
@@ -351,30 +365,36 @@
 #' \emph{Statistics in Medicine},
 #' \bold{29}, 3046--67
 #'
+#' Tipton E, Pustejovsky JE (2015):
+#' Small-sample adjustments for tests of moderators and model fit using
+#' robust variance estimation in meta-regression.
+#' \emph{Journal of Educational and Behavioral Statistics},
+#' \bold{40}, 604--34
+#'
 #' Van den Noortgate W, López-López JA, Marín-Martínez F, Sánchez-Meca J (2013):
 #' Three-level meta-analysis of dependent effect sizes.
 #' \emph{Behavior Research Methods},
 #' \bold{45}, 576--94
-#' 
+#'
 #' Viechtbauer W (2010):
 #' Conducting Meta-Analyses in R with the Metafor Package.
 #' \emph{Journal of Statistical Software},
 #' \bold{36}, 1--48
-#' 
+#'
 #' @examples
 #' data(smoking)
 #' ma1 <- metainc(d.smokers, py.smokers, d.nonsmokers, py.nonsmokers,
 #'   data = smoking, studlab = study)
 #' print(ma1, digits = 2)
-#' 
+#'
 #' ma2 <- update(ma1, method = "Cochran")
 #' print(ma2, digits = 2)
-#' 
+#'
 #' data(lungcancer)
 #' ma3 <- metainc(d.smokers, py.smokers, d.nonsmokers, py.nonsmokers,
 #'   data = lungcancer, studlab = study)
 #' print(ma3, digits = 2)
-#' 
+#'
 #' # Redo Cochran meta-analysis with inflated standard errors
 #' #
 #' # All cause mortality
@@ -384,7 +404,7 @@
 #' seTEa <- sqrt(1 / smoking$d.smokers + 1 / smoking$d.nonsmokers +
 #'   2.5 / smoking$d.nonsmokers)
 #' metagen(TEa, seTEa, sm = "IRR", studlab = smoking$study)
-#' 
+#'
 #' # Lung cancer mortality
 #' #
 #' TEl <- log((lungcancer$d.smokers/lungcancer$py.smokers) /
@@ -396,13 +416,13 @@
 #' \dontrun{
 #' # Meta-analysis using generalised linear mixed models
 #' # (only if R packages 'metafor' and 'lme4' are available)
-#' 
+#'
 #' # Poisson regression model (fixed study effects)
 #' #
 #' ma4 <- metainc(d.smokers, py.smokers, d.nonsmokers, py.nonsmokers,
 #'   data = smoking, studlab = study, method = "GLMM")
 #' ma4
-#' 
+#'
 #' # Mixed-effects Poisson regression model (random study effects)
 #' #
 #' update(ma4, model.glmm = "UM.RS", nAGQ = 1)
@@ -411,7 +431,7 @@
 #' #
 #' update(ma4, model.glmm = "CM.EL")
 #' }
-#' 
+#'
 #' @export metainc
 
 metainc <- function(event.e, time.e, event.c, time.c, studlab,
@@ -437,7 +457,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
                       if (is.null(gs("overall.hetstat")))
                         common | random
                       else
-                        gs("overall.hetstat"),   
+                        gs("overall.hetstat"),
                     prediction = gs("prediction") | !missing(method.predict),
                     #
                     method.tau =
@@ -499,20 +519,24 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
                     control = NULL,
                     ...
                     ) {
-  
-  
+
+
   #
   #
   # (1) Check arguments
   #
   #
-  
+
   args <- list(...)
   nam.args <- names(args)
   #
   missing.sm <- missing(sm)
   missing.subgroup <- missing(subgroup)
   missing.byvar <- missing(byvar)
+  #
+  subgroup.expr <- enquo(subgroup)
+  byvar.expr <- enquo(byvar)
+  #
   missing.overall <- missing(overall)
   missing.overall.hetstat <- missing(overall.hetstat)
   missing.test.subgroup <- missing(test.subgroup)
@@ -565,11 +589,11 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   #
   chklevel(level)
   #
-  method.tau <- setchar(method.tau, gs("meth4tau"))
+  method.tau <- setchar(method.tau, gs("meth4tau"), length = 1)
   #
   if (is.null(method.tau.ci))
     method.tau.ci <- if (method.tau == "DL") "J" else "QP"
-  method.tau.ci <- setchar(method.tau.ci, gs("meth4tau.ci"))
+  method.tau.ci <- setchar(method.tau.ci, gs("meth4tau.ci"), length = 1)
   #
   tau.common <- replaceNULL(tau.common, FALSE)
   chklogical(tau.common)
@@ -593,7 +617,8 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   #
   chklogical(backtransf)
   #
-  chknumeric(irscale, length = 1)
+  irscale <- replaceNULL(irscale, 1)
+  chknumeric_strict(irscale, min = 1, length = 1)
   chkchar(irunit)
   #
   if (!is.null(text.common))
@@ -622,7 +647,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   #
   method <- setchar(method, gs("meth4inc"))
   #
-  method.common.ci <- setchar(method.common.ci, gs("meth4common.ci"))
+  method.common.ci <- setchar(method.common.ci, gs("meth4common.ci"), length = 1)
   #
   if (method != "Inverse" & method.common.ci == "IVhet") {
     if (!missing.method.common.ci)
@@ -663,12 +688,24 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     deprecated2(method.random.ci, missing.method.random.ci,
                 hakn, missing.hakn,
                 warn.deprecated)
+  #
   if (is.logical(method.random.ci))
     if (method.random.ci)
       method.random.ci <- "HK"
     else
       method.random.ci <- "classic"
+  #
   method.random.ci <- setchar(method.random.ci, gs("meth4random.ci"))
+  #
+  if (any(method.random.ci %in% c("CR0", "CR1", "CR2")) &&
+      method == "GLMM")
+    stop("Methods 'CR0', 'CR1', and 'CR2' not available for ",
+         "argument 'method = \"GLMM\"'.",
+         call. = FALSE)
+  #
+  if (any(method.random.ci == "CR2"))
+    is_installed_package("clubSandwich", argument = "method.random.ci",
+                         value = "CR2")
   #
   adhoc.hakn.ci <-
     deprecated2(adhoc.hakn.ci, missing.adhoc.hakn.ci,
@@ -705,20 +742,17 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     warn_ignore_input(addincr, TRUE, txt.ignore)
   if (!is.na(charmatch("allincr", nam.args)))
     warn_ignore_input(allincr, TRUE, txt.ignore)
-  
-  
+
+
   #
   #
   # (2) Read data
   #
   #
-  
+
   nulldata <- is.null(data)
-  sfsp <- sys.frame(sys.parent())
-  mc <- match.call()
   #
   if (nulldata) {
-    data <- sfsp
     data.pairwise <- FALSE
   }
   else
@@ -727,7 +761,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   # Catch 'event.e', 'time.e', 'event.c', 'time.c', 'n.e', 'n.c',
   # 'incr.e', 'incr.c', studlab', and 'subgroup' from data:
   #
-  event.e <- catch("event.e", mc, data, sfsp)
+  event.e <- catch(enquo(event.e), data)
   chknull(event.e)
   #
   if (inherits(event.e, "pairwise")) {
@@ -828,7 +862,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
       }
     }
     #
-    if (missing.subgroup & missing.byvar) {
+    if (missing.subgroup && missing.byvar) {
       subgroup <- paste(treat1, treat2, sep = " vs ")
       #
       if (length(unique(subgroup)) == 1) {
@@ -851,13 +885,6 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
           test.subgroup <- FALSE
       }
     }
-    else {
-      subgroup <- catch("subgroup", mc, data, sfsp)
-      byvar <- catch("byvar", mc, data, sfsp)
-      #
-      subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
-                              warn.deprecated)
-    }
   }
   else {
     is.pairwise <- FALSE
@@ -865,28 +892,30 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     if (missing.sm && !is.null(data) && !is.null(attr(data, "sm")))
       sm <- attr(data, "sm")
     #
-    time.e <- catch("time.e", mc, data, sfsp)
-    n.e <- catch("n.e", mc, data, sfsp)
+    time.e <- catch(enquo(time.e), data)
+    n.e <- catch(enquo(n.e), data)
     #
-    event.c <- catch("event.c", mc, data, sfsp)
-    time.c <- catch("time.c", mc, data, sfsp)
-    n.c <- catch("n.c", mc, data, sfsp)
+    event.c <- catch(enquo(event.c), data)
+    time.c <- catch(enquo(time.c), data)
+    n.c <- catch(enquo(n.c), data)
     #
-    studlab <- catch("studlab", mc, data, sfsp)
+    studlab <- catch(enquo(studlab), data)
     #
-    subgroup <- catch("subgroup", mc, data, sfsp)
-    byvar <- catch("byvar", mc, data, sfsp)
+    if (!missing.incr)
+      incr <- catch(enquo(incr), data)
+    #
+    if (!missing.incr.e)
+      incr.e <- catch(enquo(incr.e), data)
+    if (!missing.incr.c)
+      incr.c <- catch(enquo(incr.c), data)
+  }
+  #
+  if (!is.pairwise || !missing.subgroup || !missing.byvar) {
+    subgroup <- catch(subgroup.expr, data)
+    byvar <- catch(byvar.expr, data)
     #
     subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
                             warn.deprecated)
-    #
-    if (!missing.incr)
-      incr <- catch("incr", mc, data, sfsp)
-    #
-    if (!missing.incr.e)
-      incr.e <- catch("incr.e", mc, data, sfsp)
-    if (!missing.incr.c)
-      incr.c <- catch("incr.c", mc, data, sfsp)
   }
   #
   method.bias <- setmethodbias(method.bias)
@@ -942,23 +971,23 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   #
   # Catch 'subset', 'exclude' and 'cluster' from data:
   #
-  subset <- catch("subset", mc, data, sfsp)
+  subset <- catch(enquo(subset), data)
   missing.subset <- is.null(subset)
   #
-  exclude <- catch("exclude", mc, data, sfsp)
+  exclude <- catch(enquo(exclude), data)
   missing.exclude <- is.null(exclude)
   #
-  cluster <- catch("cluster", mc, data, sfsp)
+  cluster <- catch(enquo(cluster), data)
   with.cluster <- !is.null(cluster)
   #
   # Catch 'weights', 'weights.common', and 'weights.random' from data:
   #
   if (!missing(weights))
-    weights <- catch("weights", mc, data, sfsp)
+    weights <- catch(enquo(weights), data)
   if (!missing(weights.common))
-    weights.common <- catch("weights.common", mc, data, sfsp)
+    weights.common <- catch(enquo(weights.common), data)
   if (!missing(weights.random))
-    weights.random <- catch("weights.random", mc, data, sfsp)
+    weights.random <- catch(enquo(weights.random), data)
   #
   if (!is.null(weights) & is.null(weights.common))
     weights.common <- weights
@@ -998,14 +1027,14 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   time.e  <- int2num(time.e)
   event.c <- int2num(event.c)
   time.c  <- int2num(time.c)
-  
-  
+
+
   #
   #
   # (3) Check length of essential variables
   #
   #
-  
+
   chklength(time.e, k.All, fun)
   chklength(event.c, k.All, fun)
   chklength(time.c, k.All, fun)
@@ -1032,14 +1061,14 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     chklength(incr, k.All, fun)
   #
   if (avail.incr.e) {
-    if (length(incr.e) == 1)  
+    if (length(incr.e) == 1)
       incr.e <- rep_len(incr.e, k.All)
     else
       chklength(incr.e, k.All, fun)
   }
   #
   if (avail.incr.c) {
-    if (length(incr.c) == 1)  
+    if (length(incr.c) == 1)
       incr.c <- rep_len(incr.c, k.All)
     else
       chklength(incr.c, k.All, fun)
@@ -1077,14 +1106,14 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     stop("Arguments 'incr.e' and 'incr.c' must be provided if ",
          "'method.incr = \"user\".",
          call. = FALSE)
-  
-  
+
+
   #
   #
   # (4) Subset, exclude studies, and subgroups
   #
   #
-  
+
   if (!missing.subset)
     if ((is.logical(subset) & (sum(subset) > k.All)) ||
         (length(subset) > k.All))
@@ -1101,15 +1130,15 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   }
   else
     exclude <- rep(FALSE, k.All)
-  
-  
+
+
   #
   #
   # (5) Store complete dataset in list object data
   #     (if argument keepdata is TRUE)
   #
   #
-  
+
   if (keepdata) {
     if (nulldata)
       data <- data.frame(.studlab = studlab)
@@ -1152,15 +1181,15 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
       data$.n.e <- n.e
     if (avail.n.e)
       data$.n.c <- n.c
-  }  
-  
-  
+  }
+
+
   #
   #
   # (6) Use subset for analysis
   #
   #
-  
+
   if (!missing.subset) {
     event.e <- event.e[subset]
     time.e <- time.e[subset]
@@ -1189,7 +1218,7 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
       subgroup <- subgroup[subset]
   }
   #
-  if (missing.subgroup & is.pairwise & by) {
+  if (missing.subgroup && missing.byvar && is.pairwise && by) {
     if (length(unique(subgroup)) == 1) {
       by <- FALSE
       #
@@ -1228,24 +1257,24 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   if (by) {
     chkmiss(subgroup)
     #
-    if (missing.subgroup.name & is.null(subgroup.name)) {
+    if (missing.subgroup.name && is.null(subgroup.name)) {
       if (!missing.subgroup)
-        subgroup.name <- byvarname("subgroup", mc)
+        subgroup.name <- subgroup_name(subgroup.expr)
       else if (!missing.byvar)
-        subgroup.name <- byvarname("byvar", mc)
+        subgroup.name <- subgroup_name(byvar.expr)
     }
   }
   #
   if (!is.null(subgroup.name))
     chkchar(subgroup.name, length = 1)
-  
-  
+
+
   #
   #
   # (7) Continuity correction
   #
   #
-  
+
   sel <- switch(sm,
                 IRD = event.e == 0 | event.c == 0,
                 IRR = event.e == 0 | event.c == 0,
@@ -1290,14 +1319,14 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
       data$.incr.c[subset] <- incr.c
     }
   }
-  
-  
+
+
   #
   #
   # (8) Calculate results for individual studies
   #
   #
-  
+
   if (sm %in% c("IRR", "VE")) {
     TE <- log(((event.e + incr.e) / time.e) / ((event.c + incr.c) / time.c))
     seTE <- sqrt(1 / (event.e + incr.e) + 1 / (event.c + incr.c))
@@ -1314,14 +1343,14 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   # Set NaN to NA
   #
   TE[is.nan(TE)] <- NA
-  
-  
+
+
   #
   #
   # (8) Additional checks for three-level model
   #
   #
-  
+
   three.level <- FALSE
   sel.ni <- !is.infinite(TE) & !is.infinite(seTE)
   #
@@ -1344,14 +1373,14 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     if (!(method.tau %in% c("REML", "ML")))
       method.tau <- "REML"
   }
-  
-  
+
+
   #
   #
   # (9) Additional checks for GLMMs
   #
   #
-  
+
   if (is.glmm) {
     chkglmm(sm, method.tau, method.random.ci, method.predict,
             adhoc.hakn.ci, adhoc.hakn.pi,
@@ -1371,14 +1400,14 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
       tau.preset <- NULL
     }
   }
-  
-  
+
+
   #
   #
   # (10) Do meta-analysis
   #
   #
-  
+
   k <- sum(!is.na(event.e[!exclude]) & !is.na(event.c[!exclude]) &
            !is.na(time.e[!exclude]) & !is.na(time.c[!exclude]))
   #
@@ -1530,14 +1559,14 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
     hcc <- hetcalc(TE, seTE, method.tau, "",
                    if (method == "Inverse") TE.tau else TE.common,
                    method.I2, level.hetstat, subgroup, control)
-  
-  
+
+
   #
   #
   # (11) Generate R object
   #
   #
-  
+
   res <- list(event.e = event.e, time.e = time.e,
               event.c = event.c, time.c = time.c,
               method = method, method.random = method,
@@ -1690,12 +1719,11 @@ metainc <- function(event.e, time.e, event.c, time.c, studlab,
   if (res$method.random %in% c("MH", "Cochran"))
     res$method.random <- "Inverse"
   #
-  # Backward compatibility
+  # Backward compatibility (still required by R package metaumbrella)
   #
   res <- backward(res)
   #
   class(res) <- c(fun, "meta")
-  
   
   res
 }

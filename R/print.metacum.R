@@ -18,23 +18,14 @@
 #'   meta-analysis, comparison and outcome should be printed at the
 #'   beginning of the printout.
 #' @param lab.NA A character string to label missing values.
-#' @param digits Minimal number of significant digits, see
-#'   \code{print.default}.
-#' @param digits.stat Minimal number of significant digits for z- or
-#'   t-value of test for overall effect, see \code{print.default}.
-#' @param digits.pval Minimal number of significant digits for p-value
-#'   of overall treatment effect, see \code{print.default}.
-#' @param digits.tau2 Minimal number of significant digits for
-#'   between-study variance \eqn{\tau^2}, see \code{print.default}.
-#' @param digits.tau Minimal number of significant digits for
-#'   \eqn{\tau}, the square root of the between-study variance
-#'   \eqn{\tau^2}.
-#' @param digits.I2 Minimal number of significant digits for I-squared
-#'   and Rb statistic, see \code{print.default}.
-#' @param digits.cid Minimal number of significant digits for
-#'   CID / decision thresholds, see \code{print.default}.
-#' @param digits.percent Minimal number of significant digits for
-#'   probabilities, printed as percentages, see \code{print.default}.
+#' @param print A named list controlling displayed information; see
+#'   \code{\link{meta-formatting}}. By default, \code{tau2}, \code{tau},
+#'   \code{I2}, and \code{prob} are enabled; \code{stat} and heterogeneity
+#'   confidence intervals are disabled.
+#' @param digits A named list controlling rounding; see
+#'   \code{\link{meta-formatting}}. A scalar value is also accepted.
+#'   Defaults follow the general settings in \code{meta-formatting}, except
+#'   \code{digits$digits = gs("digits")}.
 #' @param big.mark A character used as thousands separator.
 #' @param scientific.pval A logical specifying whether p-values should
 #'   be printed in scientific notation, e.g., 1.2345e-01 instead of
@@ -44,23 +35,6 @@
 #' @param JAMA.pval A logical specifying whether p-values for test of
 #'   overall effect should be printed according to JAMA reporting
 #'   standards.
-#' @param print.stat A logical value indicating whether z- or t-value
-#'   for test of treatment effect should be printed.
-#' @param print.tau2 A logical specifying whether between-study
-#'   variance \eqn{\tau^2} should be printed.
-#' @param print.tau2.ci A logical value indicating whether to print
-#'   the confidence interval of \eqn{\tau^2}.
-#' @param print.tau A logical specifying whether \eqn{\tau}, the
-#'   square root of the between-study variance \eqn{\tau^2}, should be
-#'   printed.
-#' @param print.tau.ci A logical value indicating whether to print the
-#'   confidence interval of \eqn{\tau}.
-#' @param print.I2 A logical specifying whether heterogeneity
-#'   statistic I\eqn{^2} should be printed.
-#' @param print.I2.ci A logical specifying whether confidence interval for
-#'   heterogeneity statistic I\eqn{^2} should be printed.
-#' @param print.prob A logical specifying whether to print probabilities
-#'   of clinically important benefit or harm.
 #' @param text.tau2 Text printed to identify between-study variance
 #'   \eqn{\tau^2}.
 #' @param text.tau Text printed to identify \eqn{\tau}, the square
@@ -69,7 +43,8 @@
 #'   I\eqn{^2}.
 #' @param details.methods A logical specifying whether details on
 #'   statistical methods should be printed.
-#' @param \dots Additional arguments (ignored).
+#' @param \dots Additional formatting arguments, including individual
+#'   \code{print.*} and \code{digits.*} arguments.
 #' 
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
@@ -96,28 +71,13 @@ print.metacum <- function(x,
                           #
                           lab.NA = ".",
                           #
-                          digits = gs("digits"),
-                          digits.stat = gs("digits.stat"),
-                          digits.pval = gs("digits.pval"),
-                          digits.tau2 = gs("digits.tau2"),
-                          digits.tau = gs("digits.tau"),
-                          digits.I2 = gs("digits.I2"),
-                          digits.cid = gs("digits.cid"),
-                          digits.percent = 1,
+                          print = NULL,
+                          digits = NULL,
                           #
                           big.mark = gs("big.mark"),
                           scientific.pval = gs("scientific.pval"),
                           zero.pval = gs("zero.pval"),
                           JAMA.pval = gs("JAMA.pval"),
-                          #
-                          print.stat = FALSE,
-                          print.tau2 = TRUE,
-                          print.tau2.ci = FALSE,
-                          print.tau = TRUE,
-                          print.tau.ci = FALSE,
-                          print.I2 = TRUE,
-                          print.I2.ci = FALSE,
-                          print.prob = TRUE,
                           #
                           text.tau2 = gs("text.tau2"),
                           text.tau = gs("text.tau"),
@@ -134,6 +94,49 @@ print.metacum <- function(x,
   
   chkclass(x, c("metacum", "metainf"))
   x <- updateversion(x)
+  #
+  args <- list(...)
+  #
+  if (anyDuplicated(names(args)) || anyDuplicated(names(print)) ||
+      anyDuplicated(names(digits)))
+    stop("Formatting arguments must not be duplicated.", call. = FALSE)
+  #
+  # Columns shown when printing
+  #
+  print.list <-
+    merge_legacy(print, args, print_defaults(x, "metacum", func = "print"))
+  #
+  print.settings <- print.list$res
+  args <- print.list$args
+  #
+  print.stat <- print.settings[["stat"]]
+  print.tau2 <- print.settings[["tau2"]]
+  print.tau2.ci <- print.settings[["tau2.ci"]]
+  print.tau <- print.settings[["tau"]]
+  print.tau.ci <- print.settings[["tau.ci"]]
+  print.I2 <- print.settings[["I2"]]
+  print.I2.ci <- print.settings[["I2.ci"]]
+  print.prob <- print.settings[["prob"]]
+  #
+  # Digits used to round results
+  #
+  digits <- as_named_list(digits)
+  digits.list <-
+    merge_legacy(digits, args, digits_defaults("metacum", func = "print"))
+  #
+  digits.settings <- digits.list$res
+  args <- digits.list$args
+  #
+  digits <- digits.settings[["digits"]]
+  digits.stat <- digits.settings[["stat"]]
+  digits.pval <- digits.settings[["pval"]]
+  digits.tau2 <- digits.settings[["tau2"]]
+  digits.tau <- digits.settings[["tau"]]
+  digits.I2 <- digits.settings[["I2"]]
+  digits.cid <- digits.settings[["cid"]]
+  digits.percent <- digits.settings[["percent"]]
+  #
+  warn_ignore_dots(args, "print.metacum")
   #
   chklogical(prediction)
   chklogical(overall)
@@ -286,21 +289,37 @@ print.metacum <- function(x,
           backtransf(lower.predict, sm, harmonic.mean, harmonic.mean, fbt, abt),
         upper.predict =
           backtransf(upper.predict, sm, harmonic.mean, harmonic.mean, fbt, abt),
-      )    
+      )
+    #
+    if (is_prop(sm)) {
+      dat %<>%
+        mutate(TE = x$pscale * TE,
+               lower = x$pscale * lower, upper = x$pscale * upper,
+               lower.predict = x$pscale * lower.predict,
+               upper.predict = x$pscale * upper.predict)
+    }
+    #
+    if (is_rate(sm)) {
+      dat %<>%
+        mutate(TE = x$irscale * TE,
+               lower = x$irscale * lower, upper = x$irscale * upper,
+               lower.predict = x$irscale * lower.predict,
+               upper.predict = x$irscale * upper.predict)
+    }
   }
   #
   dat %<>% select(-harmonic.mean)
   #
   dat %<>%
-    mutate(TE = formatN(TE, digits = digits, text.NA = lab.NA, big.mark = big.mark),
+    mutate(TE = formatN(TE, digits = digits, lab.NA = lab.NA, big.mark = big.mark),
            lower = 
              if_else(is.na(lower) & is.na(upper), lab.NA,
-                     formatCI(formatN(lower, digits = digits, text.NA = lab.NA,
+                     formatCI(formatN(lower, digits = digits, lab.NA = lab.NA,
                                       big.mark = big.mark),
-                              formatN(upper, digits = digits, text.NA = lab.NA,
+                              formatN(upper, digits = digits, lab.NA = lab.NA,
                                       big.mark = big.mark))),
            #
-           statistic = formatN(statistic, digits = digits.stat, text.NA = lab.NA),
+           statistic = formatN(statistic, digits = digits.stat, lab.NA = lab.NA),
            #
            pval = formatPT(pval, digits = digits.pval, lab.NA = lab.NA,
                            scientific = scientific.pval,
@@ -324,19 +343,13 @@ print.metacum <- function(x,
                               formatPT(upper.tau, digits = digits,
                                        lab.NA = lab.NA, big.mark = big.mark))),
            #
-           I2 = if_else(is.na(I2), lab.NA,
-                        paste0(formatPT(100 * I2, digits = digits.I2,
-                                        lab.NA = lab.NA), "%")),
+           I2 = percent_label(I2, "", digits.I2, formatPT, lab.NA = lab.NA),
            #
            lower.I2 =
-             if_else(is.na(lower.I2), lab.NA,
-                     paste0(formatPT(100 * lower.I2, digits = digits.I2,
-                                     lab.NA = lab.NA), "%")),
+             percent_label(lower.I2, "", digits.I2, formatPT, lab.NA = lab.NA),
            #
            upper.I2 =
-             if_else(is.na(upper.I2), lab.NA,
-                     paste0(formatPT(100 * upper.I2, digits = digits.I2,
-                                     lab.NA = lab.NA), "%")),
+             percent_label(upper.I2, "", digits.I2, formatPT, lab.NA = lab.NA),
            #
            lower.I2 =
              if_else(lower.I2 == lab.NA & upper.I2 == lab.NA, lab.NA,
@@ -345,21 +358,17 @@ print.metacum <- function(x,
            lower.predict = 
              if_else(is.na(lower.predict) & is.na(upper.predict), lab.NA,
                      formatCI(formatN(lower.predict, digits = digits,
-                                      text.NA = lab.NA, big.mark = big.mark),
+                                      lab.NA = lab.NA, big.mark = big.mark),
                               formatN(upper.predict, digits = digits,
-                                      text.NA = lab.NA, big.mark = big.mark))),
+                                      lab.NA = lab.NA, big.mark = big.mark))),
            #
            prop.cid.below.null =
-             if_else(is.na(prop.cid.below.null), lab.NA,
-                     paste0(formatPT(100 * prop.cid.below.null,
-                                     digits = digits.percent,
-                                     lab.NA = lab.NA), "%")),
+             percent_label(prop.cid.below.null, "", digits.percent, formatPT,
+                           lab.NA = lab.NA),
            #
            prop.cid.above.null =
-             if_else(is.na(prop.cid.above.null), lab.NA,
-                     paste0(formatPT(100 * prop.cid.above.null,
-                                     digits = digits.percent,
-                                     lab.NA = lab.NA), "%"))
+             percent_label(prop.cid.above.null, "", digits.percent, formatPT,
+                           lab.NA = lab.NA)
     ) %>%
     select(-upper, -upper.predict, -upper.tau2, -upper.tau, -upper.I2)
   #
@@ -374,12 +383,12 @@ print.metacum <- function(x,
   #
   names(dat)[names(dat) == "TE"] <- smlab(sm, backtransf, x$pscale, x$irscale)
   #
-  names(dat)[names(dat) == "lower"] <-
-    paste0(round(100 * x$level.ma, 1), "% CI")
+  names(dat)[names(dat) == "lower"] <- percent_label(x$level.ma)
   #
-  if (prediction)
+  if (prediction) {
     names(dat)[names(dat) == "lower.predict"] <-
-    paste0(round(100 * x$level.predict, 1), "% PI")
+      percent_label(x$level.predict, "PI")
+  }
   else
     dat$lower.predict <- NULL
   #
@@ -389,7 +398,8 @@ print.metacum <- function(x,
     names(dat)[names(dat) == "pval"] <- "p-value"
   #
   if (print.stat) {
-    if (x$pooled == "random" & x$method.random.ci %in% c("HK", "KR"))
+    if (x$pooled == "random" &
+        x$method.random.ci %in% c("HK", "KR", "CR0", "CR1", "CR2"))
       names(dat)[names(dat) == "statistic"] <- "t"
     else
       names(dat)[names(dat) == "statistic"] <- "z"
@@ -405,8 +415,7 @@ print.metacum <- function(x,
   }
   #
   if (print.tau2.ci)
-    names(dat)[names(dat) == "lower.tau2"] <-
-    paste0(round(100 * x$level.hetstat, 1), "% CI")
+    names(dat)[names(dat) == "lower.tau2"] <- percent_label(x$level.hetstat)
   else
     dat$lower.tau2 <- NULL
   #
@@ -416,8 +425,7 @@ print.metacum <- function(x,
     dat$tau <- NULL
   #
   if (print.tau.ci)
-    names(dat)[names(dat) == "lower.tau"] <-
-    paste0(round(100 * x$level.hetstat, 1), "% CI")
+    names(dat)[names(dat) == "lower.tau"] <- percent_label(x$level.hetstat)
   else
     dat$lower.tau <- NULL
   #
@@ -427,8 +435,7 @@ print.metacum <- function(x,
     dat$I2 <- NULL
   #
   if (print.I2.ci)
-    names(dat)[names(dat) == "lower.I2"] <-
-    paste0(round(100 * x$level.hetstat, 1), "% CI")
+    names(dat)[names(dat) == "lower.I2"] <- percent_label(x$level.hetstat)
   else
     dat$lower.I2 <- NULL
   #
@@ -471,7 +478,7 @@ print.metacum <- function(x,
   cat(paste0(if (inherits(x, "metacum")) "Cumulative " else "Leave-one-out ",
              "meta-analysis\n\n"))
   #
-  prmatrix(dat, quote = FALSE, right = TRUE, ...)
+  do.call(prmatrix, c(list(dat, quote = FALSE, right = TRUE), args))
   #
   if (details.methods) {
     details <-

@@ -8,9 +8,8 @@
 #' @param x An object of class \code{meta}.
 #' @param row.names \code{NULL} or a character vector giving the row
 #'   names for the data frame.
-#' @param optional logical. If \code{TRUE}, setting row names and
-#'   converting column names (to syntactic names) is optional.
-#' @param \dots other arguments
+#' @param optional Argument is ignored.
+#' @param \dots Other arguments (ignored).
 #' 
 #' @return A data frame is returned by the function \code{as.data.frame}.
 #' 
@@ -52,14 +51,8 @@
 
 as.data.frame.meta <- function(x, row.names = NULL, optional = FALSE, ...) {
   
-  
-  #
-  #
-  # (1) Check for meta object and upgrade older meta objects
-  #
-  #
   chkclass(x, "meta")
-  
+  x <- updateversion(x)
   
   # Remove element 'call' from object of class meta to get rid
   # of an error message in meta-analyses with six studies:
@@ -79,10 +72,6 @@ as.data.frame.meta <- function(x, row.names = NULL, optional = FALSE, ...) {
   #
   x$rob <- NULL
   
-  # Remove list information from metabind()
-  #
-  x$list <- NULL
-  
   # Remove debug information
   #
   x$debug <- x$tau2.calc <- x$rma.three.level <- NULL
@@ -93,7 +82,13 @@ as.data.frame.meta <- function(x, row.names = NULL, optional = FALSE, ...) {
   if (!is.null(x$approx.seTE) && all(x$approx.seTE == ""))
     x$approx.seTE <- NULL
   
-  sel <- as.vector(lapply(x, length) == length(x$TE))
+  # Remove result-level characteristics from study-level output
+  #
+  x$result.characteristics <- NULL
+
+  sel <- vapply(x, function(value)
+    length(value) == length(x$TE) &&
+      (is.null(dim(value)) || nrow(value) == length(x$TE)), logical(1))
   
   res <- as.data.frame(x[names(x)[sel]], ...)
   #

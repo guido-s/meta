@@ -84,12 +84,10 @@ meta-analysis then).}
 \item{regline}{A logical indicating whether a regression line
 should be added to the bubble plot.}
 
-\item{backtransf}{A logical indicating whether results for relative
-summary measures (argument \code{sm} equal to \code{"OR"},
-\code{"RR"}, \code{"HR"}, or \code{"IRR"}) should be back
-transformed. If \code{backtransf=TRUE}, results for
-\code{sm="OR"} are printed as odds ratios rather than log odds
-ratios, for example.}
+\item{backtransf}{A logical indicating whether results should be back
+transformed in bubble plots. If \code{backtransf = TRUE}, results for
+\code{sm = "OR"} are printed as odds ratios rather than log odds ratios,
+for example.}
 
 \item{ref}{A numerical giving the reference value to be plotted as
 a line in the bubble plot. No reference line is plotted if

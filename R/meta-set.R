@@ -5,16 +5,78 @@
 # License: GPL (>= 2)
 #
 
+chksetVar <- function(x, missing, replace, func, n = 0,
+                       args = NULL, oldname = character(), warn = TRUE,
+                       name = deparse(substitute(x)), ...) {
+  if (length(args) > 0 && is.list(args[[1]]))
+    args <- args[[1]]
+  #
+  if (missing)
+    value <- NULL
+  else
+    value <- x
+  #
+  if (length(args) > 0 && length(oldname) > 0) {
+    value <- deprecated(value, missing, args, oldname, warn, name = name)
+    #
+    if (missing && !is.na(charmatch(oldname, names(args))))
+      missing <- is.null(value)
+  }
+  #
+  if (missing)
+    value <- replace
+  #
+  if (n > 1 && length(value) == 1)
+    value <- rep(value, n)
+  #
+  do.call(func, c(list(value, name = name, length = n), list(...)))
+  #
+  value
+}
+
+chksetVar_list <- function(x, miss, replace, func, n = list(),
+                           args = NULL, oldname = list(), warn = TRUE,
+                           name = list(), ...) {
+  xname <- deparse(substitute(x))
+  #
+  for (i in names(replace)) {
+    name.i <- paste0(xname, ".", i)
+    #
+    if (i %in% names(name))
+      name.i <- name[[i]]
+    #
+    n.i <- 0
+    #
+    if (i %in% names(n))
+      n.i <- n[[i]]
+    #
+    oldname.i <- character()
+    if (i %in% names(oldname))
+      oldname.i <- oldname[[i]]
+    #
+    x[i] <- list(
+      chksetVar(x[[i]], i %in% names(miss) && isTRUE(miss[[i]]), replace[[i]], func,
+                n = n.i, args = args, oldname = oldname.i, warn = warn,
+                name = name.i, ...))
+  }
+  #
+  x
+}
+
 setchar <- function(x, val, text, list = FALSE, name = NULL,
                     stop.at.error = TRUE, addtext = "",
                     return.NULL = TRUE, nchar.equal = FALSE,
                     setNA = FALSE, pre = "",
-                    unique = FALSE) {
+                    unique = FALSE, length = 0) {
   
   val <- unique(val)
   #
   if (is.null(name))
     name <- deparse(substitute(x))
+  #
+  if (any(length > 0))
+    chklength(x, length, name = name, internal = FALSE)
+  #
   nval <- length(val)
   #
   if (is.numeric(x)) {
@@ -94,6 +156,24 @@ setchar <- function(x, val, text, list = FALSE, name = NULL,
   res
 }
 
+setchar_list <- function(x, val, length = 0) {
+  name <- deparse(substitute(x))
+  #
+  for (i in names(x)) {
+    length.i <- length
+    if (!is.null(names(length))) {
+      length.i <- 0
+      if (i %in% names(length))
+        length.i <- length[[i]]
+    }
+    #
+    x[i] <-
+      list(setchar(x[[i]], val, length = length.i, name = paste0(name, ".", i)))
+  }
+  #
+  x
+}
+
 setstudlab <- function(x, k) {
   #
   # Set study labels
@@ -148,27 +228,34 @@ setunit <- function(x) {
       if (length(plotval) == 0 | is.na(as.numeric(plotval)))
         stop("Argument '", xname, "' must contain at least one number.")
       #
-      res <- grid::unit(as.numeric(plotval), "cm")
+      res <- unit(as.numeric(plotval), "cm")
     }
     else if (plotunit == "inch") {
       plotval <- substring(x, 1, nchar(x) - 4)
       if (length(plotval) == 0 | is.na(as.numeric(plotval)))
         stop("Argument '", xname, "' must contain at least one number.")
       #
-      res <- grid::unit(as.numeric(plotval), "inch")
+      res <- unit(as.numeric(plotval), "inch")
     }
     else if (plotunit == "mm") {
       plotval <- substring(x, 1, nchar(x) - 2)
       if (length(plotval) == 0 | is.na(as.numeric(plotval)))
         stop("Argument '", xname, "' must contain at least one number.")
       #
-      res <- grid::unit(as.numeric(plotval), "mm")
+      res <- unit(as.numeric(plotval), "mm")
     }
   }
   else
     res <- x
   
   res
+}
+
+setunit_list <- function(x) {
+  for (i in names(x))
+    x[i] <- list(setunit(x[[i]]))
+  #
+  x
 }
 
 setmethodbias <- function(x, subset) {

@@ -6,26 +6,24 @@
 \usage{
 metabind(
   ...,
-  subgroup = NULL,
   name = NULL,
   common = NULL,
   random = NULL,
   prediction = NULL,
   backtransf = NULL,
   outclab = NULL,
-  pooled = NULL,
-  warn.deprecated = gs("warn.deprecated")
+  keepdata = TRUE,
+  keepmeta = FALSE
 )
 }
 \arguments{
 \item{...}{Any number of meta-analysis objects or a single list
 with meta-analyses.}
 
-\item{subgroup}{An optional variable to generate a forest plot with
-subgroups.}
-
 \item{name}{An optional character vector providing descriptive
-names for the meta-analysis objects.}
+names for the meta-analysis objects. Defaults to their \code{subgroup.name}
+values when subgroup results are present, and \code{"meta1"},
+\code{"meta2"}, etc. otherwise.}
 
 \item{common}{A logical vector indicating whether results of common
 effect model should be considered.}
@@ -37,40 +35,103 @@ effects model should be considered.}
 prediction intervals should be considered.}
 
 \item{backtransf}{A logical indicating whether results should be
-back transformed in printouts and plots. If
-\code{backtransf=TRUE} (default), results for \code{sm="OR"} are
-printed as odds ratios rather than log odds ratios, for example.}
+back transformed in printouts and plots. If \code{backtransf = TRUE}
+(default), results for \code{sm = "OR"} are printed as odds ratios rather
+than log odds ratios, for example.}
 
-\item{outclab}{Outcome label for all meta-analyis objects.}
+\item{outclab}{Outcome label for all meta-analysis objects.}
 
-\item{pooled}{Deprecated argument (replaced by \code{common} and
-\code{random}.}
+\item{keepdata}{A logical indicating whether to store the element `data`
+from meta-analysis objects provided in argument \code{\dots}.}
 
-\item{warn.deprecated}{A logical indicating whether warnings should
-be printed if deprecated arguments are used.}
+\item{keepmeta}{A logical indicating whether to store the
+meta-analysis objects provided in argument \code{\dots}.}
 }
 \value{
-An object of class \code{c("metabind", "meta")} with corresponding
-generic functions (see \code{\link{meta-object}}).
+An object of class \code{"metabind"} with corresponding \code{print},
+\code{summary}, and \code{forest} methods. Result data frames use column
+\code{id} to identify the included meta-analysis. The object is a list
+containing the following components:
+\item{overall}{Data frame with one row per included meta-analysis, containing
+  its identifier, name, summary measure, analysis and transformation
+  settings, study and sample-size information, and heterogeneity statistics.
+  Variance-component fields retain complete vectors in list columns.}
+\item{common}{Data frame with selected overall common effect results,
+  including estimates, standard errors, confidence limits, test statistics,
+  P values, and method information. \code{NULL} if no common effect results
+  are selected.}
+\item{random}{Data frame with selected overall random effects results,
+  with one row per included meta-analysis and confidence interval method.
+  Includes estimates, standard errors, confidence limits, test statistics,
+  P values, degrees of freedom, and method and ad hoc correction settings.
+  Column \code{interval.slot} numbers the confidence intervals within each
+  meta-analysis. \code{NULL} if no random effects results are selected.}
+\item{predict}{Data frame with selected overall prediction intervals,
+  with one row per included meta-analysis and prediction interval method.
+  Includes prediction limits, standard errors, degrees of freedom, method
+  and ad hoc correction settings. Column \code{interval.slot} numbers the
+  prediction intervals within each meta-analysis.
+  \code{NULL} if no prediction intervals are selected.}
+\item{subgroup}{List with components \code{common}, \code{random}, and
+  \code{predict}, containing data frames with the corresponding stored
+  subgroup results, subgroup names and levels, and study counts.
+  Common effect and random effects tables also contain subgroup-difference
+  test statistics, complete degrees-of-freedom entries, and P values, where
+  available. For random effects and prediction intervals, \code{id} and
+  \code{interval.slot} link each subgroup result to the corresponding
+  overall result.
+  Unselected result types are \code{NULL}; the entire component is omitted
+  when the included meta-analyses have no subgroup analyses.}
+\item{sm.family}{Character string identifying the compatible summary-measure
+  family when measures differ: \code{"relative"}, \code{"correlation"},
+  \code{"mean"}, \code{"proportion"}, or \code{"rate"}.
+  An empty string if all summary measures are the same.}
+\item{backtransf}{As defined above.}
+\item{samedata}{Logical indicating whether all datasets are available
+  and recognised as identical, ignoring analysis-specific subgroup assignments.}
+\item{data}{Datasets from the included meta-analyses, retained when
+  \code{keepdata = TRUE} (default).
+  A single data frame when datasets are recognised as identical, otherwise
+  a list in the order supplied. Omitted if \code{keepdata = FALSE}.}
+\item{meta}{List of included meta-analysis objects in the order supplied.
+  Included only if \code{keepmeta = TRUE}.}
+\item{call}{Function call.}
+\item{version}{Version of R package meta used to create object.}
 }
 \description{
-This function can be used to combine meta-analysis objects and is,
-for example, useful to summarize results of various meta-analysis
-methods or to generate a forest plot with results of several
-subgroup analyses.
+This function combines stored results from meta-analysis objects for
+printing and forest plots without calculating new pooled estimates.
+It is useful for comparing meta-analysis methods or presenting results
+from several subgroup analyses. The meta-analyses may use the same or
+different datasets and the same or compatible summary measures.
 }
 \details{
-This function can be used to combine any number of meta-analysis
-objects which is useful, for example, to summarize results of
-various meta-analysis methods or to generate a forest plot with
-results of several subgroup analyses (see Examples).
+Any number of meta-analysis objects can be supplied separately or as a
+single list. All objects must either contain subgroup analyses or have no
+subgroups. Selected common effect and random effects results, prediction
+intervals, and subgroup results are retained, including results from
+multiple interval methods. No new pooled estimates or
+tests comparing the included meta-analyses are calculated.
 
-Individual study results are not retained with \code{metabind} as
-the function allows to combine meta-analyses from different data
-sets (e.g., with randomised or observational studies). Individual
-study results are retained with R function \code{\link{metamerge}}
-which can be used to combine results of meta-analyses of the
-same dataset.
+Results can be printed with \code{\link{print.metabind}} or displayed
+in a forest plot with \code{\link{forest.metabind}}. For subgroup analyses,
+overall summaries can be displayed once when the datasets, selected
+results, and relevant analysis and interval settings agree. Overall
+heterogeneity is assessed separately and is shared only when its values
+and settings also agree.
+
+Meta-analyses may use the same summary measure or different measures
+within a compatible family: relative effects, correlations, means,
+proportions, or incidence rates. When summary measures differ,
+\code{backtransf = TRUE} is enforced. Back-transformations and their
+arguments are retained and applied separately to results from each
+meta-analysis.
+
+Individual study results are not stored as a combined study-level results
+table in a \code{metabind} object. Original datasets and meta-analysis
+objects can be retained using \code{keepdata} and \code{keepmeta},
+respectively. Use \code{\link{metamerge}} to combine results from analyses
+of the same dataset while retaining individual study results.
 }
 \examples{
 data(Fleiss1993cont)
@@ -124,7 +185,7 @@ forest(ma.taus)
 
 }
 \seealso{
-\code{\link{metagen}}, \code{\link{forest.metabind}},
+\code{\link{forest.metabind}}, \code{\link{as.data.frame.metabind}}, 
   \code{\link{metamerge}}
 }
 \author{

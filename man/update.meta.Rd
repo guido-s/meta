@@ -160,7 +160,7 @@ correction method should be used (see \code{\link{metabin}},
 \item{allstudies}{A logical indicating if studies with zero or all
 events in both groups are to be included in the meta-analysis
 (applies only to \code{\link{metabin}} object with \code{sm}
-equal to \code{"RR"} or \code{"OR"}).}
+equal to \code{"RR"}, \code{"OR"}, \code{"DOR"}, or \code{"VE"}).}
 
 \item{incr.e}{Continuity correction in experimental group (see
 \code{\link{metabin}} and \code{\link{metainc}}).}
@@ -177,8 +177,8 @@ to calculate the pooled estimate based on the Mantel-Haenszel
 method (applies only to \code{\link{metabin}} object).}
 
 \item{RR.Cochrane}{A logical indicating which method to use as
-continuity correction for the risk ratio (see
-\code{\link{metabin}}).}
+continuity correction for the risk ratio or vaccine efficacy /
+effectiveness (see \code{\link{metabin}}).}
 
 \item{Q.Cochrane}{A logical indicating which method to use to
 calculate the heterogeneity statistic Q (see
@@ -214,8 +214,8 @@ level.}
 is used to calculate confidence interval and test statistic for
 common effect estimate (see \code{\link{meta-package}}).}
 
-\item{method.random.ci}{A character string indicating which method
-is used to calculate confidence interval and test statistic for
+\item{method.random.ci}{A character string or vector indicating which methods
+are used to calculate confidence intervals and test statistics for the
 random effects estimate (see \code{\link{meta-package}}).}
 
 \item{adhoc.hakn.ci}{A character string indicating whether an
@@ -466,7 +466,8 @@ estimate the between-study variance \eqn{\tau^2}. This argument
 is passed on to \code{\link[metafor]{rma.uni}} or
 \code{\link[metafor]{rma.glmm}}, respectively.}
 
-\item{\dots}{Additional arguments (ignored at the moment).}
+\item{\dots}{Additional arguments (only considered to fetch deprecated
+arguments)}
 }
 \value{
 An object of class \code{"meta"} and \code{"metabin"},

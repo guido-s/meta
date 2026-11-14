@@ -92,6 +92,9 @@ to be provided if \code{type = "common"} or \code{type =
 "random"}. For \code{type = "prediction"}, only arguments
 \code{lower} and \code{upper} are mandatory.
 
+This function is not available for the Freeman-Tukey transformed proportions
+(\code{sm = "PFT"}) or rates (\code{"IRFT"}).
+
 Note, R function \code{\link{metamerge}} can be used to add
 meta-analysis results of another meta-analysis object (see
 \code{\link{meta-object}}).

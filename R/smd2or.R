@@ -98,7 +98,6 @@ smd2or <- function(smd, se.smd, studlab,
                    data = NULL, subset = NULL, exclude = NULL,
                    method = "HH", backtransf = gs("backtransf"), ...) {
   
-  
   is.meta <- inherits(smd, "meta")
   #
   if (is.meta) {
@@ -110,37 +109,29 @@ smd2or <- function(smd, se.smd, studlab,
       smd <- mdat$TE
       se.smd <- mdat$seTE
     }
+    #
+    warn_ignore_dots(list(...), "smd2or")
   }
   else {
     #
-    # Read data
-    #
-    nulldata <- is.null(data)
-    sfsp <- sys.frame(sys.parent())
-    mc <- match.call()
-    #
-    if (nulldata)
-      data <- sfsp
-    #
     # Catch 'smd' and 'se.smd' from data:
     #
-    smd <- catch("smd", mc, data, sfsp)
-    #
-    se.smd <- catch("se.smd", mc, data, sfsp)
+    smd <- catch(enquo(smd), data)
+    se.smd <- catch(enquo(se.smd), data)
     #
     k.All <- length(smd)
     chknull(smd)
     #
     # Catch 'studlab', 'subset', and 'exclude' from data:
     #
-    studlab <- catch("studlab", mc, data, sfsp)
+    studlab <- catch(enquo(studlab), data)
     studlab <- setstudlab(studlab, k.All)
     #
     missing.subset <- missing(subset)
-    subset <- catch("subset", mc, data, sfsp)
+    subset <- catch(enquo(subset), data)
     #
     missing.exclude <- missing(exclude)
-    exclude <- catch("exclude", mc, data, sfsp)
+    exclude <- catch(enquo(exclude), data)
     #
     # Check length of essential variables
     #

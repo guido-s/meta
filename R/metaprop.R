@@ -1,12 +1,12 @@
 #' Meta-analysis of single proportions
-#' 
+#'
 #' @description
 #' Calculation of an overall proportion from studies reporting a
 #' single proportion. Inverse variance method and generalised linear
 #' mixed model (GLMM) are available for pooling. For GLMMs, the
 #' \code{\link[metafor]{rma.glmm}} function from R package
 #' \bold{metafor} (Viechtbauer 2010) is called internally.
-#' 
+#'
 #' @param event Number of events.
 #' @param n Number of observations.
 #' @param studlab An optional vector with study labels.
@@ -80,8 +80,8 @@
 #' @param method.common.ci A character string indicating which method
 #'   is used to calculate confidence interval and test statistic for
 #'   common effect estimate (see \code{\link{meta-package}}).
-#' @param method.random.ci A character string indicating which method
-#'   is used to calculate confidence interval and test statistic for
+#' @param method.random.ci A character string or vector indicating which methods
+#'   are used to calculate confidence intervals and test statistics for the
 #'   random effects estimate (see \code{\link{meta-package}}).
 #' @param adhoc.hakn.ci A character string indicating whether an
 #'   \emph{ad hoc} variance correction should be applied in the case
@@ -162,7 +162,7 @@
 #' @param \dots Additional arguments passed on to
 #'   \code{\link[metafor]{rma.glmm}} function and to catch deprecated
 #'   arguments.
-#' 
+#'
 #' @details
 #' This function provides methods for common effect and random effects
 #' meta-analysis of single proportions to calculate an overall
@@ -170,10 +170,10 @@
 #' to compare proportions of pairwise comparisons instead of using
 #' \code{metaprop} for each treatment arm separately which will break
 #' randomisation in randomised controlled trials.
-#' 
+#'
 #' The following transformations of proportions are
 #' implemented to calculate an overall proportion:
-#' 
+#'
 #' \itemize{
 #' \item Logit transformation (\code{sm = "PLOGIT"}, default)
 #' \item Arcsine transformation (\code{sm = "PAS"})
@@ -202,24 +202,32 @@
 #' transformation. The classic meta-analysis model with logit
 #' transformed proportions is used by setting argument \code{method =
 #' "Inverse"}.
-#' 
+#'
 #' A three-level random effects meta-analysis model (Van den Noortgate
 #' et al., 2013) is utilised if argument \code{cluster} is used and at
 #' least one cluster provides more than one estimate. Internally,
 #' \code{\link[metafor]{rma.mv}} is called to conduct the analysis and
 #' \code{\link[metafor]{weights.rma.mv}} with argument \code{type =
 #' "rowsum"} is used to calculate random effects weights.
-#' 
+#'
+#' Cluster-robust variance estimators (Tipton and Pustejovsky, 2015;
+#' Pustejovsky and Tipton, 2022) are available for univariate random effects
+#' and three-level models (argument \code{method.random.ci} equal to
+#' \code{"CR0"}, \code{"CR1"}, or \code{"CR2"}). Internally,
+#' \code{\link[metafor]{rma.uni}} or \code{\link[metafor]{rma.mv}} is called
+#' and then passed to \code{\link[metafor]{robust}}. For univariate random
+#' effects models, study labels (argument \code{studlab}) are used as clusters.
+#'
 #' Default settings are utilised for several arguments (assignments
 #' using \code{\link{gs}} function). These defaults can be changed for
 #' the current R session using the \code{\link{settings.meta}}
 #' function.
-#' 
+#'
 #' Furthermore, R function \code{\link{update.meta}} can be used to
 #' rerun a meta-analysis with different settings.
-#' 
+#'
 #' \subsection{Choice of transformation / meta-analysis method}{
-#' 
+#'
 #' Contradictory recommendations on the use of transformations of
 #' proportions have been published in the literature. For example,
 #' Barendregt et al. (2013) recommend the use of the Freeman-Tukey
@@ -243,7 +251,7 @@
 #' transformations or using a range of sample sizes should be
 #' conducted (Schwarzer et al., 2019).
 #' }
-#' 
+#'
 #' \subsection{Continuity correction}{
 #'
 #' Three approaches are available to apply a continuity correction:
@@ -255,7 +263,7 @@
 #' \item All studies irrespective of zero cell counts
 #'   (\code{method.incr = "all"})
 #' }
-#' 
+#'
 #' If the summary measure is equal to "PLOGIT", "PLN", or "PRAW", the
 #' continuity correction is applied if a study has either zero or all
 #' events, i.e., an event probability of either 0 or 1.
@@ -268,9 +276,9 @@
 #' only considered in the calculation of confidence intervals for individual
 #' studies if \code{method.ci = "NAsm"} (see next subsection).
 #' }
-#' 
+#'
 #' \subsection{Confidence intervals for individual studies}{
-#' 
+#'
 #' Various methods are available to calculate confidence intervals for
 #' individual study results (see Agresti & Coull 1998 and Newcombe
 #' 1988):
@@ -287,28 +295,28 @@
 #' \item Normal approximation interval based on summary measure,
 #'   i.e. defined by argument \code{sm} (\code{method.ci = "NAsm"})
 #' }
-#' 
+#'
 #' Note, with exception of the normal approximation based on the
 #' summary measure, i.e. \code{method.ci = "NAsm"}, the same
 #' confidence interval is calculated for individual studies for any
 #' summary measure (argument \code{sm}) as only number of events and
 #' observations are used in the calculation disregarding the chosen
-#' transformation. Furthermore, the continuity correction 
+#' transformation. Furthermore, the continuity correction
 #'
 #' Results will be presented for transformed proportions if argument
 #' \code{backtransf = FALSE}. In this case, argument \code{method.ci =
 #' "NAsm"} is used, i.e. confidence intervals based on the normal
 #' approximation based on the summary measure.
 #' }
-#' 
+#'
 #' \subsection{Subgroup analysis}{
-#' 
+#'
 #' Argument \code{subgroup} can be used to conduct subgroup analysis for
 #' a categorical covariate. The \code{\link{metareg}} function can be
 #' used instead for more than one categorical covariate or continuous
 #' covariates.
 #' }
-#' 
+#'
 #' \subsection{Specify the null hypothesis of test for an overall proportion}{
 #'
 #' Argument \code{null.effect} can be used to specify the proportion
@@ -323,7 +331,7 @@
 #' alternative hypothesis that the effect is unequal to
 #' \code{null.effect}.
 #' }
-#' 
+#'
 #' \subsection{Exclusion of studies from meta-analysis}{
 #'
 #' Arguments \code{subset} and \code{exclude} can be used to exclude
@@ -333,9 +341,9 @@
 #' \code{exclude} (see Examples in \code{\link{metagen}}).
 #' Meta-analysis results are the same for both arguments.
 #' }
-#' 
+#'
 #' \subsection{Presentation of meta-analysis results}{
-#' 
+#'
 #' Internally, both common effect and random effects models are
 #' calculated regardless of values choosen for arguments
 #' \code{common} and \code{random}. Accordingly, the estimate
@@ -346,7 +354,7 @@
 #' \code{common} and \code{random}. E.g. function
 #' \code{\link{print.meta}} will not print results for the random
 #' effects model if \code{random = FALSE}.
-#' 
+#'
 #' Argument \code{pscale} can be used to rescale proportions, e.g.
 #' \code{pscale = 1000} means that proportions are expressed as events
 #' per 1000 observations. This is useful in situations with (very) low
@@ -355,63 +363,69 @@
 #' A prediction interval will only be shown if \code{prediction =
 #' TRUE}.
 #' }
-#' 
+#'
 #' @return
 #' An object of class \code{c("metaprop", "meta")} with corresponding
 #' generic functions (see \code{\link{meta-object}}).
-#' 
+#'
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
-#' 
+#'
 #' @seealso \code{\link{meta-package}}, \code{\link{update.meta}},
 #'   \code{\link{metacont}}, \code{\link{metagen}},
 #'   \code{\link{print.meta}}, \code{\link{forest.meta}}
-#' 
+#'
 #' @references
 #' Agresti A & Coull BA (1998):
 #' Approximate is better than "exact" for interval estimation of
 #' binomial proportions.
 #' \emph{The American Statistician},
 #' \bold{52}, 119--26
-#' 
+#'
 #' Barendregt JJ, Doi SA, Lee YY, Norman RE, Vos T (2013):
 #' Meta-analysis of prevalence.
 #' \emph{Journal of Epidemiology and Community Health},
 #' \bold{67}, 974--8
-#' 
+#'
 #' Borenstein M, Hedges LV, Higgins JP, Rothstein HR (2010):
 #' A basic introduction to fixed-effect and random-effects models for
 #' meta-analysis.
 #' \emph{Research Synthesis Methods},
 #' \bold{1}, 97--111
-#' 
+#'
 #' Freeman MF & Tukey JW (1950):
 #' Transformations related to the angular and the square root.
 #' \emph{Annals of Mathematical Statistics},
 #' \bold{21}, 607--11
-#' 
+#'
 #' Miller JJ (1978):
 #' The inverse of the Freeman-Tukey double arcsine transformation.
 #' \emph{The American Statistician},
 #' \bold{32}, 138
-#' 
+#'
 #' Newcombe RG (1998):
 #' Two-sided confidence intervals for the single proportion:
 #' comparison of seven methods.
 #' \emph{Statistics in Medicine},
 #' \bold{17}, 857--72
-#' 
+#'
 #' Pettigrew HM, Gart JJ, Thomas DG (1986):
 #' The bias and higher cumulants of the logarithm of a binomial
 #' variate.
 #' \emph{Biometrika},
 #' \bold{73}, 425--35
-#' 
+#'
+#' Pustejovsky JE, Tipton E (2022):
+#' Meta-Analysis with robust variance estimation: Expanding the range of
+#' working models.
+#' \emph{Prevention Science},
+#' \bold{23}, 425--38
+#'
 #' Schwarzer G, Chemaitelly H, Abu-Raddad LJ, Rücker G (2019):
 #' Seriously misleading results using inverse of Freeman-Tukey double
 #' arcsine transformation in meta-analysis of single proportions.
 #' \emph{Research Synthesis Methods},
 #' \bold{10}, 476--83
-#' 
+#'
 #' Stijnen T, Hamza TH, Ozdemir P (2010):
 #' Random effects meta-analysis of event outcome in the framework of
 #' the generalized linear mixed model with applications in sparse
@@ -419,11 +433,17 @@
 #' \emph{Statistics in Medicine},
 #' \bold{29}, 3046--67
 #'
+#' Tipton E, Pustejovsky JE (2015):
+#' Small-sample adjustments for tests of moderators and model fit using
+#' robust variance estimation in meta-regression.
+#' \emph{Journal of Educational and Behavioral Statistics},
+#' \bold{40}, 604--34
+#'
 #' Van den Noortgate W, López-López JA, Marín-Martínez F, Sánchez-Meca J (2013):
 #' Three-level meta-analysis of dependent effect sizes.
 #' \emph{Behavior Research Methods},
 #' \bold{45}, 576--94
-#' 
+#'
 #' Viechtbauer W (2010):
 #' Conducting meta-analyses in R with the metafor package.
 #' \emph{Journal of Statistical Software},
@@ -433,12 +453,12 @@
 #' The arcsine is asinine: the analysis of proportions in ecology.
 #' \emph{Ecology},
 #' \bold{92}, 3--10
-#' 
+#'
 #' @examples
 #' # Meta-analysis using generalised linear mixed model
 #' #
 #' metaprop(4:1, 10 * 1:4)
-#' 
+#'
 #' # Apply various classic meta-analysis methods to estimate
 #' # proportions
 #' #
@@ -462,7 +482,7 @@
 #' forest(ma4)
 #' forest(ma5)
 #' }
-#' 
+#'
 #' # Do not back transform results, e.g. print logit transformed
 #' # proportions if sm = "PLOGIT" and store old settings
 #' #
@@ -482,11 +502,11 @@
 #' forest(ma9)
 #' forest(ma10)
 #' }
-#' 
+#'
 #' # Use old settings
 #' #
 #' settings.meta(oldset)
-#' 
+#'
 #' # Examples with zero events
 #' #
 #' ma11 <- metaprop(c(0, 0, 10, 10), rep(100, 4), method = "Inverse")
@@ -499,7 +519,7 @@
 #' forest(ma11)
 #' forest(ma12)
 #' }
-#' 
+#'
 #' # Example from Miller (1978):
 #' #
 #' death <- c(3, 6, 10, 1)
@@ -507,7 +527,7 @@
 #' #
 #' ma13 <- metaprop(death, animals, sm = "PFT")
 #' forest(ma13)
-#' 
+#'
 #' # Data examples from Newcombe (1998)
 #' # - apply various methods to estimate confidence intervals for
 #' #   individual studies
@@ -539,7 +559,7 @@
 #' tab1[is.na(tab1)] <- ""
 #' # Newcombe (1998), Table I, methods 1-5:
 #' tab1
-#' 
+#'
 #' # Same confidence interval, i.e. unaffected by choice of summary
 #' # measure
 #' #
@@ -548,7 +568,7 @@
 #' print(metaprop(event, n, sm = "PFT", method.ci = "WS"), ma = FALSE)
 #' print(metaprop(event, n, sm = "PAS", method.ci = "WS"), ma = FALSE)
 #' print(metaprop(event, n, sm = "PRAW", method.ci = "WS"), ma = FALSE)
-#' 
+#'
 #' # Different confidence intervals as argument sm = "NAsm"
 #' #
 #' print(metaprop(event, n, method.ci = "NAsm", method = "Inverse"), ma = FALSE)
@@ -556,7 +576,7 @@
 #' print(metaprop(event, n, sm = "PFT", method.ci = "NAsm"), ma = FALSE)
 #' print(metaprop(event, n, sm = "PAS", method.ci = "NAsm"), ma = FALSE)
 #' print(metaprop(event, n, sm = "PRAW", method.ci = "NAsm"), ma = FALSE)
-#' 
+#'
 #' # Different confidence intervals as argument backtransf = FALSE.
 #' # Accordingly, method.ci = "NAsm" used internally.
 #' #
@@ -570,19 +590,19 @@
 #'   ma = FALSE, backtransf = FALSE)
 #' print(metaprop(event, n, sm = "PRAW", method.ci = "WS"),
 #'   ma = FALSE, backtransf = FALSE)
-#' 
+#'
 #' # Same results (printed on original and log scale, respectively)
 #' #
 #' print(metaprop(event, n, sm = "PLN", method.ci = "NAsm"), ma = FALSE)
 #' print(metaprop(event, n, sm = "PLN"), ma = FALSE, backtransf = FALSE)
 #' # Results for first study (on log scale)
 #' round(log(c(0.3079848, 0.2569522, 0.3691529)), 4)
-#' 
+#'
 #' # Print results as events per 1000 observations
 #' #
 #' print(metaprop(6:8, c(100, 1200, 1000), method = "Inverse"),
 #'   pscale = 1000, digits = 1)
-#' 
+#'
 #' @export metaprop
 
 metaprop <- function(event, n, studlab,
@@ -608,7 +628,7 @@ metaprop <- function(event, n, studlab,
                        if (is.null(gs("overall.hetstat")))
                          common | random
                        else
-                         gs("overall.hetstat"),   
+                         gs("overall.hetstat"),
                      prediction = gs("prediction") | !missing(method.predict),
                      #
                      method.tau =
@@ -669,14 +689,20 @@ metaprop <- function(event, n, studlab,
                      control = NULL,
                      ...
                      ) {
-  
-  
+
+
   #
   #
   # (1) Check and set arguments
   #
   #
-  
+
+  missing.subgroup <- missing(subgroup)
+  missing.byvar <- missing(byvar)
+  #
+  subgroup.expr <- enquo(subgroup)
+  byvar.expr <- enquo(byvar)
+  #
   chknumeric(rho, min = -1, max = 1)
   #
   chknull(sm)
@@ -690,7 +716,7 @@ metaprop <- function(event, n, studlab,
   is.glmm <- method == "GLMM"
   #
   missing.method.common.ci <- missing(method.common.ci)
-  method.common.ci <- setchar(method.common.ci, gs("meth4common.ci"))
+  method.common.ci <- setchar(method.common.ci, gs("meth4common.ci"), length = 1)
   #
   if (method != "Inverse" & method.common.ci == "IVhet") {
     if (!missing.method.common.ci)
@@ -708,7 +734,7 @@ metaprop <- function(event, n, studlab,
   missing.method.tau <- missing(method.tau)
   if (missing.method.tau)
     method.tau <- if (method == "GLMM") "ML" else gs("method.tau")
-  method.tau <- setchar(method.tau, gs("meth4tau"))
+  method.tau <- setchar(method.tau, gs("meth4tau"), length = 1)
   #
   missing.tau.common <- missing(tau.common)
   tau.common <- replaceNULL(tau.common, FALSE)
@@ -740,7 +766,8 @@ metaprop <- function(event, n, studlab,
   #
   chklogical(backtransf)
   #
-  chknumeric(pscale, length = 1)
+  pscale <- replaceNULL(pscale, 1)
+  chknumeric_strict(pscale, min = 1, length = 1)
   if (!backtransf & pscale != 1 & !is_untransformed(sm)) {
     warning("Argument 'pscale' set to 1 as argument 'backtransf' is FALSE.",
             call. = FALSE)
@@ -791,12 +818,23 @@ metaprop <- function(event, n, studlab,
     deprecated2(method.random.ci, missing(method.random.ci),
                 hakn, missing(hakn),
                 warn.deprecated)
+  #
   if (is.logical(method.random.ci))
     if (method.random.ci)
       method.random.ci <- "HK"
     else
       method.random.ci <- "classic"
+  #
   method.random.ci <- setchar(method.random.ci, gs("meth4random.ci"))
+  #
+  if (any(method.random.ci %in% c("CR0", "CR1", "CR2")) && method == "GLMM")
+    stop("Methods 'CR0', 'CR1', and 'CR2' not available for ",
+         "argument 'method = \"GLMM\"'.",
+         call. = FALSE)
+  #
+  if (any(method.random.ci == "CR2"))
+    is_installed_package("clubSandwich", argument = "method.random.ci",
+                         value = "CR2")
   #
   adhoc.hakn.ci <-
     deprecated2(adhoc.hakn.ci, missing(adhoc.hakn.ci),
@@ -846,68 +884,61 @@ metaprop <- function(event, n, studlab,
   #
   chklogical(overall)
   chklogical(overall.hetstat)
-  
-  
+
+
   #
   #
   # (2) Read data
   #
   #
-  
+
   nulldata <- is.null(data)
-  sfsp <- sys.frame(sys.parent())
-  mc <- match.call()
-  #
-  if (nulldata)
-    data <- sfsp
   #
   # Catch 'event' and 'n' from data:
   #
-  event <- catch("event", mc, data, sfsp)
+  event <- catch(enquo(event), data)
   chknull(event)
   k.All <- length(event)
   #
-  n <- catch("n", mc, data, sfsp)
+  n <- catch(enquo(n), data)
   chknull(n)
   #
   # Catch 'incr' from data:
   #
   if (!missing(incr))
-    incr <- catch("incr", mc, data, sfsp)
+    incr <- catch(enquo(incr), data)
   chknumeric(incr, min = 0)
   #
   # Catch 'studlab', 'subgroup', 'subset', 'exclude' and 'cluster'
   # from data:
   #
-  studlab <- catch("studlab", mc, data, sfsp)
+  studlab <- catch(enquo(studlab), data)
   studlab <- setstudlab(studlab, k.All)
   #
-  missing.subgroup <- missing(subgroup)
-  subgroup <- catch("subgroup", mc, data, sfsp)
-  missing.byvar <- missing(byvar)
-  byvar <- catch("byvar", mc, data, sfsp)
+  subgroup <- catch(subgroup.expr, data)
+  byvar <- catch(byvar.expr, data)
   #
   subgroup <- deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
                           warn.deprecated)
   by <- !is.null(subgroup)
   #
-  subset <- catch("subset", mc, data, sfsp)
+  subset <- catch(enquo(subset), data)
   missing.subset <- is.null(subset)
   #
-  exclude <- catch("exclude", mc, data, sfsp)
+  exclude <- catch(enquo(exclude), data)
   missing.exclude <- is.null(exclude)
   #
-  cluster <- catch("cluster", mc, data, sfsp)
+  cluster <- catch(enquo(cluster), data)
   with.cluster <- !is.null(cluster)
   #
   # Catch 'weights', 'weights.common', and 'weights.random' from data:
   #
   if (!missing(weights))
-    weights <- catch("weights", mc, data, sfsp)
+    weights <- catch(enquo(weights), data)
   if (!missing(weights.common))
-    weights.common <- catch("weights.common", mc, data, sfsp)
+    weights.common <- catch(enquo(weights.common), data)
   if (!missing(weights.random))
-    weights.random <- catch("weights.random", mc, data, sfsp)
+    weights.random <- catch(enquo(weights.random), data)
   #
   if (!is.null(weights) & is.null(weights.common))
     weights.common <- weights
@@ -933,14 +964,14 @@ metaprop <- function(event, n, studlab,
     stop("User-specified weights for the random effects model not implemented ",
          "for generalized linear mixed models (method = \"GLMM\").",
          call. = FALSE)
-  
-  
+
+
   #
   #
   # (3) Check length of essential variables
   #
   #
-  
+
   chklength(n, k.All, fun)
   chklength(studlab, k.All, fun)
   #
@@ -984,14 +1015,14 @@ metaprop <- function(event, n, studlab,
             call. = FALSE)
     tau.common <- TRUE
   }
-  
-  
+
+
   #
   #
   # (4) Subset, exclude studies, and subgroups
   #
   #
-  
+
   if (!missing.subset)
     if ((is.logical(subset) & (sum(subset) > k.All)) ||
         (length(subset) > k.All))
@@ -1008,15 +1039,15 @@ metaprop <- function(event, n, studlab,
   }
   else
     exclude <- rep(FALSE, k.All)
-  
-  
+
+
   #
   #
   # (5) Store complete dataset in list object data
   #     (if argument keepdata is TRUE)
   #
   #
-  
+
   if (keepdata) {
     if (nulldata)
       data <- data.frame(.event = event)
@@ -1052,14 +1083,14 @@ metaprop <- function(event, n, studlab,
     if (usw.random)
       data$.weights.random <- weights.random
   }
-  
-  
+
+
   #
   #
   # (6) Use subset for analysis
   #
   #
-  
+
   if (!missing.subset) {
     event <- event[subset]
     n <- n[subset]
@@ -1130,24 +1161,24 @@ metaprop <- function(event, n, studlab,
   if (by) {
     chkmiss(subgroup)
     #
-    if (missing.subgroup.name & is.null(subgroup.name)) {
+    if (missing.subgroup.name && is.null(subgroup.name)) {
       if (!missing.subgroup)
-        subgroup.name <- byvarname("subgroup", mc)
+        subgroup.name <- subgroup_name(subgroup.expr)
       else if (!missing.byvar)
-        subgroup.name <- byvarname("byvar", mc)
+        subgroup.name <- subgroup_name(byvar.expr)
     }
   }
   #
   if (!is.null(subgroup.name))
     chkchar(subgroup.name, length = 1)
-  
-  
+
+
   #
   #
   # (7) Continuity correction
   #
   #
-  
+
   sel <- switch(sm,
                 PLOGIT = event == 0 | (n - event) == 0,
                 PAS = rep(FALSE, length(event)),
@@ -1182,14 +1213,18 @@ metaprop <- function(event, n, studlab,
       data$.incr[subset] <- incr.event
     }
   }
-  
-  
+
+
+  sel.harmonic <- !exclude & !is.na(event) & !is.na(n)
+  n.harmonic.mean <- 1 / mean(1 / n[sel.harmonic])
+
+
   #
   #
   # (8) Calculate results for individual studies
   #
   #
-  
+
   if (sm == "PLOGIT") {
     TE <- log((event + incr.event) / (n - event + incr.event))
     seTE <- sqrt(1 / (event + incr.event) +
@@ -1197,15 +1232,14 @@ metaprop <- function(event, n, studlab,
     transf.null.effect <- p2logit(null.effect)
   }
   else if (sm == "PAS") {
-    TE <- asin(sqrt(event / n))
+    TE <- p2asin(event / n)
     seTE <- sqrt(1 / (4 * n))
     transf.null.effect <- p2asin(null.effect)
   }
   else if (sm == "PFT") {
-    TE <-
-      0.5 * (asin(sqrt(event / (n + 1))) + asin(sqrt((event + 1) / (n + 1))))
+    TE <- p2asin(event / n, n)
     seTE <- sqrt(1 / (4 * n + 2))
-    transf.null.effect <- p2asin(null.effect)
+    transf.null.effect <- p2asin(null.effect, n.harmonic.mean)
   }
   else if (sm == "PLN") {
     TE <- log((event + incr.event) / (n + incr.event))
@@ -1255,15 +1289,8 @@ metaprop <- function(event, n, studlab,
     }
     #
     else if (sm == "PFT") {
-      lower.ev <- n * lower.study 
-      upper.ev <- n * upper.study 
-      #
-      lower.study <-
-        0.5 * (asin(sqrt(lower.ev / (n + 1))) +
-               asin(sqrt((lower.ev + 1) / (n + 1))))
-      upper.study <-
-        0.5 * (asin(sqrt(upper.ev / (n + 1))) +
-               asin(sqrt((upper.ev + 1) / (n + 1))))
+      lower.study <- p2asin(lower.study, n)
+      upper.study <- p2asin(upper.study, n)
     }
     #
     else if (sm == "PLN") {
@@ -1271,14 +1298,14 @@ metaprop <- function(event, n, studlab,
       upper.study <- log(upper.study)
     }
   }
-  
-  
+
+
   #
   #
   # (9) Additional checks for three-level model
   #
   #
-  
+
   three.level <- FALSE
   sel.ni <- !is.infinite(TE) & !is.infinite(seTE)
   #
@@ -1301,14 +1328,14 @@ metaprop <- function(event, n, studlab,
     if (!(method.tau %in% c("REML", "ML")))
       method.tau <- "REML"
   }
-  
-  
+
+
   #
   #
   # (10) Additional checks for GLMM
   #
   #
-  
+
   if (is.glmm) {
     chkglmm(sm, method.tau, method.random.ci, method.predict,
             adhoc.hakn.ci, adhoc.hakn.pi,
@@ -1328,14 +1355,14 @@ metaprop <- function(event, n, studlab,
       tau.preset <- NULL
     }
   }
-  
-  
+
+
   #
   #
   # (11) Do meta-analysis
   #
   #
-  
+
   k <- sum(!is.na(event[!exclude]) & !is.na(n[!exclude]))
   #
   for (i in seq_along(method.random.ci))
@@ -1404,20 +1431,21 @@ metaprop <- function(event, n, studlab,
   if (by & tau.common & !is.glmm)
     hcc <- hetcalc(TE, seTE, method.tau, "", TE.tau,
                    method.I2, level.hetstat, subgroup, control)
-  
-  
+
+
   #
   #
   # (12) Generate R object
   #
   #
-  
+
   res <- list(event = event, n = n,
               incr = if (length(unique(incr)) == 1) unique(incr) else incr,
               method.incr = method.incr,
               sparse = sparse,
               method.ci = method.ci,
-              incr.event = incr.event)
+              incr.event = incr.event,
+              n.harmonic.mean = if (sm == "PFT") n.harmonic.mean else NULL)
   #
   # Add meta-analysis results
   # (after removing unneeded list elements)
@@ -1438,13 +1466,13 @@ metaprop <- function(event, n, studlab,
   if (method.ci == "CP") {
     m$statistic <- rep(NA, length(m$statistic))
     m$pval <- ci.study$p
-  }    
+  }
   else if (method.ci != "NAsm") {
     m$statistic <- rep(NA, length(m$statistic))
     m$pval <- rep(NA, length(m$pval))
   }
   #
-  if (is.glmm) 
+  if (is.glmm)
     m$method.tau <- method.tau
   #
   if (is.glmm | three.level) {
@@ -1578,12 +1606,11 @@ metaprop <- function(event, n, studlab,
     res <- setNAwithin(res, res$three.level | is.glmm)
   }
   #
-  # Backward compatibility
+  # Backward compatibility (still required by R package metaumbrella)
   #
   res <- backward(res)
   #
   class(res) <- c(fun, "meta")
-  
   
   res
 }

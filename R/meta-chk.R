@@ -5,13 +5,10 @@
 # License: GPL (>= 2)
 #
 
-chkchar <- function(x, length = 0, name = NULL, nchar = NULL, single = FALSE,
-                    NULL.ok = FALSE) {
+chkchar <- function(x, length = 0, name = NULL, nchar = NULL, NULL.ok = FALSE) {
   if (is.null(x) & NULL.ok)
     return(invisible(NULL))
   #
-  if (!missing(single) && single)
-    length <- 1
   if (is.null(name))
     name <- deparse(substitute(x))
   #
@@ -30,14 +27,14 @@ chkchar <- function(x, length = 0, name = NULL, nchar = NULL, single = FALSE,
       if (length(nchar) == 1 && nchar == 1)
         stop("Argument '", name, "' must be a single character.",
              call. = FALSE)
-      else
-        stop("Argument '", name, "' must be a character string of length ",
-             if (length(nchar) == 2)
-               paste0(nchar, collapse = " or ")
-             else
-               paste0(nchar, collapse = ", "),
-             ".",
-             call. = FALSE)
+    else
+      stop("Argument '", name, "' must be a character string of length ",
+           if (length(nchar) == 2)
+             paste0(nchar, collapse = " or ")
+           else
+             paste0(nchar, collapse = ", "),
+           ".",
+           call. = FALSE)
   }
   #
   if (!is.character(x) & !is.numeric(x))
@@ -47,18 +44,31 @@ chkchar <- function(x, length = 0, name = NULL, nchar = NULL, single = FALSE,
       if (length(nchar) == 1 && nchar == 1)
         stop("Argument '", name, "' must be a vector of single characters.",
              call. = FALSE)
-      else
-        stop("Argument '", name, "' must be a character vector where ",
-             "each element has ",
-             if (length(nchar) == 2)
-               paste0(nchar, collapse = " or ")
-             else
-               paste0(nchar, collapse = ", "),
-             " characters.",
-             call. = FALSE)
+    else
+      stop("Argument '", name, "' must be a character vector where ",
+           "each element has ",
+           if (length(nchar) == 2)
+             paste0(nchar, collapse = " or ")
+           else
+             paste0(nchar, collapse = ", "),
+           " characters.",
+           call. = FALSE)
   }
   #
   invisible(NULL)
+}
+
+chkchar_list <- function(x, length = list(), NULL.ok = character(),
+                         name = deparse(substitute(x))) {
+  for (i in names(x)) {
+    length.i <- 1
+    if (i %in% names(length))
+      length.i <- length[[i]]
+    #
+    chkchar(x[[i]], length = length.i,
+             NULL.ok = i %in% NULL.ok,
+             name = paste0(name, ".", i))
+  }
 }
 
 chkclass <- function(x, class, name = NULL) {
@@ -75,7 +85,7 @@ chkclass <- function(x, class, name = NULL) {
     text.class <- paste0('"', class, '"', collapse = " or ")
   else
     text.class <- paste0(paste0('"', class[-n.class], '"', collapse = ", "),
-                    ', or ', '"', class[n.class], '"')
+                         ', or ', '"', class[n.class], '"')
   #
   if (!inherits(x, class))
     stop("Argument '", name, "' must be an object of class ", text.class, ".",
@@ -84,19 +94,33 @@ chkclass <- function(x, class, name = NULL) {
   invisible(NULL)
 }
 
-chkcolor <- function(x, length = 0, name = NULL, single = FALSE) {
-  if (!missing(single) && single)
-    length <- 1
+chkcolor <- function(x, length = 0, name = NULL, one = FALSE) {
   if (is.null(name))
     name <- deparse(substitute(x))
   #
   if (length && length(x) != length)
-    stop("Argument '", name, "' must must be a character or ",
-         "numeric vector of length ", length, ".",
+    stop("Argument '", name, "' must be a character or ",
+         "numeric vector of length ",
+         if (one & length != 1) "1 or ", length, ".",
          call. = FALSE)
   else if (!(is.character(x) || is.numeric(x)))
     stop("Argument '", name, "' must be a character or numeric vector.",
          call. = FALSE)
+}
+
+chkcolor_list <- function(x, length = list(), one = FALSE) {
+  name <- deparse(substitute(x))
+  #
+  chklogical(one)
+  #
+  for (i in names(x)) {
+    length.i <- 0
+    if (i %in% names(length))
+      length.i <- length[[i]]
+    #
+    chkcolor(x[[i]], length = length.i, one = one,
+              name = paste0(name, ".", i))
+  }
 }
 
 chkfunc <- function(x, name = NULL) {
@@ -118,14 +142,14 @@ chkfunc <- function(x, name = NULL) {
   invisible(NULL)
 }
 
-chklength <- function(x, k.all, fun = "", text, name = NULL) {
+chklength <- function(x, k.all, fun = "", text, name = NULL, internal = TRUE) {
   #
   # Check length of vector
   #
   if (is.null(name))
     name <- deparse(substitute(x))
   #
-  if (length(x) != k.all) {
+  if (internal && length(x) != k.all) {
     funcs <- c("metabin", "metacont", "metacor",
                "metagen", "metainc", "metamean",
                "metaprop", "metarate",
@@ -149,13 +173,15 @@ chklength <- function(x, k.all, fun = "", text, name = NULL) {
       stop(text, call. = FALSE)
   }
   #
+  if (!internal && length(x) != k.all) {
+    stop("Argument '", name, "' must be of length ", k.all, ".",
+         call. = FALSE)
+  }
+  #
   invisible(NULL)
 }
 
-chklevel <- function(x, length = 0, ci = TRUE, name = NULL, single = FALSE) {
-  if (!missing(single) && single)
-    length <- 1
-  #
+chklevel <- function(x, length = 0, ci = TRUE, name = NULL) {
   # Check for levels of confidence interval / contour level
   #
   if (is.null(name))
@@ -167,11 +193,11 @@ chklevel <- function(x, length = 0, ci = TRUE, name = NULL, single = FALSE) {
   #
   if (!is.numeric(x))
     if (length && length(x) != length)
-    stop("Argument '", name, "' must be a numeric of length ", length, ".",
-         call. = FALSE)
-    else
-      stop("Argument '", name, "' must be numeric.",
+      stop("Argument '", name, "' must be a numeric of length ", length, ".",
            call. = FALSE)
+  else
+    stop("Argument '", name, "' must be numeric.",
+         call. = FALSE)
   #
   if (length && length(x) != length)
     stop("Argument '", name, "' must be a numeric of length ", length, ".",
@@ -197,21 +223,58 @@ chklist <- function(x, name = NULL) {
   invisible(NULL)
 }
 
-chklogical <- function(x, name = NULL, text = "") {
+chklogical <- function(x, name = NULL, text = "", length = 1, NULL.ok = FALSE) {
+  
+  if (NULL.ok && is.null(x))
+    return(invisible(NULL))
+  
   #
   # Check whether argument is logical
   #
   if (is.null(name))
     name <- deparse(substitute(x))
   #
+  # Do not check length if length = 0
+  #
+  length <- sort(unique(length))
+  check.length <- !(length(length) == 1 && length == 0)
+  #
   if (is.numeric(x))
     x <- as.logical(x)
   #
-  if (length(x) !=  1 || !is.logical(x) || is.na(x))
-    stop("Argument '", name, "' must be a logical",
+  if (!check.length)
+    txt.length <- "logical vector"
+  else if (length(length) == 1 && length == 1) {
+    txt.length <- "logical"
+  }
+  else {
+    txt.length <-
+      paste("logical vector",
+            if (length(length) == 1) "of length" else "whose length is",
+            collapse_choices(length))
+  }
+  #
+  if ((check.length && !(length(x) %in% length)) || !is.logical(x) || anyNA(x))
+    stop("Argument '", name, "' must be a ",
+         txt.length,
          if (text != "") " ", text, ".", call. = FALSE)
   #
   invisible(NULL)
+}
+
+chklogical_list <- function(x, NULL.ok = character(), length = list()) {
+  name <- deparse(substitute(x))
+  #
+  for (i in names(x)) {
+    length.i <- 1
+    if (i %in% names(length))
+      length.i <- length[[i]]
+    #
+    chklogical(x[[i]],
+               name = paste0(name, ".", i),
+               length = length.i,
+               NULL.ok = i %in% NULL.ok)
+  }
 }
 
 chkmiss <- function(x, name = NULL) {
@@ -242,15 +305,28 @@ chknull <- function(x, name = NULL) {
 }
 
 chknumeric <- function(x, min, max, zero = FALSE, length = 0,
-                       name = NULL, single = FALSE, integer = FALSE,
-                       NA.ok = TRUE) {
-  if (!missing(single) && single)
-    length <- 1
-  #
+                       name = NULL, integer = FALSE,
+                       NA.ok = TRUE, NULL.ok = TRUE) {
   # Check numeric variable
   #
   if (is.null(name))
     name <- deparse(substitute(x))
+  #
+  if (is.null(x)) {
+    if (NULL.ok)
+      return(NULL)
+    else
+      stop("Argument '", name, "' must not be NULL.",
+           call. = FALSE)
+  }
+  #
+  if (length(x) == 0) {
+    if (NULL.ok)
+      return(NULL)
+    else
+      stop("Argument '", name, "' must not have length 0.",
+           call. = FALSE)
+  }
   #
   if (NA.ok)
     x <- x[!is.na(x)]
@@ -258,8 +334,13 @@ chknumeric <- function(x, min, max, zero = FALSE, length = 0,
     stop("Missing values not allowed in argument '", name, "'.",
          call. = FALSE)
   #
-  if (length(x) == 0)
-    return(NULL)
+  if (length(x) == 0) {
+    if (NULL.ok)
+      return(NULL)
+    else
+      stop("Argument '", name, "' must not have length 0.",
+           call. = FALSE)
+  }
   #
   if (!is.numeric(x))
     stop("Non-numeric value for argument '", name, "'.",
@@ -284,7 +365,7 @@ chknumeric <- function(x, min, max, zero = FALSE, length = 0,
            call. = FALSE)
     else if (any(x > max, na.rm = TRUE))
       stop("Argument '", name, "' must be smaller equal ",
-           min, ".", call. = FALSE)
+           max, ".", call. = FALSE)
   }
   #
   if ((!missing(min) & !missing(max)) &&
@@ -304,6 +385,12 @@ chknumeric <- function(x, min, max, zero = FALSE, length = 0,
   invisible(NULL)
 }
 
+chknumeric_strict <- function(x, min, max, zero = FALSE, length = 0,
+                              name = NULL, integer = FALSE) {
+  chknumeric(x, min = min, max = max, zero = zero, length = length,
+             name = name, integer = integer, NA.ok = FALSE, NULL.ok = FALSE)
+}
+
 argid <- function(x, value) {
   if (any(x == value))
     res <- seq(along = x)[x == value]
@@ -312,19 +399,55 @@ argid <- function(x, value) {
   res
 }
 
+chknumeric_list <- function(x, min = list(), length = list(),
+                            strict = FALSE, miss = list()) {
+  name <- deparse(substitute(x))
+  #
+  chklogical(strict)
+  #
+  if (strict)
+    check <- chknumeric_strict
+  else
+    check <- chknumeric
+  #
+  for (i in names(x)) {
+    if (!(i %in% names(miss) && isTRUE(miss[[i]]))) {
+      if (i %in% names(length))
+        length.i <- length[[i]]
+      else
+        length.i <- 1
+      #
+      if (i %in% names(min))
+        min.i <- min[[i]]
+      else
+        min.i <- 0
+      #
+      check(x[[i]],
+            min = min.i,
+            length = length.i,
+            name = paste0(name, ".", i))
+    }
+  }
+}
+
 chkdeprecated <- function(x, new, old, warn = TRUE) {
   depr <- !is.na(argid(x, old))
-  new.given <- !is.na(argid(x, new))
   #
   if (depr & warn) {
-    if (new.given)
-      warning("Deprecated argument '", old, "' ignored as ",
-              "'", new, "' is also provided, see help(meta).",
+    if (is.null(new))
+      warning("Argument '", old, "' is deprecated and ignored.",
               call. = FALSE)
-    else
-      warning("Use argument '", new, "' instead of '",
-              old, "' (deprecated), see help(meta).",
-              call. = FALSE)
+    else {
+      new.given <- !is.na(argid(x, new))
+      if (new.given)
+        warning("Deprecated argument '", old, "' ignored as ",
+                "'", new, "' is also provided, see help(meta).",
+                call. = FALSE)
+      else
+        warning("Use argument '", new, "' instead of '",
+                old, "' (deprecated), see help(meta).",
+                call. = FALSE)
+    }
   }
   #
   invisible(depr)
@@ -347,6 +470,10 @@ chkglmm <- function(sm, method.tau, method.random.ci, method.predict,
   if (any(method.random.ci == "KR"))
     stop("Kenward-Roger method for random effects meta-analysis not ",
          "available for GLMMs.",
+         call. = FALSE)
+  #
+  if (any(method.random.ci %in% c("CR0", "CR1", "CR2")))
+    stop("Cluster-robust variance estimation method not available for GLMMs.",
          call. = FALSE)
   #
   if (any(method.random.ci == "HK" & adhoc.hakn.ci != ""))
@@ -405,6 +532,11 @@ chklrp <- function(sm, method.tau, method.random.ci, method.predict,
   if (any(method.random.ci == "KR"))
     stop("Kenward-Roger method for random effects meta-analysis not ",
          "available for penalised logistic regression.",
+         call. = FALSE)
+  #
+  if (any(method.random.ci %in% c("CR0", "CR1", "CR2")))
+    stop("Cluster-robust variance estimation method not available for",
+         "penalised logistic regression.",
          call. = FALSE)
   #
   if (any(method.random.ci == "HK" & adhoc.hakn.ci != ""))
@@ -469,4 +601,46 @@ chksuitable <- function(x, method,
   }
   #
   return(TRUE)
+}
+
+chkfontface <- function(x, length = 1, name = NULL) {
+  if (is.null(x))
+    return(invisible(NULL))
+  #
+  if (is.null(name))
+    name <- deparse(substitute(x))
+  #
+  values <- c("plain", "bold", "italic", "oblique", "bold.italic")
+  #
+  if (length && length(x) != length)
+    stop("Argument '", name, "' must be a font face of length ", length, ".",
+         call. = FALSE)
+  #
+  if (!(is.character(x) || is.numeric(x)))
+    stop("Argument '", name, "' must be a character or numeric font face.",
+         call. = FALSE)
+  #
+  if (anyNA(x))
+    stop("Argument '", name, "' must not contain missing values.",
+         call. = FALSE)
+  #
+  if (is.character(x) && any(!(x %in% values)))
+    stop("Argument '", name, "' must be one of ",
+         paste0('"', values, '"', collapse = ", "), ".",
+         call. = FALSE)
+  #
+  if (is.numeric(x) && any(!(x %in% 1:4)))
+    stop("Argument '", name, "' must be 1, 2, 3, or 4.",
+         call. = FALSE)
+  #
+  invisible(NULL)
+}
+
+chkfontface_list <- function(x, length = 1) {
+  name <- deparse(substitute(x))
+  #
+  for (i in names(x))
+    chkfontface(x[[i]],
+                length = length,
+                name = paste0(name, ".", i))
 }

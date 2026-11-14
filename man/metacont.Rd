@@ -272,8 +272,8 @@ for meta-analysis estimates.}
 is used to calculate confidence interval and test statistic for
 common effect estimate (see \code{\link{meta-package}}).}
 
-\item{method.random.ci}{A character string indicating which method
-is used to calculate confidence interval and test statistic for
+\item{method.random.ci}{A character string or vector indicating which methods
+are used to calculate confidence intervals and test statistics for the
 random effects estimate (see \code{\link{meta-package}}).}
 
 \item{adhoc.hakn.ci}{A character string indicating whether an
@@ -407,6 +407,14 @@ least one cluster provides more than one estimate. Internally,
 \code{\link[metafor]{weights.rma.mv}} with argument \code{type =
 "rowsum"} is used to calculate random effects weights.
 
+Cluster-robust variance estimators (Tipton and Pustejovsky, 2015;
+Pustejovsky and Tipton, 2022) are available for univariate random effects
+and three-level models (argument \code{method.random.ci} equal to
+\code{"CR0"}, \code{"CR1"}, or \code{"CR2"}). Internally,
+\code{\link[metafor]{rma.uni}} or \code{\link[metafor]{rma.mv}} is called
+and then passed to \code{\link[metafor]{robust}}. For univariate random
+effects models, study labels (argument \code{studlab}) are used as clusters.
+
 Default settings are utilised for several arguments (assignments
 using \code{\link{gs}} function). These defaults can be changed for
 the current R session using the \code{\link{settings.meta}}
@@ -484,7 +492,7 @@ control group) can be derived from
 By default, methods described in Luo et al. (2018) are utilised
 (argument \code{method.mean = "Luo"}):
 \itemize{
-\item equation (15) if sample size, median, interquartile range and 
+\item equation (15) if sample size, median, interquartile range and
   range are available,
 \item equation (11) if sample size, median and interquartile range
   are available,
@@ -494,7 +502,7 @@ By default, methods described in Luo et al. (2018) are utilised
 Instead the methods described in Wan et al. (2014) are used if
 argument \code{method.mean = "Wan"}:
 \itemize{
-\item equation (10) if sample size, median, interquartile range and 
+\item equation (10) if sample size, median, interquartile range and
   range are available,
 \item equation (14) if sample size, median and interquartile range
   are available,
@@ -730,6 +738,12 @@ reported quantiles in meta-analysis.
 \emph{Statistical Methods in Medical Research},
 \bold{29}, 2520--2537
 
+Pustejovsky JE, Tipton E (2022):
+Meta-Analysis with robust variance estimation: Expanding the range of
+working models.
+\emph{Prevention Science},
+\bold{23}, 425--38
+
 \emph{Review Manager (RevMan)} [Computer program]. Version 5.4.
 The Cochrane Collaboration, 2020
 
@@ -738,6 +752,12 @@ Optimally estimating the sample standard deviation from the
 five-number summary.
 \emph{Research Synthesis Methods},
 \bold{11}, 641--54
+
+Tipton E, Pustejovsky JE (2015):
+Small-sample adjustments for tests of moderators and model fit using
+robust variance estimation in meta-regression.
+\emph{Journal of Educational and Behavioral Statistics},
+\bold{40}, 604--34
 
 Van den Noortgate W, López-López JA, Marín-Martínez F, Sánchez-Meca J (2013):
 Three-level meta-analysis of dependent effect sizes.

@@ -102,7 +102,7 @@
 #' values, e.g., log odds ratio (\code{sm = "OR"}) or Fisher's Z
 #' transformed correlations (\code{sm = "ZCOR"}). See
 #' \code{\link{meta-sm}} for available summary measures and
-#' \code{\link{meta-transf}} for the corresponding transformations and
+#' \code{\link{transf}} for the corresponding transformations and
 #' back transformations.
 #' 
 #' @return
@@ -110,7 +110,7 @@
 #' 
 #' @author Guido Schwarzer \email{guido.schwarzer@@uniklinik-freiburg.de}
 #' 
-#' @seealso \code{\link{meta-transf}}, \code{\link{meta-sm}},
+#' @seealso \code{\link{transf}}, \code{\link{meta-sm}},
 #'   \code{\link{as.data.frame.meta}}
 #' 
 #' @examples
@@ -178,11 +178,8 @@ estimates.meta <- function(x,
                            ...) {
   
   chkclass(x, "meta")
-  x <- updateversion(x)
   chksuitable(x, method = "estimates", classes = "metabind", check.mlm = FALSE)
-  #
-  sfsp <- sys.frame(sys.parent())
-  mc <- match.call()
+  x <- updateversion(x)
   #
   chklogical(study.results)
   chklogical(common)
@@ -196,10 +193,31 @@ estimates.meta <- function(x,
   }
   else {
     chklogical(subgroup)
+    #
     if (is.null(x$subgroup))
       subgroup <- FALSE
     else
       n.subgroups <- length(x$subgroup.levels)
+  }
+  #
+  if (subgroup) {
+    for (model in c("common", "random", "predict")) {
+      reference <- x[[paste0("lower.", model, ".w")]]
+      #
+      if (is.null(reference))
+        next
+      #
+      vars <- if (model == "predict")
+        c("lower", "upper", "df")
+      else
+        c("TE", "seTE", "lower", "upper", "statistic", "pval",
+          if (model == "random") "df")
+      #
+      for (i in vars) {
+        name <- paste0(i, ".", model, ".w")
+        x[[name]] <- subgroup_result_matrix(x[[name]], reference)
+      }
+    }
   }
   #
   missing.prediction.subgroup <- missing(prediction.subgroup)
@@ -213,7 +231,7 @@ estimates.meta <- function(x,
     prediction.subgroup <- FALSE
   }
   else {
-    prediction.subgroup <- catch("prediction.subgroup", mc, x, sfsp)
+    prediction.subgroup <- catch(enquo(prediction.subgroup), x)
     prediction.subgroup <- replaceNULL(prediction.subgroup, FALSE)
     #
     if (length(prediction.subgroup) == 1) {
@@ -267,37 +285,33 @@ estimates.meta <- function(x,
     return(NULL)
   }
   #
-  avail.n <- n & !is.null(x$n)
-  avail.n.e <- n & !is.null(x$n.e)
-  avail.n.c <- n & !is.null(x$n.c)
+  chars <- result_characteristics(x)
+  #
+  avail.n <- n & !is.null(x[["n"]])
+  avail.n.e <- n & !is.null(x[["n.e"]])
+  avail.n.c <- n & !is.null(x[["n.c"]])
   #
   res.s <- NULL
   res.c <- res.c.w <- NULL
   res.r <- res.r.w <- NULL
   res.p <- res.p.w <- NULL
   #
-  n.s <- n.e.s <- n.c.s <- NULL
-  n.c <- n.e.c <- n.c.c <- NULL
-  n.c.w <- n.e.c.w <- n.c.c.w <- NULL
-  n.r <- n.e.r <- n.c.r <- NULL
-  n.r.w <- n.e.r.w <- n.c.r.w <- NULL
-  n.p <- n.e.p <- n.c.p <- NULL
-  n.p.w <- n.e.p.w <- n.c.p.w <- NULL
+  study.characteristics <- NULL
   #
   if (study.results) {
     error <-
-      try(sortvar <-
-            catch("sortvar", mc, x, sfsp),
-          silent = TRUE)
+      try(sortvar <- catch(enquo(sortvar), x), silent = TRUE)
     if (inherits(error, "try-error")) {
-      sortvar <- catch("sortvar", mc, x$data,  NULL)
+      sortvar <- catch(enquo(sortvar), x$data)
       if (isCol(x$data, ".subset"))
         sortvar <- sortvar[x$data$.subset]
     }
+    #
     sort <- !is.null(sortvar)
     if (sort && (length(sortvar) != length(x$TE)))
       stop("Number of studies in object 'x' and ",
            "argument 'sortvar' have different length.")
+    #
     if (!sort)
       sortvar <- seq_along(x$TE)
     #
@@ -314,16 +328,23 @@ estimates.meta <- function(x,
                         statistic = x$statistic,
                         pval = x$pval)[o, ]
     #
-    if (avail.n)
-      n.s <- x$n[o]
-    else if (avail.n.e & avail.n.c)
-      n.s <- x$n.e[o] + x$n.c[o]
+    NAs <- rep(NA_real_, nrow(res.s))
     #
-    if (avail.n.e)
-      n.e.s <- x$n.e[o]
-    #
-    if (avail.n.c)
-      n.c.s <- x$n.c[o]
+    study.characteristics <-
+      data.frame(
+        k = NAs,
+        n = if (avail.n)
+          x[["n"]][o]
+        else if (avail.n.e && avail.n.c)
+          x[["n.e"]][o] + x[["n.c"]][o]
+        else
+          NAs,
+        n.e = if (avail.n.e) x[["n.e"]][o] else NAs,
+        n.c = if (avail.n.c) x[["n.c"]][o] else NAs,
+        n.harmonic.mean =
+          if (inherits(x, "metaprop")) x[["n"]][o] else NAs,
+        t.harmonic.mean =
+          if (inherits(x, "metarate")) x[["time"]][o] else NAs)
   }
   #
   if (common) {
@@ -334,49 +355,34 @@ estimates.meta <- function(x,
                           se = x$seTE.common,
                           lower = x$lower.common,
                           upper = x$upper.common,
-                          k = x$k,
+                          k = chars$common$overall$k,
                           df = NA,
                           statistic = x$statistic.common,
                           pval = x$pval.common)
-      #
-      if (avail.n)
-        n.c <- rep(sum(x$n), length(x$lower.common))
-      else if (avail.n.e & avail.n.c)
-        n.c <- rep(sum(x$n.e + x$n.c), length(x$lower.common))
-      #
-      if (avail.n.e)
-        n.e.c <- rep(sum(x$n.e), length(x$lower.common))
-      #
-      if (avail.n.c)
-        n.c.c <- rep(sum(x$n.c), length(x$lower.common))
     }
     #
     if (subgroup) {
       rep.c <- rep(length(x$text.common), n.subgroups)
       #
+      TE.common.w <- x$TE.common.w
+      #
+      if (is.matrix(TE.common.w))
+        TE.common.w <- as.vector(t(TE.common.w))
+      else
+        TE.common.w <- rep(TE.common.w, rep.c)
+      #
       res.c.w <- data.frame(studlab = rep(x$text.common, n.subgroups),
                             subgroup = rep(x$subgroup.levels, rep.c),
-                            estimate = x$TE.common.w,
+                            estimate = TE.common.w,
                             se = as.vector(t(x$seTE.common.w)),
                             lower = as.vector(t(x$lower.common.w)),
                             upper = as.vector(t(x$upper.common.w)),
-                            k = rep(x$k.w, rep.c),
+                            k = as.vector(t(chars$common$subgroup$k)),
                             df = NA,
                             statistic = as.vector(t(x$statistic.common.w)),
                             pval = as.vector(t(x$pval.common.w)),
                             row.names =
                               seq_along(as.vector(t(x$lower.common.w))))
-      #
-      if (avail.n)
-        n.c.w <- rep(x$n.w, rep.c)
-      else if (avail.n.e & avail.n.c)
-        n.c.w <- rep(x$n.e.w + x$n.c.w, rep.c)
-      #
-      if (avail.n.e)
-        n.e.c.w <- rep(x$n.e.w, rep.c)
-      #
-      if (avail.n.c)
-        n.c.c.w <- rep(x$n.c.w, rep.c)
     }
   }
   #
@@ -388,49 +394,34 @@ estimates.meta <- function(x,
                           se = x$seTE.random,
                           lower = x$lower.random,
                           upper = x$upper.random,
-                          k = x$k,
+                          k = chars$random$overall$k,
                           df = x$df.random,
                           statistic = x$statistic.random,
                           pval = x$pval.random)
-      #
-      if (avail.n)
-        n.r <- rep(sum(x$n), length(x$lower.random))
-      else if (avail.n.e & avail.n.c)
-        n.r <- rep(sum(x$n.e + x$n.c), length(x$lower.random))
-      #
-      if (avail.n.e)
-        n.e.r <- rep(sum(x$n.e), length(x$lower.random))
-      #
-      if (avail.n.c)
-        n.c.r <- rep(sum(x$n.c), length(x$lower.random))
     }
     #
     if (subgroup) {
       rep.r <- rep(length(x$text.random), n.subgroups)
       #
-      res.r.w <- data.frame(studlab = rep(x$text.random, n.subgroups),
-                            subgroup = rep(x$subgroup.levels, rep.r),
-                            estimate = x$TE.random.w,
-                            se = as.vector(t(x$seTE.random.w)),
-                            lower = as.vector(t(x$lower.random.w)),
-                            upper = as.vector(t(x$upper.random.w)),
-                            k = rep(x$k.w, rep.r),
-                            df = as.vector(t(x$df.random.w)),
-                            statistic = as.vector(t(x$statistic.random.w)),
-                            pval = as.vector(t(x$pval.random.w)),
-                            row.names =
-                              seq_along(as.vector(t(x$lower.random.w))))
+      TE.random.w <- x$TE.random.w
       #
-      if (avail.n)
-        n.r.w <- rep(x$n.w, rep.r)
-      else if (avail.n.e & avail.n.c)
-        n.r.w <- rep(x$n.e.w + x$n.c.w, rep.r)
+      if (is.matrix(TE.random.w))
+        TE.random.w <- as.vector(t(TE.random.w))
+      else
+        TE.random.w <- rep(TE.random.w, rep.r)
       #
-      if (avail.n.e)
-        n.e.r.w <- rep(x$n.e.w, rep.r)
-      #
-      if (avail.n.c)
-        n.c.r.w <- rep(x$n.c.w, rep.r)
+      res.r.w <- data.frame(
+        studlab = rep(x$text.random, n.subgroups),
+        subgroup = rep(x$subgroup.levels, rep.r),
+        estimate = TE.random.w,
+        se = as.vector(t(x$seTE.random.w)),
+        lower = as.vector(t(x$lower.random.w)),
+        upper = as.vector(t(x$upper.random.w)),
+        k = as.vector(t(chars$random$subgroup$k)),
+        df = as.vector(t(x$df.random.w)),
+        statistic = as.vector(t(x$statistic.random.w)),
+        pval = as.vector(t(x$pval.random.w)),
+        row.names = seq_along(as.vector(t(x$lower.random.w))))
     }
   }
   #
@@ -442,21 +433,10 @@ estimates.meta <- function(x,
                           se = NA,
                           lower = x$lower.predict,
                           upper = x$upper.predict,
-                          k = x$k,
+                          k = chars$predict$overall$k,
                           df = x$df.predict,
                           statistic = NA,
                           pval = NA)
-      #
-      if (avail.n)
-        n.p <- rep(sum(x$n), length(x$lower.predict))
-      else if (avail.n.e & avail.n.c)
-        n.p <- rep(sum(x$n.e + x$n.c), length(x$lower.predict))
-      #
-      if (avail.n.e)
-        n.e.p <- rep(sum(x$n.e), length(x$lower.predict))
-      #
-      if (avail.n.c)
-        n.c.p <- rep(sum(x$n.c), length(x$lower.predict))
     }
   }
   #
@@ -471,90 +451,63 @@ estimates.meta <- function(x,
                  se = NA,
                  lower = as.vector(t(x$lower.predict.w)),
                  upper = as.vector(t(x$upper.predict.w)),
-                 k = rep(x$k.w, rep.p),
+                 k = as.vector(t(chars$predict$subgroup$k)),
                  df = as.vector(t(x$df.predict.w)),
                  statistic = NA,
                  pval = NA,
                  row.names =
                    seq_along(as.vector(t(x$lower.predict.w))))[sel.p, ]
-    #
-    if (avail.n)
-      n.p.w <- rep(x$n.w, rep.p)
-    else if (avail.n.e & avail.n.c)
-      n.p.w <- rep(x$n.e.w, rep.p) + rep(x$n.c.w, rep.p)
-    #
-    if (avail.n.e)
-      n.e.p.w <- rep(x$n.e.w, rep.p)
-    #
-    if (avail.n.c)
-      n.c.p.w <- rep(x$n.c.w, rep.p)
-    #
-    n.p.w <- n.p.w[sel.p]
-    n.e.p.w <- n.e.p.w[sel.p]
-    n.c.p.w <- n.c.p.w[sel.p]
   }
   #
   res <- rbind(res.s, res.c, res.c.w, res.r, res.r.w, res.p, res.p.w)
+  info <- rbind(
+    study.characteristics,
+    if (common && overall)
+      chars$common$overall,
+    if (common && subgroup)
+      characteristic_rows(chars$common$subgroup),
+    if (random && overall)
+      chars$random$overall,
+    if (random && subgroup)
+      characteristic_rows(chars$random$subgroup),
+    if (prediction && overall)
+      chars$predict$overall,
+    if (any(prediction.subgroup))
+      characteristic_rows(chars$predict$subgroup)[sel.p, , drop = FALSE])
+  #
+  if (nrow(info) != nrow(res))
+    stop("Result characteristics do not match the extracted rows.",
+         call. = FALSE)
+  #
+  res$k <- info$k
   #
   if (n) {
-    res$n <- c(n.s, n.c, n.c.w, n.r, n.r.w, n.p, n.p.w)
-    res$n.e <- c(n.e.s, n.e.c, n.e.c.w, n.e.r, n.e.r.w, n.e.p, n.e.p.w)
-    res$n.c <- c(n.c.s, n.c.c, n.c.c.w, n.c.r, n.c.r.w, n.c.p, n.c.p.w)
+    for (var in c("n", "n.e", "n.c")) {
+      if (!all(is.na(info[[var]])))
+        res[[var]] <- info[[var]]
+    }
   }
   #
   if (backtransf) {
-    if (inherits(x, "metaprop")) {
-      harmonic.mean <- 1 / mean(1 / x$n)
-      #
-      nback <- c(if (study.results)
-                   x$n[o],
-                 if (common & overall)
-                   rep(harmonic.mean, length(x$lower.common)),
-                 if (common & subgroup)
-                   rep(x$n.harmonic.mean.w, rep.c),
-                 if (random & overall)
-                   rep(harmonic.mean, length(x$lower.random)),
-                 if (random & subgroup)
-                   rep(x$n.harmonic.mean.w, rep.r),
-                 if (prediction & overall)
-                   rep(harmonic.mean, length(x$lower.predict)),
-                 if (any(prediction.subgroup))
-                   rep(x$n.harmonic.mean.w, rep.p)[sel.p]
-                 )
-    }
+    if (inherits(x, "metaprop"))
+      n_backtr <- info$n.harmonic.mean
     else
-      nback <- NULL
+      n_backtr <- NULL
     #
-    if (inherits(x, "metarate")) {
-      harmonic.mean <- 1 / mean(1 / x$time)
-      #
-      timeback <- c(if (study.results)
-                      x$time[o],
-                    if (common & overall)
-                      rep(harmonic.mean, length(x$lower.common)),
-                    if (common & subgroup)
-                      rep(x$t.harmonic.mean.w, rep.c),
-                    if (random & overall)
-                      rep(harmonic.mean, length(x$lower.random)),
-                    if (random & subgroup)
-                      rep(x$t.harmonic.mean.w, rep.r),
-                    if (prediction & overall)
-                      rep(harmonic.mean, length(x$lower.predict)),
-                    if (any(prediction.subgroup))
-                      rep(x$t.harmonic.mean.w, rep.p)[sel.p]
-                    )
-    }
+    if (inherits(x, "metarate"))
+      t_backtr <- info$t.harmonic.mean
     else
-      timeback <- NULL
+      t_backtr <- NULL
     #
-    res$estimate <- backtransf(res$estimate, x$sm, nback, timeback,
+    res$estimate <- backtransf(res$estimate, x$sm, n_backtr, t_backtr,
                                x$func.backtransf, x$args.backtransf)
-    if (ci)
-      res$lower <- backtransf(res$lower, x$sm, nback, timeback,
+    #
+    if (ci) {
+      res$lower <- backtransf(res$lower, x$sm, n_backtr, t_backtr,
                               x$func.backtransf, x$args.backtransf)
-    if (ci)
-      res$upper <- backtransf(res$upper, x$sm, nback, timeback,
+      res$upper <- backtransf(res$upper, x$sm, n_backtr, t_backtr,
                               x$func.backtransf, x$args.backtransf)
+    }
     #
     if (inherits(x, "metaprop") && x$pscale != 1) {
       res$estimate <- x$pscale * res$estimate
@@ -580,15 +533,22 @@ estimates.meta <- function(x,
   else
     res$se <- NULL
   #
-  if (ci)
+  if (ci) {
     res$lower <- round(res$lower, digits = digits)
-  else
-    res$lower <- NULL
-  #
-  if (ci)
     res$upper <- round(res$upper, digits = digits)
-  else
+    #
+    if (backtransf) {
+      wo <- !is.na(res$lower) & !is.na(res$upper) & res$lower > res$upper
+      #
+      tlower <- res$lower[wo]
+      res$lower[wo] <- res$upper[wo]
+      res$upper[wo] <- tlower
+    }
+  }
+  else {
+    res$lower <- NULL
     res$upper <- NULL
+  }
   #
   if (statistic)
     res$statistic <- round(res$statistic, digits = digits)
@@ -697,8 +657,9 @@ print.estimates.meta <- function(x,
   #
   backtransf <- attr(x, "backtransf")
   sm.lab <- smlab(meta$sm, backtransf, meta$pscale, meta$irscale)
+  sm.lab.se <- smlab(meta$sm, FALSE)
   #
-  ci.lab <- paste0(round(100 * meta$level, 1), "% CI")
+  ci.lab <- percent_label(meta$level)
   #
   se <- attr(x, "se")
   ci <- attr(x, "ci")
@@ -708,10 +669,11 @@ print.estimates.meta <- function(x,
   res <- x[, names(x) != "studlab"]
   #
   res$estimate <- round(res$estimate, digits = digits)
-  if (ci)
+  #
+  if (ci) {
     res$lower <- round(res$lower, digits = digits)
-  if (ci)
     res$upper <- round(res$upper, digits = digits)
+  }
   #
   res$estimate <- formatN(res$estimate, digits, "", big.mark = big.mark)
   #
@@ -748,6 +710,7 @@ print.estimates.meta <- function(x,
   #
   cn <- colnames(res)
   cn[cn == "estimate"] <- sm.lab
+  cn[cn == "se"] <- paste0("SE(", sm.lab.se, ")")
   cn[cn == "lower"] <- ci.lab
   colnames(res) <- cn
   
@@ -766,12 +729,12 @@ print.estimates.meta <- function(x,
             text.tau = gs("text.tau"), text.tau2 = gs("text.tau2"))
     #
     if ((common | random) && meta$level != meta$level.ma)
-      cat(paste0("- ", round(100 * meta$level.ma, 1),
-                 "% CI calculated for meta-analysis results\n"))
+      cat(paste0("- ", percent_label(meta$level.ma),
+                 " calculated for meta-analysis results\n"))
     if (prediction && meta$level != meta$level.predict)
       if (meta$level != meta$level.ma)
-        cat(paste0("- ", round(100 * meta$level.predict, 1),
-                   "% PI calculated\n"))
+        cat(paste0("- ", percent_label(meta$level.predict, "PI"),
+                   " calculated\n"))
   }
   
   invisible(NULL)

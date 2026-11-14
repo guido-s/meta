@@ -36,7 +36,7 @@
 #' @param allstudies A logical indicating if studies with zero or all
 #'   events in both groups are to be included in the meta-analysis
 #'   (applies only to \code{\link{metabin}} object with \code{sm}
-#'   equal to \code{"RR"} or \code{"OR"}).
+#'   equal to \code{"RR"}, \code{"OR"}, \code{"DOR"}, or \code{"VE"}).
 #' @param incr.e Continuity correction in experimental group (see
 #'   \code{\link{metabin}} and \code{\link{metainc}}).
 #' @param incr.c Continuity correction in control group (see
@@ -48,8 +48,8 @@
 #'   to calculate the pooled estimate based on the Mantel-Haenszel
 #'   method (applies only to \code{\link{metabin}} object).
 #' @param RR.Cochrane A logical indicating which method to use as
-#'   continuity correction for the risk ratio (see
-#'   \code{\link{metabin}}).
+#'   continuity correction for the risk ratio or vaccine efficacy /
+#'   effectiveness (see \code{\link{metabin}}).
 #' @param Q.Cochrane A logical indicating which method to use to
 #'   calculate the heterogeneity statistic Q (see
 #'   \code{\link{metabin}}).
@@ -81,8 +81,8 @@
 #' @param method.common.ci A character string indicating which method
 #'   is used to calculate confidence interval and test statistic for
 #'   common effect estimate (see \code{\link{meta-package}}).
-#' @param method.random.ci A character string indicating which method
-#'   is used to calculate confidence interval and test statistic for
+#' @param method.random.ci A character string or vector indicating which methods
+#'   are used to calculate confidence intervals and test statistics for the
 #'   random effects estimate (see \code{\link{meta-package}}).
 #' @param adhoc.hakn.ci A character string indicating whether an
 #'   \emph{ad hoc} variance correction should be applied in the case
@@ -254,7 +254,8 @@
 #'   estimate the between-study variance \eqn{\tau^2}. This argument
 #'   is passed on to \code{\link[metafor]{rma.uni}} or
 #'   \code{\link[metafor]{rma.glmm}}, respectively.
-#' @param \dots Additional arguments (ignored at the moment).
+#' @param \dots Additional arguments (only considered to fetch deprecated
+#'   arguments)
 #' 
 #' @details
 #' Wrapper function to update an existing meta-analysis object which
@@ -434,6 +435,21 @@ update.meta <- function(object,
   #
   #
   chkclass(object, "meta")
+  #
+  if (update_needed(object$version, 9, 0, verbose)) {
+    for (i in c("metabind", "is.metabind", "metamerge")) {
+      if (inherits(object, i))
+        stop("Meta-analysis object was created with a version of R package 'meta' ",
+             "earlier than 9.0-0 and is no longer supported. ",
+             "Recreate it using the current version of 'meta'.",
+             if (!is.null(object$call))
+               paste0("\nOriginal call:\n",
+                      paste(deparse(object$call, width.cutoff = 80L),
+                            collapse = "\n")),
+             call. = FALSE)
+    }
+  }
+  #
   suitable <-
     chksuitable(object, "Update",
                 c("metabind", "metaadd", "metamerge", "metamiss"),
@@ -451,8 +467,15 @@ update.meta <- function(object,
   metaprop <- inherits(object, "metaprop")
   metarate <- inherits(object, "metarate")
   #
+  missing.subgroup <- missing(subgroup)
+  missing.byvar <- missing(byvar)
+  subgroup.expr <- enquo(subgroup)
+  byvar.expr <- enquo(byvar)
+  #
   missing.method.common.ci <- missing(method.common.ci)
   missing.method.random.ci <- missing(method.random.ci)
+  missing.method.tau <- missing(method.tau)
+  missing.method.tau.ci <- missing(method.tau.ci)
   missing.adhoc.hakn.ci <- missing(adhoc.hakn.ci)
   missing.text.random <- missing(text.random)
   #
@@ -531,8 +554,6 @@ update.meta <- function(object,
     object$fixed <- object$comb.fixed
     object$random <- object$comb.random
     object$level.ma <- object$level.comb
-    #
-    object$detail.tau <- ""
     #
     if (!is.null(object$byvar)) {
       object$data$.subgroup <- object$byvar
@@ -710,15 +731,8 @@ update.meta <- function(object,
       }
       #
       else if (object$sm == "PFT") {
-        lower.ev <- object$n * object$lower 
-        upper.ev <- object$n * object$upper 
-        #
-        object$lower <-
-          0.5 * (asin(sqrt(lower.ev / object$n)) +
-                 asin(sqrt((lower.ev + 1) / object$n)))
-        object$upper <-
-          0.5 * (asin(sqrt(upper.ev / object$n)) +
-                 asin(sqrt((upper.ev + 1) / object$n)))
+        object$lower <- p2asin(object$lower, object$n)
+        object$upper <- p2asin(object$upper, object$n)
       }
       #
       else if (object$sm == "PLN") {
@@ -738,27 +752,8 @@ update.meta <- function(object,
       }
       #
       else if (object$sm == "IRFT") {
-        lower.ev <- object$time * object$lower 
-        upper.ev <- object$time * object$upper 
-        #
-        object$lower <-
-          0.5 * (sqrt(lower.ev / object$time) +
-                 sqrt((lower.ev + 1) / object$time))
-        object$upper <-
-          0.5 * (sqrt(upper.ev / object$time) +
-                 sqrt((upper.ev + 1) / object$time))
-      }
-      #
-      if (inherits(object, "metabind")) {
-        object$with.subgroups <- any(object$is.subgroup)
-        #
-        if (object$with.subgroups) {
-          object$data$Q.b.common <- object$data$Q.b
-          object$data$Q.b.random <- object$data$Q.b
-          #
-          object$data$pval.Q.b.common <- object$data$pval.Q.b
-          object$data$pval.Q.b.random <- object$data$pval.Q.b
-        }
+        object$lower <- ir2ft(object$lower, object$time)
+        object$upper <- ir2ft(object$upper, object$time)
       }
     }
     #
@@ -818,6 +813,27 @@ update.meta <- function(object,
     #
     object$method.common.ci <- "classic"
   }
+  #
+  if (update_needed(object$version, 9, 0, verbose)) {
+    #
+    # Changes for meta objects with version < 9.0
+    #
+    if (inherits(object, "metaprop") && object$sm == "PFT") {
+      exclude <- replaceNULL(object$exclude, rep(FALSE, length(object$n)))
+      sel.harmonic <- !exclude & !is.na(object$event) & !is.na(object$n)
+      object$n.harmonic.mean <- 1 / mean(1 / object$n[sel.harmonic])
+    }
+    #
+    if (inherits(object, "metarate") && object$sm == "IRFT") {
+      exclude <- replaceNULL(object$exclude, rep(FALSE, length(object$time)))
+      sel.harmonic <- !exclude & !is.na(object$event) & !is.na(object$time)
+      object$t.harmonic.mean <- 1 / mean(1 / object$time[sel.harmonic])
+    }
+  }
+  #
+  # Drop list elements stored for backward compatability
+  #
+  #object <- drop_backward(object)
   
   
   #
@@ -830,6 +846,8 @@ update.meta <- function(object,
   #
   pscale <- replaceNULL(pscale, 1)
   irscale <- replaceNULL(irscale, 1)
+  chknumeric_strict(pscale, min = 1, length = 1)
+  chknumeric_strict(irscale, min = 1, length = 1)
   irunit <- replaceNULL(irunit, "")
   #
   tau.common <- replaceNULL(tau.common, gs("tau.common"))
@@ -868,7 +886,7 @@ update.meta <- function(object,
                        warn.deprecated)
   chklogical(random)
   #
-  method.common.ci <- setchar(method.common.ci, gs("meth4common.ci"))
+  method.common.ci <- setchar(method.common.ci, gs("meth4common.ci"), length = 1)
   #
   method.random.ci <-
     deprecated(method.random.ci, missing.method.random.ci,
@@ -965,8 +983,7 @@ update.meta <- function(object,
                     level.hetstat = level.hetstat,
                     prediction = prediction | !missing.method.predict,
                     level.predict = level.predict,
-                    silent = TRUE,
-                    ...)
+                    silent = TRUE)
     #
     res$call.object <- object$call
     res$call <- match.call()
@@ -1007,27 +1024,24 @@ update.meta <- function(object,
   # (5) Catch variables
   #
   #
-  sfsp <- sys.frame(sys.parent())
-  mc <- match.call()
-  #
   # Catch argument 'subset'
   #
   if (!missing(subset))
-    subset <- catch("subset", mc, data, sfsp)
+    subset <- catch(enquo(subset), data)
   else
     subset <- catch2(object, "subset", fromobject = TRUE)
   #
   # Catch argument 'studlab'
   #
   if (!missing(studlab))
-    studlab <- catch("studlab", mc, data, sfsp)
+    studlab <- catch(enquo(studlab), data)
   else
     studlab <- catch2(object, "studlab")
   #
   # Catch argument 'exclude'
   #
   if (!missing(exclude))
-    exclude <- catch("exclude", mc, data, sfsp)
+    exclude <- catch(enquo(exclude), data)
   else
     exclude <- catch2(object, "exclude")
   #
@@ -1037,8 +1051,8 @@ update.meta <- function(object,
   missing.id <- missing(id)
   #
   if (!missing.cluster | !missing.id) {
-    cluster <- catch("cluster", mc, data, sfsp)
-    id <- catch("id", mc, data, sfsp)
+    cluster <- catch(enquo(cluster), data)
+    id <- catch(enquo(id), data)
     ...cluster <-
       deprecated2(cluster, missing.cluster, id, missing.id,
                   warn.deprecated)
@@ -1048,29 +1062,40 @@ update.meta <- function(object,
   else
     ...cluster <- catch2(object, "cluster")
   #
+  if ((!missing.cluster | !missing.id) && is.null(object$cluster)) {
+    if (missing.method.tau)
+      method.tau <- if (method == "GLMM") "ML" else gs("method.tau")
+    if (missing.method.predict)
+      method.predict <- "V"
+    if (missing.method.tau.ci)
+      method.tau.ci <- NULL
+  }
+  #
   # Catch argument 'cycles'
   #
   if (!missing(cycles))
-    cycles <- catch("cycles", mc, data, sfsp)
+    cycles <- catch(enquo(cycles), data)
   else {
     if (isCol(object$data, ".cycles"))
-      cycles <- catch(".cycles", object$data, object$data, sfsp)
+      cycles <- object$data$.cycles
     else
       cycles <- NULL
   }
   #
   avail.cycles <- !is.null(cycles)
   #
-  # Catch argument 'incr'
+  # Catch arguments 'incr', 'incr.e', and 'incr.c'
   #
   missing.incr <- missing(incr)
-  #
-  # Catch argument 'incr.e'
-  #
   missing.incr.e <- missing(incr.e)
+  missing.incr.c <- missing(incr.c)
+  #
+  if (missing.incr.e != missing.incr.c)
+    stop("Arguments 'incr.e' and 'incr.c' are required together.",
+         call. = FALSE)
   #
   if (!missing.incr.e)
-    incr.e <- catch("incr.e", mc, data, sfsp)
+    incr.e <- catch(enquo(incr.e), data)
   else
     incr.e <- catch2(object, "incr.e", gs("incr"))
   #
@@ -1078,65 +1103,71 @@ update.meta <- function(object,
   #
   # Catch argument 'incr.c'
   #
-  missing.incr.c <- missing(incr.c)
-  #
   if (!missing.incr.c)
-    incr.c <- catch("incr.c", mc, data, sfsp)
+    incr.c <- catch(enquo(incr.c), data)
   else
     incr.c <- catch2(object, "incr.c", gs("incr"))
   #
   avail.incr.c <- !missing.incr.c & !is.null(incr.c)
   #
+  # A vector-valued 'incr' supplies arm-specific user corrections.
+  #
+  if (!missing.incr && length(incr) > 1 &&
+      missing.incr.e && missing.incr.c) {
+    incr.e <- incr
+    incr.c <- incr
+    #
+    avail.incr.e <- TRUE
+    avail.incr.c <- TRUE
+  }
+  #
   # Catch argument 'n.e'
   #
   if (!missing(n.e))
-    n.e <- catch("n.e", mc, data, sfsp)
+    n.e <- catch(enquo(n.e), data)
   else
     n.e <- catch2(object, "n.e")
   #
   # Catch argument 'n.c'
   #
   if (!missing(n.c))
-    n.c <- catch("n.c", mc, data, sfsp)
+    n.c <- catch(enquo(n.c), data)
   else
     n.c <- catch2(object, "n.c")
   #
   # Catch argument 'approx.mean.e'
   #
   if (!missing(approx.mean.e))
-    approx.mean.e <- catch("approx.mean.e", mc, data, sfsp)
+    approx.mean.e <- catch(enquo(approx.mean.e), data)
   else
     approx.mean.e <- catch2(object, "approx.mean.e")
   #
   # Catch argument 'approx.mean.c'
   #
   if (!missing(approx.mean.c))
-    approx.mean.c <- catch("approx.mean.c", mc, data, sfsp)
+    approx.mean.c <- catch(enquo(approx.mean.c), data)
   else
     approx.mean.c <- catch2(object, "approx.mean.c")
   #
   # Catch argument 'approx.sd.e'
   #
   if (!missing(approx.sd.e))
-    approx.sd.e <- catch("approx.sd.e", mc, data, sfsp)
+    approx.sd.e <- catch(enquo(approx.sd.e), data)
   else
     approx.sd.e <- catch2(object, "approx.sd.e")
   #
   # Catch argument 'approx.sd.c'
   #
   if (!missing(approx.sd.c))
-    approx.sd.c <- catch("approx.sd.c", mc, data, sfsp)
+    approx.sd.c <- catch(enquo(approx.sd.c), data)
   else
     approx.sd.c <- catch2(object, "approx.sd.c")
   #
   # Catch argument 'subgroup'
   #
-  missing.subgroup <- missing(subgroup)
-  missing.byvar <- missing(byvar)
-  #
-  if (!missing.subgroup | !missing.byvar) {
-    subgroup <- catch("subgroup", mc, data, sfsp)
-    byvar <- catch("byvar", mc, data, sfsp)
+  if (!missing.subgroup || !missing.byvar) {
+    subgroup <- catch(subgroup.expr, data)
+    byvar <- catch(byvar.expr, data)
     subgroup <-
       deprecated2(subgroup, missing.subgroup, byvar, missing.byvar,
                   warn.deprecated)
@@ -1148,11 +1179,11 @@ update.meta <- function(object,
   else
     subgroup <- NULL
   #
-  if (missing.subgroup.name & is.null(subgroup.name)) {
+  if (missing.subgroup.name && is.null(subgroup.name)) {
     if (!missing.subgroup)
-      subgroup.name <- byvarname("subgroup", mc)
+      subgroup.name <- subgroup_name(subgroup.expr)
     else if (!missing.byvar)
-      subgroup.name <- byvarname("byvar", mc)
+      subgroup.name <- subgroup_name(byvar.expr)
   }
   #
   missing.sm <- missing(sm)
@@ -1273,7 +1304,7 @@ update.meta <- function(object,
     }
     #
     if (!(method == "MH" & method.tau == "DL" &
-          (sm %in% c("OR", "RR", "RD", "DOR"))))
+          (sm %in% c("OR", "RR", "RD", "DOR", "VE"))))
       Q.Cochrane <- FALSE
     #
     if (sm == "DOR" & missing.method.bias)
@@ -1284,8 +1315,10 @@ update.meta <- function(object,
     if (!missing.method.incr)
       method.incr <- setchar(method.incr, gs("meth4incr"))
     else {
-      if (!missing.incr & missing.incr.e & missing.incr.c)
-        method.incr <- gs("method.incr")
+      if (avail.incr.e && avail.incr.c)
+        method.incr <- "user"
+      else if (!missing.incr & missing.incr.e & missing.incr.c)
+        method.incr <- if (length(incr) > 1) "user" else gs("method.incr")
     }
     #
     if (method.incr == "user") {
@@ -1385,8 +1418,7 @@ update.meta <- function(object,
                  #
                  warn = warn, warn.deprecated = FALSE,
                  #
-                 control = control,
-                 ...)
+                 control = control)
     #
     if (method.incr == "user")
       m$incr <- incr.orig
@@ -1795,8 +1827,7 @@ update.meta <- function(object,
                  #
                  warn = warn, warn.deprecated = FALSE,
                  #
-                 control = control,
-                 ...)
+                 control = control)
     #
     if (method.incr == "user")
       m$incr <- incr.orig
@@ -1958,8 +1989,7 @@ update.meta <- function(object,
                   #
                   warn = warn, warn.deprecated = FALSE,
                   #
-                  control = control,
-                  ...)
+                  control = control)
   }
   #
   if (metarate) {
@@ -2043,8 +2073,7 @@ update.meta <- function(object,
                   #
                   warn = warn, warn.deprecated = FALSE,
                   #
-                  control = control,
-                  ...)
+                  control = control)
   }
   #
   m$call.object <- object$call

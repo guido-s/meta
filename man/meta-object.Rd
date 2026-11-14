@@ -247,25 +247,35 @@ additional components are added to the list.
 \code{upper.Rb.w} \tab Upper confidence limit for R\eqn{_b} in subgroups \cr
 \code{Q.w.common} \tab Within-group heterogeneity statistic Q
   (common effect model) \cr
-\code{Q.w.random} \tab Within-group heterogeneity statistic
-  Q (random effects model) \cr
-\tab (only calculated if argument \code{tau.common = TRUE}) \cr
-\code{df.Q.w} \tab Degrees of freedom for \code{Q.w.common} and \code{Q.w.random} \cr
-\code{pval.Q.w.common} \tab P-value of test for residual
+\code{Q.w.random} \tab Residual heterogeneity statistic retained for
+  compatibility, where available; see \code{Q.resid} \cr
+\code{df.Q.w} \tab Degrees of freedom for \code{Q.w.common} \cr
+\code{df.Q.w.random} \tab Degrees of freedom for \code{Q.w.random},
+  where available; see \code{df.Q.resid} \cr
+\code{pval.Q.w.common} \tab P-value of test for within-group
   heterogeneity (common effect model) \cr
-\code{pval.Q.w.random} \tab P-value of test for residual
-  heterogeneity (random effects model) \cr
+\code{pval.Q.w.random} \tab P-value associated with \code{Q.w.random},
+  retained for compatibility; see \code{pval.Q.resid} \cr
 \code{Q.b.common} \tab Between-groups heterogeneity statistic
   Q (common effect model) \cr
 \code{df.Q.b.common} \tab Degrees of freedom for \code{Q.b.common} \cr
 \code{pval.Q.b.common} \tab P-value of test for subgroup
   differences (common effect model) \cr
 \code{Q.b.random} \tab Between-groups heterogeneity statistic
-  Q (random effects model) \cr
+  Q or F (random effects model) \cr
 \code{df.Q.b.random} \tab Degrees of freedom for \code{Q.b.random} \cr
 \code{pval.Q.b.random} \tab P-value of test for subgroup
   differences (random effects model)
 }
+
+For random-effects tests for subgroup differences, \code{Q.b.random}
+contains a Q statistic evaluated against a chi-squared distribution or an
+F statistic evaluated against an F distribution. For a single test,
+\code{df.Q.b.random} is a scalar for a Q test or a numeric vector of length
+two containing the numerator and denominator degrees of freedom, in that
+order, for an F test. With multiple confidence interval methods,
+\code{df.Q.b.random} is a list with one complete DF entry per test, in the
+same order as \code{Q.b.random} and \code{pval.Q.b.random}.
 
 For subgroup analysis assuming a common between-study variance in subgroups
 (argument \code{tau.common = TRUE}), the following additional components are
@@ -323,7 +333,8 @@ class \code{"metabin"} and the following components.
 \code{allstudies} \tab Include studies with double zeros \cr
 \code{doublezeros} \tab Indicator for studies with double zeros \cr
 \code{MH.exact} \tab Exact Mantel-Haenszel method \cr
-\code{RR.Cochrane} \tab Cochrane method to calculate risk ratio \cr
+\code{RR.Cochrane} \tab Cochrane method to calculate risk ratio or
+  vaccine efficacy / effectiveness \cr
 \code{Q.Cochrane} \tab Cochrane method to calculate \eqn{\tau^2}
   \cr
 \code{Q.CMH} \tab Cochran-Mantel-Haenszel statistic \cr

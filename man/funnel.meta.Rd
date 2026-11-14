@@ -16,6 +16,7 @@
   common = x$common,
   random = x$random,
   axes = TRUE,
+  at = NULL,
   pch = if (!inherits(x, "trimfill")) 21 else ifelse(x$trimfill, 1, 21),
   text = NULL,
   cex = 1,
@@ -32,7 +33,7 @@
   yaxis,
   contour.levels = if (type == "contour") c(0.9, 0.95, 0.99) else NULL,
   col.contour = if (type == "contour") c("gray80", "gray70", "gray60") else NULL,
-  ref = ifelse(is_relative_effect(x$sm), 1, 0),
+  ref,
   level = if (common | random) x$level else NULL,
   studlab = FALSE,
   cex.studlab = 0.8,
@@ -71,6 +72,8 @@ estimate should be plotted.}
 
 \item{axes}{A logical indicating whether axes should be drawn on
 the plot.}
+
+\item{at}{Points at which tick-marks are to be drawn on the x-axis.}
 
 \item{pch}{The plotting symbol(s) used for individual studies.}
 
@@ -149,12 +152,12 @@ TRUE and \code{level} is not \code{NULL}).}
 \item{lty.ref.triangle}{Line type (confidence intervals of
 reference value).}
 
-\item{backtransf}{A logical indicating whether results for relative
-summary measures (argument \code{sm} equal to \code{"OR"},
-\code{"RR"}, \code{"HR"}, or \code{"IRR"}) should be back
-transformed in funnel plots. If \code{backtransf=TRUE}, results
-for \code{sm="OR"} are printed as odds ratios rather than log
-odds ratios, for example.}
+\item{backtransf}{A logical indicating whether results should be back
+transformed in funnel plots. If \code{backtransf = TRUE}, results for
+\code{sm = "OR"} are printed as odds ratios rather than log odds ratios,
+for example. For transformed proportions, rates, means, and correlations,
+funnel plots are drawn on the analysis scale with back-transformed tick
+marks on the x-axis.}
 
 \item{warn.deprecated}{A logical indicating whether warnings should
 be printed if deprecated arguments are used.}

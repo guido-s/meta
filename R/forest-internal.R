@@ -10,11 +10,12 @@ add.label <- function(x, column,
                       fontfamily,
                       ...) {
   #
-  pushViewport(viewport(layout.pos.col = column, ...))
+  pushViewport(viewport(layout.pos.col = column, clip = "off", ...))
   #
-  grid.text(x, x = xpos, y = ypos, just = just,
-            gp = gpar(fontsize = fs.lr, fontface = ff.lr, col = col,
-                      fontfamily = fontfamily))
+  for (i in seq_along(x))
+    grid.text(x[i], x = xpos, y = ypos - unit(i - 1, "lines"), just = just,
+              gp = gpar(fontsize = fs.lr, fontface = ff.lr, col = col,
+                        fontfamily = fontfamily))
   #
   popViewport()
   #
@@ -39,25 +40,19 @@ add.text <- function(x, column, ...) {
   invisible(NULL)
 }
 
-add.xlab <- function(x, column, xlab, xlab.add, newline.xlab,
+add.xlab <- function(x, column, grob.xlab,
                      xpos, ypos, fs.xlab, ff.xlab,
                      fontfamily) {
   #
-  pushViewport(viewport(layout.pos.col = column, xscale = x$range))
+  pushViewport(viewport(layout.pos.col = column, xscale = x$range,
+                        clip = "off"))
   #
   # Label on x-axis:
   #
-  grid.text(xlab,
-            x = unit(xpos, "native"),
-            y = unit(ypos, "lines"),
-            just = "center",
-            gp = gpar(fontsize = fs.xlab, fontface = ff.xlab,
-                      fontfamily = fontfamily))
-  #
-  if (newline.xlab)
-    grid.text(xlab.add,
+  for (i in seq_along(grob.xlab))
+    grid.text(grob.xlab[i],
               x = unit(xpos, "native"),
-              y = unit(ypos - 1, "lines"),
+              y = unit(ypos - i + 1, "lines"),
               just = "center",
               gp = gpar(fontsize = fs.xlab, fontface = ff.xlab,
                         fontfamily = fontfamily))
@@ -104,10 +99,11 @@ add.rob <- function(x, column, size, fs, ff, fontfamily,
       rob.colour <- rev(seq_len(n.levs))
   }
   #
-  if (!(length(rob.symbols) == 1 && is.logical(rob.symbols) && !rob.symbols))
+  if (!(length(rob.symbols) == 1 && is.logical(rob.symbols) && !rob.symbols)) {
     txt.rob <-
       as.character(
         factor(rob, levels = rob.levels, labels = rob.symbols))
+  }
   else
     txt.rob <- NULL
   #
@@ -161,58 +157,38 @@ add.columns <- function(x, new = NULL) {
   res
 }
 
-draw.axis <- function(x, column, yS, log.xaxis, at, label,
-                      fs.axis, ff.axis, fontfamily, lwd,
-                      xlim, notmiss.xlim,
-                      col.line, col.label) {
-  #
-  # Function to draw x-axis
-  #
-  pushViewport(
-    viewport(
-      layout.pos.row = max(yS, na.rm = TRUE),
-      layout.pos.col = column,
-      xscale = x$range))
-  #
-  # x-axis:
+axis_labels <- function(xlim, at, label, log.xaxis, notmiss.xlim) {
+  draw.labels <- FALSE
   #
   if (log.xaxis) {
     if (is.null(at)) {
-      x1000 <- c(0.001, 0.1, 1,  10, 1000)
-      x100  <- c(0.01 , 0.1, 1,  10, 100)
-      x10   <- c(0.1  , 0.5, 1,   2, 10)
-      x5    <- c(0.2  , 0.5, 1,   2, 5)
-      x2    <- c(0.5  , 1, 2)
-      x1.5  <- c(0.75 , 1, 1.5)
-      x1.25 <- c(0.8  , 1, 1.25)
-      x1    <- c(0.9  , 1, 1.1)
+      x1000 <- c(0.001, 0.1, 1, 10, 1000)
+      x100 <- c(0.01, 0.1, 1, 10, 100)
+      x10 <- c(0.1, 0.5, 1, 2, 10)
+      x5 <- c(0.2, 0.5, 1, 2, 5)
+      x2 <- c(0.5, 1, 2)
+      x1.5 <- c(0.75, 1, 1.5)
+      x1.25 <- c(0.8, 1, 1.25)
+      x1 <- c(0.9, 1, 1.1)
       #
-      min.x <- min(exp(x$range[1]), 1)
-      max.x <- max(exp(x$range[2]), 1)
+      min.x <- min(exp(xlim[1]), 1)
+      max.x <- max(exp(xlim[2]), 1)
       #
-      if (all(x1000 >= min.x) &
-          all(x1000 <= max.x))
+      if (all(x1000 >= min.x) & all(x1000 <= max.x))
         label <- x1000
-      else if (all(x100 >= min.x) &
-               all(x100 <= max.x))
+      else if (all(x100 >= min.x) & all(x100 <= max.x))
         label <- x100
-      else if (all(x10 >= min.x) &
-               all(x10 <= max.x))
+      else if (all(x10 >= min.x) & all(x10 <= max.x))
         label <- x10
-      else if (all(x5 >= min.x) &
-               all(x5 <= max.x))
+      else if (all(x5 >= min.x) & all(x5 <= max.x))
         label <- x5
-      else if (all(x2 >= min.x) &
-               all(x2 <= max.x))
+      else if (all(x2 >= min.x) & all(x2 <= max.x))
         label <- x2
-      else if (all(x1.5 >= min.x) &
-               all(x1.5 <= max.x))
+      else if (all(x1.5 >= min.x) & all(x1.5 <= max.x))
         label <- x1.5
-      else if (all(x1.25 >= min.x) &
-               all(x1.25 <= max.x))
+      else if (all(x1.25 >= min.x) & all(x1.25 <= max.x))
         label <- x1.25
-      else if (all(x1 >= min.x) &
-               all(x1 <= max.x))
+      else if (all(x1 >= min.x) & all(x1 <= max.x))
         label <- x1
       else
         label <- 1
@@ -223,6 +199,7 @@ draw.axis <- function(x, column, yS, log.xaxis, at, label,
         if (exp(max(xlim)) > max(label))
           label <- c(label, exp(max(xlim)))
       }
+      #
       at <- log(label)
     }
     else {
@@ -230,65 +207,72 @@ draw.axis <- function(x, column, yS, log.xaxis, at, label,
         label <- at
       at <- log(at)
     }
-    # Print x-axis labels
-    grid.xaxis(name = "xaxis1",
-               at = at, label = label,
-               gp = gpar(fontsize = fs.axis, fontface = ff.axis,
-                         fontfamily = fontfamily, lwd = lwd,
-                         col = col.label, tcl = -0.1))
-    # Print xaxis and tick marks (in different colour)
-    grid.xaxis(name = "xaxis2",
-               at = at, label = FALSE,
-               gp = gpar(fontsize = fs.axis, fontface = ff.axis,
-                         fontfamily = fontfamily, lwd = lwd,
-                         col = col.line, tcl = -0.1))
+    draw.labels <- TRUE
   }
   else {
     if (is.null(at)) {
-      # Print x-axis labels
-      grid.xaxis(name = "xaxis1",
-        gp = gpar(fontsize = fs.axis, fontface = ff.axis,
-                  fontfamily = fontfamily, lwd = lwd,
-                  col = col.label, tcl = -0.1))
-      # Print xaxis and tick marks (in different colour)
-      grid.xaxis(name = "xaxis2",
-        label = FALSE,
-        gp = gpar(fontsize = fs.axis, fontface = ff.axis,
-                  fontfamily = fontfamily, lwd = lwd,
-                  col = col.line, tcl = -0.1))
+      at <- grid::grid.pretty(xlim)
+      label <- at
+      draw.labels <- TRUE
     }
     else if ((length(label) == 1 && is.logical(label) && label) |
-          (length(label) >= 1 & !is.logical(label))) {
-      # Print x-axis labels
-      grid.xaxis(name = "xaxis1",
-        at = at, label = label,
-        gp = gpar(fontsize = fs.axis, fontface = ff.axis,
-                  fontfamily = fontfamily, lwd = lwd,
-                  col = col.label, tcl = -0.1))
-      # Print xaxis and tick marks (in different colour)
-      grid.xaxis(name = "xaxis2",
-        at = at, label = FALSE,
-        gp = gpar(fontsize = fs.axis, fontface = ff.axis,
-                  fontfamily = fontfamily, lwd = lwd,
-                  col = col.line, tcl = -0.1))
-    }
-    else {
-      # Print x-axis labels
-      grid.xaxis(name = "xaxis1",
-                 at = at,
-                 gp = gpar(fontsize = fs.axis, fontface = ff.axis,
-                           fontfamily = fontfamily, lwd = lwd,
-                           col = col.label, tcl = -0.1))
-      # Print xaxis and tick marks (in different colour)
-      grid.xaxis(name = "xaxis2",
-        at = at, label = FALSE,
-        gp = gpar(fontsize = fs.axis, fontface = ff.axis,
-                  fontfamily = fontfamily, lwd = lwd,
-                  col = col.line, tcl = -0.1))
+             (length(label) >= 1 & !is.logical(label))) {
+      if (length(label) == 1 && is.logical(label) && label)
+        label <- at
+      draw.labels <- TRUE
     }
   }
   #
+  list(at = at, label = label, draw.labels = draw.labels)
+}
+
+draw.axis <- function(x, column, axis.row, axis.label.row,
+                      log.xaxis, at, label,
+                      fs.axis, ff.axis, fontfamily, lwd,
+                      xlim, notmiss.xlim,
+                      col.line, col.label) {
+  #
+  # Function to draw x-axis
+  #
+  pushViewport(
+    viewport(
+      layout.pos.row = axis.row,
+      layout.pos.col = column,
+      xscale = x$range,
+      clip = "off"))
+  #
+  # x-axis:
+  #
+  draw_axis_ticks <- function(at) {
+    grid.lines(x = unit(range(at), "native"),
+               y = unit(0, "npc"),
+               gp = gpar(lwd = lwd, col = col.line))
+    grid::grid.segments(x0 = unit(at, "native"), y0 = unit(0, "npc"),
+                        x1 = unit(at, "native"),
+                        y1 = unit(-0.25, "lines"),
+                        gp = gpar(lwd = lwd, col = col.line))
+  }
+  axis <- axis_labels(x$range, at, label, log.xaxis, notmiss.xlim)
+  at <- axis$at
+  label <- axis$label
+  draw.labels <- axis$draw.labels
+  draw_axis_ticks(at)
+  #
   popViewport()
+  #
+  if (draw.labels) {
+    pushViewport(
+      viewport(
+        layout.pos.row = axis.label.row,
+        layout.pos.col = column,
+        xscale = x$range,
+        clip = "off"))
+    grid.text(label, x = unit(at, "native"), y = unit(0.5, "npc"),
+              gp = gpar(fontsize = fs.axis, fontface = ff.axis,
+                        fontfamily = fontfamily, col = col.label),
+              just = "center")
+    popViewport()
+  }
   #
   invisible(NULL)
 }
@@ -297,6 +281,30 @@ draw.ci.diamond <- function(TE, lower, upper,
                             size, min, max,
                             col.diamond, col.diamond.lines,
                             lwd) {
+  clip.polygon <- function(x, y, boundary, lower = TRUE) {
+    keep <- if (lower) x >= boundary else x <= boundary
+    res.x <- res.y <- numeric(0)
+    n <- length(x)
+    #
+    for (i in seq_len(n)) {
+      j <- if (i == 1) n else i - 1
+      in.i <- keep[i]
+      in.j <- keep[j]
+      #
+      if (in.i != in.j) {
+        y.inter <- y[j] + (boundary - x[j]) * (y[i] - y[j]) / (x[i] - x[j])
+        res.x <- c(res.x, boundary)
+        res.y <- c(res.y, y.inter)
+      }
+      #
+      if (in.i) {
+        res.x <- c(res.x, x[i])
+        res.y <- c(res.y, y[i])
+      }
+    }
+    #
+    list(x = res.x, y = res.y)
+  }
   #
   if (min > max) {
     tmp <- min
@@ -304,48 +312,23 @@ draw.ci.diamond <- function(TE, lower, upper,
     max <- tmp
   }
   #
-  if (!is.na(TE) &&
-      ((min <= TE & TE <= max) |
-       (min <= lower & lower <= max) |
-       (min <= upper & upper <= max))
-      ) {
-    if (min <= lower & max >= upper) {
-      grid.polygon(x = unit(c(lower, TE, upper, TE), "native"),
-                   y = unit(0.5 + c(0, 0.4 * size, 0, -0.4 * size), "npc"),
-                   gp = gpar(fill = col.diamond, col = col.diamond.lines,
-                             lwd = lwd))
-    }
-    #
-    else {
-      if (min > lower) {
-        x.min <- min
-        y.min1 <- 0.5 + -0.4 * size * (lower - min) / (lower - TE)
-        y.min2 <- 0.5 +  0.4 * size * (lower - min) / (lower - TE)
-      }
-      else {
-        x.min <- lower
-        y.min1 <- y.min2 <- 0.5
-      }
-      #
-      if (max < upper) {
-        x.max <- max
-        y.max1 <- 0.5 +  0.4 * size * (upper - max) / (upper - TE)
-        y.max2 <- 0.5 + -0.4 * size * (upper - max) / (upper - TE)
-      }
-      else {
-        x.max <- upper
-        y.max1 <- y.max2 <- 0.5
-      }
-      #
-      grid.polygon(x = unit(c(x.min, x.min, TE, x.max, x.max, TE, x.min),
-                            "native"),
-                   y = unit(c(y.min1, y.min2, 0.5 + 0.4 * size,
-                              y.max1, y.max2, 0.5 - 0.4 * size,
-                              y.min1), "npc"),
-                   gp = gpar(fill = col.diamond, col = col.diamond.lines,
-                             lwd = lwd))
-    }
-  }
+  if (any(is.na(c(TE, lower, upper))))
+    return(invisible(NULL))
+  #
+  x <- c(lower, TE, upper, TE)
+  y <- 0.5 + c(0, 0.4 * size, 0, -0.4 * size)
+  #
+  if (base::max(x) < min || base::min(x) > max)
+    return(invisible(NULL))
+  #
+  p <- clip.polygon(x, y, min)
+  p <- clip.polygon(p$x, p$y, max, lower = FALSE)
+  #
+  if (length(p$x) >= 3)
+    grid.polygon(x = unit(p$x, "native"),
+                 y = unit(p$y, "npc"),
+                 gp = gpar(fill = col.diamond, col = col.diamond.lines,
+                           lwd = lwd))
   #
   invisible(NULL)
 }
@@ -574,7 +557,7 @@ draw.forest <- function(x, column) {
   invisible(NULL)
 }
 
-draw.lines <- function(x, column,
+draw.lines <- function(x, column, rows,
                        ref, TE.common, TE.random,
                        overall, common, random, prediction,
                        ymin.common, ymin.random, ymin.ref, ymax, ymax.ref,
@@ -595,7 +578,8 @@ draw.lines <- function(x, column,
     xmax <- x$range[2]
   }
   #
-  pushViewport(viewport(layout.pos.col = column, xscale = x$range))
+  pushViewport(viewport(layout.pos.row = rows,
+                        layout.pos.col = column, xscale = x$range))
   #
   # Add background colour for confidence interval plot
   #
@@ -607,9 +591,11 @@ draw.lines <- function(x, column,
   #
   # Add equivalence region
   #
-  if (is.na(ref) & any(!is.na(cid.below.null)) & any(!is.na(cid.above.null)))
+  if (is.na(ref) & any(!is.na(cid.below.null)) & any(!is.na(cid.above.null))) {
     ref.equi <- min(cid.below.null, na.rm = TRUE) +
-      0.5 * (max(cid.above.null, na.rm = TRUE) - min(cid.below.null, na.rm = TRUE))
+      0.5 * (max(cid.above.null, na.rm = TRUE) -
+               min(cid.below.null, na.rm = TRUE))
+  }
   else
     ref.equi <- ref
   #
@@ -690,9 +676,9 @@ draw.lines <- function(x, column,
       if ((i != n.up | (i == n.up & lastline)) &
           !is.na(cid.above.null[i + 1]) &&
           (xmin <= cid.above.null[i + 1] & cid.above.null[i + 1] <= xmax))
-          grid.lines(x = unit(cid.above.null[i + 1], "native"),
-                     y = unit(c(ymin.ref, ymax.ref), "lines"),
-                     gp = gpar(lwd = lwd, col = col.cid, lty = lty.cid))
+        grid.lines(x = unit(cid.above.null[i + 1], "native"),
+                   y = unit(c(ymin.ref, ymax.ref), "lines"),
+                   gp = gpar(lwd = lwd, col = col.cid, lty = lty.cid))
     }
   }
   #
@@ -752,7 +738,7 @@ formatcol <- function(x, y, rows, just = "right", settings,
                          fontsize = settings$fs.study,
                          fontface = settings$ff.study,
                          fontfamily = fontfamily)
-                       ),
+                ),
               rows = rows,
               rob = rob)
   #
@@ -764,7 +750,7 @@ formatcol <- function(x, y, rows, just = "right", settings,
                                 fontsize = settings$fs.heading,
                                 fontface = settings$ff.heading,
                                 fontfamily = fontfamily)
-                              )
+  )
   #
   # Common effect estimate:
   #
@@ -776,7 +762,7 @@ formatcol <- function(x, y, rows, just = "right", settings,
                                          fontsize = settings$fs.common,
                                          fontface = settings$ff.common,
                                          fontfamily = fontfamily)
-                                       ) 
+    )
     j <- j + 1
   }
   #
@@ -790,7 +776,7 @@ formatcol <- function(x, y, rows, just = "right", settings,
                                          fontsize = settings$fs.random,
                                          fontface = settings$ff.random,
                                          fontfamily = fontfamily)
-                                       )
+    )
     j <- j + 1
   }
   #
@@ -804,7 +790,7 @@ formatcol <- function(x, y, rows, just = "right", settings,
                                          fontsize = settings$fs.predict,
                                          fontface = settings$ff.predict,
                                          fontfamily = fontfamily)
-                                       )
+    )
     j <- j + 1
   }
   #
@@ -824,7 +810,7 @@ formatcol <- function(x, y, rows, just = "right", settings,
                      fontface = settings$ff.common,
                      fontfamily = fontfamily,
                      col = settings$col.subgroup)
-                 )
+        )
       j <- j + 1
     }
     #
@@ -841,7 +827,7 @@ formatcol <- function(x, y, rows, just = "right", settings,
                      fontface = settings$ff.random,
                      fontfamily = fontfamily,
                      col = settings$col.subgroup)
-                 )
+        )
       j <- j + 1
     }
     #
@@ -858,10 +844,16 @@ formatcol <- function(x, y, rows, just = "right", settings,
                      fontface = settings$ff.predict,
                      fontfamily = fontfamily,
                      col = settings$col.subgroup)
-                 )
+        )
       j <- j + 1
     }
   }
+  #
+  n.study <- min(length(settings$col.study.text), length(res$labels) - 1)
+  study.labels <- seq.int(length(res$labels) - n.study + 1,
+                          length.out = n.study)
+  for (i in seq_along(study.labels))
+    res$labels[[study.labels[i]]]$gp$col <- settings$col.study.text[i]
   #
   res
 }
@@ -894,10 +886,11 @@ tg <- function(x, xpos, just, fs, ff, fontfamily, col) {
 tgl <- function(x, xpos, just, fs, ff, fontfamily, rows = 1, col) {
   #
   if (missing(col))
-    res <- list(labels = list(tg(x, xpos, just, fs, ff, fontfamily)),
+    res <- list(labels = lapply(as.list(x), tg, xpos, just, fs, ff, fontfamily),
                 rows = rows)
   else
-    res <- list(labels = list(tg(x, xpos, just, fs, ff, fontfamily, col)),
+    res <- list(labels = lapply(as.list(x), tg, xpos, just, fs, ff,
+                                fontfamily, col),
                 rows = rows)
   #
   res
@@ -947,6 +940,75 @@ twolines <- function(x, xname = deparse(substitute(x)), arg = FALSE) {
 
 wcalc <- function(x)
   max(unit(rep(1, length(x)), "grobwidth", x))
+
+label_attach_has_newline <- function(attach) {
+  if (is.null(attach))
+    return(FALSE)
+  #
+  newline.names <- paste0("newline.", attach)
+  any(vapply(newline.names,
+             function(x) exists(x) && isTRUE(get(x)),
+             logical(1)))
+}
+
+add_attached_label_widths <- function(width.cols, cols, colgap,
+                                      label.attach, col.label,
+                                      colgap.studlab = colgap) {
+  for (label.i in list(list(attach = label.attach[[1]],
+                            label = col.label[[1]]),
+                       list(attach = label.attach[[2]],
+                            label = col.label[[2]]))) {
+    if (!is.null(label.i$attach) && !is.null(label.i$label)) {
+      cols.i <- paste0("col.", label.i$attach)
+      if (all(cols.i %in% cols)) {
+        id.i <- seq_along(cols)[cols %in% cols.i]
+        width.label.i <- wcalc(label.i$label$labels)
+        if (length(id.i) == 1) {
+          width.cols[[id.i]] <-
+            unit.pmax(width.cols[[id.i]], width.label.i)
+        }
+        else {
+          gap.i <- unit(0, "mm")
+          for (j in seq(min(id.i), max(id.i) - 1))
+            gap.i <- gap.i +
+              if (cols[[j]] == "col.studlab") colgap.studlab else colgap
+          extra.i <-
+            unit.pmax(unit(0, "mm"),
+                      width.label.i -
+                        sum(do.call(unit.c, width.cols[id.i])) -
+                        gap.i) / length(id.i)
+          for (j in id.i)
+            width.cols[[j]] <- width.cols[[j]] + extra.i
+        }
+      }
+    }
+  }
+  #
+  width.cols
+}
+
+setlength_subgroup_colors <- function(x, n.pooled, n.subgroup,
+                                      subgroup.levels, subgroup.levels.orig,
+                                      text, name) {
+  if (length(x) == 1)
+    x <- rep(x, n.subgroup)
+  else if (length(x) == n.pooled)
+    x <- rep(x, n.subgroup / n.pooled)
+  else if (length(x) == n.subgroup && n.pooled > 0) {
+    subgroup.levels.orig <- subgroup.levels.orig[
+      subgroup.levels.orig %in% subgroup.levels]
+    o <- order(factor(subgroup.levels.orig, levels = subgroup.levels))
+    x <- as.vector(matrix(x, nrow = n.pooled)[, o])
+  }
+  else
+    chklength(x, n.subgroup,
+              text =
+                paste0("Length of argument '", name,
+                       "' must be equal to 1, ", text,
+                       ", or total number of subgroup estimates."))
+  #
+  x
+}
 
 collapsemat <- function(x) {
   if (is.list(x)) {
@@ -998,14 +1060,14 @@ gh <- function(type.gr, rows.gr,
                #
                spacing,
                #
-               xlab, xlab.add, label.right, label.left, bottom.lr,
+               xlab, smlab, label.right, label.left, bottom.lr,
                #
                prediction.subgroup, subgroup.hetstat,
                test.overall.common, test.overall.random,
                test.subgroup.common, test.subgroup.random,
                #
                text.addline1, text.addline2,
-               text.details, text.rob,
+               text.details, text.rob.legend,
                #
                addrow, addrow.overall,
                addrow.subgroups, addrows.below.overall,
@@ -1038,6 +1100,14 @@ gh <- function(type.gr, rows.gr,
     labs <- c(labs, text.w.random)
   #
   rows_column_labels <- 1 + 1L * any(grepl("\n", unlist(labs))) + 1L * addrow
+  #
+  if (length(smlab) == 0 || smlab == "")
+    rows_smlab <- 0
+  else
+    rows_smlab <- length(strsplit(smlab, "\n", fixed = TRUE)[[1]])
+  #
+  if (bottom.lr)
+    rows_column_labels <- max(rows_column_labels, rows_smlab)
   
   #
   # (3) Study results
@@ -1046,18 +1116,19 @@ gh <- function(type.gr, rows.gr,
   rows_studies <-
     if (!study.results)
       0
-    else
-      n.stud
+  else
+    n.stud
   #
   # (3) Meta-analysis results
   #
-  if (overall)
+  if (overall) {
     rows_overall <-
       1L * addrow.overall +
       1L * common * length(lower.common) +
       1L * random * length(lower.random) +
       1L * prediction * length(lower.predict) +
       1L * ((any(common) + any(random) + any(prediction)) == 1)
+  }
   else
     rows_overall <- 1L * addrow.overall
   
@@ -1066,13 +1137,13 @@ gh <- function(type.gr, rows.gr,
   #
   
   n.details <- sum(text.details != "")
-  n.rob <- sum(text.rob != "")
+  n.rob <- sum(text.rob.legend != "")
   rows_below_overall_labels <- addrows.below.overall + overall.hetstat +
     test.overall.common + test.overall.random +
     test.subgroup.common + test.subgroup.random +
     1L * (text.addline1 != "") +
     1L * (text.addline2 != "") +
-    n.details + 1L * (n.details > 0) +
+    n.details +
     n.rob + 1L * (n.rob > 0) +
     1L * (n.details > 0 | n.rob > 0) +
     2L * (n.details == 0 & n.rob == 0)
@@ -1082,40 +1153,27 @@ gh <- function(type.gr, rows.gr,
   # (5) Information below confidence interval plot
   #
   
-  rows_xlab <-
-    if (xlab == "")
-      0
-    else
-      2
-  #
-  rows_xlab.add <-
-    if (xlab.add == "")
-      0
-    else
-      2
-  #
-  rows_xlab <- rows_xlab + rows_xlab.add
+  if (length(xlab) == 0 || xlab == "")
+    rows_xlab <- 0
+  else
+    rows_xlab <- 2 * length(strsplit(xlab, "\n", fixed = TRUE)[[1]])
   #
   if (!bottom.lr) {
     rows_label.left <- 0
     rows_label.right <- 0
   }
   else {
-    rows_label.left <-
-      if (is.null(label.left) || label.left == "")
-        0
-      else if (!grepl("\n", label.left))
-        2
-      else
-        4
+    if (is.null(label.left) || label.left == "")
+      rows_label.left <- 0
+    else
+      rows_label.left <-
+        2 * length(strsplit(label.left, "\n", fixed = TRUE)[[1]])
     #
-    rows_label.right <-
-      if (is.null(label.right) || label.right == "")
-        0
-      else if (!grepl("\n", label.right))
-        2
-      else
-        4
+    if (is.null(label.right) || label.right == "")
+      rows_label.right <- 0
+    else
+      rows_label.right <-
+        2 * length(strsplit(label.right, "\n", fixed = TRUE)[[1]])
   }
   #
   rows_label <- max(c(rows_label.left, rows_label.right))
@@ -1134,17 +1192,15 @@ gh <- function(type.gr, rows.gr,
     rows_subgroups_common <- common * n.subgr
     rows_subgroups_random <- random * n.subgr
     #
-    rows_subgroups_predict <- 
-      if (is.vector(prediction.subgroup))
-        sum(prediction.subgroup)
-      else
-        prediction.subgroup * n.subgr
+    if (is.vector(prediction.subgroup))
+      rows_subgroups_predict <- sum(prediction.subgroup)
+    else
+      rows_subgroups_predict <- prediction.subgroup * n.subgr
     #
-    rows_subgroups_hetstat <- 
-      if (length(subgroup.hetstat) > 1)
-        sum(subgroup.hetstat)
-      else
-        subgroup.hetstat * n.subgr
+    if (length(subgroup.hetstat) > 1)
+      rows_subgroups_hetstat <- sum(subgroup.hetstat)
+    else
+      rows_subgroups_hetstat <- subgroup.hetstat * n.subgr
     #
     if (is.matrix(lower.common.w))
       rows_subgroups_common <- rows_subgroups_common * nrow(lower.common.w)
@@ -1186,8 +1242,8 @@ show_subgroup_results <- function(x, n, lower, upper) {
   if (length(x) == 1) {
     if (is.matrix(lower))
       return(x &
-             apply(lower, 1, notallNA) &
-             apply(upper, 1, notallNA))
+               apply(lower, 1, notallNA) &
+               apply(upper, 1, notallNA))
     else
       return(rep(x & notallNA(lower) & notallNA(upper), n))
   }
@@ -1200,12 +1256,194 @@ show_subgroup_results <- function(x, n, lower, upper) {
   }
 }
 
+show_subgroup_results_by_method <- function(x, n, lower, upper, name) {
+  n.pooled <- if (is.matrix(lower)) ncol(lower) else 1
+  n.pooled.w <- n * n.pooled
+  #
+  if (length(x) == 1) {
+    if (is.matrix(lower))
+      return(unname(x & collapsemat(!is.na(lower) & !is.na(upper))))
+    else
+      return(unname(rep(x & notallNA(lower) & notallNA(upper), n)))
+  }
+  else if (is.matrix(x)) {
+    if (!identical(dim(x), dim(lower)))
+      stop("Dimensions of argument '", name, "' must be equal to ",
+           "the dimensions of subgroup results.")
+    return(unname(collapsemat(!is.na(x) & x & !is.na(lower) & !is.na(upper))))
+  }
+  else if (length(x) == n)
+    return(unname(x))
+  else if (length(x) == n.pooled.w)
+    return(unname(x))
+  else {
+    chklength(x, n,
+              text = paste0("Length of argument '", name, "' must be ",
+                            "equal to 1, number of subgroups, or total ",
+                            "number of subgroup results."))
+    return(x)
+  }
+}
+
+show_prediction_subgroup_results <- function(x, n, lower, upper)
+  show_subgroup_results_by_method(x, n, lower, upper, "prediction.subgroup")
+
+order_subgroup_results <- function(x, o, n.pooled) {
+  if (length(x) == length(o))
+    x[o]
+  else
+    as.vector(matrix(x, nrow = n.pooled)[, o])
+}
+
+select_subgroup_results <- function(x, sel, n.pooled) {
+  if (length(x) == length(sel))
+    x[sel]
+  else
+    as.vector(matrix(x, nrow = n.pooled)[, sel])
+}
+
+add_hetstat_part <- function(parts, part) {
+  if (length(parts) == 0)
+    part
+  else
+    c(parts, list(", "), part)
+}
+
+make_hetstat <- function(hetlab,
+                         hetstat.I2, hetstat.tau2, hetstat.tau,
+                         hetstat.Q, hetstat.pval.Q, hetstat.Rb,
+                         df.Q,
+                         print.I2, print.tau2, print.tau,
+                         print.Q, print.pval.Q, print.Rb,
+                         bmj, jama, revman5,
+                         miss.print.tau2, miss.print.tau) {
+  
+  add_component <- function(parts, component, sep = NULL) {
+    if (length(parts) > 1L && !is.null(sep))
+      c(parts, list(sep), component)
+    else
+      c(parts, component)
+  }
+  
+  parts <- list(hetlab)
+  #
+  if (bmj | jama | revman5) {
+    if (bmj) {
+      if (print.tau)
+        parts <- add_component(parts, list(quote(tau), hetstat.tau))
+      else if (print.tau2)
+        parts <- add_component(parts, list(quote(tau^2), hetstat.tau2))
+      #
+      if (print.Q)
+        parts <- add_component(
+          parts, list(quote(chi^2), hetstat.Q),
+          if (length(parts) > 1L) "; " else NULL)
+      #
+      if (print.pval.Q)
+        parts <- add_component(
+          parts,
+          if (print.Q) list(", P", hetstat.pval.Q)
+          else list(quote(P), hetstat.pval.Q))
+      #
+      if (print.I2)
+        parts <- add_component(
+          parts, list(quote(I^2), hetstat.I2),
+          if (length(parts) > 1L) "; " else NULL)
+    }
+    else if (jama) {
+      if (print.Q)
+        parts <- add_component(
+          parts, list(bquote(chi[.(df.Q)]^2), hetstat.Q))
+      #
+      if (print.pval.Q)
+        parts <- add_component(
+          parts,
+          if (print.Q)
+            list(" (", quote(italic(P)), hetstat.pval.Q, ")")
+          else
+            list(quote(italic(P)), hetstat.pval.Q))
+      #
+      if (print.I2)
+        parts <- add_component(
+          parts, list(quote(italic(I)^2), hetstat.I2),
+          if (length(parts) > 1L) ", " else NULL)
+      #
+      if (print.tau)
+        parts <- add_component(parts, list(quote(tau), hetstat.tau),
+                               if (length(parts) > 1L) ", " else NULL)
+      else if (print.tau2)
+        parts <- add_component(parts, list(quote(tau^2), hetstat.tau2),
+                               if (length(parts) > 1L) ", " else NULL)
+    }
+    else if (revman5) {
+      if (print.tau)
+        parts <- add_component(parts, list(quote("Tau"), hetstat.tau))
+      else if (print.tau2)
+        parts <- add_component(parts, list(quote("Tau"^2), hetstat.tau2))
+      
+      if (print.Q)
+        parts <- add_component(
+          parts, list(quote("Chi"^2), hetstat.Q),
+          if (length(parts) > 1L) "; " else NULL)
+      
+      if (print.pval.Q)
+        parts <- add_component(
+          parts,
+          if (print.Q) list(" (", quote(P), hetstat.pval.Q, ")")
+          else list(quote(P), hetstat.pval.Q))
+      
+      if (print.I2)
+        parts <- add_component(
+          parts, list(quote(I^2), hetstat.I2),
+          if (length(parts) > 1L) "; " else NULL)
+    }
+  }
+  else {
+    if (print.I2)
+      parts <- add_component(
+        parts, list(quote(italic(I)^2), hetstat.I2), ", ")
+    
+    if (print.tau2)
+      parts <- add_component(
+        parts, list(quote(tau^2), hetstat.tau2), ", ")
+    else if (print.tau)
+      parts <- add_component(
+        parts, list(quote(tau), hetstat.tau), ", ")
+    
+    if (print.Q & print.pval.Q)
+      parts <- add_component(
+        parts,
+        list(bquote(chi[.(df.Q)]^2), hetstat.Q,
+             " (", quote(italic(p)), hetstat.pval.Q, ")"),
+        ", ")
+    else if (print.Q)
+      parts <- add_component(
+        parts, list(bquote(chi[.(df.Q)]^2), hetstat.Q), ", ")
+    else if (print.pval.Q)
+      parts <- add_component(
+        parts, list(quote(italic(p)), hetstat.pval.Q), ", ")
+    
+    if (print.Rb)
+      parts <- add_component(
+        parts,
+        list(quote(italic(R)[italic(b)]), hetstat.Rb),
+        ", ")
+  }
+  #
+  as.call(c(list(quote(paste)), parts))
+}
+
+set_rows <- function(x, rows) {
+  if (!is.null(x))
+    x$rows <- rows
+  x
+}
+
 newCol <- function(varname, label,
                    rob, data1, data2, datap,
                    n.com, n.ran, n.prd,
                    notavail, lab.NA, big.mark,
-                   zero.pval, JAMA.pval, scientific.pval,
-                   digits, digits.pval, digits.tau2, digits.tau, digits.I2,
+                   digits, digits.tau2, digits.tau, digits.I2,
                    sel.prd,
                    n.com.w = 0, n.ran.w = 0, n.prd.w = 0, n.stat.w = 0) {
   
@@ -1213,19 +1451,24 @@ newCol <- function(varname, label,
   #
   n.subgroup <- n.com.w + n.ran.w + n.prd.w + n.stat.w
   #
-  if (length(rob[[varname]]) != 0)
+  if (isCol(rob, varname))
     fvar <- rob[[varname]]
-  else if (length(data1[[varname]]) != 0)
+  else if (isCol(data1, varname))
     fvar <- data1[[varname]]
-  else if (length(data2[[varname]]) != 0)
+  else if (isCol(data2, varname))
     fvar <- data2[[varname]]
   else
     stop("Variable '", varname,
          "' not available in meta-analysis object.",
          call. = FALSE)
   #
+  full.layout <- FALSE
   if (isCol(datap, varname)) {
-    if (nrow(datap) == 1) {
+    full.layout <- nrow(datap) ==
+      n.com + n.ran + n.prd + n.com.w + n.ran.w + n.prd.w
+    if (full.layout)
+      fvar <- c(datap[[varname]], rep(NA, n.stat.w), fvar)
+    else if (nrow(datap) == 1) {
       fvar <- c(rep(datap[[varname]], n.com),
                 rep(datap[[varname]], n.ran),
                 rep(NA, n.prd),
@@ -1256,43 +1499,35 @@ newCol <- function(varname, label,
       fvar <- as.character(fvar)
     else if (notavail & all(is_wholenumber(fvar), na.rm = TRUE))
       fvar <-
-        formatN(fvar, digits = 0, text.NA = lab.NA, big.mark = big.mark)
+        formatN(fvar, digits = 0, lab.NA = lab.NA, big.mark = big.mark)
     else if (is.numeric(fvar)) {
-      if (varname == "pval")
-        fvar <- formatPT(fvar, digits = digits.pval,
-                          big.mark = big.mark,
-                          lab = FALSE, labval = "",
-                          zero = zero.pval, JAMA = JAMA.pval,
-                          scientific = scientific.pval,
-                          lab.NA = lab.NA)
-      else if (varname == "tau2")
+      if (varname == "tau2")
         fvar <- formatPT(fvar, digits = digits.tau2,
-                          big.mark = big.mark,
-                          lab = FALSE, labval = "",
-                          lab.NA = lab.NA)
+                         big.mark = big.mark,
+                         lab = FALSE, labval = "",
+                         lab.NA = lab.NA)
       else if (varname == "tau")
         fvar <- formatPT(fvar, digits = digits.tau,
-                          big.mark = big.mark,
-                          lab = FALSE, labval = "",
-                          lab.NA = lab.NA)
+                         big.mark = big.mark,
+                         lab = FALSE, labval = "",
+                         lab.NA = lab.NA)
       else if (varname == "I2") {
-        sel.r <- !is.na(fvar)
-        fvar[sel.r] <-
-          paste0(formatN(100 * fvar[sel.r], digits.I2), "%")
-        fvar[!sel.r] <- lab.NA
+        fvar <- percent_label(fvar, "", digits.I2, formatN, lab.NA = lab.NA)
       }
       else
         fvar <-
-          formatN(fvar, digits = digits, text.NA = lab.NA, big.mark = big.mark)
+          formatN(fvar, digits = digits, lab.NA = lab.NA, big.mark = big.mark)
     }
   }
   #
   fvar <- ifelse(is.na(fvar), "", fvar)
   #
-  # Print nothing for lines with prediction interval
+  # Legacy pooled layouts do not supply prediction-interval values.
   #
-  if (isCol(datap, varname))
-    fvar[sel.prd] <- ""
+  if (isCol(datap, varname)) {
+    if (!full.layout)
+      fvar[sel.prd] <- ""
+  }
   else
     fvar <- c(rep("", n.com), rep("", n.ran), rep("", n.prd),
               if (by) rep("", n.subgroup),
@@ -1302,8 +1537,8 @@ newCol <- function(varname, label,
   #
   if (by) {
     is_NA <- fvar == lab.NA
-    is_w <- rep(TRUE, length(fvar))
-    is_w[seq_len(n.com + n.ran + n.prd)] <- FALSE
+    is_w <- rep(FALSE, length(fvar))
+    is_w[n.com + n.ran + n.prd + seq_len(n.subgroup)] <- TRUE
     #
     fvar[is_NA & is_w] <- ""
   }
@@ -1321,13 +1556,14 @@ newCol <- function(varname, label,
   #
   res <- list(format_var = fvar, colname = paste0("col.", varname),
               label = label, longer = longer,
-              rob = length(rob[[varname]]) != 0)
+              rob = isCol(rob, varname))
   #
   res
 }
 
 warn_only_subgroup <- function(x) {
-  x.name <- gsub("missing.", "", deparse(substitute(x)))
+  x.name <- gsub("^missing.", "", deparse(substitute(x)))
+  x.name <- gsub("^miss.", "", deparse(substitute(x)))
   #
   if (!x)
     warning("Argument '", x.name, "' only considered for ",
@@ -1335,4 +1571,135 @@ warn_only_subgroup <- function(x) {
             call. = FALSE)
   #
   invisible(NULL)
+}
+
+set_xpos <- function(x)
+  c(left = 0, center = 0.5, right = 1)[[x]]
+
+# Return the justification used for each displayed column
+#
+column_just <- function(cols, labs, just.addcols, just) {
+  res <- rep_len(just.addcols, length(cols))
+  special <- c("pval", "tau2", "tau", "I2", "Q", "pval.Q")
+  #
+  for (i in seq_along(cols)) {
+    if (cols[i] %in% special)
+      res[i] <- just
+    if (cols[i] %in% c("tau2", "tau") &&
+        length(labs) >= i && !is.na(labs[i]) &&
+        grepl("Between-study", labs[i], fixed = TRUE))
+      res[i] <- "center"
+  }
+  #
+  res
+}
+
+label_effect.ci <- function(layout, sm, backtransf,
+                            #
+                            pscale, irscale, irunit,
+                            #
+                            big.mark,
+                            #
+                            func.backtransf,
+                            #
+                            forest,
+                            #
+                            common, random, method, method.random,
+                            #
+                            level) {
+    
+  # 1) Summary measure
+  #
+  if (layout == "RevMan5")
+    smlab <- xlab_meta(sm, backtransf,
+                       pscale = pscale,
+                       irscale = irscale, irunit = irunit,
+                       newline = FALSE, revman5 = TRUE,
+                       big.mark = big.mark)
+  else if (layout == "BMJ")
+    smlab <- xlab_meta(sm, backtransf,
+                       pscale = pscale,
+                       irscale = irscale, irunit = irunit,
+                       newline = FALSE, revman5 = TRUE,
+                       big.mark = big.mark)
+  else
+    smlab <- smlab(sm, backtransf, pscale, irscale,
+                   func.backtransf = func.backtransf,
+                   forest = forest)
+  
+  # 2) Meta-analysis model
+  #
+  meths <- unique(c(gs("meth4bin"), gs("meth4inc")))
+  #
+  if (random && !common)
+    sel.method <- pmatch(method.random, meths)
+  else
+    sel.method <- pmatch(method, meths)
+  #
+  lab.method <- gsub("Inverse", "IV", meths[sel.method])
+  #
+  if (layout == "RevMan5") {
+    if (common && random)
+      lab.model <- "Fixed + Random, "
+    else if (common)
+      lab.model <- "Fixed, "
+    else if (random)
+      lab.model <- "Random, "
+    else
+      lab.model <- ""
+    #
+    if (smlab != "")
+      smlab <- paste0(smlab, "\n")
+  }
+  else if (layout == "BMJ") {
+    if (common && random)
+      lab.model <- "common + random "
+    else if (common)
+      lab.model <- "common "
+    else if (random)
+      lab.model <- "random "
+    else
+      lab.model <- ""
+    #
+    if (smlab != "")
+      smlab <- paste0(smlab, ", ")
+  }
+  else
+    lab.model <- ""
+  
+  # 3) Confidence interval
+  #
+  ci.lab <-  percent_label(level)
+  #
+  if (layout == "JAMA" || gs("CIbracket") == "(")
+    ci.lab.bracket <- paste0("(", ci.lab, ")")
+  else if (gs("CIbracket") == "[")
+    ci.lab.bracket <- paste0("[", ci.lab, "]")
+  else if (gs("CIbracket") == "{")
+    ci.lab.bracket <- paste0("{", ci.lab, "}")
+  else
+    ci.lab.bracket <- ci.lab
+  
+  # 4) Combine sm + model + ci
+  #
+  if (layout == "RevMan5") {
+    return(paste0(smlab, lab.method[1], ", ", lab.model, ci.lab))
+  }
+  else if (layout == "BMJ") {
+    return(paste0(smlab, lab.method[1], ",",
+                  if (smlab != "") "\n" else " ",
+                  lab.model, "(", ci.lab, ")"))
+  }
+  else {
+    return(paste(smlab, ci.lab.bracket))
+  }
+}
+
+newlab <- function(col, lab, varname, value) {
+  sel <- col == varname
+  if (!any(sel) || !is.na(lab[sel]))
+    return(lab)
+  else
+    lab[sel] <- value
+  lab
 }

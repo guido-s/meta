@@ -39,12 +39,16 @@
 #' omitting one study at a time. Studies are sorted according to
 #' \code{sortvar}.
 #'
-#' Information from object \code{x} is utilised if argument
-#' \code{pooled} is missing. A common effect model is assumed
-#' (\code{pooled = "common"}) if argument \code{x$common} is
-#' \code{TRUE}; a random effects model is assumed (\code{pooled =
-#' "random"}) if argument \code{x$random} is \code{TRUE} and
-#' \code{x$common} is \code{FALSE}.
+#' If argument \code{pooled} is missing, a random effects model is assumed
+#' (\code{pooled = "random"}) whenever prediction intervals are requested,
+#' irrespective of \code{x$random}. If argument \code{prediction} is missing,
+#' the setting \code{x$prediction} is used; an explicit value of
+#' \code{prediction} overrides this setting.
+#'
+#' If prediction intervals are not requested, a random effects model is
+#' assumed when \code{x$common = FALSE} and \code{x$random = TRUE}.
+#' Otherwise, a common effect model is assumed. An explicit choice of
+#' \code{pooled} takes precedence over these defaults.
 #' 
 #' @return
 #' An object of class \code{"metainf"} with dedicated print and forest
@@ -150,6 +154,8 @@ metainf.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
     warning("Nothing calculated (minimum number of studies: 2).")
     return(invisible(NULL))
   }
+  #
+  warn_ignore_dots(list(...), "metainf")
   
   
   #
@@ -158,33 +164,41 @@ metainf.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
   #
   #
   
+  missing.prediction <- missing(prediction)
+  if (!missing.prediction)
+    chklogical(prediction)
+  #
   if (!missing(pooled)) {
     pooled <- setchar(pooled, c("common", "random", "fixed"))
     pooled[pooled == "fixed"] <- "common"
   }
-  else
-    if (!x$common & x$random)
+  else {
+    prediction.requested <-
+      if (missing.prediction)
+        x$prediction
+    else
+      prediction
+    #
+    if (prediction.requested)
+      pooled <- "random"
+    else if (!x$common && x$random)
       pooled <- "random"
     else
       pooled <- "common"
+  }
   #
-  if (missing(prediction))
+  if (missing.prediction)
     prediction <- pooled == "random" & x$prediction
-  else
-    chklogical(prediction)
   #
   chklogical(overall)
   #
-  tdist_random <- pooled == "random" & x$method.random.ci %in% c("HK", "KR")
+  tdist_random <- pooled == "random" &
+    x$method.random.ci %in% c("HK", "KR", "CR0", "CR1", "CR2")
   tdist_predict <- !(x$method.predict %in% c("S", ""))
   #
-  mc <- match.call()
-  error <-
-    try(sortvar <-
-          catch("sortvar", mc, x, sys.frame(sys.parent())),
-        silent = TRUE)
+  error <- try(sortvar <- catch(enquo(sortvar), x), silent = TRUE)
   if (inherits(error, "try-error")) {
-    sortvar <- catch("sortvar", mc, x$data,  NULL)
+    sortvar <- catch(enquo(sortvar), x$data)
     if (isCol(x$data, ".subset"))
       sortvar <- sortvar[x$data$.subset]
   }
@@ -211,7 +225,7 @@ metainf.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
     !is.null(cid.above.null) && !all(is.na(cid.above.null))
   #
   run_cidprop <- avail.cid | avail.cid.below.null | avail.cid.above.null
-  
+      
   
   #
   #
@@ -246,20 +260,10 @@ metainf.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
   TE <- x$TE[o]
   seTE <- x$seTE[o]
   #
-  if (!is.null(x$cluster))
-    cluster <- x$cluster[o]
-  else
-    cluster <- NULL
+  cluster <- x$cluster[o]
   #
-  if (!is.null(x$weights.common))
-    weights.common <- x$weights.common[o]
-  else
-    weights.common <- NULL
-  #
-  if (!is.null(x$weights.random))
-    weights.random <- x$weights.random[o]
-  else
-    weights.random <- NULL
+  weights.common <- x$weights.common[o]
+  weights.random <- x$weights.random[o]
   #
   incr.e <- x$incr.e[o]
   incr.c <- x$incr.c[o]
@@ -373,30 +377,36 @@ metainf.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
                    weights.common = weights.common[sel],
                    weights.random = weights.random[sel],
                    #
-                   method = x$method, sm = x$sm,
+                   sm = x$sm,
                    #
-                   incr.e = incr.e[sel], incr.c = incr.c[sel],
-                   allstudies = x$allstudies, MH.exact = x$MH.exact,
-                   RR.Cochrane = x$RR.Cochrane, Q.Cochrane = x$Q.Cochrane,
-                   model.glmm =
-                     if (!is.null(x$model.glmm)) x$model.glmm else "UM.FS",
+                   method = x$method,
                    #
-                   method.tau = x$method.tau,
-                   tau.preset = x$tau.preset, TE.tau = x$TE.tau,
-                   #
-                   level.ma = x$level.ma,
                    method.common.ci = x$method.common.ci,
                    method.random.ci = x$method.random.ci,
-                   adhoc.hakn.ci = x$adhoc.hakn.ci,
-                   #
-                   level.predict = x$level.predict,
                    method.predict = x$method.predict,
+                   method.tau = x$method.tau,
+                   method.tau.ci = x$method.tau.ci,
+                   method.I2 = x$method.I2,
+                   #
+                   level.ma = x$level.ma,
+                   level.predict = x$level.predict,
+                   level.hetstat = x$level.hetstat,
+                   #
+                   incr.e = incr.e[sel], incr.c = incr.c[sel],
+                   allstudies = x$allstudies,
+                   #
+                   MH.exact = x$MH.exact, RR.Cochrane = x$RR.Cochrane,
+                   Q.Cochrane = x$Q.Cochrane,
+                   model.glmm = replaceNULL(x$model.glmm, gs("model.glmm")),
+                   #
+                   tau.preset = x$tau.preset, TE.tau = x$TE.tau,
+                   #
+                   adhoc.hakn.ci = x$adhoc.hakn.ci,
                    adhoc.hakn.pi = x$adhoc.hakn.pi,
                    #
-                   keepdata = FALSE,
-                   warn = FALSE,
+                   seed.predict = x$seed.predict,
                    #
-                   control = x$control)
+                   keepdata = FALSE, warn = FALSE, control = x$control)
     #
     if (inherits(x, "metacont"))
       m <- metacont(n.e[sel], mean.e[sel], sd.e[sel],
@@ -410,24 +420,30 @@ metainf.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
                     weights.random = weights.random[sel],
                     #
                     sm = x$sm,
+                    #
+                    method.smd = x$method.smd,
+                    sd.glass = x$sd.glass, exact.smd = x$exact.smd,
                     pooledvar = replaceNA(x$pooledvar, gs("pooledvar")),
                     #
-                    method.tau = x$method.tau,
-                    tau.preset = x$tau.preset, TE.tau = x$TE.tau,
-                    #
-                    level.ma = x$level.ma,
                     method.common.ci = x$method.common.ci,
                     method.random.ci = x$method.random.ci,
-                    adhoc.hakn.ci = x$adhoc.hakn.ci,
-                    #
-                    level.predict = x$level.predict,
                     method.predict = x$method.predict,
+                    method.tau = x$method.tau,
+                    method.tau.ci = x$method.tau.ci,
+                    method.I2 = x$method.I2,
+                    #
+                    level.ma = x$level.ma,
+                    level.predict = x$level.predict,
+                    level.hetstat = x$level.hetstat,
+                    #
+                    tau.preset = x$tau.preset, TE.tau = x$TE.tau,
+                    #
+                    adhoc.hakn.ci = x$adhoc.hakn.ci,
                     adhoc.hakn.pi = x$adhoc.hakn.pi,
                     #
-                    keepdata = FALSE,
-                    warn = FALSE,
+                    seed.predict = x$seed.predict,
                     #
-                    control = x$control)
+                    keepdata = FALSE, warn = FALSE, control = x$control)
     #
     if (inherits(x, "metacor"))
       m <- metacor(cor[sel], n[sel],
@@ -441,21 +457,25 @@ metainf.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
                    #
                    sm = x$sm, null.effect = x$null.effect,
                    #
-                   method.tau = x$method.tau,
-                   tau.preset = x$tau.preset, TE.tau = x$TE.tau,
-                   #
-                   level.ma = x$level.ma,
                    method.common.ci = x$method.common.ci,
                    method.random.ci = x$method.random.ci,
-                   adhoc.hakn.ci = x$adhoc.hakn.ci,
-                   #
-                   level.predict = x$level.predict,
                    method.predict = x$method.predict,
+                   method.tau = x$method.tau,
+                   method.tau.ci = x$method.tau.ci,
+                   method.I2 = x$method.I2,
+                   #
+                   level.ma = x$level.ma,
+                   level.predict = x$level.predict,
+                   level.hetstat = x$level.hetstat,
+                   #
+                   tau.preset = x$tau.preset, TE.tau = x$TE.tau,
+                   #
+                   adhoc.hakn.ci = x$adhoc.hakn.ci,
                    adhoc.hakn.pi = x$adhoc.hakn.pi,
                    #
-                   keepdata = FALSE,
+                   seed.predict = x$seed.predict,
                    #
-                   control = x$control)
+                   keepdata = FALSE, control = x$control)
     #
     if (inherits(x, "metagen"))
       m <- metagen(TE[sel], seTE[sel],
@@ -469,26 +489,30 @@ metainf.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
                    #
                    sm = x$sm, null.effect = x$null.effect,
                    #
-                   method.tau = x$method.tau,
-                   tau.preset = x$tau.preset, TE.tau = x$TE.tau,
-                   #
-                   level.ma = x$level.ma,
                    method.common.ci = x$method.common.ci,
                    method.random.ci = x$method.random.ci,
-                   adhoc.hakn.ci = x$adhoc.hakn.ci,
-                   #
-                   level.predict = x$level.predict,
                    method.predict = x$method.predict,
+                   method.tau = x$method.tau,
+                   method.tau.ci = x$method.tau.ci,
+                   method.I2 = x$method.I2,
+                   #
+                   level.ma = x$level.ma,
+                   level.predict = x$level.predict,
+                   level.hetstat = x$level.hetstat,
+                   #
+                   tau.preset = x$tau.preset, TE.tau = x$TE.tau,
+                   #
+                   adhoc.hakn.ci = x$adhoc.hakn.ci,
                    adhoc.hakn.pi = x$adhoc.hakn.pi,
                    #
-                   keepdata = FALSE,
-                   warn = FALSE,
+                   seed.predict = x$seed.predict,
                    #
-                   control = x$control)
+                   keepdata = FALSE, warn = FALSE, control = x$control)
     #
     if (inherits(x,"metainc"))
-      m <- metainc(event.e[sel], time.e[sel],
-                   event.c[sel], time.c[sel],
+      m <- metainc(event.e[sel], time.e[sel], event.c[sel], time.c[sel],
+                   #
+                   n.e = n.e[sel], n.c = n.c[sel],
                    #
                    exclude = exclude[sel],
                    #
@@ -497,28 +521,32 @@ metainf.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
                    weights.common = weights.common[sel],
                    weights.random = weights.random[sel],
                    #
-                   method = x$method, sm = x$sm,
+                   sm = x$sm,
                    #
-                   incr.e = incr.e[sel], incr.c = incr.c[sel],
-                   model.glmm =
-                     if (!is.null(x$model.glmm)) x$model.glmm else "UM.FS",
+                   method = x$method,
                    #
-                   method.tau = x$method.tau,
-                   tau.preset = x$tau.preset, TE.tau = x$TE.tau,
-                   #
-                   level.ma = x$level.ma,
                    method.common.ci = x$method.common.ci,
                    method.random.ci = x$method.random.ci,
-                   adhoc.hakn.ci = x$adhoc.hakn.ci,
-                   #
-                   level.predict = x$level.predict,
                    method.predict = x$method.predict,
+                   method.tau = x$method.tau,
+                   method.tau.ci = x$method.tau.ci,
+                   method.I2 = x$method.I2,
+                   #
+                   level.ma = x$level.ma,
+                   level.predict = x$level.predict,
+                   level.hetstat = x$level.hetstat,
+                   #
+                   incr.e = incr.e[sel], incr.c = incr.c[sel],
+                   model.glmm = replaceNULL(x$model.glmm, gs("model.glmm")),
+                   #
+                   tau.preset = x$tau.preset, TE.tau = x$TE.tau,
+                   #
+                   adhoc.hakn.ci = x$adhoc.hakn.ci,
                    adhoc.hakn.pi = x$adhoc.hakn.pi,
                    #
-                   keepdata = FALSE,
-                   warn = FALSE,
+                   seed.predict = x$seed.predict,
                    #
-                   control = x$control)
+                   keepdata = FALSE, warn = FALSE, control = x$control)
     #
     if (inherits(x, "metamean"))
       m <- metamean(n[sel], mean[sel], sd[sel],
@@ -532,22 +560,25 @@ metainf.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
                     #
                     sm = x$sm, null.effect = x$null.effect,
                     #
-                    method.tau = x$method.tau,
-                    tau.preset = x$tau.preset, TE.tau = x$TE.tau,
-                    #
-                    level.ma = x$level.ma,
                     method.common.ci = x$method.common.ci,
                     method.random.ci = x$method.random.ci,
-                    adhoc.hakn.ci = x$adhoc.hakn.ci,
-                    #
-                    level.predict = x$level.predict,
                     method.predict = x$method.predict,
+                    method.tau = x$method.tau,
+                    method.tau.ci = x$method.tau.ci,
+                    method.I2 = x$method.I2,
+                    #
+                    level.ma = x$level.ma,
+                    level.predict = x$level.predict,
+                    level.hetstat = x$level.hetstat,
+                    #
+                    tau.preset = x$tau.preset, TE.tau = x$TE.tau,
+                    #
+                    adhoc.hakn.ci = x$adhoc.hakn.ci,
                     adhoc.hakn.pi = x$adhoc.hakn.pi,
                     #
-                    keepdata = FALSE,
-                    warn = FALSE,
+                    seed.predict = x$seed.predict,
                     #
-                    control = x$control)
+                    keepdata = FALSE, warn = FALSE, control = x$control)
     #
     if (inherits(x, "metaprop"))
       m <- metaprop(event[sel], n[sel],
@@ -559,27 +590,31 @@ metainf.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
                     weights.common = weights.common[sel],
                     weights.random = weights.random[sel],
                     #
-                    method = x$method, sm = x$sm, null.effect = x$null.effect,
+                    sm = x$sm, null.effect = x$null.effect,
                     #
-                    incr = incr.i, method.incr = x$method.incr,
-                    method.ci = x$method.ci,
+                    method = x$method,
                     #
-                    method.tau = x$method.tau,
-                    tau.preset = x$tau.preset, TE.tau = x$TE.tau,
-                    #
-                    level.ma = x$level.ma,
                     method.common.ci = x$method.common.ci,
                     method.random.ci = x$method.random.ci,
-                    adhoc.hakn.ci = x$adhoc.hakn.ci,
-                    #
-                    level.predict = x$level.predict,
                     method.predict = x$method.predict,
+                    method.tau = x$method.tau,
+                    method.tau.ci = x$method.tau.ci,
+                    method.I2 = x$method.I2,
+                    #
+                    level.ma = x$level.ma,
+                    level.predict = x$level.predict,
+                    level.hetstat = x$level.hetstat,
+                    #
+                    incr = incr.i, method.incr = x$method.incr,
+                    #
+                    tau.preset = x$tau.preset, TE.tau = x$TE.tau,
+                    #
+                    adhoc.hakn.ci = x$adhoc.hakn.ci,
                     adhoc.hakn.pi = x$adhoc.hakn.pi,
                     #
-                    keepdata = FALSE,
-                    warn = FALSE,
+                    seed.predict = x$seed.predict,
                     #
-                    control = x$control)
+                    keepdata = FALSE, warn = FALSE, control = x$control)
     #
     if (inherits(x, "metarate"))
       m <- metarate(event[sel], time[sel],
@@ -591,26 +626,31 @@ metainf.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
                     weights.common = weights.common[sel],
                     weights.random = weights.random[sel],
                     #
-                    method = x$method, sm = x$sm, null.effect = x$null.effect,
+                    sm = x$sm, null.effect = x$null.effect,
+                    #
+                    method = x$method,
+                    #
+                    method.common.ci = x$method.common.ci,
+                    method.random.ci = x$method.random.ci,
+                    method.predict = x$method.predict,
+                    method.tau = x$method.tau,
+                    method.tau.ci = x$method.tau.ci,
+                    method.I2 = x$method.I2,
+                    #
+                    level.ma = x$level.ma,
+                    level.predict = x$level.predict,
+                    level.hetstat = x$level.hetstat,
                     #
                     incr = incr.i, method.incr = x$method.incr,
                     #
-                    method.tau = x$method.tau,
                     tau.preset = x$tau.preset, TE.tau = x$TE.tau,
                     #
-                    level.ma = x$level.ma,
-                    method.common.ci = x$method.common.ci,
-                    method.random.ci = x$method.random.ci,
                     adhoc.hakn.ci = x$adhoc.hakn.ci,
-                    #
-                    level.predict = x$level.predict,
-                    method.predict = x$method.predict,
                     adhoc.hakn.pi = x$adhoc.hakn.pi,
                     #
-                    keepdata = FALSE,
-                    warn = FALSE,
+                    seed.predict = x$seed.predict,
                     #
-                    control = x$control)
+                    keepdata = FALSE, warn = FALSE, control = x$control)
     #
     sel.pft <- inherits(x, "metaprop") & x$sm == "PFT"
     sel.irft <- inherits(x, "metarate") & x$sm == "IRFT"
@@ -644,8 +684,8 @@ metainf.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
                       m$Rb,                                          # 17
                       #
                       sum(m$w.common, na.rm = TRUE),                 # 18
-                      if (sel.pft) 1 / mean(1 / n[sel]) else NA,     # 19
-                      if (sel.irft) 1 / mean(1 / time[sel]) else NA, # 20
+                      if (sel.pft) m$n.harmonic.mean else NA,        # 19
+                      if (sel.irft) m$t.harmonic.mean else NA,        # 20
                       #
                       NA,                                            # 21
                       #
@@ -703,8 +743,8 @@ metainf.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
                       m$Rb,                                          # 17
                       #
                       sum(m$w.random, na.rm = TRUE),                 # 18
-                      if (sel.pft) 1 / mean(1 / n[sel]) else NA,     # 19
-                      if (sel.irft) 1 / mean(1 / time[sel]) else NA, # 20
+                      if (sel.pft) m$n.harmonic.mean else NA,        # 19
+                      if (sel.irft) m$t.harmonic.mean else NA,        # 20
                       #
                       if (tdist_random) m$df.random else NA,         # 21
                       #
@@ -811,8 +851,8 @@ metainf.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
   #
   Rb.pooled <- x$Rb
   #
-  n.harmonic.mean.pooled <- 1 / mean(1 / n)
-  t.harmonic.mean.pooled <- 1 / mean(1 / time)
+  n.harmonic.mean.pooled <- replaceNULL(x$n.harmonic.mean)
+  t.harmonic.mean.pooled <- replaceNULL(x$t.harmonic.mean)
   #
   if (pooled == "random" & run_cidprop) {
     pp.pooled <-
@@ -891,6 +931,10 @@ metainf.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
               #
               sm = x$sm,
               null.effect = x$null.effect,
+              method.smd = x$method.smd,
+              pooledvar = x$pooledvar,
+              sd.glass = x$sd.glass,
+              exact.smd = x$exact.smd,
               #
               pooled = pooled,
               common = pooled == "common",
@@ -901,6 +945,7 @@ metainf.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
               prediction = prediction,
               method.predict = x$method.predict,
               adhoc.hakn.pi = x$adhoc.hakn.pi,
+              seed.predict = x$seed.predict,
               #
               backtransf = x$backtransf,
               func.backtransf = x$func.backtransf,
@@ -922,6 +967,7 @@ metainf.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
               #
               tau.preset = x$tau.preset,
               TE.tau = x$TE.tau,
+              level.hetstat = x$level.hetstat,
               #
               method.I2 = x$method.I2,
               #
@@ -991,6 +1037,22 @@ metainf.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
               #
               call = match.call())
   #
+  # Drop unnecessary list elements
+  #
+  if (!inherits(x, "metabin")) {
+    res$allstudies <- NULL
+    res$MH.exact <- NULL
+    res$RR.Cochrane <- NULL
+    res$Q.Cochrane <- NULL
+  }
+  #
+  if (!inherits(x, "metacont")) {
+    res$method.smd <- NULL
+    res$pooledvar <- NULL
+    res$sd.glass <- NULL
+    res$exact.smd <- NULL
+  }
+  #
   if (!is.null(weights.common) & pooled == "common") {
     res$weights.common <- TRUE
     res$weights.random <- FALSE
@@ -1016,10 +1078,10 @@ metainf.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
     res$prop.cid.above.null.pooled <- NULL
   }
   #
-  res$version <- packageDescription("meta")$Version
-  #
   res$x$common <- res$common
   res$x$random <- res$random
+  #
+  res$version <- packageDescription("meta")$Version
   #
   res$classes <- class(x)[class(x) != "meta"]
   #

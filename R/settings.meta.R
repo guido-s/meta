@@ -33,8 +33,9 @@
 #' \item \code{settings.meta("IVhet")}
 #' \item \code{settings.meta("meta4")}
 #' \item \code{settings.meta("meta7")}
+#' \item \code{settings.meta("meta8")}
 #' }
-#'
+#' 
 #' The first command can be used to reproduce meta-analyses from
 #' Cochrane reviews conducted with \emph{Review Manager 5} (RevMan 5)
 #' and specifies to use a RevMan 5 layout in forest plots.
@@ -72,7 +73,8 @@
 #' \code{tau.common} \tab FALSE \tab common between-study variance in
 #'   subgroups \cr
 #' \code{MH.exact} \tab FALSE \tab exact Mantel-Haenszel method \cr
-#' \code{RR.Cochrane} \tab TRUE \tab calculation of risk ratios \cr
+#' \code{RR.Cochrane} \tab TRUE \tab calculation of risk ratios or
+#'   vaccine efficacy / effectiveness \cr
 #' \code{Q.Cochrane} \tab TRUE \tab calculation of heterogeneity
 #'   statistic \cr
 #' \code{exact.smd} \tab FALSE \tab exact formulae for Hedges' g and
@@ -110,7 +112,7 @@
 #'   "\code{[., .]}" \cr
 #' \code{header.line}, \tab TRUE \tab print header line
 #' }
-#'
+#' 
 #' BMJ settings:
 #' \tabular{lll}{
 #' \bold{Argument} \tab \bold{Value} \tab \bold{Comment} \cr
@@ -122,23 +124,18 @@
 #' \code{test.effect.subgroup} \tab FALSE \tab print information on
 #'   test for effect in subgroups \cr
 #' \code{forest.I2} \tab TRUE \tab show heterogeneity statistic I2 in
-#'   forest plots
-#'   \cr
+#'   forest plots \cr
 #' \code{forest.tau2} \tab TRUE \tab show between-study heterogeneity \cr
 #'   \tab \tab variance in forest plots \cr
 #' \code{forest.tau} \tab FALSE \tab do not show between-study heterogeneity \cr
 #'   \tab \tab standard deviation in forest plots \cr
 #' \code{forest.Q} \tab TRUE \tab show heterogeneity statistic Q in
-#'   forest plots
-#'   \cr
+#'   forest plots \cr
 #' \code{forest.pval.Q} \tab TRUE \tab show p-value of test for heterogeneity
-#'   in forest plots
-#'   \cr
+#'   in forest plots \cr
 #' \code{forest.Rb} \tab FALSE \tab do not show heterogeneity statistic Rb in
-#'   forest plots
-#'   \cr
-#' \code{digits.I2} \tab 0 \tab number of digits for I-squared measure
-#'   \cr
+#'   forest plots \cr
+#' \code{digits.I2} \tab 0 \tab number of digits for I-squared measure \cr
 #' \code{digits.pval} \tab 2 \tab number of digits for p-values \cr
 #' \code{CIbracket}, \tab "(" \tab \cr
 #' \code{CIseparator} \tab " to " \tab print confidence intervals as
@@ -389,11 +386,10 @@ settings.meta <- function(..., quietly = TRUE) {
   #
   # Set internal variables
   #
-  settings <- c("BMJ", "JAMA", "RevMan5", 
-                "IQWiG5", "IQWiG6",
-                "geneexpr", "IVhet",
-                "meta4", "meta7")
-  layouts <- c(settings[1:2], "meta")
+  settings.layouts <- c("BMJ", "JAMA", "RevMan5")
+  settings <- c(settings.layouts, "IQWiG5", "IQWiG6", "geneexpr", "IVhet",
+                "meta4", "meta7", "meta8")
+  layouts <- c(settings.layouts, "meta", "meta8")
   #
   print.settings <- FALSE
   reset.settings <- FALSE
@@ -603,6 +599,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("warn.deprecated", TRUE)
     setOption("transf", TRUE)
     setOption("backtransf", TRUE)
+    setOption("log.prefix", "log")
     setOption("digits", 4)
     setOption("digits.mean", 2)
     setOption("digits.sd", 4)
@@ -652,7 +649,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("allincr", FALSE)
     setOption("addincr", FALSE)
     setOption("allstudies", FALSE)
-    setOption("MH.exact", FALSE)
+    setOption("MH.exact", TRUE)
     setOption("RR.Cochrane", FALSE)
     setOption("Q.Cochrane", TRUE)
     setOption("model.glmm", "UM.FS")
@@ -693,16 +690,16 @@ settings.meta <- function(..., quietly = TRUE) {
     # R function forest.meta
     #
     setOption("layout", "meta")
-    setOption("forest.details", FALSE)
-    setOption("test.overall", FALSE)
+    setOption("forest.details", NULL)
+    setOption("test.overall", NULL)
     setOption("test.effect.subgroup", FALSE)
     setOption("digits.forest", 2)
     setOption("digits.TE.forest", 4)
     #
     setOption("lty.common", 2)
     setOption("lty.random", 3)
-    setOption("col.common", "black")
-    setOption("col.random", "black")
+    setOption("col.common", NULL)
+    setOption("col.random", NULL)
     #
     setOption("sort.subgroup", FALSE)
     #
@@ -714,7 +711,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("cid.below.null", NA)
     setOption("cid.above.null", NA)
     setOption("lty.cid", 1)
-    setOption("col.cid", "blue")
+    setOption("col.cid", NULL)
     setOption("fill.cid", "transparent")
     setOption("cid.pooled.only", FALSE)
     #
@@ -739,27 +736,31 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("lwd.square", 1)
     setOption("lwd.diamond", 1)
     #
+    setOption("main.prefix", NULL)
+    #
     setOption("arrow.type", "open")
     setOption("arrow.length", 0.05)
     #
     setOption("type.study", "square")
     setOption("type.common", "diamond")
     #
-    setOption("col.study", "black")
-    setOption("col.square", "gray")
-    setOption("col.square.lines", "gray")
-    setOption("col.circle", "royalblue")
-    setOption("col.inside", "white")
-    setOption("col.diamond", "gray")
-    setOption("col.diamond.lines", "black")
-    setOption("col.predict", "red")
-    setOption("col.predict.lines", "black")
-    setOption("col.subgroup", "black")
-    setOption("col.label.right", "black")
-    setOption("col.label.left", "black")
+    setOption("col.study", NULL)
+    setOption("col.study.text", "black")
+    setOption("col.square", NULL)
+    setOption("col.square.lines", NULL)
+    setOption("col.circle", NULL)
+    setOption("col.inside", NULL)
+    setOption("col.diamond", NULL)
+    setOption("col.diamond.lines", NULL)
+    setOption("col.predict", NULL)
+    setOption("col.predict.lines", NULL)
+    setOption("col.subgroup", NULL)
+    setOption("col.label.right", NULL)
+    setOption("col.label.left", NULL)
     #
-    setOption("col.lines", "black")
-    setOption("col.label", "black")
+    setOption("col.lines", NULL)
+    setOption("col.label", NULL)
+    setOption("col.main", "black")
     #
     setOption("hetlab", "Heterogeneity: ")
     setOption("resid.hetstat", NULL)
@@ -800,6 +801,8 @@ settings.meta <- function(..., quietly = TRUE) {
     #
     setOption("fontsize", 12)
     setOption("fontfamily", NULL)
+    #
+    setOption("fs.main", NULL)
     setOption("fs.common", NULL)
     setOption("fs.random", NULL)
     setOption("fs.predict", NULL)
@@ -812,6 +815,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("fs.test.effect.subgroup", NULL)
     setOption("fs.addline", NULL)
     #
+    setOption("ff.main", "bold")
     setOption("ff.heading", "bold")
     setOption("ff.common", NULL)
     setOption("ff.random", NULL)
@@ -828,19 +832,25 @@ settings.meta <- function(..., quietly = TRUE) {
     setOption("ff.axis", "plain")
     setOption("ff.smlab", "bold")
     setOption("ff.xlab", "plain")
-    setOption("ff.lr", "plain")
+    setOption("ff.lr", NULL)
     #
     setOption("colgap", "2mm")
     setOption("colgap.forest", "2mm")
     #
-    setOption("calcwidth.predict", FALSE)
-    setOption("calcwidth.hetstat", FALSE)
-    setOption("calcwidth.tests", FALSE)
-    setOption("calcwidth.subgroup", FALSE)
-    setOption("calcwidth.addline", FALSE)
+    setOption("calcwidth.predict", TRUE)
+    setOption("calcwidth.hetstat", TRUE)
+    setOption("calcwidth.tests", TRUE)
+    setOption("calcwidth.subgroup", TRUE)
+    setOption("calcwidth.addline", TRUE)
+    setOption("calcwidth.details", TRUE)
     #
+    setOption("just.main", NULL)
     setOption("just.studlab", "left")
     setOption("just.addcols", "center")
+    #
+    setOption("xpos.main", NULL)
+    setOption("gap.main", 1)
+    setOption("lineheight.main", 1)
     #
     setOption("spacing", 1)
     setOption("addrow", NULL)
@@ -857,8 +867,9 @@ settings.meta <- function(..., quietly = TRUE) {
     #
     if (setting == "BMJ") {
       specificSettings(
-        args = c("layout", "test.overall",
-                 "test.subgroup", "test.effect.subgroup",
+        args = c("layout",
+                 #
+                 "test.overall", "test.subgroup", "test.effect.subgroup",
                  #
                  "forest.I2", "forest.tau2", "forest.tau",
                  "forest.Q", "forest.pval.Q", "forest.Rb",
@@ -870,21 +881,15 @@ settings.meta <- function(..., quietly = TRUE) {
                  #
                  "colgap.forest",
                  #
-                 "col.common", "col.random", "col.subgroup",
-                 "col.study", "col.square", "col.square.lines",
-                 "col.diamond", "col.diamond.lines",
-                 #
-                 "col.lines",
-                 #
                  "lwd.square", "lwd.diamond",
                  #
                  "arrow.type",
                  #
-                 "ff.lr",
                  "zero.pval", "JAMA.pval",
                  #
                  "hetlab", "header.line"),
         new = list("BMJ",
+                   #
                    replaceNULL(args[["test.overall"]], TRUE),
                    replaceNULL(args[["test.subgroup"]], TRUE),
                    replaceNULL(args[["test.effect.subgroup"]], TRUE),
@@ -909,23 +914,11 @@ settings.meta <- function(..., quietly = TRUE) {
                    #
                    replaceNULL(args[["colgap.forest"]], "5mm"),
                    #
-                   replaceNULL(args[["col.common"]], "#6b58a6"),
-                   replaceNULL(args[["col.random"]], "#6b58a6"),
-                   replaceNULL(args[["col.subgroup"]], "black"),
-                   replaceNULL(args[["col.study"]], "#6b58a6"),
-                   replaceNULL(args[["col.square"]], "#6b58a6"),
-                   replaceNULL(args[["col.square.lines"]], "white"),
-                   replaceNULL(args[["col.diamond"]], "#6b58a6"),
-                   replaceNULL(args[["col.diamond.lines"]], "white"),
-                   #
-                   replaceNULL(args[["col.lines"]], "#a7a9ac"),
-                   #
                    replaceNULL(args[["lwd.square"]], 0.5),
                    replaceNULL(args[["lwd.diamond"]], 0.5),
                    #
                    replaceNULL(args[["arrow.type"]], "closed"),
                    #
-                   replaceNULL(args[["ff.lr"]], "bold"),
                    replaceNULL(args[["zero.pval"]], TRUE),
                    replaceNULL(args[["JAMA.pval"]], TRUE),
                    #
@@ -937,8 +930,9 @@ settings.meta <- function(..., quietly = TRUE) {
     #
     else if (setting == "JAMA") {
       specificSettings(
-        args = c("layout", "test.overall",
-                 "test.subgroup", "test.effect.subgroup",
+        args = c("layout",
+                 #
+                 "test.overall", "test.subgroup", "test.effect.subgroup",
                  #
                  "forest.I2", "forest.tau2", "forest.tau",
                  "forest.Q", "forest.pval.Q", "forest.Rb",
@@ -948,6 +942,7 @@ settings.meta <- function(..., quietly = TRUE) {
                  "zero.pval", "JAMA.pval",
                  "hetlab", "header.line"),
         new = list("JAMA",
+                   #
                    replaceNULL(args[["test.overall"]], TRUE),
                    replaceNULL(args[["test.subgroup"]], FALSE),
                    replaceNULL(args[["test.effect.subgroup"]], FALSE),
@@ -973,13 +968,14 @@ settings.meta <- function(..., quietly = TRUE) {
     #
     else if (setting == "RevMan5") {
       specificSettings(
-        args = c("method.random.ci", "method.tau", "method.I2",
+        args = c("layout",
+                 #
+                 "method.random.ci", "method.tau", "method.I2",
                  "tau.common",
                  "MH.exact", "RR.Cochrane", "Q.Cochrane",
                  "exact.smd",
-                 "layout", "prediction", "test.overall",
+                 "prediction", "test.overall",
                  "test.subgroup", "test.effect.subgroup",
-                 "col.subgroup",
                  #
                  "forest.I2", "forest.tau2", "forest.tau",
                  "forest.Q", "forest.pval.Q", "forest.Rb",
@@ -990,19 +986,20 @@ settings.meta <- function(..., quietly = TRUE) {
                  "zero.pval", "JAMA.pval",
                  "text.common", "text.w.common",
                  "hetlab", "header.line"),
-        new = list(replaceNULL(args[["method.random.ci"]], "classic"),
+        new = list("RevMan5",
+                   #
+                   replaceNULL(args[["method.random.ci"]], "classic"),
                    replaceNULL(args[["method.tau"]], "DL"),
                    replaceNULL(args[["method.I2"]], "Q"),
                    replaceNULL(args[["tau.common"]], FALSE),
                    replaceNULL(args[["MH.exact"]], FALSE),
                    replaceNULL(args[["RR.Cochrane"]], TRUE),
                    replaceNULL(args[["Q.Cochrane"]], TRUE),
-                   replaceNULL(args[["exact.smd"]], FALSE), "RevMan5",
+                   replaceNULL(args[["exact.smd"]], FALSE),
                    replaceNULL(args[["prediction"]], FALSE),
                    replaceNULL(args[["test.overall"]], TRUE),
                    replaceNULL(args[["test.subgroup"]], TRUE),
                    replaceNULL(args[["test.effect.subgroup"]], TRUE),
-                   replaceNULL(args[["col.subgroup"]], "black"),
                    #
                    replaceNULL(args[["forest.I2"]], TRUE),
                    replaceNULL(args[["forest.tau2"]], TRUE),
@@ -1031,8 +1028,7 @@ settings.meta <- function(..., quietly = TRUE) {
     #
     else if (setting == "IQWiG5") {
       specificSettings(args = c("method.random.ci", "prediction"),
-                       new = list(replaceNULL(args[["method.random.ci"]],
-                                              "HK"),
+                       new = list(replaceNULL(args[["method.random.ci"]],"HK"),
                                   replaceNULL(args[["prediction"]], TRUE)),
                        setting = "IQWiG 5 settings",
                        quietly = quietly)
@@ -1041,8 +1037,7 @@ settings.meta <- function(..., quietly = TRUE) {
     else if (setting == "IQWiG6") {
       specificSettings(args = c("method.random.ci", "adhoc.hakn.ci",
                                 "method.tau", "prediction"),
-                       new = list(replaceNULL(args[["method.random.ci"]],
-                                              "HK"),
+                       new = list(replaceNULL(args[["method.random.ci"]], "HK"),
                                   replaceNULL(args[["adhoc.hakn.ci"]],
                                               "IQWiG6"),
                                   replaceNULL(args[["method.tau"]], "PM"),
@@ -1052,42 +1047,74 @@ settings.meta <- function(..., quietly = TRUE) {
     }
     #
     else if (setting == "meta4") {
-      specificSettings(args = c("method.tau", "method.I2", "method.predict",
+      specificSettings(args = c("layout",
+                                #
+                                "MH.exact",
                                 "exact.smd",
+                                #
+                                "method.tau", "method.I2", "method.predict",
+                                "method.common.ci",
+                                #
                                 "text.common", "text.w.common",
+                                #
+                                "header.line",
+                                #
                                 "warn.deprecated"),
-                       new = list(replaceNULL(args[["method.tau"]], "DL"),
+                       new = list("meta8",
+                                  #
+                                  replaceNULL(args[["MH.exact"]], FALSE),
+                                  replaceNULL(args[["exact.smd"]], FALSE),
+                                  #
+                                  replaceNULL(args[["method.tau"]], "DL"),
                                   replaceNULL(args[["method.I2"]], "Q"),
                                   replaceNULL(args[["method.predict"]], "HTS"),
-                                  replaceNULL(args[["exact.smd"]], FALSE),
+                                  replaceNULL(args[["method.common.ci"]],
+                                              "classic"),
+                                  #
                                   replaceNULL(args[["text.common"]],
                                               "Fixed effect model"),
                                   replaceNULL(args[["text.w.common"]],
                                               "fixed"),
+                                  #
+                                  replaceNULL(args[["header.line"]], FALSE),
+                                  #
                                   replaceNULL(args[["warn.deprecated"]],
                                               FALSE)),
-                       setting =
-                         "settings from meta, version 4 or below",
+                       setting = "settings from meta, version 4 or below",
                        quietly = quietly)
     }
     #
-    else if (setting == "meta7") {
-      specificSettings(args = c("method.tau", "method.I2", "method.predict",
+    else if (setting %in% c("meta7", "meta8")) {
+      specificSettings(args = c("layout",
+                                #
+                                "MH.exact",
                                 "exact.smd",
+                                #
+                                "method.tau", "method.I2", "method.predict",
+                                "method.common.ci",
+                                #
                                 "text.common", "text.w.common",
+                                "header.line",
                                 "warn.deprecated"),
-                       new = list(replaceNULL(args[["method.tau"]], "REML"),
+                       new = list("meta8",
+                                  #
+                                  replaceNULL(args[["MH.exact"]], FALSE),
+                                  replaceNULL(args[["exact.smd"]], TRUE),
+                                  #
+                                  replaceNULL(args[["method.tau"]], "REML"),
                                   replaceNULL(args[["method.I2"]], "Q"),
                                   replaceNULL(args[["method.predict"]], "HTS"),
-                                  replaceNULL(args[["exact.smd"]], TRUE),
+                                  replaceNULL(args[["method.common.ci"]],
+                                              "classic"),
+                                  #
                                   replaceNULL(args[["text.common"]],
                                               "Common effect model"),
                                   replaceNULL(args[["text.w.common"]],
                                               "common"),
+                                  replaceNULL(args[["header.line"]], FALSE),
                                   replaceNULL(args[["warn.deprecated"]],
                                               FALSE)),
-                       setting =
-                         "settings from meta, version 7.0-0 or below",
+                       setting = "settings from meta, versions 5 to 8",
                        quietly = quietly)
     }
     #
@@ -1163,6 +1190,7 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("warn               ")
     catarg("warn.deprecated    ")
     catarg("backtransf         ")
+    catarg("log.prefix         ")
     catarg("digits             ")
     catarg("digits.mean        ")
     catarg("digits.sd          ")
@@ -1303,6 +1331,8 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("lwd.square             ")
     catarg("lwd.diamond            ")
     #
+    catarg("main.prefix            ")
+    #
     catarg("arrow.type             ")
     catarg("arrow.length           ")
     #
@@ -1310,6 +1340,7 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("type.common            ")
     #
     catarg("col.study              ")
+    catarg("col.study.text         ")
     catarg("col.square             ")
     catarg("col.square.lines       ")
     catarg("col.circle             ")
@@ -1324,6 +1355,7 @@ settings.meta <- function(..., quietly = TRUE) {
     #
     catarg("col.lines              ")
     catarg("col.label              ")
+    catarg("col.main               ")
     #
     catarg("hetlab                 ")
     catarg("resid.hetstat          ")
@@ -1364,6 +1396,7 @@ settings.meta <- function(..., quietly = TRUE) {
     #
     catarg("fontsize               ")
     catarg("fontfamily             ")
+    catarg("fs.main                ")
     catarg("fs.common              ")
     catarg("fs.random              ")
     catarg("fs.predict             ")
@@ -1376,6 +1409,7 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("fs.test.effect.subgroup")
     catarg("fs.addline             ")
     #
+    catarg("ff.main                ")
     catarg("ff.heading             ")
     catarg("ff.common              ")
     catarg("ff.random              ")
@@ -1402,9 +1436,15 @@ settings.meta <- function(..., quietly = TRUE) {
     catarg("calcwidth.tests        ")
     catarg("calcwidth.subgroup     ")
     catarg("calcwidth.addline      ")
+    catarg("calcwidth.details      ")
     #
+    catarg("just.main              ")
     catarg("just.studlab           ")
     catarg("just.addcols           ")
+    #
+    catarg("xpos.main              ")
+    catarg("gap.main               ")
+    catarg("lineheight.main        ")
     #
     catarg("spacing                ")
     catarg("addrow                 ")
@@ -1477,6 +1517,8 @@ settings.meta <- function(..., quietly = TRUE) {
     setlogical("warn", args)
     setlogical("warn.deprecated", args)
     setlogical("backtransf", args)
+    setcharacter("log.prefix", args)
+    #
     setnumeric("digits", args)
     setnumeric("digits.mean", args)
     setnumeric("digits.sd", args)
@@ -1593,8 +1635,8 @@ settings.meta <- function(..., quietly = TRUE) {
     # R function forest.meta
     #
     setcharacter("layout", args, layouts)
-    setlogical("forest.details", args)
-    setlogical("test.overall", args)
+    setlogical("forest.details", args, NULL.ok = TRUE)
+    setlogical("test.overall", args, NULL.ok = TRUE)
     setlogical("test.subgroup", args)
     setlogical("prediction.subgroup", args)
     setlogical("print.tau2.ci.subgroup", args, NULL.ok = TRUE)
@@ -1636,6 +1678,8 @@ settings.meta <- function(..., quietly = TRUE) {
     setnumeric("lwd.square", args)
     setnumeric("lwd.diamond", args)
     #
+    setlogical("main.prefix", args, NULL.ok = TRUE)
+    #
     setcharacter("arrow.type", args)
     setnumeric("arrow.length", args)
     #
@@ -1643,6 +1687,7 @@ settings.meta <- function(..., quietly = TRUE) {
     setcharacter("type.common", args, c("square", "diamond", "predict"))
     #
     setcolor("col.study", args)
+    setcolor("col.study.text", args)
     setcolor("col.square", args)
     setcolor("col.square.lines", args)
     setcolor("col.circle", args)
@@ -1657,6 +1702,7 @@ settings.meta <- function(..., quietly = TRUE) {
     #
     setcolor("col.lines", args)
     setcolor("col.label", args)
+    setcolor("col.main", args)
     #
     setcharacter("hetlab", args)
     setlogical("resid.hetstat", args, TRUE)
@@ -1697,37 +1743,41 @@ settings.meta <- function(..., quietly = TRUE) {
     setcharacter("header.line", args, c("both", "below", ""),
                  ignore.other = TRUE)
     #
-    setnumeric("fontsize", args)
-    setcharacter("fontfamily", args, NULL.ok = TRUE)
-    setnumeric("fs.common", args, TRUE)
-    setnumeric("fs.random", args, TRUE)
-    setnumeric("fs.predict", args, TRUE)
-    setnumeric("fs.common.labels", args, TRUE)
-    setnumeric("fs.random.labels", args, TRUE)
-    setnumeric("fs.predict.labels", args, TRUE)
-    setnumeric("fs.hetstat", args, TRUE)
-    setnumeric("fs.test.overall", args, TRUE)
-    setnumeric("fs.test.subgroup", args, TRUE)
-    setnumeric("fs.test.effect.subgroup", args, TRUE)
-    setnumeric("fs.addline", args, TRUE)
+    setnumeric("fontsize", args, NA.ok = FALSE)
     #
-    setcharacter("ff.heading", args)
-    setcharacter("ff.common", args, NULL.ok = TRUE)
-    setcharacter("ff.random", args, NULL.ok = TRUE)
-    setcharacter("ff.predict", args, NULL.ok = TRUE)
-    setcharacter("ff.common.labels", args, NULL.ok = TRUE)
-    setcharacter("ff.random.labels", args, NULL.ok = TRUE)
-    setcharacter("ff.predict.labels", args, NULL.ok = TRUE)
-    setcharacter("ff.study", "plain")
-    setcharacter("ff.hetstat", args, NULL.ok = TRUE)
-    setcharacter("ff.test.overall", args, NULL.ok = TRUE)
-    setcharacter("ff.test.subgroup", args, NULL.ok = TRUE)
-    setcharacter("ff.test.effect.subgroup", args, NULL.ok = TRUE)
-    setcharacter("ff.addline", args, NULL.ok = TRUE)
-    setcharacter("ff.axis", args)
-    setcharacter("ff.smlab", args)
-    setcharacter("ff.xlab", args)
-    setcharacter("ff.lr", args)
+    setnumeric("fs.main", args, NULL.ok = TRUE, NA.ok = FALSE)
+    setnumeric("fs.common", args, NULL.ok = TRUE, NA.ok = FALSE)
+    setnumeric("fs.random", args, NULL.ok = TRUE, NA.ok = FALSE)
+    setnumeric("fs.predict", args, NULL.ok = TRUE, NA.ok = FALSE)
+    setnumeric("fs.common.labels", args, NULL.ok = TRUE, NA.ok = FALSE)
+    setnumeric("fs.random.labels", args, NULL.ok = TRUE, NA.ok = FALSE)
+    setnumeric("fs.predict.labels", args, NULL.ok = TRUE, NA.ok = FALSE)
+    setnumeric("fs.hetstat", args, NULL.ok = TRUE, NA.ok = FALSE)
+    setnumeric("fs.test.overall", args, NULL.ok = TRUE, NA.ok = FALSE)
+    setnumeric("fs.test.subgroup", args, NULL.ok = TRUE, NA.ok = FALSE)
+    setnumeric("fs.test.effect.subgroup", args, NULL.ok = TRUE, NA.ok = FALSE)
+    setnumeric("fs.addline", args, NULL.ok = TRUE, NA.ok = FALSE)
+    #
+    setcharacter("fontfamily", args, NULL.ok = TRUE)
+    #
+    setfontface("ff.main", args)
+    setfontface("ff.heading", args)
+    setfontface("ff.common", args)
+    setfontface("ff.random", args)
+    setfontface("ff.predict", args)
+    setfontface("ff.common.labels", args)
+    setfontface("ff.random.labels", args)
+    setfontface("ff.predict.labels", args)
+    setfontface("ff.study", args)
+    setfontface("ff.hetstat", args)
+    setfontface("ff.test.overall", args)
+    setfontface("ff.test.subgroup", args)
+    setfontface("ff.test.effect.subgroup", args)
+    setfontface("ff.addline", args)
+    setfontface("ff.axis", args)
+    setfontface("ff.smlab", args)
+    setfontface("ff.xlab", args)
+    setfontface("ff.lr", args)
     #
     setcharacter("colgap", args)
     setcharacter("colgap.forest", args)
@@ -1737,9 +1787,15 @@ settings.meta <- function(..., quietly = TRUE) {
     setlogical("calcwidth.tests", args)
     setlogical("calcwidth.subgroup", args)
     setlogical("calcwidth.addline", args)
+    setlogical("calcwidth.details", args)
     #
-    setcharacter("just.studlab", args, c("right", "center", "left"))
-    setcharacter("just.addcols", args, c("right", "center", "left"))
+    setcharacter("just.main", args, gs("just"), NULL.ok = TRUE)
+    setcharacter("just.studlab", args, gs("just"))
+    setcharacter("just.addcols", args, gs("just"))
+    #
+    setnumeric("xpos.main", args)
+    setnumeric("gap.main", args, integer = TRUE)
+    setnumeric("lineheight.main", args)
     #
     setnumeric("spacing", args)
     setlogical("addrow", args, TRUE)

@@ -5,8 +5,58 @@
 # License: GPL (>= 2)
 #
 
+calc_pooled_prefix_extra <- function(lines, pooled.cols, do.calc,
+                                     leftcols, width.left.cols,
+                                     colgap.left, colgap.studlab,
+                                     pooled.labels, wcalc) {
+  if (!do.calc || length(lines) == 0)
+    return(unit(0, "mm"))
+  first.pooled <- match(TRUE, leftcols %in% pooled.cols)
+  prefix <-
+    if (is.na(first.pooled))
+      seq_along(leftcols)
+    else if (first.pooled > 1)
+      seq_len(first.pooled - 1)
+    else
+      integer(0)
+  if (length(prefix) == 0)
+    return(unit(0, "mm"))
+  pooled.width <- wcalc(pooled.labels[lines])
+  prefix.width <- width.left.cols[[prefix[1]]]
+  if (length(prefix) > 1) {
+    for (j in prefix[-1]) {
+      prefix.width <-
+        unit.c(prefix.width,
+               if (leftcols[[j - 1]] == "col.studlab")
+                 colgap.studlab
+               else
+                 colgap.left,
+               width.left.cols[[j]])
+    }
+  }
+  unit.pmax(unit(0, "mm"), pooled.width - sum(prefix.width))
+}
+
+split_lines <- function(x) {
+  if (is.null(x) || x == "") character(0) else
+    strsplit(x, "\n", fixed = TRUE)[[1]]
+}
+
+blank_labels <- function(x, lines, xpos, just, fontsize, fontface,
+                         fontfamily) {
+  for (i in lines)
+    x$labels[[i]] <- tg("", xpos, just, fontsize, fontface, fontfamily)
+  x
+}
+
+maxrow <- function(x) {
+  if (all(is.na(x))) NA else max(x, na.rm = TRUE)
+}
+
 forest_meta_internal <- function(
-    new, nrow, x1, spacing, 
+    new, nrow, x1, spacing, spacing.main,
+    bottom.rows, bottom.heights,
+    top.depth.lines, bottom.depth.lines,
     yHeadadd,
     #
     cols, cols.new, newcols, by,
@@ -27,7 +77,7 @@ forest_meta_internal <- function(
     #
     clines, jama, col.jama.line, bmj, revman5,
     #
-    ev.n.bin, m.s.n.cont, ev.n.prop,
+    ev.n.bin, m.s.n.cont, ev.n.prop, ev.t.inc,
     #
     fontfamily, fs.head, ff.head,
     #
@@ -37,7 +87,9 @@ forest_meta_internal <- function(
     col.add.TE, col.add.ci, col.add.cluster, col.add.cor,
     col.add.cycles, col.add.effect, col.add.effect.ci,
     col.add.event.c, col.add.event.e, col.add.event.n.c,
-    col.add.event.n.e, col.add.mean.c, col.add.mean.e,
+    col.add.event.n.e, col.add.event.time.c, col.add.event.time.e,
+    col.add.event.time.n.c, col.add.event.time.n.e,
+    col.add.mean.c, col.add.mean.e,
     col.add.mean.sd.n.c, col.add.mean.sd.n.e, col.add.n.c,
     col.add.n.e, col.add.sd.c, col.add.sd.e, col.add.seTE,
     col.add.studlab, col.add.time.c, col.add.time.e,
@@ -46,7 +98,7 @@ forest_meta_internal <- function(
     ref, TE.common, TE.random,
     overall, common, random, prediction,
     #
-    k.all, n.com, n.ran, n.prd,
+    k.all, n.pooled,
     #
     ymin.common, ymin.random, ymin.ref, ymax, ymax.ref,
     #
@@ -57,25 +109,30 @@ forest_meta_internal <- function(
     cid.below.null, cid.above.null, lty.cid,
     fill.cid.below.null, fill.cid.above.null, fill,
     #
-    xlab, xlab.add, newline.xlab, xlab.pos, xlab.ypos, fs.xlab, ff.xlab,
+    main, rows.main, gap.main, just.main, xpos.main, fs.main, ff.main,
+    col.main, lineheight.main,
     #
-    bottom.lr, smlab1, smlab2, newline.smlab, newline.lr,
-    print.label, ll1, ll2, newline.ll, lr1, lr2,
+    grob.xlab, xlab.pos, xlab.ypos, fs.xlab, ff.xlab,
+    #
+    bottom.lr, grob.smlab,
+    print.label, grob.label.left, grob.label.right,
     y.bottom.lr, fs.lr, ff.lr,
     #
-    yS, log.xaxis, at, label, fs.axis, ff.axis,
+    yS, axis.row, axis.label.row, log.xaxis, at, label, fs.axis, ff.axis,
     #
     newline.TE, newline.ci, newline.cluster, newline.cor,
     newline.cycles, newline.effect,newline.effect.ci,
     newline.event.c, newline.event.e, newline.event.n.c,
-    newline.event.n.e, newline.mean.c, newline.mean.e,
+    newline.event.n.e, newline.event.time.c, newline.event.time.e,
+    newline.event.time.n.c, newline.event.time.n.e,
+    newline.mean.c, newline.mean.e,
     newline.mean.sd.n.c, newline.mean.sd.n.e, newline.n.c,
     newline.n.e, newline.sd.c, newline.sd.e, newline.seTE,
     newline.studlab, newline.time.c, newline.time.e,
     newline.w.common, newline.w.random,
     #
     metabin, metacont, metacor, metagen, metainc, metamean,
-    metaprop, metarate, metabind, metacum, metainf, metamerge, meta,
+    metaprop, metarate, metacum, metainf, metamerge,
     #
     addrow, addrows.below.overall,
     #
@@ -88,12 +145,37 @@ forest_meta_internal <- function(
   if (new)
     grid.newpage()
   #
+  heights <- unit(rep(spacing, nrow), "lines")
+  if (rows.main > 0)
+    heights[seq_len(rows.main)] <- unit(spacing.main, "lines")
+  if (length(bottom.rows) > 0)
+    heights[bottom.rows] <- unit(bottom.heights, "lines")
+  #
   pushViewport(
     viewport(
+      y = unit(0.5, "npc") +
+        unit((bottom.depth.lines - top.depth.lines) / 2, "lines"),
       layout =
         grid.layout(
           nrow, length(x1), widths = x1,
-          heights = unit(spacing, "lines"))))
+          heights = heights)))
+  #
+  if (rows.main > 0) {
+    pushViewport(
+      viewport(layout.pos.row = seq_len(rows.main),
+               layout.pos.col = seq_len(length(x1))))
+    #
+    grid.text(main,
+              x = unit(xpos.main, "npc"), y = unit(0.5, "npc"),
+              just = just.main,
+              gp = gpar(fontsize = fs.main, fontface = ff.main,
+                        fontfamily = fontfamily, col = col.main,
+                        lineheight = lineheight.main))
+    #
+    popViewport()
+  }
+  body.rows <- seq_len(axis.row)
+  nrow.plot <- axis.row - if (rows.main > 0) rows.main + gap.main else 0
   #
   # Left side of forest plot
   #
@@ -202,6 +284,14 @@ forest_meta_internal <- function(
           add.text(col.add.event.n.e, j)
         if (newline.event.n.c & leftcols[i] == "col.event.n.c")
           add.text(col.add.event.n.c, j)
+        if (newline.event.time.e & leftcols[i] == "col.event.time.e")
+          add.text(col.add.event.time.e, j)
+        if (newline.event.time.c & leftcols[i] == "col.event.time.c")
+          add.text(col.add.event.time.c, j)
+        if (newline.event.time.n.e & leftcols[i] == "col.event.time.n.e")
+          add.text(col.add.event.time.n.e, j)
+        if (newline.event.time.n.c & leftcols[i] == "col.event.time.n.c")
+          add.text(col.add.event.time.n.c, j)
         if (newline.mean.sd.n.e & leftcols[i] == "col.mean.sd.n.e")
           add.text(col.add.mean.sd.n.e, j)
         if (newline.mean.sd.n.c & leftcols[i] == "col.mean.sd.n.c")
@@ -275,7 +365,7 @@ forest_meta_internal <- function(
   #
   # Produce forest plot
   #
-  draw.lines(col.forest, j,
+  draw.lines(col.forest, j, seq_len(axis.row),
              ref, TE.common, unique(TE.random),
              overall, common, random, prediction,
              ymin.common, ymin.random, ymin.ref,
@@ -288,82 +378,30 @@ forest_meta_internal <- function(
              fill,
              col.lines)
   #
-  draw.axis(col.forest, j, yS, log.xaxis, at, label,
+  draw.axis(col.forest, j, axis.row, axis.label.row, log.xaxis, at, label,
             fs.axis, ff.axis, fontfamily, lwd,
             xlim, avail.xlim,
             col.lines, col.label)
   #
-  if (bottom.lr) {
-    add.text(smlab1, j, xscale = col.forest$range)
-    #
-    if (newline.smlab)
-      add.text(smlab2, j, xscale = col.forest$range)
-  }
+  if (bottom.lr)
+    add.text(grob.smlab, j, xscale = col.forest$range)
   #
   if (print.label) {
     if (!bottom.lr) {
       if (!is.na(ref)) {
-        add.text(ll1, j, xscale = col.forest$range)
-        #
-        if (newline.ll)
-          add.text(ll2, j, xscale = col.forest$range)
-        #
-        add.text(lr1, j, xscale = col.forest$range)
-        #
-        if (newline.lr)
-          add.text(lr2, j, xscale = col.forest$range)
+        add.text(grob.label.left, j, xscale = col.forest$range)
+        add.text(grob.label.right, j, xscale = col.forest$range)
       }
     }
     else {
-      add.label(ll1, j,
-                if (bmj)
-                  unit(xlim[1], "native")
-                else
-                  unit(ref - (xlim[2] - xlim[1]) / 30, "native"),
-                unit(y.bottom.lr, "lines"),
-                if (bmj) "left" else "right",
-                fs.lr, ff.lr, col.label.left, fontfamily,
-                xscale = col.forest$range)
-      #
-      if (newline.ll)
-        add.label(ll2, j,
-                  if (bmj)
-                    unit(xlim[1], "native")
-                  else
-                    unit(ref - (xlim[2] - xlim[1]) / 30, "native"),
-                  unit(y.bottom.lr - 1, "lines"),
-                  if (bmj) "left" else "right",
-                  fs.lr, ff.lr, col.label.left, fontfamily,
-                  xscale = col.forest$range)
-      #
-      add.label(lr1, j,
-                if (bmj)
-                  unit(xlim[2], "native")
-                else
-                  unit(ref + (xlim[2] - xlim[1]) / 30, "native"),
-                unit(y.bottom.lr, "lines"),
-                if (bmj) "right" else "left",
-                fs.lr, ff.lr, col.label.right, fontfamily,
-                xscale = col.forest$range)
-      #
-      if (newline.lr)
-        add.label(lr2, j,
-                  if (bmj)
-                    unit(xlim[2], "native")
-                  else
-                    unit(ref + (xlim[2] - xlim[1]) / 30, "native"),
-                  unit(y.bottom.lr - 1, "lines"),
-                  if (bmj) "right" else "left",
-                  fs.lr, ff.lr, col.label.right, fontfamily,
-                  xscale = col.forest$range)
+      add.text(grob.label.left, j, xscale = col.forest$range)
+      add.text(grob.label.right, j, xscale = col.forest$range)
     }
   }
   #
-  add.xlab(col.forest, j, xlab, xlab.add, newline.xlab,
-           xlab.pos, xlab.ypos, fs.xlab, ff.xlab,
-           fontfamily)
-  #
   draw.forest(col.forest, j)
+  #
+  add.text(grob.xlab, j, xscale = col.forest$range)
   #
   j <- j + 2
   #
@@ -473,8 +511,12 @@ forest_meta_internal <- function(
         }
         #
         if (!is.null(rob.attach)) {
-          if (rightcols[i] == rob.attach)
-            add.text(col.rob, j)
+          if (rightcols[i] == rob.attach) {
+            id.rob <- seq_along(rightcols)[rightcols %in% colnames(rob)]
+            id.rob <- 2 * (range(id.rob) - min(id.rob))
+            id.rob <- seq(min(id.rob), max(id.rob))
+            add.text(col.rob, j + id.rob)
+          }
         }
         #
         if (newline.studlab & rightcols[i] == "col.studlab")
@@ -509,6 +551,14 @@ forest_meta_internal <- function(
           add.text(col.add.event.e, j)
         if (newline.event.c & rightcols[i] == "col.event.c")
           add.text(col.add.event.c, j)
+        if (newline.event.time.e & rightcols[i] == "col.event.time.e")
+          add.text(col.add.event.time.e, j)
+        if (newline.event.time.c & rightcols[i] == "col.event.time.c")
+          add.text(col.add.event.time.c, j)
+        if (newline.event.time.n.e & rightcols[i] == "col.event.time.n.e")
+          add.text(col.add.event.time.n.e, j)
+        if (newline.event.time.n.c & rightcols[i] == "col.event.time.n.c")
+          add.text(col.add.event.time.n.c, j)
         if (newline.mean.e & rightcols[i] == "col.mean.e")
           add.text(col.add.mean.e, j)
         if (newline.mean.c & rightcols[i] == "col.mean.c")
@@ -579,11 +629,12 @@ forest_meta_internal <- function(
       for (i in seq(2 * sel1 - 1, 2 * sel2 - 1)) {
         pushViewport(
           viewport(
+            layout.pos.row = body.rows,
             layout.pos.col = i,
             xscale = col.forest$range))
         #
         grid.lines(x = unit(0:1, "npc"),
-                   y = unit(nrow - 1.5 + 0.5 * addrow, "lines"),
+                   y = unit(nrow.plot - 1.5 + 0.5 * addrow, "lines"),
                    gp = gpar(lwd = lwd))
         #
         popViewport()
@@ -607,11 +658,40 @@ forest_meta_internal <- function(
       for (i in seq(2 * sel1 - 1, 2 * sel2 - 1)) {
         pushViewport(
           viewport(
+            layout.pos.row = body.rows,
             layout.pos.col = i,
             xscale = col.forest$range))
         #
         grid.lines(x = unit(0:1, "npc"),
-                   y = unit(nrow - 1.5 + 0.5 * addrow, "lines"),
+                   y = unit(nrow.plot - 1.5 + 0.5 * addrow, "lines"),
+                   gp = gpar(lwd = lwd))
+        #
+        popViewport()
+      }
+    }
+  }
+  #
+  if (ev.t.inc) {
+    cols.all <- c(leftcols, if (all(rightcols != "col.")) rightcols)
+    sel1 <- grep("col.event.time.e|col.event.time.n.e", cols.all)
+    sel2 <- grep("col.event.time.c|col.event.time.n.c", cols.all)
+    #
+    if (length(sel1) > 0 & length(sel2) > 0) {
+      if (sel1 > sel2) {
+        sel3 <- sel2
+        sel2 <- sel1
+        sel1 <- sel3
+      }
+      #
+      for (i in seq(2 * sel1 - 1, 2 * sel2 - 1)) {
+        pushViewport(
+          viewport(
+            layout.pos.row = body.rows,
+            layout.pos.col = i,
+            xscale = col.forest$range))
+        #
+        grid.lines(x = unit(0:1, "npc"),
+                   y = unit(nrow.plot - 1.5 + 0.5 * addrow, "lines"),
                    gp = gpar(lwd = lwd))
         #
         popViewport()
@@ -624,11 +704,12 @@ forest_meta_internal <- function(
       for (i in seq_len(hcols)) {
         pushViewport(
           viewport(
+            layout.pos.row = body.rows,
             layout.pos.col = i,
             xscale = col.forest$range))
         #
         grid.lines(x = unit(0:1, "npc"),
-                   y = unit(nrow + 0.5 * addrow, "lines"),
+                   y = unit(nrow.plot + 0.5 * addrow, "lines"),
                    gp = gpar(lwd = lwd, col = col.header.line))
         #
         popViewport()
@@ -638,6 +719,7 @@ forest_meta_internal <- function(
     for (i in seq_len(hcols)) {
       pushViewport(
         viewport(
+          layout.pos.row = body.rows,
           layout.pos.col = i,
           xscale = col.forest$range))
       #
@@ -655,11 +737,11 @@ forest_meta_internal <- function(
     for (i in seq_len(hcols)) {
       pushViewport(
         viewport(
+          layout.pos.row = body.rows,
           layout.pos.col = i,
           xscale = col.forest$range))
       #
-      for (j in seq_len(k.all + n.com * common + n.ran * random +
-                        n.prd * prediction))
+      for (j in seq_len(k.all + n.pooled))
         grid.lines(x = unit(0:1, "npc"),
                    y = unit(ymax + 0.5 * addrow - j, "lines"),
                    gp = gpar(lwd = 0.5 * lwd, col = col.jama.line))
@@ -680,6 +762,15 @@ forest_meta_internal <- function(
               colgap.forest = colgap.forest,
               colgap.forest.left = colgap.forest.left,
               colgap.forest.right = colgap.forest.right,
+              #
+              main = main,
+              gap.main = gap.main,
+              just.main = just.main,
+              xpos.main = xpos.main,
+              fs.main = fs.main,
+              ff.main = ff.main,
+              col.main = col.main,
+              lineheight.main = lineheight.main,
               #
               studlab = studlab,
               TE.format = TE.format,

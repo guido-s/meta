@@ -49,7 +49,7 @@ taudat <- function(method.tau, detail.tau,
                    tau2, lower.tau2, upper.tau2, print.tau2.ci, digits.tau2,
                    sign.lower, sign.upper) {
   
-  dat <- data.frame(method.tau, names = detail.tau, tau, tau2)
+  dat <- data.frame(method.tau, names = replaceNULL(detail.tau), tau, tau2)
   #
   # In order to use duplicated()
   #
@@ -203,8 +203,12 @@ collapse2 <- function(x, quote = "", collapse = ", ", br1 = "", br2 = "",
   res
 }
 
-condense <- function(x, var)
-  unlist(lapply(x, "[[" , var))
+condense <- function(x, var, value = NULL) {
+  if (is.null(value))
+    unlist(lapply(x, "[[", var))
+  else
+    vapply(x, "[[", value, var, USE.NAMES = FALSE)
+}
 
 cathet <- function(k,
                    method.tau, detail.tau,
@@ -567,17 +571,26 @@ setOptionDepr <- function(x, new, old, func, ...) {
 #
 argslist.internal <-
   c("Wan2014.Table1", "Wan2014.Table2",
+    #
     "sm4bin", "sm4cont", "sm4cor", "sm4inc", "sm4mean", "sm4prop", "sm4rate",
+    #
     "ci4cont", "ci4prop", "ci4rate",
+    #
     "meth4bin", "meth4inc", "meth4prop", "meth4rate",
+    #
     "meth4tau", "meth4tau.ci", "meth4i2",
-    "meth4common.ci",
-    "meth4random.ci", "meth4pi",
-    "adhoc4hakn.ci", "adhoc4hakn.pi",
+    "meth4common.ci", "meth4random.ci", "meth4pi",
     "meth4bias", "meth4bias.old",
+    "meth4incr", 
+    #
+    "adhoc4hakn.ci", "adhoc4hakn.pi",
+    #
     "tool4rob",
-    "meth4incr",
+    "just",
     "text.fixed", "text.w.fixed",
+    #
+    "forest.default.cols", "layout4forest",
+    #
     "major.update", "minor.update",
     #
     "special.characters")
@@ -607,7 +620,7 @@ setOption("meth4tau", c("DL", "PM", "REML", "ML", "HS", "SJ", "HE", "EB"))
 setOption("meth4tau.ci", c("QP", "BJ", "J", "PL", ""))
 setOption("meth4i2", c("Q", "tau2"))
 setOption("meth4common.ci", c("classic", "IVhet"))
-setOption("meth4random.ci", c("classic", "HK", "KR"))
+setOption("meth4random.ci", c("classic", "HK", "KR", "CR0", "CR1", "CR2"))
 setOption("meth4pi",
           c("V", "HTS", "HK", "HK-PR", "KR", "KR-PR", "NNF", "S", ""))
 setOption("adhoc4hakn.ci", c("", "se", "ci", "IQWiG6"))
@@ -624,10 +637,12 @@ setOption("tool4rob",
 #
 setOption("meth4incr", c("only0", "if0all", "all", "user"))
 #
+setOption("just", c("left", "center", "right"))
+#
 setOption("special.characters", c("+", ".", "&", "$", "#", "|", "*", "^"))
 #
-setOption("major.update", 5)
-setOption("minor.update", 6)
+setOption("major.update", 9)
+setOption("minor.update", 0)
 #
 # List of arguments that can be changed by user
 #
@@ -647,7 +662,7 @@ argslist <-
     "CIbracket", "CIseparator", "CIlower.blank", "CIupper.blank",
     "print.subgroup.name", "sep.subgroup",
     "keepdata", "keeprma", "warn", "warn.deprecated",
-    "transf", "backtransf",
+    "transf", "backtransf", "log.prefix",
     "smbin", "smcont", "smcor", "sminc", "smmean", "smprop", "smrate",
     "incr", "method.incr",
     "method", "allstudies", "MH.exact",
@@ -683,14 +698,17 @@ argslist <-
     "bottom.lr",
     "lab.NA", "lab.NA.effect", "lab.NA.weight",
     "lwd", "lwd.square", "lwd.diamond",
+    "main.prefix",
     "arrow.type", "arrow.length",
     "type.study", "type.common",
-    "col.study", "col.square", "col.square.lines", "col.circle", "col.inside",
+    "col.study", "col.study.text", "col.square", "col.square.lines",
+    "col.circle", "col.inside",
     "col.diamond", "col.diamond.lines",
     "col.predict", "col.predict.lines",
     "col.subgroup",
     "col.label.right", "col.label.left",
     "col.lines", "col.label",
+    "col.main",
     "hetlab", "resid.hetstat", "resid.hetlab",
     "forest.I2", "forest.I2.ci", "forest.tau2", "forest.tau2.ci",
     "forest.tau", "forest.tau.ci", "forest.Q", "forest.pval.Q",
@@ -705,6 +723,7 @@ argslist <-
     "forest.stat", "forest.Q.subgroup",
     "header.line",
     "fontsize", "fontfamily",
+    "fs.main",
     "fs.common", "fs.random", "fs.predict",
     "fs.common.labels", "fs.random.labels", "fs.predict.labels",
     "fs.hetstat", "fs.test.overall", "fs.test.subgroup",
@@ -713,11 +732,13 @@ argslist <-
     "ff.common.labels", "ff.random.labels", "ff.predict.labels",
     "ff.study", "ff.hetstat", "ff.test.overall", "ff.test.subgroup",
     "ff.test.effect.subgroup", "ff.addline",
-    "ff.axis", "ff.smlab", "ff.xlab", "ff.lr",
+    "ff.main", "ff.axis", "ff.smlab", "ff.xlab", "ff.lr",
     "colgap", "colgap.forest",
     "calcwidth.predict", "calcwidth.hetstat",
     "calcwidth.tests", "calcwidth.subgroup", "calcwidth.addline",
-    "just.studlab", "just.addcols",
+    "calcwidth.details",
+    "just.studlab", "just.addcols", "just.main", "xpos.main", "gap.main",
+    "lineheight.main",
     "spacing",
     "addrow", "addrow.overall", "addrow.subgroups", "addrows.below.overall"
     )
@@ -787,6 +808,8 @@ setOption("warn", TRUE)
 setOption("warn.deprecated", TRUE)
 setOption("transf", TRUE)
 setOption("backtransf", TRUE)
+setOption("log.prefix", "log")
+#
 setOption("digits", 4)
 setOption("digits.mean", 2)
 setOption("digits.sd", 4)
@@ -804,6 +827,7 @@ setOption("digits.pval", 4)
 setOption("digits.pval.Q", 4)
 setOption("digits.df", 4)
 setOption("digits.cid", 4)
+#
 setOption("scientific.pval", FALSE)
 setOption("big.mark", "")
 setOption("zero.pval", TRUE)
@@ -847,7 +871,7 @@ setOption("addincr", FALSE)
 #
 setOption("method", "MH")
 setOption("allstudies", FALSE)
-setOption("MH.exact", FALSE)
+setOption("MH.exact", TRUE)
 setOption("RR.Cochrane", FALSE)
 setOption("Q.Cochrane", TRUE)
 setOption("model.glmm", "UM.FS")
@@ -879,16 +903,16 @@ setOption("label.right", "")
 # Settings for R function forest.meta
 #
 setOption("layout", "meta")
-setOption("forest.details", FALSE)
-setOption("test.overall", FALSE)
+setOption("forest.details", NULL)
+setOption("test.overall", NULL)
 setOption("test.effect.subgroup", FALSE)
 setOption("digits.forest", 2)
 setOption("digits.TE.forest", 4)
 #
 setOption("lty.common", 2)
 setOption("lty.random", 3)
-setOption("col.common", "black")
-setOption("col.random", "black")
+setOption("col.common", NULL)
+setOption("col.random", NULL)
 #
 setOption("sort.subgroup", FALSE)
 #
@@ -930,27 +954,31 @@ setOption("lwd", 1)
 setOption("lwd.square", 1)
 setOption("lwd.diamond", 1)
 #
+setOption("main.prefix", NULL)
+#
 setOption("arrow.type", "open")
 setOption("arrow.length", 0.05)
 #
 setOption("type.study", "square")
 setOption("type.common", "diamond")
 #
-setOption("col.study", "black")
-setOption("col.square", "gray")
-setOption("col.square.lines", "gray")
-setOption("col.circle", "royalblue")
-setOption("col.inside", "white")
-setOption("col.diamond", "gray")
-setOption("col.diamond.lines", "black")
-setOption("col.predict", "red")
-setOption("col.predict.lines", "black")
-setOption("col.subgroup", "black")
-setOption("col.label.right", "black")
-setOption("col.label.left", "black")
+setOption("col.study", NULL)
+setOption("col.study.text", "black")
+setOption("col.square", NULL)
+setOption("col.square.lines", NULL)
+setOption("col.circle", NULL)
+setOption("col.inside", NULL)
+setOption("col.diamond", NULL)
+setOption("col.diamond.lines", NULL)
+setOption("col.predict", NULL)
+setOption("col.predict.lines", NULL)
+setOption("col.subgroup", NULL)
+setOption("col.label.right", NULL)
+setOption("col.label.left", NULL)
 #
-setOption("col.lines", "black")
-setOption("col.label", "black")
+setOption("col.lines", NULL)
+setOption("col.label", NULL)
+setOption("col.main", "black")
 #
 setOption("hetlab", "Heterogeneity: ")
 setOption("resid.hetstat", NULL)
@@ -991,6 +1019,8 @@ setOption("header.line", FALSE)
 #
 setOption("fontsize", 12)
 setOption("fontfamily", NULL)
+#
+setOption("fs.main", NULL)
 setOption("fs.common", NULL)
 setOption("fs.random", NULL)
 setOption("fs.predict", NULL)
@@ -1003,6 +1033,7 @@ setOption("fs.test.subgroup", NULL)
 setOption("fs.test.effect.subgroup", NULL)
 setOption("fs.addline", NULL)
 #
+setOption("ff.main", "bold")
 setOption("ff.heading", "bold")
 setOption("ff.common", NULL)
 setOption("ff.random", NULL)
@@ -1019,19 +1050,24 @@ setOption("ff.addline", NULL)
 setOption("ff.axis", "plain")
 setOption("ff.smlab", "bold")
 setOption("ff.xlab", "plain")
-setOption("ff.lr", "plain")
+setOption("ff.lr", NULL)
 #
 setOption("colgap", "2mm")
 setOption("colgap.forest", "2mm")
 #
-setOption("calcwidth.predict", FALSE)
-setOption("calcwidth.hetstat", FALSE)
-setOption("calcwidth.tests", FALSE)
-setOption("calcwidth.subgroup", FALSE)
-setOption("calcwidth.addline", FALSE)
+setOption("calcwidth.predict", TRUE)
+setOption("calcwidth.hetstat", TRUE)
+setOption("calcwidth.tests", TRUE)
+setOption("calcwidth.subgroup", TRUE)
+setOption("calcwidth.addline", TRUE)
+setOption("calcwidth.details", TRUE)
 #
 setOption("just.studlab", "left")
 setOption("just.addcols", "center")
+setOption("just.main", NULL)
+setOption("xpos.main", NULL)
+setOption("gap.main", 1)
+setOption("lineheight.main", 1)
 #
 setOption("spacing", 1)
 setOption("addrow", NULL)
@@ -1062,4 +1098,27 @@ setOption("Wan2014.Table2",
             1.336, 1.336, 1.337, 1.337, 1.337,
             1.338, 1.338, 1.338, 1.338, 1.339,
             1.339, 1.339, 1.339, 1.339, 1.340))
-
+#
+setOption("forest.default.cols",
+          c("studlab",
+            "TE", "seTE",
+            "cluster", "cycles",
+            #
+            "n.e", "n.c", "event.e", "event.c",
+            "event.n.e", "event.n.c", "event.n",
+            "mean.e", "mean.c", "sd.e", "sd.c",
+            "mean.sd.n.e", "mean.sd.n.c", "mean.sd.n",
+            #
+            "cor",
+            "time.e", "time.c",
+            "event.time.e", "event.time.c",
+            "event.time.n.e", "event.time.n.c",
+            #
+            "effect", "ci",
+            "effect.ci",
+            #
+            "w.fixed", "w.common", "w.random",
+            #
+            "pval", "statistic"))
+#
+setOption("layout4forest", c("meta", "meta8", "BMJ", "JAMA", "RevMan5"))
