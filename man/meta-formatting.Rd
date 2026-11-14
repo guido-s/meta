@@ -58,16 +58,16 @@ Function keys in the tables:
 }
 A star, as in \bold{B*} or \bold{C*}, denotes forwarding through
 \code{...} to \code{forest.meta}. Unmarked keys indicate direct processing;
-C uses the same implementation for both methods.
+\bold{C} uses the same implementation for both methods.
 
 Availability does not imply that every setting affects every plot:
 forwarded arguments remain subject to the wrapper's documented restrictions
-and the results displayed. In particular, C supplies study symbols and
-disables overall-effect tests; B does not provide tests between input
+and the results displayed. In particular, \bold{C} supplies study symbols and
+disables overall-effect tests; \bold{B} does not provide tests between input
 meta-analyses and fixes \code{pooled.totals = FALSE}.
 
 Each subsection first describes elements and availability, then gives
-one table of general defaults. For elements supported by M, native
+one table of general defaults. For elements supported by \bold{M}, native
 \code{forest.meta} defines the baseline; other elements have the general
 defaults shown. Individual function documentation describes exceptions.
 Named-list and individual arguments use the same defaults.
@@ -88,8 +88,8 @@ corresponding tests are printed.
 \tabular{lll}{
 \bold{Element} \tab \bold{Description} \tab \bold{Functions} \cr
 \code{overall} \tab Overall effects \tab M, B \cr
-\code{overall.common} \tab Common effect \tab M, B \cr
-\code{overall.random} \tab Random effects \tab M, B \cr
+\code{overall.common} \tab Common effect model \tab M, B \cr
+\code{overall.random} \tab Random effects model \tab M, B \cr
 \code{subgroup} \tab Subgroup differences \tab M, B, C*, N \cr
 \code{subgroup.common} \tab Common-effect differences \tab M, B, C*, N \cr
 \code{subgroup.random} \tab Random-effects differences \tab M, B, C*, N \cr
@@ -111,11 +111,11 @@ corresponding tests are printed.
 \code{effect.subgroup.random} \tab \code{NULL} (automatic)
 }
 The overall-test default is \code{gs("test.overall")}; if NULL, it is TRUE
-for BMJ, RevMan5, JAMA, and meta9 layouts, and FALSE otherwise. Model-specific
-defaults also depend on \code{common}, \code{random}, and \code{overall}.
-Subgroup tests default to \code{x$test.subgroup}, or TRUE if NULL;
-model-specific defaults also depend on \code{common} and \code{random}.
-C fixes overall-effect tests to FALSE; do not supply these elements.
+for BMJ, RevMan5, JAMA, and meta (default) layouts, and FALSE otherwise.
+Model-specific defaults also depend on \code{common}, \code{random}, and
+\code{overall}. Subgroup tests default to \code{x$test.subgroup}, or TRUE if
+NULL; model-specific defaults also depend on \code{common} and \code{random}.
+\bold{C} fixes overall-effect tests to FALSE; do not supply these elements.
 In \code{\link{print.meta}}, \code{test} supports only \code{subgroup},
 \code{subgroup.common}, and \code{subgroup.random}.
 These settings can also be passed through \code{\link{print.summary.meta}}.
@@ -253,7 +253,7 @@ Possible values are \code{"left"}, \code{"right"}, and \code{"center"}.
 \code{addcols.left}, \code{addcols.right} \tab \code{gs("just.addcols")} \cr
 \code{rob} \tab \code{"left"}
 }
-C fixes \code{just.addcols = "right"}; do not supply \code{just$addcols}.
+\bold{C} fixes \code{just.addcols = "right"}; do not supply \code{just$addcols}.
 }
 
 \subsection{Fill settings (fill.*)}{
@@ -351,8 +351,8 @@ differ between subgroups or rows.
 \code{border} \tab \code{NULL} \cr
 \code{bg.predict}, \code{border.predict} \tab \code{NULL}
 }
-B processes its own colour elements and forwards other native elements;
-C uses only its alternative elements.
+\bold{B} processes its own colour elements and forwards other native
+elements; \bold{C} uses only its alternative elements.
 }
 
 \subsection{Printing results (print.*)}{
@@ -426,12 +426,13 @@ Logical settings controlling displayed results, columns, and labels.
 \code{Q.b}, \code{pval.Q.b} \tab \code{NULL} (automatic)
 }
 Confidence-interval switches require the corresponding statistic.
-B and C use their own print lists; native-only elements are not a shared
-wrapper interface.
+\bold{B} and \bold{C} use their own print lists; native-only elements are not
+a shared wrapper interface.
 \code{Q.b} and \code{pval.Q.b} refer to subgroup differences within each
 meta-analysis.
-In P, \code{pval.Q.b} controls the whole subgroup-test block, including
-the statistic and degrees of freedom; \code{Q.b} has no separate effect.
+In \bold{P}, \code{pval.Q.b} controls the whole subgroup-test block,
+including the statistic and degrees of freedom; \code{Q.b} has no separate
+effect.
 }
 
 \subsection{Graphical-type (type.*)}{
@@ -462,7 +463,7 @@ are plotted, such as \code{"square"}, \code{"diamond"}, or
 }
 Subgroup symbols default to \code{"diamond"} if \code{study.results} is
 TRUE, and \code{"square"} otherwise.
-C uses an ordinary character argument \code{type}, not a named list.
+\bold{C} uses an ordinary character argument \code{type}, not a named list.
 }
 
 \subsection{Pooled-results (pooled.*)}{
@@ -479,7 +480,8 @@ C uses an ordinary character argument \code{type}, not a named list.
 \code{events} \tab \code{gs("pooled.events")} \cr
 \code{times} \tab \code{gs("pooled.times")}
 }
-B fixes \code{pooled.totals = FALSE}; do not supply \code{pooled$totals}.
+\bold{B} fixes \code{pooled.totals = FALSE}; do not supply
+\code{pooled$totals}.
 }
 
 \subsection{Text settings (text.*)}{

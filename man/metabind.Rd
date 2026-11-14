@@ -156,6 +156,7 @@ mb <- metabind(ma1, ma2, common = FALSE)
 mb
 forest(mb)
 
+\dontrun{
 # Use various estimation methods for between-study heterogeneity
 # variance
 #
@@ -182,6 +183,7 @@ ma.taus <- metabind(ma, ma.pm, ma.dl, ma.ml, ma.hs, ma.sj, ma.he, ma.eb,
   name = taus, common = FALSE)
 ma.taus
 forest(ma.taus)
+}
 
 }
 \seealso{

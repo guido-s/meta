@@ -319,10 +319,6 @@
 #' metagen(1:3, 2:4 / 10, sm = "MD")
 #' metagen(4:6, 4:2 / 10, sm = "MD")
 #' 
-#' # Try to set unknown argument results in a warning
-#' #
-#' try(settings.meta(unknownarg = TRUE))
-#' 
 #' # Reset to default settings of R package meta
 #' #
 #' settings.meta("reset")
@@ -341,14 +337,15 @@
 #' 
 #' # Forest plot using RevMan 5 style
 #' #
-#' settings.meta("RevMan5")
+#' settings.meta("RevMan5", quietly = FALSE)
 #' forest(metagen(1:3, 2:4 / 10, sm = "MD", common = FALSE),
 #'   label.left = "Favours A", label.right = "Favours B",
 #'   colgap.studlab = "2cm", colgap.forest.left = "0.2cm")
 #' 
+#' \dontrun{
 #' # Forest plot using JAMA style
 #' #
-#' settings.meta("JAMA")
+#' settings.meta("JAMA", quietly = FALSE)
 #' forest(metagen(1:3, 2:4 / 10, sm = "MD", common = FALSE),
 #'   label.left = "Favours A", label.right = "Favours B",
 #'   colgap.studlab = "2cm", colgap.forest.left = "0.2cm")
@@ -360,6 +357,7 @@
 #' forest(metagen(-(1:3), 2:4 / 10, sm = "MD", common = FALSE),
 #'   label.left = "Favours A", label.right = "Favours B",
 #'   colgap.studlab = "2cm", colgap.forest.left = "0.2cm")
+#' }
 #' 
 #' # Use old settings
 #' #

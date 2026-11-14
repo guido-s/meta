@@ -193,13 +193,67 @@ defaults to \code{TRUE} for subgroup plots.
 }
 }
 \examples{
-ma <- metagen(1:3, 3:1, sm = "md")
+data(Fleiss1993cont)
+
+# Add some (fictitious) grouping variables:
 #
-mb <- metabind(ma, update(ma, method.random.ci = "HK"))
+Fleiss1993cont$age <- c(55, 65, 55, 65, 55)
+Fleiss1993cont$region <- c("Europe", "Europe", "Asia", "Asia", "Europe")
+
+ma <- metacont(n.psyc, mean.psyc, sd.psyc, n.cont, mean.cont, sd.cont,
+  data = Fleiss1993cont, sm = "SMD")
+
+# Conduct two subgroup analyses
 #
-forest(mb)
+ma1 <- update(ma, subgroup = age, subgroup.name = "Age group")
+ma2 <- update(ma, subgroup = region, subgroup.name = "Region")
+
+# Combine random effects subgroup meta-analyses and show forest
+# plot with subgroup results
+#
+mb12 <- metabind(ma1, ma2, common = FALSE)
+mb12
+forest(mb12)
+
+\dontrun{
+# Use various estimation methods for between-study heterogeneity
+# variance
+#
+ma.pm <- update(ma, method.tau = "PM")
+ma.dl <- update(ma, method.tau = "DL")
+ma.ml <- update(ma, method.tau = "ML")
+ma.hs <- update(ma, method.tau = "HS")
+ma.sj <- update(ma, method.tau = "SJ")
+ma.he <- update(ma, method.tau = "HE")
+ma.eb <- update(ma, method.tau = "EB")
+
+# Combine meta-analyses and show results
+#
+taus <- c("Restricted maximum-likelihood estimator",
+  "Paule-Mandel estimator",
+  "DerSimonian-Laird estimator",
+  "Maximum-likelihood estimator",
+  "Hunter-Schmidt estimator",
+  "Sidik-Jonkman estimator",
+  "Hedges estimator",
+  "Empirical Bayes estimator")
+#
+mb2 <- metabind(ma, ma.pm, ma.dl, ma.ml, ma.hs, ma.sj, ma.he, ma.eb,
+  name = taus, common = FALSE)
+mb2
+forest(mb2)
+
+# Return results for both common effect and random effects model
+#
+ma3 <- metagen(1:3, 3:1, sm = "md")
+#
+mb3 <- metabind(ma, update(ma, method.random.ci = "HK"))
+mb3
+
+# Meta-analysis model as subgroups
 #
 forest(mb, subgroup = type)
+}
 
 }
 \seealso{

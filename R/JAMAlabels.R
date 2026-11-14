@@ -27,11 +27,11 @@
 #' Fleiss1993bin$mylabs <-
 #'   JAMAlabels(study, year, refs, data = Fleiss1993bin)
 #'
-#' m <- metabin(d.asp, n.asp, d.plac, n.plac, data = Fleiss1993bin,
+#' ma <- metabin(d.asp, n.asp, d.plac, n.plac, data = Fleiss1993bin,
 #'   studlab = paste(study, year),
 #'   sm = "OR", random = FALSE)
 #' 
-#' forest(m, studlab = mylabs, layout = "JAMA",
+#' forest(ma, studlab = mylabs, layout = "JAMA",
 #'   fontfamily = "Times", fontsize = 10)
 #' 
 #' @export JAMAlabels

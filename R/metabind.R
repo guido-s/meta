@@ -136,6 +136,7 @@
 #' mb
 #' forest(mb)
 #'
+#' \dontrun{
 #' # Use various estimation methods for between-study heterogeneity
 #' # variance
 #' #
@@ -162,6 +163,7 @@
 #'   name = taus, common = FALSE)
 #' ma.taus
 #' forest(ma.taus)
+#' }
 #' 
 #' @export metabind
 
