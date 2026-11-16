@@ -193,10 +193,6 @@ metainf.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
   #
   chklogical(overall)
   #
-  tdist_random <- pooled == "random" &
-    x$method.random.ci %in% c("HK", "KR", "CR0", "CR1", "CR2")
-  tdist_predict <- !(x$method.predict %in% c("S", ""))
-  #
   error <- try(sortvar <- catch(enquo(sortvar), x), silent = TRUE)
   if (inherits(error, "try-error")) {
     sortvar <- catch(enquo(sortvar), x$data)
@@ -349,6 +345,12 @@ metainf.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
   x$text.predict <- x$text.predict[1]
   x$method.predict <- x$method.predict[1]
   x$adhoc.hakn.pi <- x$adhoc.hakn.pi[1]
+  #
+  # Determine the distributions for the selected methods.
+  #
+  tdist_random <- pooled == "random" &
+    x$method.random.ci %in% c("HK", "KR", "CR0", "CR1", "CR2")
+  tdist_predict <- !(x$method.predict %in% c("S", ""))
   
   
   #
