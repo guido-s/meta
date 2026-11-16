@@ -1,9 +1,20 @@
-*~
-*.bak
-symbols.rds
-.Rproj.user
+# R and RStudio
 .Rhistory
 .RData
 .Ruserdata
+.Rproj.user/
+*.Rproj
+
+# R package development
+symbols.rds
 roxygen2-*.R
+*.Rcheck/
+
+# Editor temporary files
+*~
+*.bak
+*.sw?
+
+# macOS
 .DS_Store
+
