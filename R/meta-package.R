@@ -504,14 +504,18 @@
 #' several meta-analyses can be combined with \code{\link{metabind}}
 #' which is useful to generate a forest plot with results of several
 #' subgroup analyses.
-#' 
-#' R package \bold{meta} imports R functions from \bold{metafor}
+#'
+#' R package \bold{meta} uses functions from \bold{metafor}
 #' (Viechtbauer, 2010) to
 #' \itemize{
-#' \item estimate the between-study variance \eqn{\tau^2},
+#' \item estimate between-study heterogeneity \eqn{\tau^2} and its confidence intervals,
+#' \item fit generalized linear mixed models,
+#' \item fit three-level models and account for correlated effect estimates,
+#' \item provide cluster-robust inference,
+#' \item conduct meta-analyses with user-specified study weights,
 #' \item conduct meta-regression,
-#' \item estimate three-level models,
-#' \item estimate generalised linear mixed models.
+#' \item perform regression-based tests for funnel-plot asymmetry,
+#' \item convert contrast-based data to long arm-based data.
 #' }
 #'
 #' Since version 9.0-0, OpenCode and ChatGPT have been used to assist with

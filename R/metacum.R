@@ -15,8 +15,25 @@
 #'   reported.
 #' @param text.pooled A character string used in printouts and forest
 #'   plots to label the pooled effect estimate.
-#' @param no A numeric specifying which meta-analysis results to
-#'   consider.
+#' @param method.random.ci A character string selecting the method used
+#'   to calculate confidence intervals and test statistics for the
+#'   random effects estimate. Only methods available in the meta-analysis
+#'   object can be selected. If omitted, the first available method is used.
+#' @param adhoc.hakn.ci A character string selecting the \emph{ad hoc}
+#'   variance correction for the Hartung-Knapp method. Only settings
+#'   available for the selected method in the meta-analysis object can
+#'   be selected. If omitted, the first available setting for the selected
+#'   method is used. For methods other than Hartung-Knapp, only \code{""}
+#'   (no correction) is available.
+#' @param method.predict A character string indicating which method is
+#'   used to calculate a prediction interval. Only methods available in the
+#'   meta-analysis object can be selected. If omitted, the first available
+#'   method is used.
+#' @param adhoc.hakn.pi A character string selecting the \emph{ad hoc}
+#'   variance correction for the Hartung-Knapp method. Only settings
+#'   available for the selected method in the meta-analysis object can
+#'   be selected. If omitted, the first available setting for the selected
+#'   method is used.
 #' @param cid A numeric value or vector specifying clinically important
 #'   differences (CID) / decision thresholds used to calculate expected
 #'   proportions of clinically important benefit or harm
@@ -118,7 +135,9 @@
 #' @export
 
 metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
-                         text.pooled, no = 1,
+                         text.pooled,
+                         method.random.ci, adhoc.hakn.ci,
+                         method.predict, adhoc.hakn.pi,
                          cid = NULL,
                          cid.below.null = NULL, cid.above.null = NULL,
                          small.values = "desirable",
@@ -147,7 +166,17 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
     return(invisible(NULL))
   }
   #
-  warn_ignore_dots(list(...), "metacum")
+  args <- list(...)
+  #
+  if ("no" %in% names(args)) {
+    warning("Argument 'no' is ignored. Use 'method.random.ci' and ",
+            "'adhoc.hakn.ci' to select a random-effects CI method.",
+            call. = FALSE)
+    #
+    args <- args[names(args) != "no"]
+  }
+  #
+  warn_ignore_dots(args, "metacum")
   
   
   #
@@ -184,9 +213,30 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
   #
   chklogical(overall)
   #
+  # Select a single method to calculate random effects confidence intervals
+  #
+  idx.r <-
+    select_interval_method(x$method.random.ci, x$adhoc.hakn.ci,
+                           method.random.ci, missing(method.random.ci),
+                           adhoc.hakn.ci, missing(adhoc.hakn.ci))
+  #
+  method.random.ci <- x$method.random.ci[idx.r]
+  adhoc.hakn.ci <- x$adhoc.hakn.ci[idx.r]
+  #
   tdist_random <- pooled == "random" &
-    x$method.random.ci %in% c("HK", "KR", "CR0", "CR1", "CR2")
-  tdist_predict <- !(x$method.predict %in% c("S", ""))
+    method.random.ci %in% c("HK", "KR", "CR0", "CR1", "CR2")
+  #
+  # Select a single method to calculate prediction intervals
+  #
+  idx.p <-
+    select_interval_method(x$method.predict, x$adhoc.hakn.pi,
+                           method.predict, missing(method.predict),
+                           adhoc.hakn.pi, missing(adhoc.hakn.pi))
+  #
+  method.predict <- x$method.predict[idx.p]
+  adhoc.hakn.pi <- x$adhoc.hakn.pi[idx.p]
+  #
+  tdist_predict <- !(method.predict %in% c("S", ""))
   #
   error <- try(sortvar <- catch(enquo(sortvar), x), silent = TRUE)
   if (inherits(error, "try-error")) {
@@ -280,71 +330,7 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
   slab <- character(k.all)
   for (i in seq_len(k.all))
     slab[i] <- paste0("Adding ", studlab[i], " (k=", ncum[i], ")")
-  #
-  chknumeric(no, min = 1, length = 1)
-  #
-  # Select a single common effect or random effects models
-  #
-  if (pooled == "common") {
-    if (no > length(x$seTE.common))
-      stop("Argument 'no' must be smaller or equal to ",
-           "number of common effect estimates.",
-           call. = FALSE)
-    #
-    no.c <- no
-    no.r <- 1
-  }
-  else {
-    if (no > length(x$seTE.random))
-      stop("Argument 'no' must be smaller or equal to ",
-           "number of random effects estimates.",
-           call. = FALSE)
-    #
-    no.c <- 1
-    no.r <- no
-  }
-  #
-  x$TE.common <- x$TE.common[no.c]
-  x$seTE.common <- x$seTE.common[no.c]
-  x$statistic.common <- x$statistic.common[no.c]
-  x$pval.common <- x$pval.common[no.c]
-  x$lower.common <- x$lower.common[no.c]
-  x$upper.common <- x$upper.common[no.c]
-  x$zval.common <- x$zval.common[no.c]
-  x$text.common <- x$text.common[no.c]
-  #
-  if (length(x$TE.random) == 1 &&
-      length(x$TE.random) != length(x$seTE.random))
-    x$TE.random <- rep_len(x$TE.random, length(x$seTE.random))
-  x$TE.random <- x$TE.random[no.r]
-  x$seTE.random <- x$seTE.random[no.r]
-  x$df.random <- x$df.random[no.r]
-  x$statistic.random <- x$statistic.random[no.r]
-  x$pval.random <- x$pval.random[no.r]
-  x$lower.random <- x$lower.random[no.r]
-  x$upper.random <- x$upper.random[no.r]
-  x$zval.random <- x$zval.random[no.r]
-  x$seTE.hakn.adhoc.ci <- x$seTE.hakn.adhoc.ci[no.r]
-  x$df.hakn.ci <- x$df.hakn.ci[no.r]
-  #
-  x$text.random <- x$text.random[no.r]
-  x$method.random.ci <- x$method.random.ci[no.r]
-  x$adhoc.hakn.ci <- x$adhoc.hakn.ci[no.r]
-  #
-  x$seTE.hakn.adhoc <- x$seTE.hakn.adhoc[no.r]
-  x$df.hakn <- x$df.hakn[no.r]
-  #
-  x$lower.predict <- x$lower.predict[1]
-  x$upper.predict <- x$upper.predict[1]
-  x$seTE.predict <- x$seTE.predict[1]
-  x$df.predict <- x$df.predict[1]
-  x$seTE.hakn.adhoc.pi <- x$seTE.hakn.adhoc.pi[1]
-  x$df.hakn.pi <- x$df.hakn.pi[1]
-  #
-  x$text.predict <- x$text.predict[1]
-  x$method.predict <- x$method.predict[1]
-  x$adhoc.hakn.pi <- x$adhoc.hakn.pi[1]
-  
+
   
   #
   #
@@ -378,8 +364,8 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
                    method = x$method,
                    #
                    method.common.ci = x$method.common.ci,
-                   method.random.ci = x$method.random.ci,
-                   method.predict = x$method.predict,
+                   method.random.ci = method.random.ci,
+                   method.predict = method.predict,
                    method.tau = x$method.tau,
                    method.tau.ci = x$method.tau.ci,
                    method.I2 = x$method.I2,
@@ -397,8 +383,8 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
                    #
                    tau.preset = x$tau.preset, TE.tau = x$TE.tau,
                    #
-                   adhoc.hakn.ci = x$adhoc.hakn.ci,
-                   adhoc.hakn.pi = x$adhoc.hakn.pi,
+                   adhoc.hakn.ci = adhoc.hakn.ci,
+                   adhoc.hakn.pi = adhoc.hakn.pi,
                    #
                    seed.predict = x$seed.predict,
                    #
@@ -422,8 +408,8 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
                     pooledvar = replaceNA(x$pooledvar, gs("pooledvar")),
                     #
                     method.common.ci = x$method.common.ci,
-                    method.random.ci = x$method.random.ci,
-                    method.predict = x$method.predict,
+                    method.random.ci = method.random.ci,
+                    method.predict = method.predict,
                     method.tau = x$method.tau,
                     method.tau.ci = x$method.tau.ci,
                     method.I2 = x$method.I2,
@@ -434,8 +420,8 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
                     #
                     tau.preset = x$tau.preset, TE.tau = x$TE.tau,
                     #
-                    adhoc.hakn.ci = x$adhoc.hakn.ci,
-                    adhoc.hakn.pi = x$adhoc.hakn.pi,
+                    adhoc.hakn.ci = adhoc.hakn.ci,
+                    adhoc.hakn.pi = adhoc.hakn.pi,
                     #
                     seed.predict = x$seed.predict,
                     #
@@ -454,8 +440,8 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
                    sm = x$sm, null.effect = x$null.effect,
                    #
                    method.common.ci = x$method.common.ci,
-                   method.random.ci = x$method.random.ci,
-                   method.predict = x$method.predict,
+                   method.random.ci = method.random.ci,
+                   method.predict = method.predict,
                    method.tau = x$method.tau,
                    method.tau.ci = x$method.tau.ci,
                    method.I2 = x$method.I2,
@@ -466,8 +452,8 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
                    #
                    tau.preset = x$tau.preset, TE.tau = x$TE.tau,
                    #
-                   adhoc.hakn.ci = x$adhoc.hakn.ci,
-                   adhoc.hakn.pi = x$adhoc.hakn.pi,
+                   adhoc.hakn.ci = adhoc.hakn.ci,
+                   adhoc.hakn.pi = adhoc.hakn.pi,
                    #
                    seed.predict = x$seed.predict,
                    #
@@ -486,8 +472,8 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
                    sm = x$sm, null.effect = x$null.effect,
                    #
                    method.common.ci = x$method.common.ci,
-                   method.random.ci = x$method.random.ci,
-                   method.predict = x$method.predict,
+                   method.random.ci = method.random.ci,
+                   method.predict = method.predict,
                    method.tau = x$method.tau,
                    method.tau.ci = x$method.tau.ci,
                    method.I2 = x$method.I2,
@@ -498,8 +484,8 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
                    #
                    tau.preset = x$tau.preset, TE.tau = x$TE.tau,
                    #
-                   adhoc.hakn.ci = x$adhoc.hakn.ci,
-                   adhoc.hakn.pi = x$adhoc.hakn.pi,
+                   adhoc.hakn.ci = adhoc.hakn.ci,
+                   adhoc.hakn.pi = adhoc.hakn.pi,
                    #
                    seed.predict = x$seed.predict,
                    #
@@ -522,8 +508,8 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
                    method = x$method,
                    #
                    method.common.ci = x$method.common.ci,
-                   method.random.ci = x$method.random.ci,
-                   method.predict = x$method.predict,
+                   method.random.ci = method.random.ci,
+                   method.predict = method.predict,
                    method.tau = x$method.tau,
                    method.tau.ci = x$method.tau.ci,
                    method.I2 = x$method.I2,
@@ -537,8 +523,8 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
                    #
                    tau.preset = x$tau.preset, TE.tau = x$TE.tau,
                    #
-                   adhoc.hakn.ci = x$adhoc.hakn.ci,
-                   adhoc.hakn.pi = x$adhoc.hakn.pi,
+                   adhoc.hakn.ci = adhoc.hakn.ci,
+                   adhoc.hakn.pi = adhoc.hakn.pi,
                    #
                    seed.predict = x$seed.predict,
                    #
@@ -557,8 +543,8 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
                     sm = x$sm, null.effect = x$null.effect,
                     #
                     method.common.ci = x$method.common.ci,
-                    method.random.ci = x$method.random.ci,
-                    method.predict = x$method.predict,
+                    method.random.ci = method.random.ci,
+                    method.predict = method.predict,
                     method.tau = x$method.tau,
                     method.tau.ci = x$method.tau.ci,
                     method.I2 = x$method.I2,
@@ -569,8 +555,8 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
                     #
                     tau.preset = x$tau.preset, TE.tau = x$TE.tau,
                     #
-                    adhoc.hakn.ci = x$adhoc.hakn.ci,
-                    adhoc.hakn.pi = x$adhoc.hakn.pi,
+                    adhoc.hakn.ci = adhoc.hakn.ci,
+                    adhoc.hakn.pi = adhoc.hakn.pi,
                     #
                     seed.predict = x$seed.predict,
                     #
@@ -591,8 +577,8 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
                     method = x$method,
                     #
                     method.common.ci = x$method.common.ci,
-                    method.random.ci = x$method.random.ci,
-                    method.predict = x$method.predict,
+                    method.random.ci = method.random.ci,
+                    method.predict = method.predict,
                     method.tau = x$method.tau,
                     method.tau.ci = x$method.tau.ci,
                     method.I2 = x$method.I2,
@@ -605,8 +591,8 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
                     #
                     tau.preset = x$tau.preset, TE.tau = x$TE.tau,
                     #
-                    adhoc.hakn.ci = x$adhoc.hakn.ci,
-                    adhoc.hakn.pi = x$adhoc.hakn.pi,
+                    adhoc.hakn.ci = adhoc.hakn.ci,
+                    adhoc.hakn.pi = adhoc.hakn.pi,
                     #
                     seed.predict = x$seed.predict,
                     #
@@ -627,8 +613,8 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
                     method = x$method,
                     #
                     method.common.ci = x$method.common.ci,
-                    method.random.ci = x$method.random.ci,
-                    method.predict = x$method.predict,
+                    method.random.ci = method.random.ci,
+                    method.predict = method.predict,
                     method.tau = x$method.tau,
                     method.tau.ci = x$method.tau.ci,
                     method.I2 = x$method.I2,
@@ -641,8 +627,8 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
                     #
                     tau.preset = x$tau.preset, TE.tau = x$TE.tau,
                     #
-                    adhoc.hakn.ci = x$adhoc.hakn.ci,
-                    adhoc.hakn.pi = x$adhoc.hakn.pi,
+                    adhoc.hakn.ci = adhoc.hakn.ci,
+                    adhoc.hakn.pi = adhoc.hakn.pi,
                     #
                     seed.predict = x$seed.predict,
                     #
@@ -813,24 +799,31 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
     pval.pooled <- x$pval.common
     w.pooled <- sum(x$w.common, na.rm = TRUE)
     #
+    df.random.pooled <- NA
+    #
     lower.predict.pooled <- NA
     upper.predict.pooled <- NA
+    #
+    df.predict.pooled <- NA
+    text.predict.pooled <- ""
   }
   #
   else if (pooled == "random") {
-    TE.pooled <- x$TE.random
-    seTE.pooled <- x$seTE.random
-    lower.pooled <- x$lower.random
-    upper.pooled <- x$upper.random
-    statistic.pooled <- x$statistic.random
-    pval.pooled <- x$pval.random
+    TE.pooled <- x$TE.random[idx.r]
+    seTE.pooled <- x$seTE.random[idx.r]
+    df.random.pooled <- x$df.random[idx.r]
+    lower.pooled <- x$lower.random[idx.r]
+    upper.pooled <- x$upper.random[idx.r]
+    statistic.pooled <- x$statistic.random[idx.r]
+    pval.pooled <- x$pval.random[idx.r]
+    #
     w.pooled <- sum(x$w.random, na.rm = TRUE)
     #
-    lower.predict.pooled <- x$lower.predict
-    upper.predict.pooled <- x$upper.predict
+    lower.predict.pooled <- x$lower.predict[idx.p]
+    upper.predict.pooled <- x$upper.predict[idx.p]
+    df.predict.pooled <- x$df.predict[idx.p]
+    text.predict.pooled <- x$text.predict[idx.p]
   }
-  #
-  df.random.pooled <- x$df.random
   #
   tau2.pooled <- x$tau2
   se.tau2.pooled <- x$se.tau2
@@ -873,8 +866,12 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
   #
   #
   
-  if (missing(text.pooled))
-    text.pooled <- if (pooled == "common") x$text.common else x$text.random
+  if (missing(text.pooled)) {
+    if (pooled == "common")
+      text.pooled <- x$text.common
+    else
+      text.pooled <-x$text.random[idx.r]
+  }
   #
   res <- list(studlab = slab,
               #
@@ -939,8 +936,8 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
               overall.hetstat = FALSE,
               #
               prediction = prediction,
-              method.predict = x$method.predict,
-              adhoc.hakn.pi = x$adhoc.hakn.pi,
+              method.predict = method.predict,
+              adhoc.hakn.pi = adhoc.hakn.pi,
               seed.predict = x$seed.predict,
               #
               backtransf = x$backtransf,
@@ -954,8 +951,8 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
               method.random = x$method.random,
               #
               method.common.ci = x$method.common.ci,
-              method.random.ci = x$method.random.ci,
-              adhoc.hakn.ci = x$adhoc.hakn.ci,
+              method.random.ci = method.random.ci,
+              adhoc.hakn.ci = adhoc.hakn.ci,
               #
               method.tau = x$method.tau,
               method.tau.ci =
@@ -985,8 +982,8 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
               #
               lower.predict.pooled = lower.predict.pooled,
               upper.predict.pooled = upper.predict.pooled,
-              df.predict.pooled = x$df.predict,
-              text.predict = x$text.predict,
+              df.predict.pooled = df.predict.pooled,
+              text.predict = text.predict.pooled,
               #
               prop.cid.below.null.pooled = prop.cid.below.null.pooled,
               prop.cid.above.null.pooled = prop.cid.above.null.pooled,
@@ -1026,8 +1023,6 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
               #
               title = x$title, complab = x$complab,
               outclab = x$outclab,
-              #
-              no = no,
               #
               x = x,
               #

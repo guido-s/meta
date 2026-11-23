@@ -13,7 +13,10 @@
   prediction,
   overall = x$overall,
   text.pooled,
-  no = 1,
+  method.random.ci,
+  adhoc.hakn.ci,
+  method.predict,
+  adhoc.hakn.pi,
   cid = NULL,
   cid.below.null = NULL,
   cid.above.null = NULL,
@@ -44,8 +47,28 @@ reported.}
 \item{text.pooled}{A character string used in printouts and forest
 plots to label the pooled effect estimate.}
 
-\item{no}{A numeric specifying which meta-analysis results to
-consider.}
+\item{method.random.ci}{A character string selecting the method used
+to calculate confidence intervals and test statistics for the
+random effects estimate. Only methods available in the meta-analysis
+object can be selected. If omitted, the first available method is used.}
+
+\item{adhoc.hakn.ci}{A character string selecting the \emph{ad hoc}
+variance correction for the Hartung-Knapp method. Only settings
+available for the selected method in the meta-analysis object can
+be selected. If omitted, the first available setting for the selected
+method is used. For methods other than Hartung-Knapp, only \code{""}
+(no correction) is available.}
+
+\item{method.predict}{A character string indicating which method is
+used to calculate a prediction interval. Only methods available in the
+meta-analysis object can be selected. If omitted, the first available
+method is used.}
+
+\item{adhoc.hakn.pi}{A character string selecting the \emph{ad hoc}
+variance correction for the Hartung-Knapp method. Only settings
+available for the selected method in the meta-analysis object can
+be selected. If omitted, the first available setting for the selected
+method is used.}
 
 \item{cid}{A numeric value or vector specifying clinically important
 differences (CID) / decision thresholds used to calculate expected

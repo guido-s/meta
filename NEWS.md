@@ -1,3 +1,18 @@
+## meta, version 9.0-1 (2026-mm-dd)
+
+### User-visible changes
+
+* `metacum()`, `metainf()`: new arguments `method.random.ci`, `adhoc.hakn.ci`,
+  `method.predict`, and `adhoc.hakn.pi` to select among confidence- and
+  prediction-interval methods used in the original meta-analysis.
+  Argument `no` is now ignored with a warning.
+
+### Bug fixes
+
+* `metacum()`, `metainf()`: fix errors when the original meta-analysis
+  contains multiple random effects confidence- or prediction-interval
+  methods.
+
 ## meta, version 9.0-0 (2026-11-13)
 
 **The Voorhees Release**
@@ -460,7 +475,7 @@ Released on Friday the 13th, November 2026.
   retain their evaluation environments, improving argument forwarding through
   wrapper functions. Subgroup labels are derived from the captured expressions.
 
-* Use R package testthat for unit tests.
+* Use R package **testthat** for unit tests.
 
 * R package **testthat** added to Suggests.
 
