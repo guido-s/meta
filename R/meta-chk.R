@@ -306,11 +306,15 @@ chknull <- function(x, name = NULL, text = "Argument") {
 
 chknumeric <- function(x, min, max, zero = FALSE, length = 0,
                        name = NULL, integer = FALSE,
-                       NA.ok = TRUE, NULL.ok = TRUE) {
+                       NA.ok = TRUE, NULL.ok = TRUE,
+                       vector = FALSE) {
   # Check numeric variable
   #
   if (is.null(name))
     name <- deparse(substitute(x))
+  #
+  if (vector)
+    chkvector(x, name = name, NULL.ok = NULL.ok)
   #
   if (is.null(x)) {
     if (NULL.ok)
@@ -428,6 +432,23 @@ chknumeric_list <- function(x, min = list(), length = list(),
             name = paste0(name, ".", i))
     }
   }
+}
+
+chkvector <- function(x, name = NULL, NULL.ok = FALSE) {
+  if (is.null(x) && NULL.ok)
+    return(invisible(NULL))
+  #
+  if (is.null(name))
+    name <- deparse(substitute(x))
+  #
+  if (is.null(x) || !is.atomic(x) || !is.null(dim(x)))
+    stop("Argument '", name,
+         "' must be a vector (for example, numbers, text, or a factor).\n",
+         "An object of class '", paste(class(x), collapse = "/"),
+         "' was supplied.",
+         call. = FALSE)
+  #
+  invisible(NULL)
 }
 
 chkdeprecated <- function(x, new, old, warn = TRUE) {

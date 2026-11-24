@@ -5,9 +5,16 @@
 * `metacum()`, `metainf()`: new arguments `method.random.ci`, `adhoc.hakn.ci`,
   `method.predict`, and `adhoc.hakn.pi` to select among confidence- and
   prediction-interval methods used in the original meta-analysis.
-  Argument `no` is now ignored with a warning.
+  Argument `no` is now ignored with a warning; use the new method-selection
+  arguments instead.
 
 ### Bug fixes
+
+* `forest()`, `metacum()`, `metainf()`, `estimates.meta()`,
+  `print.summary.meta()`: fix sorting by data columns whose names match R
+  functions, such as `sortvar = order`. Invalid `sortvar` arguments, such as
+  functions, data frames, matrices, and lists, now produce more informative
+  error messages.
 
 * `metacum()`, `metainf()`: fix errors when the original meta-analysis
   contains multiple random effects confidence- or prediction-interval

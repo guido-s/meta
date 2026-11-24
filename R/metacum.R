@@ -238,16 +238,26 @@ metacum.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
   #
   tdist_predict <- !(method.predict %in% c("S", ""))
   #
-  error <- try(sortvar <- catch(enquo(sortvar), x), silent = TRUE)
-  if (inherits(error, "try-error")) {
+  error <- try(catch(enquo(sortvar), x), silent = TRUE)
+  #
+  sortvar.in.data <- inherits(error, "try-error") || is.function(error)
+  #
+  if (sortvar.in.data)
     sortvar <- catch(enquo(sortvar), x$data)
-    if (isCol(x$data, ".subset"))
-      sortvar <- sortvar[x$data$.subset]
-  }
+  else
+    sortvar <- error
+  #
+  chkvector(sortvar, NULL.ok = TRUE)
+  #
+  if (sortvar.in.data && isCol(x$data, ".subset"))
+    sortvar <- sortvar[x$data$.subset]
+  #
   sort <- !is.null(sortvar)
+  #
   if (sort && (length(sortvar) != k.all))
     stop("Number of studies in object 'x' and argument 'sortvar' ",
          "have different length.")
+  #
   if (!sort)
     sortvar <- seq_len(k.all)
   #
