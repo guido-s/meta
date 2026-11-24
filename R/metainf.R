@@ -814,7 +814,7 @@ metainf.meta <- function(x, pooled, sortvar, prediction, overall = x$overall,
   }
   #
   else if (pooled == "random") {
-    TE.pooled <- x$TE.random[idx.r]
+    TE.pooled <- if (length(x$TE.random) == 1) x$TE.random else x$TE.random[idx.r]
     seTE.pooled <- x$seTE.random[idx.r]
     df.random.pooled <- x$df.random[idx.r]
     lower.pooled <- x$lower.random[idx.r]

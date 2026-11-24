@@ -150,6 +150,21 @@ test_that("metacum selects existing CI and prediction specifications", {
   expect_identical(serialize(ma, NULL), original)
 })
 
+test_that("metacum retains the shared GLMM estimate when selecting a CI method", {
+  ma <- metaprop(c(10, 20, 30, 40, 50), rep(100, 5),
+                 method = "GLMM", common = FALSE,
+                 method.random.ci = c("classic", "HK"))
+  expect_length(ma$TE.random, 1L)
+
+  for (i in seq_along(ma$method.random.ci)) {
+    selected <- metacum(ma, method.random.ci = ma$method.random.ci[i])
+    expect_equal(unname(selected$TE.pooled), unname(ma$TE.random))
+    expect_equal(unname(selected$seTE.pooled), unname(ma$seTE.random[i]))
+    expect_equal(unname(selected$lower.pooled), unname(ma$lower.random[i]))
+    expect_equal(unname(selected$upper.pooled), unname(ma$upper.random[i]))
+  }
+})
+
 test_that("metacum defaults to the first available interval settings", {
   ma <- metagen(c(-0.8, 0.9, -0.4, 1.2, 0.3, 1.6),
                 c(0.12, 0.3, 0.18, 0.35, 0.22, 0.4),
