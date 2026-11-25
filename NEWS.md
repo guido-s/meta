@@ -10,6 +10,10 @@
 
 ### Bug fixes
 
+* `metagen()`: fix transformation of the default null effect when
+  `transf = FALSE`, which could produce infinite test statistics and
+  incorrect p-values for ratio summary measures such as odds ratios.
+
 * `forest()`, `metacum()`, `metainf()`, `estimates.meta()`,
   `print.summary.meta()`: fix sorting by data columns whose names match R
   functions, such as `sortvar = order`. Invalid `sortvar` arguments, such as

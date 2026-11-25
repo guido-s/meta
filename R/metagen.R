@@ -989,7 +989,8 @@ metagen <- function(TE, seTE, studlab,
     irscale <- 1
   }
   #
-  if (missing(null.effect)) {
+  missing.null.effect <- missing(null.effect)
+  if (missing.null.effect) {
     if (is_mean(sm) || is_prop(sm) || is_rate(sm))
       null.effect <- NA
     else
@@ -1295,7 +1296,7 @@ metagen <- function(TE, seTE, studlab,
   #
   # Transform null effect
   #
-  if (!transf) {
+  if (!transf && !missing.null.effect) {
     transf.null.effect <-
       transf(null.effect, sm, func = func.transf, args = args.transf, n = n.pft)
   }

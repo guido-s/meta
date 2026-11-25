@@ -66,3 +66,36 @@ test_that("metagen checks null effect for single-arm summary measures", {
                        transf = FALSE),
                "Argument 'null.effect'")
 })
+
+test_that("metagen does not transform the default analysis-scale null effect", {
+  ratio <- c(0.7, 1.2, 1.8, 1.1)
+  se <- c(0.2, 0.15, 0.3, 0.25)
+  lower <- exp(log(ratio) - qnorm(.975) * se)
+  upper <- exp(log(ratio) + qnorm(.975) * se)
+  fields <- c("TE", "seTE", "TE.common", "seTE.common", "TE.random",
+               "seTE.random", "null.effect", "statistic", "pval",
+               "statistic.common", "pval.common", "statistic.random", "pval.random")
+  for (sm in c("OR", "RR", "HR")) {
+    actual <- metagen(ratio, lower = lower, upper = upper, sm = sm,
+                       transf = FALSE, common = FALSE)
+    expected <- metagen(log(ratio), lower = log(lower), upper = log(upper),
+                         sm = sm, common = FALSE)
+    explicit <- metagen(ratio, lower = lower, upper = upper, sm = sm,
+                         transf = FALSE, null.effect = 1, common = FALSE)
+    expect_equal(actual[fields], expected[fields])
+    expect_equal(actual[fields], explicit[fields])
+    expect_identical(actual$null.effect, 0)
+    expect_equal(actual$statistic.common, actual$TE.common / actual$seTE.common)
+    expect_equal(actual$statistic.random, actual$TE.random / actual$seTE.random)
+    expect_true(all(is.finite(c(actual$statistic, actual$statistic.common,
+                                actual$statistic.random))))
+
+    nonstandard <- metagen(ratio, lower = lower, upper = upper, sm = sm,
+                            transf = FALSE, null.effect = 2)
+    expect_equal(nonstandard$null.effect, log(2))
+    expect_equal(nonstandard$statistic.random,
+                  (nonstandard$TE.random - log(2)) / nonstandard$seTE.random)
+    expect_equal(nonstandard$TE.random, actual$TE.random)
+    expect_equal(nonstandard$seTE.random, actual$seTE.random)
+  }
+})
