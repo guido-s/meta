@@ -11,7 +11,7 @@ catmeth_metabind <- function(x,
                              forest) {
   # Get rid of warning 'no visible binding for global variable'
   type <- method <- df <- id <- name <- func <- outclab <- title <- label.right <-
-    Q <- upper.Rb <- TE <- upper <- level.predict <-
+    TE <- upper <- level.predict <-
     method.interval <- method.incr <- NULL
   
   #
@@ -94,10 +94,15 @@ catmeth_metabind <- function(x,
   if (prediction)
     predict$interval.slot <- NULL
   #
+  het.cols <- c("Q", "df.Q", "pval.Q",
+                 "tau2", "lower.tau2", "upper.tau2", "se.tau2",
+                 "tau", "lower.tau", "upper.tau",
+                 "H", "lower.H", "upper.H", "I2", "lower.I2", "upper.I2",
+                 "Rb", "lower.Rb", "upper.Rb")
   ids <- unique(c(results$id, predict$id))
   overall <- x$overall %>%
     filter(id %in% ids) %>%
-    select(-name, -outclab, -(title:label.right), -(Q:upper.Rb))
+    select(-name, -outclab, -(title:label.right), -any_of(het.cols))
   #
   overall$n <- NULL
   overall$n.e <- NULL
@@ -120,7 +125,7 @@ catmeth_metabind <- function(x,
   if (common_or_random) {
     meth <- results %>%
       select(-id, -text, -(TE:upper), -outclab,
-             -name, -(title:label.right), -(Q:upper.Rb),
+             -name, -(title:label.right), -any_of(het.cols),
              -common, -random, -prediction, -level.predict) %>%
       unique()
     #

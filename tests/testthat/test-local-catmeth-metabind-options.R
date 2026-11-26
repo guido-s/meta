@@ -59,3 +59,24 @@ test_that("method details use list precisions without modifying caller options",
   expect_identical(flags, original.flags)
   expect_identical(precision, original.precision)
 })
+
+test_that("bound proportion analyses print method details without Rb columns", {
+  mp2e <- metaprop(Ee, Ne, data = Quan2000, studlab = study, common = FALSE)
+  mp2c <- metaprop(Ec, Nc, data = Quan2000, studlab = study, common = FALSE)
+  mb <- metabind(mp2e, mp2c, name = c("Experimental", "Control"))
+  expect_false("upper.Rb" %in% names(mb$overall))
+
+  expect_silent(output <- capture.output(print(
+    mb, digits.tau2 = 2, digits.tau = 2, digits.Q = 1, digits.I2 = 0)))
+  expect_true(any(grepl("Experimental", output, fixed = TRUE)))
+  expect_true(any(grepl("Control", output, fixed = TRUE)))
+  expect_true(any(grepl("Details of meta-analysis methods:", output, fixed = TRUE)))
+  expect_true(any(grepl("single proportions", output, fixed = TRUE)))
+  expect_silent(summary.output <- capture.output(print(summary(mb))))
+  expect_true(any(grepl("Details of meta-analysis methods:", summary.output,
+                        fixed = TRUE)))
+
+  grDevices::pdf(NULL, width = 16, height = 12)
+  on.exit(grDevices::dev.off())
+  expect_silent(forest(mb, details = TRUE))
+})

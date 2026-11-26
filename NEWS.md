@@ -25,6 +25,10 @@
   contains multiple random effects confidence- or prediction-interval
   methods.
 
+* `metabind()`: fix errors when printing method details for combined
+  meta-analyses without Rb heterogeneity statistics, including proportion
+  meta-analyses. The fix also applies to summaries and forest plots.
+
 * `forest.meta()`: fix repeated favour labels when the left and right labels
   below the plot contain different numbers of lines.
 
