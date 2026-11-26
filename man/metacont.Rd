@@ -216,8 +216,8 @@ deviation in the experimental group (\code{sd.e}), can be
 abbreviated.}
 
 \item{exact.smd}{A logical indicating whether exact formulae should
-be used in estimation of the standardised mean difference and its
-standard error (see Details).}
+be used for Hedges' g and Cohen's d in estimation of the standardised
+mean difference and its standard error (see Details).}
 
 \item{common}{A logical indicating whether a common effect
 meta-analysis should be conducted.}
@@ -441,21 +441,28 @@ For the standardised mean difference three methods are implemented:
 \item Glass' delta (\code{method.smd = "Glass"}) - see Glass (1976)
 }
 
-Hedges (1981) calculated the exact bias in Cohen's d which is a
-ratio of gamma distributions with the degrees of freedom,
-i.e. total sample size minus two, as parameter. In the 1980s and 1990s, the
-gamma distribution was not easily accessible in statistical software.
-Accordingly, an accurate approximation of the exact bias, also provided in
-Hedges (1981), was utilised for Hedges' g and its standard error in software
-like RevMan 5. White and Thomas (2005) argued that approximations are
-unnecessary with modern software and accordingly promoted to use the exact
-formulae which is the default in R function metacont
-(argument \code{exact.smd = TRUE}). For Hedges' g, the exact formulae are
-used to calculate the standardised mean difference as well as the standard
-error; for Cohen's d the exact formula is only used to calculate the standard
-error. In typical applications (with sample sizes above 10), the differences
-between using the exact formulae (\code{exact.smd = TRUE}) and the
-approximation (\code{exact.smd = FALSE}) will be minimal.
+Hedges (1981) derived an exact bias correction for Cohen's d involving
+a ratio of gamma functions, with degrees of freedom equal to the total
+sample size minus two. In the 1980s, the gamma function was not readily
+available in statistical software. Consequently, an accurate approximation of
+the exact bias correction, also provided by Hedges (1981), was commonly
+used to calculate Hedges' g and its standard error in software such
+as RevMan 5. White and Thomas (2005) argued that approximations are
+unnecessary with modern software and advocated using the exact formulae.
+These are the default for Hedges' g and Cohen's d in \code{metacont()}
+(argument \code{exact.smd = TRUE}). In typical applications with sample sizes
+above 10, differences between the exact formulae (\code{exact.smd = TRUE})
+and the approximations (\code{exact.smd = FALSE}) will be minimal.
+
+For Hedges' g, the exact formulae are used to calculate both the
+standardised mean difference and its standard error. For Cohen's d,
+only the standard error is affected. An exact formula is not implemented
+for Glass' delta.
+
+Argument \code{exact.smd} must be \code{TRUE} or \code{FALSE} for
+Hedges' g and Cohen's d. For Glass' delta, it is set to \code{NA};
+explicitly supplying a value other than \code{NA} produces a warning,
+and the supplied value is ignored.
 
 For Glass' delta, by default (argument \code{sd.glass =
 "control"}), the standard deviation in the control group

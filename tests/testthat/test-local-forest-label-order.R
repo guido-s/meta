@@ -129,3 +129,34 @@ test_that("short heading vectors label additional columns on either side", {
     }
   }
 })
+
+test_that("unequal multiline favour labels are padded rather than repeated", {
+  cases <- list(list(left = c("A", "B"), right = "C"),
+                 list(left = "A", right = c("B", "C")),
+                 list(left = c("A", "B", "C"), right = c("D", "E")),
+                 list(left = character(), right = c("C", "D")),
+                 list(left = c("A", "B"), right = character()),
+                 list(left = "A", right = "B"))
+  for (options in list(list(layout = "meta", bottom.lr = TRUE),
+                        list(layout = "BMJ", bottom.lr = TRUE),
+                        list(layout = "meta", bottom.lr = FALSE))) {
+    for (labels in cases) {
+      x <- metagen(1:3, 3:1, label.left = paste(labels$left, collapse = "\n"),
+                    label.right = paste(labels$right, collapse = "\n"))
+      drawn <- do.call(forest_label_plot, c(list(x = x), options))
+      rows <- max(length(labels$left), length(labels$right))
+      for (side in c("left", "right")) {
+        grob <- drawn$args[[paste0("grob.label.", side)]]
+        actual <- vapply(grob$labels, function(z) z$label, character(1))
+        expected <- labels[[side]]
+        if (options$bottom.lr)
+          expected <- c(expected, rep("", rows - length(expected)))
+        expect_identical(actual, expected)
+        expect_length(grob$rows, length(expected))
+      }
+      if (options$bottom.lr)
+        expect_identical(drawn$args$grob.label.left$rows,
+                         drawn$args$grob.label.right$rows)
+    }
+  }
+})

@@ -8,21 +8,31 @@
   Argument `no` is now ignored with a warning; use the new method-selection
   arguments instead.
 
+* `metacont()`: explicitly supplying a non-`NA` value for `exact.smd` now
+  produces a warning when `method.smd = "Glass"`, for which the argument
+  is not applicable. Inherited settings in `update()` are handled without
+  a warning; switching from Glass' delta to Hedges' g or Cohen's d uses
+  the session default `gs("exact.smd")` unless `exact.smd` is explicitly
+  supplied.
+
 ### Bug fixes
 
 * `metagen()`: fix transformation of the default null effect when
   `transf = FALSE`, which could produce infinite test statistics and
   incorrect p-values for ratio summary measures such as odds ratios.
 
-* `forest()`, `metacum()`, `metainf()`, `estimates.meta()`,
+* `metacum()`, `metainf()`: fix errors when the original meta-analysis
+  contains multiple random effects confidence- or prediction-interval
+  methods.
+
+* `forest.meta()`: fix repeated favour labels when the left and right labels
+  below the plot contain different numbers of lines.
+
+* `forest.meta()`, `metacum()`, `metainf()`, `estimates.meta()`,
   `print.summary.meta()`: fix sorting by data columns whose names match R
   functions, such as `sortvar = order`. Invalid `sortvar` arguments, such as
   functions, data frames, matrices, and lists, now produce more informative
   error messages.
-
-* `metacum()`, `metainf()`: fix errors when the original meta-analysis
-  contains multiple random effects confidence- or prediction-interval
-  methods.
 
 ## meta, version 9.0-0 (2026-11-13)
 

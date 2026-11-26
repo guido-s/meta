@@ -1449,6 +1449,19 @@ update.meta <- function(object,
       sd.c <-
         setNA_ifnot(object$data$.sd.c, object$data$.approx.sd.c, "")
     #
+    sm <- setchar(sm, gs("sm4cont"))
+    #
+    method.smd <-
+      setchar(replaceVal(method.smd, "", gs("method.smd")),
+              c("Hedges", "Cohen", "Glass"))
+    #
+    if (missing(exact.smd)) {
+      if (sm != "SMD" || method.smd == "Glass")
+        exact.smd <- NA
+      else
+        exact.smd <- replaceNA(exact.smd, gs("exact.smd"))
+    }
+    #
     m <- metacont(n.e = object$data$.n.e,
                   mean.e = object$data$.mean.e,
                   sd.e = object$data$.sd.e,
@@ -1488,9 +1501,9 @@ update.meta <- function(object,
                   #
                   sm = sm,
                   pooledvar = replaceNA(pooledvar, gs("pooledvar")),
-                  method.smd = replaceVal(method.smd, "", gs("method.smd")),
+                  method.smd = method.smd,
                   sd.glass = replaceVal(sd.glass, "", gs("sd.glass")),
-                  exact.smd = replaceNA(exact.smd, gs("exact.smd")),
+                  exact.smd = exact.smd,
                   #
                   method.ci = replaceNULL(method.ci, gs("method.ci.cont")),
                   level = level, level.ma = level.ma,

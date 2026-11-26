@@ -10316,11 +10316,9 @@ forest.meta <- function(x,
   }
   else if (bottom.lr && print.label && !is.na(ref)) {
     bottom.lines.left <-
-      if (length(lines.label.left) == 0) rep("", rows.bottom.lr) else
-        rep_len(lines.label.left, rows.bottom.lr)
+      c(lines.label.left, rep("", rows.bottom.lr - length(lines.label.left)))
     bottom.lines.right <-
-      if (length(lines.label.right) == 0) rep("", rows.bottom.lr) else
-        rep_len(lines.label.right, rows.bottom.lr)
+      c(lines.label.right, rep("", rows.bottom.lr - length(lines.label.right)))
     grob.label.left <-
       tgl(bottom.lines.left,
           if (bmj)
