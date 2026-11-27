@@ -51,68 +51,75 @@
 #' for funnel plot asymmetry.
 #'
 #' \subsection{Classic generic tests}{
-#' The following tests are generic tests for funnel plot asymmetry
-#' which only require estimates of the treatment effect and
-#' corresponding standard errors. Accordingly, these are the only
-#' tests provided by R function \code{metabias.default}.
-#' 
+#' The following tests for funnel plot asymmetry require only treatment
+#' effect estimates and their standard errors. Accordingly, these are
+#' the only tests available through \code{metabias.default}.
+#'
 #' If argument \code{method.bias} is \code{"Begg"}, the test statistic
 #' is based on the rank correlation between standardised treatment
-#' estimates and variance estimates of estimated treatment effects;
-#' Kendall's tau is used as correlation measure (Begg & Mazumdar,
-#' 1994). The test statistic follows a standard normal
-#' distribution. By default (if \code{correct} is FALSE), no
-#' continuity correction is utilised (Kendall & Gibbons, 1990).
-#' 
+#' effect estimates and the variances of the treatment effect estimates.
+#' Kendall's tau is used as the correlation measure (Begg & Mazumdar,
+#' 1994). The test statistic is compared with a standard normal
+#' distribution. By default (\code{correct = FALSE}), no continuity
+#' correction is applied (Kendall & Gibbons, 1990).
+#'
 #' If argument \code{method.bias} is \code{"Egger"}, the test
 #' statistic is based on a weighted linear regression of the treatment
-#' effect on its standard error (Egger et al., 1997). The test
-#' statistic follows a t distribution with \code{number of studies -
-#' 2} degrees of freedom.
-#' 
-#' If argument \code{method.bias} is \code{"Thompson"}, the test
-#' statistic is based on a weighted linear regression of the treatment
-#' effect on its standard error using an additive between-study
-#' variance component denoted as methods (3a) - (3d) in Thompson &
-#' Sharp (1999). The test statistic follows a t distribution with
-#' \code{number of studies - 2} degrees of freedom.  }
+#' effect estimates on their standard errors, using inverse-variance
+#' weights (Egger et al., 1997).
+#'
+#' If argument \code{method.bias} is \code{"Thompson"}, the regression
+#' also uses the standard errors as predictor, but the weights incorporate
+#' an additive between-study variance component, as in methods
+#' (3a)--(3d) of Thompson & Sharp (1999).
+#'
+#' For both regression tests, the test statistic for the slope is
+#' compared with a t distribution with \code{number of studies - 2}
+#' degrees of freedom.
+#' }
 #' 
 #' \subsection{Tests for meta-analysis with binary outcomes}{
 #' The following tests for funnel plot asymmetry are only available
-#' for meta-analyses comparing two binary outcomes, i.e. meta-analyses
-#' generated with the \code{metabin} function. The only exception is
-#' the test by Peters et al. (2006) which can also be used in a
-#' meta-analysis of single proportions generated with \code{metaprop}.
-#' 
+#' for meta-analyses comparing two groups with binary outcomes, i.e.,
+#' meta-analyses generated with \code{\link{metabin}}. The exceptions are
+#' the tests by Macaskill et al. (2001) and Peters et al. (2006), which
+#' can also be used in meta-analyses of single proportions generated
+#' with \code{\link{metaprop}}.
+#'
 #' If argument \code{method.bias} is \code{"Harbord"}, the test
 #' statistic is based on a weighted linear regression utilising the
-#' efficient score and the score variance (Harbord et al., 2006,
-#' 2009). The test statistic follows a t distribution with
-#' \code{number of studies - 2} degrees of freedom.
-#' 
-#' In order to calculate an arcsine test for funnel plot asymmetry
-#' (Rücker et al., 2008), one has to use the \code{metabin} function
-#' with argument \code{sm = "ASD"} as input to the \code{metabias}
-#' command. The three arcsine tests described in Rücker et al. (2008)
-#' can be calculated by setting \code{method.bias} to \code{"Begg"},
-#' \code{"Egger"} and \code{"Thompson"}, respectively.
-#' 
+#' efficient score and the score variance (Harbord et al., 2006, 2009).
+#'
 #' If argument \code{method.bias} is \code{"Macaskill"}, the test
 #' statistic is based on a weighted linear regression of the treatment
-#' effect on the total sample size with weights reciprocal to the
-#' variance of the average event probability (Macaskill et al., 2001,
-#' \emph{method FPV}). The test statistic follows a t distribution
-#' with \code{number of studies - 2} degrees of freedom.
-#' 
-#' If argument \code{method.bias} is \code{"Peters"}, the test
-#' statistic is based on a weighted linear regression of the treatment
-#' effect on the inverse of the total sample size with weights
-#' reciprocal to the variance of the average event probability (Peters
-#' et al., 2006). The test statistic follows a t distribution with
-#' \code{number of studies - 2} degrees of freedom. Note, this test is
-#' a variant of Macaskill et al. (2001), \emph{method FPV}, using the
-#' inverse sample size as covariate.
-#' 
+#' effect on the total sample size. The weights are
+#' \eqn{(1/events + 1/(n-events))^{-1}}, where \eqn{events} is the total
+#' number of events and \eqn{n} is the total sample size of a study.
+#' This is the FPV method described by Macaskill et al. (2001).
+#'
+#' If argument \code{method.bias} is \code{"Peters"}, the same weights
+#' are used, but the predictor is the inverse of the total sample size
+#' (Peters et al., 2006).
+#'
+#' For meta-analyses of diagnostic test accuracy studies, setting
+#' \code{method.bias = "Deeks"} gives a test based on a weighted linear
+#' regression of the log diagnostic odds ratio on the inverse square
+#' root of the effective sample size, using the effective sample size
+#' as weights (Deeks et al., 2005).
+#'
+#' For these four regression tests, the test statistic for the slope
+#' is compared with a t distribution with \code{number of studies - 2}
+#' degrees of freedom.
+#'
+#' Arcsine tests for funnel plot asymmetry (Rücker et al., 2008) can
+#' be calculated by supplying a meta-analysis generated with
+#' \code{metabin(..., sm = "ASD")} to \code{metabias}. These tests apply
+#' the rank correlation method of Begg and Mazumdar or the regression
+#' methods of Egger et al. and Thompson and Sharp to the arcsine
+#' difference and its standard error. Select them using
+#' \code{method.bias = "Begg"}, \code{"Egger"}, or \code{"Thompson"},
+#' respectively.
+#'
 #' If argument \code{method.bias} is \code{"Schwarzer"}, the test
 #' statistic is based on the rank correlation between a standardised
 #' cell frequency and the inverse of the variance of the cell
@@ -120,14 +127,6 @@
 #' et al., 2007). The test statistic follows a standard normal
 #' distribution. By default (if \code{correct} is FALSE), no
 #' continuity correction is utilised (Kendall & Gibbons, 1990).
-#' 
-#' Finally, for meta-analysis of diagnostic test accuracy studies, if
-#' argument \code{method.bias} is \code{"Deeks"}, the test statistic
-#' is based on a weighted linear regression of the log diagnostic odds
-#' ratio on the inverse of the squared effective sample size using the
-#' effective sample size as weights (Deeks et al., 2005). The test
-#' statistic follows a t distribution with \code{number of studies -
-#' 2} degrees of freedom.
 #' }
 #'
 #' \subsection{Test for the standardised mean difference}{
@@ -420,14 +419,16 @@ metabias.meta <- function(x, method.bias = x$method.bias,
   TE <- TE[sel]
   seTE <- seTE[sel]
   #
-  if (inherits(x, c("metabin", "metacont"))) {
+  if (inherits(x, "metabin")) {
     n.e <- n.e[sel]
     n.c <- n.c[sel]
-  }
-  #
-  if (inherits(x, "metabin")) {
+    #
     event.e <- event.e[sel]
     event.c <- event.c[sel]
+  }
+  else if (inherits(x, "metaprop")) {
+    n <- n[sel]
+    event <- event[sel]
   }
   #
   k <- length(TE)
@@ -446,12 +447,12 @@ metabias.meta <- function(x, method.bias = x$method.bias,
     #
     # Check whether standard errors differ
     #
-    if (method.bias %in% c("Begg", "Egger", "Thompson",
-                           "Macaskill", "Pustejovsky"))
+    if (method.bias %in% c("Begg", "Egger", "Thompson", "Pustejovsky")) {
       if (length(unique(seTE)) == 1)
         stop("Test for small-study effects not feasible as ",
              "all studies have the same precision.",
              call. = FALSE)
+    }
     #
     # (a) Rank correlation tests
     #
@@ -557,42 +558,28 @@ metabias.meta <- function(x, method.bias = x$method.bias,
         else
           stoponly("method.bias", method.bias, "metabin()")
       }
-      else if (method.bias == "Macaskill") {
+      else if (method.bias %in% c("Macaskill", "Peters")) {
         #
         # Macaskill et al. (2001), Stat Med
         #
-        if (inherits(x, "metabin") || inherits(x, "metacont"))
-          covar <- n.e + n.c
-        else if (length(n.e) > 0 & length(n.c) > 0)
-          covar <- n.e + n.c
-        else if (inherits(x, "metaprop"))
-          covar <- n
-        else if (length(n.e) > 0)
-          covar <- n.e
-        else if (length(n.c) > 0)
-          covar <- n.c
-        else
-          stop("No information on sample size available.")
-        #
-        lreg <- linregcore(TE, seTE, covar, ...)
-      }
-      else if (method.bias == "Peters") {
-        #
-        # Peters et al. (2006), JAMA
-        #
         if (inherits(x, "metabin")) {
-          seTE.Peters <- sqrt(1 / (event.e + event.c) +
-                              1 / (n.e - event.e + n.c - event.c))
-          covar <- 1 / (n.e + n.c)
+          seTE.weight <- sqrt(1 / (event.e + event.c) +
+                                1 / (n.e - event.e + n.c - event.c))
+          covar <- n.e + n.c
         }
         else if (inherits(x, "metaprop")) {
-          seTE.Peters <- sqrt(1 / event + 1 / (n - event))
-          covar <- 1 / n
+          seTE.weight <- sqrt(1 / event + 1 / (n - event))
+          covar <- n
         }
         else
           stoponly("method.bias", method.bias, "metabin() or metaprop()")
         #
-        lreg <- linregcore(TE, seTE.Peters, covar, ...)
+        # Peters et al. (2006), JAMA
+        #
+        if (method.bias == "Peters")
+          covar <- 1 / covar
+        #
+        lreg <- linregcore(TE, seTE.weight, covar, ...)
       }
       else if (method.bias == "Deeks") {
         #
@@ -877,10 +864,8 @@ print.metabias <- function(x,
           detail.weights <- "inverse variance"
         else if (x$method.bias == "Harbord")
           detail.weights <- "inverse variance of score"
-        else if (x$method.bias == "Macaskill")
-          detail.weights <- "inverse variance of average event probability"
-        else if (x$method.bias == "Peters")
-          detail.weights <- "inverse variance of average event probability"
+        else if (x$method.bias %in% c("Macaskill", "Peters"))
+          detail.weights <- "inverse variance based on pooled event counts"
         else if (x$method.bias == "Deeks")
           detail.weights <- "effective sample size"
         else if (x$method.bias == "Pustejovsky")

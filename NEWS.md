@@ -17,6 +17,15 @@
 
 ### Bug fixes
 
+* `metabias()`: correct the weights for the Macaskill test to implement the
+  documented FPV method rather than inverse-variance weighting (FIV method).
+  The test is now restricted to `metabin()` and `metaprop()` objects and no
+  longer rejects studies solely because their standard errors are equal.
+
+  In meta-analyses of single proportions, correctly drop event counts and
+  sample sizes for studies with missing study estimates in the Macaskill and
+  Peters tests.
+
 * `metagen()`: fix transformation of the default null effect when
   `transf = FALSE`, which could produce infinite test statistics and
   incorrect p-values for ratio summary measures such as odds ratios.
