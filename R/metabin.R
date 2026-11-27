@@ -1949,7 +1949,8 @@ metabin <- function(event.e, n.e, event.c, n.c, studlab,
   #
   #
 
-  k <- sum(!is.na(event.e[!exclude]) & !is.na(event.c[!exclude]) &
+  k <- sum(incl[!exclude] == 1 &
+           !is.na(event.e[!exclude]) & !is.na(event.c[!exclude]) &
            !is.na(n.e[!exclude]) & !is.na(n.c[!exclude]))
   #
   for (i in seq_along(method.random.ci))
